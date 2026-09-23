@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
@@ -131,6 +132,7 @@ use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetStorage;
 use Shopware\Core\System\Snippet\Filter\AddedFilter;
 use Shopware\Core\System\Snippet\Filter\AuthorFilter;
 use Shopware\Core\System\Snippet\Filter\EditedFilter;
@@ -213,6 +215,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(Connection::class)
         ->public()
         ->factory([Kernel::class, 'getConnection']);
+
+    $services->set(ReplicaConnectionResetter::class)
+        ->public()
+        ->args([service(Connection::class)])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(QueryDataBagResolver::class)
         ->tag('controller.argument_value_resolver', ['priority' => 1000]);
@@ -508,8 +515,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationConfig::class),
             service(TranslationLoader::class),
             service('shopware.filesystem.translation'),
-            service(SourceResolver::class),
-            service('logger'),
+            service(StorefrontSnippetStorage::class),
         ]);
 
     $services->set(AppSnippetFileLoader::class)

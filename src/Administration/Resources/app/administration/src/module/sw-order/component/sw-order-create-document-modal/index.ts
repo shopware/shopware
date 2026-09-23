@@ -13,10 +13,7 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'documentV2Service',
-        'numberRangeService',
-    ],
+    inject: ['documentV2Service', 'numberRangeService'],
 
     emits: [
         'document-create',

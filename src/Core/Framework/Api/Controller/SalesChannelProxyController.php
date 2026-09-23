@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -115,6 +117,13 @@ class SalesChannelProxyController extends AbstractController
         $this->fetchSalesChannel($salesChannelId, $context);
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
+
+        if ($request->request->get('sendOrderConfirmationMail', true) === false) {
+            $salesChannelContext->getContext()->addExtension(
+                SendMailAction::MAIL_CONFIG_EXTENSION,
+                new MailSendSubscriberConfig(true)
+            );
+        }
 
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 

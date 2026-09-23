@@ -10,15 +10,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'importExport',
-    ],
+    inject: ['repositoryFactory', 'importExport'],
 
-    emits: [
-        'next-disable',
-        'next-allow',
-    ],
+    emits: ['next-disable', 'next-allow'],
 
     mixins: [Mixin.getByName('notification')],
 

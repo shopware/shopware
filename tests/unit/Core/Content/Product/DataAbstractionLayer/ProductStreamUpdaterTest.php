@@ -216,8 +216,8 @@ class ProductStreamUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn(current(array_column($filters, 'api_filter')));
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => current(array_column($filters, 'api_filter'))]);
 
         $connection
             ->expects($this->once())
@@ -284,8 +284,8 @@ class ProductStreamUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn($filters);
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
 
         $connection
             ->expects($this->once())
@@ -347,8 +347,8 @@ class ProductStreamUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn($filters);
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
 
         $oldMatches = [Uuid::randomHex(), Uuid::randomHex()];
         $connection

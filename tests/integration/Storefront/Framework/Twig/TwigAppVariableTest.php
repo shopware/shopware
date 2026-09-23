@@ -30,7 +30,7 @@ class TwigAppVariableTest extends TestCase
     {
         $orgRequest = new Request();
 
-        $appVariable = $this->createMock(AppVariable::class);
+        $appVariable = static::createStub(AppVariable::class);
         $appVariable->method('getRequest')->willReturn($orgRequest);
 
         $app = new TwigAppVariable($appVariable);
@@ -44,7 +44,7 @@ class TwigAppVariableTest extends TestCase
         $orgRequest->server->set('good', '1');
         $orgRequest->server->set('bad', '1');
 
-        $appVariable = $this->createMock(AppVariable::class);
+        $appVariable = static::createStub(AppVariable::class);
         $appVariable->method('getRequest')->willReturn($orgRequest);
 
         $app = new TwigAppVariable($appVariable, ['good']);
@@ -67,7 +67,7 @@ class TwigAppVariableTest extends TestCase
 
         static::assertTrue($orgRequest->isSecure());
 
-        $appVariable = $this->createMock(AppVariable::class);
+        $appVariable = static::createStub(AppVariable::class);
         $appVariable->method('getRequest')->willReturn($orgRequest);
 
         $app = new TwigAppVariable($appVariable, static::getContainer()->getParameter('shopware.twig.app_variable.allowed_server_params'));

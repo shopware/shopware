@@ -11,16 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing'), Mixin.getByName('placeholder')],
 
     data() {
         return {
@@ -154,10 +147,7 @@ export default {
 
         invalidateNumberRangeCaches() {
             Shopware.Service('cacheService').invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'number-range-ids',
-                ],
+                cacheKey: ['shared-data', 'number-range-ids'],
             });
         },
     },

@@ -36,18 +36,16 @@ class SalesChannelFileApiService extends ApiService {
             });
     }
 
-    preview(fileFamily, salesChannelId, fileName, templateOverrides = {}) {
+    preview(fileFamily, salesChannelId, fileName, templateOverrides) {
+        const data = { fileName };
+        if (templateOverrides !== undefined) {
+            data.templateOverrides = templateOverrides;
+        }
+
         return this.httpClient
-            .post(
-                `/_action/${this.getApiBasePath()}/${fileFamily}/${salesChannelId}/preview`,
-                {
-                    fileName,
-                    templateOverrides,
-                },
-                {
-                    headers: this.getBasicHeaders(),
-                },
-            )
+            .post(`/_action/${this.getApiBasePath()}/${fileFamily}/${salesChannelId}/preview`, data, {
+                headers: this.getBasicHeaders(),
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

@@ -23,15 +23,9 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
-    emits: [
-        'update:entityCollection',
-        'paginate',
-    ],
+    emits: ['update:entityCollection', 'paginate'],
 
     props: {
         columns: {
@@ -388,10 +382,7 @@ export default {
                     return Criteria.contains(field, criteria.term);
                 });
 
-                criteria.filters = [
-                    ...this.criteria.filters,
-                    Criteria.multi('OR', containsFilter),
-                ];
+                criteria.filters = [...this.criteria.filters, Criteria.multi('OR', containsFilter)];
                 criteria.term = null;
             }
         },

@@ -14,6 +14,9 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -166,6 +169,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            static::createStub(EntityRepository::class),
         );
 
         $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
@@ -269,6 +273,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            static::createStub(EntityRepository::class),
         );
 
         $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
@@ -372,10 +377,95 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            static::createStub(EntityRepository::class),
         );
 
         $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
         static::assertSame($customer, $generatedContext->getCustomer());
+    }
+
+    public function testOrderShippingAddressTakesPrecedenceOverTheCustomerShippingAddress(): void
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+        $customer->setActive(true);
+        $customer->setDefaultBillingAddressId(Uuid::randomHex());
+        $customer->setDefaultShippingAddressId(Uuid::randomHex());
+        $customer->setGroupId(Uuid::randomHex());
+
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setFactor(1);
+
+        $billingAddress = new CustomerAddressEntity();
+        $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $shippingAddress = new CustomerAddressEntity();
+        $shippingAddress->setId($customer->getDefaultShippingAddressId());
+        $shippingAddress->setCountry($country);
+
+        $orderShippingAddress = new OrderAddressEntity();
+        $orderShippingAddress->setId(Uuid::randomHex());
+        $orderShippingAddress->setFirstName('Max');
+        $orderShippingAddress->setLastName('Mustermann');
+        $orderShippingAddress->setStreet('Ebbinghoff 10');
+        $orderShippingAddress->setZipcode('48624');
+        $orderShippingAddress->setCity('Schöppingen');
+        $orderShippingAddress->setCountryId($country->getId());
+        $orderShippingAddress->setCountry($country);
+
+        $baseContext = new BaseSalesChannelContext(
+            Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
+            $salesChannel,
+            $currency,
+            new CustomerGroupEntity(),
+            new TaxCollection(),
+            new PaymentMethodEntity(),
+            new ShippingMethodEntity(),
+            new ShippingLocation($country, null, null),
+            new CashRoundingConfig(2, 0.01, true),
+            new CashRoundingConfig(2, 0.01, true),
+            Generator::createLanguageInfo(),
+            MeasurementUnits::createDefaultUnits()
+        );
+
+        $options = [
+            SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
+            SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID => $orderShippingAddress->getId(),
+        ];
+
+        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
+        $baseSalesChannelContextFactory
+            ->expects($this->once())
+            ->method('create')
+            ->with($salesChannel->getId(), $options)
+            ->willReturn($baseContext);
+
+        $factory = new SalesChannelContextFactory(
+            new StaticEntityRepository([new CustomerCollection([$customer])], new CustomerDefinition()),
+            static::createStub(EntityRepository::class),
+            new StaticEntityRepository([new CustomerAddressCollection([$billingAddress, $shippingAddress])], new CustomerAddressDefinition()),
+            static::createStub(EntityRepository::class),
+            static::createStub(TaxDetector::class),
+            [],
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(EntityRepository::class),
+            $baseSalesChannelContextFactory,
+            new StaticEntityRepository([new OrderAddressCollection([$orderShippingAddress])], new OrderAddressDefinition()),
+        );
+
+        $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
+
+        $shippingLocationAddress = $generatedContext->getShippingLocation()->getAddress();
+        static::assertNotNull($shippingLocationAddress);
+        static::assertSame($orderShippingAddress->getId(), $shippingLocationAddress->getId());
+        static::assertSame('48624', $shippingLocationAddress->getZipcode());
+        static::assertSame($country, $generatedContext->getShippingLocation()->getCountry());
+        static::assertSame($shippingAddress, $generatedContext->getCustomer()?->getActiveShippingAddress());
     }
 
     /**
@@ -489,6 +579,7 @@ class SalesChannelContextFactoryTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(EntityRepository::class),
             $baseSalesChannelContextFactory,
+            static::createStub(EntityRepository::class),
         );
 
         $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);

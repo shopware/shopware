@@ -64,6 +64,9 @@ class MySQLFactory
                 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)',
                 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
             ];
+            if (isset($parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND])) {
+                array_unshift($initCommands, $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND]);
+            }
             $parameters['driverOptions'][Mysql::ATTR_INIT_COMMAND] = \implode(';', $initCommands);
         }
 

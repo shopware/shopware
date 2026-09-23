@@ -133,6 +133,25 @@ class MySQLFactoryTest extends TestCase
         static::assertArrayHasKey(Mysql::ATTR_INIT_COMMAND, $params['driverOptions']);
     }
 
+    public function testCustomInitCommandIsCombinedWithDefaultSessionVariables(): void
+    {
+        $customInitCommand = 'SET @custom_variable = 1';
+        $this->setEnvVars([
+            'DATABASE_URL' => \sprintf(
+                'mysql://localhost:3306/shopware?driverOptions[%d]=%s',
+                Mysql::ATTR_INIT_COMMAND,
+                urlencode($customInitCommand)
+            ),
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertSame(
+            $customInitCommand . ';SET @@session.time_zone = \'+00:00\';SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED);SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
+            $params['driverOptions'][Mysql::ATTR_INIT_COMMAND]
+        );
+    }
+
     public function testDefaultSessionVariablesCanBeSkipped(): void
     {
         $this->setEnvVars([

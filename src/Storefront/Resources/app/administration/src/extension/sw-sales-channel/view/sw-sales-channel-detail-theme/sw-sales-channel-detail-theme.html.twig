@@ -33,7 +33,19 @@
 
                 {% block sw_sales_channel_detail_theme_info_name %}
                 <div class="sw-sales-channel-detail-theme__info-name" :class="{ 'is--empty': !theme }">
-                    {{ theme ? theme.name : $t('sales-channel-theme.defaultTitle') }}
+                    <span class="sw-sales-channel-detail-theme__info-name-text">
+                        {{ theme ? theme.name : $t('sales-channel-theme.defaultTitle') }}
+                    </span>
+
+                    {% block sw_sales_channel_detail_theme_info_name_pending %}
+                    <span
+                        v-if="pendingTheme"
+                        v-tooltip="{ message: pendingTooltip, width: 300 }"
+                        class="sw-sales-channel-detail-theme__info-pending"
+                    >
+                        <mt-loader size="16px" />
+                    </span>
+                    {% endblock %}
                 </div>
                 {% endblock %}
 

@@ -3,7 +3,7 @@
     {% block sw_order_detail_documents_card %}
     {# TODO: Replace this temporary banner with MtTabs item tooltip metadata once Meteor supports badge/disabled tab tooltips (https://github.com/shopware/meteor/issues/1182). Only shown on the mt-tabs path; the legacy sw-tabs path still has the tab tooltip. #}
     <mt-banner
-        v-if="isEditing && feature.isActive('v6.8.0.0')"
+        v-if="isEditing && isV68Active"
         class="sw-order-detail-documents__save-warning"
         variant="attention"
     >

@@ -273,6 +273,7 @@ class SearchKeywordUpdaterTest extends TestCase
         $product = new ProductEntity();
         $product->setUniqueIdentifier($id);
         $product->setId($id);
+        $product->setAutoIncrement(1);
         $product->setParentId($parentId);
 
         return $product;

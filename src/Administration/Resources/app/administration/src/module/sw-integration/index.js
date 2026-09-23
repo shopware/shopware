@@ -19,9 +19,9 @@ Module.register('sw-integration', {
     description: 'The module for managing integrations.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-key',
+    favicon: 'icon-module-settings.svg',
     entity: 'integration',
 
     routes: {
@@ -38,7 +38,7 @@ Module.register('sw-integration', {
     settingsItem: {
         group: 'system',
         to: 'sw.integration.index',
-        icon: 'regular-cog',
+        icon: 'regular-key',
         privilege: 'integration.viewer',
     },
 });

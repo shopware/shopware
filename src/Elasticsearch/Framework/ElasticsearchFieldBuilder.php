@@ -138,8 +138,10 @@ class ElasticsearchFieldBuilder
 
         $customFields = [];
 
+        $cfMapping = $this->getCustomFieldsMapping($entity, $context);
+
         foreach (array_keys($languages) as $languageId) {
-            $customFields[$languageId] = $this->getCustomFieldsMapping($entity, $context);
+            $customFields[$languageId] = $cfMapping;
         }
 
         return ['properties' => $customFields];

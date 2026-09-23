@@ -1,0 +1,5 @@
+{
+    "hostModules": {
+        "vue": "node_modules/vue"
+    }
+}

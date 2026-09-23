@@ -41,6 +41,11 @@ class AdminSearchRegistry implements EventSubscriberInterface
     private readonly array $config;
 
     /**
+     * @var array<string, AbstractAdminIndexer>|null
+     */
+    private ?array $indexers = null;
+
+    /**
      * @param iterable<AbstractAdminIndexer> $indexer
      * @param array<string, mixed> $config
      * @param array<string, mixed> $mapping
@@ -160,6 +165,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
+        $isSalesChannelSource = $event->getContext()->getSource() instanceof SalesChannelApiSource;
+
         foreach ($indexers as $indexer) {
             $ids = $indexer->getUpdatedIds($event);
             $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
@@ -172,10 +179,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $msg = new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, $deletedIds);
 
             // if the event is triggered from storefront or sales channel API, we dispatch the message to the queue to not slow down the request
-            if ($event->getContext()->getSource() instanceof SalesChannelApiSource) {
+            if ($isSalesChannelSource) {
                 $this->queue->dispatch($msg);
 
-                return;
+                continue;
             }
 
             // otherwise we invoke the message handler directly
@@ -435,7 +442,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             if (!$this->client->indices()->existsAlias(['name' => $alias])) {
                 $this->putAlias($index, $alias);
 
-                return;
+                continue;
             }
 
             $current = $this->client->indices()->getAlias(['name' => $alias]);
@@ -493,10 +500,14 @@ class AdminSearchRegistry implements EventSubscriberInterface
      */
     private function getIndexersArray(): array
     {
-        if ($this->indexer instanceof \Traversable) {
-            return iterator_to_array($this->indexer);
+        if ($this->indexers !== null) {
+            return $this->indexers;
         }
 
-        return $this->indexer;
+        $this->indexers = $this->indexer instanceof \Traversable
+            ? iterator_to_array($this->indexer)
+            : $this->indexer;
+
+        return $this->indexers;
     }
 }

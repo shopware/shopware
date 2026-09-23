@@ -8,14 +8,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontHome,
-        StorefrontProductDetail,
-        SalesChannelBaseConfig,
-        InstanceMeta,
-    }) => {
+    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
             {
@@ -63,24 +56,16 @@ test(
             price: prices,
         });
 
-        await ShopCustomer.expects(async () => {
-            await test.step('Wait for products to be visible on storefront.', async () => {
-                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
-                    await TestDataService.clearCaches();
-                }
-                await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-                const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
-                await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
-            });
-        }).toPass({
-            intervals: [
-                1_000,
-                2_500,
-            ],
+        await TestDataService.clearCaches();
+
+        await test.step('Product is visible on storefront.', async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
+            await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
         });
 
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+            await ShopCustomer.goesTo(StorefrontHome.url());
             const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
             await ShopCustomer.expects(productItemLocators.productPrice).toContainText(formatPrice(10.0));
             await ShopCustomer.expects(productItemLocators.productListingPrice).toContainText(formatPrice(20.0));

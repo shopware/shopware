@@ -230,7 +230,12 @@ async function outputLintingResults(results, eslint) {
     console.log(resultText);
 }
 
-// Put previous functions all together
+/**
+ * Runs the Administration ESLint policy against copied plugin sources.
+ *
+ * Plugin files live outside the normal `src/**` scopes, so this adapter layers plugin-specific Twig,
+ * JavaScript, and TypeScript overrides on top of the shared flat config.
+ */
 async function lintFiles(filePaths, fix, shopwareVersion) {
     const twigVuePlugin = require('eslint-plugin-twig-vue');
     const vueParser = require('vue-eslint-parser');

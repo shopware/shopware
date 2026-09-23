@@ -422,6 +422,7 @@ class ProductListingLoaderTest extends TestCase
     private function resolveSearchIds(bool $findBestVariant): Criteria
     {
         $this->systemConfigService
+            ->expects($this->atLeastOnce())
             ->method('getBool')
             ->willReturnCallback(function (string $key, string $salesChannelId) use ($findBestVariant): bool {
                 static::assertSame($this->salesChannelContext->getSalesChannelId(), $salesChannelId);

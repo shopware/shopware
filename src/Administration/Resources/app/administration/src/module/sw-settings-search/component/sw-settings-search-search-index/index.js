@@ -14,11 +14,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'productIndexService',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['productIndexService', 'repositoryFactory', 'acl'],
 
     emits: ['edit-change'],
 

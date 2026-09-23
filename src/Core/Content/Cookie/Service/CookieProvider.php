@@ -4,12 +4,14 @@ namespace Shopware\Core\Content\Cookie\Service;
 
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
+use Shopware\Core\Content\Cookie\Hook\CookieGroupCollectHook;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
@@ -39,6 +41,7 @@ class CookieProvider
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly TranslatorInterface $translator,
+        private readonly ScriptExecutor $scriptExecutor,
         array $sessionOptions = [],
         /**
          * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! This will be fixed with the next major version as it is not used anymore)
@@ -63,6 +66,8 @@ class CookieProvider
         }
 
         $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $request, $salesChannelContext));
+
+        $this->scriptExecutor->execute(new CookieGroupCollectHook($cookieGroups, $salesChannelContext));
 
         foreach ($cookieGroups as $cookieGroup) {
             $this->removeCookieGroupsWithoutCookies($cookieGroups, $cookieGroup);

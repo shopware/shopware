@@ -52,7 +52,7 @@ class CategoryUrlProviderTest extends TestCase
 
     private int $categoryResultIncrement;
 
-    private (QueryBuilder&MockObject)|null $queryBuilder = null;
+    private (QueryBuilder&Stub)|null $queryBuilder = null;
 
     protected function setUp(): void
     {
@@ -68,12 +68,16 @@ class CategoryUrlProviderTest extends TestCase
 
     public function testGetDecorated(): void
     {
+        $this->dispatcher->expects($this->never())->method('dispatch');
+
         static::expectException(DecorationPatternException::class);
         $this->getCategoryUrlProvider()->getDecorated();
     }
 
     public function testGetName(): void
     {
+        $this->dispatcher->expects($this->never())->method('dispatch');
+
         $name = $this->getCategoryUrlProvider()->getName();
         static::assertSame('category', $name);
     }
@@ -135,6 +139,8 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNotNull($this->queryBuilder);
         $context = Generator::generateSalesChannelContext();
 
+        $this->dispatcher->expects($this->once())->method('dispatch')->willReturnArgument(0);
+
         $provider = $this->getCategoryUrlProvider();
         $urlResult = $provider->getUrls($context, 100, 50);
 
@@ -153,6 +159,8 @@ class CategoryUrlProviderTest extends TestCase
         static::assertNotNull($this->queryBuilder);
         $this->configHandler->method('get')->willReturn([]);
         $context = Generator::generateSalesChannelContext();
+
+        $this->dispatcher->expects($this->once())->method('dispatch')->willReturnArgument(0);
 
         $provider = $this->getCategoryUrlProvider();
 
@@ -265,7 +273,7 @@ class CategoryUrlProviderTest extends TestCase
         $this->entityRouteResolver->method('getRouteNameForEntityName')->willReturn('frontend.navigation.page');
         $this->entityRouteResolver->method('generateUrl')->willReturn('category/2/detail');
 
-        $this->queryBuilder = $this->createMock(QueryBuilder::class);
+        $this->queryBuilder = static::createStub(QueryBuilder::class);
         $this->queryBuilder->method('executeQuery')->willReturn($categoryQueryResult);
 
         $query = static::createStub(IterableQuery::class);

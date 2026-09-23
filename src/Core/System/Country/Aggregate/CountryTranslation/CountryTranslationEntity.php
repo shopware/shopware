@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@discovery')]
 class CountryTranslationEntity extends TranslationEntity
 {

@@ -53,7 +53,7 @@ class SalesChannelContextRequestRestorerTest extends TestCase
 
     public function testItLoadsAndStoresContextFromSalesChannelRequestAttributes(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, Defaults::CURRENCY);

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class SeoUrlTemplateEntity extends Entity
 {
@@ -23,6 +26,8 @@ class SeoUrlTemplateEntity extends Entity
     protected string $template;
 
     protected bool $isValid;
+
+    protected bool $isHeadless = false;
 
     protected ?SalesChannelEntity $salesChannel = null;
 
@@ -74,6 +79,16 @@ class SeoUrlTemplateEntity extends Entity
     public function setIsValid(bool $isValid): void
     {
         $this->isValid = $isValid;
+    }
+
+    public function getIsHeadless(): bool
+    {
+        return $this->isHeadless;
+    }
+
+    public function setIsHeadless(bool $isHeadless): void
+    {
+        $this->isHeadless = $isHeadless;
     }
 
     public function getSalesChannel(): ?SalesChannelEntity

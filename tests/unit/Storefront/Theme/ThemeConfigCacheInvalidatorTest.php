@@ -42,6 +42,7 @@ class ThemeConfigCacheInvalidatorTest extends TestCase
         $expectedInvalidatedTags = [
             $name,
             CachedDomainLoader::CACHE_KEY,
+            CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY,
             Translator::tag($salesChannelId),
         ];
 

@@ -463,6 +463,126 @@ class TranslationLoaderTest extends TestCase
         static::assertSame($this->context, $dispatched->getContext());
     }
 
+    public function testLinkCreatesLanguageAndSnippetSetWithoutDownloading(): void
+    {
+        $this->client = $this->createMock(ClientInterface::class);
+        $this->client->expects($this->never())->method('request');
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $this->flysystem->write(Path::join($loader->getLocalePath('es-ES'), 'Platform', 'storefront.json'), '{}');
+
+        $loader->link('es-ES', $this->context);
+
+        $createdLanguages = array_shift($this->languageRepository->creates);
+        static::assertIsArray($createdLanguages);
+        static::assertCount(1, $createdLanguages);
+
+        $language = array_shift($createdLanguages);
+        static::assertIsArray($language);
+        static::assertSame('Español', $language['name']);
+        static::assertSame($this->ids->get('locale'), $language['localeId']);
+        static::assertTrue($language['active']);
+
+        $createdSnippetSets = array_shift($this->snippetSetRepository->creates);
+        static::assertIsArray($createdSnippetSets);
+        static::assertCount(1, $createdSnippetSets);
+
+        $snippetSet = array_shift($createdSnippetSets);
+        static::assertIsArray($snippetSet);
+        static::assertSame('BASE es-ES', $snippetSet['name']);
+        static::assertSame('messages.es-ES', $snippetSet['baseFile']);
+
+        $files = $this->flysystem->listContents(TranslationLoader::TRANSLATION_DIR, true)
+            ->filter(static fn ($item) => $item->isFile())
+            ->toArray();
+        static::assertCount(1, $files, 'link() must not write any translation file');
+    }
+
+    public function testLinkCreatesLanguageWithActiveFalseWhenSkipped(): void
+    {
+        $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $this->flysystem->write(Path::join($loader->getLocalePath('es-ES'), 'Platform', 'storefront.json'), '{}');
+
+        $loader->link('es-ES', $this->context, activate: false);
+
+        $createdLanguages = array_shift($this->languageRepository->creates);
+        static::assertIsArray($createdLanguages);
+
+        $language = array_shift($createdLanguages);
+        static::assertIsArray($language);
+        static::assertFalse($language['active']);
+    }
+
+    public function testLinkDispatchesEvent(): void
+    {
+        $dispatched = null;
+        $this->eventDispatcher->addListener(
+            TranslationLoadedEvent::class,
+            static function (TranslationLoadedEvent $event) use (&$dispatched): void {
+                $dispatched = $event;
+            }
+        );
+
+        $loader = $this->getTranslationLoader();
+        $this->flysystem->write(Path::join($loader->getLocalePath('es-ES'), 'Platform', 'storefront.json'), '{}');
+
+        $loader->link('es-ES', $this->context);
+
+        static::assertInstanceOf(TranslationLoadedEvent::class, $dispatched);
+        static::assertSame('es-ES', $dispatched->getLocale());
+        static::assertSame($this->context, $dispatched->getContext());
+    }
+
+    public function testLinkThrowsExceptionIfLanguageDoesNotExist(): void
+    {
+        $this->expectExceptionObject(SnippetException::languageDoesNotExist('non-existent-language'));
+        $this->getTranslationLoader()->link('non-existent-language', $this->context);
+    }
+
+    public function testLinkThrowsExceptionIfNoTranslationFilesExist(): void
+    {
+        $this->expectExceptionObject(SnippetException::translationsUnavailable(['es-ES']));
+        $this->getTranslationLoader()->link('es-ES', $this->context);
+    }
+
+    public function testLinkThrowsExceptionIfTheLocaleDirectoryHoldsNoFile(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        // fetchFile() creates this directory before downloading, so it survives a download that fetched nothing
+        $this->flysystem->createDirectory(Path::join($loader->getLocalePath('es-ES'), 'Platform'));
+
+        $this->expectExceptionObject(SnippetException::translationsUnavailable(['es-ES']));
+        $loader->link('es-ES', $this->context);
+    }
+
+    public function testHasTranslationFilesRequiresAtLeastOneFile(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        static::assertFalse($loader->hasTranslationFiles('es-ES'));
+
+        $this->flysystem->createDirectory(Path::join($loader->getLocalePath('es-ES'), 'Platform'));
+        static::assertFalse($loader->hasTranslationFiles('es-ES'), 'An empty directory must not count as present translations');
+
+        $this->flysystem->write(Path::join($loader->getLocalePath('es-ES'), 'Platform', 'storefront.json'), '{}');
+        static::assertTrue($loader->hasTranslationFiles('es-ES'));
+    }
+
+    public function testHasTranslationFilesReturnsFalseForMalformedLocale(): void
+    {
+        $loader = $this->getTranslationLoader();
+        $this->flysystem->write(Path::join($loader->getLocalePath('es-ES'), 'Platform', 'storefront.json'), '{}');
+
+        // getLocalePath() yields '' here, which must not be read as "every file on the filesystem"
+        static::assertFalse($loader->hasTranslationFiles('_not-a-locale_'));
+    }
+
     private function getTranslationLoader(): TranslationLoader
     {
         return new TranslationLoader(

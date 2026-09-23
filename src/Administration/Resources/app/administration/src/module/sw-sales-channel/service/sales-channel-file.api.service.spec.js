@@ -112,4 +112,19 @@ describe('src/module/sw-sales-channel/service/sales-channel-file.api.service', (
             },
         );
     });
+
+    it('loads a preview without sending unchanged template overrides', async () => {
+        const httpClient = {
+            post: jest.fn(async () => ({ data: {}, headers: {} })),
+        };
+        const service = new SalesChannelFileApiService(httpClient, { getToken: () => 'test-token' });
+
+        await service.preview('agentic', 'sales-channel-id', 'llms.txt');
+
+        expect(httpClient.post).toHaveBeenCalledWith(
+            '/_action/sales-channel-file/agentic/sales-channel-id/preview',
+            { fileName: 'llms.txt' },
+            expect.any(Object),
+        );
+    });
 });

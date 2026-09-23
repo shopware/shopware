@@ -11,11 +11,7 @@ const { Component } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'userActivityService',
-        'loginService',
-        'feature',
-    ],
+    inject: ['userActivityService', 'loginService', 'feature'],
 
     metaInfo() {
         return {
@@ -39,7 +35,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         /**
-         * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+         * @private
+         *
+         * Generated override components, rendered once in a hidden container so their setup bodies run and
+         * register their override callbacks. Internal to the composition extension system.
          */
         overrideComponents() {
             return Component.getOverrideComponents();
@@ -66,10 +65,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const currentRouteName = this.$router.currentRoute.value.name as string;
-            const routeBlocklist = [
-                'sw.inactivity.login.index',
-                'sw.login.index.login',
-            ];
+            const routeBlocklist = ['sw.inactivity.login.index', 'sw.login.index.login'];
             if (!data.inactive || routeBlocklist.includes(currentRouteName || '')) {
                 return;
             }

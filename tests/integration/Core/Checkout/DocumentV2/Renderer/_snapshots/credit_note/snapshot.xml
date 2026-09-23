@@ -25,7 +25,7 @@
       </ram:SpecifiedTradeProduct>
       <ram:SpecifiedLineTradeAgreement>
         <ram:NetPriceProductTradePrice>
-          <ram:ChargeAmount>16.20</ram:ChargeAmount>
+          <ram:ChargeAmount>16.2000</ram:ChargeAmount>
           <ram:BasisQuantity unitCode="H87">1.00</ram:BasisQuantity>
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>
@@ -52,7 +52,7 @@
       </ram:SpecifiedTradeProduct>
       <ram:SpecifiedLineTradeAgreement>
         <ram:NetPriceProductTradePrice>
-          <ram:ChargeAmount>18.60</ram:ChargeAmount>
+          <ram:ChargeAmount>18.6000</ram:ChargeAmount>
           <ram:BasisQuantity unitCode="H87">1.00</ram:BasisQuantity>
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>

@@ -23,18 +23,23 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -43,6 +48,7 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProv
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencedSnapshotDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticReferencingDocumentDataProvider;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -532,6 +538,8 @@ class DocumentGeneratorTest extends TestCase
             ) use ($document): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 $document->setId($repository->creates[0][0]['id']);
+                $document->setOrderId($repository->creates[0][0]['orderId']);
+                $document->setOrderVersionId($repository->creates[0][0]['orderVersionId']);
 
                 return new DocumentCollection([$document]);
             },
@@ -545,9 +553,10 @@ class DocumentGeneratorTest extends TestCase
             [$documentTypeId],
         ], new DocumentTypeDefinition());
 
-        $providerRegistry = new DocumentDataProviderRegistry(
-            $providers ?? [new StaticDocumentDataProvider([DocumentType::INVOICE->value])],
-        );
+        $providerRegistry = new DocumentDataProviderRegistry([
+            ...($providers ?? [new StaticDocumentDataProvider([DocumentType::INVOICE->value])]),
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], DocumentMetaProvider::KEY),
+        ]);
 
         $rendererRegistry = new DocumentRendererRegistry([
             new StaticDocumentRenderer(
@@ -560,8 +569,15 @@ class DocumentGeneratorTest extends TestCase
             ),
         ]);
 
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+        $documentTypeRegistry = new DocumentTypeRegistry([], $storage);
+
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
+
+        $fileNameProvider = static::createStub(FileNameProvider::class);
+        $fileNameProvider->method('provide')->willReturnArgument(0);
 
         $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn(new FakeQueryBuilder($connection, $referenceRows));
@@ -575,10 +591,14 @@ class DocumentGeneratorTest extends TestCase
                 $documentFileRepository,
                 $documentTypeRepository,
                 $mediaService,
+                $documentTypeRegistry,
+                $fileNameProvider,
+                static::createStub(EventDispatcherInterface::class),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),
             $orderRepository,
+            static::createStub(ScriptExecutor::class),
         );
 
         return [$generator, $documentRepository, $documentFileRepository];

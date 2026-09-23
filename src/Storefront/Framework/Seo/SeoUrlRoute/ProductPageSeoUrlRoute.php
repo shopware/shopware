@@ -53,7 +53,7 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
             throw StorefrontFrameworkException::invalidArgument('SEO URL Mapping expects argument to be a ProductEntity');
         }
 
-        $categories = $product->get('mainCategories') ?? null;
+        $categories = $product->get('mainCategories');
         if ($categories instanceof EntityCollection && $salesChannel !== null) {
             $filtered = $categories->filter(
                 static fn (Entity $category) => $category->get('salesChannelId') === $salesChannel->getId()

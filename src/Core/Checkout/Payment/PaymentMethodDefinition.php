@@ -35,6 +35,9 @@ use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class PaymentMethodDefinition extends EntityDefinition
 {

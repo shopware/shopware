@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationDefinition;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamFilterChangeSetSubscriber;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\ProductStream\ScheduledTask\UpdateProductStreamMappingTask;
@@ -48,7 +49,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDefinition::class),
             service('event_dispatcher'),
         ])
-        ->tag('shopware.entity_indexer', ['priority' => 100]);
+        // Must run before ProductIndexer so it compiles stream filters before ProductStreamUpdater creates mappings.
+        ->tag('shopware.entity_indexer', ['priority' => 110]);
+
+    $services->set(ProductStreamFilterChangeSetSubscriber::class)
+        ->tag('kernel.event_subscriber');
 
     $services->set(UpdateProductStreamMappingTask::class)
         ->tag('shopware.scheduled.task');
@@ -58,6 +63,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('scheduled_task.repository'),
             service('logger'),
             service('product_stream.repository'),
+            service('messenger.default_bus'),
         ])
         ->tag('messenger.message_handler');
 };

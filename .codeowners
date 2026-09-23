@@ -54,7 +54,6 @@ tests/integration/Core/Checkout/DocumentV2/Renderer/_snapshots/** @shopware/prod
 
 # product-operations
 .github/** @shopware/product-operations
-.gitlab/** @shopware/product-operations
 
 # ctrl-alt-elite
 src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite

@@ -41,11 +41,12 @@ class CacheStore implements StoreInterface
      * @internal
      *
      * @param array<string, mixed> $sessionOptions
-     *
-     * @deprecated tag:v6.8.0 - Parameter $stateValidator will be removed
      */
     public function __construct(
         private readonly TagAwareAdapterInterface&CacheInterface $cache,
+        /**
+         * @deprecated tag:v6.8.0 - Parameter $stateValidator will be removed
+         */
         private readonly CacheStateValidator $stateValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly HttpCacheKeyGenerator $cacheKeyGenerator,

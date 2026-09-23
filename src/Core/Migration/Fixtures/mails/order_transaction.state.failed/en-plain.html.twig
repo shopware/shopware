@@ -1,0 +1,5 @@
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
+the payment for your order at {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) has failed.
+
+Please check your payment details or choose another payment method in your customer account.

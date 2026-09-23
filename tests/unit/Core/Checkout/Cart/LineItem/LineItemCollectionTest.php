@@ -9,14 +9,17 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -34,11 +37,10 @@ class LineItemCollectionTest extends TestCase
     /**
      * @param array<string, bool> $expectedResults
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     #[DataProvider('lineItemStateProvider')]
     public function testHasLineItemWithState(LineItemCollection $collection, array $expectedResults): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         foreach ($expectedResults as $state => $expected) {
             static::assertSame($expected, $collection->hasLineItemWithState($state), 'Line item of state `' . $state . '` could not be found.');
         }
@@ -50,8 +52,6 @@ class LineItemCollectionTest extends TestCase
     #[DataProvider('lineItemProductTypeProvider')]
     public function testHasLineItemWithProductType(LineItemCollection $collection, array $expectedResults): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         foreach ($expectedResults as $type => $expected) {
             static::assertSame($expected, $collection->hasLineItemWithProductType($type), 'Line item of type `' . $type . '` could not be found.');
         }
@@ -480,5 +480,125 @@ class LineItemCollectionTest extends TestCase
         $collection->add(new LineItem('A', 'test', null, \PHP_INT_MAX));
 
         static::assertEquals($expected, $collection);
+    }
+
+    public function testSortByPriorityOrdersByPriceDefinitionPriority(): void
+    {
+        $percentage = new LineItem('percentage', 'discount');
+        $percentage->setPriceDefinition(new PercentagePriceDefinition(-10));
+
+        $quantity = new LineItem('quantity', 'product');
+        $quantity->setPriceDefinition(new QuantityPriceDefinition(10, new TaxRuleCollection()));
+
+        $absolute = new LineItem('absolute', 'discount');
+        $absolute->setPriceDefinition(new AbsolutePriceDefinition(-5));
+
+        $collection = new LineItemCollection([$percentage, $quantity, $absolute]);
+        $collection->sortByPriority();
+
+        static::assertSame(['quantity', 'absolute', 'percentage'], $collection->getKeys());
+    }
+
+    public function testSortByPriorityTreatsMissingPriceDefinitionAsQuantityPriority(): void
+    {
+        $percentage = new LineItem('percentage', 'discount');
+        $percentage->setPriceDefinition(new PercentagePriceDefinition(-10));
+
+        $withoutDefinition = new LineItem('no-definition', 'product');
+
+        $collection = new LineItemCollection([$percentage, $withoutDefinition]);
+        $collection->sortByPriority();
+
+        static::assertSame(['no-definition', 'percentage'], $collection->getKeys());
+    }
+
+    public function testGetTotalQuantitySumsAllLineItems(): void
+    {
+        $collection = new LineItemCollection([
+            new LineItem('A', 'product', null, 2),
+            new LineItem('B', 'product', null, 3),
+        ]);
+
+        static::assertSame(5, $collection->getTotalQuantity());
+    }
+
+    public function testFilterFlatByTypeIncludesNestedChildren(): void
+    {
+        $child = new LineItem('child-discount', 'discount');
+        $parent = new LineItem('parent', 'product');
+        $parent->addChild($child);
+
+        $collection = new LineItemCollection([
+            $parent,
+            new LineItem('top-discount', 'discount'),
+        ]);
+
+        $filtered = $collection->filterFlatByType('discount');
+
+        static::assertCount(2, $filtered);
+        static::assertSame(['child-discount', 'top-discount'], array_map(static fn (LineItem $item) => $item->getId(), $filtered));
+    }
+
+    public function testFilterGoodsFlatIncludesNestedGoodsOnly(): void
+    {
+        $childGood = new LineItem('child-good', 'product');
+        $childGood->setGood(true);
+
+        $parent = new LineItem('container', 'container');
+        $parent->setGood(false);
+        $parent->addChild($childGood);
+
+        $topGood = new LineItem('top-good', 'product');
+        $topGood->setGood(true);
+
+        $collection = new LineItemCollection([$parent, $topGood]);
+
+        $goods = $collection->filterGoodsFlat();
+
+        static::assertSame(['child-good', 'top-good'], array_map(static fn (LineItem $item) => $item->getId(), $goods));
+    }
+
+    public function testGetFlatReturnsParentsAndChildren(): void
+    {
+        $child = new LineItem('child', 'product');
+        $parent = new LineItem('parent', 'container');
+        $parent->addChild($child);
+
+        $collection = new LineItemCollection([$parent]);
+
+        static::assertSame(['parent', 'child'], array_map(static fn (LineItem $item) => $item->getId(), $collection->getFlat()));
+    }
+
+    public function testGetTypesReturnsTheTypeOfEveryLineItem(): void
+    {
+        $collection = new LineItemCollection([
+            new LineItem('A', 'product'),
+            new LineItem('B', 'discount'),
+        ]);
+
+        static::assertSame(['A' => 'product', 'B' => 'discount'], $collection->getTypes());
+    }
+
+    public function testGetReferenceIdsReturnsTheReferencedIdOfEveryLineItem(): void
+    {
+        $collection = new LineItemCollection([
+            new LineItem('A', 'product', 'ref-a'),
+            new LineItem('B', 'product', 'ref-b'),
+        ]);
+
+        static::assertSame(['A' => 'ref-a', 'B' => 'ref-b'], $collection->getReferenceIds());
+    }
+
+    public function testSetStoresTheLineItemUnderItsOwnId(): void
+    {
+        $collection = new LineItemCollection();
+        $collection->set('ignored-key', new LineItem('A', 'product'));
+
+        static::assertSame(['A'], $collection->getKeys());
+    }
+
+    public function testApiAlias(): void
+    {
+        static::assertSame('cart_line_item_collection', (new LineItemCollection())->getApiAlias());
     }
 }

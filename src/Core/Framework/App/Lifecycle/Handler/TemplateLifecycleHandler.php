@@ -134,11 +134,13 @@ class TemplateLifecycleHandler extends AbstractLifecycleHandler
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
 
-        $templates = $this->templateRepository->searchIds($criteria, $context)->getIds();
+        $templates = $this->templateRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        foreach ($templates as &$template) {
+            $template['active'] = $newActiveState;
+        }
+        unset($template);
 
-        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
-
-        $this->templateRepository->update($updateSet, $context);
+        $this->templateRepository->update($templates, $context);
 
         $this->cacheClearer->clearHttpCache();
     }

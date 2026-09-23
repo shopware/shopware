@@ -80,7 +80,7 @@ class LineItemListPriceRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -157,7 +157,7 @@ class LineItemListPriceRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -202,7 +202,7 @@ class LineItemListPriceRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -261,7 +261,7 @@ class LineItemListPriceRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -278,7 +278,7 @@ class LineItemListPriceRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertFalse($match);
@@ -307,6 +307,12 @@ class LineItemListPriceRuleTest extends TestCase
 
         static::getContainer()->get('currency.repository')
             ->create([$currency], Context::createDefaultContext());
+        static::getContainer()->get('sales_channel_currency.repository')->create([
+            [
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'currencyId' => $ids->get('currency'),
+            ],
+        ], Context::createDefaultContext());
 
         // create product with two different currency prices
         $data = [

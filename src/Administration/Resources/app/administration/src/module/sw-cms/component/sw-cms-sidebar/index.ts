@@ -71,10 +71,7 @@ export default Shopware.Component.wrapComponentConfig({
         'open-layout-set-as-default',
     ],
 
-    mixins: [
-        Mixin.getByName('cms-state'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('placeholder')],
 
     props: {
         page: {
@@ -148,14 +145,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return {};
             }
 
-            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(
-                ([
-                    name,
-                    block,
-                ]) => {
-                    return block && !block.hidden && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
-                },
-            );
+            const blocks = Object.entries(this.cmsService.getCmsBlockRegistry()).filter(([name, block]) => {
+                return block && !block.hidden && this.cmsService.isBlockAllowedInPageType(name, currentPageType);
+            });
 
             return Object.fromEntries(blocks);
         },
@@ -351,7 +343,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('page-type-change', pageType);
         },
 
-        onDemoEntityChange(demoEntityId: string) {
+        onDemoEntityChange(demoEntityId: EntityKey<'product'>) {
             this.$emit('demo-entity-change', demoEntityId);
         },
 
@@ -593,12 +585,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                     const slotDefaultData = slotConfig.default?.data;
 
-                    if (
-                        [
-                            slotDefaultData?.media?.source,
-                            slotDefaultData?.sliderItems?.source,
-                        ].includes('default')
-                    ) {
+                    if ([slotDefaultData?.media?.source, slotDefaultData?.sliderItems?.source].includes('default')) {
                         element.config = {
                             ...(element.config as object),
                             ...slotDefaultData,
@@ -632,9 +619,13 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('section-duplicate', section);
         },
 
-        onSectionDelete(sectionId: string) {
+        onSectionDelete(sectionId: EntityKey<'cms_section'>) {
             Shopware.Store.get('cmsPage').removeSelectedSection();
             this.page.sections!.remove(sectionId);
+        },
+
+        onNavigatorSectionDelete(sectionId: EntityKey<'cms_section'>) {
+            this.onSectionDelete(sectionId);
             this.$emit('page-save');
         },
 
@@ -648,7 +639,10 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.selectedBlock && this.selectedBlock.id === block.id) {
                 Shopware.Store.get('cmsPage').removeSelectedBlock();
             }
+        },
 
+        onNavigatorBlockDelete(block: Entity<'cms_block'>, section: Entity<'cms_section'>) {
+            this.onBlockDelete(block, section);
             this.$emit('page-save', true);
         },
 

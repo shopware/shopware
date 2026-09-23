@@ -31,6 +31,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChanne
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@framework')]
 class CurrencyDefinition extends EntityDefinition
 {

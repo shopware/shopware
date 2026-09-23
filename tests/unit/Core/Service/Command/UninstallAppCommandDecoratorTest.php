@@ -112,7 +112,7 @@ class UninstallAppCommandDecoratorTest extends TestCase
         $this->appStorage->expects($this->once())->method('findByName')->with($name, static::isInstanceOf(Context::class))->willReturn($app);
         $this->appLifecycle->expects($this->once())->method('uninstall')->with(
             $name,
-            ['id' => 'app-id', 'roleId' => 'acl-role-id'],
+            ['id' => 'app-id'],
             static::isInstanceOf(Context::class),
             $keepUserData
         );

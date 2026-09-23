@@ -40,31 +40,6 @@ class NoBCPlanningDeprecationRule implements Rule
         'reason:exception-change' => 'Use the #[ExceptionChange] attribute instead.',
     ];
 
-    /**
-     * Reason tags that still exist in the codebase. They are removed from this list tag by
-     * tag as the existing annotations are migrated to the BC-change attributes; once a tag
-     * is removed, this rule prevents it from being reintroduced.
-     */
-    private const MIGRATION_PENDING = [
-        'reason:return-type-change',
-        'reason:parameter-type-change',
-        'reason:parameter-type-extension',
-        'reason:new-optional-parameter',
-        'reason:parameter-name-change',
-        'reason:becomes-internal',
-        'reason:becomes-final',
-        'reason:class-hierarchy-change',
-        'reason:visibility-change',
-        'reason:exception-change',
-    ];
-
-    /**
-     * @param list<string> $migrationPending overridable for tests
-     */
-    public function __construct(private readonly array $migrationPending = self::MIGRATION_PENDING)
-    {
-    }
-
     public function getNodeType(): string
     {
         return InClassNode::class;
@@ -98,7 +73,7 @@ class NoBCPlanningDeprecationRule implements Rule
 
         $errors = [];
         foreach (self::REPLACEMENTS as $reason => $replacement) {
-            if (!\str_contains($doc, $reason) || \in_array($reason, $this->migrationPending, true)) {
+            if (!\str_contains($doc, $reason)) {
                 continue;
             }
 

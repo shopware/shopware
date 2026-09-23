@@ -32,6 +32,8 @@ test(
             });
         });
 
+        await TestDataService.clearCaches();
+
         await CheckVisibilityInHome(product.name)();
 
         await test.step('Verify the product appears in storefront search results.', async () => {

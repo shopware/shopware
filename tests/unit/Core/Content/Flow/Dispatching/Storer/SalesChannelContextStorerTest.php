@@ -114,7 +114,7 @@ class SalesChannelContextStorerTest extends TestCase
 
     public function testRestoreReconstructsAnonymousContextLazily(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $this->factory->method('create')->willReturn($salesChannelContext);
 
         $storable = new StorableFlow('name', Context::createDefaultContext(), [

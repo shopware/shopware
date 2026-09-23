@@ -15,7 +15,7 @@
     <strong>Information on your order:</strong><br>
     <br>
 
-    <table border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
+    <table border="0" cellpadding="6" cellspacing="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
         <tr>
             <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Prod. no.</strong></td>
             <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Product image</strong></td>
@@ -69,6 +69,15 @@
                                 <div>
                                     {{ referencePriceFeature.value.purchaseUnit }} {{ referencePriceFeature.value.unitName }}
                                     ({{ referencePriceFeature.value.price|currency(currencyIsoCode) }} per {{ referencePriceFeature.value.referenceUnit }} {{ referencePriceFeature.value.unitName }})
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if nestedItem.productId is defined and nestedItem.productId %}
+                            {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}
+                            {% if garanLabelDataUri %}
+                                <div style="padding-top: 5px;{% if nestingLevel > 0 %} padding-left: {{ (nestingLevel + 1) * 10 }}px;{% endif %}">
+                                    <img src="{{ garanLabelDataUri }}" width="195" height="30" style="display:block; max-width:195px; height:auto;" alt="GARAN label showing the commercial guarantee for this product"/>
                                 </div>
                             {% endif %}
                         {% endif %}
@@ -174,6 +183,11 @@
             </ul>
             For data protection reasons the HTML version requires a login. <br><br>
             In case of a guest order, you can use your email address and postal code of the billing address.<br>
+        {% endif %}
+
+        {% if config('core.cart.showLegalGuaranteeNotice') %}
+            <br>
+            Notice on your legal guarantee rights: <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}" target="_blank">{{ context.languageId|sw_legal_guarantee_notice_link }}</a><br>
         {% endif %}
     </p>
     <br>

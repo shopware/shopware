@@ -19,6 +19,19 @@
             font-weight: 600;
         }
 
+        .sw-sales-channel-detail-theme__info-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sw-sales-channel-detail-theme__info-pending {
+            position: relative;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+        }
+
         .sw-sales-channel-detail-theme__info-author,
         .sw-sales-channel-detail-theme__info-name,
         .sw-sales-channel-detail-theme__info-description {

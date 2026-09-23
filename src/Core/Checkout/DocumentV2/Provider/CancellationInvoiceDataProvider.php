@@ -2,13 +2,10 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
-use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\CancellationInvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Template\Calculation\OrderInverter;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -17,13 +14,12 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDataProvider
+final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDataProvider implements RendersReferencedSnapshot
 {
     final public const KEY = 'storno';
 
     public function __construct(
         private InvoiceDataProvider $invoiceDataProvider,
-        private ReferenceInvoiceLoader $referenceInvoiceLoader,
     ) {
     }
 
@@ -43,49 +39,20 @@ final readonly class CancellationInvoiceDataProvider extends AbstractDocumentDat
     }
 
     public function provideRenderingData(
-        OrderEntity $order,
-        DocumentGenerationRequest $generationRequest,
+        ProviderInput $input,
         Context $context,
     ): CancellationInvoiceRenderData {
-        $referencedInvoiceNumber = $this->resolveReferencedInvoiceNumber(
-            $order->getId(),
-            $generationRequest->referencedDocumentId,
-        );
+        $resolvedReference = $input->resolvedReference;
+        \assert($resolvedReference !== null);
 
-        OrderInverter::invert($order);
+        OrderInverter::invert($input->order);
 
-        $invoice = $this->invoiceDataProvider->provideRenderingData(
-            $order,
-            $generationRequest,
-            $context,
-        );
+        $invoice = $this->invoiceDataProvider->provideRenderingData($input, $context);
 
         return CancellationInvoiceRenderData::fromInvoice(
             $invoice,
-            $generationRequest->documentNumber,
-            $referencedInvoiceNumber,
+            $input->generationRequest->documentNumber,
+            $resolvedReference->documentNumber,
         );
-    }
-
-    private function resolveReferencedInvoiceNumber(string $orderId, ?string $referencedDocumentId): string
-    {
-        $invoice = $this->referenceInvoiceLoader->load($orderId, $referencedDocumentId);
-
-        if ($invoice === []) {
-            throw DocumentV2Exception::referencedInvoiceNotFound($orderId);
-        }
-
-        $number = $invoice['documentNumber'] ?? null;
-
-        if ($number === null || $number === '') {
-            $config = json_decode($invoice['config'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
-            $number = $config['documentNumber'] ?? null;
-        }
-
-        if (!\is_string($number) || $number === '') {
-            throw DocumentV2Exception::referencedInvoiceNumberMissing($orderId);
-        }
-
-        return $number;
     }
 }

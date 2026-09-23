@@ -20,11 +20,10 @@
             <template v-if="parentFolder">
                 {% block sw_media_index_bread_crumb_navigation_icon %}
                 <router-link :to="{ name: 'sw.media.index', params: { folderId: null } }">
-                    <img
-                        :src="assetFilter('/administration/administration/static/img/media/folder--back--breadcrumb.svg')"
+                    <sw-media-folder-thumbnail
+                        variant="back-breadcrumb"
                         class="sw-media-index__navigation-breadcrumb"
-                        alt="Folder back breadcrumb"
-                    >
+                    />
                 </router-link>
                 {% endblock %}
 

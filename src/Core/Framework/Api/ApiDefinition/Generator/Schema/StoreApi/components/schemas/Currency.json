@@ -1,0 +1,120 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "Currency": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "factor",
+                    "symbol",
+                    "isoCode",
+                    "itemRounding",
+                    "totalRounding",
+                    "shortName",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "factor": {
+                        "description": "Currency exchange rate.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "symbol": {
+                        "description": "A currency symbol is a graphical representation used as shorthand for a currency's name, for example US Dollar - $",
+                        "type": "string"
+                    },
+                    "isoCode": {
+                        "description": "Standard international three digit code to represent currency. For example, USD.",
+                        "type": "string"
+                    },
+                    "shortName": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "description": "The order of the tabs for multiple currencies defined.",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "isSystemDefault": {
+                        "description": "Runtime field, cannot be used as part of the criteria.",
+                        "type": "boolean"
+                    },
+                    "taxFreeFrom": {
+                        "description": "The value from which the tax must be exempted.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "itemRounding": {
+                        "required": [
+                            "decimals",
+                            "interval",
+                            "roundForNet"
+                        ],
+                        "properties": {
+                            "decimals": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "interval": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "roundForNet": {
+                                "type": "boolean"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "totalRounding": {
+                        "required": [
+                            "decimals",
+                            "interval",
+                            "roundForNet"
+                        ],
+                        "properties": {
+                            "decimals": {
+                                "type": "integer",
+                                "format": "int64"
+                            },
+                            "interval": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "roundForNet": {
+                                "type": "boolean"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

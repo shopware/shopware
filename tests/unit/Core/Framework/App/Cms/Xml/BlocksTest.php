@@ -36,6 +36,9 @@ XML));
         static::assertSame('second-block', $blocks->getBlocks()[1]->getName());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

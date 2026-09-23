@@ -69,7 +69,7 @@ class ProductPurchaseLimitRoute extends AbstractProductPurchaseLimitRoute
             $maxPurchase = $this->maxPurchaseCalculator->calculate($product, $context);
             $minPurchase = $product->get('minPurchase') ?? 1;
             $purchaseSteps = $product->get('purchaseSteps') ?? 1;
-            $stock = $product->get('stock') ?? null;
+            $stock = $product->get('stock');
 
             $results->add(new ProductPurchaseLimit(
                 $product->getId(),

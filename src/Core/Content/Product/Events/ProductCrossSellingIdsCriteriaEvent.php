@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\Product\Events;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductCrossSellingIdsCriteriaEvent extends ProductCrossSellingCriteriaEvent
 {

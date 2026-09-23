@@ -133,6 +133,18 @@ class ApiExceptionTest extends TestCase
         static::assertSame('API Expectations failed', $exception->getMessage());
     }
 
+    public function testExpectationNotSupported(): void
+    {
+        $exception = ApiException::expectationNotSupported();
+
+        static::assertSame(Response::HTTP_EXPECTATION_FAILED, $exception->getStatusCode());
+        static::assertSame(ApiException::API_EXPECTATION_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame(
+            'The "sw-expect-packages" header is not supported on endpoints that do not require authentication. Send it with an authenticated Admin API request.',
+            $exception->getMessage()
+        );
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testInvalidSyncOperation(): void
     {
@@ -270,6 +282,17 @@ class ApiExceptionTest extends TestCase
         static::assertSame(ApiException::API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION, $exception->getErrorCode());
     }
 
+    public function testInvalidOAuthRedirectUri(): void
+    {
+        $previous = new \RuntimeException('Library validation failed');
+        $exception = ApiException::invalidOAuthRedirectUri($previous);
+
+        static::assertSame(ApiException::API_OAUTH_INVALID_REDIRECT_URI, $exception->getErrorCode());
+        static::assertSame(400, $exception->getStatusCode());
+        static::assertSame('Redirect URL is not registered for this application.', $exception->getMessage());
+        static::assertSame($previous, $exception->getPrevious());
+    }
+
     public function testSalesChannelInMaintenanceMode(): void
     {
         $exception = ApiException::salesChannelInMaintenanceMode();
@@ -317,5 +340,26 @@ class ApiExceptionTest extends TestCase
         static::assertStringContainsString('Can not resolve foreign key at position /1/manufacturerId. Reference field: product_manufacturer', $exception->getMessage());
         static::assertSame('/0/taxId', $exception->getParameter('pointer-0'));
         static::assertSame('product_manufacturer', $exception->getParameter('field-1'));
+    }
+
+    public function testApiDefinitionGeneratorNotFound(): void
+    {
+        $exception = ApiException::apiDefinitionGeneratorNotFound('foo');
+
+        static::assertSame(ApiException::API_DEFINITION_GENERATOR_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('Definition generator for format "foo" not found.', $exception->getMessage());
+        static::assertSame('foo', $exception->getParameter('format'));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testApiDefinitionGeneratorNotFoundDeprecated(): void
+    {
+        $exception = ApiException::apiDefinitionGeneratorNotFound('foo');
+
+        static::assertSame('FRAMEWORK__API_DEFINITION_GENERATOR_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('A definition generator for format "foo" was not found.', $exception->getMessage());
+        static::assertSame('foo', $exception->getParameter('format'));
     }
 }

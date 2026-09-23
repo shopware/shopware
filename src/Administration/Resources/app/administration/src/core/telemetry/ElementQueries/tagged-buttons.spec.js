@@ -52,10 +52,7 @@ describe('src/core/telemetry/ElementQueries/tagged-button.ts', () => {
         await flushPromises();
 
         expect(observedElements).toHaveLength(2);
-        expect(observedElements).toEqual([
-            first,
-            second,
-        ]);
+        expect(observedElements).toEqual([first, second]);
 
         mo.disconnect();
     });
@@ -85,9 +82,7 @@ describe('src/core/telemetry/ElementQueries/tagged-button.ts', () => {
         await flushPromises();
 
         expect(observedElements).toHaveLength(1);
-        expect(observedElements).toEqual([
-            first,
-        ]);
+        expect(observedElements).toEqual([first]);
 
         mo.disconnect();
     });

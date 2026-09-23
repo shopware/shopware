@@ -1,0 +1,402 @@
+{
+  "openapi": "3.2.0",
+  "info": [],
+  "paths": {
+    "/shop-settings": {
+      "get": {
+        "tags": [
+          "System & Context"
+        ],
+        "summary": "Fetch shop settings",
+        "description": "Returns the sales-channel-resolved subset of the system configuration that headless frontends (e.g. Composable Frontends) need to render the shop consistently with the administration settings. Only UI- and validation-relevant, non-sensitive values are exposed.",
+        "operationId": "getShopSettings",
+        "responses": {
+          "200": {
+            "description": "Returns the shop settings of the current sales channel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "apiAlias",
+                    "general",
+                    "contactForm",
+                    "loginRegistration",
+                    "cart",
+                    "listing",
+                    "newsletter"
+                  ],
+                  "properties": {
+                    "apiAlias": {
+                      "type": "string",
+                      "const": "shop_settings"
+                    },
+                    "general": {
+                      "type": "object",
+                      "description": "Shop identity and meta defaults (core.basicInformation)",
+                      "required": [
+                        "apiAlias",
+                        "shopName",
+                        "metaAuthor",
+                        "metaRobots",
+                        "familyFriendly",
+                        "showRevocationButton"
+                      ],
+                      "properties": {
+                        "apiAlias": {
+                          "type": "string",
+                          "const": "shop_settings_general"
+                        },
+                        "shopName": {
+                          "type": "string",
+                          "description": "Name of the shop"
+                        },
+                        "metaAuthor": {
+                          "type": "string",
+                          "description": "Name displayed as the author of the website in search results or on social media (meta author tag)"
+                        },
+                        "metaRobots": {
+                          "type": "string",
+                          "description": "Default content of the robots meta tag, can be overridden per CMS page",
+                          "default": "index,follow"
+                        },
+                        "familyFriendly": {
+                          "type": "boolean",
+                          "description": "Whether the \"isFamilyFriendly\" meta tag for search engines is set"
+                        },
+                        "showRevocationButton": {
+                          "type": "boolean",
+                          "description": "Whether the \"Revoke a contract\" link is shown in the page footer"
+                        }
+                      }
+                    },
+                    "contactForm": {
+                      "type": "object",
+                      "description": "Form field settings (core.basicInformation), used by the contact form and the online revocation request form",
+                      "required": [
+                        "apiAlias",
+                        "firstNameFieldRequired",
+                        "lastNameFieldRequired",
+                        "phoneNumberFieldRequired"
+                      ],
+                      "properties": {
+                        "apiAlias": {
+                          "type": "string",
+                          "const": "shop_settings_contact_form"
+                        },
+                        "firstNameFieldRequired": {
+                          "type": "boolean",
+                          "description": "Whether the first name field has to be filled in to submit the form"
+                        },
+                        "lastNameFieldRequired": {
+                          "type": "boolean",
+                          "description": "Whether the last name field has to be filled in to submit the form"
+                        },
+                        "phoneNumberFieldRequired": {
+                          "type": "boolean",
+                          "description": "Whether the phone number field has to be filled in to submit the form"
+                        }
+                      }
+                    },
+                    "loginRegistration": {
+                      "type": "object",
+                      "description": "Login, registration and address form settings (core.loginRegistration)",
+                      "required": [
+                        "apiAlias",
+                        "passwordMinLength",
+                        "createCustomerAccountDefault",
+                        "showSalutation",
+                        "showTitleField",
+                        "requireEmailConfirmation",
+                        "requirePasswordConfirmation",
+                        "doubleOptInRegistration",
+                        "doubleOptInGuestOrder",
+                        "showPhoneNumberField",
+                        "phoneNumberFieldRequired",
+                        "showBirthdayField",
+                        "birthdayFieldRequired",
+                        "showAccountTypeSelection",
+                        "showAdditionalAddressField1",
+                        "additionalAddressField1Required",
+                        "showAdditionalAddressField2",
+                        "additionalAddressField2Required",
+                        "addressInputFieldArrangement",
+                        "allowCustomerDeletion",
+                        "requireDataProtectionCheckbox"
+                      ],
+                      "properties": {
+                        "apiAlias": {
+                          "type": "string",
+                          "const": "shop_settings_login_registration"
+                        },
+                        "passwordMinLength": {
+                          "type": "integer",
+                          "description": "Minimum password length on customer sign-up, also applies to password change and recovery"
+                        },
+                        "createCustomerAccountDefault": {
+                          "type": "boolean",
+                          "description": "Whether the account creation option is pre-selected in the checkout registration form. If inactive, the customer purchases as a guest by default"
+                        },
+                        "showSalutation": {
+                          "type": "boolean",
+                          "description": "Whether the salutation field is shown in registration and address forms"
+                        },
+                        "showTitleField": {
+                          "type": "boolean",
+                          "description": "Whether the title field is shown in registration and address forms"
+                        },
+                        "requireEmailConfirmation": {
+                          "type": "boolean",
+                          "description": "Whether the email address has to be entered twice to avoid input errors"
+                        },
+                        "requirePasswordConfirmation": {
+                          "type": "boolean",
+                          "description": "Whether the password has to be entered twice to avoid input errors"
+                        },
+                        "doubleOptInRegistration": {
+                          "type": "boolean",
+                          "description": "Whether double opt-in is required for new customer registrations. The account is inactive until the emailed confirmation link is opened"
+                        },
+                        "doubleOptInGuestOrder": {
+                          "type": "boolean",
+                          "description": "Whether double opt-in is required for guest orders"
+                        },
+                        "showPhoneNumberField": {
+                          "type": "boolean",
+                          "description": "Whether the phone number field is shown in registration and address forms"
+                        },
+                        "phoneNumberFieldRequired": {
+                          "type": "boolean",
+                          "description": "Whether the phone number field is required"
+                        },
+                        "showBirthdayField": {
+                          "type": "boolean",
+                          "description": "Whether the birthday field is shown in the registration form"
+                        },
+                        "birthdayFieldRequired": {
+                          "type": "boolean",
+                          "description": "Whether the birthday field is required"
+                        },
+                        "showAccountTypeSelection": {
+                          "type": "boolean",
+                          "description": "Whether the selection between a private and a commercial (company) account is shown"
+                        },
+                        "showAdditionalAddressField1": {
+                          "type": "boolean",
+                          "description": "Whether the additional address line 1 is shown in address forms"
+                        },
+                        "additionalAddressField1Required": {
+                          "type": "boolean",
+                          "description": "Whether the additional address line 1 is required"
+                        },
+                        "showAdditionalAddressField2": {
+                          "type": "boolean",
+                          "description": "Whether the additional address line 2 is shown in address forms"
+                        },
+                        "additionalAddressField2Required": {
+                          "type": "boolean",
+                          "description": "Whether the additional address line 2 is required"
+                        },
+                        "addressInputFieldArrangement": {
+                          "type": "string",
+                          "description": "Arrangement of the address fields City, ZIP and State. Empty string when not configured, which equals the default arrangement (city-zip-state)",
+                          "enum": [
+                            "city-zip-state",
+                            "zip-city-state",
+                            "city-state-zip",
+                            ""
+                          ]
+                        },
+                        "allowCustomerDeletion": {
+                          "type": "boolean",
+                          "description": "Whether customers may delete their own account from the account profile page"
+                        },
+                        "requireDataProtectionCheckbox": {
+                          "type": "boolean",
+                          "description": "Whether the privacy policy has to be acknowledged via a checkbox on registration and other forms"
+                        }
+                      }
+                    },
+                    "cart": {
+                      "type": "object",
+                      "description": "Cart and checkout settings (core.cart)",
+                      "required": [
+                        "apiAlias",
+                        "maxQuantity",
+                        "lineItemAddLimit",
+                        "showDeliveryTime",
+                        "showSubtotal",
+                        "columnTaxInsteadUnitPrice",
+                        "showCustomerComment",
+                        "showTosCheckbox",
+                        "openOffcanvasAfterAddToCart",
+                        "wishlistEnabled",
+                        "logoutGuestAfterCheckout",
+                        "enableOrderRefunds"
+                      ],
+                      "properties": {
+                        "apiAlias": {
+                          "type": "string",
+                          "const": "shop_settings_cart"
+                        },
+                        "maxQuantity": {
+                          "type": "integer",
+                          "description": "Maximum selectable quantity per line item"
+                        },
+                        "lineItemAddLimit": {
+                          "type": "integer",
+                          "description": "Maximum number of products that can be added to the cart per minute through the API"
+                        },
+                        "showDeliveryTime": {
+                          "type": "boolean",
+                          "description": "Whether the delivery time is shown in the cart"
+                        },
+                        "showSubtotal": {
+                          "type": "boolean",
+                          "description": "Whether the subtotal column is shown in the cart"
+                        },
+                        "columnTaxInsteadUnitPrice": {
+                          "type": "boolean",
+                          "description": "Whether the checkout confirm page shows a tax column instead of the unit price"
+                        },
+                        "showCustomerComment": {
+                          "type": "boolean",
+                          "description": "Whether the customer comment field is shown on the checkout confirm page"
+                        },
+                        "showTosCheckbox": {
+                          "type": "boolean",
+                          "description": "Whether customers are required to agree to the terms and conditions via a checkbox in the checkout"
+                        },
+                        "openOffcanvasAfterAddToCart": {
+                          "type": "boolean",
+                          "description": "Whether the offcanvas cart should open automatically after adding a product. If disabled, only a success message is supposed to be shown"
+                        },
+                        "wishlistEnabled": {
+                          "type": "boolean",
+                          "description": "Whether the wishlist feature is enabled"
+                        },
+                        "logoutGuestAfterCheckout": {
+                          "type": "boolean",
+                          "description": "Whether guest customers are automatically logged out after order completion"
+                        },
+                        "enableOrderRefunds": {
+                          "type": "boolean",
+                          "description": "Whether order refunds are enabled"
+                        }
+                      }
+                    },
+                    "listing": {
+                      "type": "object",
+                      "description": "Product listing, search and review settings (core.listing)",
+                      "required": [
+                        "apiAlias",
+                        "productsPerPage",
+                        "allowBuyInListing",
+                        "showReview",
+                        "reviewsPerPage",
+                        "disableEmptyFilterOptions",
+                        "markAsNew",
+                        "hideCloseoutProductsWhenOutOfStock",
+                        "showVariantOptionInSearchSuggestionResult",
+                        "findBestVariant",
+                        "autoplayVideoInListing",
+                        "beforeListPriceSnippetKey",
+                        "afterListPriceSnippetKey"
+                      ],
+                      "properties": {
+                        "apiAlias": {
+                          "type": "string",
+                          "const": "shop_settings_listing"
+                        },
+                        "productsPerPage": {
+                          "type": "integer",
+                          "description": "Number of products displayed per page in product listings and search results"
+                        },
+                        "allowBuyInListing": {
+                          "type": "boolean",
+                          "description": "Whether buy buttons are displayed beneath every product in listings. If disabled, only detail buttons are supposed to be shown"
+                        },
+                        "showReview": {
+                          "type": "boolean",
+                          "description": "Whether product reviews are shown"
+                        },
+                        "reviewsPerPage": {
+                          "type": "integer",
+                          "description": "Number of reviews displayed per page on a product page"
+                        },
+                        "disableEmptyFilterOptions": {
+                          "type": "boolean",
+                          "description": "Whether filter options without results are disabled instead of hidden"
+                        },
+                        "markAsNew": {
+                          "type": "integer",
+                          "description": "Number of days after the release date during which a product is marked as new"
+                        },
+                        "hideCloseoutProductsWhenOutOfStock": {
+                          "type": "boolean",
+                          "description": "Whether clearance sale products are hidden from listings as soon as their stock depletes to 0"
+                        },
+                        "showVariantOptionInSearchSuggestionResult": {
+                          "type": "boolean",
+                          "description": "Whether variant options are displayed underneath the product name in search suggestion results"
+                        },
+                        "findBestVariant": {
+                          "type": "boolean",
+                          "description": "Whether the best matching variant is previewed in search results and filtered listings"
+                        },
+                        "autoplayVideoInListing": {
+                          "type": "boolean",
+                          "description": "Whether videos configured as product media covers are played automatically in listings"
+                        },
+                        "beforeListPriceSnippetKey": {
+                          "type": "string",
+                          "description": "Translation snippet key whose content is displayed before every list price. Empty string when nothing should be displayed"
+                        },
+                        "afterListPriceSnippetKey": {
+                          "type": "string",
+                          "description": "Translation snippet key whose content is displayed after every list price. Empty string when nothing should be displayed"
+                        }
+                      }
+                    },
+                    "newsletter": {
+                      "type": "object",
+                      "description": "Newsletter settings (core.newsletter)",
+                      "required": [
+                        "apiAlias",
+                        "doubleOptIn",
+                        "doubleOptInRegistered"
+                      ],
+                      "properties": {
+                        "apiAlias": {
+                          "type": "string",
+                          "const": "shop_settings_newsletter"
+                        },
+                        "doubleOptIn": {
+                          "type": "boolean",
+                          "description": "Whether double opt-in is required for newsletter subscriptions"
+                        },
+                        "doubleOptInRegistered": {
+                          "type": "boolean",
+                          "description": "Whether double opt-in is also required for newsletter subscriptions of registered customers"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401",
+            "description": "The `sw-access-key` header is missing or invalid."
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

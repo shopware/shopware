@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MailTemplateEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class MailTemplateCollection extends EntityCollection

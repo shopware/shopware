@@ -121,7 +121,23 @@ final class NewsletterRecipientAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>,
+     *     email?: mixed,
+     *     firstName?: mixed,
+     *     lastName?: mixed,
+     *     status?: mixed,
+     *     city?: mixed,
+     *     zipCode?: mixed,
+     *     street?: mixed,
+     *     salesChannelId?: mixed,
+     *     languageId?: mixed,
+     *     tags?: list<array{id: string, _count: int}>,
+     *     createdAt?: string|null,
+     *     updatedAt?: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {

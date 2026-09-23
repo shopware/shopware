@@ -117,7 +117,7 @@ class StoreAppLifecycleServiceTest extends TestCase
         $appLifecycle
             ->expects($this->once())
             ->method('uninstall')
-            ->with('TestApp', ['id' => 'app-id', 'roleId' => $app->getAclRoleId()], $context);
+            ->with('TestApp', ['id' => 'app-id'], $context);
 
         $appLoader = $this->createMock(AppLoader::class);
         $appLoader

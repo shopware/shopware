@@ -222,6 +222,39 @@ describe('src/module/sw-cms/component/sw-cms-form-sync', () => {
         expect(contentEntity.slotConfig[defaultElementId]).toBeUndefined();
     });
 
+    it('should sync a field change for a language without its own slot translation', async () => {
+        const contentEntity = {
+            slotConfig: {},
+            translations: [],
+        };
+
+        Shopware.Store.get('swCategoryDetail').category = contentEntity;
+
+        const wrapper = await createWrapper({
+            element: {
+                id: defaultElementId,
+                type: 'text',
+                config: {},
+                translated: {
+                    config: {
+                        content: {
+                            value: 'base content',
+                        },
+                    },
+                },
+            },
+        });
+
+        set(wrapper.vm.element.config, 'content.value', 'child content');
+        await wrapper.vm.$nextTick();
+
+        // The base config is the diff reference of the field watcher, so editing must not touch it.
+        expect(wrapper.vm.element.translated.config.content.value).toBe('base content');
+        expect(contentEntity.slotConfig[defaultElementId].content).toStrictEqual({
+            value: 'child content',
+        });
+    });
+
     it('should not sync base CMS config as local override for the current language', async () => {
         const contentEntity = {
             slotConfig: {},

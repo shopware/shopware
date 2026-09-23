@@ -17,13 +17,13 @@ class TestRuleHelperTest extends TestCase
     #[DataProvider('classProvider')]
     public function testIsTestClass(string $className, bool $extendsTestCase, bool $isTestClass, bool $isUnitTestClass): void
     {
-        $classReflection = $this->createMock(TestReflectionClassInterface::class);
+        $classReflection = static::createStub(TestReflectionClassInterface::class);
         $classReflection
             ->method('getName')
             ->willReturn($className);
 
         if ($extendsTestCase) {
-            $parentClass = $this->createMock(TestReflectionClassInterface::class);
+            $parentClass = static::createStub(TestReflectionClassInterface::class);
             $parentClass
                 ->method('getName')
                 ->willReturn(TestCase::class);
@@ -92,12 +92,12 @@ class TestRuleHelperTest extends TestCase
 
     private function createTestClassReflection(string $className): TestReflectionClassInterface
     {
-        $classReflection = $this->createMock(TestReflectionClassInterface::class);
+        $classReflection = static::createStub(TestReflectionClassInterface::class);
         $classReflection
             ->method('getName')
             ->willReturn($className);
 
-        $parentClass = $this->createMock(TestReflectionClassInterface::class);
+        $parentClass = static::createStub(TestReflectionClassInterface::class);
         $parentClass
             ->method('getName')
             ->willReturn(TestCase::class);

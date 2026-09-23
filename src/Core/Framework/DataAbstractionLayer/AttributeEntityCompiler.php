@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Serialized;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -130,8 +131,10 @@ class AttributeEntityCompiler
      *     type: 'entity'|'mapping',
      *     since?: string|null,
      *     parent: string|null,
+     *     inheritance_aware?: bool,
      *     entity_class: class-string<EntityStruct>,
      *     entity_name: string,
+     *     hydrator_class?: class-string<EntityHydrator>,
      *     collection_class?: class-string<EntityCollection<EntityStruct>>,
      *     fields: list<FieldArray>,
      *     source?: string,
@@ -503,6 +506,7 @@ class AttributeEntityCompiler
     {
         $enumType = $property->getType();
         if (!$enumType instanceof \ReflectionNamedType) {
+            /** @phpstan-ignore class.toStringDeprecated (False positive. See https://github.com/phpstan/phpstan/issues/14963) */
             throw DataAbstractionLayerException::invalidEnumField($property->getName(), $enumType?->__toString() ?? 'null');
         }
 

@@ -7,10 +7,13 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\GenericStoreApiResponse;
@@ -76,7 +79,7 @@ class StoreApiResponseListenerTest extends TestCase
 
         $responseObject = new class extends Struct {};
 
-        $response = $this->createMock(StoreApiResponse::class);
+        $response = static::createStub(StoreApiResponse::class);
         $response->method('getObject')
             ->willReturn($responseObject);
         $response->method('getStatusCode')
@@ -114,7 +117,7 @@ class StoreApiResponseListenerTest extends TestCase
 
         $responseObject = new class extends Struct {};
 
-        $response = $this->createMock(StoreApiResponse::class);
+        $response = static::createStub(StoreApiResponse::class);
         $response->method('getObject')
             ->willReturn($responseObject);
         $response->method('getStatusCode')
@@ -142,5 +145,34 @@ class StoreApiResponseListenerTest extends TestCase
         $decoded = json_decode($content, true);
         static::assertIsArray($decoded, 'Decoded JSON is not an array.');
         static::assertSame(['encoded' => 'data'], $decoded);
+    }
+
+    public function testEncodeResponseUsesFieldsFromResolvedCriteria(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setIncludes(['product' => ['id']]);
+
+        $request = new Request(['includes' => ['product' => ['name']]]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CRITERIA, $criteria);
+
+        $encoder = $this->createMock(StructEncoder::class);
+        $encoder->expects($this->once())
+            ->method('encode')
+            ->willReturnCallback(static function (Struct $struct, ResponseFields $fields): array {
+                static::assertTrue($fields->isAllowed('product', 'id'));
+                static::assertFalse($fields->isAllowed('product', 'name'));
+
+                return ['encoded' => 'data'];
+            });
+
+        $event = new ResponseEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            new GenericStoreApiResponse(200, new ArrayStruct())
+        );
+
+        $listener = new StoreApiResponseListener($encoder, new EventDispatcher(), $this->seoUrlPlaceholderHandler, $this->mediaUrlPlaceholderHandler);
+        $listener->encodeResponse($event);
     }
 }

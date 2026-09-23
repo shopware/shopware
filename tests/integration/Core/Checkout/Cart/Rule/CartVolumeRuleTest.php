@@ -58,7 +58,7 @@ class CartVolumeRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $this->createCartDummy(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -80,7 +80,7 @@ class CartVolumeRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);

@@ -68,7 +68,7 @@ class StatementHelperTest extends TestCase
             'name' => 'test',
         ];
 
-        $expectedResult = $this->createMock(Result::class);
+        $expectedResult = static::createStub(Result::class);
         $this->expectBinds($parameters);
         $this->stmt->expects($this->once())
             ->method('executeQuery')

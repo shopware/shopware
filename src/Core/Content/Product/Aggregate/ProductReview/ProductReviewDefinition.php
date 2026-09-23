@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class ProductReviewDefinition extends EntityDefinition
 {

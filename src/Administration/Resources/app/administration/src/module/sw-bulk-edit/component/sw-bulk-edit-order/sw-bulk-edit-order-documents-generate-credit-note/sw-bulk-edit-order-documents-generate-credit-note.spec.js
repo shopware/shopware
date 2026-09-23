@@ -10,6 +10,13 @@ async function createWrapper() {
                 'sw-datepicker': true,
                 'sw-textarea-field': true,
             },
+            provide: {
+                documentV2Service: {
+                    sortFileFormats: (formats) => formats,
+                    getFileFormatSnippet: (format) => format,
+                    getAvailableDocumentTypes: jest.fn().mockResolvedValue({}),
+                },
+            },
         },
     });
 }
@@ -52,5 +59,9 @@ describe('sw-bulk-edit-order-documents-generate-credit-note', () => {
 
         expect(wrapper.vm.generateData.documentDate).toBe('I am a date');
         expect(wrapper.vm.generateData.documentComment).toBe('I am a comment');
+    });
+
+    it('should resolve the document type technical name to credit_note', async () => {
+        expect(wrapper.vm.documentTypeTechnicalName).toBe('credit_note');
     });
 });

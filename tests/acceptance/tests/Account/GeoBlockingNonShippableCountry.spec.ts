@@ -116,16 +116,21 @@ test(
             country: `${nonShippableCountry.name} (Delivery not possible)`,
         };
 
+        // StorefrontAccount.cannotDeliverToCountryAlert still expects the old "can not" wording
+        const cannotDeliverToCountryAlert = StorefrontAccount.page.getByText(
+            'We cannot deliver to the country that is stored in your delivery address.',
+        );
+
         await test.step('Customer select non-shippable country during registration', async () => {
             await ShopCustomer.goesTo(StorefrontAccountLogin.url());
             await ShopCustomer.attemptsTo(Register(customer));
-            await ShopCustomer.expects(StorefrontAccount.cannotDeliverToCountryAlert).toBeVisible();
+            await ShopCustomer.expects(cannotDeliverToCountryAlert).toBeVisible();
         });
 
         await test.step('Customer see cannot deliver warning after re-login', async () => {
             await ShopCustomer.attemptsTo(Logout());
             await ShopCustomer.attemptsTo(Login(customer));
-            await ShopCustomer.expects(StorefrontAccount.cannotDeliverToCountryAlert).toBeVisible();
+            await ShopCustomer.expects(cannotDeliverToCountryAlert).toBeVisible();
         });
 
         await test.step('Customer add new address with non-shippable country and cannot set it as new shipping address', async () => {

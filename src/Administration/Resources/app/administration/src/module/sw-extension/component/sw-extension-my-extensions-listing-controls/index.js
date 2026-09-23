@@ -8,15 +8,19 @@ import './sw-extension-my-extensions-listing-controls.scss';
 export default {
     template,
 
-    emits: [
-        'update:active-state',
-        'update:sorting-option',
-    ],
+    props: {
+        sortingOption: {
+            type: String,
+            default: 'updated-at',
+        },
+    },
+
+    emits: ['update:active-state', 'update:sorting-option'],
 
     data() {
         return {
             filterByActiveState: false,
-            selectedSortingOption: 'updated-at',
+            selectedSortingOption: this.sortingOption,
             sortingOptions: [
                 {
                     id: 1,
@@ -38,12 +42,18 @@ export default {
     },
 
     watch: {
+        sortingOption(value) {
+            this.selectedSortingOption = value;
+        },
+
         filterByActiveState(value) {
             this.$emit('update:active-state', value);
         },
 
         selectedSortingOption(value) {
-            this.$emit('update:sorting-option', value);
+            if (value !== this.sortingOption) {
+                this.$emit('update:sorting-option', value);
+            }
         },
     },
 };

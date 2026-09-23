@@ -11,6 +11,7 @@
         v-model="currentCustomField.config.numberType"
         :label="$t('sw-settings-custom-field.customField.detail.labelNumberType')"
         :options="numberTypes"
+        :disabled="!currentCustomField._isNew || undefined"
     />
     {% endblock %}
 

@@ -22,15 +22,20 @@ class ImportExportBeforeExportRecordEventTest extends TestCase
     public function testSetRecordDoesNotMutateOriginalRecord(): void
     {
         $originalRecord = ['key' => 'original'];
+        $config = new Config([], [], []);
         $event = new ImportExportBeforeExportRecordEvent(
-            new Config([], [], []),
+            $config,
             ['key' => 'value'],
             $originalRecord,
             Context::createDefaultContext()
         );
 
+        static::assertSame($config, $event->getConfig());
+        static::assertSame(['key' => 'value'], $event->getRecord());
+
         $event->setRecord(['key' => 'new']);
 
+        static::assertSame(['key' => 'new'], $event->getRecord());
         static::assertSame($originalRecord, $event->getOriginalRecord());
     }
 

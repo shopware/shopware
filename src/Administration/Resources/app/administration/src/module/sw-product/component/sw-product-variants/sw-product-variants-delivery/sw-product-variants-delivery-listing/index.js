@@ -108,10 +108,7 @@ export default {
             }
 
             // add non sorted groups at the end of the sorted array
-            sortedGroups = [
-                ...sortedGroups,
-                ...selectedGroupsCopy,
-            ];
+            sortedGroups = [...sortedGroups, ...selectedGroupsCopy];
 
             return sortedGroups;
         },

@@ -66,7 +66,9 @@ concurrency:
 
 checkout:
   ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'improve-pr' && github.event.inputs.pr_number && format('refs/pull/{0}/head', github.event.inputs.pr_number) || 'trunk' }}
-  fetch-depth: 1
+  # Full history, as in sw-review: a shallow clone has no merge-base with origin/trunk, so a commit
+  # landing mid-run makes the PR payload a flat diff against the moved tip and trips max_patch_files.
+  fetch-depth: 0
 
 engine:
   id: claude
@@ -87,29 +89,31 @@ tools:
   github:
     toolsets: [issues, labels, pull_requests]
     min-integrity: none
+  # ":*" is the prefix form; a bare "php" matches the bare binary only. Read-only tools are
+  # auto-allowed regardless, but composer/php/npm/pnpm/bin/console are denied on every real call.
   bash:
-    - "rg"
-    - "find"
-    - "ls"
-    - "sed"
-    - "sort"
-    - "uniq"
-    - "wc"
-    - "jq"
-    - "git log"
-    - "git show"
-    - "git diff"
-    - "git blame"
-    - "git status"
-    - "git branch"
-    - "git rev-parse"
-    - "git merge-base"
-    - "git fetch"
-    - "composer"
-    - "php"
-    - "bin/console"
-    - "npm"
-    - "pnpm"
+    - "rg:*"
+    - "find:*"
+    - "ls:*"
+    - "sed:*"
+    - "sort:*"
+    - "uniq:*"
+    - "wc:*"
+    - "jq:*"
+    - "git log:*"
+    - "git show:*"
+    - "git diff:*"
+    - "git blame:*"
+    - "git status:*"
+    - "git branch:*"
+    - "git rev-parse:*"
+    - "git merge-base:*"
+    - "git fetch:*"
+    - "composer:*"
+    - "php:*"
+    - "bin/console:*"
+    - "npm:*"
+    - "pnpm:*"
 
 safe-outputs:
   messages:

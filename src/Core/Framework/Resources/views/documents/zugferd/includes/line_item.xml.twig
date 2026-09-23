@@ -17,7 +17,14 @@
 
     <ram:SpecifiedLineTradeAgreement>
         <ram:NetPriceProductTradePrice>
-            <ram:ChargeAmount>{{ item.netUnitPrice|zugferd_decimal }}</ram:ChargeAmount>
+            {#
+            EN16931 caps most amounts at 2 decimals but exempts the unit price (BT-146):
+            "Unit price amount does not set restrictions on number of decimals, as contrast to the Amount type"
+            (https://docs.peppol.eu/poacc/billing/3.0/bis/#_unit_price_amount).
+            2 decimals violate PEPPOL-EN16931-R120 (slack 0.02) once the rounding error
+            of the net unit price multiplies with higher quantities.
+            #}
+            <ram:ChargeAmount>{{ item.netUnitPrice|zugferd_decimal(4) }}</ram:ChargeAmount>
             <ram:BasisQuantity unitCode="{{ item.unitCode.value }}">{{ item.basisQuantity|zugferd_decimal }}</ram:BasisQuantity>
         </ram:NetPriceProductTradePrice>
     </ram:SpecifiedLineTradeAgreement>

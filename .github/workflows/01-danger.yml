@@ -6,6 +6,10 @@ concurrency:
   group: danger-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   pr:
     runs-on: ubuntu-24.04

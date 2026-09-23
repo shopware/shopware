@@ -40,6 +40,8 @@ class GenerateThumbnailsCommand extends Command
 
     private bool $isStrict;
 
+    private bool $isForce;
+
     /**
      * @internal
      *
@@ -80,6 +82,12 @@ class GenerateThumbnailsCommand extends Command
                 InputOption::VALUE_NONE,
                 'Additionally checks that physical files for existing thumbnails are present'
             )
+            ->addOption(
+                'force',
+                'f',
+                InputOption::VALUE_NONE,
+                'Regenerates thumbnails for all configured sizes even when a thumbnail already exists, e.g. after changing the thumbnail quality'
+            )
         ;
     }
 
@@ -118,6 +126,7 @@ class GenerateThumbnailsCommand extends Command
         $this->batchSize = $this->getBatchSizeFromInput($input);
         $this->isAsync = $input->getOption('async');
         $this->isStrict = $input->getOption('strict');
+        $this->isForce = $input->getOption('force');
     }
 
     private function getBatchSizeFromInput(InputInterface $input): int
@@ -165,7 +174,7 @@ class GenerateThumbnailsCommand extends Command
         while (($result = $iterator->fetch()) !== null) {
             foreach ($result->getEntities() as $media) {
                 try {
-                    if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict) > 0) {
+                    if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict, $this->isForce) > 0) {
                         ++$generated;
                     } else {
                         ++$skipped;
@@ -246,6 +255,7 @@ class GenerateThumbnailsCommand extends Command
         while (($result = $mediaIterator->fetch()) !== null) {
             $msg = new UpdateThumbnailsMessage();
             $msg->setStrict($this->isStrict);
+            $msg->setForce($this->isForce);
             $msg->setMediaIds($result->getEntities()->getIds());
             $msg->setContext($context);
 

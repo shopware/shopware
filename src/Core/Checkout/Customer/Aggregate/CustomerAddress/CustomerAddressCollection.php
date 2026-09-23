@@ -10,6 +10,10 @@ use Shopware\Core\System\Country\CountryCollection;
 
 /**
  * @extends EntityCollection<CustomerAddressEntity>
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Storefront\Controller\AddressControllerTest
  */
 #[Package('checkout')]
 class CustomerAddressCollection extends EntityCollection

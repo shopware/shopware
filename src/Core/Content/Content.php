@@ -10,7 +10,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -25,7 +24,6 @@ class Content extends Bundle
     {
         parent::build($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader->load('breadcrumb.php');
         $phpLoader->load('category.php');
@@ -49,6 +47,7 @@ class Content extends Bundle
         $phpLoader->load('landing_page.php');
         $phpLoader->load('flow.php');
         $phpLoader->load('measurement_system.php');
+        $phpLoader->load('legal_guarantee_notice.php');
         $phpLoader->load('shared.php');
 
         $phpLoader->load('product_export_tracking.php');

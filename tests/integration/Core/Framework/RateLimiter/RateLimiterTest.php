@@ -400,16 +400,16 @@ class RateLimiterTest extends TestCase
         $productId = $this->ids->get('rate-limited-product');
 
         // a single-entry time_backoff limit allows the configured number of attempts inside the
-        // interval, so a value of 1 allows one addition and throttles the second; the
-        // global value is pinned explicitly so ambient state cannot throttle the second channel
+        // interval, so a value of 1 allows one addition and throttles the second; the global
+        // value is pinned explicitly so ambient state cannot throttle the second channel
         $systemConfig->set('core.cart.lineItemAddLimit', null);
-        $systemConfig->set('core.cart.lineItemAddLimit', 1, $scopedChannelId);
+        $systemConfig->set('core.cart.lineItemAddLimit', self::TEST_THROTTLE_LIMIT, $scopedChannelId);
 
         try {
-            for ($i = 0; $i < 2; ++$i) {
+            for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
                 $this->addProductToCart($this->browser, $productId);
 
-                if ($i >= 1) {
+                if ($i >= self::TEST_THROTTLE_LIMIT) {
                     static::assertSame(429, $this->browser->getResponse()->getStatusCode());
 
                     $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -423,7 +423,7 @@ class RateLimiterTest extends TestCase
             }
 
             // same product and client ip on a second sales channel without an override: not throttled
-            for ($i = 0; $i < 2; ++$i) {
+            for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
                 $this->addProductToCart($otherBrowser, $productId);
 
                 static::assertSame(200, $otherBrowser->getResponse()->getStatusCode(), (string) $otherBrowser->getResponse()->getContent());

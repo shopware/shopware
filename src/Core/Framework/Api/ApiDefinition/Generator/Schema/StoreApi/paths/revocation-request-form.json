@@ -71,7 +71,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Message sent successfully."
+                        "description": "Message sent successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevocationRequestRouteResponse"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "$ref": "#/components/responses/400",

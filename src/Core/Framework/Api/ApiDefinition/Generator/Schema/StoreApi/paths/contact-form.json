@@ -21,13 +21,14 @@
                         "application/json": {
                             "schema": {
                                 "required": [
+                                    "salutationId",
                                     "email",
                                     "subject",
                                     "comment"
                                 ],
                                 "properties": {
                                     "salutationId": {
-                                        "description": "Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values.",
+                                        "description": "Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values. This field is always required and cannot be disabled by a system setting.",
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$"
                                     },
@@ -81,7 +82,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Message sent successful."
+                        "description": "Message sent successful.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactFormRouteResponse"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "$ref": "#/components/responses/400",

@@ -119,6 +119,10 @@
                                     "birthdayYear": {
                                         "description": "Birthday year",
                                         "type": "integer"
+                                    },
+                                    "customFields": {
+                                        "description": "Custom fields of the customer. Only fields defined for the customer entity are stored.",
+                                        "type": "object"
                                     }
                                 },
                                 "anyOf": [
@@ -143,8 +147,7 @@
                                     {
                                         "required": [
                                             "accountType",
-                                            "company",
-                                            "vatIds"
+                                            "company"
                                         ],
                                         "properties": {
                                             "accountType": {
@@ -155,11 +158,11 @@
                                                 ]
                                             },
                                             "company": {
-                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
+                                                "description": "Company of the customer. Required whenever `accountType` is `business`.",
                                                 "type": "string"
                                             },
                                             "vatIds": {
-                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
+                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`, and only required when the country of the default billing address has `vatIdRequired` enabled.",
                                                 "type": "array",
                                                 "items": {
                                                     "type": "string"
@@ -871,12 +874,27 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "username",
                                     "password"
                                 ],
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "email"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "username"
+                                        ]
+                                    }
+                                ],
                                 "properties": {
+                                    "email": {
+                                        "description": "Email address of the customer. Takes precedence over `username` when both are sent.",
+                                        "type": "string"
+                                    },
                                     "username": {
-                                        "description": "Email",
+                                        "description": "Email address of the customer. Kept for backwards compatibility; `email` is the preferred field.",
                                         "type": "string"
                                     },
                                     "password": {
@@ -1124,7 +1142,7 @@
                                         "type": "string"
                                     },
                                     "acceptedDataProtection": {
-                                        "description": "Flag indicating accepted data protection",
+                                        "description": "Flag indicating accepted data protection. Only required when the `core.loginRegistration.requireDataProtectionCheckbox` setting is enabled, which is off by default.",
                                         "type": "boolean"
                                     },
                                     "storefrontUrl": {
@@ -1136,9 +1154,11 @@
                                         "type": "string"
                                     },
                                     "billingAddress": {
+                                        "description": "Billing address of the customer. Required unless a `shippingAddress` is sent, which is then used as the billing address as well.",
                                         "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "shippingAddress": {
+                                        "description": "Shipping address of the customer. When no `billingAddress` is sent, this address becomes the default billing address too.",
                                         "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "guest": {
@@ -1169,16 +1189,40 @@
                                     "campaignCode": {
                                         "description": "Field can be used to store a campaign tracking code",
                                         "type": "string"
+                                    },
+                                    "customFields": {
+                                        "description": "Custom fields of the customer. Only fields defined for the customer entity are stored.",
+                                        "type": "object"
+                                    },
+                                    "redirectTo": {
+                                        "description": "Route name the double opt-in confirmation link points to. Only used when double opt-in registration is enabled.",
+                                        "type": "string"
+                                    },
+                                    "redirectParameters": {
+                                        "description": "Additional parameters for the double opt-in confirmation link, as a JSON encoded string. Only used when double opt-in registration is enabled.",
+                                        "type": "string"
                                     }
                                 },
                                 "required": [
                                     "email",
-                                    "password",
                                     "firstName",
-                                    "lastName",
-                                    "acceptedDataProtection",
-                                    "storefrontUrl",
-                                    "billingAddress"
+                                    "lastName"
+                                ],
+                                "allOf": [
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "billingAddress"
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "shippingAddress"
+                                                ]
+                                            }
+                                        ]
+                                    }
                                 ],
                                 "anyOf": [
                                     {
@@ -1201,9 +1245,7 @@
                                     },
                                     {
                                         "required": [
-                                            "accountType",
-                                            "company",
-                                            "vatIds"
+                                            "accountType"
                                         ],
                                         "properties": {
                                             "accountType": {
@@ -1214,11 +1256,11 @@
                                                 ]
                                             },
                                             "company": {
-                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
+                                                "description": "Company of the customer. This value is not read during registration: send the company inside `billingAddress` or `shippingAddress`, where it is required for a business account.",
                                                 "type": "string"
                                             },
                                             "vatIds": {
-                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
+                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`, and only required when the country of the sent address has `vatIdRequired` enabled.",
                                                 "type": "array",
                                                 "items": {
                                                     "type": "string"

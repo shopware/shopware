@@ -28,15 +28,39 @@
                     },
                     "firstName": { "type": "string" },
                     "lastName": { "type": "string" },
-                    "zipcode": { "type": "string" },
+                    "zipcode": {
+                        "description": "Postal code. Required whenever the country referenced by `countryId` has `postalCodeRequired` enabled, which is the case for every country on a default installation.",
+                        "type": "string",
+                        "maxLength": 50
+                    },
                     "city": { "type": "string" },
-                    "company": { "type": "string" },
+                    "accountType": {
+                        "description": "Type of the customer account, `private` or `business`. Only evaluated when the `core.loginRegistration.showAccountTypeSelection` setting is enabled, and then it makes `company` required. It is not stored on the address, and during registration the account type of the customer is taken from the top level of the request instead.",
+                        "type": "string",
+                        "enum": [
+                            "private",
+                            "business"
+                        ]
+                    },
+                    "company": {
+                        "description": "Company of the address. Required when the address is sent with `accountType` set to `business` and the account type selection is enabled.",
+                        "type": "string"
+                    },
                     "street": { "type": "string" },
                     "department": { "type": "string" },
                     "title": { "type": "string" },
-                    "phoneNumber": { "type": "string" },
-                    "additionalAddressLine1": { "type": "string" },
-                    "additionalAddressLine2": { "type": "string" },
+                    "phoneNumber": {
+                        "description": "Phone number. Required when the `core.loginRegistration.showPhoneNumberField` and `core.loginRegistration.phoneNumberFieldRequired` settings are both enabled. Both are off by default.",
+                        "type": "string"
+                    },
+                    "additionalAddressLine1": {
+                        "description": "Required when the `core.loginRegistration.showAdditionalAddressField1` and `core.loginRegistration.additionalAddressField1Required` settings are both enabled. Both are off by default.",
+                        "type": "string"
+                    },
+                    "additionalAddressLine2": {
+                        "description": "Required when the `core.loginRegistration.showAdditionalAddressField2` and `core.loginRegistration.additionalAddressField2Required` settings are both enabled. Both are off by default.",
+                        "type": "string"
+                    },
                     "customFields": { "type": "object" },
                     "country": { "$ref": "#/components/schemas/Country" },
                     "countryState": {

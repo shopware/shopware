@@ -36,6 +36,21 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Company accounts can register without a contact person
+
+`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. They decide per sales channel whether a commercial customer has to name a contact person. Both default to on, so nothing changes until a shop turns one off.
+
+The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag.
+
+`customer` and `order_customer` gain a runtime field `displayName`. It holds the person name, or the company when there is no contact person. `CustomerEntity::getDisplayName()` and `OrderCustomerEntity::getDisplayName()` return it once the entity is loaded. Read the name through it instead of joining `firstName` and `lastName`:
+
+```twig
+{{ customer.displayName }}
+{{ order.orderCustomer.displayName }}
+```
+
+The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses
@@ -292,21 +307,6 @@ Headless sales channels without an external storefront domain for the requested 
 Customer import records whose `customerNumber` does not match the configured customer number range pattern for the resolved sales channel are now rejected and written to the invalid-records file. Adjust the imported customer numbers or the number range pattern before retrying the import.
 
 Custom number range increment storages can implement `AbstractIncrementStorage::increaseToAtLeast()` to raise an existing increment state without lowering higher values.
-
-### Company accounts can register without a contact person
-
-`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. They decide per sales channel whether a commercial customer has to name a contact person. Both default to on, so nothing changes until a shop turns one off.
-
-The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag.
-
-`customer` and `order_customer` gain a runtime field `displayName`. It holds the person name, or the company when there is no contact person. `CustomerEntity::getDisplayName()` and `OrderCustomerEntity::getDisplayName()` return it once the entity is loaded. Read the name through it instead of joining `firstName` and `lastName`:
-
-```twig
-{{ customer.displayName }}
-{{ order.orderCustomer.displayName }}
-```
-
-The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
 
 ### Dynamic product group assignments follow condition changes
 

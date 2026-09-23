@@ -38,6 +38,12 @@ Existing integrations and non-admin users therefore lose MCP access until an all
 
 ## API
 
+### Store API review list respects the configured reviews per page
+
+`POST/GET /store-api/product/{productId}/reviews` ignored the "Number of reviews per page" setting (`core.listing.reviewsPerPage`). A request without an explicit `limit` fell back to the Store API maximum limit (`shopware.api.store.max_limit`, 100 by default), so headless frontends received far more reviews per page than the Storefront and had to hard-code their own page size.
+
+The route now applies `core.listing.reviewsPerPage` for the requesting sales channel when the request contains no `limit`, mirroring how product listings apply `core.listing.productsPerPage`. An explicit `limit` in the request still takes precedence. If you relied on receiving up to 100 reviews from an unlimited request, pass an explicit `limit`.
+
 ### Store API OpenAPI schema matches the actual responses
 
 The Store API OpenAPI schema was corrected where it contradicted the real responses; the responses themselves are unchanged. If you generate types or validate responses from the schema, regenerate them. Notable changes:

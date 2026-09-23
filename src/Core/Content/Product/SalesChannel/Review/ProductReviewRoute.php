@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -61,6 +62,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
 
         $this->cacheTagCollector->addTag(self::buildName($productId));
 
+        $this->applyConfiguredLimit($criteria, $salesChannelId);
+
         $active = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
         if ($customer = $context->getCustomer()) {
             $active->addQuery(new EqualsFilter('customerId', $customer->getId()));
@@ -80,5 +83,35 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         $result = $this->productReviewRepository->search($criteria, $context->getContext());
 
         return new ProductReviewRouteResponse($result);
+    }
+
+    /**
+     * When the request contains no explicit limit, the Store API falls back to its
+     * configured maximum limit. Apply the merchant-configured page size
+     * (core.listing.reviewsPerPage) instead, mirroring how product listings apply
+     * core.listing.productsPerPage. An explicit limit in the request takes precedence.
+     */
+    private function applyConfiguredLimit(Criteria $criteria, string $salesChannelId): void
+    {
+        if (!$criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)) {
+            return;
+        }
+
+        $reviewsPerPage = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $salesChannelId);
+        if ($reviewsPerPage <= 0) {
+            return;
+        }
+
+        // The offset was derived from the max limit while resolving the page, so
+        // recompute it for the configured page size to keep pagination consistent.
+        $currentLimit = $criteria->getLimit();
+        $currentOffset = $criteria->getOffset();
+        if ($currentLimit && $currentOffset) {
+            $page = intdiv($currentOffset, $currentLimit) + 1;
+            $criteria->setOffset($reviewsPerPage * ($page - 1));
+        }
+
+        $criteria->setLimit($reviewsPerPage);
+        $criteria->removeState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
     }
 }

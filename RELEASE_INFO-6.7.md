@@ -4,7 +4,7 @@
 
 ### Product line items expose the manufacturer and category names in their payload
 
-Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no visible category. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
+Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no category available in the sales channel. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
 
 Both keys were previously only present when a client posted them as part of the line item payload, which only the Storefront product detail page did. Core now resolves them during cart enrichment for every add-to-cart path and overwrites any client supplied value, so clients that post them can stop doing so.
 ### Dompdf page count placeholder replaced for core and fallback fonts

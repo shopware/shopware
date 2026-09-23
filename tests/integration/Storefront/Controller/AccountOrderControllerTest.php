@@ -674,6 +674,60 @@ class AccountOrderControllerTest extends TestCase
         static::assertStringNotContainsString('/checkout/line-item/order/' . $unavailableOrderId, $content);
     }
 
+    public function testReorderAddsTheOrderProductsToTheCartThroughTheStorefrontRoute(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $availableProductId = $this->createProduct($context, 'Available product', $salesChannelId);
+        $deactivatedProductId = $this->createProduct($context, 'Deactivated product', $salesChannelId);
+
+        $orderId = $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $availableProductId => 'Available product',
+            $deactivatedProductId => 'Deactivated product',
+        ]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $deactivatedProductId, 'active' => false],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('POST', '/checkout/line-item/order/' . $orderId);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->request('GET', '/checkout/cart');
+        $cartContent = (string) $browser->getResponse()->getContent();
+
+        // the still available product is in the cart, the deactivated one was skipped by the cart pipeline
+        static::assertStringContainsString($availableProductId, $cartContent);
+        static::assertStringNotContainsString($deactivatedProductId, $cartContent);
+    }
+
+    public function testReorderOfAnotherCustomersOrderIsRejected(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $productId = $this->createProduct($context, 'Foreign product', $salesChannelId);
+
+        $foreignCustomer = $this->createCustomer($context, false, Uuid::randomHex() . '@example.com');
+
+        $foreignOrderId = $this->createOrderWithProducts($context, $foreignCustomer, $salesChannelId, [
+            $productId => 'Foreign product',
+        ]);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('POST', '/checkout/line-item/order/' . $foreignOrderId);
+
+        // the order does not belong to the logged-in customer, so nothing is added and the shopper sees an error
+        $browser->request('GET', '/checkout/cart');
+        static::assertStringNotContainsString($productId, (string) $browser->getResponse()->getContent());
+    }
+
     /**
      * @param array<string, string> $products product id => label
      */
@@ -682,6 +736,7 @@ class AccountOrderControllerTest extends TestCase
         $orderId = Uuid::randomHex();
         $orderData = $this->getOrderData($orderId, $context);
         $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['email'] = $customer->getEmail();
         $orderData[0]['orderCustomer']['customer']['guest'] = false;
         $orderData[0]['salesChannelId'] = $salesChannelId;
         $orderData[0]['deepLinkCode'] = Uuid::randomHex();
@@ -730,7 +785,7 @@ class AccountOrderControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(Context $context, bool $guest = false): CustomerEntity
+    private function createCustomer(Context $context, bool $guest = false, ?string $email = null): CustomerEntity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -752,12 +807,12 @@ class AccountOrderControllerTest extends TestCase
             'defaultBillingAddressId' => $addressId,
             'guest' => $guest,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => 'test@example.com',
+            'email' => $email ?? 'test@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $email === null ? '12345' : Uuid::randomHex(),
         ];
 
         /** @var EntityRepository<CustomerCollection> $repo */

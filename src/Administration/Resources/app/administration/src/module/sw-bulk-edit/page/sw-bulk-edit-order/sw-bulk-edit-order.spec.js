@@ -139,6 +139,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-media-collapse': true,
                 },
                 provide: {
+                    customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                     validationService: {},
                     repositoryFactory: {
                         create: (entity) => {

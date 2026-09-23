@@ -220,6 +220,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-media-collapse': true,
                 },
                 provide: {
+                    customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                     validationService: {},
                     bulkEditApiFactory: {
                         getHandler: () => {

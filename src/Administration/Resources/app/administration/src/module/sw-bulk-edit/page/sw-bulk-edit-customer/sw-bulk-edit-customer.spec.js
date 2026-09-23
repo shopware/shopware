@@ -102,6 +102,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'mt-switch': true,
                 },
                 provide: {
+                    customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                     validationService: {},
                     orderDocumentApiService: {},
                     documentV2Service: {},

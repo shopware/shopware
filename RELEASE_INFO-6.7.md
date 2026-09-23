@@ -49,9 +49,7 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds the product line items of an order to the current cart and returns the recalculated cart. It carries the order id only; the order is resolved for the logged-in customer and the current sales channel, and products that are no longer available are skipped and reported as cart errors.
-
-To change which line items a reorder adds, decorate `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute` or listen to `Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent`.
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds the product line items of an order to the current cart, resolved for the logged-in customer and the current sales channel, skipping products that are no longer available. Decorate `AbstractCartOrderLineItemsAddRoute` or listen to `BeforeOrderLineItemsAddedToCartEvent` to change what a reorder adds.
 
 ## Administration
 
@@ -107,11 +105,7 @@ Availability is resolved once per page in PHP with a single sales-channel-aware 
 
 ### Reorder posts only the order id
 
-The reorder form in `order-item.html.twig` now posts to `frontend.checkout.line-item.order.add`, which derives the line items from the order server-side. The blocks `page_account_order_item_context_menu_reorder_form_line_items_input` and `page_account_order_item_context_menu_reorder_form_line_item_input` still render, but the route ignores their input. Move overrides that change what a reorder adds into a decorator of `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute` or a listener on `Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent`.
-
-### Unavailable products are no longer linked in order line items
-
-Order line items link to the product and offer the wishlist button only while the product is still active and visible in the sales channel, and an order whose products are all unavailable offers no reorder entry. Orders read through the Store API now carry a `productAvailable` extension on every product line item, so Store API clients get the same answer without querying each product; read it if you render order line items yourself, an absent extension means available.
+The reorder form now posts to `frontend.checkout.line-item.order.add`, which derives the line items from the order server-side; the hidden-input blocks still render but are ignored, so move overrides of them into a decorator of `AbstractCartOrderLineItemsAddRoute`. Order line items only link to the product and offer the wishlist button while it is still active and visible, exposed as the `productAvailable` line item extension.
 
 # 6.7.15.0
 

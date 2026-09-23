@@ -24,8 +24,15 @@
         }
     }
 
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
     &__back-button,
-    &__add-button {
+    &__add-button,
+    &__settings-button {
         display: flex;
         align-items: center;
         justify-content: center;

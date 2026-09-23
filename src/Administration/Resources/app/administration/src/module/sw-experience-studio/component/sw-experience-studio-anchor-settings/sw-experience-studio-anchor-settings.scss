@@ -1,0 +1,14 @@
+.sw-experience-studio-anchor-settings {
+    display: grid;
+    gap: var(--scale-size-12);
+    padding: var(--scale-size-24) var(--scale-size-16) var(--scale-size-16);
+
+    /* Same treatment as the style-option switches in the layout tab: Meteor defaults, only the top margin removed. */
+    .mt-switch {
+        margin-top: 0;
+    }
+
+    &__banner {
+        margin: 0;
+    }
+}

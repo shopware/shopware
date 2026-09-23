@@ -3,6 +3,7 @@ import { editingLanguageChain } from '../../util/element-settings.util';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 import { translateContentSystemText } from '../../util/content-system-translation.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
+import type { ScrollNavigationAnchor } from '../../util/scroll-navigation-settings.util';
 
 import template from './sw-experience-studio-sidebar-tree-node.html.twig';
 import './sw-experience-studio-sidebar-tree-node.scss';
@@ -35,6 +36,11 @@ export default Shopware.Component.wrapComponentConfig({
         element: {
             type: Object as PropType<ContentElementNode>,
             required: true,
+        },
+        anchors: {
+            type: Object as PropType<Record<string, ScrollNavigationAnchor>>,
+            required: false,
+            default: () => ({}),
         },
         selectedElementId: {
             type: String,
@@ -92,6 +98,16 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         contentElement(): ContentElementNode {
             return this.element;
+        },
+
+        hasAnchor(): boolean {
+            return this.anchors[this.element.id] !== undefined;
+        },
+
+        anchorTooltip(): string {
+            const label = this.anchors[this.element.id]?.label?.trim() ?? '';
+
+            return label !== '' ? label : this.$t('sw-experience-studio.detail.sidebarTree.anchor');
         },
 
         elementTypeStore() {

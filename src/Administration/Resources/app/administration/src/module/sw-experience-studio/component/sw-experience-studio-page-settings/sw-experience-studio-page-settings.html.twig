@@ -1,0 +1,79 @@
+{% block sw_experience_studio_page_settings %}
+<div class="sw-experience-studio-page-settings">
+    <mt-empty-state
+        v-if="!hasLayout"
+        icon="regular-sliders-xs"
+        :description="$t('sw-experience-studio.detail.elementSettings.emptyState')"
+    />
+
+    <template v-else>
+        <div class="sw-experience-studio-page-settings__header">
+            <span class="sw-experience-studio-page-settings__title">
+                {{ $t('sw-experience-studio.detail.pageSettings.title') }}
+            </span>
+        </div>
+
+        {% block sw_experience_studio_page_settings_scroll_navigation %}
+        <sw-collapse
+            class="sw-experience-studio-page-settings__panel"
+            :expand-on-loading="true"
+        >
+            <template #header="{ expanded }">
+                <div class="sw-experience-studio-page-settings__panel-header">
+                    <span class="sw-experience-studio-page-settings__panel-title">
+                        {{ $t('sw-experience-studio.detail.pageSettings.scrollNavigation.title') }}
+                    </span>
+                    <mt-icon
+                        name="regular-chevron-right-xs"
+                        size="12px"
+                        class="sw-experience-studio-page-settings__panel-indicator"
+                        :class="{ 'is--expanded': expanded }"
+                    />
+                </div>
+            </template>
+
+            <template #content>
+                <div class="sw-experience-studio-page-settings__panel-content">
+                    <mt-switch
+                        class="sw-experience-studio-page-settings__scroll-navigation-active"
+                        :label="$t('sw-experience-studio.detail.pageSettings.scrollNavigation.active')"
+                        :help-text="$t('sw-experience-studio.detail.pageSettings.scrollNavigation.activeHelp')"
+                        :model-value="scrollNavigation.active"
+                        :disabled="!allowEdit || undefined"
+                        @update:model-value="onScrollNavigationActiveChange"
+                    />
+
+                    <mt-select
+                        v-if="scrollNavigation.active"
+                        class="sw-experience-studio-page-settings__scroll-navigation-mode"
+                        :label="$t('sw-experience-studio.detail.pageSettings.scrollNavigation.mode')"
+                        :help-text="$t('sw-experience-studio.detail.pageSettings.scrollNavigation.modeHelp')"
+                        :model-value="scrollNavigation.mode"
+                        :options="modeOptions"
+                        :disabled="!allowEdit || undefined"
+                        @update:model-value="onScrollNavigationModeChange"
+                    />
+
+                    <mt-select
+                        v-if="showPositionOption"
+                        class="sw-experience-studio-page-settings__scroll-navigation-position"
+                        :label="$t('sw-experience-studio.detail.pageSettings.scrollNavigation.position')"
+                        :model-value="scrollNavigation.position"
+                        :options="positionOptions"
+                        :disabled="!allowEdit || undefined"
+                        @update:model-value="onScrollNavigationPositionChange"
+                    />
+
+                    <p
+                        v-if="scrollNavigation.active"
+                        class="sw-experience-studio-page-settings__scroll-navigation-anchors"
+                    >
+                        {{ $t('sw-experience-studio.detail.pageSettings.scrollNavigation.anchorCount', { count: anchorCount }, anchorCount) }}
+                    </p>
+                </div>
+            </template>
+        </sw-collapse>
+        {% endblock %}
+    </template>
+</div>
+{% endblock %}

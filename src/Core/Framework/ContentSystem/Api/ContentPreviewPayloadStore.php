@@ -82,6 +82,7 @@ class ContentPreviewPayloadStore
             'domainId' => $payload->domainId,
             'customerId' => $payload->customerId,
             'queryParameters' => $payload->queryParameters,
+            'settings' => $payload->settings,
         ];
     }
 
@@ -109,6 +110,7 @@ class ContentPreviewPayloadStore
             domainId: $this->nullableStringField($payload, 'domainId'),
             customerId: $this->nullableStringField($payload, 'customerId'),
             queryParameters: $this->stringKeyedField($payload, 'queryParameters'),
+            settings: $this->stringKeyedField($payload, 'settings'),
         );
 
         $this->assertDeclaredConstraints($request);

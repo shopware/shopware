@@ -31,6 +31,11 @@ class ContentLayoutEntity extends Entity
     // addFields reader that omits it would make getRootSource() throw on the uninitialized typed property.
     protected string $rootSource;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $settings = null;
+
     protected ?ProductContentLayoutCollection $productContentLayouts = null;
 
     protected ?CategoryContentLayoutCollection $categoryContentLayouts = null;
@@ -81,6 +86,22 @@ class ContentLayoutEntity extends Entity
     public function setRootSource(string $rootSource): void
     {
         $this->rootSource = $rootSource;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getSettings(): ?array
+    {
+        return $this->settings;
+    }
+
+    /**
+     * @param array<string, mixed>|null $settings
+     */
+    public function setSettings(?array $settings): void
+    {
+        $this->settings = $settings;
     }
 
     public function getProductContentLayouts(): ?ProductContentLayoutCollection

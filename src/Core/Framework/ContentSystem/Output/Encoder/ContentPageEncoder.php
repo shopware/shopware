@@ -61,6 +61,7 @@ class ContentPageEncoder
             'id' => $result->reference->id,
             'name' => $result->reference->name,
             'version' => $result->reference->version,
+            'settings' => $result->reference->settings,
             'elements' => array_map($this->encodeElement(...), $result->tree),
         ], self::PAGE_API_ALIAS);
     }

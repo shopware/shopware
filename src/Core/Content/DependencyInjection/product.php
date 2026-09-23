@@ -274,6 +274,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.product.repository'),
             service('event_dispatcher'),
+            service('category.repository'),
         ]);
 
     $services->set(ProductCategoryPathResolver::class);

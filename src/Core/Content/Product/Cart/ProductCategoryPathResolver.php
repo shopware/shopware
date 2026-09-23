@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -20,6 +21,12 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('inventory')]
 class ProductCategoryPathResolver
 {
+    /**
+     * Carries the categories that list a product through a dynamic product group, for a product
+     * without direct category assignment, see {@see ProductGateway}.
+     */
+    public const STREAM_CATEGORIES_EXTENSION = 'analyticsStreamCategories';
+
     /**
      * The product's `categoryIds` cannot be used for this, because for a product assigned to
      * multiple branches it is a union of those branches and therefore not a path. A single
@@ -52,8 +59,11 @@ class ProductCategoryPathResolver
     /**
      * Mirrors the category selection of `CategoryBreadcrumbBuilder::getProductSeoCategory()` so
      * the reported path matches the breadcrumb the storefront shows: the sales channel main category
-     * when one is assigned, otherwise the deepest assigned category. That service is not reused here
-     * because it queries per product whenever a product has no main category.
+     * when one is assigned, otherwise the assigned categories, falling back to the categories that
+     * list the product through a dynamic product group when it has no direct assignment. Among
+     * those, a category visible in the navigation wins over a hidden one, then the deepest wins.
+     * That service is not reused here because it queries per product whenever a product has no
+     * main category.
      */
     private function getSeoCategory(SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
@@ -66,28 +76,46 @@ class ProductCategoryPathResolver
 
         if ($mainCategory !== null
             && \in_array($mainCategory->getId(), $categoryIds, true)
-            && $this->isCategoryVisible($mainCategory, $context)
+            && $this->isCategoryAvailable($mainCategory, $context)
         ) {
             return $mainCategory;
         }
 
-        $deepest = null;
-        foreach ($product->getCategories() ?? [] as $category) {
-            if (!$this->isCategoryVisible($category, $context)) {
+        $candidates = $categoryIds !== []
+            ? $product->getCategories()
+            : $product->getExtensionOfType(self::STREAM_CATEGORIES_EXTENSION, CategoryCollection::class);
+
+        $best = null;
+        foreach ($candidates?->getElements() ?? [] as $category) {
+            if (!$this->isCategoryAvailable($category, $context)) {
                 continue;
             }
 
-            if ($deepest === null || $category->getLevel() > $deepest->getLevel()) {
-                $deepest = $category;
+            if (!$best instanceof CategoryEntity || $this->isPreferred($category, $best)) {
+                $best = $category;
             }
         }
 
-        return $deepest;
+        return $best;
     }
 
-    private function isCategoryVisible(CategoryEntity $category, SalesChannelContext $context): bool
+    private function isPreferred(CategoryEntity $category, CategoryEntity $current): bool
     {
-        if (!$category->getActive() || !$category->getVisible()) {
+        if ($category->getVisible() !== $current->getVisible()) {
+            return $category->getVisible();
+        }
+
+        return $category->getLevel() > $current->getLevel();
+    }
+
+    /**
+     * Mirrors `CategoryBreadcrumbBuilder::isCategoryAvailableForCustomer()`: the category is active
+     * and lies below one of the entry points of the sales channel. Being hidden from the navigation
+     * does not exclude it.
+     */
+    private function isCategoryAvailable(CategoryEntity $category, SalesChannelContext $context): bool
+    {
+        if (!$category->getActive()) {
             return false;
         }
 

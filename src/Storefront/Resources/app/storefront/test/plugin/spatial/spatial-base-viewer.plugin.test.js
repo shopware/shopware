@@ -12,10 +12,7 @@ describe('SpatialBaseViewerPlugin tests', () => {
     let parentDivClassListRemoveSpy;
     let emitterPublishSpy;
     const mockDive = {
-        engine: {
-            start: jest.fn(),
-        },
-        start: jest.fn(),
+        startAsync: jest.fn(),
         stop: jest.fn(),
         model: {
             animations: [],
@@ -113,31 +110,31 @@ describe('SpatialBaseViewerPlugin tests', () => {
         expect(emitterPublishSpy).not.toHaveBeenCalled();
     });
 
-    test('startRendering if already rendered will makes no actions', () => {
+    test('startRendering if already rendered will makes no actions', async () => {
         spatialBaseViewerPlugin.rendering = true;
 
-        spatialBaseViewerPlugin.startRendering();
+        await spatialBaseViewerPlugin.startRendering();
 
-        expect(mockDive.engine.start).not.toHaveBeenCalled();
+        expect(mockDive.startAsync).not.toHaveBeenCalled();
     });
 
-    test('startRendering with `ready` property in false will not add the class `spatial-canvas-display`', () => {
+    test('startRendering with `ready` property in false will not add the class `spatial-canvas-display`', async () => {
         spatialBaseViewerPlugin.rendering = false;
         spatialBaseViewerPlugin.ready = false;
 
-        spatialBaseViewerPlugin.startRendering();
+        await spatialBaseViewerPlugin.startRendering();
 
-        expect(mockDive.engine.start).not.toHaveBeenCalled();
+        expect(mockDive.startAsync).toHaveBeenCalled();
         expect(parentDivClassListAddSpy).toHaveBeenCalledTimes(1);
         expect(parentDivClassListAddSpy).toHaveBeenCalledWith('spatial-canvas-rendering');
         expect(emitterPublishSpy).toHaveBeenCalled();
     });
 
-    test('startRendering with `ready` property in true will add the class `spatial-canvas-display`', () => {
+    test('startRendering with `ready` property in true will add the class `spatial-canvas-display`', async () => {
         spatialBaseViewerPlugin.rendering = false;
         spatialBaseViewerPlugin.ready = true;
 
-        spatialBaseViewerPlugin.startRendering();
+        await spatialBaseViewerPlugin.startRendering();
 
         expect(parentDivClassListAddSpy).toHaveBeenCalledTimes(2);
         expect(parentDivClassListAddSpy).toHaveBeenCalledWith('spatial-canvas-display');
@@ -484,5 +481,103 @@ describe('SpatialBaseViewerPlugin animation tests', () => {
         await plugin.initViewer();
 
         expect(window.DIVEAnimationPlugin.AnimationSystem).toHaveBeenCalled();
+    });
+});
+
+describe('SpatialBaseViewerPlugin spatial scene tests', () => {
+    const sceneState = { name: 'Living room', objects: [], lights: [] };
+
+    let canvas;
+
+    function createPlugin(options) {
+        const initSpy = jest.spyOn(SpatialBaseViewerPlugin.prototype, 'init').mockResolvedValue(undefined);
+        const plugin = new SpatialBaseViewerPlugin(canvas, options);
+        initSpy.mockRestore();
+
+        return plugin;
+    }
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div id="parentDiv">
+                <canvas id="canvasEl"></canvas>
+            </div>
+        `;
+        canvas = document.getElementById('canvasEl');
+
+        window.DIVEQuickViewPlugin = {
+            QuickView: jest.fn().mockResolvedValue({
+                model: null,
+                clock: { addTicker: jest.fn() },
+                startAsync: jest.fn(),
+                stop: jest.fn(),
+            }),
+        };
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            json: jest.fn().mockResolvedValue(sceneState),
+        });
+    });
+
+    afterEach(() => {
+        delete global.fetch;
+    });
+
+    test('fetches the scene state for the media and hands it to DIVE', async () => {
+        const plugin = createPlugin({ mediaId: 'the-media-id', modelUrl: 'http://test/render.png', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            '/spatial-scene/media/the-media-id/state',
+            expect.objectContaining({ headers: { Accept: 'application/json' } }),
+        );
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(
+            sceneState,
+            expect.objectContaining({ canvas }),
+        );
+    });
+
+    test('escapes the media id in the request', async () => {
+        const plugin = createPlugin({ mediaId: 'a b/c', modelUrl: '', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(global.fetch).toHaveBeenCalledWith('/spatial-scene/media/a%20b%2Fc/state', expect.anything());
+    });
+
+    test('loads the model file when the media is not a scene', async () => {
+        const plugin = createPlugin({ modelUrl: 'http://test/file.glb', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(
+            'http://test/file.glb',
+            expect.objectContaining({ canvas }),
+        );
+    });
+
+    test('leaves the canvas empty when the scene state cannot be loaded', async () => {
+        global.fetch.mockResolvedValue({ ok: false });
+
+        const plugin = createPlugin({ mediaId: 'gone', modelUrl: 'http://test/render.png', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(window.DIVEQuickViewPlugin.QuickView).not.toHaveBeenCalled();
+        expect(plugin.dive).toBeUndefined();
+    });
+
+    test('leaves the canvas empty when the request fails', async () => {
+        global.fetch.mockRejectedValue(new Error('offline'));
+
+        const plugin = createPlugin({ mediaId: 'unreachable', modelUrl: '', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(window.DIVEQuickViewPlugin.QuickView).not.toHaveBeenCalled();
+        expect(plugin.dive).toBeUndefined();
     });
 });

@@ -2,6 +2,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 // @ts-ignore
 import type NativeEventEmitter from 'src/helper/emitter.helper';
+import type { StateData } from '@shopware-ag/dive/state';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 
 /**
@@ -21,6 +22,14 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
     public options!: {
         modelUrl: string;
+        /**
+         * Set instead of `modelUrl` when the media is a spatial scene. A scene has no file to load
+         * from, so its state is fetched for that media and handed to DIVE as a ready-made scene.
+         *
+         * The media carries the scene, so the media id is what identifies it here - it is available
+         * on every loaded media, which the scene entity behind it is not.
+         */
+        mediaId?: string;
         sliderPosition: number;
     };
 
@@ -47,18 +56,28 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.canvas.tabIndex = 0;
 
         if (this.dive == undefined) {
-            this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
+            if (this.options.mediaId) {
+                const sceneState = await this.loadSceneState(this.options.mediaId);
+                if (!sceneState) return;
+
+                this.dive = await window.DIVEQuickViewPlugin.QuickView(sceneState, { autoStart: false, canvas: this.canvas });
+            } else {
+                this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
+            }
+
+            // A scene has no single root model, so the animation controls only apply to a loaded model.
+            const model = 'model' in this.dive ? this.dive.model : undefined;
 
             // @ts-ignore - animations is inherited from Object3D
-            const animations: { name: string }[] = this.dive.model.animations;
-            if (animations.length > 0) {
+            const animations: { name: string }[] = model ? model.animations : [];
+            if (model && animations.length > 0) {
                 // instantiate animation system
                 const animSystem = new window.DIVEAnimationPlugin.AnimationSystem();
-                await animSystem.fromClips(this.dive.model, animations as never);
+                await animSystem.fromClips(model, animations as never);
                 this.dive.clock.addTicker(animSystem);
 
                 // create animator
-                const animator = await animSystem.fromClips(this.dive.model, animations as never);
+                const animator = await animSystem.fromClips(model, animations as never);
                 animator.loop = 'repeat';
 
                 // automatically play the first animation
@@ -135,9 +154,33 @@ export default class SpatialBaseViewerPlugin extends Plugin {
     }
 
     /**
+     * The storefront has no DAL access, so the scene state comes from a storefront route that
+     * serves it in DIVE's shape.
+     *
+     * Returns null when the media carries no scene or the request fails. The caller then leaves the
+     * canvas empty rather than falling back to `modelUrl`, which for a scene is the still image
+     * standing in for it - not something DIVE can load.
+     */
+    protected async loadSceneState(mediaId: string): Promise<StateData | null> {
+        try {
+            const response = await fetch(`/spatial-scene/media/${encodeURIComponent(mediaId)}/state`, {
+                headers: { Accept: 'application/json' },
+            });
+
+            if (!response.ok) {
+                return null;
+            }
+
+            return await response.json() as StateData;
+        } catch {
+            return null;
+        }
+    }
+
+    /**
      * Start rendering loop
      */
-    public startRendering() {
+    public async startRendering() {
         // Prevent multiple render loops
         if (this.rendering) {
             return;
@@ -145,7 +188,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         // start render loop
         this.rendering = true;
-        this.dive?.start();
+        await this.dive?.startAsync();
 
         // Add classes to canvas parent
         this.canvas?.parentElement?.classList.add('spatial-canvas-rendering');

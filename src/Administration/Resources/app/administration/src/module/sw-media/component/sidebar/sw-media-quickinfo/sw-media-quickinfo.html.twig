@@ -2,7 +2,7 @@
 <div class="sw-media-quickinfo">
     {% block sw_media_quickinfo_broken_file %}
     <mt-banner
-        v-if="!item.hasFile"
+        v-if="!item.hasFile && !isFilelessMedia(item)"
         class="sw-media-quickinfo__alert-file-missing"
         variant="attention"
         :title="$t('sw-media.sidebar.infoMissingFile.titleMissingFile')"
@@ -382,12 +382,14 @@
                     </template>
                 </sw-media-quickinfo-metadata-item>
 
+                {% block sw_media_quickinfo_metadata_content_file_type %}
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-file-type"
                     :label-name="$t('sw-media.sidebar.metadata.fileType')"
                 >
                     {{ item.fileExtension.toUpperCase() }}
                 </sw-media-quickinfo-metadata-item>
+                {% endblock %}
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-alt-field"
@@ -427,19 +429,23 @@
                     </template>
                 </sw-media-quickinfo-metadata-item>
 
+                {% block sw_media_quickinfo_metadata_content_mime_type %}
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-mimeType"
                     :label-name="$t('sw-media.sidebar.metadata.mimeType')"
                 >
                     {{ item.mimeType }}
                 </sw-media-quickinfo-metadata-item>
+                {% endblock %}
 
+                {% block sw_media_quickinfo_metadata_content_file_size %}
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-size"
                     :label-name="$t('sw-media.sidebar.metadata.fileSize')"
                 >
                     {{ fileSize }}
                 </sw-media-quickinfo-metadata-item>
+                {% endblock %}
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-createdAt"

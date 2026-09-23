@@ -193,6 +193,10 @@ export default defineConfig(({ command }) => {
                 'flatpickr/**/*',
                 'date-fns-tz',
             ],
+            // DIVE ships Vite-only import queries (`?raw`, `?url`) in its published build.
+            // esbuild cannot resolve those while pre-bundling, so the dependency has to stay
+            // in Vite's own pipeline.
+            exclude: ['@shopware-ag/dive'],
             // This avoids full-page reload but the browser can't process more requests in parallel
             holdUntilCrawlEnd: true,
             esbuildOptions: {

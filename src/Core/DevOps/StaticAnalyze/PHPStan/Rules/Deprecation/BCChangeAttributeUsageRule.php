@@ -361,7 +361,7 @@ class BCChangeAttributeUsageRule implements Rule
         $currentClassName = $class->getName();
         if ($this->classAliasMap->canonicalClassName($previousClassName) !== $currentClassName) {
             return [$this->error($line, \sprintf(
-                'ClassMoved on "%s": register the class alias "%s" => "%s" in ClassAliasRegistry::ALIASES.',
+                'ClassMoved on "%s": register the class alias "%s" => "%s" with ClassAliasRegistry::registerAliases().',
                 $symbol,
                 $previousClassName,
                 $currentClassName

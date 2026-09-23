@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * Signals that a class moved from `$previousClassName` to the annotated class.
  *
  * Use this attribute only when the implementation survives under a new fully qualified class name. The previous
- * name must be registered in {@see ClassAliasRegistry::ALIASES} so both names resolve to the same runtime class
+ * name must be registered through {@see ClassAliasRegistry::registerAliases()} so both names resolve to the same runtime class
  * until the announced version. If the class is a service, register its previous service ID as a deprecated alias
  * of the canonical service as well.
  *

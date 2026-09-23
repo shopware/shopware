@@ -209,7 +209,7 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
 
         $this->analyse([$fixture], [
             [
-                'ClassMoved on "ClassMovedAttributeUsage": register the class alias "Shopware\\Tests\\Legacy\\UnregisteredClass" => "Shopware\\Tests\\DevOps\\Core\\DevOps\\StaticAnalyse\\PHPStan\\Rules\\data\\BCChangeAttributeUsageRule\\ClassMovedAttributeUsage" in ClassAliasRegistry::ALIASES.',
+                'ClassMoved on "ClassMovedAttributeUsage": register the class alias "Shopware\\Tests\\Legacy\\UnregisteredClass" => "Shopware\\Tests\\DevOps\\Core\\DevOps\\StaticAnalyse\\PHPStan\\Rules\\data\\BCChangeAttributeUsageRule\\ClassMovedAttributeUsage" with ClassAliasRegistry::registerAliases().',
                 7,
             ],
         ]);

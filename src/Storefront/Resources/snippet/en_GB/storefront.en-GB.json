@@ -493,6 +493,7 @@
     "confirmRevocationNoticeModal": "Please note our %revocationModalTagOpen%cancellation policy%revocationModalTagClose%.",
     "confirmRevocationNoticePage": "Please note our <a href=\"%url%\">cancellation policy</a>.",
     "confirmLegalGuaranteeNoticeLink": "Your legal guarantee rights",
+    "confirmLegalGuaranteeNotice": "Please note %legalGuaranteeNoticeModalTagOpen%your legal guarantee rights%legalGuaranteeNoticeModalTagClose%.",
     "confirmTermsText": "I have read and accepted the <a class=\"checkout-confirm-terms-modal\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\">general terms and conditions</a>.",
     "confirmTermsTextWithGuarantee": "I have read and accepted the <a class=\"checkout-confirm-terms-modal\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\">general terms and conditions</a> and acknowledged %legalGuaranteeNoticeModalTagOpen%my legal guarantee rights%legalGuaranteeNoticeModalTagClose%.",
     "confirmTermsTextModal": "I have read and accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",

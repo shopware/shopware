@@ -36,11 +36,9 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
-### Promotion redemptions are recounted with a covering index
+### Promotion redemptions are recounted faster
 
-Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a narrower query. The migration builds that index across the whole table and can take several minutes on a large shop; `innodb_ddl_buffer_size`, 1 MB by default and per thread, shortens it.
-
-Promotion line items are recognised by `promotion_id` alone now, rather than by their `type`. An integration that sets `promotionId` on a line item of another type through the Admin API therefore has that order counted towards the promotion, and deleting such a line item releases the individual code named in its payload.
+Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
 ## API
 

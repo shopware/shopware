@@ -876,15 +876,29 @@
                                 "required": [
                                     "password"
                                 ],
-                                "anyOf": [
+                                "allOf": [
                                     {
-                                        "required": [
-                                            "email"
-                                        ]
-                                    },
-                                    {
-                                        "required": [
-                                            "username"
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "email"
+                                                ],
+                                                "properties": {
+                                                    "email": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "required": [
+                                                    "username"
+                                                ],
+                                                "properties": {
+                                                    "username": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
                                         ]
                                     }
                                 ],
@@ -1214,12 +1228,22 @@
                                             {
                                                 "required": [
                                                     "billingAddress"
-                                                ]
+                                                ],
+                                                "properties": {
+                                                    "billingAddress": {
+                                                        "$ref": "#/components/schemas/CustomerAddressBody"
+                                                    }
+                                                }
                                             },
                                             {
                                                 "required": [
                                                     "shippingAddress"
-                                                ]
+                                                ],
+                                                "properties": {
+                                                    "shippingAddress": {
+                                                        "$ref": "#/components/schemas/CustomerAddressBody"
+                                                    }
+                                                }
                                             }
                                         ]
                                     },
@@ -1238,7 +1262,12 @@
                                             {
                                                 "required": [
                                                     "password"
-                                                ]
+                                                ],
+                                                "properties": {
+                                                    "password": {
+                                                        "type": "string"
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

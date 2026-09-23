@@ -199,7 +199,7 @@ The following components are fully deprecated including their registration, temp
 
 ## `Feature` becomes final
 
-`Shopware\Core\Framework\Feature` carries `#[BecomesFinal(version: 'v6.8.0')]` and cannot be extended from Shopware 6.8. It is a static utility class, call it directly instead of subclassing it.
+`Shopware\Core\Framework\Feature` becomes `final` with Shopware 6.8 and cannot be extended from then on. It is a static utility class, call its methods directly instead of subclassing it.
 
 # 6.7.14.0
 

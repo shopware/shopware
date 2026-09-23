@@ -44,10 +44,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: pagination
             id: '1',
             orderDateTime: '2022-10-10T10:00:00.000+00:00',
             stateMachineState: state('order-now'),
-            transactions: getCollection('order_transaction', [
-                transaction('t1', 'tx1-now'),
-                transaction('t2', 'tx2-now'),
-            ]),
+            transactions: getCollection('order_transaction', [transaction('t1', 'tx1-now'), transaction('t2', 'tx2-now')]),
             deliveries: getCollection('order_delivery', [
                 {
                     id: 'd1',
@@ -101,10 +98,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: pagination
                 .filter((entry) => entry.referencedId === 't2')
                 .map((entry) => entry.transaction.technicalName);
 
-            expect(transactionStates).toEqual([
-                'tx2-open',
-                'tx2-paid',
-            ]);
+            expect(transactionStates).toEqual(['tx2-open', 'tx2-paid']);
         });
 
         it('should count the built rows rather than the fetched history entries', async () => {
@@ -134,9 +128,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal: pagination
             wrapper.vm.onPageChange({ page: 3, limit: 3 });
             await flushPromises();
 
-            expect(wrapper.vm.stateHistory.map((entry) => entry.referencedId)).toEqual([
-                'injected-by-an-extension',
-            ]);
+            expect(wrapper.vm.stateHistory.map((entry) => entry.referencedId)).toEqual(['injected-by-an-extension']);
         });
 
         it('should prepend the start state only to the first page', async () => {

@@ -55,10 +55,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 `,
                 },
                 'sw-entity-listing': {
-                    props: [
-                        'items',
-                        'dataSource',
-                    ],
+                    props: ['items', 'dataSource'],
                     template: `
                     <div class="sw-data-grid">
                         <div class="sw-data-grid__row" v-for="item in (dataSource || items)">
@@ -137,9 +134,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should be able to duplicate a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
+        const wrapper = await createWrapper(['flow.creator']);
         await flushPromises();
 
         const duplicateMenuItem = wrapper.find('.sw-flow-list__item-duplicate');
@@ -149,9 +144,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should be not able to duplicate a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ]);
+        const wrapper = await createWrapper(['flow.viewer']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-flow-list__item-duplicate');
@@ -161,9 +154,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should be able to edit a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        const wrapper = await createWrapper(['flow.editor']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-flow-list__item-edit');
@@ -172,9 +163,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should be not able to edit a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ]);
+        const wrapper = await createWrapper(['flow.viewer']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-flow-list__item-edit');
@@ -184,9 +173,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should be able to delete a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.deleter',
-        ]);
+        const wrapper = await createWrapper(['flow.deleter']);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-flow-list__item-delete');
@@ -195,9 +182,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should be not able to delete a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ]);
+        const wrapper = await createWrapper(['flow.viewer']);
 
         await flushPromises();
 
@@ -208,9 +193,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should show trigger column correctly', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ]);
+        const wrapper = await createWrapper(['flow.viewer']);
 
         await flushPromises();
 
@@ -219,18 +202,12 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should show trigger column correctly with unknown trigger', async () => {
-        const wrapper = await createWrapper(
-            [
-                'flow.viewer',
-            ],
-            false,
-            [
-                {
-                    id: '44de136acf314e7184401d36406c1e90',
-                    eventName: 'checkout.order.custom',
-                },
-            ],
-        );
+        const wrapper = await createWrapper(['flow.viewer'], false, [
+            {
+                id: '44de136acf314e7184401d36406c1e90',
+                eventName: 'checkout.order.custom',
+            },
+        ]);
 
         await flushPromises();
 
@@ -239,12 +216,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should show custom trigger column correctly', async () => {
-        const wrapper = await createWrapper(
-            [
-                'flow.viewer',
-            ],
-            true,
-        );
+        const wrapper = await createWrapper(['flow.viewer'], true);
 
         await wrapper.vm.$nextTick();
 
@@ -253,9 +225,7 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
     });
 
     it('should be show the success message after duplicate flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
+        const wrapper = await createWrapper(['flow.creator']);
         await flushPromises();
         wrapper.vm.createNotificationSuccess = jest.fn();
         const routerPush = wrapper.vm.$router.push;

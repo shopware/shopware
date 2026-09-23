@@ -83,7 +83,6 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider;
 use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -91,7 +90,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -224,9 +222,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service('event_dispatcher'),
             service('mail_template_type.repository'),
-            service(Translator::class),
             service(Connection::class),
-            service(LanguageLocaleCodeProvider::class),
             service(JsonEntityEncoder::class),
             service(DefinitionInstanceRegistry::class),
             param('shopware.mail.update_mail_variables_on_send'),

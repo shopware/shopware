@@ -38,10 +38,7 @@ describe('app/service/media-default-folder.service.js', () => {
                         }),
                     );
                     expect(cacheOptions).toEqual({
-                        cacheKey: [
-                            'media-default-folder',
-                            'product',
-                        ],
+                        cacheKey: ['media-default-folder', 'product'],
                     });
 
                     return Promise.resolve({
@@ -77,10 +74,7 @@ describe('app/service/media-default-folder.service.js', () => {
         await mediaDefaultFolderService.getDefaultFolderId('product');
 
         expect(search).toHaveBeenCalledWith(expect.any(Criteria), {
-            cacheKey: [
-                'media-default-folder',
-                'product',
-            ],
+            cacheKey: ['media-default-folder', 'product'],
         });
     });
 });

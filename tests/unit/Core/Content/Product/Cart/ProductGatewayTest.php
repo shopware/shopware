@@ -4,16 +4,24 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Events\ProductGatewayCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -129,9 +137,10 @@ class ProductGatewayTest extends TestCase
         static::assertInstanceOf(Criteria::class, $criteria);
 
         // a cart is recalculated on almost every storefront request, so a category that can never
-        // be part of a path is not hydrated in the first place
+        // be part of a path is not hydrated in the first place; hidden ones stay, the storefront
+        // breadcrumb falls back to them
         static::assertEquals(
-            [new EqualsFilter('active', true), new EqualsFilter('visible', true)],
+            [new EqualsFilter('active', true)],
             $criteria->getAssociation('categories')->getFilters()
         );
 
@@ -140,5 +149,85 @@ class ProductGatewayTest extends TestCase
             [new EqualsFilter('salesChannelId', $context->getSalesChannelId())],
             $criteria->getAssociation('mainCategories')->getFilters()
         );
+    }
+
+    public function testProductsOnlyAssignedThroughAStreamGetTheStreamCategories(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $streamOnly = (new SalesChannelProductEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'categoryIds' => [],
+            'streamIds' => ['stream-sale'],
+        ]);
+        $direct = (new SalesChannelProductEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'categoryIds' => [Uuid::randomHex()],
+            'streamIds' => ['stream-sale'],
+        ]);
+
+        $repository = static::createStub(SalesChannelRepository::class);
+        $repository->method('search')->willReturn(new EntitySearchResult(
+            $streamOnly->getApiAlias(),
+            2,
+            new ProductCollection([$streamOnly, $direct]),
+            null,
+            new Criteria(),
+            $context->getContext()
+        ));
+
+        $sale = (new CategoryEntity())->assign(['id' => Uuid::randomHex(), 'productStreamId' => 'stream-sale']);
+        $other = (new CategoryEntity())->assign(['id' => Uuid::randomHex(), 'productStreamId' => 'stream-other']);
+
+        /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
+        $categoryRepository = new StaticEntityRepository([
+            static function (Criteria $criteria) use ($sale, $other): CategoryCollection {
+                static::assertEquals(
+                    [
+                        new EqualsAnyFilter('productStreamId', ['stream-sale']),
+                        new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
+                        new EqualsFilter('active', true),
+                    ],
+                    $criteria->getFilters()
+                );
+
+                return new CategoryCollection([$sale, $other]);
+            },
+        ]);
+
+        (new ProductGateway($repository, static::createStub(EventDispatcherInterface::class), $categoryRepository))
+            ->get([$streamOnly->getId(), $direct->getId()], $context);
+
+        $streamCategories = $streamOnly->getExtensionOfType(ProductCategoryPathResolver::STREAM_CATEGORIES_EXTENSION, CategoryCollection::class);
+        static::assertInstanceOf(CategoryCollection::class, $streamCategories);
+        static::assertSame([$sale->getId()], array_values($streamCategories->getIds()));
+
+        // the storefront breadcrumb only falls back to streams without a direct assignment
+        static::assertFalse($direct->hasExtension(ProductCategoryPathResolver::STREAM_CATEGORIES_EXTENSION));
+    }
+
+    public function testNoStreamQueryWithoutStreamOnlyProducts(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $repository = static::createStub(SalesChannelRepository::class);
+        $repository->method('search')->willReturn(new EntitySearchResult(
+            (new SalesChannelProductEntity())->getApiAlias(),
+            1,
+            new ProductCollection([(new SalesChannelProductEntity())->assign([
+                'id' => Uuid::randomHex(),
+                'categoryIds' => [Uuid::randomHex()],
+                'streamIds' => ['stream-sale'],
+            ])]),
+            null,
+            new Criteria(),
+            $context->getContext()
+        ));
+
+        $categoryRepository = $this->createMock(EntityRepository::class);
+        $categoryRepository->expects($this->never())->method('search');
+
+        (new ProductGateway($repository, static::createStub(EventDispatcherInterface::class), $categoryRepository))
+            ->get([Uuid::randomHex()], $context);
     }
 }

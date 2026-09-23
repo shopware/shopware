@@ -428,7 +428,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(['MainCat'], $lineItem->getPayloadValue('categoryNames'));
     }
 
-    public function testPayloadCategoryNamesIgnoresInvisibleCategories(): void
+    public function testPayloadCategoryNamesPrefersVisibleCategories(): void
     {
         $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
 
@@ -455,8 +455,30 @@ class ProductCartProcessorTest extends TestCase
 
         static::assertInstanceOf(LineItem::class, $lineItem);
 
-        // the deeper category is not visible, so the visible one is reported instead
+        // the deeper category is hidden from the navigation, so the visible one wins, like in the
+        // storefront breadcrumb
         static::assertSame(['Visible'], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testPayloadCategoryNamesFallsBackToAHiddenCategory(): void
+    {
+        $navigationCategoryId = $this->getContext()->getSalesChannel()->getNavigationCategoryId();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('hidden'),
+            'parentId' => $navigationCategoryId,
+            'name' => 'Hidden',
+            'visible' => false,
+        ]], Context::createDefaultContext());
+
+        $this->createProduct(['categories' => [['id' => $this->ids->get('hidden')]]]);
+
+        $lineItem = $this->getProductCart()->get($this->ids->get('product'));
+
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        // the storefront breadcrumb still resolves a category hidden from the navigation
+        static::assertSame(['Hidden'], $lineItem->getPayloadValue('categoryNames'));
     }
 
     public function testPayloadCategoryNamesIsEmptyWithoutCategories(): void

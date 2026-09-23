@@ -66,7 +66,7 @@ class AclAnnotationValidatorTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ACL, $acl);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
 
         $exception = null;
 
@@ -105,7 +105,7 @@ class AclAnnotationValidatorTest extends TestCase
         $request->attributes->set('id', $actionId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
 
         $exception = null;
 
@@ -140,7 +140,7 @@ class AclAnnotationValidatorTest extends TestCase
         $request->attributes->set('id', $actionId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
 
         $exception = null;
 

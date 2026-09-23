@@ -4,7 +4,7 @@
     {% set metaInformation = page.metaInformation %}
     {% set basicConfig = config('core.basicInformation') %}
     {% set maxLength = 255 %}
-    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength, '…') %}
+    {% set metaDescription = metaInformation.metaDescription|sw_plain_text|u.truncate(maxLength, '…') %}
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set metaKeywords = metaInformation.metaKeywords|striptags|trim %}
     {% set metaAuthor = (metaInformation.author != '') ? metaInformation.author : config('core.basicInformation.metaAuthor') %}

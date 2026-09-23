@@ -88,6 +88,16 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
 
+### New `sw_plain_text` Twig filter for rich-text descriptions
+
+The new `sw_plain_text` Twig filter turns HTML into a single line of plain text. Unlike `striptags`, it replaces block-level boundaries such as `</p><p>`, `<br>`, `</li>` or `</h2>` with a space and collapses the remaining whitespace, so `<p>One.</p><p>Two.</p>` becomes `One. Two.` instead of `One.Two.`. HTML entities stay encoded, so the result can be output wherever the result of `striptags` was output before.
+
+The product description in the product box, the description tab preview of the `product-description-reviews` CMS element, the meta description and the JSON-LD descriptions now use `sw_plain_text` instead of `striptags`. Themes that override these blocks and strip the description themselves can switch to the new filter:
+
+```twig
+{{ product.translated.description|sw_plain_text|raw }}
+```
+
 ## App system
 
 ### App requests keep body and signature across redirects

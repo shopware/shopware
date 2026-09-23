@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(ContextTokenResponse::class)]
 class ContextTokenResponseTest extends TestCase
 {
@@ -30,5 +30,12 @@ class ContextTokenResponseTest extends TestCase
 
         // It should be stored in a header instead
         static::assertSame($token, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testGetRedirectUrlFromResponseBody(): void
+    {
+        $response = new ContextTokenResponse('sw-token-value', 'https://example.com/de');
+
+        static::assertSame('https://example.com/de', $response->getRedirectUrl());
     }
 }

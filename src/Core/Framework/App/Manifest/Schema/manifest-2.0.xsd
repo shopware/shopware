@@ -437,6 +437,8 @@
             <xs:element name="delivery_time" type="empty" minOccurs="0"/>
             <xs:element name="document_base_config" type="empty" minOccurs="0"/>
             <xs:element name="language" type="empty" minOccurs="0"/>
+            <xs:element name="media_folder" type="empty" minOccurs="0"/>
+            <xs:element name="media_folder_configuration" type="empty" minOccurs="0"/>
             <xs:element name="number_range" type="empty" minOccurs="0"/>
             <xs:element name="payment_method" type="empty" minOccurs="0"/>
             <xs:element name="rule" type="empty" minOccurs="0"/>

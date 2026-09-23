@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<InvalidPluralizationStruct>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class InvalidPluralizationCollection extends Collection

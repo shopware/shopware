@@ -1,0 +1,59 @@
+name: 'Code Owners (fork review handler)'
+# Uses the PR number codeowner-fork-review-relay.yml recorded. workflow_run always
+# runs the workflow file from the default branch, so a PR cannot alter what this does.
+
+on:
+  workflow_run:
+    workflows: ['Code Owners (fork review trigger)']
+    types: [completed]
+
+permissions:
+  contents: read
+  id-token: write
+  statuses: write
+  actions: read
+
+jobs:
+  handle:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: codeowners-fork-review-pr
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      # The artifact only ever holds a plain PR number (see the trigger workflow),
+      # but the number is re-validated here rather than trusted blindly.
+      - id: pr-number
+        run: |
+          number="$(tr -d '[:space:]' < pr-number.txt)"
+          if ! [[ "$number" =~ ^[0-9]+$ ]]; then
+            echo "::error::pr-number.txt did not contain a plain integer: $number"
+            exit 1
+          fi
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      # The artifact's number identifies the PR; its current head, base and draft
+      # state are re-fetched here rather than trusted from the (older) review event.
+      - id: pr
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          PR_NUMBER: ${{ steps.pr-number.outputs.number }}
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: Number(process.env.PR_NUMBER) })
+            core.setOutput('head-sha', pr.head.sha)
+            core.setOutput('draft', String(pr.draft))
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: ./.github/actions/codeowners-plus-status
+        with:
+          pr-number: ${{ steps.pr-number.outputs.number }}
+          draft: ${{ steps.pr.outputs.draft }}
+          head-sha: ${{ steps.pr.outputs.head-sha }}

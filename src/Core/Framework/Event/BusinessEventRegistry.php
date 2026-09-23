@@ -15,6 +15,8 @@ use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentDeletedEvent;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -43,6 +45,8 @@ class BusinessEventRegistry
         UserRecoveryRequestEvent::class,
         CheckoutOrderPlacedEvent::class,
         OrderPaymentMethodChangedEvent::class,
+        DocumentGeneratedEvent::class,
+        DocumentDeletedEvent::class,
         CustomerAccountRecoverRequestEvent::class,
         CustomerDoubleOptInRegistrationEvent::class,
         CustomerGroupRegistrationAccepted::class,

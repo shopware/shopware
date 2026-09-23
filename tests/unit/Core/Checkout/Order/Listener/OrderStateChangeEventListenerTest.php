@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Order\Listener;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
@@ -525,30 +526,42 @@ class OrderStateChangeEventListenerTest extends TestCase
         $listener->onOrderStateChange($event);
     }
 
-    public function testOnAddStateEvents(): void
+    /**
+     * @param array<string, string|null> $states technical name of the state, mapped to the technical name of its state machine or null when it has none
+     * @param list<string> $expectedEventNames
+     */
+    #[DataProvider('addStateEventsProvider')]
+    public function testOnAddStateEvents(array $states, array $expectedEventNames): void
     {
         $context = Context::createDefaultContext();
 
         $event = new BusinessEventCollectorEvent(
             new BusinessEventCollectorResponse(),
-            Context::createDefaultContext()
+            $context
         );
 
-        $stateMachine = new StateMachineEntity();
-        $stateMachine->setTechnicalName('order');
+        $stateEntities = [];
+        foreach ($states as $technicalName => $stateMachineTechnicalName) {
+            $state = new StateMachineStateEntity();
+            $state->setId($technicalName);
+            $state->setTechnicalName($technicalName);
 
-        $state = new StateMachineStateEntity();
-        $state->setId('state_id');
-        $state->setTechnicalName('paid');
-        $state->setStateMachine($stateMachine);
+            if ($stateMachineTechnicalName !== null) {
+                $stateMachine = new StateMachineEntity();
+                $stateMachine->setTechnicalName($stateMachineTechnicalName);
+                $state->setStateMachine($stateMachine);
+            }
+
+            $stateEntities[] = $state;
+        }
 
         $expectedCriteria = new Criteria();
         $expectedCriteria->addAssociation('stateMachine');
 
-        $states = new EntitySearchResult(
+        $searchResult = new EntitySearchResult(
             'state_machine_state',
-            1,
-            new StateMachineStateCollection([$state]),
+            \count($stateEntities),
+            new StateMachineStateCollection($stateEntities),
             null,
             $expectedCriteria,
             $context
@@ -559,16 +572,14 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->expects($this->once())
             ->method('search')
             ->with(static::equalTo($expectedCriteria), $context)
-            ->willReturn($states);
+            ->willReturn($searchResult);
 
         $collector = $this->createMock(BusinessEventCollector::class);
         $collector
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(\count($expectedEventNames)))
             ->method('define')
-            ->with(OrderStateMachineStateChangeEvent::class, static::logicalOr(static::equalTo('state_enter.order.paid'), static::equalTo('state_leave.order.paid')))
-            ->willReturnCallback(static function (string $class, string $name): BusinessEventDefinition {
-                return new BusinessEventDefinition($name, $class, []);
-            });
+            ->with(OrderStateMachineStateChangeEvent::class, static::anything())
+            ->willReturnCallback(static fn (string $class, string $name): BusinessEventDefinition => new BusinessEventDefinition($name, $class, []));
 
         $listener = new OrderStateChangeEventListener(
             static::createStub(EntityRepository::class),
@@ -581,9 +592,22 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $listener->onAddStateEvents($event);
 
-        $events = $event->getCollection();
-        static::assertCount(2, $events);
-        static::assertArrayHasKey('state_enter.order.paid', $events->getElements());
-        static::assertArrayHasKey('state_leave.order.paid', $events->getElements());
+        static::assertSame($expectedEventNames, array_keys($event->getCollection()->getElements()));
+    }
+
+    /**
+     * @return iterable<string, array{0: array<string, string|null>, 1: list<string>}>
+     */
+    public static function addStateEventsProvider(): iterable
+    {
+        yield 'a state collects an event for the enter and the leave side' => [
+            ['paid' => 'order'],
+            ['state_enter.order.paid', 'state_leave.order.paid'],
+        ];
+
+        yield 'a state without a state machine is skipped, the states after it are still collected' => [
+            ['open' => null, 'paid' => 'order'],
+            ['state_enter.order.paid', 'state_leave.order.paid'],
+        ];
     }
 }

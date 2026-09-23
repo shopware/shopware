@@ -70,7 +70,7 @@ class LineItemQuantitySplitter
             $price = $this->quantityPriceCalculator->calculate($definition, $context);
 
             $price->assign([
-                'listPrice' => $lineItemPrice->getListPrice() ?? null,
+                'listPrice' => $lineItemPrice->getListPrice(),
             ]);
         }
 

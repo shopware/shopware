@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
@@ -78,6 +79,25 @@ class ScheduledTaskHandlerTest extends TestCase
 
         // task entity is not found, so the handler returns before running
         static::assertFalse($handler->wasCalled);
+    }
+
+    public function testRescheduleNextThrowsDeprecationWhenV68IsActive(): void
+    {
+        $handler = new HandlerStub(
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
+        );
+
+        $this->expectExceptionObject(FeatureException::error(
+            Feature::deprecatedMethodMessage(ScheduledTaskHandler::class, 'rescheduleNext', 'v6.8.0.0')
+        ));
+
+        Feature::fake(['v6.8.0.0'], function () use ($handler): void {
+            $handler->rescheduleNext(
+                static::createStub(ScheduledTask::class),
+                static::createStub(ScheduledTaskEntity::class),
+            );
+        });
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

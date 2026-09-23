@@ -14,8 +14,11 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
+use Symfony\Component\Routing\Route;
 
 /**
  * @internal
@@ -24,6 +27,11 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(OrderConverterController::class)]
 class OrderConverterControllerTest extends TestCase
 {
+    public function testConvertToCartRouteDeclaresOrderReadPrivilege(): void
+    {
+        static::assertSame(['order:read'], $this->loadConvertToCartRoute()->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+    }
+
     public function testOrderNotFoundException(): void
     {
         $orderId = Uuid::randomHex();
@@ -72,5 +80,14 @@ class OrderConverterControllerTest extends TestCase
         $data = json_decode((string) $response->getContent(), true);
 
         static::assertSame($cart->getToken(), $data['token']);
+    }
+
+    private function loadConvertToCartRoute(): Route
+    {
+        $route = (new AttributeRouteControllerLoader())->load(OrderConverterController::class)->get('api.action.order.convert-to-cart');
+
+        static::assertNotNull($route, \sprintf('Route "api.action.order.convert-to-cart" is not defined on %s', OrderConverterController::class));
+
+        return $route;
     }
 }

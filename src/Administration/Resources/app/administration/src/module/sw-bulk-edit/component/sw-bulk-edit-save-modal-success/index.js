@@ -4,7 +4,7 @@
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
 import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
-import { DOCUMENT_TYPES } from '../../../sw-order/order.types';
+import { DOCUMENT_TYPES } from '../../../sw-order/service/documentV2.service';
 
 const { Criteria } = Shopware.Data;
 const documentTypeOrder = [
@@ -18,19 +18,19 @@ const documentTypeOrder = [
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderDocumentApiService',
-    ],
+    inject: {
+        repositoryFactory: {},
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
+        orderDocumentApiService: {},
+        documentV2ApiService: {
+            default: null,
+        },
+        feature: {},
+    },
 
-    emits: [
-        'title-set',
-        'buttons-update',
-    ],
+    emits: ['title-set', 'buttons-update'],
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     data() {
         return {
@@ -72,10 +72,11 @@ export default {
 
         latestDocumentsCriteria() {
             const criteria = new Criteria(1, null);
+            criteria.addAssociation('documentType');
             criteria.addFilter(
                 Criteria.equalsAny(
-                    'documentTypeId',
-                    this.selectedDocumentTypes.map((item) => item.id),
+                    'documentType.technicalName',
+                    this.selectedDocumentTypes.map((item) => item.technicalName),
                 ),
             );
             criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
@@ -189,10 +190,7 @@ export default {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
-            await Promise.all([
-                this.getLatestDocuments(),
-                this.loadFailedOrderNumbers(),
-            ]);
+            await Promise.all([this.getLatestDocuments(), this.loadFailedOrderNumbers()]);
             this.updateButtons();
         },
 
@@ -264,7 +262,7 @@ export default {
                 const latestDoc = latestDocuments[documentType.technicalName];
 
                 const documentsGrouped = documents.filter((document) => {
-                    return document.documentTypeId === documentType.id;
+                    return document.documentType?.technicalName === documentType.technicalName;
                 });
 
                 const latestDocKeyedByOrderId = {};
@@ -300,17 +298,29 @@ export default {
             }
 
             this.document[documentType].isDownloading = true;
-            return this.orderDocumentApiService
-                .download(documentIds)
-                .then((response) => {
-                    if (!response.data) {
+
+            const request = this.feature.isActive('DOCUMENT_GENERATION_REWORK')
+                ? this.documentV2ApiService.getDocumentArchive(documentIds)
+                : this.orderDocumentApiService.download(documentIds).then((response) => {
+                      if (!response.data) {
+                          return null;
+                      }
+
+                      return {
+                          file: response.data,
+                          fileName: fileReaderUtils.getFilenameFromResponse(response),
+                      };
+                  });
+
+            return request
+                .then((documentFileResponse) => {
+                    if (!documentFileResponse) {
                         return;
                     }
 
-                    const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
-                    link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
+                    link.href = URL.createObjectURL(documentFileResponse.file);
+                    link.download = documentFileResponse.fileName;
                     link.dispatchEvent(new MouseEvent('click'));
                     link.remove();
                 })
@@ -342,14 +352,9 @@ export default {
 
         downloadDocumentGenerationResult() {
             const objectUrl = URL.createObjectURL(
-                new Blob(
-                    [
-                        this.getDocumentGenerationResultFileContent(),
-                    ],
-                    {
-                        type: 'text/plain',
-                    },
-                ),
+                new Blob([this.getDocumentGenerationResultFileContent()], {
+                    type: 'text/plain',
+                }),
             );
             const link = document.createElement('a');
 
@@ -362,22 +367,31 @@ export default {
         },
 
         getDocumentGenerationResultFileContent() {
-            return [
-                this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadHeadline'),
-                '',
-                ...this.failedDocumentRows.map((row) => {
-                    return `${row.orderNumber} - ${row.documentTypesLabel}`;
-                }),
-            ].join('\n');
+            const seenRows = new Set();
+            const lines = [];
+
+            this.documentGenerationFailedItems.forEach((failedItem) => {
+                const rowKey = `${failedItem.orderId}::${failedItem.documentType}`;
+
+                if (seenRows.has(rowKey)) {
+                    return;
+                }
+                seenRows.add(rowKey);
+
+                const orderNumber = this.orderNumbers[failedItem.orderId] ?? failedItem.orderId;
+                const documentTypeLabel = this.getDocumentTypeLabel(failedItem.documentType);
+                const reason = failedItem.detail ?? failedItem.errorCode;
+
+                lines.push(
+                    reason ? `${orderNumber} - ${documentTypeLabel}: ${reason}` : `${orderNumber} - ${documentTypeLabel}`,
+                );
+            });
+
+            return [this.$t('sw-bulk-edit.modal.success.failedDocuments.downloadHeadline'), '', ...lines].join('\n');
         },
 
         getDocumentGenerationResultFileName() {
-            return (
-                [
-                    'bulk-edit-document-generation-result',
-                    this.getDateTimeForFileName(new Date()),
-                ].join('-') + '.txt'
-            );
+            return ['bulk-edit-document-generation-result', this.getDateTimeForFileName(new Date())].join('-') + '.txt';
         },
 
         getDateTimeForFileName(date) {

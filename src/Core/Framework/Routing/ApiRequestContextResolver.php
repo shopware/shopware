@@ -181,7 +181,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @param array{languageId: non-falsy-string, systemFallbackLanguageId: non-falsy-string} $params
+     * @param array{currencyId: string, languageId: non-falsy-string, systemFallbackLanguageId: non-falsy-string, currencyFactory: float, currencyPrecision: int, versionId: ?string, considerInheritance: bool} $params
      *
      * @return non-empty-list<string>
      */

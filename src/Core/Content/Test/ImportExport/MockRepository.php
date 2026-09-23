@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\ImportExport;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -56,9 +55,6 @@ class MockRepository extends EntityRepository
         throw new \Error('MockRepository->clone: Not implemented');
     }
 
-    /**
-     * @return EntitySearchResult<EntityCollection<Entity>>
-     */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         throw new \Error('MockRepository->search: Not implemented');

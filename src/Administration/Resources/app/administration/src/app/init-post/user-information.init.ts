@@ -3,12 +3,22 @@
  */
 
 import { initializeUserNotifications } from 'src/app/store/notification.store';
+import useTheme from 'src/app/composables/use-theme';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
+
+function loadUserPreferences(): Promise<unknown> {
+    return Promise.allSettled([useTheme().loadUserTheme(), useModuleIconColors().loadUserModuleIconColors()]);
+}
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeUserContext() {
     return new Promise<void>((resolve) => {
         const loginService = Shopware.Service('loginService');
         const userService = Shopware.Service('userService');
+
+        loginService.addOnLoginListener(() => {
+            void loadUserPreferences();
+        });
 
         // The user isn't logged in
         if (!loginService.isLoggedIn()) {
@@ -18,6 +28,8 @@ export default function initializeUserContext() {
             return;
         }
 
+        const userPreferencesLoaded = loadUserPreferences();
+
         userService
             .getUser()
             .then((response) => {
@@ -26,10 +38,14 @@ export default function initializeUserContext() {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 delete data.password;
 
-                Shopware.Store.get('session').setCurrentUser(data as EntitySchema.user);
+                Shopware.Store.get('session').setCurrentUser(data as Entity<'user'>);
                 initializeUserNotifications();
-                resolve();
+
+                // Resolving after the preferences guarantees that everything waiting for
+                // `Shopware.Application.viewInitialized` sees the loaded preferences.
+                return userPreferencesLoaded;
             })
+            .then(() => resolve())
             .catch(() => {
                 // An error occurred which means the user isn't logged in so get rid of the information in local storage
                 loginService.logout();

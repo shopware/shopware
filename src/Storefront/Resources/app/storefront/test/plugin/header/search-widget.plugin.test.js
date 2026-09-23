@@ -568,4 +568,67 @@ describe('SearchPlugin Tests', () => {
 
         expect(searchPlugin._inputField.focus).toHaveBeenCalled();
     });
+
+    describe('_restoreSearchTerm', () => {
+        const createSearchPlugin = (renderedTerm = '') => {
+            document.body.innerHTML = `
+                <form id="search-widget" action="/search" data-search-widget="true" data-url="/search?search=" class="js-search-form">
+                    <input type="search" name="search" value="${renderedTerm}" autocapitalize="off" autocomplete="off">
+                    <button type="submit" class="btn header-search-btn">Search</button>
+                    <button type="button" class="btn header-close-btn js-search-close-btn d-none"></button>
+                </form>
+            `;
+
+            return new SearchPlugin(document.getElementById('search-widget'));
+        };
+
+        afterEach(() => {
+            window.history.pushState({}, '', '/');
+            delete window.activeRoute;
+        });
+
+        test('restores the search term from the URL on the search result page', () => {
+            window.activeRoute = 'frontend.search.page';
+            window.history.pushState({}, '', `/search?search=${encodeURIComponent('red shirt')}`);
+
+            const searchPlugin = createSearchPlugin();
+
+            expect(searchPlugin._inputField.value).toBe('red shirt');
+        });
+
+        test('does not restore the search term on other routes', () => {
+            window.activeRoute = 'frontend.detail.page';
+            window.history.pushState({}, '', '/detail/0123456789?search=red');
+
+            const searchPlugin = createSearchPlugin();
+
+            expect(searchPlugin._inputField.value).toBe('');
+        });
+
+        test('does not restore the search term when the active route is unknown', () => {
+            window.history.pushState({}, '', '/search?search=red');
+
+            const searchPlugin = createSearchPlugin();
+
+            expect(searchPlugin._inputField.value).toBe('');
+        });
+
+        test('does not overwrite a search term which was rendered server-side', () => {
+            window.activeRoute = 'frontend.search.page';
+            window.history.pushState({}, '', '/search?search=red');
+
+            const searchPlugin = createSearchPlugin('green');
+
+            expect(searchPlugin._inputField.value).toBe('green');
+        });
+
+        test('keeps the input empty when the URL has no search term', () => {
+            window.activeRoute = 'frontend.search.page';
+            window.history.pushState({}, '', '/search');
+
+            const searchPlugin = createSearchPlugin();
+
+            expect(searchPlugin._inputField.value).toBe('');
+        });
+    });
 });

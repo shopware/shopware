@@ -28,7 +28,12 @@ class NumberRangeController extends AbstractController
     }
 
     #[Cache(mustRevalidate: true)]
-    #[Route(path: '/api/_action/number-range/reserve/{type}/{saleschannel?}', name: 'api.action.number-range.reserve', methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/number-range/reserve/{type}/{saleschannel?}',
+        name: 'api.action.number-range.reserve',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['number_range:read']],
+        methods: ['GET']
+    )]
     public function reserve(string $type, ?string $saleschannel, Context $context, Request $request): JsonResponse
     {
         $generatedNumber = $this->valueGenerator->getValue($type, $context, $saleschannel, $request->query->getBoolean('preview'));
@@ -42,7 +47,12 @@ class NumberRangeController extends AbstractController
      * @deprecated tag:v6.8.0 - use previewPatternByNumberRange() with a concrete number range id instead
      */
     #[Cache(mustRevalidate: true)]
-    #[Route(path: '/api/_action/number-range/preview-pattern/{type}', defaults: ['type' => 'default'], name: 'api.action.number-range.preview-pattern', methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/number-range/preview-pattern/{type}',
+        name: 'api.action.number-range.preview-pattern',
+        defaults: ['type' => 'default', PlatformRequest::ATTRIBUTE_ACL => ['number_range:read']],
+        methods: ['GET']
+    )]
     public function previewPattern(string $type, Request $request): JsonResponse
     {
         Feature::triggerDeprecationOrThrow(
@@ -65,7 +75,13 @@ class NumberRangeController extends AbstractController
     }
 
     #[Cache(mustRevalidate: true)]
-    #[Route(path: '/api/_action/number-range/{numberRangeId}/preview-pattern', name: 'api.action.number-range.preview-pattern-by-id', requirements: ['numberRangeId' => Uuid::VALID_PATTERN], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/number-range/{numberRangeId}/preview-pattern',
+        name: 'api.action.number-range.preview-pattern-by-id',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['number_range:read']],
+        requirements: ['numberRangeId' => Uuid::VALID_PATTERN],
+        methods: ['GET']
+    )]
     public function previewPatternByNumberRange(string $numberRangeId, Request $request): JsonResponse
     {
         $generatedNumber = $this->valueGenerator->previewPatternByNumberRangeId(

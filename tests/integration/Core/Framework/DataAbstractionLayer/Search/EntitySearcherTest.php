@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -216,6 +217,32 @@ class EntitySearcherTest extends TestCase
         static::assertSame(1, $result->getPage());
     }
 
+    public function testNextPagesCountIsBoundedByTheLookaheadWindow(): void
+    {
+        $ids = new IdsCollection();
+        $products = [];
+
+        foreach (range(1, 8) as $number) {
+            $productNumber = 'next-pages-' . $number;
+            $products[] = (new ProductBuilder($ids, $productNumber))->price(100)->build();
+        }
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria(array_values($ids->getList(array_map(
+            static fn (int $number): string => 'next-pages-' . $number,
+            range(1, 8)
+        ))));
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertCount(1, $result->getEntities());
+        static::assertSame(7, $result->getTotal());
+    }
+
     public function testSortingAndTotalCountWithManyAssociation(): void
     {
         $redId = Uuid::randomHex();
@@ -329,6 +356,63 @@ class EntitySearcherTest extends TestCase
         static::assertSame(1, $result->getPage());
         static::assertSame(6, $result->getTotal());
         static::assertCount(6, $result->getEntities());
+    }
+
+    /**
+     * @param array{offset: int, limit: int|null, expectedEntities: int} $pagination
+     */
+    #[DataProvider('lastPagePaginationProvider')]
+    public function testExactTotalCountShortCircuitsOnTheLastPage(array $pagination): void
+    {
+        $context = Context::createDefaultContext();
+
+        $totalMatching = 3;
+        $productNumbers = [];
+        $products = [];
+        for ($i = 0; $i < $totalMatching; ++$i) {
+            $productNumbers[] = 'short-circuit-' . $i;
+            $products[] = [
+                'id' => Uuid::randomHex(),
+                'productNumber' => 'short-circuit-' . $i,
+                'name' => 'short circuit product ' . $i,
+                'stock' => 10,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+            ];
+        }
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.productNumber', $productNumbers));
+        $criteria->addSorting(new FieldSorting('product.productNumber'));
+        $criteria->setOffset($pagination['offset']);
+        $criteria->setLimit($pagination['limit']);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertSame($totalMatching, $result->getTotal());
+        static::assertCount($pagination['expectedEntities'], $result->getEntities());
+    }
+
+    /**
+     * @return iterable<string, array{array{offset: int, limit: int|null, expectedEntities: int}}>
+     */
+    public static function lastPagePaginationProvider(): iterable
+    {
+        // Partial last page (offset 2 + 1 remaining item = 3 total).
+        yield 'partial last page' => [['offset' => 2, 'limit' => 2, 'expectedEntities' => 1]];
+        // First and only (partial) page.
+        yield 'single partial page' => [['offset' => 0, 'limit' => 25, 'expectedEntities' => 3]];
+        // No limit at all.
+        yield 'no limit' => [['offset' => 0, 'limit' => null, 'expectedEntities' => 3]];
+        // Full page with more pages remaining: total still requires the wrapped COUNT(*).
+        yield 'first of several full pages' => [['offset' => 0, 'limit' => 1, 'expectedEntities' => 1]];
+        // Full page that is exactly the last page.
+        yield 'exactly full last page' => [['offset' => 2, 'limit' => 1, 'expectedEntities' => 1]];
+        // Empty page past the end: total cannot be derived from the page and falls back to the wrapped COUNT(*).
+        yield 'empty page past the end' => [['offset' => 5, 'limit' => 1, 'expectedEntities' => 0]];
     }
 
     public function testJsonListEqualsAnyFilter(): void

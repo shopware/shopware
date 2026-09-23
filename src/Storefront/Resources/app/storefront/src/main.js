@@ -82,6 +82,7 @@ PluginManager.register('ZoomModal', () => import('src/plugin/zoom-modal/zoom-mod
 PluginManager.register('Magnifier', () => import('src/plugin/magnifier/magnifier.plugin'), '[data-magnifier]');
 PluginManager.register('SpeculationRules', SpeculationRulesPlugin, '[data-speculation-rules]');
 PluginManager.register('VariantSwitch', () => import('src/plugin/variant-switch/variant-switch.plugin'), '[data-variant-switch]');
+PluginManager.register('GaranLabelToggle', () => import('src/plugin/garan-label/garan-label-toggle.plugin'), '[data-garan-label-toggle]');
 PluginManager.register('RemoteClick', () => import('src/plugin/remote-click/remote-click.plugin'), '[data-remote-click]');
 PluginManager.register('AddressManager', () => import('src/plugin/address-manager/address-manager.plugin'), '[data-address-manager]');
 PluginManager.register('AddressSearch', () => import('src/plugin/address-search/address-search.plugin'), '[data-address-search]');

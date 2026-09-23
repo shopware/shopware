@@ -72,7 +72,7 @@ class ProductUrlProvider extends AbstractUrlProvider
 
         $keys = FetchModeHelper::keyPair($products);
 
-        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(ProductDefinition::ENTITY_NAME);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(ProductDefinition::ENTITY_NAME, $context->getSalesChannel()->getTypeId());
         $seoUrls = $this->getSeoUrls(array_values($keys), $routeName, $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
@@ -91,7 +91,7 @@ class ProductUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$product['id']])) {
                 $newUrl->setLoc($seoUrls[$product['id']]['seo_path_info']);
             } else {
-                $newUrl->setLoc($this->entityRouteResolver->generateUrl(ProductDefinition::ENTITY_NAME, $product['id']));
+                $newUrl->setLoc($this->entityRouteResolver->generateUrl(ProductDefinition::ENTITY_NAME, $product['id'], $context->getSalesChannel()->getTypeId()));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));
@@ -188,11 +188,7 @@ class ProductUrlProvider extends AbstractUrlProvider
                 return false;
             }
 
-            if ($excludedUrl['salesChannelId'] !== $salesChannelId) {
-                return false;
-            }
-
-            return true;
+            return $excludedUrl['salesChannelId'] === $salesChannelId;
         });
 
         return array_column($excludedUrls, 'identifier');

@@ -1,0 +1,142 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "components": {
+        "schemas": {
+            "SnippetSetResult": {
+                "type": "object",
+                "description": "Resolved snippets of one language, merged with the language fallback chain.",
+                "required": [
+                    "apiAlias",
+                    "languageId",
+                    "locale",
+                    "fallbackLocale",
+                    "snippetSetId",
+                    "hash",
+                    "snippets"
+                ],
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "snippet_set_result"
+                    },
+                    "languageId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Id of the language the snippets were resolved for."
+                    },
+                    "locale": {
+                        "type": "string",
+                        "pattern": "^[a-z]{2}(?:[_-][A-Z][a-z]{3})?(?:[_-](?:[A-Z]{2}|\\d{3}))?$",
+                        "description": "Locale of the resolved snippet set, e.g. `de-DE`."
+                    },
+                    "fallbackLocale": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^[a-z]{2}$",
+                        "description": "Fallback locale prefix used while resolving, e.g. `de`. Null if it equals the locale."
+                    },
+                    "snippetSetId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^[0-9a-f]{32}$",
+                        "description": "Id of the snippet set the database overrides were taken from."
+                    },
+                    "hash": {
+                        "type": "string",
+                        "description": "Content hash of the `snippets` map. Also sent as `ETag` response header, so clients can revalidate cheaply via `If-None-Match`."
+                    },
+                    "snippets": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "description": "Flat map of fully resolved snippets, e.g. `{\"account.loginTitle\": \"Log in\"}`. Values are never null, the language fallback is already merged. Note: when no snippet matches the requested `prefixes`, the empty map is serialized as an empty JSON list (`[]`)."
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/snippet": {
+            "get": {
+                "tags": [
+                    "Experimental",
+                    "System & Context"
+                ],
+                "summary": "Fetch resolved snippets",
+                "description": "Returns the fully resolved snippets (translations) for the authenticated sales channel as a flat key-value map. The language is taken from the `sw-language-id` header, the snippet set is resolved via the sales channel domains with a fallback to the locale of the language. The language fallback chain is already merged server-side, so values are never null.\n\nThe response carries an `ETag` header; send it back via `If-None-Match` to receive a `304 Not Modified` without a body when nothing changed.\n\nExperimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "readSnippets",
+                "parameters": [
+                    {
+                        "name": "prefixes",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated list of namespace prefixes to limit the result, e.g. `checkout,account.login`. Prefixes match whole key segments, a trailing dot is optional: `checkout` matches `checkout.cart.title` but not `checkoutConfirm.title`. At most 50 distinct prefixes are allowed per request.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "languageIds",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated list of language ids to fetch multiple languages in one request. Every id must be assigned to the sales channel. Defaults to the context language of the `sw-language-id` header.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The resolved snippets as a list of sets, one per language. Contains a single set for the context language unless `languageIds` requests more.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "apiAlias",
+                                        "sets"
+                                    ],
+                                    "properties": {
+                                        "apiAlias": {
+                                            "type": "string",
+                                            "const": "snippet_set_result_list"
+                                        },
+                                        "sets": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SnippetSetResult"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "304": {
+                        "description": "Not modified. Returned when the `If-None-Match` request header matches the current `ETag`."
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -7,6 +7,11 @@
 {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
 {% set showSubtotal = config('core.cart.showSubtotal') %}
 
+{% set showLegalGuaranteeNotice = config('core.cart.showLegalGuaranteeNotice') %}
+{% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
+{% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
+{% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
         {% block page_checkout_confirm_header %}
@@ -55,6 +60,17 @@
                                     '%revocationModalTagClose%': '</button>'
                                 })|raw }}
                             </p>
+                        {% endblock %}
+
+                        {% block page_checkout_confirm_legal_guarantee_paragraph %}
+                            {% if showLegalGuaranteeNotice %}
+                                <p class="legal-guarantee-notice">
+                                    {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
+                                        '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                        '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
+                                    })|raw }}
+                                </p>
+                            {% endif %}
                         {% endblock %}
 
                         {% block page_checkout_confirm_tos_control %}
@@ -245,6 +261,17 @@
                             </p>
                     {% endblock %}
 
+                    {% block page_checkout_confirm_tos_auto_confirmed_legal_guarantee_paragraph_bottom %}
+                        {% if showLegalGuaranteeNotice %}
+                            <p class="legal-guarantee-notice mb-0 mt-2">
+                                {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
+                                    '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                    '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
+                                })|raw }}
+                            </p>
+                        {% endif %}
+                    {% endblock %}
+
                     {% block page_checkout_confirm_tos_auto_confirmed_bottom %}
                         {% set tosModalTagOpen = '<button type="button" class="checkout-confirm-terms-modal btn btn-link-inline" aria-haspopup="dialog" data-ajax-modal="true" data-url="' ~ path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }) ~ '">' %}
                         {% set tosModalTagClose = '</button>' %}
@@ -280,11 +307,13 @@
 
                 {% block page_checkout_confirm_tos_auto_confirmed_text %}
                     <div class="checkout-confirm-tos-information my-3 fs-6">
-                        {{ 'checkout.autoConfirmTermsText'|trans({
+                        {{ (showLegalGuaranteeNotice ? 'checkout.autoConfirmTermsTextWithGuarantee' : 'checkout.autoConfirmTermsText')|trans({
                             '%tosModalTagOpen%': tosModalTagOpen,
                             '%tosModalTagClose%': tosModalTagClose,
                             '%revocationModalTagOpen%': revocationModalTagOpen,
                             '%revocationModalTagClose%': revocationModalTagClose,
+                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
                         })|raw }}
                     </div>
                 {% endblock %}
@@ -312,6 +341,47 @@
                 {% endblock %}
 
             {% endif %}
+        {% endif %}
+    {% endblock %}
+
+    {% block page_checkout_confirm_legal_guarantee_notice %}
+        {% if showLegalGuaranteeNotice %}
+            {% block page_checkout_confirm_legal_guarantee_notice_modal %}
+                <div class="modal modal-lg fade"
+                     id="{{ legalGuaranteeNoticeModalId }}"
+                     tabindex="-1"
+                     role="dialog"
+                     aria-modal="true"
+                     aria-hidden="true"
+                     aria-labelledby="{{ legalGuaranteeNoticeModalId }}-header">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            {% block page_checkout_confirm_legal_guarantee_notice_modal_header %}
+                                <div class="modal-header">
+                                    <div id="{{ legalGuaranteeNoticeModalId }}-header" class="modal-title js-pseudo-modal-template-title-element h5">
+                                        {{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|sw_sanitize }}
+                                    </div>
+                                    <button class="btn-close close"
+                                            type="button"
+                                            data-bs-dismiss="modal"
+                                            aria-label="{{ 'global.default.close'|trans|striptags }}">
+                                    </button>
+                                </div>
+                            {% endblock %}
+
+                            {% block page_checkout_confirm_legal_guarantee_notice_modal_body %}
+                                <div class="modal-body confirm-legal-guarantee-notice">
+                                    <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
+                                       target="_blank"
+                                       rel="noopener">
+                                        {{ context.languageId|sw_legal_guarantee_notice }}
+                                    </a>
+                                </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
         {% endif %}
     {% endblock %}
 

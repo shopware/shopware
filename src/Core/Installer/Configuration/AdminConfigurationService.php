@@ -5,13 +5,10 @@ namespace Shopware\Core\Installer\Configuration;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 
 /**
  * @internal
- *
- * @phpstan-import-type AdminUser from ShopConfigurationController
  */
 #[Package('framework')]
 class AdminConfigurationService
@@ -21,19 +18,27 @@ class AdminConfigurationService
     }
 
     /**
-     * @param AdminUser $user
+     * @param array{
+     *     username: string,
+     *     password: string,
+     *     firstName?: string,
+     *     lastName?: string,
+     *     email?: string,
+     *     localeId?: string,
+     *     admin?: bool
+     * } $user
      */
     public function createAdmin(array $user, Connection $connection): void
     {
         $userProvisioner = new UserProvisioner($connection, $this->clock);
+        $userName = $user['username'];
+        $password = $user['password'];
+        unset($user['username'], $user['password']);
+
         $userProvisioner->provision(
-            $user['username'],
-            $user['password'],
-            [
-                'firstName' => $user['firstName'],
-                'lastName' => $user['lastName'],
-                'email' => $user['email'],
-            ]
+            $userName,
+            $password,
+            $user,
         );
     }
 }

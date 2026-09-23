@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
  * @template TElement of Struct
  *
  * @extends Collection<TElement>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class StructCollection extends Collection

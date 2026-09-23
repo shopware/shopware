@@ -12,7 +12,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *     name?: string,
  *     tags?: list<string>,
  *     attributes?: list<string>,
- *     options?: array<string, array{value?: mixed, values?: list<mixed>}>,
+ *     options?: array<string, bool|array{values: list<string>}>,
  *     custom_attributes?: list<array{tags: list<string>, attributes: list<string>}>,
  *     custom_tags?: list<array{tag: string, type: string, contents: string, attr_collections: list<string>, attributes: list<string>}>
  * }>

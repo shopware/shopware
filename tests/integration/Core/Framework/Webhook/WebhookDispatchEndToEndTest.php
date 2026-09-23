@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -930,7 +931,6 @@ class WebhookDispatchEndToEndTest extends TestCase
 
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
-            static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
@@ -941,6 +941,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            static::getContainer()->get(PolicyRegistry::class),
         );
     }
 

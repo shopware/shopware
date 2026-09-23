@@ -13,8 +13,6 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
- *
- * @phpstan-type ConnectionConfiguration array{dsn: string}
  */
 #[Package('framework')]
 class RedisConnectionsCompilerPass implements CompilerPassInterface
@@ -36,19 +34,21 @@ class RedisConnectionsCompilerPass implements CompilerPassInterface
             return [];
         }
 
-        /** @var ConnectionConfiguration[] $connections */
         $connections = $container->getParameter('shopware.redis.connections');
+        if (!\is_array($connections)) {
+            return [];
+        }
 
         $connectionServices = [];
         foreach ($connections as $name => $connection) {
-            $dsn = $connection['dsn'] ?? null;
+            $dsn = \is_array($connection) ? ($connection['dsn'] ?? null) : null;
 
             if (!\is_string($dsn)) {
                 throw AdapterException::invalidRedisConnectionDsn($name);
             }
 
             $serviceId = 'shopware.redis.connection.' . $name;
-            $definition = $this->createRedisDefinition($connection);
+            $definition = $this->createRedisDefinition($dsn);
             $container->setDefinition($serviceId, $definition);
             $connectionServices[$serviceId] = new Reference($serviceId);
         }
@@ -56,18 +56,13 @@ class RedisConnectionsCompilerPass implements CompilerPassInterface
         return $connectionServices;
     }
 
-    /**
-     * @param ConnectionConfiguration $connection
-     */
-    private function createRedisDefinition(array $connection): Definition
+    private function createRedisDefinition(string $dsn): Definition
     {
         $definition = new Definition('Redis');
         $definition
             ->setFactory([new Reference(RedisConnectionFactory::class), 'create'])
             ->setPublic(false)
-            ->setArguments([
-                $connection['dsn'],
-            ]);
+            ->setArguments([$dsn]);
 
         // Under the hood, redis connections are created by \Symfony\Component\Cache\Adapter\RedisAdapter::createConnection, which may return
         // different types depending on the redis extension used and dsn provided.

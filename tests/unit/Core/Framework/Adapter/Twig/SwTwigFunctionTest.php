@@ -79,6 +79,18 @@ class SwTwigFunctionTest extends TestCase
             'arguments' => ['arg1', 'arg2'],
             'expected' => 'result',
         ];
+
+        yield 'hasser method' => [
+            'object' => $object,
+            'attribute' => 'children',
+            'expected' => true,
+        ];
+
+        yield 'isser method takes precedence over hasser method' => [
+            'object' => $object,
+            'attribute' => 'variants',
+            'expected' => false,
+        ];
     }
 
     /**
@@ -113,6 +125,62 @@ class SwTwigFunctionTest extends TestCase
             $struct,
             'nonExistentProperty'
         );
+    }
+
+    public function testCallMacroReturnsNativeResultWithoutExplicitReturn(): void
+    {
+        static::assertSame('native result', SwTwigFunction::callMacro(static fn (): string => 'native result'));
+    }
+
+    public function testCallMacroReturnsExplicitNull(): void
+    {
+        $result = SwTwigFunction::callMacro(static function (): string {
+            SwTwigFunction::returnFromMacro(null);
+
+            return 'native result';
+        });
+
+        static::assertNull($result);
+    }
+
+    public function testCallMacroKeepsNestedReturnValuesSeparate(): void
+    {
+        $result = SwTwigFunction::callMacro(static function (): string {
+            $nestedResult = SwTwigFunction::callMacro(static function (): string {
+                SwTwigFunction::returnFromMacro(['nested result']);
+
+                return 'nested native result';
+            });
+
+            SwTwigFunction::returnFromMacro($nestedResult);
+
+            return 'native result';
+        });
+
+        static::assertSame(['nested result'], $result);
+    }
+
+    public function testCallMacroClearsReturnStateAfterException(): void
+    {
+        try {
+            SwTwigFunction::callMacro(static function (): never {
+                SwTwigFunction::returnFromMacro('stale result');
+
+                throw new \RuntimeException('Macro failed');
+            });
+            static::fail('Expected macro exception');
+        } catch (\RuntimeException $exception) {
+            static::assertSame('Macro failed', $exception->getMessage());
+        }
+
+        static::assertSame('native result', SwTwigFunction::callMacro(static fn (): string => 'native result'));
+    }
+
+    public function testReturnOutsideMacroDoesNotLeakIntoNextCall(): void
+    {
+        SwTwigFunction::returnFromMacro('stale result');
+
+        static::assertSame('native result', SwTwigFunction::callMacro(static fn (): string => 'native result'));
     }
 }
 
@@ -169,5 +237,20 @@ class StructForTests extends Struct
         }
 
         return 'result';
+    }
+
+    public function hasChildren(): bool
+    {
+        return true;
+    }
+
+    public function isVariants(): bool
+    {
+        return false;
+    }
+
+    public function hasVariants(): bool
+    {
+        return true;
     }
 }

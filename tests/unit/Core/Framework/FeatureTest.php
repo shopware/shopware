@@ -4,12 +4,12 @@ namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -40,11 +40,17 @@ class FeatureTest extends TestCase
      */
     private array $featureConfigBackup;
 
+    private ?Triggerer $deprecationTriggerBackup;
+
+    private bool $emitDeprecationsBackup;
+
     protected function setUp(): void
     {
         $this->serverVarsBackup = $_SERVER;
         $this->envVarsBackup = $_ENV;
         $this->featureConfigBackup = Feature::getRegisteredFeatures();
+        $this->deprecationTriggerBackup = Feature::$triggerer;
+        $this->emitDeprecationsBackup = Feature::$emitDeprecations;
     }
 
     protected function tearDown(): void
@@ -53,6 +59,8 @@ class FeatureTest extends TestCase
         $_ENV = $this->envVarsBackup;
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures($this->featureConfigBackup);
+        Feature::$triggerer = $this->deprecationTriggerBackup;
+        Feature::$emitDeprecations = $this->emitDeprecationsBackup;
     }
 
     public function testFakeFeatureFlagsAreClean(): void
@@ -198,12 +206,100 @@ class FeatureTest extends TestCase
     #[DisabledFeatures(['v6.5.0.0'])]
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
     {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->once())
+            ->method('deprecation')
+            ->with('', '', 'test');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
         Feature::resetRegisteredFeatures();
 
-        // no throw
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
+    }
 
-        $this->expectNotToPerformAssertions();
+    public function testTriggerDeprecationOrThrowReturnsWhenDeprecationsAreDisabled(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $deprecationTrigger;
+        Feature::$emitDeprecations = false;
+
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
+    }
+
+    #[DisabledFeatures(['v6.5.0.0'])]
+    public function testTriggerDeprecationOrThrowThrowsForUnregisteredFeature(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $deprecationTrigger;
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('FEATURE_ONE');
+
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
+    }
+
+    #[DisabledFeatures(['v6.5.0.0'])]
+    public function testTriggerDeprecationOrThrowStaysSilentWhileSilentUntilFlagIsInactive(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
+    }
+
+    public function testTriggerDeprecationOrThrowDeprecatesOnceSilentUntilFlagIsActive(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->once())
+            ->method('deprecation')
+            ->with('', '', 'test');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => false]);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+        Feature::registerFeature('v6.6.0.0', ['major' => true]);
+
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
+    }
+
+    public function testTriggerDeprecationOrThrowOnlyWarnsWhileTheMajorFlagIsNotRegisteredYet(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->once())
+            ->method('deprecation')
+            ->with('', '', 'test');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true]);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
+    }
+
+    public function testTriggerDeprecationOrThrowThrowsOnceMajorFlagIsActiveDespiteSilentUntil(): void
+    {
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $deprecationTrigger;
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => true]);
+
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+        Feature::registerFeature('v6.6.0.0', ['major' => true]);
+
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
     }
 
     public function testSetActive(): void
@@ -231,8 +327,6 @@ class FeatureTest extends TestCase
 
     public function testSetActiveOnUnregisteredFeature(): void
     {
-        $this->expectExceptionObject(FeatureException::featureNotRegistered('FEATURE_TWO'));
-
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([
             'FEATURE_ONE' => [
@@ -244,12 +338,15 @@ class FeatureTest extends TestCase
         ]);
 
         static::assertFalse(Feature::has('FEATURE_TWO'));
+
+        $this->expectExceptionObject(FeatureException::featureNotRegistered('FEATURE_TWO'));
+
         Feature::setActive('FEATURE_TWO', false);
     }
 
     public function testTriggerDeprecationOrThrowThrows(): void
     {
-        $this->expectException(FeatureException::class);
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
 
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
@@ -258,28 +355,26 @@ class FeatureTest extends TestCase
     #[DisabledFeatures(['v6.5.0.0'])]
     public function testCallSilentIfInactiveSuppressesDeprecationForInactiveFeature(): void
     {
-        // Deprecation warnings are suppressed in test mode by default
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
-
-        $this->expectNotToPerformAssertions();
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $deprecationTrigger;
 
         Feature::callSilentIfInactive('v6.5.0.0', static function (): void {
             Feature::triggerDeprecationOrThrow('v6.5.0.0', 'deprecated message');
         });
     }
 
-    /**
-     * @param non-empty-string $expectedDeprecation
-     */
-    #[IgnoreDeprecations]
     #[DisabledFeatures(['v6.5.0.0'])]
     #[DataProvider('callSilentIfInactiveProvider')]
-    public function testCallSilentIfInactive(string $majorVersion, string $deprecatedMessage, ?string $introducedIn, string $expectedDeprecation): void
+    public function testCallSilentIfInactive(string $majorVersion, string $deprecatedMessage, ?string $introducedIn): void
     {
-        // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
-        $this->expectUserDeprecationMessage($expectedDeprecation);
+        $deprecationTrigger = $this->createMock(Triggerer::class);
+        $deprecationTrigger->expects($this->once())
+            ->method('deprecation')
+            ->with($introducedIn === null ? '' : 'shopware/core', $introducedIn ?? '', $deprecatedMessage);
+        Feature::$triggerer = $deprecationTrigger;
 
         Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion, $introducedIn): void {
             Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage, $introducedIn);
@@ -346,11 +441,11 @@ class FeatureTest extends TestCase
     {
         yield 'Execute a callable with inactivated feature flag and throw a bare deprecation when introducedIn is omitted' => [
             // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
-            'v6.4.0.0', 'deprecated message', null, 'deprecated message',
+            'v6.4.0.0', 'deprecated message', null,
         ];
 
         yield 'Execute a callable with inactivated feature flag and throw a deprecation prefixed with the introduction version' => [
-            'v6.4.0.0', 'deprecated message', 'v6.3.0.0', 'Since shopware/core v6.3.0.0: deprecated message',
+            'v6.4.0.0', 'deprecated message', 'v6.3.0.0',
         ];
     }
 }

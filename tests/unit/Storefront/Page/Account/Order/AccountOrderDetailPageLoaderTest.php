@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Account\Order;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
@@ -101,6 +103,69 @@ class AccountOrderDetailPageLoaderTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
 
         $this->pageLoader->load(new Request(['id' => Uuid::randomHex()]), Generator::generateSalesChannelContext());
+    }
+
+    #[DataProvider('orderIdRequestProvider')]
+    public function testLoadReadsTheOrderIdFromTheExpectedBag(Request $request, string $expectedOrderId): void
+    {
+        $order = new OrderEntity();
+        $order->setId($expectedOrderId);
+
+        $this->orderRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with(
+                static::anything(),
+                static::anything(),
+                static::callback(static fn (Criteria $criteria) => $criteria->getIds() === [$expectedOrderId]),
+            )
+            ->willReturn($this->orderResponse(new OrderCollection([$order])));
+
+        $page = new Page();
+        $page->setMetaInformation(new MetaInformation());
+
+        $this->genericPageLoader
+            ->expects($this->once())
+            ->method('load')
+            ->willReturn($page);
+
+        $detailPage = $this->pageLoader->load($request, Generator::generateSalesChannelContext());
+
+        static::assertSame($order, $detailPage->getOrder());
+    }
+
+    public function testLoadThrowsWhenTheOrderIdIsMissing(): void
+    {
+        $this->orderRoute
+            ->expects($this->never())
+            ->method('load');
+
+        $this->genericPageLoader
+            ->expects($this->never())
+            ->method('load');
+
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('id'));
+
+        $this->pageLoader->load(new Request(), Generator::generateSalesChannelContext());
+    }
+
+    /**
+     * @return iterable<string, array{Request, string}>
+     */
+    public static function orderIdRequestProvider(): iterable
+    {
+        $attributeId = Uuid::randomHex();
+        $queryId = Uuid::randomHex();
+
+        $fromAttributes = new Request();
+        $fromAttributes->attributes->set('id', $attributeId);
+
+        $fromBothBags = new Request(['id' => $queryId]);
+        $fromBothBags->attributes->set('id', $attributeId);
+
+        yield 'route attribute' => [$fromAttributes, $attributeId];
+        yield 'query fallback' => [new Request(['id' => $queryId]), $queryId];
+        yield 'route attribute takes precedence over query' => [$fromBothBags, $attributeId];
     }
 
     private function orderResponse(OrderCollection $orders): OrderRouteResponse

@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -140,8 +141,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewWithIncorrectDeepLinkCode(): void
     {
-        $this->expectException(DocumentException::class);
-
         /** @var OrderEntity $order */
         $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->getEntities()->first();
 
@@ -154,6 +153,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotEmpty($documentStruct->getContent());
 
         $operation = new DocumentGenerateOperation(Uuid::randomHex());
+
+        $this->expectExceptionObject(DocumentException::generationError());
 
         $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, '', $this->context);
     }
@@ -409,11 +410,47 @@ class DocumentGeneratorTest extends TestCase
         $this->documentGenerator->readDocument($documentId, $this->context);
     }
 
+    public function testReadDocumentFallsBackToV2DocumentFile(): void
+    {
+        $documentId = Uuid::randomHex();
+        $mediaId = static::getContainer()->get(MediaService::class)->saveFile(
+            'v2 document content',
+            PdfRenderer::FILE_EXTENSION,
+            PdfRenderer::FILE_CONTENT_TYPE,
+            'v2-invoice',
+            $this->context,
+            DocumentPersister::MEDIA_FOLDER,
+        );
+
+        $this->documentRepository->create([[
+            'id' => $documentId,
+            'documentTypeId' => $this->documentTypeId,
+            'fileType' => PdfRenderer::FILE_EXTENSION,
+            'orderId' => $this->orderId,
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'config' => ['documentNumber' => 'v2-invoice'],
+            'deepLinkCode' => Uuid::randomHex(),
+            'static' => true,
+        ]], $this->context);
+
+        static::getContainer()->get('document_file.repository')->create([[
+            'id' => Uuid::randomHex(),
+            'documentId' => $documentId,
+            'documentFormat' => PdfRenderer::FILE_EXTENSION,
+            'mediaId' => $mediaId,
+        ]], $this->context);
+
+        $renderedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
+
+        static::assertNotNull($renderedDocument);
+        static::assertSame('v2 document content', $renderedDocument->getContent());
+        static::assertSame('v2-invoice.pdf', $renderedDocument->getName());
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $renderedDocument->getContentType());
+    }
+
     public function testReadDocumentFileWithIncorrectDeepLinkCode(): void
     {
         $documentId = Uuid::randomHex();
-
-        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         /** @var FilesystemOperator $fileSystem */
         $fileSystem = static::getContainer()->get('shopware.filesystem.private');
@@ -465,6 +502,8 @@ class DocumentGeneratorTest extends TestCase
         $fileSystem->write($filePath, 'test123');
 
         static::assertTrue($fileSystem->has($filePath));
+
+        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         $this->documentGenerator->readDocument($document->getId(), $this->context, 'wrong code');
     }

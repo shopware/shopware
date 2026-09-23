@@ -2,7 +2,15 @@
     class="sw-extension-card-base"
     :class="extensionCardClasses"
 >
-    <sw-loader v-if="isLoading" />
+    <sw-loader v-if="showLoader" />
+
+    <div class="sw-extension-card-base__select">
+        <mt-checkbox
+            :checked="selected"
+            :aria-label="$t('sw-extension.my-extensions.bulk.selectExtensionAria', { name: extension.label })"
+            @update:checked="$emit('select-change', $event)"
+        />
+    </div>
 
     <div class="sw-extension-card-base__switch">
         {% block sw_extension_card_base_activation_switch_switch %}
@@ -153,7 +161,7 @@
         {% block sw_extension_card_base_context_menu_actions_additional %}{% endblock %}
 
         <sw-context-menu-item
-            v-if="!extensionManagementDisabled && extension.storeLicense && extension.storeLicense.variant === 'rent' && extension.storeLicense.expirationDate === null"
+            v-if="!extensionManagementDisabled && hasActiveSubscription"
             class="sw-extension-card-base__cancel-and-remove-link"
             variant="danger"
             @click="openRemovalModal"
@@ -193,7 +201,7 @@
     <sw-extension-removal-modal
         v-if="showRemovalModal"
         :extension-name="extension.label"
-        :is-licensed="extension.storeLicense !== null && extension.storeLicense.variant === 'rent'"
+        :is-licensed="hasActiveSubscription"
         :is-loading="isLoading"
         @modal-close="closeRemovalModal"
         @remove-extension="closeModalAndRemoveExtension"

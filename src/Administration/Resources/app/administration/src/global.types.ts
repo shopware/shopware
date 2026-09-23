@@ -11,12 +11,13 @@ import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
+import type MediaService from 'src/core/service/api/media.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type UserActivityService from 'src/app/service/user-activity.service';
 import type { FullState } from 'src/core/factory/state.factory';
@@ -26,6 +27,7 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
+import type OAuthAuthorizeApiService from 'src/core/service/api/oauth-authorize.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
@@ -70,6 +72,8 @@ import type UpdateApiService from './core/service/api/update.api.service';
 import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
+import type DocumentV2ApiService from './core/service/api/documentV2.api.service';
+import type DocumentV2Service from './module/sw-order/service/documentV2.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
 import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
@@ -94,6 +98,7 @@ import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-
 import type PrivilegesService from './app/service/privileges.service';
 import type BusinessEventsApiService from './core/service/api/business-events.api.service';
 import type { FileValidationService } from './app/service/file-validation.service';
+import type SnackbarService from './app/service/snackbar.service';
 import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
@@ -159,7 +164,7 @@ export interface SubContainer<ContainerName extends string> {
 
 type SalutationFilterEntityType = {
     salutation: {
-        id: string;
+        id: EntityKey<'salutation'>;
         salutationKey: string;
         displayName: string;
     };
@@ -212,6 +217,7 @@ declare global {
      */
     const Shopware: ShopwareClass & CustomShopwareProperties;
 
+    type EntityKey<K extends keyof EntitySchema.EntityKeys> = EntitySchema.EntityKeys[K];
     type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
     type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
 
@@ -255,6 +261,8 @@ declare global {
         customEntityDefinitionService: CustomEntityDefinitionService;
         customFieldDataProviderService: $TSFixMe;
         customSnippetApiService: CustomSnippetApiService;
+        documentV2ApiService: DocumentV2ApiService;
+        documentV2Service: DocumentV2Service;
         entityFactory: $TSFixMe;
         entityHydrator: $TSFixMe;
         entityMappingService: $TSFixMe;
@@ -273,7 +281,10 @@ declare global {
         localeToLanguageService: $TSFixMe;
         loginService: LoginService;
         mediaDefaultFolderService: $TSFixMe;
+        mediaService: MediaService;
         menuService: $TSFixMe;
+        numberRangeService: $TSFixMe;
+        oauthAuthorizeApiService: OAuthAuthorizeApiService;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;
         productStreamConditionService: $TSFixMe;
@@ -284,6 +295,7 @@ declare global {
         searchRankingService: $TSFixMe;
         searchTypeService: $TSFixMe;
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService;
+        snackbarService: SnackbarService;
         shortcutService: $TSFixMe;
         snippetService: SnippetApiService;
         stateStyleDataProviderService: StateStyleService;
@@ -330,7 +342,7 @@ declare global {
     interface InitContainer extends SubContainer<'init'> {
         state: $TSFixMe; // has to be removed once we moved to vite
         router: $TSFixMe;
-        httpClient: AxiosInstance;
+        httpClient: HttpClient;
     }
     interface InitPostContainer extends SubContainer<'init-post'> {}
     interface InitPreContainer extends SubContainer<'init-pre'> {

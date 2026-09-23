@@ -54,10 +54,7 @@ class UninstallAppCommand extends Command
 
         $this->appLifecycle->uninstall(
             $app->getName(),
-            [
-                'id' => $app->getId(),
-                'roleId' => $app->getAclRoleId(),
-            ],
+            ['id' => $app->getId()],
             $context,
             $keepUserData
         );

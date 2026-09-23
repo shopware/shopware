@@ -51,7 +51,8 @@ class Migration1774345867AddProductOpenGraphFields extends MigrationStep
         );
 
         if (!$this->indexExists($connection, 'product', 'fk.product.open_graph_media_id')) {
-            $connection->executeStatement(
+            $this->executeDdlStatement(
+                $connection,
                 'ALTER TABLE `product`
                 ADD CONSTRAINT `fk.product.open_graph_media_id`
                     FOREIGN KEY (`open_graph_media_id`)

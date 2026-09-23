@@ -96,7 +96,12 @@
                                     {% endif %}
 
                                     {% block page_account_order_item_context_menu_reorder %}
-                                        {% if order.extensions.reorderable.available ?? true %}
+                                        {# the reorder entry is pure UI shorthand: an order can be reordered while any of its products is still buyable #}
+                                        {% set reorderable = order.lineItems is null or order.lineItems.firstWhere(item =>
+                                            item.type == PRODUCT_LINE_ITEM_TYPE and (item.extensions.productAvailable.available ?? true)
+                                        ) is not null %}
+
+                                        {% if reorderable %}
                                             {% set action %}
                                                 {% block page_account_order_item_context_menu_reorder_form_action %}
                                                     {{ path('frontend.checkout.line-item.order.add', { orderId: order.id }) }}

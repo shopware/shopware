@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Event;
+namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -11,71 +11,47 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
-use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent;
-use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Order line items keep referencing their product after it was deactivated, made invisible for the sales channel
- * or deleted, so templates cannot tell from the order alone whether the product detail page still resolves.
+ * or deleted, so a consumer cannot tell from the order alone whether the product can still be bought. This adds
+ * that answer as the `productAvailable` extension of every product line item.
  *
  * @internal
  */
 #[Package('checkout')]
-class OrderProductAvailabilitySubscriber implements EventSubscriberInterface
+class OrderProductAvailabilityRoute extends AbstractOrderRoute
 {
     public const LINE_ITEM_EXTENSION = 'productAvailable';
-
-    public const ORDER_EXTENSION = 'reorderable';
 
     /**
      * @internal
      *
      * @param SalesChannelRepository<ProductCollection> $productRepository
      */
-    public function __construct(private readonly SalesChannelRepository $productRepository)
+    public function __construct(
+        private readonly AbstractOrderRoute $decorated,
+        private readonly SalesChannelRepository $productRepository
+    ) {
+    }
+
+    public function getDecorated(): AbstractOrderRoute
     {
+        return $this->decorated;
+    }
+
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
+    {
+        $response = $this->decorated->load($request, $context, $criteria);
+
+        $this->addAvailability($response->getOrders()->getEntities()->getElements(), $context);
+
+        return $response;
     }
 
     /**
-     * @return array<string, string>
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            AccountOrderPageLoadedEvent::class => 'onAccountOrderPageLoaded',
-            AccountOverviewPageLoadedEvent::class => 'onAccountOverviewPageLoaded',
-            CheckoutFinishPageLoadedEvent::class => 'onCheckoutFinishPageLoaded',
-        ];
-    }
-
-    public function onAccountOrderPageLoaded(AccountOrderPageLoadedEvent $event): void
-    {
-        $this->addAvailability(
-            array_values($event->getPage()->getOrders()->getEntities()->getElements()),
-            $event->getSalesChannelContext()
-        );
-    }
-
-    public function onAccountOverviewPageLoaded(AccountOverviewPageLoadedEvent $event): void
-    {
-        $order = $event->getPage()->getNewestOrder();
-
-        if ($order === null) {
-            return;
-        }
-
-        $this->addAvailability([$order], $event->getSalesChannelContext());
-    }
-
-    public function onCheckoutFinishPageLoaded(CheckoutFinishPageLoadedEvent $event): void
-    {
-        $this->addAvailability([$event->getPage()->getOrder()], $event->getSalesChannelContext());
-    }
-
-    /**
-     * @param list<OrderEntity> $orders
+     * @param array<OrderEntity> $orders
      */
     private function addAvailability(array $orders, SalesChannelContext $context): void
     {
@@ -94,29 +70,25 @@ class OrderProductAvailabilitySubscriber implements EventSubscriberInterface
         $available = [];
 
         // an order whose products were all deleted has nothing left to look up, but its line items still
-        // need the extension, otherwise templates fall back to treating them as available
+        // need the extension, otherwise consumers fall back to treating them as available
         if ($productIds !== []) {
             $criteria = new Criteria(array_keys($productIds));
             $criteria->setTitle('order-line-item::product-availability');
 
-            // one query per page, and searchIds() never reads entities, so no product price calculation is
+            // one query per request, and searchIds() never reads entities, so no product price calculation is
             // triggered. the sales channel repository applies the product available filter, which covers
             // the active flag and the sales channel visibility.
             $available = array_flip($this->productRepository->searchIds($criteria, $context)->getIds());
         }
 
         foreach ($orders as $order) {
-            $reorderable = false;
-
             foreach ($this->getProductLineItems($order) as $lineItem) {
                 $productId = $lineItem->getProductId();
-                $isAvailable = $productId !== null && isset($available[$productId]);
-                $reorderable = $reorderable || $isAvailable;
 
-                $lineItem->addExtension(self::LINE_ITEM_EXTENSION, new ArrayStruct(['available' => $isAvailable]));
+                $lineItem->addExtension(self::LINE_ITEM_EXTENSION, new ArrayStruct([
+                    'available' => $productId !== null && isset($available[$productId]),
+                ]));
             }
-
-            $order->addExtension(self::ORDER_EXTENSION, new ArrayStruct(['available' => $reorderable]));
         }
     }
 

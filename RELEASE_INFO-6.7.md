@@ -112,9 +112,9 @@ Promotion discounts live in their own line items, which are not products and wer
 
 Product items now report the unit price after the discount as `price`, and the discount per unit as the new `discount` property. Google Analytics treats both as independent metrics and does not subtract one from the other, so only `price` contributes to the value. `begin_checkout`, `view_cart`, `add_shipping_info`, `add_payment_info`, `purchase`, and `remove_from_cart` are affected.
 
-The discount of a promotion is allocated to the products it was calculated from, using the composition the promotion already stores on its line item. It is allocated on the line total and only then divided by the quantity, because a promotion does not have to discount every unit of a line item. Shipping discounts are not allocated to products; they already reduce the reported `shipping`.
+The discount of a promotion is allocated to the products it was calculated from, using the composition the promotion already stores on its line item. It is allocated on the line total and only then divided by the quantity, because a promotion does not have to discount every unit of a line item. Combinable promotions can discount a product by more than it costs, because they are only capped at the cart total; what exceeds the product is spread over the other products, so the reported value still matches what the customer paid. Shipping discounts are not allocated to products; they already reduce the reported `shipping`.
 
-Themes that override the block `component_hidden_line_item_information` and read `data-price` will now read the discounted price. The template exposes the allocation through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
+Themes that override the block `component_hidden_line_item_information` and read `data-price` or the `gaPrice` variable will now read the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from, because the rounded unit price times the quantity can miss it by a cent. The template exposes the allocation through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
 
 # 6.7.15.0
 

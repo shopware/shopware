@@ -60,7 +60,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        static::assertSame(['product-1' => ['price' => 10.0, 'discount' => 0.0]], $prices);
+        static::assertSame(['product-1' => ['price' => 10.0, 'discount' => 0.0, 'total' => 30.0]], $prices);
     }
 
     public function testAllocatesAnAbsoluteDiscountToTheDiscountedLine(): void
@@ -73,8 +73,8 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        static::assertSame(['price' => 8.0, 'discount' => 2.0], $prices['product-1']);
-        static::assertSame(['price' => 20.0, 'discount' => 0.0], $prices['product-2']);
+        static::assertSame(['price' => 8.0, 'discount' => 2.0, 'total' => 24.0], $prices['product-1']);
+        static::assertSame(['price' => 20.0, 'discount' => 0.0, 'total' => 20.0], $prices['product-2']);
     }
 
     public function testSumsSeveralPromotionsOnTheSameLine(): void
@@ -87,7 +87,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        static::assertSame(['price' => 5.0, 'discount' => 5.0], $prices['product-1']);
+        static::assertSame(['price' => 5.0, 'discount' => 5.0, 'total' => 10.0], $prices['product-1']);
     }
 
     /**
@@ -103,7 +103,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        static::assertSame(['price' => 7.5, 'discount' => 2.5], $prices['product-1']);
+        static::assertSame(['price' => 7.5, 'discount' => 2.5, 'total' => 30.0], $prices['product-1']);
     }
 
     public function testNeverReportsANegativePrice(): void
@@ -115,7 +115,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        static::assertSame(['price' => 0.0, 'discount' => 10.0], $prices['product-1']);
+        static::assertSame(['price' => 0.0, 'discount' => 10.0, 'total' => 0.0], $prices['product-1']);
     }
 
     public function testIgnoresShippingDiscounts(): void
@@ -130,7 +130,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        static::assertSame(['price' => 10.0, 'discount' => 0.0], $prices['product-1']);
+        static::assertSame(['price' => 10.0, 'discount' => 0.0, 'total' => 10.0], $prices['product-1']);
     }
 
     public function testSkipsDiscountAndShippingLineItems(): void
@@ -154,8 +154,9 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        // 20.00 / 3 = 6.666…, rounded to the two decimals the currency uses
-        static::assertSame(['price' => 6.67, 'discount' => 3.33], $prices['product-1']);
+        // 20.00 / 3 = 6.666…, rounded to the two decimals the currency uses; 6.67 * 3 would report
+        // 20.01, so the paid line total is carried separately for the event value
+        static::assertSame(['price' => 6.67, 'discount' => 3.33, 'total' => 20.0], $prices['product-1']);
     }
 
     public function testHonoursACurrencyWithoutDecimals(): void
@@ -167,7 +168,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context(new CashRoundingConfig(0, 1.0, true)));
 
-        static::assertSame(['price' => 7.0, 'discount' => 3.0], $prices['product-1']);
+        static::assertSame(['price' => 7.0, 'discount' => 3.0, 'total' => 20.0], $prices['product-1']);
     }
 
     /**
@@ -184,7 +185,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        static::assertSame(['order-line-item-1' => ['price' => 8.0, 'discount' => 2.0]], $prices);
+        static::assertSame(['order-line-item-1' => ['price' => 8.0, 'discount' => 2.0, 'total' => 16.0]], $prices);
     }
 
     public function testIgnoresLineItemsWithoutAPrice(): void
@@ -212,7 +213,27 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
 
         $prices = $this->extension->getPrices($lineItems, $this->context());
 
-        static::assertSame(['price' => 8.0, 'discount' => 2.0], $prices['product-1']);
+        static::assertSame(['price' => 8.0, 'discount' => 2.0, 'total' => 8.0], $prices['product-1']);
+    }
+
+    /**
+     * Promotions are capped at the cart total, not at their product, so two combinable percentage
+     * promotions on a 10.00 product can discount 12.00. The customer pays 98.00 for the cart, so the
+     * 2.00 the product cannot absorb is spread over the rest instead of being dropped.
+     */
+    public function testSpreadsADiscountExceedingItsLineOverTheOtherLines(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->product('product-2', 100.0, 1),
+            $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 7.0]]),
+            $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 5.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 0.0, 'discount' => 10.0, 'total' => 0.0], $prices['product-1']);
+        static::assertSame(['price' => 98.0, 'discount' => 2.0, 'total' => 98.0], $prices['product-2']);
     }
 
     private function context(?CashRoundingConfig $itemRounding = null): SalesChannelContext

@@ -56,7 +56,7 @@ class AnalyticsLineItemPriceExtension extends AbstractExtension
      *                                                               get an empty result, not a
      *                                                               `TypeError` rendered as a 500.
      *
-     * @return array<string, array{price: float, discount: float}> keyed by line item id
+     * @return array<string, array{price: float, discount: float, total: float}> keyed by line item id
      */
     public function getPrices(?iterable $lineItems, SalesChannelContext $context): array
     {
@@ -69,7 +69,7 @@ class AnalyticsLineItemPriceExtension extends AbstractExtension
         $discounts = $this->collectDiscounts($lineItems);
         $rounding = $context->getItemRounding();
 
-        $prices = [];
+        $lines = [];
 
         foreach ($lineItems as $lineItem) {
             if (!$this->isGood($lineItem)) {
@@ -83,17 +83,72 @@ class AnalyticsLineItemPriceExtension extends AbstractExtension
                 continue;
             }
 
-            $total = $price->getTotalPrice();
-            // a composition can never discount more than the line it was calculated from
-            $discount = min($discounts[$this->getCartLineItemId($lineItem)] ?? 0.0, $total);
+            $lines[$lineItem->getId()] = [
+                'total' => $price->getTotalPrice(),
+                'quantity' => $quantity,
+                'discount' => $discounts[$this->getCartLineItemId($lineItem)] ?? 0.0,
+            ];
+        }
 
-            $prices[$lineItem->getId()] = [
-                'price' => $this->rounding->cashRound(($total - $discount) / $quantity, $rounding),
-                'discount' => $this->rounding->cashRound($discount / $quantity, $rounding),
+        $prices = [];
+
+        foreach ($this->allocate($lines) as $id => $line) {
+            $discounted = $line['total'] - $line['discount'];
+
+            $prices[$id] = [
+                'price' => $this->rounding->cashRound($discounted / $line['quantity'], $rounding),
+                'discount' => $this->rounding->cashRound($line['discount'] / $line['quantity'], $rounding),
+                // The rounded unit price times the quantity can miss the paid line total by a cent,
+                // 20.00 split over three units reports 6.67, so the event value uses this instead.
+                'total' => $this->rounding->cashRound($discounted, $rounding),
             ];
         }
 
         return $prices;
+    }
+
+    /**
+     * Caps every line at its own total and spreads what exceeds it over the other lines.
+     *
+     * Promotions are only capped at the cart total, and a percentage promotion is calculated on the
+     * original price of its items, so two combinable promotions on the same product can discount it
+     * by more than it costs. The customer still pays the lower cart total, so dropping that overflow
+     * would report more revenue than was paid. It is spread over the remaining line totals in
+     * proportion, which keeps the reported value equal to the paid goods total.
+     *
+     * @param array<string, array{total: float, quantity: int, discount: float}> $lines
+     *
+     * @return array<string, array{total: float, quantity: int, discount: float}>
+     */
+    private function allocate(array $lines): array
+    {
+        $overflow = 0.0;
+
+        foreach ($lines as $id => $line) {
+            $capped = min($line['discount'], $line['total']);
+            $overflow += $line['discount'] - $capped;
+            $lines[$id]['discount'] = $capped;
+        }
+
+        if ($overflow <= 0.0) {
+            return $lines;
+        }
+
+        $remaining = array_sum(array_map(static fn (array $line) => $line['total'] - $line['discount'], $lines));
+
+        if ($remaining <= 0.0) {
+            return $lines;
+        }
+
+        // the cart total caps every promotion, so the overflow never exceeds what is left, but a
+        // share is still capped at its line in case the cart was calculated differently
+        $share = min(1.0, $overflow / $remaining);
+
+        foreach ($lines as $id => $line) {
+            $lines[$id]['discount'] += ($line['total'] - $line['discount']) * $share;
+        }
+
+        return $lines;
     }
 
     /**

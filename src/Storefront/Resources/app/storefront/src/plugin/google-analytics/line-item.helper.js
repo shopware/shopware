@@ -64,12 +64,8 @@ export default class LineItemHelper
      */
     static getAdditionalProperties() {
         const lineItemsContainer = document.querySelector('.hidden-line-items-information');
-        const value = LineItemHelper.getLineItems().reduce((sum, item) => {
-            const price = Number(item.price);
-            const quantity = Number(item.quantity) || 1;
-
-            return Number.isNaN(price) ? sum : sum + (price * quantity);
-        }, 0);
+        const lineItemElements = lineItemsContainer?.querySelectorAll('.hidden-line-item') ?? [];
+        const value = [...lineItemElements].reduce((sum, element) => sum + LineItemHelper.getLineTotal(element), 0);
 
         return {
             currency: lineItemsContainer?.getAttribute('data-currency'),
@@ -78,6 +74,26 @@ export default class LineItemHelper
             tax: lineItemsContainer?.getAttribute('data-tax'),
             coupon: LineItemHelper.getCoupon(),
         };
+    }
+
+    /**
+     * The paid total of a line. `data-total` carries it exactly, because the rounded unit price
+     * times the quantity can miss it by a cent: 20.00 over three units reports a price of 6.67.
+     * Markup without the attribute, such as an overridden block, falls back to that product.
+     *
+     * @param {HTMLElement} element
+     * @returns {number}
+     */
+    static getLineTotal(element) {
+        const total = element.getAttribute('data-total');
+        if (total !== null && total !== '' && !Number.isNaN(Number(total))) {
+            return Number(total);
+        }
+
+        const price = Number(element.getAttribute('data-price'));
+        const quantity = Number(element.getAttribute('data-quantity')) || 1;
+
+        return Number.isNaN(price) ? 0 : price * quantity;
     }
 
     /**

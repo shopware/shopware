@@ -172,6 +172,27 @@ describe('plugin/google-analytics/line-item.helper', () => {
             });
         });
 
+        test('uses the paid line total over the rounded unit price', () => {
+            // 20.00 discounted over three units reports 6.67 each, which would sum to 20.01
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information" data-currency="EUR">
+                    <span class="hidden-line-item"
+                        data-id="product-1"
+                        data-quantity="3"
+                        data-price="6.67"
+                        data-total="20">
+                    </span>
+                    <span class="hidden-line-item"
+                        data-id="product-2"
+                        data-quantity="2"
+                        data-price="5">
+                    </span>
+                </div>
+            `;
+
+            expect(LineItemHelper.getAdditionalProperties().value).toBe(30);
+        });
+
         test('joins the applied promotion codes into a single coupon', () => {
             document.body.innerHTML = `
                 <div class="hidden-line-items-information"

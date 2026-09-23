@@ -36,6 +36,10 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Sales-channel scoped limits for `system_config` rate limiters
+
+Rate limiters with the `system_config` policy now apply limits configured per sales channel; before, only the global value took effect. `CartItemAddRoute` resolves `core.cart.lineItemAddLimit` for the current sales channel and includes the sales channel id in its rate-limiter key, so a globally configured limit now applies per sales channel instead of shop-wide, and in-flight cart-add counters restart once when updating. `RateLimiter::ensureAccepted()` and `RateLimiterFactory::create()` accept the sales channel id as an optional parameter, see `UPGRADE-6.8.md`.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses
@@ -1223,10 +1227,6 @@ All existing `reason:*` BC-planning annotations in the core have been migrated t
 ### Product export scheduling decoupled from the cache timestamp
 
 Cron-driven product export generation no longer derives the next run from `generatedAt`, which also anchors the cache validity of the generated feed file. A new `nextGenerationAt` field on the `product_export` entity is set when the first export chunk starts, and the scheduler prefers it over the legacy `generatedAt` + interval calculation. This keeps the schedule anchored to the export start time without making storefront requests treat in-flight exports as stale. The database column is added automatically by a migration; exports generated before the update fall back to the previous `generatedAt`-based scheduling until their next run. No action is required.
-
-### Sales-channel scoped limits for `system_config` rate limiters
-
-Rate limiters with the `system_config` policy now apply limits configured per sales channel; before, only the global value took effect. `CartItemAddRoute` resolves `core.cart.lineItemAddLimit` for the current sales channel and includes the sales channel id in its rate-limiter key, so a globally configured limit now applies per sales channel instead of shop-wide, and in-flight cart-add counters restart once when updating. `RateLimiter::ensureAccepted()` and `RateLimiterFactory::create()` accept the sales channel id as an optional parameter, see `UPGRADE-6.8.md`.
 
 ### `debug:mcp` lists Store API capabilities
 

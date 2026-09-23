@@ -4,13 +4,11 @@ import template from './sw-customer-detail-base.html.twig';
  * @sw-package checkout
  */
 
-const { Criteria } = Shopware.Data;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['customFieldDataProviderService'],
 
     props: {
         customer: {
@@ -37,28 +35,13 @@ export default {
         };
     },
 
-    computed: {
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
-        },
-
-        customFieldSetCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
-            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
-
-            return criteria;
-        },
-    },
-
     created() {
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
-            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
+            this.customFieldDataProviderService.getCustomFieldSets('customer').then((customFieldSets) => {
                 this.customerCustomFieldSets = customFieldSets;
             });
         },

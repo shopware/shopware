@@ -49,9 +49,9 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds the product line items of an existing order to the current cart. The request carries the order id only: the order is resolved for the logged-in customer and the current sales channel, products that are no longer available are skipped and reported as errors on the returned cart, and the recalculated cart is returned. Clients that reorder no longer have to read the order and send every line item themselves.
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds the product line items of an order to the current cart and returns the recalculated cart. It carries the order id only; the order is resolved for the logged-in customer and the current sales channel, and products that are no longer available are skipped and reported as cart errors.
 
-Decorate `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute`, or listen to `Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent`, to change which line items a reorder adds.
+To change which line items a reorder adds, decorate `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute` or listen to `Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent`.
 
 ## Administration
 
@@ -107,9 +107,11 @@ Availability is resolved once per page in PHP with a single sales-channel-aware 
 
 ### Reorder posts only the order id
 
-The reorder form in `@Storefront/storefront/page/account/order-history/order-item.html.twig` now posts to `frontend.checkout.line-item.order.add` instead of `frontend.checkout.line-item.add`, which delegates to the Store API route `POST /store-api/checkout/cart/line-item/order/{orderId}` and derives the line items from the order on the PHP side.
+The reorder form in `order-item.html.twig` now posts to `frontend.checkout.line-item.order.add`, which derives the line items from the order server-side. The blocks `page_account_order_item_context_menu_reorder_form_line_items_input` and `page_account_order_item_context_menu_reorder_form_line_item_input` still render, but the route ignores their input. Move overrides that change what a reorder adds into a decorator of `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute` or a listener on `Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent`.
 
-The blocks `page_account_order_item_context_menu_reorder_form_line_items_input` and `page_account_order_item_context_menu_reorder_form_line_item_input` still render their hidden inputs, but the new route ignores them. If you override either block to change what a reorder adds, move that logic into a decorator of `Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute` or a listener on `Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent`.
+### Unavailable products are no longer linked in order line items
+
+Order line items link to the product and offer the wishlist button only while the product is still active and visible in the sales channel, and an order whose products are all unavailable offers no reorder entry. If you render order line items yourself, read the line item extension `productAvailable` or the order extension `reorderable`; an absent extension means available.
 
 # 6.7.15.0
 

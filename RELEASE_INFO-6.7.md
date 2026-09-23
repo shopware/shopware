@@ -566,7 +566,7 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, skipping the unavailable ones; decorate `AbstractCartOrderLineItemsAddRoute` or listen to `BeforeOrderLineItemsAddedToCartEvent` to change what it adds.
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart; decorate `AbstractCartOrderLineItemsAddRoute` to change what it adds.
 
 ## Administration
 
@@ -941,7 +941,7 @@ Availability is resolved once per page in PHP with a single sales-channel-aware 
 
 ### Reorder posts only the order id
 
-The reorder form posts only the order id and the hidden-input blocks are ignored, so move overrides of them into a decorator of `AbstractCartOrderLineItemsAddRoute`; order line items now link to the product only while it is still buyable, exposed as the `productAvailable` extension.
+Reorder posts only the order id, so overrides of the hidden-input blocks no longer apply; unavailable products lose their link, see the `productAvailable` line item extension.
 
 ### SEO URLs for app storefront routes
 

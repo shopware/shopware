@@ -17,11 +17,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -125,7 +121,7 @@
                                         "type": "integer"
                                     }
                                 },
-                                "oneOf": [
+                                "anyOf": [
                                     {
                                         "properties": {
                                             "accountType": {
@@ -392,14 +388,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Returns a success response indicating a successful update.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/ContextTokenResponse"
                     },
                     "400": {
                         "$ref": "#/components/responses/400",
@@ -532,25 +521,17 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "isExpired": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "required": [
-                                                    "isExpired"
-                                                ]
-                                            }
+                                        "isExpired": {
+                                            "type": "boolean"
                                         },
                                         "apiAlias": {
                                             "type": "string",
                                             "const": "array_struct"
                                         }
-                                    }
+                                    },
+                                    "required": [
+                                        "isExpired"
+                                    ]
                                 }
                             }
                         }
@@ -594,11 +575,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/NoneFieldsCriteria"
                             }
                         }
                     }
@@ -806,11 +783,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -1082,7 +1055,16 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests."
+                        "description": "Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains the new sw-context-token value.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "$ref": "#/components/responses/401",
@@ -1146,7 +1128,7 @@
                                         "type": "boolean"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel.",
+                                        "description": "URL of the storefront for that registration. Used in the double opt-in confirmation email. Only required and validated against the configured domains of the sales channel when double opt-in registration is enabled.",
                                         "type": "string"
                                     },
                                     "requestedGroupId": {
@@ -1154,10 +1136,10 @@
                                         "type": "string"
                                     },
                                     "billingAddress": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
+                                        "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "shippingAddress": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
+                                        "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "guest": {
                                         "description": "If set, will create a guest customer. Guest customers can re-use an email address and don't need a password.",
@@ -1198,7 +1180,7 @@
                                     "storefrontUrl",
                                     "billingAddress"
                                 ],
-                                "oneOf": [
+                                "anyOf": [
                                     {
                                         "properties": {
                                             "accountType": {
@@ -1254,6 +1236,14 @@
                 "responses": {
                     "200": {
                         "description": "Success",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains the new sw-context-token value.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {

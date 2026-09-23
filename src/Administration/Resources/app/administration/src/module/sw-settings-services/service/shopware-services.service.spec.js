@@ -6,16 +6,8 @@ import SystemConfigApiService from '../../../core/service/api/system-config.api.
 
 describe('src/module/sw-settings-services/service/shopware-services-service.ts', () => {
     it.each([
-        [
-            undefined,
-            'en-US',
-            'en-US',
-        ],
-        [
-            'de-DE',
-            'en-US',
-            'de-DE',
-        ],
+        [undefined, 'en-US', 'en-US'],
+        ['de-DE', 'en-US', 'de-DE'],
     ])(
         'loads installed services using the correct language',
         async (sessionLanguage, apiContextLanguage, expectedLanguage) => {
@@ -152,10 +144,7 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
         expect(clientMock.history.post[0].url).toBe('services/permissions/revoke');
     });
 
-    it.each([
-        ['enable'],
-        ['disable'],
-    ])('enables and disables all services', async (action) => {
+    it.each([['enable'], ['disable']])('enables and disables all services', async (action) => {
         const client = createHTTPClient();
         const clientMock = new MockAdapter(client);
         const loginService = createLoginService(client, Shopware.Context.api);
@@ -184,14 +173,8 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
     });
 
     it.each([
-        [
-            'activate',
-            'activateService',
-        ],
-        [
-            'deactivate',
-            'deactivateService',
-        ],
+        ['activate', 'activateService'],
+        ['deactivate', 'deactivateService'],
     ])('%s a service', async (action, methodName) => {
         const client = createHTTPClient();
         const clientMock = new MockAdapter(client);

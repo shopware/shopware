@@ -8,6 +8,17 @@ import { VueWrapper } from '@vue/test-utils';
 declare global {
     var activeFeatureFlags: string[];
 
+    /**
+     * Console output a spec expects, so `prepare_environment` silences it instead of failing.
+     * A `msg` string matches a substring of the first argument, a RegExp is tested against it, and
+     * `msgCheck` receives the first two arguments for anything those two cannot express.
+     */
+    var allowedErrors: {
+        method: 'error' | 'warn';
+        msg?: string | RegExp;
+        msgCheck?: (...args: unknown[]) => boolean;
+    }[];
+
     namespace jest {
         interface FeatureFlagTest {
             (name: string, fn?: (() => unknown) | ((done: DoneCallback) => unknown), timeout?: number): void;

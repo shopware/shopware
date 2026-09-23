@@ -54,6 +54,8 @@ framework:
                 adapter: cache.app
             cache.rate_limiter:
                 adapter: cache.app
+            cache.double_submit:
+                adapter: cache.app
     messenger:
         failure_transport: failed
         serializer:

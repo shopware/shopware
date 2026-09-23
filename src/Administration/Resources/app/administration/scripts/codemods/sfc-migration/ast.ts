@@ -25,6 +25,8 @@ type Ctx = {
     renamedBindings: Map<string, string>;
     /** Identifiers the converted template reads, so members only it uses still get a binding. */
     templateIdentifiers: ReadonlySet<string>;
+    /** Camelized component tags the converted template renders; a binding of that name shadows one. */
+    templateComponentTags: ReadonlySet<string>;
     templateRefs: Set<string>;
     helpers: Set<HelperName>;
     inferredEmits: string[];
@@ -250,10 +252,7 @@ function arrowText(ctx: Ctx, fn: FnLike): string {
     return `${commentPrefix}${asyncPrefix}function${generator}${typeParameters}(${params})${returnType} ${snip(ctx, fn.body)}`;
 }
 
-const OPTIONS_WRAPPERS = new Set([
-    'wrapComponentConfig',
-    'defineComponent',
-]);
+const OPTIONS_WRAPPERS = new Set(['wrapComponentConfig', 'defineComponent']);
 
 /** Strips the type-only and grouping wrappers an expression may be authored behind. */
 function unwrapExpression(node: t.Node): t.Node {

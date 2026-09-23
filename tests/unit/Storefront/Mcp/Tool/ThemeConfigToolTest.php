@@ -3,7 +3,10 @@
 namespace Shopware\Tests\Unit\Storefront\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
+use Mcp\Capability\Discovery\DocBlockParser;
+use Mcp\Capability\Discovery\SchemaGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -545,6 +548,23 @@ class ThemeConfigToolTest extends TestCase
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertFalse($data['success']);
+    }
+
+    #[TestDox('Every __invoke parameter carries a description into the SDK-generated input schema')]
+    public function testEveryParameterIsDescribedInTheInputSchema(): void
+    {
+        $method = new \ReflectionMethod(ThemeConfigTool::class, '__invoke');
+        $schema = (new SchemaGenerator(new DocBlockParser()))->generate($method);
+
+        static::assertIsArray($schema['properties']);
+        static::assertCount(\count($method->getParameters()), $schema['properties']);
+
+        foreach ($schema['properties'] as $name => $property) {
+            static::assertIsArray($property);
+            static::assertArrayHasKey('description', $property, \sprintf('$%s has no description', $name));
+            static::assertIsString($property['description']);
+            static::assertNotSame('', $property['description'], \sprintf('$%s has an empty description', $name));
+        }
     }
 
     /**

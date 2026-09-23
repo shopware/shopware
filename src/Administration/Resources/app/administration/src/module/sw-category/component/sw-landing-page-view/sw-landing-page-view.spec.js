@@ -40,11 +40,7 @@ async function createWrapper({
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'disabled',
-                        'route',
-                        'title',
-                    ],
+                    props: ['disabled', 'route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',

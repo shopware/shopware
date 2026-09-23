@@ -42,10 +42,7 @@ export default {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['right', 'left'].includes(value);
             },
         },
 
@@ -57,10 +54,7 @@ export default {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'bottom',
-                    'top',
-                ].includes(value);
+                return ['bottom', 'top'].includes(value);
             },
         },
 

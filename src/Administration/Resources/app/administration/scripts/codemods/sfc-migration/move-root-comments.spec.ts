@@ -32,17 +32,11 @@ describe('move-root-comments', () => {
             moveRootTwigCommentsOutOfTemplate(`${twigComment(' one ')}\n<div>content</div>\n${twigComment(' two ')}`),
         ).toEqual({
             template: '\n<div>content</div>\n',
-            sfcComments: [
-                '<!-- one -->',
-                '<!-- two -->',
-            ],
+            sfcComments: ['<!-- one -->', '<!-- two -->'],
         });
     });
 
-    it.each([
-        '<div>content</div>',
-        '<some-component />',
-    ])('keeps a non-block root single-rooted: %s', (root) => {
+    it.each(['<div>content</div>', '<some-component />'])('keeps a non-block root single-rooted: %s', (root) => {
         expect(moveRootTwigCommentsOutOfTemplate(`${twigComment(' note ')}\n${root}`)).toEqual({
             template: `\n${root}`,
             sfcComments: ['<!-- note -->'],

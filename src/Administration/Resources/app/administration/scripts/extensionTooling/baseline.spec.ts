@@ -122,10 +122,7 @@ describe('scripts/extensionTooling/baseline', () => {
 
         it('matches duplicates by count and reports the overflow as new', () => {
             const split = diffTypeScript(
-                [
-                    tsFinding(),
-                    tsFinding(),
-                ],
+                [tsFinding(), tsFinding()],
                 [{ file: 'src/main.ts', code: 'TS2322', message: 'Type mismatch.', count: 1 }],
                 customProject.basePath,
                 2,
@@ -166,10 +163,7 @@ describe('scripts/extensionTooling/baseline', () => {
         it('baselines only error-severity findings and ignores warnings', () => {
             const warning = eslintFinding({ rule: 'no-alert', message: 'Unexpected alert.', severity: 'warning' });
             const split = diffEslint(
-                [
-                    eslintFinding(),
-                    warning,
-                ],
+                [eslintFinding(), warning],
                 [{ file: 'src/main.ts', rule: 'no-console', message: 'Unexpected console statement', count: 1 }],
                 customProject.basePath,
                 2,
@@ -197,15 +191,9 @@ describe('scripts/extensionTooling/baseline', () => {
         it('aggregates duplicates into counts, keeps spec findings separate, and drops warnings', () => {
             const baseline = buildBaseline(
                 {
-                    typescript: [
-                        tsFinding(),
-                        tsFinding(),
-                    ],
+                    typescript: [tsFinding(), tsFinding()],
                     typescriptSpecs: [tsFinding({ file: 'custom/plugins/MyPlugin/src/main.spec.ts', code: 'TS2345' })],
-                    eslint: [
-                        eslintFinding(),
-                        eslintFinding({ severity: 'warning' }),
-                    ],
+                    eslint: [eslintFinding(), eslintFinding({ severity: 'warning' })],
                 },
                 customProject.basePath,
             );
@@ -231,10 +219,7 @@ describe('scripts/extensionTooling/baseline', () => {
                 customProject.basePath,
             );
 
-            expect(baseline.typescript.map((entry) => entry.file)).toEqual([
-                'src/a.ts',
-                'src/z.ts',
-            ]);
+            expect(baseline.typescript.map((entry) => entry.file)).toEqual(['src/a.ts', 'src/z.ts']);
         });
     });
 

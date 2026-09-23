@@ -8,10 +8,7 @@ import './sw-product-stream-field-select.scss';
 export default {
     template,
 
-    inject: [
-        'conditionDataProviderService',
-        'productCustomFields',
-    ],
+    inject: ['conditionDataProviderService', 'productCustomFields'],
 
     emits: ['field-changed'],
 

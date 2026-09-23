@@ -40,6 +40,16 @@ class DeprecatedDecorator
         }
     }
 
+    public function getDecorated(): DecoratedService
+    {
+        throw new \RuntimeException();
+    }
+
+    public function delegatesToInnerWithoutFeatureFlag(string $value): string
+    {
+        return $this->decoratedService->delegatesToInnerWithoutFeatureFlag($value);
+    }
+
     /**
      * @deprecated tag:v6.8.0 - Use another method instead
      */
@@ -68,5 +78,10 @@ class DecoratedService
 
     public function delegatesToInnerVoid(string $value): void
     {
+    }
+
+    public function delegatesToInnerWithoutFeatureFlag(string $value): string
+    {
+        return $value;
     }
 }

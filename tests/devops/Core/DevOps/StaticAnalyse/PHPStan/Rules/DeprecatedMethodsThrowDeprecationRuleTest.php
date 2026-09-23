@@ -58,7 +58,7 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
             ],
             [
                 'Method "explicitlyDeprecatedMethod" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
-                46,
+                56,
             ],
         ]);
     }

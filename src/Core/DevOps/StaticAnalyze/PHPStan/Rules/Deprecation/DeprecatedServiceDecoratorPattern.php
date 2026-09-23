@@ -44,7 +44,7 @@ class DeprecatedServiceDecoratorPattern implements DeprecationPattern
      */
     public function check(ClassMethod $method, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation, \Closure $methodContent): array
     {
-        if ($this->delegatesToInnerWhenFeatureFlagIsActive($method, $scope, $deprecation)) {
+        if ($method->name->toString() === 'getDecorated' || ($method->stmts !== null && $this->delegatesToInner($method, $method->stmts)) || $this->delegatesToInnerWhenFeatureFlagIsActive($method, $scope, $deprecation)) {
             return [];
         }
 
@@ -130,7 +130,18 @@ class DeprecatedServiceDecoratorPattern implements DeprecationPattern
             return false;
         }
 
-        $statements = $firstStatement->stmts;
+        return $this->delegatesToInner($method, $firstStatement->stmts);
+    }
+
+    /**
+     * @param array<Node\Stmt> $statements
+     */
+    private function delegatesToInner(ClassMethod $method, array $statements): bool
+    {
+        if ($statements === []) {
+            return false;
+        }
+
         $statement = $statements[0];
         $call = null;
         if (\count($statements) === 1 && $statement instanceof Return_) {

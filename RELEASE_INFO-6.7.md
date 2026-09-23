@@ -36,6 +36,19 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Configurable cache serialization method (optional `igbinary`)
+
+The serialization method used to store cache values can now be configured via `shopware.cache.serialization_method` (default `serialize`).
+When the `igbinary` PHP extension is installed, setting this to `igbinary` produces smaller and faster-to-(de)serialize cache payloads (object graphs such as the cached `SalesChannelContext`, system config and HTTP responses), reducing CPU usage and the memory/storage footprint of the cache backend (e.g. Redis).
+
+```yaml
+shopware:
+    cache:
+        serialization_method: igbinary   # default: serialize
+```
+
+Reads auto-detect the stored format, so switching the method (or rolling out the change across workers) does not require a cache flush: values written with either method remain decodable. If `igbinary` is configured but the extension is unavailable, Shopware transparently falls back to native `serialize`.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses

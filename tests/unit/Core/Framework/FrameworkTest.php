@@ -74,7 +74,7 @@ class FrameworkTest extends TestCase
 
     #[TestDox('boot registers the feature flags and applies the runtime configuration')]
     #[DataProvider('bootConfigurationProvider')]
-    public function testBootAppliesRuntimeConfiguration(bool $compress, string $compressMethod, bool $debug): void
+    public function testBootAppliesRuntimeConfiguration(bool $compress, string $compressMethod, string $serializeMethod, bool $debug): void
     {
         $container = new Container();
         $registry = $this->createMock(FeatureFlagRegistry::class);
@@ -91,6 +91,7 @@ class FrameworkTest extends TestCase
         $container->setParameter('kernel.cache_dir', '/tmp');
         $container->setParameter('shopware.cache.compress', $compress);
         $container->setParameter('shopware.cache.compression_method', $compressMethod);
+        $container->setParameter('shopware.cache.serialization_method', $serializeMethod);
         $container->setParameter('kernel.debug', $debug);
         $container->setParameter('kernel.environment', 'test');
         $container->compile();
@@ -99,23 +100,24 @@ class FrameworkTest extends TestCase
         $framework->setContainer($container);
 
         // boot() assigns process-global statics: restore them so no other test inherits this run
-        $before = [CacheValueCompressor::$compress, CacheValueCompressor::$compressMethod, Feature::$emitDeprecations];
+        $before = [CacheValueCompressor::$compress, CacheValueCompressor::$compressMethod, CacheValueCompressor::$serializeMethod, Feature::$emitDeprecations];
 
         try {
             $framework->boot();
 
             static::assertSame($compress, CacheValueCompressor::$compress);
             static::assertSame($compressMethod, CacheValueCompressor::$compressMethod);
+            static::assertSame($serializeMethod, CacheValueCompressor::$serializeMethod);
             static::assertSame($debug, Feature::$emitDeprecations);
         } finally {
-            [CacheValueCompressor::$compress, CacheValueCompressor::$compressMethod, Feature::$emitDeprecations] = $before;
+            [CacheValueCompressor::$compress, CacheValueCompressor::$compressMethod, CacheValueCompressor::$serializeMethod, Feature::$emitDeprecations] = $before;
         }
     }
 
     public static function bootConfigurationProvider(): \Generator
     {
-        yield 'debug with gzip compression' => [true, 'gzip', true];
-        yield 'no debug, no compression, zstd configured' => [false, 'zstd', false];
+        yield 'debug with gzip compression' => [true, 'gzip', 'serialize', true];
+        yield 'no debug, no compression, zstd + igbinary configured' => [false, 'zstd', 'igbinary', false];
     }
 
     private function buildContainer(string $environment): ContainerBuilder

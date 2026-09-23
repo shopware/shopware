@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Gateway\Command\Executor\CheckoutGatewayCommandExecut
 use Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
@@ -157,7 +158,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Gateway\Context\Command\Executor\ContextGatewayCommandExecutor;
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Log\ExceptionLogger;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Store\InAppPurchase;

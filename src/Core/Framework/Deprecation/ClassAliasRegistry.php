@@ -36,7 +36,7 @@ final class ClassAliasRegistry
     private static array $packageAliases = [];
 
     /**
-     * Registers aliases contributed by an installed package.
+     * Registers aliases contributed by an installed extension from its Composer autoload file.
      *
      * @param array<non-empty-string, class-string> $aliases
      */

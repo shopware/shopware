@@ -119,7 +119,9 @@ The list identifiers are a stable contract that Google Tag Manager triggers and 
 - The wishlist reports `wishlist` and `Wishlist`.
 - A cross selling tab reports the id and the name of the cross selling group.
 
-Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes. The `index` counts across the pages of a paginated listing, which `.cms-element-product-listing` reports as `data-list-start` so that AJAX pagination updates it; a list without that attribute counts from zero.
+Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes. The `index` counts across the pages of a paginated listing, which `.cms-listing-row` reports as `data-list-start` so that AJAX pagination updates it; a list without that attribute counts from zero.
+
+Saving the cookie preferences again while analytics or ads stay enabled no longer registers a second set of analytics events, which reported every following interaction twice.
 
 `view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
 

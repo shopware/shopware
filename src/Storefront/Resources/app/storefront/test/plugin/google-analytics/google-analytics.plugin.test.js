@@ -171,6 +171,38 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
         expect(startGoogleAnalyticsSpy).toHaveBeenCalledTimes(1);
     });
 
+    test('saving the cookie preferences again keeps a single set of events', () => {
+        Object.defineProperty(document, 'cookie', {
+            writable: true,
+            value: 'google-analytics-enabled=1',
+        });
+
+        const plugin = new GoogleAnalyticsPlugin(document);
+        const events = plugin.events;
+        const scripts = document.head.querySelectorAll('script').length;
+
+        // a second set of events would add a second document listener for every interaction
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, { 'google-analytics-enabled': true });
+
+        expect(plugin.events).toBe(events);
+        expect(document.head.querySelectorAll('script')).toHaveLength(scripts);
+    });
+
+    test('granting consent again re-enables the events of the first start', () => {
+        Object.defineProperty(document, 'cookie', {
+            writable: true,
+            value: 'google-analytics-enabled=1',
+        });
+
+        const plugin = new GoogleAnalyticsPlugin(document);
+
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, { 'google-analytics-enabled': false });
+        expect(plugin.events.every(event => !event.active)).toBe(true);
+
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, { 'google-analytics-enabled': true });
+        expect(plugin.events.every(event => event.active)).toBe(true);
+    });
+
     test('does not start or disable Google Analytics via cookie update event when neither GA cookie is in the update', () => {
         new GoogleAnalyticsPlugin(document);
 

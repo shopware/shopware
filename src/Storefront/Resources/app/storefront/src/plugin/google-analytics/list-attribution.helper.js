@@ -65,7 +65,7 @@ export default class ListAttributionHelper
      * @returns {number}
      */
     static getListStart(list) {
-        // the listing carries it on the markup it replaces on every page, below the list element
+        // the listing carries it below the list element, inside the markup AJAX pagination swaps
         const element = list?.hasAttribute('data-list-start') ? list : list?.querySelector('[data-list-start]');
         const start = Number(element?.getAttribute('data-list-start'));
 

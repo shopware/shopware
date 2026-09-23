@@ -108,11 +108,11 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             expect(ListAttributionHelper.getListStart(document.querySelector('[data-list-id]'))).toBe(24);
         });
 
-        // AJAX pagination replaces only the inner listing, so the offset lives there
+        // AJAX pagination only swaps the inner markup of the listing, so the offset lives inside it
         test('reads the offset from the replaced markup below the list element', () => {
             document.body.innerHTML = `
                 <div data-list-id="category-1">
-                    <div class="cms-element-product-listing" data-list-start="48"></div>
+                    <div class="cms-element-product-listing"><div class="cms-listing-row" data-list-start="48"></div></div>
                 </div>
             `;
 

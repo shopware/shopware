@@ -44,6 +44,15 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     startGoogleAnalytics() {
+        // Saving the cookie preferences again with analytics or ads enabled runs this once more. The
+        // events of the first start still listen, so registering a second set would report every
+        // interaction twice; they are only switched back on, in case consent was revoked meanwhile.
+        if (this.events) {
+            this.enableEvents();
+
+            return;
+        }
+
         const gtmScript = document.createElement('script');
         gtmScript.src = window.gtagURL;
         document.head.append(gtmScript);
@@ -164,8 +173,14 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     disableEvents() {
-        this.events.forEach(event => {
+        this.events?.forEach(event => {
             event.disable();
+        });
+    }
+
+    enableEvents() {
+        this.events?.forEach(event => {
+            event.enable();
         });
     }
 

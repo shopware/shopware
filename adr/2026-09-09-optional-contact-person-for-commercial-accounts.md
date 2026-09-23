@@ -45,7 +45,7 @@ The relaxation cannot depend on the sales channel settings, because a field defi
     ->addFlags(new ApiAware(), new Runtime(['firstName', 'lastName', 'company', 'accountType'])),
 
 // CustomerDisplayNameSubscriber, on a hydrated entity
-$customer->setDisplayName(self::resolve(
+$customer->setDisplayName($this->resolve(
     $customer->getFirstName(),
     $customer->getLastName(),
     $customer->getCompany(),
@@ -53,9 +53,9 @@ $customer->setDisplayName(self::resolve(
 ));
 
 // on a partial entity, only when the read asked for all four sources
-$customer->assign(['displayName' => self::resolve(...)]);
+$customer->assign(['displayName' => $this->resolve(...)]);
 
-private static function resolve(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
+private function resolve(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
 {
     $personName = trim($firstName . ' ' . $lastName);
 

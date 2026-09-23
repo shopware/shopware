@@ -92,7 +92,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $content = (string) $this->browser->getResponse()->getContent();
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        // a product that is no longer buyable must not break the whole reorder, and must never reach the tax calculation
+        // an unbuyable product must not break the reorder, nor reach the tax calculation
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
         static::assertCount(1, $response['lineItems'], 'only the still available product may end up in the cart');
         static::assertSame($availableId, $response['lineItems'][0]['referencedId']);
@@ -155,7 +155,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
             $availability[$lineItem['referencedId']] = $lineItem['extensions']['productAvailable']['available'];
         }
 
-        // a headless client gets the same answer the storefront renders from, without querying every product itself
+        // headless gets the same answer without querying each product itself
         static::assertTrue($availability[$availableId]);
         static::assertFalse($availability[$deactivatedId]);
     }

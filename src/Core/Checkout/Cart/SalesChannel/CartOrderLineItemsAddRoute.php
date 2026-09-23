@@ -53,7 +53,7 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
 
-        // the order route scopes the order to the logged-in customer and the current sales channel
+        // scopes the order to the logged-in customer and the current sales channel
         $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->getEntities()->get($orderId);
 
         if (!$order instanceof OrderEntity) {
@@ -69,15 +69,15 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
         $items = [];
 
         foreach (LineItemTransformer::transformFlatToNested($orderLineItems) as $lineItem) {
-            // promotion, credit and discount items are granted by the cart pipeline, re-adding them would give them away for free
+            // re-adding promotion or credit items would grant them for free
             if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
                 continue;
             }
 
-            // the id identifies the order line item, keeping it would let the next checkout overwrite the original order
+            // keeping it would let the next checkout overwrite the original order
             $this->removeOriginalIdExtension($lineItem);
 
-            // the replaced form posted stackable=1 for every item, so a reorder never failed on a non-stackable item
+            // the replaced form always posted stackable=1
             $lineItem->setStackable(true);
 
             $items[] = $lineItem;
@@ -86,7 +86,7 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
         $event = new BeforeOrderLineItemsAddedToCartEvent($items, $order, $cart, $context);
         $this->eventDispatcher->dispatch($event);
 
-        // unavailable products are removed by the product cart processor, which reports them as cart errors
+        // the cart processor drops unavailable products and reports them as cart errors
         return $this->cartItemAddRoute->add($request, $cart, $context, $event->getLineItems());
     }
 

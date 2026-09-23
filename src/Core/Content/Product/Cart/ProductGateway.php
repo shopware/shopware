@@ -2,13 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Events\ProductGatewayCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -22,18 +18,17 @@ class ProductGateway implements ProductGatewayInterface
      * @internal
      *
      * @param SalesChannelRepository<ProductCollection> $repository
-     * @param EntityRepository<CategoryCollection>|null $categoryRepository optional, so a service
-     *                                                                      definition that passes the
-     *                                                                      two previous arguments keeps
-     *                                                                      working; without it, products
-     *                                                                      that are only assigned through
-     *                                                                      a dynamic product group report
-     *                                                                      no category path
+     * @param ProductStreamCategoryLoader|null $streamCategoryLoader optional, so a service definition
+     *                                                               that passes the two previous
+     *                                                               arguments keeps working; without
+     *                                                               it, products that are only assigned
+     *                                                               through a dynamic product group
+     *                                                               report no category path
      */
     public function __construct(
         private readonly SalesChannelRepository $repository,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ?EntityRepository $categoryRepository = null,
+        private readonly ?ProductStreamCategoryLoader $streamCategoryLoader = null,
     ) {
     }
 
@@ -70,58 +65,8 @@ class ProductGateway implements ProductGatewayInterface
 
         $products = $this->repository->search($criteria, $context)->getEntities();
 
-        $this->addStreamCategories($products, $context);
+        $this->streamCategoryLoader?->load($products, $context);
 
         return $products;
-    }
-
-    /**
-     * A product that is only assigned to categories through a dynamic product group has no direct
-     * category assignment, so the `categories` association is empty. The storefront breadcrumb
-     * falls back to the categories that list the product through one of its streams, see
-     * `CategoryBreadcrumbBuilder::getProductSeoCategory()`, and so does the category path.
-     *
-     * All such products of a cart are resolved with a single query, and only when at least one of
-     * them exists, so a cart without them costs nothing.
-     */
-    private function addStreamCategories(ProductCollection $products, SalesChannelContext $context): void
-    {
-        if ($this->categoryRepository === null) {
-            return;
-        }
-
-        $streamIds = [];
-        foreach ($products as $product) {
-            if (($product->getCategoryIds() ?? []) === []) {
-                $streamIds = [...$streamIds, ...($product->getStreamIds() ?? [])];
-            }
-        }
-
-        if ($streamIds === []) {
-            return;
-        }
-
-        $criteria = new Criteria();
-        $criteria->setTitle('cart::products::stream-categories');
-        $criteria->addFilter(
-            new EqualsAnyFilter('productStreamId', array_values(array_unique($streamIds))),
-            new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
-            new EqualsFilter('active', true),
-        );
-
-        $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
-
-        foreach ($products as $product) {
-            if (($product->getCategoryIds() ?? []) !== []) {
-                continue;
-            }
-
-            $productStreamIds = $product->getStreamIds() ?? [];
-
-            $product->addExtension(
-                ProductCategoryPathResolver::STREAM_CATEGORIES_EXTENSION,
-                $categories->filter(static fn ($category) => \in_array($category->getProductStreamId(), $productStreamIds, true))
-            );
-        }
     }
 }

@@ -1,3 +1,32 @@
+# 6.6.10.26
+## Headline level for product boxes
+Product listings can now render the product name inside a headline element. New listing elements default to `<h2>`;
+listing elements that were saved before this change keep the previous markup until the layout is saved again in the
+Administration.
+## Vimeo and YouTube cookie consent separation
+Vimeo videos now require their own `vimeo-video` cookie instead of sharing the `youtube-video` cookie, and load immediately when consent is given.
+Shoppers who previously consented to the YouTube cookie must consent to the Vimeo cookie once before Vimeo videos are displayed again.
+
+If you override the TWIG block `element_vimeo_video_inner` in your theme or plugin, add `cookieName: 'vimeo-video'` to your `pluginConfiguration`, otherwise the element keeps using the shared `youtube-video` cookie.
+
+`CmsGdprVideoElement._replaceElementWithVideo()` now only replaces the placeholder when the cookie named in `options.cookieName` is set. Consent integrations that publish the `CmsGdprVideoElement_replaceElementWithVideo` event must set that cookie first, and should add `vimeo-video` to their cookie mapping.
+## Cart quantity change events
+Custom `change` listeners on a quantity form now receive the finished value when the input loses focus or the user presses `Enter`. On cart quantity controls, these events carry `detail.submitImmediately: true`; custom submission handlers should cancel any pending delayed update and apply the value immediately through their usual submission path.
+
+Step buttons and native spinners still use the configured delay. A move from the input to a step button also retains the delay so the edit and the next step can be sent together.
+## GARAN guarantee duration is capped at 600 months
+`product.guaranteeMonths` accepted any positive half-year value above 24 months, so a product could carry a 500 year guarantee. Writes now also have to stay at or below 600 months.
+
+Unlike 6.7, the guarantee duration field in the Administration deliberately does **not** receive `min`/`max` bounds: the 6.6 `sw-number-field` clamps a typed value to its bounds silently, and a guarantee duration is a commercial claim the merchant should correct knowingly. An out of range duration is reported by the API validation error and by the prerequisites notice instead.
+## "Show label in Storefront" now inherits to variants
+After the migration, a variant that never had its own "Show label in Storefront" value inherits it from the parent product, the same way it already inherits the guarantee duration. Variants that were explicitly switched off keep their own `0`; if you relied on variants never showing the label while the parent does, disable the switch on those variants.
+## GARAN label in the order confirmation mail is sized and sits next to the line item
+The GARAN label added to the `order_confirmation_mail` template with the EU harmonised guarantee labelling rendered without dimensions on a full width row of its own, so mail clients scaled the SVG data URI up to the width of the mail and cut it off.
+
+As with the original change, the migration re-applies the template only for shops that never edited their order confirmation mail template. If you customised that template and copied the label markup, replace your `<tr><td colspan="6">` label row with the markup from `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
+
+Note that the label is embedded as an SVG `data:` URI, which Gmail and Outlook do not render at all. Recipients on those clients see the `alt` text; the label remains visible in the storefront and in the customer account.
+
 # 6.6.10.25
 ## Raised minimum version of `squirrelphp/twig-php-syntax`
 The minimum constraint of `squirrelphp/twig-php-syntax` was raised from `^1.11.0` to `^1.13.0`. Older releases still override Twig internals with signatures that are incompatible with the Twig versions required by Shopware (`twig/twig: ^3.26.0`).

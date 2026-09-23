@@ -119,7 +119,7 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
                      * Adopted from symfony, as they also strip the bundle suffix:
                      * https://github.com/symfony/symfony/blob/7.2/src/Symfony/Bundle/FrameworkBundle/Command/AssetsInstallCommand.php#L128
                      *
-                     * @see Plugin\Util\AssetService::getTargetDirectory
+                     * @see Adapter\Asset\AssetService::getTargetDirectory
                      */
                     'pluginName' => preg_replace('/bundle$/', '', mb_strtolower($bundle->getName())),
                 ],

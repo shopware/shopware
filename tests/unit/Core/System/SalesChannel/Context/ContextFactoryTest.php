@@ -33,8 +33,6 @@ class ContextFactoryTest extends TestCase
         $eventDispatcher = new CollectingEventDispatcher();
         $context = (new ContextFactory($connection, $eventDispatcher))->getContext(Uuid::randomHex(), [
             SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
-            SalesChannelContextService::CURRENCY_ID => Uuid::randomHex(),
-            SalesChannelContextService::COUNTRY_ID => Uuid::randomHex(),
         ]);
 
         $events = $eventDispatcher->getEvents();

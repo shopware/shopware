@@ -4,7 +4,9 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
@@ -16,18 +18,26 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Symfony\ServiceMap;
 use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Log\Package;
 
@@ -50,6 +60,8 @@ class BCChangeAttributeUsageRule implements Rule
 {
     private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/';
 
+    private const FEATURE_FLAG_PATTERN = '/^[A-Z]+(_[A-Z]+)*$/';
+
     private const BC_CHANGE_NAMESPACE_PREFIX = 'Shopware\\Core\\Framework\\Deprecation\\BCChange\\';
 
     /**
@@ -59,19 +71,56 @@ class BCChangeAttributeUsageRule implements Rule
      */
     private const RUNTIME_DETECTABLE = [
         BecomesAbstract::class,
+        NewRequiredParameter::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
+    ];
+
+    /**
+     * Methods carrying these attributes are invoked by the framework with exactly the
+     * declared parameters, so a runtime trigger would fire on every legitimate request.
+     */
+    private const FRAMEWORK_INVOKED_ATTRIBUTES = [
+        'Symfony\Component\Routing\Attribute\Route',
+        'Symfony\Component\Routing\Annotation\Route',
+    ];
+
+    /**
+     * These attributes announce a parameter that will only be added in the next major.
+     * The named parameter must therefore not be part of the current method signature.
+     */
+    private const NEW_PARAMETER_ATTRIBUTES = [
+        NewOptionalParameter::class,
+        NewRequiredParameter::class,
     ];
 
     private const PARAMETER_SCOPED = [
         NewOptionalParameter::class,
+        NewRequiredParameter::class,
         ParameterDefaultValueChange::class,
         ParameterNameChange::class,
+        ParameterRemoval::class,
         ParameterTypeNarrowing::class,
         ParameterTypeWidening::class,
     ];
 
-    public function __construct(private readonly ReflectionProvider $reflectionProvider)
-    {
+    // TODO: Remove once https://github.com/shopware/shopware/pull/19817 adds the required compatibility methods.
+    private const CLASS_HIERARCHY_CHANGE_EXCEPTIONS = [
+        'Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\ProductListingResult' => true,
+        'Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\ProductReviewResult' => true,
+    ];
+
+    /**
+     * @var array<string, true>|null
+     */
+    private ?array $deprecatedServiceAliases = null;
+
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+        private readonly ServiceMap $serviceMap,
+        private readonly ?string $containerXmlPath,
+        private readonly ClassAliasMap $classAliasMap,
+    ) {
     }
 
     public function getNodeType(): string
@@ -86,19 +135,46 @@ class BCChangeAttributeUsageRule implements Rule
         $classIsFinal = $class->isFinal() || \str_contains((string) $class->getDocComment(), '@final');
 
         $methodNodes = [];
+        $propertyNodes = [];
         foreach ($node->getOriginalNode()->getMethods() as $methodNode) {
             $methodNodes[$methodNode->name->toLowerString()] = $methodNode;
+
+            if ($methodNode->name->toLowerString() !== '__construct') {
+                continue;
+            }
+
+            foreach ($methodNode->params as $parameter) {
+                if ($parameter->flags === 0 || !$parameter->var instanceof Variable || !\is_string($parameter->var->name)) {
+                    continue;
+                }
+
+                $propertyNodes[\strtolower($parameter->var->name)] = $parameter;
+            }
+        }
+
+        foreach ($node->getOriginalNode()->getProperties() as $propertyNode) {
+            foreach ($propertyNode->props as $property) {
+                $propertyNodes[$property->name->toLowerString()] = $propertyNode;
+            }
         }
 
         $errors = [];
         foreach ($this->bcChangeAttributes($class->getAttributes()) as $attribute) {
             $errors = [...$errors, ...$this->validateCommon($attribute, $class->getShortName(), $classLine)];
             $specific = $this->validateClassLevel($attribute, $class, $classLine);
+            if ($specific === [] && $attribute->getName() === ClassHierarchyChange::class) {
+                $specific = $this->validateClassHierarchyChange($attribute, $node->getClassReflection(), $methodNodes, $classLine);
+            }
+            if ($specific === [] && $attribute->getName() === ClassMoved::class) {
+                $specific = $this->validateClassMoved($attribute, $class, $classLine);
+            }
             if ($specific === [] && $classIsFinal) {
                 $specific = $this->validateExtenderOnlyOnFinal($attribute, $class->getShortName(), 'class', $classLine);
             }
             $errors = [...$errors, ...$specific];
         }
+
+        $errors = [...$errors, ...$this->validateRegisteredClassAliases($class, $classLine)];
 
         foreach ($class->getMethods() as $method) {
             if ($method->getDeclaringClass()->getName() !== $class->getName()) {
@@ -117,10 +193,23 @@ class BCChangeAttributeUsageRule implements Rule
                     $subject = $classIsFinal ? 'class' : 'method';
                     $specific = $this->validateExtenderOnlyOnFinal($attribute, $symbol, $subject, $line);
                 }
-                if ($specific === [] && \in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true)) {
+                if ($specific === [] && \in_array($attribute->getName(), self::RUNTIME_DETECTABLE, true) && !$this->isFrameworkInvoked($method)) {
                     $specific = $this->validateTriggersRuntimeDeprecation($attribute, $methodNodes[\strtolower($method->getName())] ?? null, $symbol, $line);
                 }
                 $errors = [...$errors, ...$specific];
+            }
+        }
+
+        foreach ($class->getProperties() as $property) {
+            if ($property->getDeclaringClass()->getName() !== $class->getName()) {
+                continue;
+            }
+
+            $symbol = \sprintf('%s::$%s', $class->getShortName(), $property->getName());
+            $line = ($propertyNodes[\strtolower($property->getName())] ?? null)?->getStartLine() ?? $classLine;
+            foreach ($this->bcChangeAttributes($property->getAttributes()) as $attribute) {
+                $errors = [...$errors, ...$this->validateCommon($attribute, $symbol, $line)];
+                $errors = [...$errors, ...$this->validatePropertyLevel($attribute, $property, $symbol, $line)];
             }
         }
 
@@ -193,7 +282,281 @@ class BCChangeAttributeUsageRule implements Rule
             return [$this->error($line, \sprintf('BecomesInternal on "%s": the class is already @internal.', $symbol))];
         }
 
+        if ($attribute->getName() === ExperimentalReplacement::class) {
+            return $this->validateExperimentalReplacement($attribute, $symbol, $line);
+        }
+
         return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateExperimentalReplacement(ReflectionAttribute|FakeReflectionAttribute $attribute, string $symbol, int $line): array
+    {
+        $feature = $this->argument($attribute, 'feature', 1);
+
+        if (!\is_string($feature) || preg_match(self::FEATURE_FLAG_PATTERN, $feature) !== 1) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": feature "%s" must be the ALL_CAPS name of the experimental feature flag.',
+                $symbol,
+                \is_scalar($feature) ? (string) $feature : \gettype($feature)
+            ))];
+        }
+
+        $replacement = $this->argument($attribute, 'replacement', 2);
+        $description = $this->argument($attribute, 'description', 3);
+
+        if ($replacement === null && (!\is_string($description) || \trim($description) === '')) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": name a replacement class or describe what supersedes the symbol.',
+                $symbol
+            ))];
+        }
+
+        if ($replacement === null) {
+            return [];
+        }
+
+        if (!\is_string($replacement) || !$this->reflectionProvider->hasClass($replacement)) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": replacement "%s" is not a resolvable class. Reference the replacement via ::class.',
+                $symbol,
+                \is_scalar($replacement) ? (string) $replacement : \gettype($replacement)
+            ))];
+        }
+
+        $replacementDoc = (string) $this->reflectionProvider->getClass($replacement)->getNativeReflection()->getDocComment();
+        $experimentalPattern = \sprintf('/@experimental\b[^\n]*\bfeature:%s\b/', preg_quote($feature, '/'));
+
+        if (preg_match($experimentalPattern, $replacementDoc) !== 1) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": replacement "%s" is not marked @experimental for feature "%s". Once the replacement is stable, turn this attribute into a real @deprecated annotation.',
+                $symbol,
+                $this->shortClassName($replacement),
+                $feature
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateClassMoved(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionClass $class, int $line): array
+    {
+        $previousClassName = $this->argument($attribute, 'previousClassName', 1);
+        $symbol = $class->getShortName();
+
+        if (!\is_string($previousClassName) || $previousClassName === '') {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": previousClassName must be a non-empty class name.',
+                $symbol
+            ))];
+        }
+
+        $currentClassName = $class->getName();
+        if ($this->classAliasMap->canonicalClassName($previousClassName) !== $currentClassName) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": register the class alias "%s" => "%s" in ClassAliasRegistry::ALIASES.',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
+        }
+
+        $currentService = $this->serviceMap->getService($currentClassName);
+        $effectiveCurrentServiceId = $currentService?->getAlias() ?? $currentClassName;
+
+        if ($currentService !== null
+            && ($this->serviceMap->getService($previousClassName)?->getAlias() !== $effectiveCurrentServiceId
+                || !$this->isDeprecatedServiceAlias($previousClassName))
+        ) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": register the deprecated service alias "%s" => "%s".',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateRegisteredClassAliases(\ReflectionClass $class, int $line): array
+    {
+        $declaredAliases = [];
+        foreach ($class->getAttributes(ClassMoved::class) as $attribute) {
+            $previousClassName = $attribute->newInstance()->previousClassName;
+            $declaredAliases[\strtolower($previousClassName)] = true;
+        }
+
+        $currentClassName = $class->getName();
+        $errors = [];
+        foreach ($this->classAliasMap->aliasesForCanonicalClassName($currentClassName) as $registeredAlias) {
+            if (isset($declaredAliases[\strtolower($registeredAlias)])) {
+                continue;
+            }
+
+            $errors[] = $this->error($line, \sprintf(
+                'Class alias registry entry "%s" => "%s" must be declared with #[ClassMoved(previousClassName: "%s")] on "%s".',
+                $registeredAlias,
+                $currentClassName,
+                $registeredAlias,
+                $class->getShortName()
+            ));
+        }
+
+        return $errors;
+    }
+
+    private function isDeprecatedServiceAlias(string $serviceId): bool
+    {
+        if ($this->deprecatedServiceAliases === null) {
+            $this->deprecatedServiceAliases = [];
+            $content = $this->containerXmlPath === null ? false : @file_get_contents($this->containerXmlPath);
+            $container = $content === false ? false : @simplexml_load_string($content);
+
+            if ($container !== false) {
+                foreach ($container->services->service as $service) {
+                    $attributes = $service->attributes();
+                    if ($attributes === null || !isset($attributes['id'], $attributes['alias']) || !isset($service->deprecated)) {
+                        continue;
+                    }
+
+                    $this->deprecatedServiceAliases[(string) $attributes['id']] = true;
+                }
+            }
+        }
+
+        return isset($this->deprecatedServiceAliases[$serviceId]);
+    }
+
+    /**
+     * @param array<string, ClassMethod> $methodNodes
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateClassHierarchyChange(ReflectionAttribute|FakeReflectionAttribute $attribute, ClassReflection $class, array $methodNodes, int $line): array
+    {
+        if (isset(self::CLASS_HIERARCHY_CHANGE_EXCEPTIONS[$class->getName()])) {
+            return [];
+        }
+
+        $newParentClass = $this->argument($attribute, 'newParentClass', 2);
+        $newParentMethods = [];
+        if (\is_string($newParentClass) && $this->reflectionProvider->hasClass($newParentClass)) {
+            foreach ($this->reflectionProvider->getClass($newParentClass)->getNativeReflection()->getMethods() as $method) {
+                if (!$method->isPublic()) {
+                    continue;
+                }
+
+                $newParentMethods[strtolower($method->getName())] = true;
+            }
+        }
+
+        $removedParentMethods = [];
+        for ($parent = $class->getParentClass(); $parent !== null; $parent = $parent->getParentClass()) {
+            if (\is_string($newParentClass) && $this->isInHierarchy($parent, $newParentClass)) {
+                continue;
+            }
+
+            foreach ($parent->getNativeReflection()->getMethods() as $method) {
+                if (!$method->isPublic() || $method->getDeclaringClass()->getName() !== $parent->getName()) {
+                    continue;
+                }
+
+                $removedParentMethods[strtolower($method->getName())] ??= $method;
+            }
+        }
+
+        $errors = [];
+        foreach ($removedParentMethods as $methodName => $parentMethod) {
+            if (str_starts_with($parentMethod->getName(), '__') || $this->isDeprecated($parentMethod) || isset($newParentMethods[$methodName])) {
+                continue;
+            }
+
+            $methodNode = $methodNodes[$methodName] ?? null;
+            if ($methodNode !== null && !$this->isDeprecatedMethodNode($methodNode) && $this->callsParent($methodNode)) {
+                $errors[] = $this->error($line, \sprintf(
+                    'ClassHierarchyChange on "%s": non-deprecated method "%s()" must not call parent:: because its parent hierarchy will change.',
+                    $this->shortClassName($class->getName()),
+                    $parentMethod->getName()
+                ));
+
+                continue;
+            }
+
+            if ($this->isDeclaredByClass($class, $methodNodes, $methodName)) {
+                continue;
+            }
+
+            $errors[] = $this->error($line, \sprintf(
+                'ClassHierarchyChange on "%s": inherited public method "%s()" from "%s" will be removed from the hierarchy. Override it explicitly and mark the override as deprecated, unless the new parent also provides the method.',
+                $this->shortClassName($class->getName()),
+                $parentMethod->getName(),
+                $parentMethod->getDeclaringClass()->getShortName()
+            ));
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @param array<string, ClassMethod> $methodNodes
+     */
+    private function isDeclaredByClass(ClassReflection $class, array $methodNodes, string $methodName): bool
+    {
+        if (isset($methodNodes[$methodName])) {
+            return true;
+        }
+
+        foreach ($class->getTraits() as $trait) {
+            if ($trait->hasNativeMethod($methodName)
+                && $trait->getNativeMethod($methodName)->getDeclaringClass()->getName() === $trait->getName()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function callsParent(ClassMethod $method): bool
+    {
+        return (new NodeFinder())->findFirst(
+            $method,
+            static fn (Node $node): bool => $node instanceof StaticCall
+                && $node->class instanceof Name
+                && \strtolower($node->class->toString()) === 'parent'
+        ) !== null;
+    }
+
+    private function isDeprecatedMethodNode(ClassMethod $method): bool
+    {
+        return \str_contains($method->getDocComment()?->getText() ?? '', '@deprecated');
+    }
+
+    private function isInHierarchy(ClassReflection $class, string $possibleDescendant): bool
+    {
+        if (!$this->reflectionProvider->hasClass($possibleDescendant)) {
+            return false;
+        }
+
+        for ($ancestor = $this->reflectionProvider->getClass($possibleDescendant); $ancestor !== null; $ancestor = $ancestor->getParentClass()) {
+            if ($ancestor->getName() === $class->getName()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -228,6 +591,10 @@ class BCChangeAttributeUsageRule implements Rule
             return $this->validateParameterDefaultValueChange($attribute, $method, $symbol, $line);
         }
 
+        if ($attributeClass === ParameterRemoval::class) {
+            return $this->validateParameterRemoval($attribute, $method, $symbol, $line);
+        }
+
         if (!\in_array($attributeClass, self::PARAMETER_SCOPED, true)) {
             return [];
         }
@@ -239,21 +606,63 @@ class BCChangeAttributeUsageRule implements Rule
 
         $parameterExists = $this->parameterExists($method, \ltrim($parameterName, '$'));
 
-        if ($attributeClass === NewOptionalParameter::class && $parameterExists) {
+        if (\in_array($attributeClass, self::NEW_PARAMETER_ATTRIBUTES, true) && $parameterExists) {
             return [$this->error($line, \sprintf(
-                'NewOptionalParameter on "%s": parameter "%s" already exists.',
+                '%s on "%s": parameter "%s" already exists.',
+                $this->shortName($attribute),
                 $symbol,
                 $parameterName
             ))];
         }
 
-        if ($attributeClass !== NewOptionalParameter::class && !$parameterExists) {
+        if (!\in_array($attributeClass, self::NEW_PARAMETER_ATTRIBUTES, true) && !$parameterExists) {
             return [$this->error($line, \sprintf(
                 '%s on "%s": parameter "%s" does not exist.',
                 $this->shortName($attribute),
                 $symbol,
                 $parameterName
             ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validatePropertyLevel(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionProperty $property, string $symbol, int $line): array
+    {
+        if ($attribute->getName() === BecomesReadonly::class && $property->isReadOnly()) {
+            return [$this->error($line, \sprintf('BecomesReadonly on "%s": the property is already readonly.', $symbol))];
+        }
+
+        if ($attribute->getName() === PropertyTypeNarrowing::class) {
+            $newType = $this->argument($attribute, 'newType', 1);
+            if (!\is_string($newType)) {
+                return [];
+            }
+
+            $currentType = $property->getType();
+            if ($currentType instanceof \ReflectionNamedType
+                && ($currentType->allowsNull() ? '?' : '') . $currentType->getName() === $newType
+            ) {
+                return [$this->error($line, \sprintf('PropertyTypeNarrowing on "%s": announced type "%s" is identical to the current property type.', $symbol, $newType))];
+            }
+        }
+
+        if ($attribute->getName() !== VisibilityChange::class) {
+            return [];
+        }
+
+        $newVisibility = $this->argument($attribute, 'newVisibility', 1);
+        if ($newVisibility === 'protected' && !$property->isPublic()) {
+            return [$this->error($line, \sprintf(
+                'VisibilityChange on "%s": announced visibility "protected" is not narrower than the current visibility.',
+                $symbol
+            ))];
+        }
+        if ($newVisibility === 'private' && $property->isPrivate()) {
+            return [$this->error($line, \sprintf('VisibilityChange on "%s": the property is already private.', $symbol))];
         }
 
         return [];
@@ -293,6 +702,36 @@ class BCChangeAttributeUsageRule implements Rule
             return [$this->error($line, \sprintf(
                 '%s on "%s": announced default value for parameter "%s" is already current.',
                 $this->shortName($attribute),
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateParameterRemoval(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionMethod $method, string $symbol, int $line): array
+    {
+        $parameterName = $this->argument($attribute, 'parameterName', 1);
+        if (!\is_string($parameterName)) {
+            return [];
+        }
+
+        $parameter = $this->parameter($method, $parameterName);
+        if ($parameter === null) {
+            return [$this->error($line, \sprintf(
+                'ParameterRemoval on "%s": parameter "%s" does not exist.',
+                $symbol,
+                $parameterName
+            ))];
+        }
+
+        if (!$parameter->isOptional()) {
+            return [$this->error($line, \sprintf(
+                'ParameterRemoval on "%s": parameter "%s" is required. Removing a required parameter is not actionable before the major release; introduce a new method or factory with the future signature and deprecate the old method instead.',
                 $symbol,
                 $parameterName
             ))];
@@ -349,6 +788,17 @@ class BCChangeAttributeUsageRule implements Rule
             $this->shortName($attribute),
             $symbol
         ))];
+    }
+
+    private function isFrameworkInvoked(\ReflectionMethod $method): bool
+    {
+        foreach ($method->getAttributes() as $attribute) {
+            if (\in_array($attribute->getName(), self::FRAMEWORK_INVOKED_ATTRIBUTES, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -436,6 +886,18 @@ class BCChangeAttributeUsageRule implements Rule
     private function isMarkedInternal(string|false $doc): bool
     {
         return \is_string($doc) && \str_contains($doc, '@internal');
+    }
+
+    private function isDeprecated(\ReflectionMethod $method): bool
+    {
+        return $method->isDeprecated() || (\is_string($method->getDocComment()) && \str_contains($method->getDocComment(), '@deprecated'));
+    }
+
+    private function shortClassName(string $className): string
+    {
+        $parts = explode('\\', $className);
+
+        return end($parts);
     }
 
     private function shortName(ReflectionAttribute|FakeReflectionAttribute $attribute): string

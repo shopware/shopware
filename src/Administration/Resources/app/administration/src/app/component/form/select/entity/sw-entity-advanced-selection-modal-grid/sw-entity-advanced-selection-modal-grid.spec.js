@@ -28,9 +28,7 @@ async function createWrapper(isSelectable, tooltip) {
                 isRecordSelectableCallback() {
                     return { isSelectable, tooltip };
                 },
-                columns: [
-                    { property: 'name', label: 'Name' },
-                ],
+                columns: [{ property: 'name', label: 'Name' }],
                 items: new EntityCollection(
                     null,
                     null,

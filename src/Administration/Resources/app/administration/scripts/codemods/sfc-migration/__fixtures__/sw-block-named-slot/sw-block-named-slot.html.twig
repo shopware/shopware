@@ -1,0 +1,9 @@
+{% block sw_block_named_slot %}
+    <sw-modal v-if="active">
+        {% block sw_block_named_slot_footer %}
+            <template #modal-footer>
+                <button class="sw-block-named-slot__cancel">Cancel</button>
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

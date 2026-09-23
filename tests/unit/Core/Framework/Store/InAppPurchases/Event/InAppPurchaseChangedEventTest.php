@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(InAppPurchaseChangedEvent::class)]
 class InAppPurchaseChangedEventTest extends TestCase
 {

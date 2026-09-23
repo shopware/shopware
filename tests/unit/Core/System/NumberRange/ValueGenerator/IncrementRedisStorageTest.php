@@ -268,6 +268,145 @@ class IncrementRedisStorageTest extends TestCase
         $this->storage->set($configId, 10);
     }
 
+    public function testIncreaseToAtLeastDoesNotLowerCurrentValue(): void
+    {
+        $configurationId = Uuid::randomHex();
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $this->lockFactoryMock->expects($this->once())
+            ->method('createLock')
+            ->with('number-range-' . $configurationId)
+            ->willReturn($lock);
+
+        $this->redisMock->expects($this->once())
+            ->method('get')
+            ->with($this->getKey($configurationId))
+            ->willReturn('15');
+
+        $this->redisMock->expects($this->never())
+            ->method('incrBy');
+
+        $this->storage->increaseToAtLeast($configurationId, 10);
+    }
+
+    public function testIncreaseToAtLeastSetsMissingValue(): void
+    {
+        $configurationId = Uuid::randomHex();
+        $key = $this->getKey($configurationId);
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $this->lockFactoryMock->expects($this->once())
+            ->method('createLock')
+            ->with('number-range-' . $configurationId)
+            ->willReturn($lock);
+
+        $this->redisMock->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn(false);
+
+        $this->redisMock->expects($this->once())
+            ->method('incrBy')
+            ->with($key, 10);
+
+        $this->storage->increaseToAtLeast($configurationId, 10);
+    }
+
+    public function testIncreaseToAtLeastRaisesLowerValue(): void
+    {
+        $configurationId = Uuid::randomHex();
+        $key = $this->getKey($configurationId);
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $this->lockFactoryMock->expects($this->once())
+            ->method('createLock')
+            ->with('number-range-' . $configurationId)
+            ->willReturn($lock);
+
+        $this->redisMock->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn('8');
+
+        $this->redisMock->expects($this->once())
+            ->method('incrBy')
+            ->with($key, 2);
+
+        $this->storage->increaseToAtLeast($configurationId, 10);
+    }
+
+    public function testIncreaseToAtLeastDoesNotLowerHigherValue(): void
+    {
+        $configurationId = Uuid::randomHex();
+        $key = $this->getKey($configurationId);
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $this->lockFactoryMock->expects($this->once())
+            ->method('createLock')
+            ->with('number-range-' . $configurationId)
+            ->willReturn($lock);
+
+        $this->redisMock->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn('12');
+
+        $this->redisMock->expects($this->never())
+            ->method('incrBy');
+
+        $this->storage->increaseToAtLeast($configurationId, 10);
+    }
+
+    public function testIncreaseToAtLeastDoesNothingWhenLockCannotBeAcquired(): void
+    {
+        $configurationId = Uuid::randomHex();
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(false);
+        $lock->expects($this->never())->method('release');
+
+        $this->lockFactoryMock->expects($this->once())
+            ->method('createLock')
+            ->with('number-range-' . $configurationId)
+            ->willReturn($lock);
+
+        $this->redisMock->expects($this->never())
+            ->method('get')
+            ->with($this->getKey($configurationId));
+
+        $this->redisMock->expects($this->never())
+            ->method('incrBy');
+
+        $this->storage->increaseToAtLeast($configurationId, 10);
+    }
+
     private function getKey(string $id): string
     {
         return 'number_range:' . $id;

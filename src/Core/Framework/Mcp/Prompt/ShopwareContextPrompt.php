@@ -43,7 +43,7 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `shopware-system-config-write`: key (string), value (string), salesChannelId (string, optional), dryRun (bool, default true)
 - `shopware-order-state`: orderNumber or orderId, orderAction / transactionAction / deliveryAction, dryRun (bool, default true)
 - `shopware-media-upload`: url (string), fileName (string, optional), mediaFolderId (string, optional), productId (string, optional)
-- `shopware-theme-config`: salesChannelId (string), action ("get" or "update"), config (string JSON, optional), dryRun (bool, default true)
+- `shopware-theme-config`: salesChannelId (string, UUID or sales channel name), action ("get" or "update"), config (string JSON, optional), dryRun (bool, default true)
 
 ## Optional plugin tools (when installed)
 - `swag-dev-tools-log-search`: query (string), level (string, optional) — full-text search of application log entries

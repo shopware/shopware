@@ -502,11 +502,7 @@ class ThemeMergedConfigBuilder
             return true;
         }
 
-        if (!\array_key_exists($fieldName, $configuration['fields'])) {
-            return true;
-        }
-
-        return false;
+        return !\array_key_exists($fieldName, $configuration['fields']);
     }
 
     private function buildSnippetKey(string $themeTechnicalName, bool $isHelpText, string ...$parts): string
@@ -534,9 +530,7 @@ class ThemeMergedConfigBuilder
         string $section,
         string $fieldName
     ): ?array {
-        $custom = $custom ?? null;
-
-        if ($custom && isset($custom['options']) && \is_array($custom['options'])) {
+        if (\is_array($custom) && isset($custom['options']) && \is_array($custom['options'])) {
             foreach ($custom['options'] as $optionIndex => &$option) {
                 $option['labelSnippetKey'] = $this->buildSnippetKey(
                     $themeTechnicalName,

@@ -18,7 +18,7 @@ class PluginPostDeactivationFailedEventTest extends TestCase
 {
     public function testEvent(): void
     {
-        $activateContext = $this->createMock(ActivateContext::class);
+        $activateContext = static::createStub(ActivateContext::class);
         $exception = new \Exception('failed');
         $event = new PluginPostDeactivationFailedEvent(
             new PluginEntity(),

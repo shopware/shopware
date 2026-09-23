@@ -17,6 +17,7 @@ import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
+import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -100,6 +101,9 @@ export default defineConfig(({ command }) => {
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
+                ShopwareSetupPlugin({
+                    administrationRoot: __dirname,
+                }),
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({
@@ -136,6 +140,7 @@ export default defineConfig(({ command }) => {
                                 featureFlags: JSON.stringify(featureFlags),
                                 serviceRegistryUrl: process.env.SERVICE_REGISTRY_URL,
                                 analyticsGatewayUrl: process.env.PRODUCT_ANALYTICS_GATEWAY_URL,
+                                hideUpdateModule: ['1', 'true'].includes(process.env.SHOPWARE_AUTO_UPDATE_HIDE_MODULE ?? ''),
                                 pageLoadingScreen,
                             },
                         },

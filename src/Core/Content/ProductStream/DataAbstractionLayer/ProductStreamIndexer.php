@@ -110,7 +110,21 @@ class ProductStreamIndexer extends EntityIndexer
             $this->connection->prepare('UPDATE product_stream SET api_filter = :serialized, invalid = :invalid WHERE id = :id')
         );
 
-        foreach ($filters as $id => $filter) {
+        foreach ($ids as $id) {
+            $filter = $filters[strtolower($id)] ?? [];
+
+            // A stream without filters cannot match anything, so it is stored as unusable with no
+            // compiled filter: the state a stream sits in until it gets its first filter.
+            if ($filter === []) {
+                $update->execute([
+                    'serialized' => null,
+                    'invalid' => 1,
+                    'id' => Uuid::fromHexToBytes($id),
+                ]);
+
+                continue;
+            }
+
             $invalid = false;
 
             $serialized = null;
@@ -188,6 +202,14 @@ class ProductStreamIndexer extends EntityIndexer
 
             if ($this->isMultiFilter($entity['type'])) {
                 $entity['queries'] = $this->buildNested($entities, $entity['id'], $entity['type']);
+
+                if ($entity['queries'] === []) {
+                    continue;
+                }
+            }
+
+            if ($this->isEmptyIdFilter($entity)) {
+                continue;
             }
 
             if ($this->isIdFilter($entity['field'])) {
@@ -208,6 +230,24 @@ class ProductStreamIndexer extends EntityIndexer
     private function isIdFilter(?string $field): bool
     {
         return $field === 'id' || $field === $this->productDefinition->getEntityName() . '.id';
+    }
+
+    /**
+     * @param array<string, mixed> $entity
+     */
+    private function isEmptyIdFilter(array $entity): bool
+    {
+        if (!$this->isIdFilter($entity['field'] ?? null)) {
+            return false;
+        }
+
+        $value = $entity['value'] ?? null;
+
+        if ($value === null) {
+            return true;
+        }
+
+        return \is_string($value) && trim($value) === '';
     }
 
     private function isNotEqualToAnyType(string $type, ?string $parentType): bool

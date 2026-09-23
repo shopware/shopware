@@ -27,14 +27,22 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
     private const METADATA_URL = 'metadata-url';
 
+    private const COMMUNITY_TRANSLATIONS_URL = 'community-translations-url';
+
+    private const DOCUMENTATION_URL_SNIPPET_KEY = 'documentation-url-snippet-key';
+
     /**
      * @description Maps the snake_case keys of the `shopware.translation` config section to the dash-separated keys used in translation.yaml.
      */
     private const OVERRIDE_KEY_MAP = [
         'repository_url' => self::REPOSITORY_URL,
         'metadata_url' => self::METADATA_URL,
+        'community_translations_url' => self::COMMUNITY_TRANSLATIONS_URL,
+        'documentation_url_snippet_key' => self::DOCUMENTATION_URL_SNIPPET_KEY,
+        'completeness_threshold' => 'completeness-threshold',
         'plugins' => 'plugins',
         'excluded_locales' => 'excluded-locales',
+        'pseudo_locales' => 'pseudo-locales',
         'plugin_mapping' => 'plugin-mapping',
         'languages' => 'languages',
     ];
@@ -61,6 +69,13 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
         $repositoryUrl = $this->getUrlFromConfigByType(self::REPOSITORY_URL, $config);
         $metadataUrl = $this->getUrlFromConfigByType(self::METADATA_URL, $config);
+        $communityTranslationsUrl = isset($config[self::COMMUNITY_TRANSLATIONS_URL])
+            ? $this->getUrlFromConfigByType(self::COMMUNITY_TRANSLATIONS_URL, $config)
+            : null;
+        // Snippet key (not a URL): the actual documentation link is resolved per admin language via this snippet.
+        $documentationUrlSnippetKey = isset($config[self::DOCUMENTATION_URL_SNIPPET_KEY])
+            ? (string) $config[self::DOCUMENTATION_URL_SNIPPET_KEY]
+            : null;
 
         /** @var list<string> $plugins */
         $plugins = $config['plugins'];
@@ -68,6 +83,8 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
 
         $languages = $config['languages'] ?? [];
         $excludedLocales = $config['excluded-locales'] ?? [];
+        $pseudoLocales = $config['pseudo-locales'] ?? [];
+        $completenessThreshold = (int) ($config['completeness-threshold'] ?? 90);
 
         $locales = [];
         $languageData = [];
@@ -87,6 +104,10 @@ class TranslationConfigLoader extends AbstractTranslationConfigLoader
             $pluginMapping,
             $metadataUrl,
             $excludedLocales,
+            $communityTranslationsUrl,
+            $documentationUrlSnippetKey,
+            $pseudoLocales,
+            $completenessThreshold,
         );
     }
 

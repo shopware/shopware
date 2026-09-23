@@ -123,11 +123,9 @@ class ZugferdCreditNoteRendererTest extends TestCase
         $content = $renderedDocument->getContent();
         static::assertIsString($content);
 
-        // The renderer emits the delivery event from the primary order delivery under v6.8, so the
-        // ZUGFeRD output differs from the pre 6.8 document.
         $snapshot = Feature::isActive('v6.8.0.0')
             ? 'zugferd_credit_note_document_default_v6_8'
-            : 'zugferd_credit_note_document_default';
+            : 'zugferd_credit_note_document_default_v6_7';
 
         $this->assertSnapshot($snapshot, [
             [

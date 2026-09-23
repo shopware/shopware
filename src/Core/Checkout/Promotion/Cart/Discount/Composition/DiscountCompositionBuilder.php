@@ -40,15 +40,18 @@ class DiscountCompositionBuilder
     public function adjustCompositionItemValues(CalculatedPrice $targetPrice, array $targetItems): array
     {
         $compositionItems = [];
+        $totalDiscount = 0.0;
+
+        foreach ($targetItems as $item) {
+            $totalDiscount += abs($item->getDiscountValue());
+        }
+
+        $factor = $totalDiscount > 0.0
+            ? abs($targetPrice->getTotalPrice()) / $totalDiscount
+            : 0.0;
 
         foreach ($targetItems as $item) {
             $itemTotal = $item->getDiscountValue();
-
-            $factor = 0.0;
-
-            if ($targetPrice->getTotalPrice() > 0) {
-                $factor = $itemTotal / $targetPrice->getTotalPrice();
-            }
 
             $compositionItems[] = new DiscountCompositionItem(
                 $item->getId(),

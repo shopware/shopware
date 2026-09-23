@@ -14,14 +14,9 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'bulkEditApiFactory',
-        'repositoryFactory',
-    ],
+    inject: ['bulkEditApiFactory', 'repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -180,7 +175,7 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = 'var(--color-pumpkin-500)';
+            this.$route.meta.$module.color = 'var(--sw-color-module-orange-default)';
             this.$route.meta.$module.icon = 'regular-users';
         },
 
@@ -197,10 +192,7 @@ export default {
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
-                this.accountFormFields,
-                this.tagsFormFields,
-            ];
+            const bulkEditFormGroups = [this.accountFormFields, this.tagsFormFields];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {

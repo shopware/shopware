@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 import type { ContextSwitchParameters } from '../../../module/sw-order/order.types';
@@ -14,15 +14,15 @@ import type { ContextSwitchParameters } from '../../../module/sw-order/order.typ
  * @extends ApiService
  */
 class StoreContextService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'sales-channel-context') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'sales-channel-context') {
         super(httpClient, loginService, apiEndpoint, 'application/json');
 
         this.name = 'contextStoreService';
     }
 
     updateCustomerContext(
-        customerId: string,
-        salesChannelId: string,
+        customerId: EntityKey<'customer'>,
+        salesChannelId: EntityKey<'sales_channel'>,
         contextToken: string,
         additionalParams = {},
         additionalHeaders = {},
@@ -47,7 +47,7 @@ class StoreContextService extends ApiService {
 
     updateContext(
         context: ContextSwitchParameters,
-        salesChannelId: string,
+        salesChannelId: EntityKey<'sales_channel'>,
         contextToken: string | null,
         additionalParams = {},
         additionalHeaders = {},
@@ -65,7 +65,7 @@ class StoreContextService extends ApiService {
     }
 
     getSalesChannelContext(
-        salesChannelId: string,
+        salesChannelId: EntityKey<'sales_channel'>,
         contextToken: string | null,
         additionalParams = {},
         additionalHeaders = {},
@@ -79,7 +79,12 @@ class StoreContextService extends ApiService {
         return this.httpClient.get(route, { ...additionalParams, headers });
     }
 
-    generateImitateCustomerToken(customerId: string, salesChannelId: string, additionalParams = {}, additionalHeaders = {}) {
+    generateImitateCustomerToken(
+        customerId: EntityKey<'customer'>,
+        salesChannelId: EntityKey<'sales_channel'>,
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
         const route = '_proxy/generate-imitate-customer-token';
         const headers = this.getBasicHeaders(additionalHeaders);
 
@@ -93,7 +98,12 @@ class StoreContextService extends ApiService {
         );
     }
 
-    redirectToSalesChannelUrl(salesChannelDomainUrl: string, token: string, customerId: string, userId: string) {
+    redirectToSalesChannelUrl(
+        salesChannelDomainUrl: string,
+        token: string,
+        customerId: EntityKey<'customer'>,
+        userId: EntityKey<'user'>,
+    ) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = `${salesChannelDomainUrl}/account/login/imitate-customer`;

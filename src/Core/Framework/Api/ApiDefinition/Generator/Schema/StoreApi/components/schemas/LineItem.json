@@ -4,20 +4,6 @@
     "paths": [],
     "components": {
         "schemas": {
-            "LineItemType": {
-                "type": "string",
-
-                "deprecated": true,
-                "enum": [
-                    "product",
-                    "credit",
-                    "custom",
-                    "promotion",
-                    "discount",
-                    "container",
-                    "quantity"
-                ]
-            },
             "LineItem": {
                 "type": "object",
                 "properties": {

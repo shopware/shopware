@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\ScheduledTask;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -33,7 +33,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
      */
     private StaticEntityRepository $scheduledTaskRepository;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     /**
      * @var StaticEntityRepository<MediaCollection>
@@ -45,7 +45,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->scheduledTaskRepository = new StaticEntityRepository([]);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = static::createStub(LoggerInterface::class);
         $this->ids = new IdsCollection();
     }
 

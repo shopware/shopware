@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 final class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {

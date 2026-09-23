@@ -20,10 +20,7 @@ export default {
         'flowBuilderService',
     ],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         flowId: {
@@ -97,6 +94,9 @@ export default {
         documentTypeCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
 
             return criteria;
         },
@@ -203,10 +203,7 @@ export default {
                 };
             };
 
-            return [
-                createRouteTab('sw-flow.page.tabGeneral', 'general'),
-                createRouteTab('sw-flow.page.tabFlow', 'flow'),
-            ];
+            return [createRouteTab('sw-flow.page.tabGeneral', 'general'), createRouteTab('sw-flow.page.tabFlow', 'flow')];
         },
 
         ...mapState(
@@ -221,10 +218,7 @@ export default {
                 'hasFlowChanged',
             ],
         ),
-        ...mapPropertyErrors('flow', [
-            'name',
-            'eventName',
-        ]),
+        ...mapPropertyErrors('flow', ['name', 'eventName']),
     },
 
     watch: {
@@ -466,7 +460,7 @@ export default {
                 await this.flowSequenceRepository.syncDeleted(deletedSequenceIds);
             }
 
-            const updateFlow = await this.flowRepository.get(this.flowId, Context.api);
+            const updateFlow = await this.flowRepository.get(this.flowId, Context.api, this.flowCriteria);
 
             Object.keys(updateFlow).forEach((key) => {
                 if (key !== 'sequences') {
@@ -550,10 +544,7 @@ export default {
         validateEmptySequence() {
             const invalidSequences = this.sequences.reduce((result, sequence) => {
                 if (sequence.ruleId === '' || sequence.actionName === '') {
-                    return [
-                        ...result,
-                        sequence.id,
-                    ];
+                    return [...result, sequence.id];
                 }
 
                 return result;

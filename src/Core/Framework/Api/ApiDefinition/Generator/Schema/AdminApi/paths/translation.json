@@ -8,11 +8,11 @@
                     "Translation Management"
                 ],
                 "summary": "List configured translation locales",
-                "description": "Lists every locale configured for translation download together with its locally installed metadata.",
+                "description": "Lists every locale configured for translation download, merging its local install state with the remotely available metadata.",
                 "operationId": "translationList",
                 "responses": {
                     "200": {
-                        "description": "The configured locales and their installed metadata.",
+                        "description": "The configured locales with their merged local install state and remote metadata.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -41,11 +41,63 @@
                                                         "format": "date-time"
                                                     },
                                                     "progress": {
-                                                        "description": "Translation completeness in percent, or null if not installed.",
+                                                        "description": "Translation completeness in percent, taken from the remote metadata. Null when the remote source is unreachable or does not offer the locale.",
                                                         "type": "integer"
+                                                    },
+                                                    "updateAvailable": {
+                                                        "description": "Whether a newer translation than the installed one is available.",
+                                                        "type": "boolean"
+                                                    },
+                                                    "isPseudoLanguage": {
+                                                        "description": "Whether the locale is a pseudo-language used for translation testing.",
+                                                        "type": "boolean"
                                                     }
                                                 }
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/translation/meta": {
+            "get": {
+                "tags": [
+                    "Translation Management"
+                ],
+                "summary": "Get translation meta information",
+                "description": "Returns translation meta information that is independent of the configured locales: the built-in locales, the community translation and documentation URLs and the completeness threshold.",
+                "operationId": "translationMeta",
+                "responses": {
+                    "200": {
+                        "description": "The translation meta information.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "builtInLocales": {
+                                            "description": "Locale codes shipped with the platform and excluded from the community translation download.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "communityTranslationsUrl": {
+                                            "description": "URL of the community translation platform, or null if not configured.",
+                                            "type": "string",
+                                            "format": "uri"
+                                        },
+                                        "documentationUrlSnippetKey": {
+                                            "description": "Admin snippet key that resolves to the localized translation documentation URL, or null if not configured.",
+                                            "type": "string"
+                                        },
+                                        "completenessThreshold": {
+                                            "description": "Minimum translation completeness in percent considered sufficient.",
+                                            "type": "integer"
                                         }
                                     }
                                 }

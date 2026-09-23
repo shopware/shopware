@@ -21,9 +21,7 @@ class IdleFeatureFlagTest extends TestCase
         'Docs',
         'Core/Framework/Test/FeatureFlag',
         'Administration/Resources/app/administration/node_modules',
-        'Administration/Resources/app/administration/test/e2e/node_modules',
         'Storefront/Resources/app/storefront/node_modules',
-        'Storefront/Resources/app/storefront/test/e2e/node_modules',
     ];
 
     final public const EXCLUDE_BY_FLAG = [

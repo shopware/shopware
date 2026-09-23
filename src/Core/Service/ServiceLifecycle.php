@@ -5,16 +5,19 @@ namespace Shopware\Core\Service;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
+use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\DTO\Service as ServiceDto;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
 use Shopware\Core\Service\Event\ServiceUpdatedEvent;
 use Shopware\Core\Service\Requirement\Gate;
@@ -50,6 +53,7 @@ class ServiceLifecycle
         private readonly RequirementsValidator $requirementsValidator,
         private readonly Client $serviceRegistryClient,
         private readonly ServiceClientFactory $serviceClientFactory,
+        private readonly Privileges $privileges,
     ) {
     }
 
@@ -89,24 +93,38 @@ class ServiceLifecycle
             return;
         }
 
-        if ($this->requirementsValidator->isSatisfied($appInfo->requirements, Gate::INSTALLATION)) {
-            $this->performUpdate($entry, $appInfo, $context);
+        $service = $this->serviceStorage->findByName($entry->name, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $entry->name);
+        }
+
+        if ($service->version === $appInfo->revision) {
+            return;
+        }
+
+        if (!$this->requirementsValidator->isSatisfied($appInfo->requirements, Gate::INSTALLATION)) {
+            $this->uninstall($entry->name, $context);
 
             return;
         }
 
-        $this->uninstall($entry->name, $context);
+        $this->performUpdate($entry, $appInfo, $service, $context);
     }
 
     /**
-     * Re-evaluate every installed service and uninstall any whose installation-gating requirements are
-     * no longer met (e.g. services were disabled as a unit).
+     * Repair installed state independently of registry availability or revision changes.
      */
     public function reevaluateInstalled(Context $context): void
     {
         foreach ($this->serviceStorage->findAll($context) as $service) {
-            if (!$this->requirementsValidator->isSatisfied($service->requirements, Gate::INSTALLATION)) {
-                $this->uninstall($service->name, $context);
+            try {
+                $this->reevaluate($service, $context);
+            } catch (\Throwable $exception) {
+                $this->logger->warning('Cannot reconcile service state', [
+                    'service' => $service->name,
+                    'exception' => $exception,
+                ]);
             }
         }
     }
@@ -171,6 +189,29 @@ class ServiceLifecycle
         return $this->appRepository->search($criteria, $context)->getEntities()->first()?->getId();
     }
 
+    private function reevaluate(ServiceDto $service, Context $context): void
+    {
+        if (!$this->requirementsValidator->isSatisfied($service->requirements, Gate::INSTALLATION)) {
+            $this->uninstall($service->name, $context);
+
+            return;
+        }
+
+        if ($this->requirementsValidator->isSatisfied($service->requirements, Gate::PRIVILEGES)) {
+            if ($service->requestedPrivileges !== []) {
+                $this->privileges->acceptAllForApps([$service->id], $context);
+            }
+        } elseif ($service->privileges !== []) {
+            $this->privileges->revokeAllForApps([$service->id], $context);
+        }
+
+        if (!$service->active && !$this->requirementsValidator->permitsStateChange($service->requirements)) {
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+                $this->appManager->activate($service->app, $context);
+            });
+        }
+    }
+
     private function performInstall(ServiceEntry $entry, AppInfo $appInfo, Context $context): bool
     {
         $appId = $this->getAppIdForAppWithSameNameAsService($entry, $context);
@@ -187,7 +228,13 @@ class ServiceLifecycle
             return false;
         }
 
-        $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
+        try {
+            $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
+        } catch (AppXmlParsingException $e) {
+            $this->logger->warning(\sprintf('Cannot install service "%s" because of invalid manifest: "%s"', $entry->name, $e->getMessage()));
+
+            return false;
+        }
 
         try {
             $this->appManager->install(
@@ -208,15 +255,8 @@ class ServiceLifecycle
         }
     }
 
-    private function performUpdate(ServiceEntry $entry, AppInfo $appInfo, Context $context): bool
+    private function performUpdate(ServiceEntry $entry, AppInfo $appInfo, ServiceDto $service, Context $context): bool
     {
-        $service = $this->serviceStorage->findByName($entry->name, $context);
-
-        if (!$service) {
-            throw ServiceException::notFound('name', $entry->name);
-        }
-
-        // if it's the same version, bail
         if ($service->version === $appInfo->revision) {
             return true;
         }
@@ -229,7 +269,13 @@ class ServiceLifecycle
             return false;
         }
 
-        $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
+        try {
+            $manifest = $this->createManifest($fs->path('manifest.xml'), $entry->host, $appInfo);
+        } catch (AppXmlParsingException $e) {
+            $this->logger->warning(\sprintf('Cannot update service "%s" because of invalid manifest: "%s"', $entry->name, $e->getMessage()));
+
+            return false;
+        }
 
         try {
             $this->appManager->update(
@@ -283,7 +329,13 @@ class ServiceLifecycle
 
         $this->appManager->activate($service->app, $context);
 
-        $result = $this->performUpdate($entry, $appInfo, $context);
+        $service = $this->serviceStorage->findByName($entry->name, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $entry->name);
+        }
+
+        $result = $this->performUpdate($entry, $appInfo, $service, $context);
 
         if ($result) {
             return true;

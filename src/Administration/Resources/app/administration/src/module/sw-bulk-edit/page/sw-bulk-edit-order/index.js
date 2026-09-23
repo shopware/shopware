@@ -16,12 +16,12 @@ export default {
     inject: [
         'bulkEditApiFactory',
         'repositoryFactory',
+        // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
         'orderDocumentApiService',
+        'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -79,13 +79,27 @@ export default {
             return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
+        hasInvalidDocumentGenerationConfig() {
+            if (!this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
+                return false;
+            }
+
+            const orderDocuments = Shopware.Store.get('swBulkEdit').orderDocuments;
+
+            return Object.values(orderDocuments).some((document) => {
+                if (!document?.isChanged || Array.isArray(document.value)) {
+                    return false;
+                }
+
+                return !(document.value?.fileFormats?.length > 0);
+            });
+        },
+
         restrictedFields() {
             let restrictedFields = [];
 
             if (this.$route.params.excludeDelivery === '1') {
-                restrictedFields = restrictedFields.concat([
-                    'orderDeliveries',
-                ]);
+                restrictedFields = restrictedFields.concat(['orderDeliveries']);
             }
 
             return restrictedFields;
@@ -293,16 +307,12 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = 'var(--color-purple-500)';
+            this.$route.meta.$module.color = 'var(--sw-color-module-purple-default)';
             this.$route.meta.$module.icon = 'regular-shopping-bag';
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
-                this.statusFormFields,
-                this.documentsFormFields,
-                this.tagsFormFields,
-            ];
+            const bulkEditFormGroups = [this.statusFormFields, this.documentsFormFields, this.tagsFormFields];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
@@ -456,50 +466,41 @@ export default {
                 syncData: [],
             };
 
-            const dataPush = [
-                'orderTransactions',
-                'orderDeliveries',
-                'orders',
-            ];
+            const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
 
-            Object.entries(this.bulkEditData).forEach(
-                ([
-                    key,
-                    item,
-                ]) => {
-                    if (item.isChanged || (key === 'customFields' && item.value)) {
-                        const payload = {
-                            field: key,
-                            type: item.type,
-                            value: item.value,
-                        };
+            Object.entries(this.bulkEditData).forEach(([key, item]) => {
+                if (item.isChanged || (key === 'customFields' && item.value)) {
+                    const payload = {
+                        field: key,
+                        type: item.type,
+                        value: item.value,
+                    };
 
-                        if (dataPush.includes(key)) {
-                            const documentTypes = this.order?.documents?.documentType;
+                    if (dataPush.includes(key)) {
+                        const documentTypes = this.order?.documents?.documentType;
 
-                            if (this.bulkEditData?.documents?.isChanged) {
-                                const selectedDocumentTypes = Object.keys(documentTypes).filter(
-                                    (documentTypeName) => documentTypes[documentTypeName] === true,
-                                );
+                        if (this.bulkEditData?.documents?.isChanged) {
+                            const selectedDocumentTypes = Object.keys(documentTypes).filter(
+                                (documentTypeName) => documentTypes[documentTypeName] === true,
+                            );
 
-                                if (selectedDocumentTypes.length > 0) {
-                                    payload.documentTypes = selectedDocumentTypes;
-                                    payload.skipSentDocuments = this.order.documents.skipSentDocuments;
-                                }
+                            if (selectedDocumentTypes.length > 0) {
+                                payload.documentTypes = selectedDocumentTypes;
+                                payload.skipSentDocuments = this.order.documents.skipSentDocuments;
                             }
-
-                            payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
-                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
-                                ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
-                                : null;
-                            payload.value = this.order?.[key];
-                            data.statusData.push(payload);
-                        } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
-                            data.syncData.push(payload);
                         }
+
+                        payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                        payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
+                            ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
+                            : null;
+                        payload.value = this.order?.[key];
+                        data.statusData.push(payload);
+                    } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
+                        data.syncData.push(payload);
                     }
-                },
-            );
+                }
+            });
 
             return data;
         },

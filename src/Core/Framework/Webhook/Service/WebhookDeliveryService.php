@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Exception as DBALException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
@@ -47,10 +49,14 @@ class WebhookDeliveryService
 
     /**
      * @param list<WebhookEventMessage> $messages
-     * @param bool $forceSynchronous @deprecated tag:v6.8.0 — removed; all deliveries become async.
      */
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'forceSynchronous', description: 'All deliveries become asynchronous.')]
     public function process(array $messages, bool $forceSynchronous = false): void
     {
+        if ($forceSynchronous) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$forceSynchronous is deprecated and all deliveries become asynchronous in v6.8.0.');
+        }
+
         if ($this->isAdminWorkerEnabled || $forceSynchronous) {
             $this->deliverBatch($messages);
 

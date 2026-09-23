@@ -34,7 +34,7 @@ class LineItemTagRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return RuleComparison::uuids($this->extractTagIds($scope->getLineItem()), $this->identifiers, $this->operator);
+            return $this->matchTags($scope->getLineItem());
         }
 
         if (!$scope instanceof CartRuleScope) {
@@ -42,7 +42,7 @@ class LineItemTagRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if (RuleComparison::uuids($this->extractTagIds($lineItem), $this->identifiers, $this->operator)) {
+            if ($this->matchTags($lineItem)) {
                 return true;
             }
         }
@@ -70,6 +70,15 @@ class LineItemTagRule extends Rule
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
             ->entitySelectField('identifiers', TagDefinition::ENTITY_NAME, true);
+    }
+
+    private function matchTags(LineItem $lineItem): bool
+    {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
+        return RuleComparison::uuids($this->extractTagIds($lineItem), $this->identifiers, $this->operator);
     }
 
     /**

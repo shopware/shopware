@@ -12,12 +12,18 @@ use Rector\Php55\Rector\Class_\ClassConstantToSelfClassRector;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 
 return RectorConfig::configure()
-    ->withSymfonyContainerXml(__DIR__ . '/var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml')
+    ->withSymfonyContainerXml(__DIR__ . '/var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml')
+    // resolves container->get('<service id>') to the service class during rule analysis, the same
+    // way phpstan-symfony does for the phpstan runs; type-based rules cannot see through the
+    // container lookup without it
+    ->withPHPStanConfigs([__DIR__ . '/rector-phpstan.neon'])
     ->withPaths([
         __DIR__ . '/src',
         __DIR__ . '/tests',
     ])
     ->withFileExtensions(['php'])
+    // bigger chunks keep the workers busy with actual analysis instead of per-chunk overhead
+    ->withParallel(jobSize: 128)
     ->withSkip([
         __DIR__ . '/src/Core/Framework/Script/ServiceStubs.php',
 

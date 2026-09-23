@@ -63,7 +63,7 @@
                                     preload="auto"
                                     {% if ariaLabel is not empty %}aria-label="{{ ariaLabel }}"{% endif %}
                                     {% if mediaTitle is not empty %}title="{{ mediaTitle }}"{% endif %}
-                                    {% if config.showCover.value and element.data.media.extensions.videoCoverMedia %}poster="{{ element.data.media.extensions.videoCoverMedia.url }}"{% endif %}
+                                    {% if config.showCover.value and element.data.media.extensions.videoCoverMedia %}poster="{{ element.data.media.extensions.videoCoverMedia|sw_encode_media_url }}"{% endif %}
                                     {% if config.autoPlay.value and not config.showCover.value %}autoplay{% endif %}
                                     {% if config.muted.value or config.autoPlay.value %}muted{% endif %}
                                     {% if config.loop.value %}loop{% endif %}
@@ -72,7 +72,7 @@
                                 >
                                     {% block element_video_media_sources %}
                                         <source
-                                            src="{{ element.data.media.url|sw_encode_url }}"
+                                            src="{{ element.data.media|sw_encode_media_url }}"
                                             type="{{ element.data.media.mimeType }}"
                                         >
                                     {% endblock %}

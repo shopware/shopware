@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-overlay-color-overlay: rgba(255, 255, 255, 40%);
+$sw-overlay-color-overlay: var(--color-elevation-backdrop-default);
 $sw-overlay-z-index: $z-index-overlay;
 
 .sw-overlay {

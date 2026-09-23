@@ -28,4 +28,15 @@ Write into the following files, but only if the decision above applies:
   Describe the concrete before and after, and write in past tense, as developers read this only after the next major release.
 - Public REST/Admin/Store API route additions or changes: add or update the matching OpenAPI JSON schema under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/<AdminApi|StoreApi>/paths`.
 
+## What To Write
+
 Write from the outside user's perspective: what changed, who is affected, and what they should do.
+
+State the change and its impact, not the reasoning behind it, the internals of how it works, or the history of the problem.
+
+## Formatting
+
+- Put a blank line before and after every heading, and between paragraphs.
+- Put the entry under the matching category heading of the upcoming version section, and add that heading only if the section does not have it yet.
+- Never repeat a heading inside one version section: no second `## Features` under the same `# X.Y.Z.P`, and no entry title the section already documents. The `release-info/section` check rejects a repetition the pull request adds.
+- Keep code snippets to the shortest form a developer can copy.

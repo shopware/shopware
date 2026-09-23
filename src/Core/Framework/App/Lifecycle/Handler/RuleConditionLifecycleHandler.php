@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppHandlerIdentifier;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
@@ -65,11 +66,13 @@ class RuleConditionLifecycleHandler extends AbstractLifecycleHandler
         $criteria->addFilter(new EqualsFilter('appId', $context->app->getId()));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context->context)->getIds();
+        $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context->context)->getPrimaryKeyData();
+        foreach ($scripts as &$script) {
+            $script['active'] = true;
+        }
+        unset($script);
 
-        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => true], $scripts);
-
-        $this->appScriptConditionRepository->update($updateSet, $context->context);
+        $this->appScriptConditionRepository->update($scripts, $context->context);
     }
 
     public function deactivate(AppActivationContext $context): void
@@ -78,11 +81,13 @@ class RuleConditionLifecycleHandler extends AbstractLifecycleHandler
         $criteria->addFilter(new EqualsFilter('appId', $context->app->getId()));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context->context)->getIds();
+        $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context->context)->getPrimaryKeyData();
+        foreach ($scripts as &$script) {
+            $script['active'] = false;
+        }
+        unset($script);
 
-        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => false], $scripts);
-
-        $this->appScriptConditionRepository->update($updateSet, $context->context);
+        $this->appScriptConditionRepository->update($scripts, $context->context);
     }
 
     private function persist(AppPersistContext $context): void
@@ -98,7 +103,7 @@ class RuleConditionLifecycleHandler extends AbstractLifecycleHandler
 
         foreach ($ruleConditions as $ruleCondition) {
             $payload = $ruleCondition->toArray($context->defaultLocale);
-            $payload['identifier'] = \sprintf('app\\%s_%s', $context->manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
+            $payload['identifier'] = AppHandlerIdentifier::build($context->manifest->getMetadata()->getName(), $ruleCondition->getIdentifier());
             $payload['script'] = $this->scriptReader->getScriptContent(
                 $app,
                 self::CONDITION_SCRIPT_DIR . $ruleCondition->getScript(),

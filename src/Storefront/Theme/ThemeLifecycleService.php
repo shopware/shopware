@@ -120,7 +120,7 @@ class ThemeLifecycleService
         /** @var Criteria<array<string, string>> $parentCriteria */
         $parentCriteria = new Criteria();
         $parentCriteria->addFilter(new EqualsFilter('childId', $themeData['id']));
-        $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getIds();
+        $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context)->getPrimaryKeyData();
         $this->themeChildRepository->delete($toDeleteIds, $context);
         $this->themeChildRepository->upsert($parentThemes, $context);
 
@@ -563,7 +563,8 @@ class ThemeLifecycleService
     private function addParentTheme(StorefrontPluginConfiguration $configuration, array $themeData, Context $context): array
     {
         $lastNotSameTheme = null;
-        foreach (array_reverse($configuration->getConfigInheritance()) as $themeName) {
+        // configInheritance is ordered from least to most specific, the last entry is the nearest ancestor.
+        foreach ($configuration->getConfigInheritance() as $themeName) {
             if (
                 $themeName === '@' . StorefrontPluginRegistry::BASE_THEME_NAME
                 || $themeName === '@' . $themeData['technicalName']

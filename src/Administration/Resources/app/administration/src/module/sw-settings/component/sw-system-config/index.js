@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { computed } from 'vue';
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import template from './sw-system-config.html.twig';
@@ -31,15 +32,16 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    emits: [
-        'loading-changed',
-        'config-changed',
-    ],
+    /** @public */
+    provide() {
+        return {
+            swSystemConfigCurrentSalesChannelId: computed(() => this.currentSalesChannelId),
+        };
+    },
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    emits: ['loading-changed', 'config-changed'],
+
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
 
     props: {
         domain: {
@@ -120,7 +122,7 @@ export default {
 
     methods: {
         getFieldError(fieldName) {
-            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.salesChannelId, fieldName);
+            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.currentSalesChannelId, fieldName);
         },
 
         async createdComponent() {
@@ -295,12 +297,7 @@ export default {
             }
 
             // Add select properties
-            if (
-                [
-                    'single-select',
-                    'multi-select',
-                ].includes(bind.type)
-            ) {
+            if (['single-select', 'multi-select'].includes(bind.type)) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
 
@@ -402,9 +399,7 @@ export default {
             const componentName = element.config ? element.config.componentName : undefined;
 
             // Special case for sw-text-editor, because we still support the legacy one
-            const componentsWithMeteorSupport = [
-                'sw-text-editor',
-            ];
+            const componentsWithMeteorSupport = ['sw-text-editor'];
 
             const typesWithMeteorSupport = [
                 'bool',
@@ -434,6 +429,7 @@ export default {
             bind.value = mapInheritance?.currentValue;
             bind.type = element.type;
             bind.config = { ...(element.config || {}) };
+            bind.error = this.getFieldError(element.name);
 
             // Inheritance bindings
             bind.inheritedValue = this.getInheritedValue(element);
@@ -451,12 +447,7 @@ export default {
             }
 
             // Handle select properties
-            if (
-                [
-                    'single-select',
-                    'multi-select',
-                ].includes(element.type)
-            ) {
+            if (['single-select', 'multi-select'].includes(element.type)) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
 

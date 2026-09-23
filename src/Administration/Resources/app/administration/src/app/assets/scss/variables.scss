@@ -203,6 +203,11 @@ $color-white: #fff;
 $color-black: #000;
 $color-drag-select-box: rgba(0, 162, 255, 40%);
 
+// Storefront default theme ($sw-color-brand-* defaults)
+// Used to mimic storefront elements in admin previews
+$color-storefront-brand-primary: #0042a0;
+$color-storefront-brand-secondary: #474a57;
+
 /* ------------------------------------
  * 5. Gradients
  * ------------------------------------ */

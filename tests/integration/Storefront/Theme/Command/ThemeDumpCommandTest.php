@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Theme\Command;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -59,7 +58,7 @@ class ThemeDumpCommandTest extends TestCase
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            $this->createMock(StaticFileConfigDumper::class),
+            static::createStub(StaticFileConfigDumper::class),
             $themeFilesystemResolver
         );
 
@@ -79,14 +78,14 @@ class ThemeDumpCommandTest extends TestCase
         $this->setUpExampleThemes($themeId);
 
         $themeFileResolverMock = new ThemeFileResolverMock();
-        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock = static::createStub(ThemeFilesystemResolver::class);
         $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            $this->createMock(StaticFileConfigDumper::class),
+            static::createStub(StaticFileConfigDumper::class),
             $themeFilesystemResolverMock
         );
 
@@ -117,7 +116,7 @@ class ThemeDumpCommandTest extends TestCase
         $this->setUpExampleThemes();
 
         $themeFileResolverMock = new ThemeFileResolverMock();
-        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock = static::createStub(ThemeFilesystemResolver::class);
         $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
         $themeDumpCommand = new ThemeDumpCommand(
@@ -144,7 +143,7 @@ class ThemeDumpCommandTest extends TestCase
         ['themeId' => $themeId, 'domainUrl' => $domainUrl] = $this->setUpSingleDomainTheme();
 
         $themeFileResolverMock = new ThemeFileResolverMock();
-        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock = static::createStub(ThemeFilesystemResolver::class);
         $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
         $themeDumpCommand = new ThemeDumpCommand(
@@ -169,14 +168,14 @@ class ThemeDumpCommandTest extends TestCase
         $this->setUpExampleThemes();
 
         $themeFileResolverMock = new ThemeFileResolverMock();
-        $themeFilesystemResolverMock = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolverMock = static::createStub(ThemeFilesystemResolver::class);
         $themeFilesystemResolverMock->method('getFilesystemForStorefrontConfig')->willReturn(new StaticFilesystem());
 
         $themeDumpCommand = new ThemeDumpCommand(
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             static::getContainer()->get('theme.repository'),
-            $this->createMock(StaticFileConfigDumper::class),
+            static::createStub(StaticFileConfigDumper::class),
             $themeFilesystemResolverMock
         );
         $themeDumpCommand->setHelperSet(new HelperSet([new QuestionHelper()]));
@@ -347,9 +346,9 @@ class ThemeDumpCommandTest extends TestCase
         return ['themeId' => $themeId, 'domainUrl' => $domainUrl];
     }
 
-    private function createStaticFileConfigDumperMock(): StaticFileConfigDumper&MockObject
+    private function createStaticFileConfigDumperMock(): StaticFileConfigDumper&Stub
     {
-        $staticFileConfigDumper = $this->createMock(StaticFileConfigDumper::class);
+        $staticFileConfigDumper = static::createStub(StaticFileConfigDumper::class);
         $staticFileConfigDumper->method('dumpConfigInVar')->willReturnCallback(
             /**
              * @param array<string, mixed> $dump

@@ -473,6 +473,13 @@
                     {% endblock %}
                 </template>
             </dl>
+
+            {% block sw_media_quickinfo_metadata_extension %}
+            <sw-extension-component-section
+                class="sw-media-quickinfo-metadata-extension"
+                position-identifier="sw-media-quickinfo-metadata"
+            />
+            {% endblock %}
         </template>
         {% endblock %}
     </sw-media-collapse>

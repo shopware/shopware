@@ -226,6 +226,22 @@ class SystemConfigServiceTest extends TestCase
         static::assertTrue($actual);
     }
 
+    public function testEmptyArraySalesChannelValueOverridesGlobalValueInAllReadMethods(): void
+    {
+        $this->systemConfigService->set('foo.ids', ['global-id']);
+        $this->systemConfigService->set('foo.ids', [], TestDefaults::SALES_CHANNEL);
+
+        static::assertSame([], $this->systemConfigService->get('foo.ids', TestDefaults::SALES_CHANNEL));
+        static::assertSame(
+            ['foo.ids' => []],
+            $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL)
+        );
+        static::assertSame(
+            ['foo.ids' => []],
+            $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true)
+        );
+    }
+
     public function testGetDomainNoData(): void
     {
         $actual = $this->systemConfigService->getDomain('foo');
@@ -271,13 +287,13 @@ class SystemConfigServiceTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
-    public function testGetDomainInherit(): void
+    public function testGetDomainInheritWithEmptyStringOverride(): void
     {
         $this->systemConfigService->set('foo.bar', 'test');
         $this->systemConfigService->set('foo.bar', 'override', TestDefaults::SALES_CHANNEL);
         $this->systemConfigService->set('foo.bar', '', TestDefaults::SALES_CHANNEL);
 
-        $expected = ['foo.bar' => 'test'];
+        $expected = ['foo.bar' => ''];
         $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
 
         static::assertSame($expected, $actual);
@@ -408,13 +424,19 @@ class SystemConfigServiceTest extends TestCase
         static::assertFalse($this->systemConfigService->getBool($configKey2, TestDefaults::SALES_CHANNEL));
 
         // Assert that the events were dispatched correctly for the global scope
+        static::assertArrayHasKey('global', $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]);
         static::assertCount(1, $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]['global']);
+        static::assertArrayHasKey('global', $dispatchedEvents[SystemConfigMultipleChangedEvent::class]);
         static::assertCount(1, $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['global']);
+        static::assertArrayHasKey('global', $dispatchedEvents[SystemConfigChangedHook::class]);
         static::assertCount(1, $dispatchedEvents[SystemConfigChangedHook::class]['global']);
 
         // Assert that the events were dispatched correctly for the sales channel scope
+        static::assertArrayHasKey('sales_channel', $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]);
         static::assertCount(1, $dispatchedEvents[BeforeSystemConfigMultipleChangedEvent::class]['sales_channel']);
+        static::assertArrayHasKey('sales_channel', $dispatchedEvents[SystemConfigMultipleChangedEvent::class]);
         static::assertCount(1, $dispatchedEvents[SystemConfigMultipleChangedEvent::class]['sales_channel']);
+        static::assertArrayHasKey('sales_channel', $dispatchedEvents[SystemConfigChangedHook::class]);
         static::assertCount(1, $dispatchedEvents[SystemConfigChangedHook::class]['sales_channel']);
 
         // Assert content of bulk events

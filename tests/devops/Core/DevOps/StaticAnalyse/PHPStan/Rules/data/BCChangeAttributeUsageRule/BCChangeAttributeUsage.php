@@ -5,15 +5,27 @@ namespace Shopware\Core\DevOps\MyFakeNamespace;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterDefaultValueChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\PropertyTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\DirectHierarchyMethodTrait;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\ExperimentalReplacementTarget;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\NewHierarchyParent;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\OldHierarchyParent;
+use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\BCChangeAttributeUsageRule\StableReplacementTarget;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[BecomesFinal(version: 'v6.8.0')]
 final class AlreadyFinalClass
@@ -123,6 +135,47 @@ class RuntimeDetectableViolations
     public function becomesAbstractWithoutTrigger(): void
     {
     }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'options')]
+    public function removalWithoutTrigger(?array $options = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'legacy')]
+    public function removalWithTrigger(?array $legacy = null): void
+    {
+        if ($legacy !== null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $legacy is deprecated');
+        }
+    }
+}
+
+class NewRequiredParameterCases
+{
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'existing', parameterType: 'string')]
+    public function requiredAlreadyExists(string $existing): void
+    {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'shim');
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'context', parameterType: 'string')]
+    public function requiredWithoutTrigger(): void
+    {
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'context', parameterType: 'string')]
+    public function requiredWithTrigger(): void
+    {
+        if (\func_num_args() < 1) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'New required parameter $context missing');
+        }
+    }
+
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'criteria', parameterType: 'string')]
+    #[Route(path: '/store-api/fake', name: 'store-api.fake')]
+    public function requiredOnRouteNeedsNoTrigger(): void
+    {
+    }
 }
 
 class ExceptionChangeCases
@@ -223,4 +276,145 @@ class ParameterDefaultValueChangeCases
     public function defaultChangesToArray(array $scopes = ['system']): void
     {
     }
+}
+
+class ParameterRemovalCases
+{
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'required')]
+    public function requiredParameter(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'optional')]
+    public function optionalParameter(string $required, ?string $optional = null): void
+    {
+        if (\func_num_args() > 1) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $optional is deprecated');
+        }
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: '$optional')]
+    public function leadingDollar(string $required, ?string $optional = null): void
+    {
+    }
+
+    #[ParameterRemoval(version: 'v6.8.0', parameterName: 'legacy')]
+    public function optionalParameterBeforeLaterParameter(?string $legacy = null, ?string $following = null): void
+    {
+        if ($legacy !== null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing a non-default value for $legacy is deprecated');
+        }
+    }
+}
+
+class PropertyLevelViolations
+{
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
+    protected string $alreadyProtected;
+
+    #[PropertyTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+    protected string $unchangedType;
+
+    #[BecomesReadonly(version: 'v6.8.0')]
+    protected readonly string $alreadyReadonly;
+}
+
+class PromotedPropertyLevelViolations
+{
+    public function __construct(
+        #[PropertyTypeNarrowing(version: 'v6.8.0', newType: 'string')]
+        protected string $unchangedType,
+    ) {
+    }
+}
+
+class ValidPropertyUsage
+{
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected')]
+    public string $becomesProtected;
+}
+
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Changes parent.', newParentClass: NewHierarchyParent::class)]
+class InvalidHierarchyChange extends OldHierarchyParent
+{
+    public function overriddenWithoutDeprecation(): void
+    {
+        parent::overriddenWithoutDeprecation();
+    }
+}
+
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Changes parent.', newParentClass: NewHierarchyParent::class)]
+class ValidHierarchyChange extends OldHierarchyParent
+{
+    use DirectHierarchyMethodTrait;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function ancestorMethod(): void
+    {
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function inheritedMethod(): void
+    {
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the old parent.
+     */
+    public function overriddenWithoutDeprecation(): void
+    {
+        parent::overriddenWithoutDeprecation();
+    }
+
+    public function providedByProtectedNewParent(): void
+    {
+    }
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'fake_feature', replacement: ExperimentalReplacementTarget::class)]
+class ExperimentalReplacementLowercaseFeature
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE')]
+class ExperimentalReplacementWithoutTarget
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE', replacement: 'UnimportedReplacement')]
+class ExperimentalReplacementUnresolvable
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE', replacement: StableReplacementTarget::class)]
+class ExperimentalReplacementStableTarget
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'OTHER_FEATURE', replacement: ExperimentalReplacementTarget::class)]
+class ExperimentalReplacementFeatureMismatch
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE', replacement: ExperimentalReplacementTarget::class)]
+final class ValidExperimentalReplacementWithTarget
+{
+}
+
+#[ExperimentalReplacement(
+    version: 'v6.8.0',
+    feature: 'FAKE_FEATURE',
+    description: 'Superseded by the fake domain as a whole.',
+)]
+class ValidExperimentalReplacementWithDescription
+{
+}
+
+#[ExperimentalReplacement(version: 'v6.8.0', feature: 'FAKE_FEATURE', description: '')]
+class ExperimentalReplacementBlankDescription
+{
 }

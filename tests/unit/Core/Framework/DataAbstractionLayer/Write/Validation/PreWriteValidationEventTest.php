@@ -331,9 +331,10 @@ class PreWriteValidationEventTest extends TestCase
     {
         $commands = [];
 
+        $existence = new EntityExistence('', [], false, false, false, []);
+
         foreach ($commandsArray as $command) {
             $definition = $this->definitionInstanceRegistry->getByEntityName($command['entityName']);
-            $existence = new EntityExistence('', [], false, false, false, []);
             $primaryKey = $command['primaryKey'];
 
             switch ($command['type']) {

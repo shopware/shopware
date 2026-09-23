@@ -31,6 +31,7 @@ test(
         Login,
         Logout,
         HomeProduct,
+        InstanceMeta,
     }) => {
         const product = HomeProduct;
         const media = await TestDataService.createMediaPNG();
@@ -41,7 +42,9 @@ test(
 
         await test.step('Logged-In shop customer should be able to see the cover image on the product listing page.', async () => {
             await ShopCustomer.expects(async () => {
-                await TestDataService.clearCaches();
+                if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
+                    await TestDataService.clearCaches();
+                }
                 await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
                 await ShopCustomer.expects(StorefrontHome.productImages.getByAltText(media.alt)).toBeVisible();
             }).toPass({

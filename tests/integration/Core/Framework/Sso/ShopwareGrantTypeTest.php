@@ -141,7 +141,6 @@ class ShopwareGrantTypeTest extends TestCase
                 'client_secret' => 'client_secret',
                 'redirect_uri' => 'http://redirect.uri',
                 'base_url' => 'http://base.uri',
-                'session_key' => 'session_key',
                 'authorize_path' => '/authorize',
                 'token_path' => '/token',
                 'jwks_path' => '/jwks.json',

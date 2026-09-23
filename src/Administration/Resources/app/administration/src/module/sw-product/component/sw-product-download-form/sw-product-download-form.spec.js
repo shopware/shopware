@@ -64,10 +64,7 @@ async function createWrapper(hasError = false, mediaService = {}, configSettings
                 'sw-product-image': await wrapTestComponent('sw-product-image'),
                 'sw-media-upload-v2': {
                     name: 'sw-media-upload-v2',
-                    props: [
-                        'extensionAccept',
-                        'extensionMimeTypesByExtension',
-                    ],
+                    props: ['extensionAccept', 'extensionMimeTypesByExtension'],
                     template: '<div class="sw-media-upload-v2"></div>',
                 },
                 'sw-media-preview-v2': true,

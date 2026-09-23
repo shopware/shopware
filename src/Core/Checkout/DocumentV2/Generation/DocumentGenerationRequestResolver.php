@@ -11,9 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @internal
@@ -43,7 +45,9 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
          *     formats?: mixed,
          *     documentComment?: mixed,
          *     documentDate?: mixed,
-         *     documentNumber?: mixed
+         *     documentNumber?: mixed,
+         *     deliveryDate?: mixed,
+         *     referencedDocumentId?: mixed
          * } $payload
          */
         $payload = $request->toArray();
@@ -59,6 +63,8 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             documentNumber: $this->extractOptionalString($payload, 'documentNumber'),
             documentComment: $this->extractOptionalString($payload, 'documentComment'),
             documentDate: $this->extractOptionalString($payload, 'documentDate'),
+            deliveryDate: $this->extractOptionalString($payload, 'deliveryDate'),
+            referencedDocumentId: $this->extractOptionalString($payload, 'referencedDocumentId'),
         );
     }
 
@@ -74,7 +80,9 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
             ->add('documentType', new NotBlank(), new Type('string'))
             ->add('documentNumber', new Type('string'))
             ->add('documentComment', new Type('string'))
-            ->add('documentDate', new Type('string'));
+            ->add('documentDate', new Type('string'), self::parseableAsDateTime())
+            ->add('deliveryDate', new Type('string'), self::parseableAsDateTime())
+            ->add('referencedDocumentId', new Type('string'), new Uuid());
 
         if (\array_key_exists('formats', $payload)) {
             $definition->add('formats', new NotBlank(), new Type('array'), new Count(min: 1), new All(new Type('string')));
@@ -83,6 +91,23 @@ readonly class DocumentGenerationRequestResolver implements ValueResolverInterfa
         }
 
         $this->dataValidator->validate($payload, $definition);
+    }
+
+    private static function parseableAsDateTime(): Callback
+    {
+        return new Callback(static function (mixed $value, ExecutionContextInterface $context): void {
+            if (!\is_string($value) || $value === '') {
+                return;
+            }
+
+            try {
+                new \DateTimeImmutable($value);
+            } catch (\Exception) {
+                $context->buildViolation('The value "{{ value }}" is not a parseable date-time.')
+                    ->setParameter('{{ value }}', $value)
+                    ->addViolation();
+            }
+        });
     }
 
     /**

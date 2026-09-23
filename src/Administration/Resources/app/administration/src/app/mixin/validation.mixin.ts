@@ -6,6 +6,8 @@ import { defineComponent } from 'vue';
  * @sw-package framework
  *
  * @module app/mixin/validation
+ *
+ * Duplicated in `src/app/composables/use-validation`; change both together.
  */
 export default Shopware.Mixin.register(
     'validation',

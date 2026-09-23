@@ -29,6 +29,8 @@ class ImportExportExceptionImportExportHandlerEventTest extends TestCase
             Context::createDefaultContext()
         );
 
+        static::assertSame($message, $event->getMessage());
+
         $event->clearException();
 
         static::assertFalse($event->hasException());

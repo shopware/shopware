@@ -100,6 +100,9 @@ Variant products report their selected options as `item_variant`, for example `R
 `begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
+### Separate legal guarantee notice
+
+The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
 # 6.7.15.0
 

@@ -12,6 +12,11 @@ use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see Shopware\Tests\Integration\Core\Framework\App\Hmac\Guzzle\AuthMiddlewareTest
+ */
 #[Package('framework')]
 class AuthMiddleware
 {

@@ -1,5 +1,8 @@
 {% set paginationConfig = { page: searchResult.page } %}
 
+{# the position of the first product of the page, so the reported analytics item index counts across pages #}
+{% set listStart = searchResult.limit ? (searchResult.page - 1) * searchResult.limit : 0 %}
+
 {% if disableEmptyFilter is not defined %}
     {% set disableEmptyFilter = config('core.listing.disableEmptyFilterOptions') %}
 {% endif %}
@@ -20,18 +23,16 @@
 
 {% block product_listing %}
     {# identifies the list for analytics, reported as the GA4 `item_list_id` and `item_list_name` #}
-    {# the position of the first product of the page, so the reported item index counts across pages #}
-    {% set listStart = searchResult.limit ? (searchResult.page - 1) * searchResult.limit : 0 %}
     <div class="cms-element-product-listing-wrapper"
          {% if listId|default(null) %}data-list-id="{{ listId }}"{% endif %}
          {% if listName|default(null) %}data-list-name="{{ listName }}"{% endif %}
-         data-list-start="{{ listStart }}"
          data-listing-pagination="true"
          data-listing-pagination-options="{{ paginationConfig|json_encode }}"
          data-listing="true"
          data-listing-options="{{ listingPagination|json_encode }}">
         {% block element_product_listing_wrapper_content %}
-            <div class="cms-element-product-listing">
+            {# on the replaced markup, so AJAX pagination installs the offset of the new page #}
+            <div class="cms-element-product-listing" data-list-start="{{ listStart|default(0) }}">
                 {% if searchResult.total > 0 %}
                     {% block element_product_listing_pagination_nav_actions %}
                         <div class="cms-element-product-listing-actions row justify-content-between">

@@ -65,34 +65,49 @@ export default class ListAttributionHelper
      * @returns {number}
      */
     static getListStart(list) {
-        const start = Number(list?.getAttribute('data-list-start'));
+        // the listing carries it on the markup it replaces on every page, below the list element
+        const element = list?.hasAttribute('data-list-start') ? list : list?.querySelector('[data-list-start]');
+        const start = Number(element?.getAttribute('data-list-start'));
 
         return Number.isInteger(start) && start > 0 ? start : 0;
     }
 
     /**
-     * @param {string} itemId
+     * @param {string} itemId the reported product number
      * @param {Object} list
+     * @param {string|undefined} productId the id of the product the card shows
      */
-    static remember(itemId, list) {
+    static remember(itemId, list, productId = undefined) {
         if (!itemId || !list?.item_list_id) {
             return;
         }
 
-        ListAttributionHelper._write({ itemId, list });
+        ListAttributionHelper._write({ itemId, productId, list });
     }
 
     /**
      * Returns the stored attribution for a product and forgets it, so a later direct visit of the
      * same product is not attributed to a list again.
      *
-     * @param {string|undefined} itemId
+     * A listing that displays the parent of a variant product stores the parent, while its detail
+     * page resolves to a variant with another product number. The detail page therefore also
+     * matches by its own id and its parent id.
+     *
+     * @param {string|undefined} itemId the product number the detail page reports
+     * @param {string[]} productIds the id and the parent id of the product on the detail page
      * @returns {Object}
      */
-    static consume(itemId) {
+    static consume(itemId, productIds = []) {
         const stored = ListAttributionHelper._read();
 
-        if (!stored || !itemId || stored.itemId !== itemId) {
+        if (!stored) {
+            return {};
+        }
+
+        const matchesItem = !!itemId && stored.itemId === itemId;
+        const matchesProduct = !!stored.productId && productIds.includes(stored.productId);
+
+        if (!matchesItem && !matchesProduct) {
             return {};
         }
 

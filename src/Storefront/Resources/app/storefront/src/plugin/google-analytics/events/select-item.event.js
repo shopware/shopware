@@ -54,7 +54,7 @@ export default class SelectItemEvent extends AnalyticsEvent
         const list = ListAttributionHelper.getListFromElement(productBox);
 
         // the detail page reports the same list, so both events describe one journey
-        ListAttributionHelper.remember(itemId, list);
+        ListAttributionHelper.remember(itemId, list, information.id);
 
         this.pushEvent('select_item', {
             ...list,

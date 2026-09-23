@@ -1,6 +1,8 @@
 {% block buy_widget %}
     <div class="product-detail-buy{% if elementId %}-{{ elementId }}{% endif %} js-magnifier-zoom-image-container"
-         data-product-variant="{{ product.variation|map(variation => variation.option)|join(', ') }}">
+         data-product-variant="{{ product.variation|map(variation => variation.option)|join(', ') }}"
+         data-product-id="{{ product.id }}"
+         data-product-parent-id="{{ product.parentId }}">
         {% block buy_widget_rich_snippets %}
             {# @deprecated tag:v6.8.0 - Product microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
             {% if not feature('JSON_LD_DATA') %}

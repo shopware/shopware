@@ -57,6 +57,25 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             expect(ListAttributionHelper.consume('SW10000')).toEqual({});
         });
 
+        test('matches the variant a displayed parent resolves to by its parent id', () => {
+            // the listing shows the parent SW10000, the detail page resolves to variant SW10000.1
+            ListAttributionHelper.remember('SW10000', list, 'parent-id');
+
+            expect(ListAttributionHelper.consume('SW10000.1', ['variant-id', 'parent-id'])).toEqual(list);
+        });
+
+        test('matches a variant card by its own id', () => {
+            ListAttributionHelper.remember('SW10000.1', list, 'variant-id');
+
+            expect(ListAttributionHelper.consume('SW10000.1', ['variant-id', 'parent-id'])).toEqual(list);
+        });
+
+        test('does not attribute a product of another family', () => {
+            ListAttributionHelper.remember('SW10000', list, 'parent-id');
+
+            expect(ListAttributionHelper.consume('SW20000', ['other-id'])).toEqual({});
+        });
+
         test('does not attribute another product', () => {
             ListAttributionHelper.remember('SW10000', list);
 
@@ -79,6 +98,31 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             window.sessionStorage.setItem('swGaSelectedItemList', '{invalid');
 
             expect(ListAttributionHelper.consume('SW10000')).toEqual({});
+        });
+    });
+
+    describe('getListStart', () => {
+        test('reads the offset from the list element', () => {
+            document.body.innerHTML = '<div data-list-id="category-1" data-list-start="24"></div>';
+
+            expect(ListAttributionHelper.getListStart(document.querySelector('[data-list-id]'))).toBe(24);
+        });
+
+        // AJAX pagination replaces only the inner listing, so the offset lives there
+        test('reads the offset from the replaced markup below the list element', () => {
+            document.body.innerHTML = `
+                <div data-list-id="category-1">
+                    <div class="cms-element-product-listing" data-list-start="48"></div>
+                </div>
+            `;
+
+            expect(ListAttributionHelper.getListStart(document.querySelector('[data-list-id]'))).toBe(48);
+        });
+
+        test('counts from zero without an offset', () => {
+            document.body.innerHTML = '<div data-list-id="category-1"></div>';
+
+            expect(ListAttributionHelper.getListStart(document.querySelector('[data-list-id]'))).toBe(0);
         });
     });
 });

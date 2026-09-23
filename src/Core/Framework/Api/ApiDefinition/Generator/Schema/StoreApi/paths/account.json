@@ -1222,6 +1222,25 @@
                                                 ]
                                             }
                                         ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "guest"
+                                                ],
+                                                "properties": {
+                                                    "guest": {
+                                                        "const": true
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "required": [
+                                                    "password"
+                                                ]
+                                            }
+                                        ]
                                     }
                                 ],
                                 "anyOf": [

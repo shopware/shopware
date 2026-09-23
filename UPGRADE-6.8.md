@@ -4,6 +4,10 @@
 
 <details>
 
+## Administration custom-field set loader computed properties removed
+
+The deprecated `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria`, and `customFieldRepository` computed properties were removed from Administration detail and bulk-edit components. Extensions that used them to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
+
 ## Document generation v2 is the default
 
 The `DOCUMENT_GENERATION_REWORK` feature flag now defaults to `true`. All Shopware-driven surfaces use document generation v2: the order documents section in the Administration, Flow Builder document actions, mail attachments, bulk edit, and the customer-facing download routes.

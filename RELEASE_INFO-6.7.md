@@ -2,6 +2,16 @@
 
 ## Core
 
+### `JsonField` supports typed properties with additional extension data
+
+`JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:
+
+```php
+new JsonField('config', 'config', [new IntField('position', 'position')], allowAdditionalProperties: true);
+```
+
+Mapped properties continue through their field serializers; additional properties are retained unchanged.
+
 ### Dompdf page count placeholder replaced for core and fallback fonts
 
 In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.
@@ -48,6 +58,10 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
 ## Administration
+
+### Custom-field set loader computed properties deprecated
+
+The `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria`, and `customFieldRepository` computed properties on the affected detail and bulk-edit components are deprecated for v6.8.0. Load renderable custom-field sets through `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead. The shared provider caches results by entity, language, and requested limit.
 
 ### New extension points for the Shopping Experiences layout list
 

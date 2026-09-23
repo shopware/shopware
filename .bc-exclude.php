@@ -101,5 +101,9 @@ return [
 
         // Twig added this method in 3.27 via https://github.com/twigphp/Twig/pull/4816
         preg_quote('REMOVED: Method Twig\TokenParser\AbstractTokenParser#isAlwaysAllowedInSandbox() was removed', '/'),
+
+        // Classes in that namespace are considered internal
+        preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
+        preg_quote('Shopware\Core\Framework\Adapter\Twig', '/'),
     ],
 ];

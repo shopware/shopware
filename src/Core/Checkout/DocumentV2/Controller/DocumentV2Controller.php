@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentMediaGuard;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
@@ -62,6 +63,7 @@ final class DocumentV2Controller extends AbstractController
         private readonly MediaService $mediaService,
         private readonly FileNameProvider $fileNameProvider,
         private readonly EntityRepository $mediaRepository,
+        private readonly DocumentMediaGuard $documentMediaGuard,
     ) {
     }
 
@@ -302,13 +304,19 @@ final class DocumentV2Controller extends AbstractController
 
     private function resolveReferencedMedia(string $mediaId, Context $context): string
     {
-        if (!$context->isAllowed('media:read')) {
-            throw DocumentV2Exception::missingPrivilege('media:read');
-        }
+        $media = $context->scope(
+            Context::SYSTEM_SCOPE,
+            fn (Context $scoped) => $this->mediaRepository
+                ->search(new Criteria([$mediaId]), $scoped)
+                ->getEntities()
+                ->first(),
+        );
 
-        if ($this->mediaRepository->searchIds(new Criteria([$mediaId]), $context)->firstId() === null) {
+        if ($media === null) {
             throw DocumentV2Exception::mediaNotFound($mediaId);
         }
+
+        $this->documentMediaGuard->assertIsDocumentMedia($media, $context);
 
         return $mediaId;
     }

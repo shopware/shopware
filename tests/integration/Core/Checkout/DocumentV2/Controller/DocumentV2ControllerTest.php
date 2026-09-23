@@ -13,7 +13,9 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -430,6 +432,248 @@ class DocumentV2ControllerTest extends TestCase
 
         $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(DocumentV2Exception::MEDIA_NOT_FOUND, $payload['errors'][0]['code'] ?? null);
+    }
+
+    public function testUploadAcceptsMediaFromTheDocumentFolder(): void
+    {
+        $orderId = $this->createDraftOrder();
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $content = 'referenced invoice';
+        $mediaId = $this->createDocumentMedia($content);
+
+        $browser = $this->getBrowser(true, [], [
+            'document:create',
+            'document:read',
+            'document_file:create',
+            'document_file:read',
+            'media:read',
+        ]);
+
+        $browser->jsonRequest(
+            'POST',
+            '/api/_action/order/document-v2/upload',
+            [
+                'documentType' => DocumentType::INVOICE->value,
+                'format' => DocumentFormat::PDF->value,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+                'mediaId' => $mediaId,
+                'documentNumber' => '1005-' . Uuid::randomHex(),
+            ],
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $browser->request(
+            'GET',
+            \sprintf('/api/_action/order/document-v2/%s/download/%s', $payload['documentId'], DocumentFormat::PDF->value),
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame($content, $response->getContent());
+    }
+
+    public function testUploadRejectsMediaOutsideTheDocumentFolder(): void
+    {
+        $orderId = $this->createDraftOrder();
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $mediaId = $this->createForeignMedia('foreign content');
+
+        $browser = $this->getBrowser(true, [], [
+            'document:create',
+            'document:read',
+            'document_file:create',
+            'document_file:read',
+            'media:read',
+        ]);
+
+        $browser->jsonRequest(
+            'POST',
+            '/api/_action/order/document-v2/upload',
+            [
+                'documentType' => DocumentType::INVOICE->value,
+                'format' => DocumentFormat::PDF->value,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+                'mediaId' => $mediaId,
+                'documentNumber' => '1006-' . Uuid::randomHex(),
+            ],
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode(), (string) $response->getContent());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(DocumentV2Exception::MEDIA_NOT_FOUND, $payload['errors'][0]['code'] ?? null);
+    }
+
+    public function testDownloadRejectsDocumentFileLinkedToForeignMediaThroughTheApi(): void
+    {
+        $documentId = $this->createDocumentThroughApi(documentFileMediaId: $this->createForeignMedia('foreign content'));
+
+        $this->getBrowser()->request(
+            'GET',
+            \sprintf('/api/_action/order/document-v2/%s/download/%s', $documentId, DocumentFormat::PDF->value),
+        );
+
+        $this->assertMediaNotAllowed($this->getBrowser()->getResponse());
+    }
+
+    public function testDownloadRejectsLegacyMediaLinkedToForeignMediaThroughTheApi(): void
+    {
+        $documentId = $this->createDocumentThroughApi(legacyMediaId: $this->createForeignMedia('foreign content'));
+
+        $this->getBrowser()->request(
+            'GET',
+            \sprintf('/api/_action/order/document-v2/%s/download/%s', $documentId, DocumentFormat::PDF->value),
+        );
+
+        $this->assertMediaNotAllowed($this->getBrowser()->getResponse());
+    }
+
+    public function testDownloadArchiveRejectsForeignMedia(): void
+    {
+        $documentId = $this->createDocumentThroughApi(documentFileMediaId: $this->createForeignMedia('foreign content'));
+
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/order/document-v2/download-archive',
+            ['documentIds' => [$documentId]],
+        );
+
+        $this->assertMediaNotAllowed($this->getBrowser()->getResponse());
+    }
+
+    public function testDownloadStillWorksWithoutMediaReadPrivilege(): void
+    {
+        $orderId = $this->createDraftOrder();
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $content = 'support agent invoice';
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/order/document-v2/upload?' . http_build_query([
+                'documentNumber' => '1007-' . Uuid::randomHex(),
+                'documentType' => DocumentType::INVOICE->value,
+                'extension' => DocumentFormat::PDF->value,
+                'fileName' => 'support-invoice',
+                'format' => DocumentFormat::PDF->value,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+            ], '', '&', \PHP_QUERY_RFC3986),
+            [],
+            [],
+            [
+                'HTTP_CONTENT_LENGTH' => \strlen($content),
+                'HTTP_CONTENT_TYPE' => DocumentFormat::PDF->mimeType(),
+            ],
+            $content,
+        );
+
+        $payload = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsString($payload['documentId'] ?? null);
+
+        $browser = $this->getBrowser(true, [], [
+            'document:read',
+            'document_file:read',
+        ]);
+
+        $browser->request(
+            'GET',
+            \sprintf('/api/_action/order/document-v2/%s/download/%s', $payload['documentId'], DocumentFormat::PDF->value),
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame($content, $response->getContent());
+    }
+
+    private function assertMediaNotAllowed(Response $response): void
+    {
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(DocumentV2Exception::DOCUMENT_MEDIA_NOT_ALLOWED, $payload['errors'][0]['code'] ?? null);
+    }
+
+    private function createDocumentThroughApi(?string $documentFileMediaId = null, ?string $legacyMediaId = null): string
+    {
+        $orderId = $this->createDraftOrder();
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $documentTypeId = static::getContainer()->get('document_type.repository')
+            ->searchIds(
+                (new Criteria())->addFilter(new EqualsFilter('technicalName', DocumentType::INVOICE->value)),
+                $this->context,
+            )
+            ->firstId();
+
+        $documentId = Uuid::randomHex();
+
+        $this->getBrowser()->jsonRequest('POST', '/api/document', array_filter([
+            'id' => $documentId,
+            'typeName' => DocumentType::INVOICE->value,
+            'documentTypeId' => $documentTypeId,
+            'orderId' => $orderId,
+            'orderVersionId' => $orderVersionId,
+            'documentMediaFileId' => $legacyMediaId,
+            'config' => ['documentNumber' => 'api-' . Uuid::randomHex()],
+            'deepLinkCode' => Uuid::randomHex(),
+            'static' => true,
+        ]));
+
+        static::assertSame(
+            Response::HTTP_NO_CONTENT,
+            $this->getBrowser()->getResponse()->getStatusCode(),
+            (string) $this->getBrowser()->getResponse()->getContent(),
+        );
+
+        if ($documentFileMediaId !== null) {
+            $this->getBrowser()->jsonRequest('POST', '/api/document-file', [
+                'id' => Uuid::randomHex(),
+                'documentId' => $documentId,
+                'mediaId' => $documentFileMediaId,
+                'documentFormat' => DocumentFormat::PDF->value,
+            ]);
+
+            static::assertSame(
+                Response::HTTP_NO_CONTENT,
+                $this->getBrowser()->getResponse()->getStatusCode(),
+                (string) $this->getBrowser()->getResponse()->getContent(),
+            );
+        }
+
+        return $documentId;
+    }
+
+    private function createDocumentMedia(string $content): string
+    {
+        return static::getContainer()->get(MediaService::class)->saveFile(
+            $content,
+            DocumentFormat::PDF->value,
+            DocumentFormat::PDF->mimeType(),
+            'referenced-invoice-' . Uuid::randomHex(),
+            $this->context,
+            DocumentPersister::MEDIA_FOLDER,
+        );
+    }
+
+    private function createForeignMedia(string $content): string
+    {
+        return static::getContainer()->get(MediaService::class)->saveFile(
+            $content,
+            DocumentFormat::PDF->value,
+            DocumentFormat::PDF->mimeType(),
+            'foreign-' . Uuid::randomHex(),
+            $this->context,
+        );
     }
 
     private function createDraftOrder(): string

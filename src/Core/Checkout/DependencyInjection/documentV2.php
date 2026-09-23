@@ -30,6 +30,7 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentMediaGuard;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentTypeNameSyncSubscriber;
@@ -70,6 +71,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(DocumentFileResolver::class);
+
+    $services->set(DocumentMediaGuard::class)
+        ->args([
+            service('media_folder.repository'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(DocumentConfigLoader::class)
         ->args([
@@ -226,6 +233,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Filesystem::class),
             service(DocumentRendererRegistry::class),
             service(DocumentFileNameBuilder::class),
+            service(DocumentMediaGuard::class),
         ]);
 
     $services->set(DocumentFileNameBuilder::class)
@@ -250,6 +258,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MediaService::class),
             service(DocumentRendererRegistry::class),
             service(DocumentFileResolver::class),
+            service(DocumentMediaGuard::class),
         ]);
 
     $services->set(ReferencedDocumentResolver::class)
@@ -290,6 +299,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MediaService::class),
             service(FileNameProvider::class),
             service('media.repository'),
+            service(DocumentMediaGuard::class),
         ])
         ->call('setContainer', [
             service('service_container'),

@@ -2,12 +2,6 @@
 
 ## Core
 
-### Document V2 upload enforces media:read for referenced media
-
-The experimental `POST /api/_action/order/document-v2/upload` route accepted a `mediaId` in the request body and linked it to the new document without any access check, so the subsequent download returned that media regardless of the caller's privileges.
-
-Supplying a `mediaId` now requires the `media:read` privilege and the referenced media must exist, otherwise the request is rejected. ACL roles that upload documents by referencing existing media must include `media:read`. Uploading a new file is unchanged.
-
 ### Moved PHP classes retain backwards-compatible aliases
 
 The following classes moved to their canonical Core namespaces. Their previous names remain available as runtime class aliases throughout 6.7 and are removed with 6.8:

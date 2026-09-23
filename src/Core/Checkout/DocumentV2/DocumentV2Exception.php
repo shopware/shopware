@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -30,6 +28,8 @@ class DocumentV2Exception extends HttpException
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
 
     public const MEDIA_NOT_FOUND = 'DOCUMENT_V2__MEDIA_NOT_FOUND';
+
+    public const DOCUMENT_MEDIA_NOT_ALLOWED = 'DOCUMENT_V2__DOCUMENT_MEDIA_NOT_ALLOWED';
 
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
 
@@ -173,9 +173,14 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function missingPrivilege(string $privilege): ShopwareHttpException
+    public static function documentMediaNotAllowed(string $mediaId): self
     {
-        return new MissingPrivilegeException([$privilege]);
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::DOCUMENT_MEDIA_NOT_ALLOWED,
+            'Media with id "{{ mediaId }}" is not a document media file.',
+            ['mediaId' => $mediaId],
+        );
     }
 
     public static function rendererNotFound(string $format, ?string $documentType = null): self

@@ -92,20 +92,15 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
 
+### Reorder posts only the order id
+
+Reorder posts only the order id, so overrides of its hidden line item input blocks no longer apply.
+
 ## App system
 
 ### App requests keep body and signature across redirects
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
-### Unavailable products are no longer linked in order line items
-
-Product line items rendered in order display mode link to the product detail page and offer the wishlist button only while the product is still active and visible in the sales channel, and the reorder entry of an order is hidden when none of its products can be bought any more. Previously a deactivated or deleted product still rendered a link that ran into a 404.
-
-Availability is resolved once per page in PHP with a single sales-channel-aware query and exposed as the order line item extension `productAvailable` and the order extension `reorderable`, both carrying an `available` boolean, so templates only read a boolean. Read them in your own templates if you render order line items yourself; when the extension is absent the item is treated as available.
-
-### Reorder posts only the order id
-
-Reorder posts only the order id, so overrides of the hidden-input blocks no longer apply; unavailable products lose their link, see the `productAvailable` line item extension.
 
 # 6.7.15.0
 

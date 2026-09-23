@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Event;
+namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderProductAvailabilityRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,31 +23,24 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
-use Shopware\Storefront\Event\OrderProductAvailabilitySubscriber;
-use Shopware\Storefront\Page\Account\Order\AccountOrderPage;
-use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(OrderProductAvailabilitySubscriber::class)]
-class OrderProductAvailabilitySubscriberTest extends TestCase
+#[CoversClass(OrderProductAvailabilityRoute::class)]
+class OrderProductAvailabilityRouteTest extends TestCase
 {
-    public function testSubscribedEventsCoverEveryOrderRenderingPage(): void
+    public function testGetDecoratedReturnsTheInnerRoute(): void
     {
-        static::assertSame(
-            [
-                'Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedEvent',
-                'Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent',
-                'Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent',
-            ],
-            array_keys(OrderProductAvailabilitySubscriber::getSubscribedEvents())
-        );
+        $decorated = static::createStub(AbstractOrderRoute::class);
+        $route = new OrderProductAvailabilityRoute($decorated, static::createStub(SalesChannelRepository::class));
+
+        static::assertSame($decorated, $route->getDecorated());
     }
 
-    public function testAvailabilityIsResolvedWithASingleQueryForAllOrdersOfThePage(): void
+    public function testAvailabilityIsResolvedWithASingleQueryForAllOrders(): void
     {
         $availableId = Uuid::randomHex();
         $unavailableId = Uuid::randomHex();
@@ -66,38 +62,18 @@ class OrderProductAvailabilitySubscriberTest extends TestCase
             }))
             ->willReturn($this->createIdSearchResult([$availableId]));
 
-        $this->dispatch($repository, $orders);
+        $this->load($repository, $orders);
 
         foreach ($orders as $order) {
             $lineItems = $order->getLineItems();
             static::assertNotNull($lineItems);
 
             foreach ($lineItems as $lineItem) {
-                $extension = $lineItem->getExtension(OrderProductAvailabilitySubscriber::LINE_ITEM_EXTENSION);
+                $extension = $lineItem->getExtension(OrderProductAvailabilityRoute::LINE_ITEM_EXTENSION);
                 static::assertInstanceOf(ArrayStruct::class, $extension);
                 static::assertSame($lineItem->getProductId() === $availableId, $extension->get('available'));
             }
         }
-    }
-
-    public function testOrderIsReorderableWhenAtLeastOneProductIsAvailable(): void
-    {
-        $availableId = Uuid::randomHex();
-        $unavailableId = Uuid::randomHex();
-
-        $mixed = $this->createOrder([
-            [LineItem::PRODUCT_LINE_ITEM_TYPE, $availableId],
-            [LineItem::PRODUCT_LINE_ITEM_TYPE, $unavailableId],
-        ]);
-        $none = $this->createOrder([[LineItem::PRODUCT_LINE_ITEM_TYPE, $unavailableId]]);
-
-        $repository = static::createStub(SalesChannelRepository::class);
-        $repository->method('searchIds')->willReturn($this->createIdSearchResult([$availableId]));
-
-        $this->dispatch($repository, new OrderCollection([$mixed, $none]));
-
-        static::assertTrue($this->reorderable($mixed));
-        static::assertFalse($this->reorderable($none));
     }
 
     public function testDeletedProductsAreNeverQueriedAndCountAsUnavailable(): void
@@ -107,9 +83,14 @@ class OrderProductAvailabilitySubscriberTest extends TestCase
         $repository = static::createMock(SalesChannelRepository::class);
         $repository->expects($this->never())->method('searchIds');
 
-        $this->dispatch($repository, new OrderCollection([$order]));
+        $this->load($repository, new OrderCollection([$order]));
 
-        static::assertFalse($this->reorderable($order));
+        $lineItems = $order->getLineItems();
+        static::assertNotNull($lineItems);
+
+        $extension = $lineItems->first()?->getExtension(OrderProductAvailabilityRoute::LINE_ITEM_EXTENSION);
+        static::assertInstanceOf(ArrayStruct::class, $extension);
+        static::assertFalse($extension->get('available'));
     }
 
     public function testNonProductLineItemsAreIgnored(): void
@@ -131,44 +112,36 @@ class OrderProductAvailabilitySubscriberTest extends TestCase
             }))
             ->willReturn($this->createIdSearchResult([$productId]));
 
-        $this->dispatch($repository, new OrderCollection([$order]));
+        $this->load($repository, new OrderCollection([$order]));
 
         $lineItems = $order->getLineItems();
         static::assertNotNull($lineItems);
 
         $promotion = $lineItems->filterByType(LineItem::PROMOTION_LINE_ITEM_TYPE)->first();
         static::assertNotNull($promotion);
-        static::assertNull($promotion->getExtension(OrderProductAvailabilitySubscriber::LINE_ITEM_EXTENSION));
+        static::assertNull($promotion->getExtension(OrderProductAvailabilityRoute::LINE_ITEM_EXTENSION));
     }
 
     /**
      * @param SalesChannelRepository<ProductCollection> $repository
      */
-    private function dispatch(SalesChannelRepository $repository, OrderCollection $orders): void
+    private function load(SalesChannelRepository $repository, OrderCollection $orders): void
     {
         $context = Generator::generateSalesChannelContext();
 
-        $page = new AccountOrderPage();
-        $page->setOrders(new EntitySearchResult(
-            OrderDefinition::ENTITY_NAME,
-            $orders->count(),
-            $orders,
-            null,
-            new Criteria(),
-            $context->getContext()
+        $decorated = static::createStub(AbstractOrderRoute::class);
+        $decorated->method('load')->willReturn(new OrderRouteResponse(
+            new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
+                $orders->count(),
+                $orders,
+                null,
+                new Criteria(),
+                $context->getContext()
+            )
         ));
 
-        (new OrderProductAvailabilitySubscriber($repository))->onAccountOrderPageLoaded(
-            new AccountOrderPageLoadedEvent($page, $context, new Request())
-        );
-    }
-
-    private function reorderable(OrderEntity $order): bool
-    {
-        $extension = $order->getExtension(OrderProductAvailabilitySubscriber::ORDER_EXTENSION);
-        static::assertInstanceOf(ArrayStruct::class, $extension);
-
-        return (bool) $extension->get('available');
+        (new OrderProductAvailabilityRoute($decorated, $repository))->load(new Request(), $context, new Criteria());
     }
 
     /**

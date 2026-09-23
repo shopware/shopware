@@ -111,7 +111,7 @@ The reorder form in `order-item.html.twig` now posts to `frontend.checkout.line-
 
 ### Unavailable products are no longer linked in order line items
 
-Order line items link to the product and offer the wishlist button only while the product is still active and visible in the sales channel, and an order whose products are all unavailable offers no reorder entry. If you render order line items yourself, read the line item extension `productAvailable` or the order extension `reorderable`; an absent extension means available.
+Order line items link to the product and offer the wishlist button only while the product is still active and visible in the sales channel, and an order whose products are all unavailable offers no reorder entry. Orders read through the Store API now carry a `productAvailable` extension on every product line item, so Store API clients get the same answer without querying each product; read it if you render order line items yourself, an absent extension means available.
 
 # 6.7.15.0
 

@@ -129,6 +129,37 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
     }
 
+    public function testOrderRouteExposesProductAvailabilityToHeadlessClients(): void
+    {
+        $availableId = $this->createProduct();
+        $deactivatedId = $this->createProduct(active: false);
+
+        $this->createOrder($this->ids->get('customer'), [$availableId, $deactivatedId]);
+
+        $this->browser->request(
+            'POST',
+            '/store-api/order',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['associations' => ['lineItems' => []]], \JSON_THROW_ON_ERROR)
+        );
+
+        $content = (string) $this->browser->getResponse()->getContent();
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
+
+        $availability = [];
+        foreach ($response['orders']['elements'][0]['lineItems'] as $lineItem) {
+            $availability[$lineItem['referencedId']] = $lineItem['extensions']['productAvailable']['available'];
+        }
+
+        // a headless client gets the same answer the storefront renders from, without querying every product itself
+        static::assertTrue($availability[$availableId]);
+        static::assertFalse($availability[$deactivatedId]);
+    }
+
     private function createProduct(bool $active = true, bool $visible = true): string
     {
         $id = Uuid::randomHex();

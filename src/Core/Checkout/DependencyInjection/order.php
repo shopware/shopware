@@ -33,6 +33,8 @@ use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderExceptionHandler;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemProductAvailabilityExtension;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderProductAvailabilityRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
@@ -183,6 +185,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GuestAuthenticator::class),
             service(ClockInterface::class),
             param('shopware.order.deep_link.expire_days'),
+        ]);
+
+    $services->set(OrderLineItemProductAvailabilityExtension::class)
+        ->tag('shopware.entity.extension');
+
+    $services->set(OrderProductAvailabilityRoute::class)
+        ->public()
+        ->decorate(OrderRoute::class)
+        ->args([
+            service('.inner'),
+            service('sales_channel.product.repository'),
         ]);
 
     $services->set(CancelOrderRoute::class)

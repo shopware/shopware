@@ -171,10 +171,11 @@ class MySQLFactoryTest extends TestCase
         ]);
 
         $params = MySQLFactory::create()->getParams();
+        $driverOptions = $params['driverOptions'] ?? [];
 
         static::assertSame(
             $customInitCommand . ';SET @@session.time_zone = \'+00:00\';SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED);SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))',
-            $params['driverOptions'][Mysql::ATTR_INIT_COMMAND]
+            $driverOptions[Mysql::ATTR_INIT_COMMAND]
         );
     }
 

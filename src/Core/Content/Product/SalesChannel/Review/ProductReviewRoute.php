@@ -25,6 +25,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductReviewRoute extends AbstractProductReviewRoute
 {
+    public const DEFAULT_MAX_LIMIT = 100;
+
     /**
      * @internal
      *
@@ -33,7 +35,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     public function __construct(
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly CacheTagCollector $cacheTagCollector
+        private readonly CacheTagCollector $cacheTagCollector,
+        private readonly int $maxLimit = self::DEFAULT_MAX_LIMIT
     ) {
     }
 
@@ -92,6 +95,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         }
 
         $reviewsPerPage = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $salesChannelId);
+        $reviewsPerPage = min($reviewsPerPage, $this->maxLimit);
         if ($reviewsPerPage <= 0) {
             return;
         }

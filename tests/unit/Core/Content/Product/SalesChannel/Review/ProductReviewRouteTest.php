@@ -51,6 +51,11 @@ class ProductReviewRouteTest extends TestCase
                 'core.listing.reviewsPerPage' => 10,
                 'core.basicInformation.email' => 'noreply@example.com',
             ],
+            'testReviewPerPageAboveMaxLimit' => [
+                'core.listing.showReview' => true,
+                'core.listing.reviewsPerPage' => 150,
+                'core.basicInformation.email' => 'noreply@example.com',
+            ],
             'testReviewNotActive' => [
                 'core.listing.showReview' => false,
                 'core.basicInformation.email' => 'noreply@example.com',
@@ -214,6 +219,41 @@ class ProductReviewRouteTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $searchedCriteria);
         static::assertSame(25, $searchedCriteria->getLimit());
+    }
+
+    public function testLoadCapsConfiguredReviewsPerPageToStoreApiMaxLimit(): void
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('testReviewPerPageAboveMaxLimit');
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->setLimit(100);
+        $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+
+        $searchedCriteria = null;
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$searchedCriteria): EntitySearchResult {
+                $searchedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    'product_review',
+                    0,
+                    new ProductReviewCollection(),
+                    null,
+                    $criteria,
+                    Context::createDefaultContext()
+                );
+            });
+
+        $this->createRoute($repository)->load(Uuid::randomHex(), new Request(), $salesChannelContext, $criteria);
+
+        static::assertInstanceOf(Criteria::class, $searchedCriteria);
+        static::assertSame(100, $searchedCriteria->getLimit());
+        static::assertFalse($searchedCriteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST));
     }
 
     public function testLoadReviewDeactivated(): void

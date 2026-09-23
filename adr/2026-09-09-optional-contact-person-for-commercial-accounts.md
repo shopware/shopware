@@ -31,9 +31,9 @@ To achieve this we touch the following scopes.
 The relaxation cannot depend on the sales channel settings, because a field definition sees neither the row nor the configuration, and the Admin API, the Sync API and direct repository writes carry no sales channel. One rule needs none of that and holds on every path through a `PreWriteValidationEvent` subscriber, `CustomerContactPersonSubscriber`: a customer or an address may not end up naming nobody. Both names may be empty only for a commercial account with a company, or for an address that carries a company. A private account keeps needing a contact person everywhere, and the store API routes add the finer, setting driven rule on top.
 
 ```php
-// the same change in all four definitions
+// the same change in all four definitions, the existing flags stay
 (new StringField('first_name', 'firstName'))
-    ->addFlags(new Required(), new AllowEmptyString());
+    ->addFlags(new ApiAware(), new Required(), new AllowEmptyString(), new SearchRanking(...));
 ```
 
 ### Customer identity
@@ -52,6 +52,9 @@ $customer->setDisplayName(self::resolve(
     $customer->isBusinessAccount()
 ));
 
+// on a partial entity, only when the read asked for all four sources
+$customer->assign(['displayName' => self::resolve(...)]);
+
 private static function resolve(string $firstName, string $lastName, ?string $company, bool $isBusinessAccount): string
 {
     $personName = trim($firstName . ' ' . $lastName);
@@ -68,16 +71,22 @@ The company stands in only when there is no person name, so a commercial account
 
 ### Validation
 
-The rule is both a configuration rule and an account type rule. Trunk decides pure configuration rules inside `AddressValidationFactory` and `CustomerProfileValidationFactory`, and account type rules in the routes, because the factories only see the `SalesChannelContext` while the account type comes from the request during registration and on a profile switch. So the factories stay as they are and one injected service, `CompanyAccountNameFields`, does the adjustment once per route: `areOptional()` resolves the effective account type from the request first and the authenticated customer second, `relax()` replaces the name constraints with the length check and requires a trimmed company, and `normalize()` turns an absent name into the empty string the data abstraction layer accepts. Replacing a factory constraint after the fact follows the precedent of the zipcode rule those routes already `set()`.
+The rule is both a configuration rule and an account type rule. Trunk decides pure configuration rules inside `AddressValidationFactory` and `CustomerProfileValidationFactory`, and account type rules in the routes, because the factories only see the `SalesChannelContext` while the account type comes from the request during registration and on a profile switch. So the factories stay as they are and one injected service, `CompanyAccountNameFields`, does the adjustment once per route: `areOptional()` resolves the effective account type from the request first and the authenticated customer second, `makeNamesOptional()` filters `NotBlank` out of the name constraints and leaves every other rule of the factory in place, and `normalize()` turns an absent name into the empty string the data abstraction layer accepts. Replacing a factory constraint after the fact follows the precedent of the zipcode rule those routes already `set()`.
 
 ```php
 if ($this->companyAccountNameFields->areOptional($data, $customer, $context->getSalesChannelId())) {
     $this->companyAccountNameFields->makeNamesOptional($validation, requireCompany: true);
-    $this->companyAccountNameFields->normalize($data);
+    $this->companyAccountNameFields->normalize($data, submittedOnly: true);
 }
+
+// makeNamesOptional, per name field
+$definition->set($property, ...array_filter(
+    $definition->getProperty($property),
+    static fn (Constraint $constraint) => !$constraint instanceof NotBlank
+));
 ```
 
-`RegisterRoute`, `ChangeCustomerProfileRoute` and `UpsertAddressRoute` call it. `UpsertAddressRoute` also requires the customer to be a commercial one, because a private customer cannot make the names of an address optional when the checkout later judges it by the account. `CheckoutConfirmPageLoader` makes the names optional but does not require a company, so an address stored before the setting was switched on cannot block checkout.
+`RegisterRoute`, `ChangeCustomerProfileRoute` and `UpsertAddressRoute` call it. `requireCompany` follows the path: a registration and a profile update demand one, an address demands one only while it is being created, and the confirm page demands none. `UpsertAddressRoute` also requires the customer to be a commercial one, because a private customer cannot make the names of an address optional when the checkout later judges it by the account. `CheckoutConfirmPageLoader` makes the names optional but does not require a company, so an address stored before the setting was switched on cannot block checkout.
 
 ### Orders and documents
 
@@ -96,54 +105,51 @@ $name = match (true) {
 
 ### Mail
 
-The shipped templates move to the resolved name, and a migration carries that to installations that never edited them. `MailUpdate` only rewrites a template while `updated_at IS NULL` on both the template and its translation, so a shop that customised its mails keeps its own text. Twenty fixture files across five templates read the customer name today, in three shapes. Two of them never read `firstName`, so a company placed there would not appear in the mail at all.
+The shipped templates move to the resolved name, and two migrations carry that to installations that never edited them. `MailUpdate` only rewrites a template while `updated_at IS NULL` on both the template and its translation, so a shop that customised its mails keeps its own text.
+
+Seven customer templates and twenty seven order templates greet a recipient by name. The customer ones came in two shapes and keep the tone each one had:
 
 ```twig
-{# before #}
-Hello {{ customer.firstName }} {{ customer.lastName }},
-Hello {{ customer.salutation.translated.letterName }} {{ customer.lastName }},
-Hello {{ customer.salutation.translated.letterName }} {{ customer.firstName }} {{ customer.lastName }},
+{# a formal salutation reads the last name, so it keeps it and only falls back #}
+{{ customer.salutation.translated.letterName }} {{ customer.lastName|trim ?: customer.displayName }},
 
-{# after #}
-Hello {{ customer.displayName }},
-Hello {{ customer.salutation.translated.letterName }} {{ customer.displayName }},
+{# a greeting that printed the whole person name reads the resolved one #}
+Hello {{ customer.firstName }} {{ customer.lastName }},    {# before #}
+Hello {{ customer.displayName }},                          {# after #}
 ```
 
-The recipient name is built in the events, not the template. Ten `MailAware`
-customer events join the two columns in `getMailStruct()`, so without a change
-the `To:` header of a nameless company account is a single space. All ten read
-the resolved name instead:
+The fallback is not decoration. `letterName` plus `lastName` renders "Mr Smith", so putting the display name there would greet every private customer as "Mr John Smith". The last name stays where it is and the resolved name steps in only when there is none.
+
+The order templates all greet the same way, so they take the resolved name straight:
+
+```twig
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.displayName }},
+```
+
+The recipient name is built in the events, not the template. Thirteen `MailAware` events plus `MailStorer` joined the two columns in `getMailStruct()`, so without a change the `To:` header of a nameless company account is a single space. Ten read the customer, three read the order:
 
 ```
 Shopware\Core\Checkout\Customer\Event\
-    CustomerRegisterEvent
-    CustomerLoginEvent
-    CustomerLogoutEvent
-    CustomerDeletedEvent
-    CustomerPasswordChangedEvent
-    CustomerAccountRecoverRequestEvent
-    CustomerDoubleOptInRegistrationEvent
-    CustomerGroupRegistrationAccepted
-    CustomerGroupRegistrationDeclined
-    DoubleOptInGuestOrderEvent
+    CustomerRegisterEvent, CustomerLoginEvent, CustomerLogoutEvent, CustomerDeletedEvent,
+    CustomerPasswordChangedEvent, CustomerAccountRecoverRequestEvent,
+    CustomerDoubleOptInRegistrationEvent, CustomerGroupRegistrationAccepted,
+    CustomerGroupRegistrationDeclined, DoubleOptInGuestOrderEvent
+
+Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent
+Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent
+Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent
 ```
 
 ```php
-// before, in each of the ten
-public function getMailStruct(): MailRecipientStruct
-{
-    return new MailRecipientStruct([
-        $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
-    ]);
-}
+// before
+return new MailRecipientStruct([
+    $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
+]);
 
 // after
-public function getMailStruct(): MailRecipientStruct
-{
-    return new MailRecipientStruct([
-        $this->customer->getEmail() => $this->customer->getDisplayName(),
-    ]);
-}
+return new MailRecipientStruct([
+    $this->customer->getEmail() => $this->customer->getDisplayName(),
+]);
 ```
 
 There is no runtime patching of the customer for the render. A shop that customised a mail template keeps addressing `customer.firstName` and `customer.lastName`, and gets an empty greeting for an account with no contact person. That is the trade we accept: the shop owns that template, and hiding the change behind a subscriber would mean every mail renders a customer that does not match the one in the database.
@@ -161,17 +167,25 @@ validationRules: personNameRequired ? 'required' : ''
 ```
 
 ```js
-// the visitor can switch type without a reload, so the marker has to follow
-accountTypeSelect.addEventListener('change', () => nameFields.forEach((field) => {
-    isCompanySelected() && !namesRequired
-        ? window.formValidation.setFieldNotRequired(field)
-        : window.formValidation.setFieldRequired(field);
-}));
+// the visitor can switch type without a reload, so the state has to follow
+const isCompany = this._select.value === this.options.businessValue;
+const shown = !isCompany || this.options.shown;
+const required = !isCompany || (this.options.shown && this.options.required);
+
+this.el.classList.toggle(this.options.hiddenCls, !shown);
+
+this._fields.forEach((field) => {
+    shown ? field.removeAttribute('disabled') : field.setAttribute('disabled', 'disabled');
+
+    required
+        ? window.formValidation.setFieldRequired(field)
+        : window.formValidation.setFieldNotRequired(field);
+});
 ```
 
 ### Administration
 
-The two name fields become optional only when both settings allow it. One API service, `companyAccountNameFieldsService`, mirrors `areRequired()` for the sales channel of the customer, and only the three pages that save a customer call it: the create page, the detail page and the order customer modal. The base form and the card receive the answer as a prop and stay strict until it arrives. Every read only place, the customer list, the order list, the search bar, the dashboard and the tag assignments, reads `displayName` from the API response instead of resolving the rule again in JavaScript.
+The two name fields become optional only when both settings allow it. One API service, `companyAccountNameFieldsService`, mirrors `areRequired()` for the sales channel of the customer, and only the three pages that save a customer call it: the create page, the detail page and the order customer modal. The base form and the card receive the answer as a prop and stay strict until it arrives. The company field is required for every commercial account there, whether or not the contact person is, because a commercial account in the Administration is created by a merchant who knows the company. Every read only place, the customer list, the order list, the search bar, the dashboard and the tag assignments, reads `displayName` from the API response instead of resolving the rule again in JavaScript.
 
 The detail card already edits the account level company; the create page did not, so a customer created there carried the company on the billing address only. `Customers > New customer` gains the field in the account section for the commercial type, so the company is persisted on the customer from the start. This is a requirement of its own in the issue, not a side effect of the name change. A migration copies the company from the default billing address into accounts the Administration created without one.
 
@@ -186,8 +200,7 @@ contactPersonRequired() {
 ```twig
 <mt-text-field :required="contactPersonRequired" v-model="customer.firstName" />
 
-<mt-text-field v-if="isBusinessAccountType" v-model="customer.company"
-               :required="!contactPersonRequired" />
+<mt-text-field v-if="isBusinessAccountType" v-model="customer.company" required />
 ```
 
 ## Consequences

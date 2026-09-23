@@ -33,7 +33,7 @@ class OrderCustomerDisplayNameSubscriber implements EventSubscriberInterface
     {
         foreach ($event->getEntities() as $customer) {
             if ($customer instanceof OrderCustomerEntity) {
-                $customer->setDisplayName(self::resolve(
+                $customer->setDisplayName($this->resolve(
                     $customer->getFirstName(),
                     $customer->getLastName(),
                     $customer->getCompany()
@@ -46,7 +46,7 @@ class OrderCustomerDisplayNameSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $customer->assign(['displayName' => self::resolve(
+            $customer->assign(['displayName' => $this->resolve(
                 (string) $customer->get('firstName'),
                 (string) $customer->get('lastName'),
                 $customer->get('company')
@@ -54,7 +54,7 @@ class OrderCustomerDisplayNameSubscriber implements EventSubscriberInterface
         }
     }
 
-    private static function resolve(string $firstName, string $lastName, ?string $company): string
+    private function resolve(string $firstName, string $lastName, ?string $company): string
     {
         $personName = trim($firstName . ' ' . $lastName);
 

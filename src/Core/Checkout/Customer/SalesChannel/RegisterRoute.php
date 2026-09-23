@@ -338,7 +338,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
             $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition(
                 $data,
-                $isDefaultBillingAddress ? $accountType : self::addressAccountType($shippingAddress),
+                $isDefaultBillingAddress ? $accountType : $this->addressAccountType($shippingAddress),
                 $shippingAddress,
                 $context,
                 $isDefaultBillingAddress
@@ -484,7 +484,7 @@ class RegisterRoute extends AbstractRegisterRoute
         return $validation;
     }
 
-    private static function addressAccountType(DataBag $address): string
+    private function addressAccountType(DataBag $address): string
     {
         $accountType = $address->get('accountType');
 

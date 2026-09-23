@@ -566,7 +566,7 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds the product line items of an order to the current cart, resolved for the logged-in customer and the current sales channel, skipping products that are no longer available. Decorate `AbstractCartOrderLineItemsAddRoute` or listen to `BeforeOrderLineItemsAddedToCartEvent` to change what a reorder adds.
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, skipping the unavailable ones; decorate `AbstractCartOrderLineItemsAddRoute` or listen to `BeforeOrderLineItemsAddedToCartEvent` to change what it adds.
 
 ## Administration
 
@@ -941,7 +941,7 @@ Availability is resolved once per page in PHP with a single sales-channel-aware 
 
 ### Reorder posts only the order id
 
-The reorder form now posts to `frontend.checkout.line-item.order.add`, which derives the line items from the order server-side; the hidden-input blocks still render but are ignored, so move overrides of them into a decorator of `AbstractCartOrderLineItemsAddRoute`. Order line items only link to the product and offer the wishlist button while it is still active and visible, exposed as the `productAvailable` line item extension.
+The reorder form posts only the order id and the hidden-input blocks are ignored, so move overrides of them into a decorator of `AbstractCartOrderLineItemsAddRoute`; order line items now link to the product only while it is still buyable, exposed as the `productAvailable` extension.
 
 ### SEO URLs for app storefront routes
 

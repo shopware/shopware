@@ -32,11 +32,17 @@
                     :preview-entity-id="previewEntityId"
                     :can-undo="canUndo"
                     :can-redo="canRedo"
+                    :is-create-mode="isCreateMode"
+                    :has-draft="hasDraft"
+                    :draft-created-at="draftCreatedAt"
+                    :is-dirty="isDirty"
                     @back="onClickBack"
                     @viewport-change="onViewportChange"
                     @preview-sales-channel-change="onPreviewSalesChannelChange"
                     @preview-entity-id-change="onPreviewEntityIdChange"
                     @save="onSave"
+                    @publish="onPublish"
+                    @discard="onDiscardDraft"
                     @undo="onUndo"
                     @redo="onRedo"
                 />
@@ -105,6 +111,19 @@
                     @select="onSelectElementType"
                     @select-preset="onSelectPreset"
                 />
+
+                {% block sw_experience_studio_detail_discard_draft_modal %}
+                <sw-confirm-modal
+                    v-if="showDiscardDraftModal"
+                    class="sw-experience-studio-detail__discard-draft-modal"
+                    type="discard"
+                    :title="$t('sw-experience-studio.detail.discardDraftModal.title')"
+                    :text="$t('sw-experience-studio.detail.discardDraftModal.text')"
+                    @confirm="onConfirmDiscardDraft"
+                    @cancel="onCloseDiscardDraftModal"
+                    @close="onCloseDiscardDraftModal"
+                />
+                {% endblock %}
             </template>
 
             <sw-loader v-if="isLoading" />

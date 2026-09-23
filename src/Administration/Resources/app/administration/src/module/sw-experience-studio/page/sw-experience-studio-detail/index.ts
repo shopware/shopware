@@ -1,5 +1,7 @@
 import type Repository from 'src/core/data/repository.data';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
+import type ContentSystemLayoutDraftApiService from 'src/core/service/api/content-system-layout-draft.api.service';
+import type { ContentLayoutDraft } from 'src/core/service/api/content-system-layout-draft.api.service';
 import type {
     ContentLayoutDraftDuplicatePayload,
     ContentLayoutDraftInsertPayload,
@@ -119,6 +121,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     data(): {
         layout: ContentLayoutEntity | null;
+        liveLayout: ContentLayoutEntity | null;
+        versionContext: apiContext;
+        draftVersionId: string | null;
+        draftCreatedAt: string | null;
+        lastSavedSnapshot: string;
+        showDiscardDraftModal: boolean;
         isLoading: boolean;
         isSaveSuccessful: boolean;
         currentViewport: Viewport;
@@ -140,6 +148,12 @@ export default Shopware.Component.wrapComponentConfig({
     } {
         return {
             layout: null,
+            liveLayout: null,
+            versionContext: Shopware.Context.api,
+            draftVersionId: null,
+            draftCreatedAt: null,
+            lastSavedSnapshot: '',
+            showDiscardDraftModal: false,
             isLoading: false,
             isSaveSuccessful: false,
             currentViewport: 'desktop',
@@ -182,6 +196,12 @@ export default Shopware.Component.wrapComponentConfig({
             return this.$route.params.id as string;
         },
 
+        routeVersionId(): string | null {
+            const versionId = this.$route.query.versionId;
+
+            return typeof versionId === 'string' && versionId.length > 0 ? versionId : null;
+        },
+
         layoutRootSource(): string | null {
             return this.getLayoutRootSource(this.layout);
         },
@@ -197,7 +217,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         resolvedPreviewContext(): LayoutPreviewContext | null {
-            return this.resolvePreviewContext(this.layout);
+            return this.resolvePreviewContext(this.layout, this.liveLayout);
         },
 
         previewEntityType(): LayoutPreviewContext['entityType'] | null {
@@ -210,6 +230,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         isCreateMode(): boolean {
             return this.$route.name === 'sw.experience.studio.create';
+        },
+
+        hasDraft(): boolean {
+            return this.draftVersionId !== null;
+        },
+
+        isDirty(): boolean {
+            return this.createLayoutSnapshot(this.layout) !== this.lastSavedSnapshot;
         },
 
         showCreateWizard(): boolean {
@@ -320,6 +348,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    watch: {
+        routeVersionId(versionId: string | null): void {
+            if (this.isCreateMode || versionId === this.draftVersionId) {
+                return;
+            }
+
+            void this.reloadForVersionSwitch();
+        },
+    },
+
     created(): void {
         Shopware.Store.get('adminMenu').collapseSidebar();
         this.historyKeydownHandler = (event: KeyboardEvent): void => {
@@ -358,15 +396,95 @@ export default Shopware.Component.wrapComponentConfig({
                 this.layout.version = '1.0.0';
                 this.layout.layout = [];
             } else {
-                this.layout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api, this.layoutLoadCriteria);
+                await this.loadPersistedLayout();
             }
 
+            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
             this.createWizardName = this.layout?.name ?? '';
             this.createWizardSelectedType = this.layoutRootSource;
             this.applyPreviewContextDefaults();
             await this.loadDefaultPreviewEntity();
             this.editorStore.initialize(this.layoutId);
             this.isLoading = false;
+        },
+
+        async loadPersistedLayout(): Promise<void> {
+            const versionId = this.routeVersionId;
+
+            this.liveLayout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api, this.layoutLoadCriteria);
+
+            if (!versionId) {
+                this.applyDraftVersion(null);
+                this.layout = this.liveLayout;
+
+                return;
+            }
+
+            const draft = await this.findDraft(versionId);
+            const draftContext = { ...Shopware.Context.api, versionId };
+            // Assignment associations are empty in the draft version; the preview context reads them from `liveLayout`.
+            const draftLayout = draft
+                ? await this.layoutRepository.get(this.layoutId, draftContext, new Criteria(1, 1))
+                : null;
+
+            if (!draft || !draftLayout) {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageDraftNotFound'),
+                });
+                this.applyDraftVersion(null);
+                this.layout = this.liveLayout;
+                void this.navigateToVersion(null);
+
+                return;
+            }
+
+            this.applyDraftVersion(versionId, draft.createdAt);
+            this.layout = draftLayout;
+        },
+
+        async findDraft(versionId: string): Promise<ContentLayoutDraft | null> {
+            try {
+                const drafts = await this.draftService().getDrafts(this.layoutId);
+
+                return drafts.find((draft) => draft.versionId === versionId) ?? null;
+            } catch {
+                return null;
+            }
+        },
+
+        async reloadForVersionSwitch(): Promise<void> {
+            // The history holds states of the version that is being left.
+            this.editorStore.reset();
+            this.selectedElementId = null;
+            await this.loadLayout();
+        },
+
+        navigateToVersion(versionId: string | null): Promise<unknown> {
+            return this.$router.replace({
+                name: 'sw.experience.studio.detail',
+                params: { id: this.layoutId },
+                query: versionId ? { versionId } : {},
+            });
+        },
+
+        async reloadPersistedLayout(): Promise<void> {
+            await this.loadPersistedLayout();
+            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
+            this.applyPreviewContextDefaults();
+        },
+
+        applyDraftVersion(versionId: string | null, createdAt: string | null = null): void {
+            this.draftVersionId = versionId;
+            this.draftCreatedAt = versionId ? createdAt : null;
+            this.versionContext = versionId ? { ...Shopware.Context.api, versionId } : Shopware.Context.api;
+        },
+
+        createLayoutSnapshot(layout: ContentLayoutEntity | null): string {
+            return JSON.stringify(layout?.layout ?? null);
+        },
+
+        draftService(): ContentSystemLayoutDraftApiService {
+            return Shopware.Service('contentSystemLayoutDraftService');
         },
 
         onClickBack(): void {
@@ -534,12 +652,15 @@ export default Shopware.Component.wrapComponentConfig({
             return null;
         },
 
-        resolvePreviewContext(layout: Entity<'content_layout'> | null): LayoutPreviewContext | null {
+        resolvePreviewContext(
+            layout: Entity<'content_layout'> | null,
+            assignmentSource: Entity<'content_layout'> | null = layout,
+        ): LayoutPreviewContext | null {
             if (!layout) {
                 return null;
             }
 
-            const assignedContext = this.resolveAssignedPreviewContext(layout);
+            const assignedContext = this.resolveAssignedPreviewContext(assignmentSource);
             const rootSource = this.getLayoutRootSource(layout);
 
             if (!rootSource) {
@@ -1283,41 +1404,212 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        async onSave(): Promise<void> {
-            if (!this.layout || !this.allowSave) {
-                return;
+        hasRequiredLayoutMetadata(): boolean {
+            if (this.layout?.name?.trim() && this.layoutRootSource) {
+                return true;
             }
 
-            if (!this.layout.name?.trim() || !this.layoutRootSource) {
-                this.createNotificationWarning({
-                    message: this.$t('sw-experience-studio.createWizard.missingFields'),
-                });
+            this.createNotificationWarning({
+                message: this.$t('sw-experience-studio.createWizard.missingFields'),
+            });
 
+            return false;
+        },
+
+        async onSave(): Promise<void> {
+            if (!this.layout || !this.allowSave || !this.hasRequiredLayoutMetadata()) {
                 return;
             }
 
             const layout = this.layout;
+            this.isLoading = true;
+
+            try {
+                const wasDraftMode = this.hasDraft;
+
+                if (this.isCreateMode) {
+                    await this.saveNewLayout(layout);
+                } else {
+                    await this.saveDraft(layout);
+                }
+
+                if (!this.isCreateMode && !wasDraftMode) {
+                    await this.navigateToVersion(this.draftVersionId);
+                    void this.loadDraftCreatedAt();
+                }
+
+                this.createNotificationSuccess({
+                    message: this.$t(
+                        this.isCreateMode
+                            ? 'sw-experience-studio.detail.messageSaved'
+                            : 'sw-experience-studio.detail.messageDraftSaved',
+                    ),
+                });
+
+                if (this.isCreateMode) {
+                    void this.$router.push({
+                        name: 'sw.experience.studio.detail',
+                        params: { id: layout.id },
+                    });
+                }
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageSaveError'),
+                });
+                this.leaveDraftCreatedFromLive();
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        leaveDraftCreatedFromLive(): void {
+            // A live-mode save that failed after branching a draft must not keep the live URL in draft state.
+            if (!this.routeVersionId && this.draftVersionId) {
+                this.applyDraftVersion(null);
+            }
+        },
+
+        async saveNewLayout(layout: ContentLayoutEntity): Promise<void> {
             // Working-tree layout data crossing an outbound boundary is cloned at the call site.
             layout.layout = cloneDeep(layout.layout);
 
-            this.isLoading = true;
-
             await this.layoutRepository.save(layout, Shopware.Context.api);
             this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
+            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
             this.applyPreviewContextDefaults();
+        },
 
-            this.createNotificationSuccess({
-                message: this.$t('sw-experience-studio.detail.messageSaved'),
-            });
+        async saveDraft(workingLayout: ContentLayoutEntity): Promise<void> {
+            // Working-tree layout data crossing an outbound boundary is cloned at the call site.
+            workingLayout.layout = cloneDeep(workingLayout.layout);
 
-            if (this.isCreateMode) {
-                void this.$router.push({
-                    name: 'sw.experience.studio.detail',
-                    params: { id: layout.id },
-                });
+            const layoutToSave = this.draftVersionId ? workingLayout : await this.createDraftFrom(workingLayout);
+
+            await this.layoutRepository.save(layoutToSave, this.versionContext);
+            this.layout = await this.layoutRepository.get(workingLayout.id, this.versionContext, new Criteria(1, 1));
+            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
+            this.applyPreviewContextDefaults();
+        },
+
+        async loadDraftCreatedAt(): Promise<void> {
+            const versionId = this.draftVersionId;
+
+            if (!versionId) {
+                return;
             }
 
-            this.isLoading = false;
+            const draft = await this.findDraft(versionId);
+
+            if (draft && this.draftVersionId === versionId) {
+                this.draftCreatedAt = draft.createdAt;
+            }
+        },
+
+        async createDraftFrom(workingLayout: ContentLayoutEntity): Promise<ContentLayoutEntity> {
+            this.applyDraftVersion(await this.draftService().createDraft(workingLayout.id));
+
+            // The working copy's change tracking is against the live version, so the edits are carried
+            // onto the freshly created draft entity instead of saving the live entity into the draft.
+            const draftLayout = await this.layoutRepository.get(workingLayout.id, this.versionContext, new Criteria(1, 1));
+
+            if (!draftLayout) {
+                throw new Error(`Draft of content_layout "${workingLayout.id}" could not be loaded.`);
+            }
+
+            draftLayout.layout = workingLayout.layout;
+            draftLayout.name = workingLayout.name;
+
+            return draftLayout;
+        },
+
+        async onPublish(): Promise<void> {
+            if (!this.layout || !this.allowSave || this.isCreateMode) {
+                return;
+            }
+
+            if (this.isDirty && !this.hasRequiredLayoutMetadata()) {
+                return;
+            }
+
+            const wasDraftMode = this.hasDraft;
+
+            if (!wasDraftMode && !this.isDirty) {
+                return;
+            }
+
+            this.isLoading = true;
+
+            try {
+                if (this.isDirty) {
+                    await this.saveDraft(this.layout);
+                }
+
+                if (!this.draftVersionId) {
+                    return;
+                }
+
+                await this.draftService().publish(this.layoutId, this.draftVersionId);
+                this.applyDraftVersion(null);
+
+                if (wasDraftMode) {
+                    await this.navigateToVersion(null);
+                    await this.reloadForVersionSwitch();
+                } else {
+                    await this.reloadPersistedLayout();
+                }
+
+                this.createNotificationSuccess({
+                    message: this.$t('sw-experience-studio.detail.messagePublished'),
+                });
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messagePublishError'),
+                });
+                this.leaveDraftCreatedFromLive();
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        onDiscardDraft(): void {
+            if (!this.draftVersionId || !this.allowSave) {
+                return;
+            }
+
+            this.showDiscardDraftModal = true;
+        },
+
+        onCloseDiscardDraftModal(): void {
+            this.showDiscardDraftModal = false;
+        },
+
+        async onConfirmDiscardDraft(): Promise<void> {
+            this.showDiscardDraftModal = false;
+
+            const versionId = this.draftVersionId;
+
+            if (!versionId) {
+                return;
+            }
+
+            this.isLoading = true;
+
+            try {
+                await this.draftService().discard(this.layoutId, versionId);
+                this.applyDraftVersion(null);
+                await this.navigateToVersion(null);
+                await this.reloadForVersionSwitch();
+
+                this.createNotificationSuccess({
+                    message: this.$t('sw-experience-studio.detail.messageDraftDiscarded'),
+                });
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageDiscardError'),
+                });
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
 });

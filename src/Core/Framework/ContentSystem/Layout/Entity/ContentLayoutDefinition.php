@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -57,6 +58,7 @@ class ContentLayoutDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(AdminApiSource::class), new PrimaryKey(), new Required()),
+            (new VersionField())->addFlags(new ApiAware(AdminApiSource::class)),
             (new StringField('name', 'name', 255))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new StringField('version', 'version', 20))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new StoredElementListField(self::LAYOUT_FIELD, self::LAYOUT_FIELD))->addFlags(new ApiAware(AdminApiSource::class), new Required()),

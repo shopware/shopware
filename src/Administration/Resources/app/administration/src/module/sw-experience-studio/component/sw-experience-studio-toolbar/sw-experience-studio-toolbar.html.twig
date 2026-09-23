@@ -21,6 +21,28 @@
                 {{ layoutName }}
             </h2>
             {% endblock %}
+
+            {% block sw_experience_studio_toolbar_version_status %}
+            <div
+                v-if="!isCreateMode"
+                class="sw-experience-studio-toolbar__version-status"
+            >
+                <mt-badge
+                    :variant="hasDraft ? 'attention' : 'positive'"
+                    size="s"
+                >
+                    {{ versionStatusLabel }}
+                </mt-badge>
+
+                <mt-badge
+                    v-if="isDirty"
+                    variant="neutral"
+                    size="s"
+                >
+                    {{ $t('sw-experience-studio.detail.toolbar.statusUnsaved') }}
+                </mt-badge>
+            </div>
+            {% endblock %}
         </div>
 
         <div class="sw-experience-studio-toolbar__history-actions">
@@ -124,14 +146,41 @@
         </div>
         {% endblock %}
 
+        {% block sw_experience_studio_toolbar_discard_draft_button %}
         <mt-button
-            variant="primary"
+            v-if="!isCreateMode && hasDraft"
+            class="sw-experience-studio-toolbar__discard-draft-button"
+            variant="critical"
+            :disabled="!allowSave || isLoading || undefined"
+            @click="onDiscard"
+        >
+            {{ $t('sw-experience-studio.detail.toolbar.discardDraft') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_experience_studio_toolbar_save_button %}
+        <mt-button
+            class="sw-experience-studio-toolbar__save-button"
+            :variant="isCreateMode ? 'primary' : 'secondary'"
             :disabled="!allowSave || isLoading || undefined"
             :is-loading="isLoading"
             @click="onSave"
         >
-            {{ $t('sw-experience-studio.detail.toolbar.save') }}
+            {{ saveLabel }}
         </mt-button>
+        {% endblock %}
+
+        {% block sw_experience_studio_toolbar_publish_button %}
+        <mt-button
+            v-if="!isCreateMode"
+            class="sw-experience-studio-toolbar__publish-button"
+            variant="primary"
+            :disabled="isPublishDisabled || undefined"
+            @click="onPublish"
+        >
+            {{ $t('sw-experience-studio.detail.toolbar.publish') }}
+        </mt-button>
+        {% endblock %}
     </div>
     {% endblock %}
 </div>

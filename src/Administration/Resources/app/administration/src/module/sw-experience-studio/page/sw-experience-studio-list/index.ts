@@ -37,12 +37,14 @@ export default Shopware.Component.wrapComponentConfig({
         isLoading: boolean;
         sortBy: string;
         sortDirection: 'ASC' | 'DESC';
+        draftsModalLayout: Entity<'content_layout'> | null;
     } {
         return {
             layouts: null,
             isLoading: false,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
+            draftsModalLayout: null,
         };
     },
 
@@ -127,6 +129,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         onChangeLanguage(): void {
             void this.getList();
+        },
+
+        onShowDrafts(layout: Entity<'content_layout'>): void {
+            this.draftsModalLayout = layout;
+        },
+
+        onCloseDraftsModal(): void {
+            this.draftsModalLayout = null;
         },
     },
 });

@@ -59,12 +59,34 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
+        isCreateMode: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        hasDraft: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isDirty: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        draftCreatedAt: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     emits: [
         'back',
         'viewport-change',
         'save',
+        'publish',
+        'discard',
         'preview-sales-channel-change',
         'preview-entity-id-change',
         'undo',
@@ -80,6 +102,30 @@ export default Shopware.Component.wrapComponentConfig({
 
         salesChannelCriteria(): CriteriaType {
             return getStorefrontSalesChannelCriteria();
+        },
+
+        saveLabel(): string {
+            return this.isCreateMode
+                ? this.$t('sw-experience-studio.detail.toolbar.save')
+                : this.$t('sw-experience-studio.detail.toolbar.saveDraft');
+        },
+
+        versionStatusLabel(): string {
+            if (!this.hasDraft) {
+                return this.$t('sw-experience-studio.detail.toolbar.statusLive');
+            }
+
+            if (!this.draftCreatedAt) {
+                return this.$t('sw-experience-studio.detail.toolbar.statusDraft');
+            }
+
+            return this.$t('sw-experience-studio.detail.toolbar.statusDraftCreatedAt', {
+                date: Shopware.Utils.format.date(this.draftCreatedAt),
+            });
+        },
+
+        isPublishDisabled(): boolean {
+            return !this.allowSave || this.isLoading || !(this.hasDraft || this.isDirty);
         },
     },
 
@@ -102,6 +148,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         onSave(): void {
             this.$emit('save');
+        },
+
+        onPublish(): void {
+            this.$emit('publish');
+        },
+
+        onDiscard(): void {
+            this.$emit('discard');
         },
 
         onUndo(): void {

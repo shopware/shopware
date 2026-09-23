@@ -14,6 +14,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutDraftController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
@@ -824,5 +825,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DraftLayoutDecoder::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
+        ]);
+
+    $services->set(ContentLayoutDraftController::class)
+        ->public()
+        ->args([
+            service(Connection::class),
+            service('content_layout.repository'),
+            service('version.repository'),
         ]);
 };

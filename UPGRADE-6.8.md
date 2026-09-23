@@ -328,7 +328,13 @@ Previously, these routes could return unrelated records or fail because the unde
 
 ## Removal of deprecated `ConfigurationService` class
 
-The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed.
+Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+
+  ## `Feature` is final
+
+`Shopware\Core\Framework\Feature` is `final` and cannot be extended.
+It is a static utility class, call its methods directly instead of subclassing it.
 
 ## `AbstractCartPersister::exists()` is abstract
 

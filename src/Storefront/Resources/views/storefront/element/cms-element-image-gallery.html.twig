@@ -240,7 +240,7 @@
                                                                                         {# A scene has no file to load from — the viewer fetches its state by id instead. #}
                                                                                         {% set spatialGalleryViewerOptions = {
                                                                                             modelUrl: image.url,
-                                                                                            sceneId: image.isSpatialScene() ? image.extensions.spatialScene.id : null,
+                                                                                            mediaId: image.isSpatialScene() ? image.id : null,
                                                                                             sliderPosition: loop.index0,
                                                                                         } %}
                                                                                         <canvas
@@ -419,7 +419,7 @@
                                                                         {# A scene has no file to load from — the viewer fetches its state by id instead. #}
                                                                         {% set spatialGalleryViewerOptions = {
                                                                             modelUrl: image.url,
-                                                                            sceneId: image.isSpatialScene() ? image.extensions.spatialScene.id : null,
+                                                                            mediaId: image.isSpatialScene() ? image.id : null,
                                                                             sliderPosition: loop.index0,
                                                                         } %}
                                                                         <canvas
@@ -818,7 +818,7 @@
                                                                                                             {# A scene has no file to load from — the viewer fetches its state by id instead. #}
                                                                                                             {% set spatialGalleryViewerOptions = {
                                                                                                                 modelUrl: image.url,
-                                                                                                                sceneId: image.isSpatialScene() ? image.extensions.spatialScene.id : null,
+                                                                                                                mediaId: image.isSpatialScene() ? image.id : null,
                                                                                                                 sliderPosition: loop.index0,
                                                                                                             } %}
                                                                                                             <canvas

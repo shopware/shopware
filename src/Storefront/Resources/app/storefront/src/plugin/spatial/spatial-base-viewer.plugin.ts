@@ -24,9 +24,12 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         modelUrl: string;
         /**
          * Set instead of `modelUrl` when the media is a spatial scene. A scene has no file to load
-         * from, its state is fetched by id and handed to DIVE as a ready-made scene.
+         * from, so its state is fetched for that media and handed to DIVE as a ready-made scene.
+         *
+         * The media carries the scene, so the media id is what identifies it here - it is available
+         * on every loaded media, which the scene entity behind it is not.
          */
-        sceneId?: string;
+        mediaId?: string;
         sliderPosition: number;
     };
 
@@ -53,8 +56,8 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.canvas.tabIndex = 0;
 
         if (this.dive == undefined) {
-            if (this.options.sceneId) {
-                const sceneState = this.options.sceneId ? await this.loadSceneState(this.options.sceneId) : null;
+            if (this.options.mediaId) {
+                const sceneState = await this.loadSceneState(this.options.mediaId);
                 if (!sceneState) return;
 
                 this.dive = await window.DIVEQuickViewPlugin.QuickView(sceneState, { autoStart: false, canvas: this.canvas });
@@ -152,12 +155,15 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
     /**
      * The storefront has no DAL access, so the scene state comes from a storefront route that
-     * serves it in DIVE's shape. Returns null when the scene is gone or the request fails, so the
-     * viewer can fall back to `modelUrl`.
+     * serves it in DIVE's shape.
+     *
+     * Returns null when the media carries no scene or the request fails. The caller then leaves the
+     * canvas empty rather than falling back to `modelUrl`, which for a scene is the still image
+     * standing in for it - not something DIVE can load.
      */
-    protected async loadSceneState(id: string): Promise<StateData | null> {
+    protected async loadSceneState(mediaId: string): Promise<StateData | null> {
         try {
-            const response = await fetch(`/spatial-scene/${encodeURIComponent(id)}/state`, {
+            const response = await fetch(`/spatial-scene/media/${encodeURIComponent(mediaId)}/state`, {
                 headers: { Accept: 'application/json' },
             });
 

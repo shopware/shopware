@@ -483,3 +483,101 @@ describe('SpatialBaseViewerPlugin animation tests', () => {
         expect(window.DIVEAnimationPlugin.AnimationSystem).toHaveBeenCalled();
     });
 });
+
+describe('SpatialBaseViewerPlugin spatial scene tests', () => {
+    const sceneState = { name: 'Living room', objects: [], lights: [] };
+
+    let canvas;
+
+    function createPlugin(options) {
+        const initSpy = jest.spyOn(SpatialBaseViewerPlugin.prototype, 'init').mockResolvedValue(undefined);
+        const plugin = new SpatialBaseViewerPlugin(canvas, options);
+        initSpy.mockRestore();
+
+        return plugin;
+    }
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div id="parentDiv">
+                <canvas id="canvasEl"></canvas>
+            </div>
+        `;
+        canvas = document.getElementById('canvasEl');
+
+        window.DIVEQuickViewPlugin = {
+            QuickView: jest.fn().mockResolvedValue({
+                model: null,
+                clock: { addTicker: jest.fn() },
+                startAsync: jest.fn(),
+                stop: jest.fn(),
+            }),
+        };
+
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            json: jest.fn().mockResolvedValue(sceneState),
+        });
+    });
+
+    afterEach(() => {
+        delete global.fetch;
+    });
+
+    test('fetches the scene state for the media and hands it to DIVE', async () => {
+        const plugin = createPlugin({ mediaId: 'the-media-id', modelUrl: 'http://test/render.png', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            '/spatial-scene/media/the-media-id/state',
+            expect.objectContaining({ headers: { Accept: 'application/json' } }),
+        );
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(
+            sceneState,
+            expect.objectContaining({ canvas }),
+        );
+    });
+
+    test('escapes the media id in the request', async () => {
+        const plugin = createPlugin({ mediaId: 'a b/c', modelUrl: '', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(global.fetch).toHaveBeenCalledWith('/spatial-scene/media/a%20b%2Fc/state', expect.anything());
+    });
+
+    test('loads the model file when the media is not a scene', async () => {
+        const plugin = createPlugin({ modelUrl: 'http://test/file.glb', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(
+            'http://test/file.glb',
+            expect.objectContaining({ canvas }),
+        );
+    });
+
+    test('leaves the canvas empty when the scene state cannot be loaded', async () => {
+        global.fetch.mockResolvedValue({ ok: false });
+
+        const plugin = createPlugin({ mediaId: 'gone', modelUrl: 'http://test/render.png', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(window.DIVEQuickViewPlugin.QuickView).not.toHaveBeenCalled();
+        expect(plugin.dive).toBeUndefined();
+    });
+
+    test('leaves the canvas empty when the request fails', async () => {
+        global.fetch.mockRejectedValue(new Error('offline'));
+
+        const plugin = createPlugin({ mediaId: 'unreachable', modelUrl: '', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(window.DIVEQuickViewPlugin.QuickView).not.toHaveBeenCalled();
+        expect(plugin.dive).toBeUndefined();
+    });
+});

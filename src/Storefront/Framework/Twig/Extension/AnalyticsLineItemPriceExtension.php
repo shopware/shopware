@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
@@ -90,17 +91,18 @@ class AnalyticsLineItemPriceExtension extends AbstractExtension
             ];
         }
 
+        $lines = $this->allocate($lines);
+        $totals = $this->roundTotals($lines, $rounding);
+
         $prices = [];
 
-        foreach ($this->allocate($lines) as $id => $line) {
-            $discounted = $line['total'] - $line['discount'];
-
+        foreach ($lines as $id => $line) {
             $prices[$id] = [
-                'price' => $this->rounding->cashRound($discounted / $line['quantity'], $rounding),
+                'price' => $this->rounding->cashRound(($line['total'] - $line['discount']) / $line['quantity'], $rounding),
                 'discount' => $this->rounding->cashRound($line['discount'] / $line['quantity'], $rounding),
                 // The rounded unit price times the quantity can miss the paid line total by a cent,
                 // 20.00 split over three units reports 6.67, so the event value uses this instead.
-                'total' => $this->rounding->cashRound($discounted, $rounding),
+                'total' => $totals[$id],
             ];
         }
 
@@ -149,6 +151,56 @@ class AnalyticsLineItemPriceExtension extends AbstractExtension
         }
 
         return $lines;
+    }
+
+    /**
+     * Rounds the discounted line totals so that they still add up to the rounded goods total.
+     *
+     * A promotion split over several lines leaves fractions on each of them, a 10.00 discount over
+     * three 10.00 lines leaves 6.666… per line, and rounding every line on its own reports 20.01.
+     * The difference to the rounded sum is corrected one rounding step at a time on the lines whose
+     * rounding moved them the furthest, the largest remainder method.
+     *
+     * @param array<string, array{total: float, quantity: int, discount: float}> $lines
+     *
+     * @return array<string, float>
+     */
+    private function roundTotals(array $lines, CashRoundingConfig $rounding): array
+    {
+        $exact = array_map(static fn (array $line) => $line['total'] - $line['discount'], $lines);
+        $totals = array_map(fn (float $total) => $this->rounding->cashRound($total, $rounding), $exact);
+
+        if ($totals === []) {
+            return [];
+        }
+
+        $step = max($rounding->getInterval(), 10 ** -$rounding->getDecimals());
+        $difference = $this->rounding->cashRound(array_sum($exact), $rounding) - array_sum($totals);
+        $steps = (int) round($difference / $step);
+
+        // lines rounded down the most are raised first, lines rounded up the most are lowered first
+        $remainders = [];
+        foreach ($exact as $id => $total) {
+            $remainders[$id] = $total - $totals[$id];
+        }
+
+        $steps > 0 ? arsort($remainders) : asort($remainders);
+
+        foreach (array_keys($remainders) as $id) {
+            if ($steps === 0) {
+                break;
+            }
+
+            $adjusted = $totals[$id] + ($steps > 0 ? $step : -$step);
+            if ($adjusted < 0.0 || $adjusted > $lines[$id]['total']) {
+                continue;
+            }
+
+            $totals[$id] = round($adjusted, $rounding->getDecimals());
+            $steps += $steps > 0 ? -1 : 1;
+        }
+
+        return $totals;
     }
 
     /**

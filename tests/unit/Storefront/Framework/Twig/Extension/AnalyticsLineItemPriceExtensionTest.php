@@ -236,6 +236,32 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
         static::assertSame(['price' => 98.0, 'discount' => 2.0, 'total' => 98.0], $prices['product-2']);
     }
 
+    /**
+     * A 10.00 discount split over three 10.00 lines leaves 6.666… on each; rounding every line on its
+     * own would report 20.01, although the customer pays 20.00 for the goods.
+     */
+    public function testLineTotalsAddUpToTheRoundedGoodsTotal(): void
+    {
+        $share = 10.0 / 3;
+
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->product('product-2', 10.0, 1),
+            $this->product('product-3', 10.0, 1),
+            $this->promotion([
+                ['id' => 'product-1', 'quantity' => 1, 'discount' => $share],
+                ['id' => 'product-2', 'quantity' => 1, 'discount' => $share],
+                ['id' => 'product-3', 'quantity' => 1, 'discount' => $share],
+            ]),
+        ]);
+
+        $totals = array_column($this->extension->getPrices($lineItems, $this->context()), 'total');
+        sort($totals);
+
+        static::assertSame([6.66, 6.67, 6.67], $totals);
+        static::assertEqualsWithDelta(20.0, array_sum($totals), 0.0001);
+    }
+
     private function context(?CashRoundingConfig $itemRounding = null): SalesChannelContext
     {
         return Generator::generateSalesChannelContext(

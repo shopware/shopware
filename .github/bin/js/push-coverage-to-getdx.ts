@@ -1,7 +1,8 @@
 /**
- * Codecov keeps aggregating a commit's flags for a while after the last shard's upload lands,
- * so its `state` is polled until `complete` before reading totals and pushing them to getDX's
- * customData.set endpoint, keyed by commit SHA.
+ * Trunk's Codecov report is normally already `complete` by the time this runs — every PR
+ * merge uploads coverage on its own, independently of this schedule. The poll is only a
+ * safety net for the rare case where the run lands right as the latest merge is still
+ * aggregating.
  */
 
 export interface CodecovCommitTotals {
@@ -37,7 +38,7 @@ export async function fetchCodecovCommit(
     return (await response.json()) as CodecovCommitResponse;
 }
 
-export const CODECOV_POLL_DELAYS_MS = [30_000, 30_000, 30_000, 60_000, 60_000, 60_000, 60_000, 60_000];
+export const CODECOV_POLL_DELAYS_MS = [10_000, 20_000, 30_000];
 
 export class CodecovReportNotReadyError extends Error {}
 

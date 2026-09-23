@@ -2,102 +2,98 @@
  * @sw-package framework
  */
 
-/**
- * Converts Shopware's native setup SFC dialect into plain Vue SFC source before Vue compilation.
- *
- * This module owns the per-file transform boundary: parse the SFC, analyze script and template
- * semantics, lower the Shopware setup block into source edits, and apply them - while leaving
- * cross-file component-name checks to the build integration. Every edit comes from lowering; nothing
- * generated is decided here.
- */
-
-import { lowerShopwareSetupBlock } from './lower';
+import MagicString, { type SourceMap } from 'magic-string';
+import { lowerBase } from './lower/base';
+import { lowerOverride } from './lower/override';
 import { analyzeShopwareSetupScript, type ShopwareSetupScriptAnalysis } from './script-analyzer';
-import { applySourceEdits, type AppliedSourceEdits } from './source-edits/apply-source-edits';
-import {
-    analyzeBaseTemplate,
-    analyzeOverrideTemplate,
-    emptyTemplateAnalysis,
-    type TemplateAnalysis,
-} from './template-analyzer';
-import { parseShopwareSetupSfc } from './sfc-parser';
-import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
+import { parseShopwareSetupSfc, type ShopwareSetupBlock } from './sfc-parser';
+import { buildSourceMap } from './sourcemap';
+import { analyzeBaseTemplate, analyzeOverrideTemplate, type TemplateAnalysis } from './template-analyzer';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 
 type ShopwareSetupTransformResult = {
     code: string;
-    map: AppliedSourceEdits['map'];
+    map: SourceMap;
     mode: 'base' | 'override';
+    /** The build integration rejects two SFCs resolving to the same name; this transform sees one file. */
     componentName: string;
     filename: string;
-    // Static names of the base `<sw-block name="...">` blocks this component owns (empty for overrides).
-    // Emitted for a later branch to build a cross-file block-ownership registry.
     ownedBlockNames: string[];
-    // Static names of the blocks this override `<sw-block extends="...">` extends (empty for base).
-    // The registry's other half, for a later branch to cross-check against the emitted ownership.
     extendedBlockNames: string[];
 };
 
-/**
- * Moves block-relative analyzer errors to the start of the original script body.
- */
-function withBlockOffset(error: unknown, block: ShopwareSetupBlock): unknown {
-    if (!(error instanceof ShopwareSetupTransformError) || error.index !== null) {
-        return error;
-    }
+type AnalyzedSfc = {
+    block: ShopwareSetupBlock;
+    script: ShopwareSetupScriptAnalysis;
+    template: TemplateAnalysis;
+};
 
-    return new ShopwareSetupTransformError(error.message, block.contentStart);
-}
-
-/**
- * Converts a Shopware setup SFC into plain Vue-compatible code before Vue compiles it.
- */
-function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): ShopwareSetupTransformResult | null {
+function analyze(source: string, filename: string): AnalyzedSfc | null {
     const block = parseShopwareSetupSfc(source, filename);
 
     if (!block) {
         return null;
     }
 
-    let analysis: ShopwareSetupScriptAnalysis;
-    let edits: ReturnType<typeof lowerShopwareSetupBlock>;
-    let templateAnalysis: TemplateAnalysis = emptyTemplateAnalysis();
+    const script = analyzeShopwareSetupScript(block.content, {
+        mode: block.mode,
+        lang: block.lang,
+        offset: block.contentStart,
+    });
+    const template = script.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, script);
 
-    try {
-        analysis = analyzeShopwareSetupScript(block.content, {
-            mode: block.mode,
-            lang: block.lang,
-            scriptOffset: block.contentStart,
-        });
-        templateAnalysis = analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, analysis);
+    return { block, script, template };
+}
 
-        edits = lowerShopwareSetupBlock(block, analysis, templateAnalysis);
-    } catch (error) {
-        throw withBlockOffset(error, block);
+/**
+ * Lowers a native setup SFC into plain Vue SFC source. Returns `null` when Vue cannot parse the SFC.
+ */
+function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): ShopwareSetupTransformResult | null {
+    const analyzed = analyze(source, filename);
+
+    if (!analyzed) {
+        return null;
     }
 
-    const transformed = applySourceEdits(source, filename, edits);
+    const { block, script, template } = analyzed;
+    const s = new MagicString(source);
+
+    if (script.mode === 'base') {
+        lowerBase(s, block, script, template);
+    } else {
+        lowerOverride(s, block, script, template);
+    }
 
     return {
-        code: transformed.code,
-        map: transformed.map,
+        code: s.toString(),
+        map: buildSourceMap(s, filename),
         mode: block.mode,
-        // Exposed so the build integration can maintain a per-compilation registry and reject two
-        // SFCs that resolve to the same extendable component name. Cross-file enforcement lives with
-        // the loader/compilation layer; this transform stays a pure per-file step.
         componentName: block.componentName,
         filename,
-        ownedBlockNames: templateAnalysis.ownedBlockNames,
-        extendedBlockNames: templateAnalysis.extendedBlockNames,
+        ownedBlockNames: template.ownedBlockNames,
+        extendedBlockNames: template.extendedBlockNames,
     };
 }
 
 /**
- * Runs the shared transform for callers that only need diagnostics.
+ * Throws the errors `transformShopwareSetupSfc` would throw, without generating code or a sourcemap.
  */
-function validateShopwareSetupSfc(source: string, filename = 'anonymous.vue'): void {
-    transformShopwareSetupSfc(source, filename);
+function analyzeShopwareSetupSfc(source: string, filename = 'anonymous.vue'): void {
+    analyze(source, filename);
 }
+
+const validateShopwareSetupSfc = analyzeShopwareSetupSfc;
+
+export {
+    COMPONENT_NAME_PATTERN,
+    OVERRIDE_LOCAL_STATE_KEY,
+    RESERVED_BINDING_PREFIX,
+    inferShopwareSetupFromFilename,
+    isDependencyFile,
+    isReservedBindingName,
+} from './naming';
+
+export type { InferredShopwareSetup, ShopwareSetupMode } from './naming';
 
 /**
  * @private
@@ -105,6 +101,7 @@ function validateShopwareSetupSfc(source: string, filename = 'anonymous.vue'): v
 export {
     type ShopwareSetupTransformResult,
     ShopwareSetupTransformError,
+    analyzeShopwareSetupSfc,
     transformShopwareSetupSfc,
     validateShopwareSetupSfc,
 };

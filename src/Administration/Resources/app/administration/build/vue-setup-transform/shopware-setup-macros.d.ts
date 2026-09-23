@@ -4,61 +4,59 @@
 
 import type { SetupContext } from 'vue';
 
+/**
+ * The previous state for `useSwPreviousState<T>()`: `T` is a component name looked up in
+ * `ComponentPublicApiMapping`, or the state shape itself.
+ */
+type SwPreviousState<T> = T extends string
+    ? T extends keyof ComponentPublicApiMapping
+        ? ComponentPublicApiMapping[T]
+        : Record<PropertyKey, any>
+    : T;
+
 declare global {
     /**
-     * Shopware setup compile-time macro for base components.
-     *
-     * Use this in `<script setup>` to declare which setup
-     * bindings are public and may be replaced by component overrides. The macro
-     * is removed by the Shopware setup transform and is never called at runtime.
-     *
-     * The same entries become the component's parent-facing surface: the
-     * transform generates the `defineExpose()` call from them, so a parent
-     * holding a template ref reads and writes exactly these bindings, next to
-     * the component's own props. Writing `defineExpose()` by hand is rejected.
-     *
-     * This macro is rejected in override components. Overrides must use
-     * `swDefineOverride()` to declare replacement bindings instead.
+     * Maps an extendable component name to the shape of its public setup state. Augment it to type
+     * `useSwPreviousState<'<name>'>()` and the runtime override APIs.
      */
-    function swDefinePublic<TPublic extends Record<PropertyKey, unknown>>(bindings: TPublic): void;
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface ComponentPublicApiMapping {}
 
     /**
-     * Shopware setup compile-time macro for override components.
+     * Compile-time macro of a base component: declares which top-level bindings are public, so
+     * overrides may replace them. The same entries become the component's exposed API for parents
+     * holding a template ref, next to its props, so writing `defineExpose()` is rejected.
      *
-     * Use this in `<script setup>` to declare which public base
-     * component bindings are replaced by this override. The macro is removed by
-     * the Shopware setup transform and is never called at runtime.
-     *
-     * This macro is rejected in base components. Base components must use
-     * `swDefinePublic()` to expose overrideable setup bindings instead.
+     * Call it once, as a statement, with shorthand entries: `swDefinePublic({ count, save })`. The
+     * transform removes the call; it is rejected in override components.
+     */
+    function swDefinePublic<TPublic extends Record<PropertyKey, unknown>>(bindings: TPublic): TPublic;
+
+    /**
+     * Compile-time macro of an override component: declares which public base bindings this override
+     * replaces. Call it once, as a statement, with shorthand entries. The transform removes the call;
+     * it is rejected in base components.
      */
     function swDefineOverride<TOverride extends Record<PropertyKey, unknown>>(bindings: TOverride): void;
 
     /**
-     * Shopware setup helper for override components.
-     *
-     * Returns the previous public setup state passed to the generated
-     * `overrideComponentSetup()` callback. This helper is injected by the
-     * transform and is only valid in override components.
+     * The state of the component being overridden, as the previous overrides left it. Pass the
+     * component name to type it through `ComponentPublicApiMapping`:
+     * `useSwPreviousState<'sw-product-detail'>()`. Override components only.
      */
     function useSwPreviousState<
-        TPreviousState extends Record<PropertyKey, any> = Record<PropertyKey, any>,
-    >(): TPreviousState;
+        T extends string | Record<PropertyKey, any> = Record<PropertyKey, any>,
+    >(): SwPreviousState<T>;
 
     /**
-     * Shopware setup helper for the current component props.
-     *
-     * Prefer Vue's `defineProps()` in new base components when possible. This
-     * helper remains available for existing Shopware setup code and is replaced
-     * by the transform with the generated setup props object.
+     * The props of the component being overridden. Override components only; base components use
+     * `defineProps()`.
      */
     function useSwProps<TProps extends Record<PropertyKey, any> = Record<PropertyKey, any>>(): TProps;
 
     /**
-     * Shopware setup helper for the current Vue setup context.
-     *
-     * The helper is injected by the transform and resolves to the generated
-     * setup context object.
+     * The setup context of the component being overridden. Override components only; base components
+     * use Vue's `useAttrs()`, `useSlots()` or `defineEmits()`.
      */
     function useSwContext<TContext = SetupContext>(): TContext;
 }

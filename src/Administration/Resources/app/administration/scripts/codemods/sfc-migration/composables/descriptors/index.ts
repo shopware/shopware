@@ -3,12 +3,7 @@
  * @private
  */
 
-/**
- * The registration point of the conversion table: every descriptor the codemod knows, in one array.
- * Each descriptor lives in descriptors/<id>.ts, named after its own `id`, so supporting another mixin
- * is one new file plus one line here — a descriptor file nothing imports here converts nothing while
- * looking supported, which is what the drift guard in mixin-composables.spec.ts fails on.
- */
+/** Every descriptor, each in `descriptors/<id>.ts`; one missing here would convert nothing. */
 
 import { type ComposableDescriptor } from '../types';
 import CMS_ELEMENT_DESCRIPTOR from './cms-element';

@@ -3,21 +3,19 @@
  */
 
 /**
- * SFC migration codemod: converts Options API components (`index.js` + `*.html.twig`) into native
- * setup SFCs (`<component-name>.vue` with `swDefinePublic`). See README.md for the CLI contract and
- * the per-outcome write rules.
+ * SFC migration codemod CLI; README.md documents the contract.
  *
- * Only a plain `Component.register` reaches the explicit replacement path. An extend child renders
- * against bindings its parent declares and an override template patches another component's markup,
- * so neither survives being written as a self-contained base SFC — and a directory no registration
- * resolves to could be either, so it gets a draft only.
+ * Only a plain `Component.register` reaches the replacement path. An extend child renders against
+ * its parent's bindings and an override patches another component's markup, so neither stands on
+ * its own — and an unregistered directory could be either, so it gets a draft only.
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { spawnSync } from 'child_process';
 import { parse } from '@babel/parser';
-import type * as t from '@babel/types';
+import { COMPONENT_NAME_PATTERN } from '../../../build/vue-setup-transform/naming';
+import { errorText, findExportDefault, packageName } from './ast';
 import { convertComponent, type ConvertResult, type Outcome } from './convert-component';
 import {
     collectComponentSourceIndex,
@@ -42,9 +40,6 @@ type MigrationResult = {
     diagnostics?: SourceDiagnostic[];
 };
 
-const errorText = (error: unknown): string => (error instanceof Error ? error.message : String(error));
-
-const KEBAB_NAME = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/;
 const ADMIN_SRC = path.resolve(__dirname, '../../../src');
 const COMPONENT_CLASSES: ComponentReport['registration'][] = [
     'register',
@@ -54,19 +49,13 @@ const COMPONENT_CLASSES: ComponentReport['registration'][] = [
     'ambiguous',
 ];
 
-const SW_PACKAGE = /@sw-package\s+(\S+)/;
 const PUBLIC_ANNOTATION = /@public\b/;
 
-/**
- * The comments attached to the default export — the component's own docblock, which is where its
- * visibility annotation lives. Reading it from anywhere else in the file picks up the `@public` on
- * a prop's or method's JSDoc and would declare a `@private` component public.
- */
+/** The component's own docblock; anywhere else, a member's `@public` would make it public. */
 function exportDocblock(originalSource: string): string {
     try {
-        const ast = parse(originalSource, { sourceType: 'module', plugins: ['typescript'] });
-        const exportDefault = ast.program.body.find(
-            (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
+        const exportDefault = findExportDefault(
+            parse(originalSource, { sourceType: 'module', plugins: ['typescript'] }).program,
         );
 
         return (exportDefault?.leadingComments ?? []).map((comment) => comment.value).join('\n');
@@ -77,16 +66,12 @@ function exportDocblock(originalSource: string): string {
 
 function buildIndexShim(originalSource: string, componentName: string): string {
     const sourceDocblock = exportDocblock(originalSource);
-    // `@sw-package` sits either in that docblock or in a file-level one above the imports, so it
-    // falls back to the whole file. Visibility never does: absent from the component's own docblock
-    // means @private.
-    const packageMatch = sourceDocblock.match(SW_PACKAGE) ?? originalSource.match(SW_PACKAGE);
-    // sw-deprecation-rules/private-feature-declarations requires a visibility annotation on the
-    // re-export; carry the original one over (components default to @private).
+    // `@sw-package` may sit in a file-level docblock; visibility defaults to @private.
+    const domain = packageName(sourceDocblock) ?? packageName(originalSource);
     const visibility = PUBLIC_ANNOTATION.test(sourceDocblock) ? '@public' : '@private';
     const docblock = [
         '/**',
-        ...(packageMatch ? [` * @sw-package ${packageMatch[1]}`, ' *'] : []),
+        ...(domain ? [` * @sw-package ${domain}`, ' *'] : []),
         ` * ${visibility}`,
         ' */',
     ].join('\n');
@@ -94,11 +79,7 @@ function buildIndexShim(originalSource: string, componentName: string): string {
     return `${docblock}\nexport { default } from './${componentName}.vue';\n`;
 }
 
-/**
- * Tells apart the three things an existing `<name>.vue` can mean, none of which is "this component
- * finished migrating" — a completed migration leaves an index.js re-export the discovery pass does
- * not recognise as a component, so it is never rediscovered.
- */
+/** A finished migration leaves a re-export discovery never finds, so a `.vue` means none of that. */
 function describeExistingSfc(vuePath: string, name: string): string {
     const existing = fs.readFileSync(vuePath, 'utf8');
 
@@ -113,15 +94,10 @@ function describeExistingSfc(vuePath: string, name: string): string {
     return `a ${name}.vue that this codemod did not generate already exists`;
 }
 
-/**
- * Ordinary writes publish only the validated Vue draft. Replacing the legacy entry point is a
- * separate explicit phase; Twig is never deleted.
- *
- * `--write` runs against a clean working tree (see `findDirtyPaths`), so `git checkout` undoes
- * everything a partial run left behind — nothing here needs its own transaction.
- */
+/** `--write` requires a clean tree, so `git checkout` undoes a partial run; no transaction needed. */
 function writeComponent(input: {
     sfc: string;
+    module: ConvertResult['module'];
     full: boolean;
     replaceOriginals: boolean;
     vuePath: string;
@@ -130,6 +106,10 @@ function writeComponent(input: {
     name: string;
 }): { ok: boolean; reasons: string[] } {
     try {
+        if (input.module) {
+            fs.writeFileSync(path.join(path.dirname(input.vuePath), input.module.fileName), input.module.source);
+        }
+
         fs.writeFileSync(input.vuePath, input.sfc);
 
         if (input.full && input.replaceOriginals) {
@@ -144,12 +124,7 @@ function writeComponent(input: {
     }
 }
 
-/**
- * Every write happens in a git working tree, so `git checkout` is the undo button — but only for a
- * tree that carried nothing else. Uncommitted work under the target would become indistinguishable
- * from what this run produced, so `--write` refuses it. Scoped to the target, and skipped entirely
- * outside a work tree, where there is nothing to protect.
- */
+/** Uncommitted work would be indistinguishable from this run's output; outside git there is none. */
 function findDirtyPaths(targetDir: string): string[] {
     const status = spawnSync(
         'git',
@@ -201,8 +176,7 @@ async function runMigration(
         inlineOverrides: index.inlineOverrides,
         diagnostics: index.diagnostics,
     };
-    // Counting here rather than at each call site makes "one report row is one stat" structural,
-    // which matters once an outcome can still change after the conversion (a failing write).
+    // One report row is one stat, also when a failing write changes the outcome afterwards.
     const report = (name: string, dir: string, outcome: Outcome, reasons: string[] = []): void => {
         const registrations = index.registrationsByDir.get(dir) ?? [];
         const registration: ComponentReport['registration'] =
@@ -221,8 +195,7 @@ async function runMigration(
         const scanDiagnostics = index.files.get(indexFile);
         const component = index.components.get(indexFile);
 
-        // Reads and stats can throw too (permissions, dangling symlinks). One unreadable component
-        // must not cost the report for every component processed after it.
+        // Reads and stats can throw too; one unreadable component must not cost the whole report.
         try {
             if (!scanDiagnostics) {
                 report(name, dir, 'error', ['source file not found']);
@@ -239,14 +212,11 @@ async function runMigration(
                 continue;
             }
 
-            // Files without a default export are registries/barrels, not components.
             if (!component) {
                 continue;
             }
 
-            // How a component is registered decides whether its template stands on its own, so this
-            // outranks every file-layout reason below. The template compiler accepts the undeclared
-            // references either kind leaves behind, so the validation gate cannot catch it either.
+            // Outranks the file-layout reasons below; the validation gate cannot catch it either.
             if (registration?.kind === 'extend') {
                 report(name, dir, 'skipped', [
                     registration.parent
@@ -285,7 +255,7 @@ async function runMigration(
                 continue;
             }
 
-            if (!KEBAB_NAME.test(name)) {
+            if (!COMPONENT_NAME_PATTERN.test(name)) {
                 report(name, dir, 'skipped', ['component name is not multi-segment kebab-case']);
                 continue;
             }
@@ -295,8 +265,7 @@ async function runMigration(
                 continue;
             }
 
-            // A name the directory does not carry is only trustworthy with a second source agreeing:
-            // the template filename, which by convention equals the registered name.
+            // A name the directory does not carry needs the template filename to agree.
             if (name !== dirName && path.basename(component.template.twigPath, '.html.twig') !== name) {
                 report(name, dir, 'skipped', ['template filename does not match the registered component name']);
                 continue;
@@ -325,13 +294,17 @@ async function runMigration(
                 continue;
             }
 
-            // A directory with no registration is draft-only. Replacement is explicitly restricted
-            // to a single plain registration, so ambiguous and extension components cannot replace
-            // an entry point.
             const outcome = converted.outcome === 'full' && registration === undefined ? 'partial' : converted.outcome;
 
             if (outcome !== converted.outcome) {
                 converted.reasons.push('no registration resolves to this directory — draft only, index.js and twig kept');
+            }
+
+            if (converted.module && fs.existsSync(path.join(dir, converted.module.fileName))) {
+                report(name, dir, 'skipped', [
+                    `${converted.module.fileName} already exists, so the module-level code has nowhere to go`,
+                ]);
+                continue;
             }
 
             if (!write || converted.sfc === null) {
@@ -341,6 +314,7 @@ async function runMigration(
 
             const written = writeComponent({
                 sfc: converted.sfc,
+                module: converted.module,
                 full: outcome === 'full',
                 replaceOriginals: replaceOriginals && registration?.kind === 'register',
                 vuePath,

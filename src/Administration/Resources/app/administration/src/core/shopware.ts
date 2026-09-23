@@ -47,10 +47,12 @@ import {
     attachOverrides,
     createExtendableSetup,
     getExposedProps,
+    getOverrideComponents,
     overrideComponentSetup,
+    registerOverrideComponent,
+    setupRuntime,
 } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
-import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
 import CUSTOMER from '../module/sw-customer/constant/sw-customer.constant';
 import FLOW from '../module/sw-flow/constant/flow.constant';
@@ -119,11 +121,6 @@ application
     });
 
 class ShopwareClass implements CustomShopwareProperties {
-    /**
-     * @private
-     */
-    static #overrideComponents: Ref<Array<DefineComponent<unknown, unknown, unknown>>> = Vue.ref([]);
-
     public Module = {
         register: ModuleFactory.registerModule,
         getModuleRegistry: ModuleFactory.getModuleRegistry,
@@ -144,29 +141,14 @@ class ShopwareClass implements CustomShopwareProperties {
         markComponentAsSync: AsyncComponentFactory.markComponentAsSync,
         isSyncComponent: AsyncComponentFactory.isSyncComponent,
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
-        createExtendableSetup: createExtendableSetup,
-        attachOverrides: attachOverrides,
-        getExposedProps: getExposedProps,
-        overrideComponentSetup: overrideComponentSetup,
-
-        /**
-         * @private
-         *
-         * Mounting hook for generated override components. An override SFC's body is what registers its
-         * callback, and a `<script setup>` body only runs when the component is instantiated - so
-         * `sw-admin` renders every registered override once, hidden, at boot. Not for author use.
-         */
-        registerOverrideComponent: (component: DefineComponent<unknown, unknown, unknown>) => {
-            ShopwareClass.#overrideComponents.value.push(component);
-        },
-        /**
-         * @private
-         *
-         * Counterpart to `registerOverrideComponent`, read by `sw-admin`'s hidden container.
-         */
-        getOverrideComponents: () => {
-            return ShopwareClass.#overrideComponents.value;
-        },
+        createExtendableSetup,
+        overrideComponentSetup,
+        __setupRuntime: setupRuntime,
+        // Names that compiled native setup SFCs used before `__setupRuntime.v1`.
+        attachOverrides,
+        getExposedProps,
+        registerOverrideComponent,
+        getOverrideComponents,
     };
 
     public Template = {

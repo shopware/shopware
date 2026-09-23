@@ -3,123 +3,57 @@
  */
 
 import type { ComponentInternalInstance } from '@vue/runtime-core';
-import { computed, isReactive, reactive, ref } from 'vue';
+import { computed, isRef, reactive, ref } from 'vue';
 import {
-    createDataScope,
-    createOverrideLocalState,
-    exposeOverrideLocalState,
-    getOverrideLocalState,
+    createLazyRefs,
     getScriptSetupDataScope,
-    isOverrideLocalStateKey,
-    mergeOverrideState,
     OVERRIDE_LOCAL_STATE_KEY,
-    setDataScopeForInstance,
+    setScriptSetupDataScope,
 } from './data-scope-helper';
-import type { OverrideLocalState } from './data-scope-helper';
 
 describe('src/app/adapter/composition-extension-system/data-scope-helper', () => {
-    it('exposes override-local state as a hidden setup-state property', () => {
-        const setupState = {
-            headline: 'Base headline',
-        };
-        const overrideLocalState = createOverrideLocalState();
-
-        exposeOverrideLocalState(setupState, overrideLocalState);
-
-        expect(Object.keys(setupState)).toEqual(['headline']);
-        expect(getOverrideLocalState(setupState)).toBe(overrideLocalState);
-        expect(isReactive(getOverrideLocalState(setupState))).toBe(true);
-    });
-
-    it('merges override-local namespaces into the same reactive state object', () => {
-        const overrideLocalState = createOverrideLocalState();
-
-        mergeOverrideState(overrideLocalState, {
-            firstOverrideFile: {
-                pluginMessage: 'First message',
-            },
-        });
-
-        mergeOverrideState(overrideLocalState, {
-            secondOverrideFile: {
-                pluginMessage: 'Second message',
-            },
-        });
-
-        expect(overrideLocalState).toEqual({
-            firstOverrideFile: {
-                pluginMessage: 'First message',
-            },
-            secondOverrideFile: {
-                pluginMessage: 'Second message',
-            },
-        });
-    });
-
-    it('creates a proxy-compatible data scope for the current component instance', () => {
-        const setupState = {
-            headline: 'Base headline',
-        };
-        const overrideLocalState = createOverrideLocalState();
+    it('stores one data scope per instance', () => {
         const instance = {} as ComponentInternalInstance;
+        const state = reactive({ headline: 'Headline' });
 
-        exposeOverrideLocalState(setupState, overrideLocalState);
-        mergeOverrideState(overrideLocalState, {
-            pluginOverrideFile: {
-                pluginMessage: 'Plugin message',
-            },
-        });
+        expect(getScriptSetupDataScope(instance)).toBeNull();
 
-        const dataScope = createDataScope(reactive(setupState));
+        setScriptSetupDataScope(instance, state);
 
-        expect(Object.keys(dataScope)).toEqual(['headline']);
-        expect(dataScope[OVERRIDE_LOCAL_STATE_KEY].value).toBe(overrideLocalState);
-
-        setDataScopeForInstance(instance, dataScope);
-
-        const registeredDataScope = getScriptSetupDataScope(instance) as {
-            headline: string;
-            [OVERRIDE_LOCAL_STATE_KEY]: OverrideLocalState;
-        };
-
-        expect(registeredDataScope.headline).toBe('Base headline');
-        expect(registeredDataScope[OVERRIDE_LOCAL_STATE_KEY].pluginOverrideFile.pluginMessage).toBe('Plugin message');
+        expect(getScriptSetupDataScope(instance)).toBe(state);
     });
 
-    it('keeps computeds lazy while building the data scope', () => {
-        const evaluate = jest.fn(() => 'Derived headline');
-        const reactiveSetupState = reactive({
-            headline: ref('Base headline'),
-            derivedHeadline: computed(evaluate),
-        });
+    it('creates lazy refs that do not evaluate computeds until they are read', () => {
+        const evaluate = jest.fn(() => 'computed');
+        const refs = createLazyRefs(reactive({ doubled: computed(evaluate) }));
 
-        const dataScope = createDataScope(reactiveSetupState);
-
-        // `toRefs()` used to read every key to test it for `isRef`, which unwrapped - and therefore ran -
-        // every computed inside `setup()`, before any lifecycle hook could initialize what it reads.
+        expect(isRef(refs.doubled)).toBe(true);
         expect(evaluate).not.toHaveBeenCalled();
 
-        expect(dataScope.derivedHeadline.value).toBe('Derived headline');
+        expect(refs.doubled.value).toBe('computed');
         expect(evaluate).toHaveBeenCalledTimes(1);
     });
 
-    it('reads and writes state through the reactive source', () => {
-        const headline = ref('Base headline');
-        const reactiveSetupState = reactive({ headline });
+    it('reads and writes through the reactive state', () => {
+        const count = ref(1);
+        const state = reactive<Record<string, unknown>>({ count });
+        const refs = createLazyRefs(state);
 
-        const dataScope = createDataScope(reactiveSetupState);
+        refs.count.value = 2;
+        expect(count.value).toBe(2);
 
-        expect(dataScope.headline.value).toBe('Base headline');
-
-        dataScope.headline.value = 'Written headline';
-        expect(headline.value).toBe('Written headline');
-
-        headline.value = 'Updated headline';
-        expect(dataScope.headline.value).toBe('Updated headline');
+        state.count = ref(10);
+        expect(refs.count.value).toBe(10);
     });
 
-    it('recognizes only the reserved override-local state key', () => {
-        expect(isOverrideLocalStateKey(OVERRIDE_LOCAL_STATE_KEY)).toBe(true);
-        expect(isOverrideLocalStateKey('headline')).toBe(false);
+    it('adds a non-enumerable ref to the override-local state', () => {
+        const overrideLocalState = reactive({});
+        const state = reactive<Record<string, unknown>>({ headline: 'Headline' });
+        Object.defineProperty(state, OVERRIDE_LOCAL_STATE_KEY, { value: overrideLocalState, enumerable: false });
+
+        const refs = createLazyRefs(state);
+
+        expect(Object.keys(refs)).toEqual(['headline']);
+        expect(refs[OVERRIDE_LOCAL_STATE_KEY].value).toBe(overrideLocalState);
     });
 });

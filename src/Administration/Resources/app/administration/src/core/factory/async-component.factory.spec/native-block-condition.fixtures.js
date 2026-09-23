@@ -28,10 +28,7 @@ export function setupComponentFactoryHooks() {
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
 
-        const entries = [...Object.keys(_overridesMap)];
-        entries.forEach((key) => {
-            delete _overridesMap[key];
-        });
+        _overridesMap.clear();
         twigBlockIndex.resetBlockIndex();
     });
 }
@@ -46,59 +43,9 @@ export function setupComponentFactoryHooks() {
 export async function mountNativeBlockComponent(componentName) {
     const swBlock = (await import('src/app/component/structure/sw-block-override/sw-block/index')).default;
     const swBlockParent = (await import('src/app/component/structure/sw-block-override/sw-block-parent/index')).default;
-    const useLegacyConditionContext = (
-        await import('src/app/component/structure/sw-block-override/shim/legacy-condition-context')
-    ).default;
-    const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
-
-    /**
-     * Scopes a test helper condition chain to the mounted component instance.
-     * Use it before forwarding mocked `$swLegacyBlock*` calls to the shared legacy condition runtime.
-     *
-     * @example
-     * getLegacyBlockConditionKey(wrapper.vm, 'sw_card:0');
-     */
-    const getLegacyBlockConditionKey = (vm, blockName) => {
-        const componentUid = vm.$?.uid;
-
-        if (typeof componentUid !== 'number') {
-            return blockName;
-        }
-
-        return `${componentUid}:${blockName}`;
-    };
-    const globalProperties = {
-        /**
-         * Starts a transformed condition chain in mounted test components.
-         * Use it when generated templates in these specs call `$swLegacyBlockIf`.
-         *
-         * @example
-         * this.$swLegacyBlockIf('sw_card:0', true, options);
-         */
-        $swLegacyBlockIf(blockName, expression, options) {
-            return legacyIf(getLegacyBlockConditionKey(this, blockName), expression, options);
-        },
-        /**
-         * Continues a transformed condition chain in mounted test components.
-         * Use it when generated templates in these specs call `$swLegacyBlockElseIf`.
-         *
-         * @example
-         * this.$swLegacyBlockElseIf('sw_card:0', false, options);
-         */
-        $swLegacyBlockElseIf(blockName, expression, options) {
-            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, options);
-        },
-        /**
-         * Finishes a transformed condition chain in mounted test components.
-         * Use it when generated templates in these specs call `$swLegacyBlockElse`.
-         *
-         * @example
-         * this.$swLegacyBlockElse('sw_card:0', options);
-         */
-        $swLegacyBlockElse(blockName, options) {
-            return legacyElse(getLegacyBlockConditionKey(this, blockName), options);
-        },
-    };
+    const { legacyBlockHelpers } = await import(
+        'src/app/component/structure/sw-block-override/shim/legacy-condition-context'
+    );
 
     return mount(await ComponentFactory.build(componentName), {
         global: {
@@ -108,7 +55,7 @@ export async function mountNativeBlockComponent(componentName) {
             },
             plugins: [createDataScopeFixture()],
             config: {
-                globalProperties,
+                globalProperties: legacyBlockHelpers,
             },
         },
     });
@@ -128,7 +75,7 @@ export function expectOnlyBranch(wrapper, branches, visibleBranch) {
 }
 
 /**
- * Waits for the extra ticks needed by legacy condition reservations and re-renders.
+ * Waits for the re-render of blocks that read condition results written by another block.
  * Use it after changing state that affects a transformed condition chain.
  *
  * @example

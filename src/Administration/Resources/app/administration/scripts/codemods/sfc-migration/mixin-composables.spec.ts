@@ -126,6 +126,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
             outcome: 'skipped',
             reasons: ["no composable registered for mixin 'sw-form-field'", "unsupported mixins entry 'swListMixin'"],
             sfc: null,
+            module: null,
         });
     });
 
@@ -198,7 +199,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
     ])('skips %s, whose mixin members the composable cannot stand in for', async (name, reason) => {
         const result = await convertFixture(name);
 
-        expect(result).toEqual({ outcome: 'skipped', reasons: [reason], sfc: null });
+        expect(result).toEqual({ outcome: 'skipped', reasons: [reason], sfc: null, module: null });
     });
 
     it('renames a composable member around a module-level binding of the same name', async () => {

@@ -14,7 +14,6 @@ import { createServer, build, defineConfig, createLogger } from 'vite';
 import path from 'path';
 import fs from 'fs';
 import colors from 'picocolors';
-import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
 import symfonyPlugin from 'vite-plugin-symfony';
 import debug from 'debug';
@@ -26,7 +25,7 @@ import AssetPathPlugin from './vite-plugins/asset-path-plugin';
 import ExternalsPlugin from './vite-plugins/externals-plugin';
 import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
 import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
+import VueSfcPlugins from './vite-plugins/vue-sfc';
 import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
 import type { ExtensionDefinition } from './vite-plugins/utils';
 import injectHtml from './vite-plugins/inject-html';
@@ -78,18 +77,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
                 root: extension.path,
                 pluginEntryFile: extension.filePath,
             }),
-            ShopwareSetupPlugin({
-                administrationRoot: path.dirname(__dirname),
-            }),
-            vue({
-                template: {
-                    compilerOptions: {
-                        compatConfig: {
-                            MODE: 2,
-                        },
-                    },
-                },
-            }),
+            ...VueSfcPlugins({ vue2TemplateCompat: true }),
             ExternalsPlugin(),
 
             // Prod plugins

@@ -2,19 +2,12 @@
  * @sw-package framework
  */
 
-/**
- * The codemod's safety gate: a generated SFC is only accepted when the real build transform lowers
- * it without complaint AND Vue's own compiler accepts the lowered output. This replaces hand-written
- * edge-case handling (e.g. v-if/v-else chains that break across block boundaries) — files the
- * toolchain would reject are reported instead of written.
- */
+/** The safety gate: the real build transform AND Vue's compiler must accept a generated SFC. */
 
-// The '.ts' specifier is required: a bare '../index' resolves to the CJS jiti bridge under Jest,
-// which bypasses the transform pipeline (see build/vue-setup-transform/index.spec/helpers.ts).
-
-import { transformShopwareSetupSfc } from '../../../build/vue-setup-transform/index.ts';
+import { transformShopwareSetupSfc } from '../../../build/vue-setup-transform';
 import { parse, compileScript, compileTemplate } from '@vue/compiler-sfc';
 import { camelize, capitalize } from 'vue';
+import { errorText } from './ast';
 // The standalone API with explicitly imported plugins is required: prettier's main entry loads its
 // implementation through dynamic import(), which Jest's CJS sandbox rejects.
 import { format } from 'prettier/standalone';
@@ -24,12 +17,9 @@ import * as prettierPluginEstree from 'prettier/plugins/estree';
 import * as prettierPluginTypescript from 'prettier/plugins/typescript';
 import * as prettierPluginPostcss from 'prettier/plugins/postcss';
 
-// Mirrors .prettierrc.js; inlined because resolving the config file would need the same dynamic
-// import() the standalone API exists to avoid. prettier-plugin-multiline-arrays is left out for
-// the same reason (it requires prettier's dynamic-import entry at load time); the project's
-// prettier check only covers .js/.ts, so generated .vue files cannot drift against it.
+// Mirrors .prettierrc.js, whose loading needs that dynamic import() too, and so does
+// prettier-plugin-multiline-arrays; the project's prettier check does not cover .vue files.
 const PRETTIER_OPTIONS: Parameters<typeof format>[1] = {
-    parser: 'vue',
     singleQuote: true,
     tabWidth: 4,
     printWidth: 125,
@@ -45,12 +35,16 @@ const PRETTIER_OPTIONS: Parameters<typeof format>[1] = {
 
 // First line only: Vue compiler errors append multi-line code frames that would flood the report.
 function errorMessage(error: unknown): string {
-    return (error instanceof Error ? error.message : String(error)).split('\n')[0].trim();
+    return errorText(error).split('\n')[0].trim();
 }
 
-/** Prettier owns all indentation of the assembled output and doubles as a syntax pre-check. */
+/** Prettier owns the indentation of the output and doubles as a syntax pre-check. */
 async function formatSfc(sfc: string): Promise<string> {
-    return format(sfc, PRETTIER_OPTIONS);
+    return format(sfc, { ...PRETTIER_OPTIONS, parser: 'vue' });
+}
+
+async function formatModule(source: string, lang: 'js' | 'ts'): Promise<string> {
+    return format(source, { ...PRETTIER_OPTIONS, parser: lang === 'ts' ? 'typescript' : 'babel' });
 }
 
 const SELF_REFERENCE_SUFFIX = '__self';
@@ -75,16 +69,23 @@ function setupBinding(name: string, bindings: Readonly<Record<string, unknown>>)
     return candidates.find((candidate) => candidate in bindings) ?? null;
 }
 
+type ImportRecord = Readonly<Record<string, { source: string }>>;
+
 /**
- * Returns the first setup binding that changes a globally resolved component tag into a setup
- * reference. Normal-script imports are the one valid case: local components stay in that script
- * during the migration and `<script setup>` intentionally exposes them to the template.
+ * An author import may provide a tag or directive: a local component the `components` option
+ * registered keeps resolving through it. A sibling-module import was a plain module binding before,
+ * which the template never saw.
  */
+function isAuthorImport(binding: string, imports: ImportRecord, moduleSpecifier: string | undefined): boolean {
+    return imports[binding] !== undefined && imports[binding].source !== moduleSpecifier;
+}
+
 function componentBindingCollision(
     unboundComponents: string[],
     boundComponents: string[],
     bindings: Readonly<Record<string, unknown>>,
-    imports: Readonly<Record<string, { isFromSetup: boolean }>>,
+    imports: ImportRecord,
+    moduleSpecifier: string | undefined,
 ): string | null {
     const remaining = new Set(boundComponents.map(componentTag));
 
@@ -101,10 +102,9 @@ function componentBindingCollision(
             continue;
         }
 
-        const imported = imports[binding];
         const isBlockRuntimeTag = tag === 'sw-block' || tag === 'sw-block-parent';
 
-        if (imported?.isFromSetup === false && !isBlockRuntimeTag) {
+        if (isAuthorImport(binding, imports, moduleSpecifier) && !isBlockRuntimeTag) {
             continue;
         }
 
@@ -114,12 +114,12 @@ function componentBindingCollision(
     return null;
 }
 
-/** Returns the first binding that changes a globally resolved directive into a setup reference. */
 function directiveBindingCollision(
     unboundDirectives: string[],
     boundDirectives: string[],
     bindings: Readonly<Record<string, unknown>>,
-    imports: Readonly<Record<string, { isFromSetup: boolean }>>,
+    imports: ImportRecord,
+    moduleSpecifier: string | undefined,
 ): string | null {
     const remaining = new Set(boundDirectives);
 
@@ -130,7 +130,7 @@ function directiveBindingCollision(
 
         const binding = setupBinding(`v-${directive}`, bindings);
 
-        if (binding === null || imports[binding]?.isFromSetup === false) {
+        if (binding === null || isAuthorImport(binding, imports, moduleSpecifier)) {
             continue;
         }
 
@@ -140,11 +140,8 @@ function directiveBindingCollision(
     return null;
 }
 
-/**
- * Returns `null` when the SFC survives the full toolchain, otherwise the first error message.
- * The filename must be the real target path — the transform infers mode and component name from it.
- */
-function validateSfc(sfc: string, vuePath: string): string | null {
+/** The first error, or `null`. `vuePath` must be the real target: the transform infers the name from it. */
+function validateSfc(sfc: string, vuePath: string, moduleSpecifier?: string): string | null {
     let lowered;
 
     try {
@@ -202,6 +199,7 @@ function validateSfc(sfc: string, vuePath: string): string | null {
             bound.ast.components,
             script.bindings ?? {},
             script.imports ?? {},
+            moduleSpecifier,
         );
 
         if (collision !== null) {
@@ -213,6 +211,7 @@ function validateSfc(sfc: string, vuePath: string): string | null {
             bound.ast.directives,
             script.bindings ?? {},
             script.imports ?? {},
+            moduleSpecifier,
         );
 
         if (directiveCollision !== null) {
@@ -223,4 +222,4 @@ function validateSfc(sfc: string, vuePath: string): string | null {
     return null;
 }
 
-export { formatSfc, validateSfc };
+export { formatModule, formatSfc, validateSfc };

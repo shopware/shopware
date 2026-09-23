@@ -2,141 +2,96 @@
  * @sw-package framework
  */
 
-/**
- * Lowers base Shopware setup scripts by keeping the author's body native and
- * appending a generated `Shopware.Component.attachOverrides(...)` footer.
- *
- * The author's code runs as plain `<script setup>` - all Vue macros stay in place, nothing is
- * hoisted, nothing is wrapped. Every top-level runtime binding is renamed to a reserved
- * `__swSetupAuthor_<name>` alias, and the footer re-declares the original names by destructuring the
- * override wrapper, so templates read overrideable state exactly like before while the body text
- * itself never moves. The footer closes with the generated `defineExpose()` that gives the props and
- * the public bindings to a parent holding a template ref.
- */
-
-import { generated } from '../source-edits/chunks';
-import type { SourceEdit } from '../source-edits/apply-source-edits';
-import { transformRanges } from '../source-edits/transform-ranges';
+import type MagicString from 'magic-string';
+import { RESERVED_BINDING_PREFIX } from '../naming';
 import type { BaseSetupScriptAnalysis } from '../script-analyzer';
+import type { ShopwareSetupBlock } from '../sfc-parser';
 import type { TemplateAnalysis } from '../template-analyzer';
-import { SHOPWARE_SETUP_INTERNAL_PREFIX } from '../script-analyzer/macros';
-import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import { escapeSingleQuoted, formatObjectProperties } from './shared';
+import { RUNTIME, formatObjectProperties, propertyKey, quote } from './shared';
 
-/**
- * The one place the base alias scheme is spelled out: an author binding `count` becomes
- * `__swSetupAuthor_count`, which the footer then re-declares under the original name.
- *
- * It builds on the reserved `__swSetup` prefix that `validation.ts` rejects for author bindings, which
- * is what makes an alias collision impossible.
- */
-function toAuthorAlias(localName: string): string {
-    return `${SHOPWARE_SETUP_INTERNAL_PREFIX}Author_${localName}`;
+const LATE = `${RESERVED_BINDING_PREFIX}Late`;
+
+function toAuthorAlias(name: string): string {
+    return `${RESERVED_BINDING_PREFIX}Author_${name}`;
 }
 
-/**
- * Renders one rename occurrence, reproducing the syntax the analyzer flagged.
- *
- * `count` -> `__swSetupAuthor_count`, `{ count }` -> `{ count: __swSetupAuthor_count }`,
- * `export type { C }` -> `export type { __swSetupAuthor_C as C }`. The two expanded forms exist because
- * the name that must survive shares its source range with the occurrence being replaced.
- */
-function toRenameReplacement(target: BaseSetupScriptAnalysis['renameTargets'][number]): string {
-    const alias = toAuthorAlias(target.localName);
-
-    if (target.expansion === 'shorthand-property') {
-        return `${target.localName}: ${alias}`;
-    }
-
-    return target.expansion === 'shorthand-export' ? `${alias} as ${target.localName}` : alias;
-}
-
-/**
- * Formats the public/private maps passed into the override wrapper, mapping each original name to
- * its renamed author binding.
- */
-function formatStateMap(names: string[], spaces: number): string {
+function formatStateMap(names: string[]): string {
     return formatObjectProperties(
-        names.map((name) => `${name}: ${toAuthorAlias(name)}`),
-        spaces,
+        names.map((name) => `${propertyKey(name)}: ${toAuthorAlias(name)}`),
+        8,
     );
 }
 
 /**
- * The generated attribute through which a base `<sw-block>` reads the data scope its overrides write.
- *
- * `$dataScope` resolves against the scope `attachOverrides()` registers for the instance; authoring the
- * attribute is rejected, so the transform owns the whole binding.
+ * Keeps the author body native. Every top-level runtime binding is renamed to its author alias, a footer
+ * re-declares the original names from the override-aware state `attach()` returns, and references that
+ * run after setup read that state through the late-binding object.
  */
-function toDataScopeEdit(at: number): SourceEdit {
-    return {
-        start: at,
-        end: at,
-        replacement: ' :data="$dataScope"',
-    };
-}
-
-/**
- * Lowers base mode into a native body plus the generated override-functionality footer.
- *
- * Edits the script content only - the author's `<script setup>` tags are left alone - plus one data-scope
- * attribute per `<sw-block>` the template analysis located.
- */
-function buildBaseScript(
+function lowerBase(
+    s: MagicString,
     block: ShopwareSetupBlock,
     analysis: BaseSetupScriptAnalysis,
-    templateAnalysis: TemplateAnalysis,
-): SourceEdit[] {
-    const publicLocalNames = new Set(analysis.publicEntries);
-    const privateNames = analysis.runtimeBindings
-        .filter((binding) => !publicLocalNames.has(binding.name))
-        .map((binding) => binding.name);
-    // Only the author's own runtime bindings are re-declared. Override-local `__swOverride` is not
-    // destructured here: a base component reaches its block data scope through the scope
-    // `attachOverrides` registers (getScriptSetupDataScope), never through a setup-return binding.
-    const destructureEntries = analysis.runtimeBindings.map((binding) => binding.name);
-
-    // Base mode drops the compile-time markers and rewrites every author binding to its alias; the body
-    // itself stays exactly where it was written.
-    const body = transformRanges(
-        block,
-        analysis.markerStatements,
-        analysis.renameTargets.map((target) => ({ ...target, replacement: toRenameReplacement(target) })),
+    template: TemplateAnalysis,
+): void {
+    const offset = block.contentStart;
+    const { marker } = analysis;
+    const publicNames = new Set(analysis.publicEntries);
+    const privateNames = analysis.runtimeBindings.filter((name) => !publicNames.has(name));
+    const targets = analysis.renameTargets.filter((target) => target.start < marker.start || target.end > marker.end);
+    const lateNames = analysis.runtimeBindings.filter((name) =>
+        targets.some((target) => target.deferred && target.localName === name),
     );
 
-    // attachOverrides() reads props from the current instance, so the footer never threads a props
-    // binding through — which also lets destructured defineProps() work (there is no props binding).
+    template.dataScopeInsertions.forEach((at) => s.appendLeft(at, ' :data="$dataScope"'));
+
+    targets.forEach((target) => {
+        const name = target.localName;
+        const replacement = target.deferred ? `${LATE}.${name}` : toAuthorAlias(name);
+
+        if (target.expansion === 'shorthand-property') {
+            s.appendLeft(offset + target.start, `${name}: `);
+        }
+
+        s.overwrite(
+            offset + target.start,
+            offset + target.end,
+            target.expansion === 'shorthand-export' ? `${replacement} as ${name}` : replacement,
+            { storeName: true },
+        );
+    });
+
+    s.remove(offset + marker.start, offset + marker.end);
+
+    const header = [`const ${RUNTIME} = globalThis.Shopware.Component.__setupRuntime.v1;`];
+
+    if (lateNames.length > 0) {
+        header.push(
+            `const ${LATE} = ${RUNTIME}.late(${formatObjectProperties(
+                lateNames.map((name) => `${propertyKey(name)}: () => ${toAuthorAlias(name)}`),
+                4,
+            )});`,
+        );
+    }
+
+    s.appendLeft(offset + analysis.bodyStart, `${header.join('\n')}\n`);
+
     const footer = [
         'const {',
-        ...destructureEntries.map((entry) => `    ${entry},`),
-        '} = Shopware.Component.attachOverrides({',
-        `    name: '${escapeSingleQuoted(block.componentName)}',`,
-        `    public: ${formatStateMap(analysis.publicEntries, 8)},`,
-        `    private: ${formatStateMap(privateNames, 8)},`,
+        ...analysis.runtimeBindings.map((name) => `    ${name},`),
+        `} = ${RUNTIME}.attach({`,
+        `    name: ${quote(block.componentName)},`,
+        `    public: ${formatStateMap(analysis.publicEntries)},`,
+        `    private: ${formatStateMap(privateNames)},`,
+        ...(lateNames.length > 0 ? [`    late: ${LATE},`] : []),
         '});',
         '',
-        // swDefinePublic() is the parent-facing surface too, so the call is generated here and authoring
-        // one is rejected. Props join it because exposing anything closes a component to everything
-        // else, and reading a prop off a ref must keep working. After the destructure, which hands out
-        // the override-aware customRefs - that is what makes a parent's `treeItem.opened = false` reach
-        // the component's own state.
-        `defineExpose(${formatObjectProperties(
-            ['...Shopware.Component.getExposedProps()', ...analysis.publicEntries],
-            4,
-        )});`,
-    ].join('\n');
-
-    return [
-        ...templateAnalysis.dataScopeInsertions.map(toDataScopeEdit),
-        {
-            start: block.contentStart,
-            end: block.contentEnd,
-            replacement: [...body, generated(`\n\n${footer}\n`)],
-        },
+        `defineExpose(${formatObjectProperties([`...${RUNTIME}.expose()`, ...analysis.publicEntries], 4)});`,
     ];
+
+    s.appendRight(block.contentEnd, `\n\n${footer.join('\n')}\n`);
 }
 
 /**
  * @private
  */
-export { buildBaseScript };
+export { lowerBase };

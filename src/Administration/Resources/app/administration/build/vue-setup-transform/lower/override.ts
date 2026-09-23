@@ -2,178 +2,128 @@
  * @sw-package framework
  */
 
-/**
- * Lowers override Shopware setup scripts into hidden components that register setup overrides.
- *
- * The generated block stays a plain `<script setup>` whose body registers the override callback: the
- * hidden component mounts once at boot (sw-admin renders all registered override components in a
- * hidden container), which runs the registration and renders the template so `<sw-block extends>`
- * content is picked up. User code is preserved inside the callback and only declared replacements
- * plus template-used private locals are returned, namespaced per file.
- *
- * The callback body is not re-indented - the transform does not beautify its output.
- */
-
-import { fromSource, generated, type SourceChunk } from '../source-edits/chunks';
-import type { SourceEdit } from '../source-edits/apply-source-edits';
+import { createHash } from 'node:crypto';
+import path from 'node:path';
+import type MagicString from 'magic-string';
+import { OVERRIDE_LOCAL_STATE_KEY, RESERVED_BINDING_PREFIX } from '../naming';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
-import type { OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
-import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import { escapeSingleQuoted } from './shared';
-import { OVERRIDE_NAMESPACE_BINDING } from '../script-analyzer/macros';
-import { transformRanges } from '../source-edits/transform-ranges';
+import type { ShopwareSetupBlock } from '../sfc-parser';
+import type { TemplateAnalysis } from '../template-analyzer';
+import { quote } from './shared';
+
+const NAMESPACE = `${RESERVED_BINDING_PREFIX}Namespace`;
+const PREVIOUS_STATE = `${RESERVED_BINDING_PREFIX}PreviousState`;
+const PROPS = `${RESERVED_BINDING_PREFIX}Props`;
+const CONTEXT = `${RESERVED_BINDING_PREFIX}Context`;
 
 /**
- * Builds the override callback payload from declared replacements and template-used private aliases.
+ * Identifies the override file across re-registrations (HMR), without leaking its path into the output.
  */
-function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePrivateBindings: Set<string>): string {
-    const privateBindings = Array.from(overridePrivateBindings);
+function fileKey(filename: string): string {
+    const file = filename.split(/[?#]/, 1)[0];
+    const relative = path.isAbsolute(file) ? path.relative(process.cwd(), file) : file;
 
+    return createHash('sha256').update(relative.replace(/\\/g, '/')).digest('hex').slice(0, 8);
+}
+
+function buildReturn(analysis: OverrideSetupScriptAnalysis, privateBindings: string[]): string {
     if (analysis.overrideEntries.length === 0 && privateBindings.length === 0) {
         return 'return {};';
     }
 
-    const lines = ['return {', ...analysis.overrideEntries.map((property) => `    ${property},`)];
+    const lines = ['return {', ...analysis.overrideEntries.map((name) => `    ${name},`)];
 
     if (privateBindings.length > 0) {
         lines.push(
-            '    __swOverride: {',
-            `        [${OVERRIDE_NAMESPACE_BINDING}]: {`,
-            ...privateBindings.map((localName) => `            ${localName},`),
+            `    ${OVERRIDE_LOCAL_STATE_KEY}: {`,
+            `        [${NAMESPACE}]: {`,
+            ...privateBindings.map((name) => `            ${name},`),
             '        },',
             '    },',
         );
     }
 
-    lines.push('};');
-
-    return lines.join('\n');
+    return [...lines, '};'].join('\n');
 }
 
 /**
- * The generated `#default` slot scope that carries override-local bindings into `<sw-block extends>`
- * content.
- *
- * Declared override bindings destructure under their own name; everything else the content reads goes
- * through the module's namespace symbol, emitted as a **computed** key so the pattern destructures by
- * that Symbol rather than by a literal name. Authoring `#default` on `<sw-block>` is rejected, so there
- * is never a user pattern to merge with.
+ * Every override local reaches the block content: public ones under their own name from the host's
+ * state, the rest under the namespace. The `= {}` defaults keep hosts without override-local state
+ * (Options API hosts, nested Twig blocks) from failing the destructure.
  */
-function toSlotScopeEdit(scope: OverrideSlotScope): SourceEdit {
-    const mappings = [
-        ...(scope.privateNames.length > 0
-            ? [`__swOverride: { [${OVERRIDE_NAMESPACE_BINDING}]: { ${scope.privateNames.join(', ')} } }`]
+function toSlotScope(publicNames: string[], privateNames: string[]): string {
+    const entries = [
+        ...(privateNames.length > 0
+            ? [`${OVERRIDE_LOCAL_STATE_KEY}: { [${NAMESPACE}]: { ${privateNames.join(', ')} } = {} } = {}`]
             : []),
-        ...scope.publicNames,
+        ...publicNames,
     ];
 
-    return {
-        start: scope.at,
-        end: scope.at,
-        replacement: ` #default="{ ${mappings.join(', ')} }"`,
-    };
+    return entries.length > 0 ? ` #default="{ ${entries.join(', ')} }"` : '';
 }
 
 /**
- * Lowers override mode into a hidden override component consumed by
- * registerOverrideComponent.
+ * Turns the author's `<script setup>` into a plain `<script>` that registers the override at module
+ * scope, and moves the body into the registered callback. What cannot live in a function (imports,
+ * `declare`, type exports) is hoisted above it.
  *
- * Emits the script content, one slot scope per `<sw-block extends>` that forwards bindings, and a
- * generated `<template>` when the override has none - the hidden component only registers its callback
- * once it mounts, and Vue warns about a component with neither template nor render function.
+ * A `<script setup>` holding only a comment follows: without one Vue would not expose the module-scope
+ * bindings (imports, the namespace symbol) to the template, and Vue drops a whitespace-only block.
  */
-function buildOverrideScript(
+function lowerOverride(
+    s: MagicString,
     block: ShopwareSetupBlock,
     analysis: OverrideSetupScriptAnalysis,
-    templateAnalysis: TemplateAnalysis,
-): SourceEdit[] {
-    // Generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they are
-    // deterministic and never collide.
-    const previousStateName = '__swSetupPreviousState';
-    const propsName = '__swSetupProps';
-    const contextName = '__swSetupContext';
-    // The author body moves into a callback, so everything that cannot live in a function body leaves it:
-    // imports are illegal there, an ambient `declare` describes a value from elsewhere, and the markers
-    // are compile-time only. Imports and type declarations are re-emitted at the script root below.
-    const callbackBody = transformRanges(block, [
-        ...analysis.imports,
-        ...analysis.typeDeclarations,
-        ...analysis.markerStatements,
-    ]);
-    const chunks: SourceChunk[] = [generated('\n')];
+    template: TemplateAnalysis,
+): void {
+    const offset = block.contentStart;
+    const bodyStart = offset + analysis.bodyStart;
+    const publicNames = new Set(analysis.overrideEntries);
+    const privateBindings =
+        template.slotScopeInsertions.length > 0
+            ? [...analysis.runtimeBindings.filter((name) => !publicNames.has(name)), ...analysis.runtimeInputAliasNames]
+            : [];
+    const tagStart = block.source.lastIndexOf('<script', block.contentStart);
+    const closingTagEnd = block.source.indexOf('>', block.contentEnd) + 1;
+    const lang = block.lang ? ` lang="${block.lang}"` : '';
 
-    analysis.imports.forEach((importBlock) => {
-        chunks.push(fromSource(block, importBlock));
-        chunks.push(generated('\n'));
-    });
-
-    if (analysis.imports.length > 0) {
-        chunks.push(generated('\n'));
+    if (!block.template) {
+        // The hidden registration component still mounts, and Vue warns about one without a template.
+        s.prepend('<template><!-- Shopware override registration component --></template>\n');
     }
 
-    const body = [
-        generated(`const useSwPreviousState = () => ${previousStateName};\n`),
-        generated(`const useSwProps = () => ${propsName};\n`),
-        generated(`const useSwContext = () => ${contextName};\n\n`),
-        ...callbackBody,
-        generated(`\n\n${buildOverrideReturn(analysis, templateAnalysis.privateBindings)}`),
-    ];
+    template.slotScopeInsertions.forEach((at) => s.appendLeft(at, toSlotScope(analysis.overrideEntries, privateBindings)));
+    s.overwrite(tagStart, block.contentStart, `<script${lang}>`);
+    s.remove(offset + analysis.marker.start, offset + analysis.marker.end);
 
-    // Only needed when this override actually forwards private locals into a <sw-block extends> scope;
-    // an override that only replaces public bindings has nothing to file under the namespace.
-    //
-    // Declared at module root, NOT inside the callback: the callback runs once per base-component
-    // instance, so a symbol created there would be a different value every time and the state lookup
-    // would never match. Module scope evaluates once, giving one stable symbol per override file - and it
-    // stays template-visible, so the generated computed key resolves.
-    if (templateAnalysis.privateBindings.size > 0) {
-        chunks.push(
-            generated(
-                `const ${OVERRIDE_NAMESPACE_BINDING} = Symbol('${escapeSingleQuoted(block.componentName)}.override');\n\n`,
-            ),
-        );
-    }
+    analysis.hoisted
+        .filter((range) => offset + range.start > bodyStart)
+        .forEach((range) => {
+            s.move(offset + range.start, offset + range.end, bodyStart);
+            s.appendLeft(offset + range.end, '\n');
+        });
 
-    analysis.typeDeclarations.forEach((typeDeclaration) => {
-        chunks.push(fromSource(block, typeDeclaration));
-        chunks.push(generated('\n'));
-    });
-
-    if (analysis.typeDeclarations.length > 0) {
-        chunks.push(generated('\n'));
-    }
-
-    chunks.push(
-        generated(
-            `Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
-        ),
-        generated('\n'),
-        ...body,
-        generated('\n});\n'),
+    s.appendRight(
+        bodyStart,
+        [
+            // Module scope, not the callback: the callback runs once per base instance, so a symbol
+            // created there would never match the one in the template.
+            ...(privateBindings.length > 0
+                ? [`const ${NAMESPACE} = Symbol(${quote(`${block.componentName}.override`)});`]
+                : []),
+            `globalThis.Shopware.Component.__setupRuntime.v1.override(${quote(block.componentName)}, ${quote(fileKey(block.filename))}, (${PREVIOUS_STATE}, ${PROPS}, ${CONTEXT}) => {`,
+            `const useSwPreviousState = () => ${PREVIOUS_STATE};`,
+            `const useSwProps = () => ${PROPS};`,
+            `const useSwContext = () => ${CONTEXT};`,
+            '',
+            '',
+        ].join('\n'),
     );
-
-    const registrationTemplate: SourceEdit[] = block.template
-        ? []
-        : [
-              {
-                  start: 0,
-                  end: 0,
-                  replacement: '<template><!-- Shopware override registration component --></template>\n',
-              },
-          ];
-
-    return [
-        ...registrationTemplate,
-        ...templateAnalysis.slotScopes.map(toSlotScopeEdit),
-        {
-            start: block.contentStart,
-            end: block.contentEnd,
-            replacement: chunks,
-        },
-    ];
+    s.appendRight(block.contentEnd, `\n\n${buildReturn(analysis, privateBindings)}\n});\n`);
+    s.appendLeft(closingTagEnd, `\n<script setup${lang}>/* exposes the module-scope bindings to the template */</script>`);
 }
 
 /**
  * @private
  */
-export { buildOverrideScript };
+export { lowerOverride };

@@ -53,12 +53,11 @@ describe('test/transformer/shopwareSetupVueTransformer integration', () => {
         const transformed = shopwareSetupVueTransformer.process(
             source,
             '/administration/src/sw-jest-transform-fixture.vue',
-            { config: {} },
-            { instrument: false },
+            { config: {}, instrument: false },
         ) as string | { code: string };
         const code = typeof transformed === 'string' ? transformed : transformed.code;
 
-        expect(code).toContain('Shopware.Component.attachOverrides(');
+        expect(code).toContain('__swSetupRuntime.attach(');
         expect(code).toContain("'sw-jest-transform-fixture'");
         expect(code).toContain('props: {');
         expect(code).toContain('emits: ["save"]');

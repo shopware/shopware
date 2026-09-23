@@ -2,21 +2,13 @@
  * @sw-package framework
  */
 
-/**
- * What does a converted template look like to this codemod? The shared `@vue/compiler-dom` entry
- * point, the `<sw-block>` shape predicate and the identifier scan of the template's expressions, so
- * every pass inspecting the generated markup agrees on what a block is, on which names the markup
- * reads, and on what happens to markup Vue cannot parse.
- */
+/** The template queries every pass shares, so they agree on what a block is and what markup reads. */
 
 import { ElementTypes, NodeTypes, isCoreComponent, parse, parserOptions } from '@vue/compiler-dom';
 import type { ElementNode, ExpressionNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
 import { camelize, capitalize } from 'vue';
 
-/**
- * Parses generated template markup, or returns `null` when Vue rejects it. Markup Vue cannot parse
- * is nothing these passes can inspect or repair; the validation gate reports it instead.
- */
+/** `null` for markup Vue rejects, which the validation gate reports instead. */
 function parseTemplate(source: string): RootNode | null {
     try {
         return parse(source, { comments: true });
@@ -30,13 +22,34 @@ function isConvertedBlock(node: ElementNode): boolean {
     return node.tag === 'sw-block' && node.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'name');
 }
 
+const DYNAMIC_SLOT = '[dynamic]';
+
+/**
+ * The non-default slot a slot directive on `node` addresses (`#footer`, `v-slot:footer`), or null. A
+ * dynamic argument cannot be proven to be the default, so it counts as named.
+ */
+function namedSlotName(node: ElementNode): string | null {
+    for (const prop of node.props) {
+        if (prop.type !== NodeTypes.DIRECTIVE || prop.name !== 'slot' || !prop.arg) {
+            continue;
+        }
+
+        if (prop.arg.type === NodeTypes.SIMPLE_EXPRESSION && prop.arg.isStatic) {
+            return prop.arg.content === 'default' ? null : prop.arg.content;
+        }
+
+        return DYNAMIC_SLOT;
+    }
+
+    return null;
+}
+
 function elementChildren(node: ElementNode): ElementNode[] {
     return node.children.filter((child): child is ElementNode => child.type === NodeTypes.ELEMENT);
 }
 
 const QUOTED_LITERAL = /'[^']*'|"[^"]*"|`[^`]*`/g;
-// Not preceded by a dot, so `entity.name` contributes `entity` but never `name`, and not by a word
-// character, so the tail of an identifier is never matched as one of its own.
+// Not after a dot (`entity.name` yields `entity` only) nor inside an identifier.
 const ROOT_IDENTIFIER = /(?<![.\w$])[A-Za-z_$][A-Za-z0-9_$]*/g;
 
 function collectExpressionIdentifiers(expression: ExpressionNode, names: Set<string>): void {
@@ -79,13 +92,9 @@ function collectNodeIdentifiers(node: RootNode | TemplateChildNode, names: Set<s
 }
 
 /**
- * Every name a converted template could resolve against a setup binding: the roots of all
- * interpolation and directive expressions.
- *
- * Deliberately an over-approximation — keywords, locals a `v-for` introduces and property names of
- * bracket access all end up in the set. It only ever decides whether a binding has to exist, or
- * whether renaming one would be visible from the template, so a name too many costs an unused
- * binding or a refusal, while a name too few would emit a template reading an undefined name.
+ * The roots of all interpolation and directive expressions. Deliberately an over-approximation
+ * (keywords, `v-for` locals): a name too many costs an unused binding or a refusal, a name too few
+ * a template reading an undefined name.
  */
 function collectTemplateIdentifiers(template: string): Set<string> {
     const names = new Set<string>();
@@ -98,12 +107,7 @@ function collectTemplateIdentifiers(template: string): Set<string> {
     return names;
 }
 
-/**
- * A tag `resolveComponentType()` settles before it ever reaches the setup bindings: `<component>`
- * and `<Component>` resolve through their `is`, and the built-ins are matched by name. Vue's own
- * predicates are used rather than a copied list, so the set cannot drift from the compiler in this
- * repo.
- */
+/** Tags `resolveComponentType()` settles before the setup bindings, by Vue's own predicates. */
 function resolvesBeforeSetupBindings(tag: string): boolean {
     return (
         tag === 'component' ||
@@ -115,11 +119,9 @@ function resolvesBeforeSetupBindings(tag: string): boolean {
 
 function collectComponentTags(node: RootNode | TemplateChildNode, names: Set<string>): void {
     if (node.type === NodeTypes.ELEMENT) {
-        // Vue only resolves a tag against setup bindings when it is not a plain HTML element, which
-        // the parser has already decided for us.
+        // A plain HTML element never resolves against setup bindings.
         if (node.tagType === ElementTypes.COMPONENT && !resolvesBeforeSetupBindings(node.tag)) {
-            // `resolveSetupReference()` tries the tag as written, then camelized, then capitalized,
-            // and takes the first binding that matches — so all three names shadow the component.
+            // `resolveSetupReference()` tries the tag as written, camelized and capitalized.
             const camelName = camelize(node.tag);
 
             names.add(node.tag);
@@ -136,16 +138,9 @@ function collectComponentTags(node: RootNode | TemplateChildNode, names: Set<str
 }
 
 /**
- * Every name a component tag the converted template renders could be shadowed by.
- *
- * A `<script setup>` template resolves a tag through `resolveSetupReference()`, which prefers a
- * setup binding named after the tag over the registered component. So a binding of that name makes
- * the tag render the binding's value — `<router-link>` next to a `routerLink` prop renders nothing
- * at all. A generated binding is renamed around the collision; a name the component itself chose
- * cannot be, so that case is refused.
- *
- * The tags `<sw-block>` and `<sw-block-parent>` the conversion emits are included like any other:
- * they resolve through the same lookup, so a component member named `swBlock` takes them over too.
+ * Every binding name that would shadow a tag the template renders: a `<script setup>` template
+ * prefers a setup binding over the registered component, so `<router-link>` next to a `routerLink`
+ * prop renders nothing. The emitted `<sw-block>` tags are included.
  */
 function collectTemplateComponentTags(template: string): Set<string> {
     const names = new Set<string>();
@@ -158,4 +153,12 @@ function collectTemplateComponentTags(template: string): Set<string> {
     return names;
 }
 
-export { parseTemplate, isConvertedBlock, elementChildren, collectTemplateIdentifiers, collectTemplateComponentTags };
+export {
+    DYNAMIC_SLOT,
+    parseTemplate,
+    isConvertedBlock,
+    namedSlotName,
+    elementChildren,
+    collectTemplateIdentifiers,
+    collectTemplateComponentTags,
+};

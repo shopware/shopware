@@ -5,28 +5,36 @@
 import { defineComponent, ref } from 'vue';
 import { mount } from '@vue/test-utils';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
-import ShopwareSetupJestTransformOverride from './_mocks_/sw-jest-transform-fixture.override.vue';
+import './_mocks_/sw-jest-transform-fixture.override.vue';
+import './_mocks_/sw-jest-late-binding-fixture.override.vue';
 import ShopwareSetupJestTransformBase from './_mocks_/sw-jest-transform-fixture.vue';
+import ShopwareSetupLateBindingBase from './_mocks_/sw-jest-late-binding-fixture.vue';
+
+const registeredOverrides = new Map(_overridesMap);
+
+function withoutOverrides(componentName: string): void {
+    _overridesMap.delete(componentName);
+}
 
 describe('test/transformer/shopwareSetupVueTransformer', () => {
-    beforeEach(() => {
-        delete _overridesMap['sw-jest-transform-fixture'];
+    afterEach(() => {
+        registeredOverrides.forEach((overrides, componentName) => {
+            _overridesMap.set(componentName, overrides);
+        });
     });
 
-    afterAll(() => {
-        delete _overridesMap['sw-jest-transform-fixture'];
+    it('registers an override when its module is imported', () => {
+        expect(registeredOverrides.get('sw-jest-transform-fixture')?.size).toBe(1);
+        expect(registeredOverrides.get('sw-jest-late-binding-fixture')?.size).toBe(1);
     });
 
     it('transforms and mounts Shopware setup Vue files through the real Jest Vue transformer', async () => {
-        mount(ShopwareSetupJestTransformOverride);
-
         const wrapper = mount(ShopwareSetupJestTransformBase, {
             props: {
                 label: 'Transformed',
             },
         });
 
-        await flushPromises();
         await wrapper.get('button').trigger('click');
 
         expect(wrapper.text()).toBe('Transformed: 2');
@@ -34,6 +42,8 @@ describe('test/transformer/shopwareSetupVueTransformer', () => {
     });
 
     it('gives a parent holding a template ref the swDefinePublic bindings and the props', async () => {
+        withoutOverrides('sw-jest-transform-fixture');
+
         const parent = defineComponent({
             components: {
                 ShopwareSetupJestTransformBase,
@@ -49,24 +59,18 @@ describe('test/transformer/shopwareSetupVueTransformer', () => {
         const wrapper = mount(parent);
         const child = wrapper.vm.$refs.child as Record<string, unknown>;
 
-        // `count` is the fixture's only swDefinePublic() entry, so it is the only setup binding a
-        // parent sees - reads are ref-unwrapped and writes reach the component's own state.
         expect(child.count).toBe(1);
 
         child.count = 5;
         await flushPromises();
 
         expect(wrapper.text()).toBe('Counter: 5');
-
-        // Props ride along with the public bindings, so lowering a component does not take away the
-        // prop reads a parent already had, and a later prop value is the one that reads back.
         expect(child.label).toBe('Counter');
 
         wrapper.vm.label = 'Renamed';
         await flushPromises();
 
         expect(child.label).toBe('Renamed');
-
         expect(child.displayedLabel).toBeUndefined();
     });
 
@@ -85,8 +89,36 @@ describe('test/transformer/shopwareSetupVueTransformer', () => {
         child.label = 'Rewritten';
 
         expect(child.label).toBe('Counter');
-        expect(warn).toHaveBeenCalledWith(expect.stringContaining('computed value is readonly'));
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('The prop "label" is exposed read-only'));
 
         warn.mockRestore();
+    });
+
+    describe('late binding of the base body', () => {
+        it('lets the base call an overridden function', async () => {
+            const wrapper = mount(ShopwareSetupLateBindingBase);
+
+            await wrapper.get('button').trigger('click');
+
+            expect(wrapper.get('.persisted').text()).toBe('override:overridden');
+        });
+
+        it('lets a base computed derive from an overridden computed', () => {
+            const wrapper = mount(ShopwareSetupLateBindingBase);
+
+            expect(wrapper.get('.label').text()).toBe('overridden');
+            expect(wrapper.get('.internal').text()).toBe('internal sees overridden');
+        });
+
+        it('keeps the base bindings when nothing overrides them', async () => {
+            withoutOverrides('sw-jest-late-binding-fixture');
+
+            const wrapper = mount(ShopwareSetupLateBindingBase);
+
+            await wrapper.get('button').trigger('click');
+
+            expect(wrapper.get('.internal').text()).toBe('internal sees base');
+            expect(wrapper.get('.persisted').text()).toBe('base:base');
+        });
     });
 });

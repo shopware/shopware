@@ -106,7 +106,6 @@ const LISTING_DESCRIPTOR: ComposableDescriptor = {
             'the initial load runs on mounted now, one hook later than the mixin loaded it',
             'route parameter handling, which the composable owns from here on',
         ],
-        forcesPartial: true,
     },
 };
 

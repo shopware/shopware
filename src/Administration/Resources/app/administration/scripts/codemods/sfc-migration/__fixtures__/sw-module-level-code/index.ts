@@ -4,7 +4,7 @@ import template from './sw-module-level-code.html.twig';
  * @sw-package framework
  */
 
-// Hoistable: imports, type-only declarations and const bindings with a pure read as initializer.
+// Only the conversion reads `Component`, so its destructure is dropped; `Criteria` moves along.
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -13,7 +13,7 @@ type Row = { id: string };
 const MAX_ROWS = 25 as number;
 const LABEL = 'sw-module-level-code';
 
-// Not hoistable: a fresh Map per component instance instead of one shared module singleton.
+// One Map per module, not per instance: this has to stay module-level code.
 const sharedCache = new Map<string, Row>();
 
 function buildCriteria(): unknown {
@@ -40,5 +40,5 @@ export default Component.wrapComponentConfig({
     },
 });
 
-// Not hoistable either: registering a listener here re-runs it on every mount.
+// Registered once per module load, not on every mount.
 Shopware.Service('loginService').addOnLoginListener(() => sharedCache.clear());

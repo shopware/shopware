@@ -1,42 +1,70 @@
-import { computed, inject } from 'vue';
-import parentsInjectionKey from '../sw-block/parents-injection-key';
+import { defineComponent, inject, provide, type InjectionKey, type PropType, type VNodeArrayChildren } from 'vue';
 import reduceToSingleRoot from '../reduce-to-single-root';
+
+/**
+ * The rendered layers of the nearest block, and the index of the layer a `<sw-block-parent>` at this position
+ * in the tree renders.
+ */
+type LayerContext = {
+    layers: () => VNodeArrayChildren[];
+    index: () => number;
+};
+
+const layerContextKey: InjectionKey<LayerContext> = Symbol('sw-block-layer');
+
+function provideLayerBelow(context: LayerContext): void {
+    provide(layerContextKey, { layers: context.layers, index: () => context.index() - 1 });
+}
+
+/**
+ * Renders the top layer of a block. Because the layers arrive as a prop, every `<sw-block-parent>` below
+ * re-renders when the block renders new layers.
+ *
+ * @private
+ */
+export const SwBlockLayers = defineComponent({
+    name: 'SwBlockLayers',
+    props: {
+        layers: {
+            type: Array as PropType<VNodeArrayChildren[]>,
+            required: true,
+        },
+    },
+    setup(props) {
+        const top = () => props.layers.length - 1;
+
+        provideLayerBelow({ layers: () => props.layers, index: top });
+
+        return () => reduceToSingleRoot(props.layers[top()]);
+    },
+});
 
 /**
  * @sw-package framework
  *
  * @description
- * The `sw-block-parent` component is used to render the parent block content. It is used in combination with the
- * `sw-block` component to extend the content of the `sw-block-extension` component.
- * See the `sw-block-extension` component for more information.
+ * Renders the layer below the `<sw-block extends>` it is placed in: the block's default content or the previous
+ * override. It finds that layer by its position in the tree, so it also works inside `v-if`, `v-for` and
+ * content that mounts later.
  *
  * @private
- *
  */
 export default Shopware.Component.wrapComponentConfig({
     setup() {
-        const parents = inject(parentsInjectionKey, null);
-        const initialParents = parents?.value;
-        const initialParent = initialParents?.pop();
-        const parentIndex = initialParents ? initialParents.length : -1;
-        // Reserve the stack slot once, then read the current VNode at that slot after reactive parent updates.
-        const parent = computed(() => {
-            if (parentIndex < 0 || !parents || parents.value === initialParents) {
-                return initialParent;
-            }
+        const context = inject(layerContextKey, null);
 
-            return parents.value[parentIndex];
-        });
+        if (context) {
+            provideLayerBelow(context);
+        }
+
+        const index = () => context?.index() ?? -1;
 
         return {
-            parent,
+            renderContent: () => (index() < 0 ? null : reduceToSingleRoot(context!.layers()[index()])),
         };
     },
-    // The parent content is returned directly instead of through a wrapping functional component:
-    // a fresh arrow function as the VNode type on every render reads to Vue as a different
-    // component and makes it unmount plus remount the content, and a functional component would
-    // additionally swallow every fallthrough attribute except class, style and listeners.
+    // The component factory only registers components with a template or a `render` option.
     render() {
-        return reduceToSingleRoot(this.parent);
+        return this.renderContent();
     },
 });

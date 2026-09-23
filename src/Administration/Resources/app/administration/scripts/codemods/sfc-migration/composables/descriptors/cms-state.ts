@@ -5,12 +5,7 @@
 
 import { type ComposableDescriptor, type ComposableMember, methodMembers, refMembers } from '../types';
 
-/**
- * The CMS editor state, which reaches a component through either of two mixins: `cms-state` itself, or
- * `cms-element`, which declared it as its own mixin. A component that names only `cms-element` still
- * read these members off its instance, so the composable behind it returns them too and its descriptor
- * repeats them here.
- */
+/** Shared with `cms-element`, which declared `cms-state` as its own mixin. */
 const CMS_STATE_MEMBERS: Record<string, ComposableMember> = {
     ...refMembers([
         'cmsPageState',

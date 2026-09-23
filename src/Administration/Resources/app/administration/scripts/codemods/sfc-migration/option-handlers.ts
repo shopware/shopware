@@ -3,31 +3,21 @@
  */
 
 /**
- * One handler per supported top-level component option. `classifyOptions()` walks the options
- * object and dispatches into OPTION_HANDLERS; everything the registry does not claim falls into the
- * tier from `OPTION_TIERS` (tables.ts) or, failing that, an unknown-option TODO. Supporting a new
- * option means adding one handler entry — the loop, the rewrite pass, and the assembly stay
- * untouched.
+ * One handler per supported top-level option. An option no handler claims falls into its
+ * `OPTION_TIERS` tier or becomes an unknown-option TODO.
  *
- * Handlers only collect: they record plain descriptors and never render, because rendering has to
- * read the MagicString after the `this` rewrite pass. `renderMember()` / `renderWatcher()` turn
- * those descriptors into source, and transform-script.ts calls them once the rewrite is done.
- *
- * A handler that does not recognize an option's shape reports its own TODO — there is no
- * fall-through return value.
- *
- * `mixins` is the one option a handler cannot finish inside the loop, because its guards need every
- * member the remaining options declare. Its handler only resolves descriptors; `resolveMixins()`
- * runs the guards and binds the members once classification is complete.
+ * Handlers only collect descriptors: rendering has to read the MagicString after the `this` rewrite.
+ * `mixins` is only resolved here, because its guards need every member the other options declare;
+ * `resolveMixins()` runs them once classification is complete.
  */
 
 import { traverseFast } from '@babel/types';
 import type * as t from '@babel/types';
+import { isReservedBindingName } from '../../../build/vue-setup-transform/naming';
 import {
     GENERATED_HELPER_NAMES,
     LIFECYCLE_HOOKS,
     OPTION_TIERS,
-    RESERVED_BINDING,
     sourceKeyed,
     type MemberKind,
     type TodoEntry,
@@ -39,14 +29,13 @@ import {
     arrowText,
     asFunction,
     bindingName,
-    collectAssignedThisMemberNames,
-    collectThisMemberNames,
     keyName,
     raw,
     report,
     reportAtDeclaration,
     reportReview,
     snip,
+    thisMemberNames,
 } from './ast';
 import {
     type ComposableDescriptor,
@@ -57,22 +46,18 @@ import {
     scaffoldRunsUnread,
 } from './composables';
 
-/** A collected `computed` / `methods` member, rendered by `renderMember()` after the rewrite pass. */
 type CollectedMember =
     | { kind: 'computed'; name: string; fn: FnLike }
     | { kind: 'method'; name: string; fn: FnLike }
     | { kind: 'writable-computed'; name: string; getFn: FnLike; setFn: FnLike };
 
-/** A collected `watch` entry, rendered by `renderWatcher()` after the rewrite pass. */
 type CollectedWatcher = { source: string; handler: FnLike | string; options: string };
 
-/** Everything the classification pass collects for the later rewrite and render steps. */
 type Collected = {
     propsNode: t.ObjectExpression | t.ArrayExpression | null;
-    /** Whether the `props` option is an object literal a mixin's own props can be merged into. */
+    /** Whether a mixin's props can be merged into the `props` literal. */
     propsMergeable: boolean;
     propNames: Set<string>;
-    /** The props the resolved mixins declared, in descriptor order. */
     providedProps: ComposableProvidedProp[];
     emitsNode: t.Node | null;
     inheritAttrs: string | null;
@@ -87,6 +72,8 @@ type Collected = {
     createdFn: FnLike | null;
     mixins: ComposableDescriptor[];
 };
+
+const ASYNC_CREATED = "async created() rejections bypass Vue's error handling";
 
 type OptionHandler = (prop: t.ObjectMethod | t.ObjectProperty, ctx: Ctx, collected: Collected) => void;
 
@@ -107,10 +94,7 @@ function memberAccess(base: string, segments: string[]): string {
     );
 }
 
-/**
- * An option a handler claims but whose shape it does not recognize. Indistinguishable from an option
- * no handler claims at all, so it is reported the same way.
- */
+/** A claimed option of an unrecognized shape reads, to the reader, like an unclaimed one. */
 function unknownOption(ctx: Ctx, name: string, prop: t.ObjectMethod | t.ObjectProperty): void {
     report(ctx, 'todo', `unknown option '${name}'`, prop);
 }
@@ -136,7 +120,6 @@ function createCollected(): Collected {
     };
 }
 
-/** Shared collector for `computed` and `methods` entries (incl. the writable-computed form). */
 function collectFnMember(
     prop: t.ObjectMethod | t.ObjectProperty | t.SpreadElement,
     ctx: Ctx,
@@ -159,7 +142,6 @@ function collectFnMember(
 
     const fn = asFunction(prop);
 
-    // Writable computed: `foo: { get() {}, set(value) {} }`.
     if (!fn && kind === 'computed' && prop.type === 'ObjectProperty' && prop.value.type === 'ObjectExpression') {
         const members = prop.value.properties;
         const getter = members.find((member) => member.type !== 'SpreadElement' && keyName(member) === 'get') as
@@ -194,7 +176,6 @@ function collectFnMember(
     bucket.push({ kind, name, fn });
 }
 
-/** The object literal a `data()` option returns directly, or null for any other shape. */
 function dataObject(prop: t.ObjectMethod | t.ObjectProperty): t.ObjectExpression | null {
     const fn = asFunction(prop);
 
@@ -230,7 +211,6 @@ function handleLifecycleHook(prop: t.ObjectMethod | t.ObjectProperty, ctx: Ctx, 
 }
 
 const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler>({
-    // The template option is replaced by the SFC's own <template> section.
     template: () => {},
 
     name: (prop, ctx) => {
@@ -252,8 +232,8 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
     },
 
     props: (prop, ctx, collected) => {
-        // Every shape below the object literal keeps its own declaration, but a mixin's props can no
-        // longer be merged into it.
+        // Any shape but a spread-free object literal keeps its declaration, but a mixin's props can
+        // no longer be merged into it.
         collected.propsMergeable = false;
 
         if (prop.type !== 'ObjectProperty') {
@@ -312,10 +292,8 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
         );
 
         if (names && names.every((injectName): injectName is string => injectName !== null)) {
-            // Vue's Options API unwraps injected refs on reads and forwards writes to `.value`.
-            // The generated binding cannot prove whether a provider returns a primitive, reactive
-            // object, or Ref, so keep the draft but make the result partial until the runtime
-            // representation is deliberately normalized and covered.
+            // The Options API unwraps an injected ref on read and forwards writes to `.value`; the
+            // setup binding cannot know whether the provider hands out a ref.
             report(ctx, 'todo', 'array inject declaration requires runtime ref-unwrapping verification', prop);
 
             for (const injectName of names) {
@@ -404,8 +382,6 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
         }
     },
 
-    // Resolution only: the guards need every member name the component declares, which the
-    // classification loop has not seen yet. resolveMixins() runs them once it has.
     mixins: (prop, ctx, collected) => {
         if (prop.type !== 'ObjectProperty' || prop.value.type !== 'ArrayExpression') {
             report(ctx, 'skip', 'unsupported mixins declaration');
@@ -438,15 +414,24 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
 
         if (!collected.createdFn) {
             report(ctx, 'todo', 'created is not a plain function', prop);
+        } else if (collected.createdFn.async) {
+            // Vue awaits a hook's promise to route its rejection; the inlined call is not a hook.
+            reportReview(
+                ctx,
+                ASYNC_CREATED,
+                'The draft runs as emitted; a rejection of the inlined created() body — check:',
+                [
+                    'no errorCaptured hook or app.config.errorHandler relies on seeing it, because it now surfaces as an unhandled rejection',
+                ],
+            );
         }
     },
 });
 
 /**
- * The registered name of one `mixins` array entry, or null for a shape no descriptor can be looked
- * up from. Both authoring forms resolve to the same lookup, because Shopware's vue adapter puts a
- * bare string through `Mixin.getByName()` itself; the callee object is not checked, so the
- * destructured `Mixin.getByName(...)` form is recognized next to `Shopware.Mixin.getByName(...)`.
+ * The registered name of one `mixins` entry. A bare string means the same as `Mixin.getByName()`,
+ * which Shopware's vue adapter calls on it; the callee object is not checked, so a destructured
+ * `Mixin` matches too.
  */
 function registeredMixinName(element: t.Node): string | null {
     if (element.type === 'StringLiteral') {
@@ -469,9 +454,8 @@ function registeredMixinName(element: t.Node): string | null {
 }
 
 /**
- * Every name the component itself puts on the instance, read off the options AST rather than off
- * `Collected`: an option entry the codemod dropped as unsupported is missing from `Collected` but
- * still shadows a mixin's member at runtime, which is exactly what the override guard asks about.
+ * Every name the component puts on the instance, read off the AST rather than `Collected`: an entry
+ * dropped as unsupported still shadows a mixin's member at runtime.
  */
 function collectOwnMemberNames(options: t.ObjectExpression): Set<string> {
     const names = new Set<string>();
@@ -522,18 +506,13 @@ function collectOwnMemberNames(options: t.ObjectExpression): Set<string> {
 
 type ResolvedComposable = {
     descriptor: ComposableDescriptor;
-    /**
-     * The members the component actually uses, in descriptor order. A renamed one carries the TODO
-     * that asks the reader to review the generated name, to be emitted above the destructure.
-     */
+    /** The members the component uses, in descriptor order; a renamed one carries its review TODO. */
     entries: { member: string; sourceKey: string; binding: string; renameTodo?: TodoEntry }[];
-    /** `key: value` texts of the options object the composable is called with. */
     args: string[];
-    /** `data()` entries routed into that options object, rendered after the rewrite pass. */
+    /** `data()` entries routed into the options object, rendered after the rewrite pass. */
     config: { key: string; valueNode: t.Node }[];
 };
 
-/** The event names an `emits` array option declares, or null for any shape that is not one. */
 function emitsEventNames(node: t.Node): string[] | null {
     if (node.type !== 'ArrayExpression') {
         return null;
@@ -545,9 +524,8 @@ function emitsEventNames(node: t.Node): string[] | null {
 }
 
 /**
- * Refuses a component that does not supply what a mixin took from its host instance. All three
- * dependencies reach the composable as call arguments, so each needs something the codemod can pass:
- * the mixin's own `props` option, its `emits` list and its overridable methods are gone afterwards.
+ * Refuses a component that does not supply what a mixin took from its host: the mixin's `props`,
+ * `emits` and overridable methods are gone afterwards, so each has to come from the component.
  */
 function refuseUnmetDependencies(
     ctx: Ctx,
@@ -575,8 +553,7 @@ function refuseUnmetDependencies(
         const kind = ctx.bindings.get(callback.name);
 
         if (kind === undefined) {
-            // Declared, but classification dropped it — a decorated method, an unsupported key. The
-            // member exists at runtime, so the composable cannot be left without it either.
+            // Declared, but classification dropped it; the member still exists at runtime.
             if (ownMembers.has(callback.name)) {
                 report(
                     ctx,
@@ -600,11 +577,7 @@ function refuseUnmetDependencies(
     }
 }
 
-/**
- * Registers the props the declared mixins brought along, so that `this.<prop>` rewrites to
- * `props.<prop>` and the propArgs check above sees them. A component prop of the same name wins,
- * mirroring Vue's option merge, and only what is left to merge can refuse the component.
- */
+/** A component prop wins over a mixin's prop of the same name, mirroring Vue's option merge. */
 function resolveProvidedProps(ctx: Ctx, collected: Collected): void {
     for (const descriptor of collected.mixins) {
         for (const provided of descriptor.providedProps ?? []) {
@@ -628,10 +601,9 @@ function resolveProvidedProps(ctx: Ctx, collected: Collected): void {
 }
 
 /**
- * Moves the `data()` entries a scaffolded mixin only takes as configuration out of the component and
- * into its composable's options object. Such an entry initialized the mixin's own state through Vue's
- * option merge, so it was never a member of its own: it stops being a local ref, its binding comes from
- * the composable instead, and it no longer counts as the component redefining a mixin member.
+ * Moves the `data()` entries that only configure a scaffolded mixin into its composable's options.
+ * Such an entry initialized the mixin's state through the option merge, so it never was a member of
+ * its own and does not count as the component redefining one.
  */
 function routeScaffoldConfig(
     collected: Collected,
@@ -663,7 +635,6 @@ function routeScaffoldConfig(
     return routed;
 }
 
-/** How one of the component's own members reaches a composable: state by value, methods by call. */
 function instanceMemberText(ctx: Ctx, member: string, kind: MemberKind): string {
     const binding = bindingName(ctx, member);
 
@@ -681,17 +652,12 @@ function instanceMemberText(ctx: Ctx, member: string, kind: MemberKind): string 
     }
 }
 
-/**
- * The options object a composable is called with. Every argument defers the read: the call sits above
- * the member sections it points at, so an eager reference would hit their temporal dead zone.
- */
+/** Every argument defers its read: the call sits above the members it points at (TDZ). */
 function composableArguments(ctx: Ctx, descriptor: ComposableDescriptor): string[] {
     const args: string[] = [];
 
     for (const [callbackName, event] of Object.entries(descriptor.emits ?? {})) {
         ctx.helpers.add('emit');
-        // The payload travels through untouched, so the descriptor does not have to know the arity of
-        // each event.
         args.push(`${callbackName}: (...args) => emit('${event}', ...args)`);
     }
 
@@ -711,19 +677,13 @@ function composableArguments(ctx: Ctx, descriptor: ComposableDescriptor): string
     return args;
 }
 
-/** True when the script or the template reads at least one member the descriptor answers. */
 function readsAnyMember(descriptor: ComposableDescriptor, readMembers: ReadonlySet<string>): boolean {
     return Object.keys(descriptor.members).some((member) => readMembers.has(member));
 }
 
-/**
- * A setup binding name for a composable member. A name another declaration already claims — a
- * module-level prelude binding, a generated helper, another mixin's member — is disambiguated with a
- * `$n` suffix rather than downgrading the migration; `ctx.renamedBindings` carries the rename into
- * the `this.<member>` rewrite.
- */
+/** A claimed name gets a `$n` suffix; `ctx.renamedBindings` carries it into the `this.` rewrite. */
 function freeBindingName(member: string, claimed: ReadonlySet<string>): string {
-    if (!claimed.has(member) && !RESERVED_BINDING.test(member)) {
+    if (!claimed.has(member) && !isReservedBindingName(member)) {
         return member;
     }
 
@@ -736,11 +696,7 @@ function freeBindingName(member: string, claimed: ReadonlySet<string>): string {
     }
 }
 
-/**
- * Leaves a generated binding name up for review. The rename is what keeps the component migratable,
- * but a generated name is nobody's choice and it costs the member its place in `swDefinePublic`, so
- * the draft says so where the name is introduced.
- */
+/** A generated name costs the member its place in `swDefinePublic`, so it is left up for review. */
 function noteBindingRename(ctx: Ctx, member: string, binding: string): TodoEntry {
     return reportAtDeclaration(
         ctx,
@@ -749,11 +705,7 @@ function noteBindingRename(ctx: Ctx, member: string, binding: string): TodoEntry
     );
 }
 
-/**
- * Keeps a scaffolded component a draft. Wiring up an abstract controller is mechanical, but whether the
- * result still behaves the same is not something the codemod can answer, so it says so in the output
- * and the outcome follows from there being a TODO at all.
- */
+/** Wiring up a controller mixin is mechanical, proving it equivalent is not, so it stays a draft. */
 function noteScaffoldReview(
     ctx: Ctx,
     descriptor: ComposableDescriptor,
@@ -776,38 +728,28 @@ function noteScaffoldReview(
 }
 
 /**
- * Turns the resolved mixin descriptors into setup bindings, or refuses the component.
+ * Turns the resolved mixin descriptors into setup bindings, or refuses the component as a whole, so
+ * no component gets half of its mixins converted.
  *
- * Runs between classification and the rewrite pass: it needs the component's complete member set to
- * check the guards, and the rewrite pass needs its bindings registered. Refusing comes first and as a
- * whole, so a component that fails one guard never gets half of its mixins converted.
- *
- * Only members the script or the template actually reads are bound. A member the template alone reads
- * still counts — the template cannot be rewritten, so its binding has to exist under that exact name.
- * A descriptor nothing reads is dropped: its composable only provides members, so calling it for its
- * side effects is not a thing the mixin did either, and its instance dependencies go unasked for. A
- * scaffold that drove a member of its host is the exception, because its side effects are the point:
- * it owns the lifecycle that called it.
+ * Only members the script or the template reads are bound; the template cannot be rewritten, so its
+ * names stay exact. A descriptor nothing reads is dropped, except a scaffold that drives a member of
+ * its host: it owns the lifecycle that calls it.
  */
 function resolveMixins(
     ctx: Ctx,
     collected: Collected,
     options: t.ObjectExpression,
-    preludeBindings: ReadonlySet<string>,
+    outerNames: ReadonlySet<string>,
 ): ResolvedComposable[] {
     if (collected.mixins.length === 0) {
         return [];
     }
 
     const ownMembers = collectOwnMemberNames(options);
-    const readMembers = new Set<string>(ctx.templateIdentifiers);
-    const assignedMembers = new Set<string>();
+    const readMembers = new Set<string>([...ctx.templateIdentifiers, ...thisMemberNames(options)]);
+    const assignedMembers = thisMemberNames(options, { assigned: true });
 
-    collectThisMemberNames(options, readMembers);
-    collectAssignedThisMemberNames(options, assignedMembers);
-
-    // A watch entry names its source as a string instead of reaching for it through `this`, but the
-    // watcher reads that member all the same and needs a binding for it.
+    // A watch key names its source as a string, but the watcher reads that member all the same.
     for (const { key } of collected.watchEntries) {
         readMembers.add(key.split('.')[0]);
     }
@@ -833,16 +775,13 @@ function resolveMixins(
         }
 
         for (const [member, spec] of Object.entries(descriptor.members)) {
-            // A leaf override would work under Vue's merge rules — the component's member simply wins —
-            // but after the migration the composable binding and the component's own binding would
-            // share one name, so the component keeps the Options API instead.
+            // Vue's merge would let the component's member win; as setup bindings the two would
+            // share one name.
             if (ownMembers.has(member) && !internal.includes(member)) {
                 report(ctx, 'skip', `component redefines '${member}' from the '${descriptor.id}' mixin`);
             }
 
-            // A destructured member is a `const`. Reactive state still takes `x.value = …`; anything
-            // else was a method or a plain value on the instance proxy, where the write has no
-            // equivalent — the mixin's own copy would keep being the one that runs.
+            // A destructured member is a `const`: only a ref still takes the write.
             if (spec.kind !== 'ref' && assignedMembers.has(member)) {
                 report(
                     ctx,
@@ -872,7 +811,7 @@ function resolveMixins(
     }
 
     const claimed = new Set<string>([
-        ...preludeBindings,
+        ...outerNames,
         ...GENERATED_HELPER_NAMES,
         // A binding named after a component tag would be resolved instead of the component.
         ...ctx.templateComponentTags,
@@ -917,7 +856,6 @@ function resolveMixins(
     return resolved;
 }
 
-/** Classifies every top-level option into the collected state or a report. */
 function classifyOptions(ctx: Ctx, options: t.ObjectExpression): Collected {
     const collected = createCollected();
 
@@ -959,10 +897,7 @@ function classifyOptions(ctx: Ctx, options: t.ObjectExpression): Collected {
     return collected;
 }
 
-/**
- * Collects the `watch(...)` descriptors. Runs after classification because the sources need the
- * complete binding map, and before the rewrite pass because it contributes handlers to it.
- */
+/** Runs after classification (sources need the binding map) and before the rewrite (handlers). */
 function collectWatchers(ctx: Ctx, collected: Collected): CollectedWatcher[] {
     const watchers: CollectedWatcher[] = [];
 
@@ -1043,7 +978,7 @@ function collectWatchers(ctx: Ctx, collected: Collected): CollectedWatcher[] {
     return watchers;
 }
 
-/** Render phase — only valid once the `this` rewrite has run over the MagicString. */
+/** Render phase: only valid once the `this` rewrite has run. */
 function renderMember(ctx: Ctx, member: CollectedMember): string {
     if (member.kind === 'writable-computed') {
         return (
@@ -1061,7 +996,6 @@ function renderMember(ctx: Ctx, member: CollectedMember): string {
     return `const ${member.name} = ${arrowText(ctx, member.fn)};`;
 }
 
-/** Render phase — only valid once the `this` rewrite has run over the MagicString. */
 function renderWatcher(ctx: Ctx, watcher: CollectedWatcher): string {
     const handler = typeof watcher.handler === 'string' ? watcher.handler : arrowText(ctx, watcher.handler);
 
@@ -1069,6 +1003,7 @@ function renderWatcher(ctx: Ctx, watcher: CollectedWatcher): string {
 }
 
 export {
+    ASYNC_CREATED,
     type Collected,
     type CollectedMember,
     type CollectedWatcher,

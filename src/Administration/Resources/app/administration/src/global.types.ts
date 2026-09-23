@@ -541,7 +541,10 @@ interface CustomProperties extends ServiceContainer {
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $sanitize: (dirtyHtml: string, config?: Record<string, unknown>) => string;
-    $dataScope: ComponentInternalInstance['proxy'];
+    /**
+     * The reactive setup state of a native setup component, or the instance proxy of any other component.
+     */
+    $dataScope: Record<string, unknown> | ComponentInternalInstance['proxy'];
     /**
      * Starts a generated legacy block condition chain on the current Vue component instance.
      * Use it only from transformed `v-if` code emitted by the legacy block condition rewrite.

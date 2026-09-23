@@ -2,6 +2,7 @@
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-already-multi-root 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
   "sfc": "<template>
@@ -26,6 +27,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-block-demo 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
   "sfc": "<!-- Legacy twig comment, becomes an HTML comment -->
@@ -54,6 +56,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-block-named-slot 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
   "sfc": "<template>
@@ -83,6 +86,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-created-pattern 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
   "sfc": "<template>
@@ -115,6 +119,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-cross-velse 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "the twig blocks make the component multi-root, so callers lose the attributes they pass and \`$el\` is no longer an element",
@@ -146,6 +151,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-emits-inferred 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
   "sfc": "<template>
@@ -179,6 +185,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-instance-api 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
   "sfc": "<template>
@@ -242,18 +249,13 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-legacy-i18n 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "this.$t(key, locale) is left as authored and does not run in setup",
     "this.$tc(key, choice, values) is left as authored and does not run in setup",
   ],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_legacy_i18n">
         <div class="sw-legacy-i18n">
             <h2>{{ title }} / {{ fallbackTitle }}</h2>
@@ -263,6 +265,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -331,8 +337,11 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-lifecycle-demo 1`] = `
 {
-  "outcome": "full",
-  "reasons": [],
+  "module": null,
+  "outcome": "partial",
+  "reasons": [
+    "async created() rejections bypass Vue's error handling",
+  ],
   "sfc": "<template>
     <sw-block name="sw_lifecycle_demo">
         <ul class="sw-lifecycle-demo">
@@ -342,6 +351,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+// TODO(sfc-migration) VERIFY: async created() rejections bypass Vue's error handling
+// The draft runs as emitted; a rejection of the inlined created() body — check:
+// - no errorCaptured hook or app.config.errorHandler relies on seeing it, because it now surfaces as an unhandled rejection
+
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const fetchEntries = async function () {
@@ -375,15 +388,10 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-callback 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_callback">
         <div class="sw-mixin-callback">
             <sw-media-media-item
@@ -399,6 +407,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import { computed } from 'vue';
 import useMediaGridListener from 'src/app/composables/use-media-grid-listener';
 
@@ -441,15 +453,10 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-callback-method 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_callback_method">
         <div class="sw-mixin-callback-method">
             <mt-datepicker v-if="isBetween" v-model:value="betweenValue.from" />
@@ -459,6 +466,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import useRuleBetweenOperator from 'src/app/composables/use-rule-between-operator';
 
 const props = defineProps({
@@ -492,6 +503,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-callback-not-method 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "'ensureValueExist' is not a method, but the 'rule-between-operator' composable calls it",
@@ -502,17 +514,12 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-cms-element-scaffold 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "useCmsElementDeprecated() replaces the 'cms-element' mixin",
   ],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_cms_element_scaffold">
         <div class="sw-mixin-cms-element-scaffold" :class="{ 'is--disabled': disabled }">
             <p class="sw-mixin-cms-element-scaffold__demo">{{ demoValue }}</p>
@@ -527,6 +534,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 // TODO(sfc-migration) VERIFY: useCmsElementDeprecated() replaces the 'cms-element' mixin
 // Nothing is missing from the draft; what the codemod cannot decide is whether it behaves the same — check:
 // - the config writes still reach the element object itself, which is the slot the cmsPage store shares with the rest of the editor
@@ -614,6 +625,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-cms-element-service 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "'cmsService' is read but the 'cms-element' composable does not provide it",
@@ -624,26 +636,24 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-collision 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "'salutation' was renamed to 'salutation$1' — its name is already taken by another binding",
   ],
-  "sfc": "<script data-sfc-migration-module>
-import { salutation } from './salutation.helper';
-
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_collision">
         <p class="sw-mixin-collision">{{ shortLabel() }} / {{ fullLabel() }}</p>
     </sw-block>
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import useSalutation from 'src/app/composables/use-salutation';
+import { salutation } from './salutation.helper';
 
 const props = defineProps({
     customer: {
@@ -677,15 +687,10 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-composable 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_composable">
         <div class="sw-mixin-composable">
             <!-- \`salutation\` is used here only — the composable still has to be declared for it. -->
@@ -697,6 +702,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import useNotification from 'src/app/composables/use-notification';
 import useSalutation from 'src/app/composables/use-salutation';
 
@@ -726,6 +735,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-demo 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "no composable registered for mixin 'sw-form-field'",
@@ -737,15 +747,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-emits 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_emits">
         <div class="sw-mixin-emits">
             <button class="sw-mixin-emits__delete" @click="openModalDelete">Delete</button>
@@ -757,6 +762,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import useMediaSidebarModal from 'src/app/composables/use-media-sidebar-modal';
 
 const props = defineProps({
@@ -791,15 +800,10 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-emits-declared 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_emits_declared">
         <div class="sw-mixin-emits-declared">
             <button class="sw-mixin-emits-declared__delete" @click="openModalDelete">Delete</button>
@@ -810,6 +814,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import useMediaSidebarModal from 'src/app/composables/use-media-sidebar-modal';
 
 const props = defineProps({
@@ -850,6 +858,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-emits-object 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "emits is not a plain list of event names, so the 'media-sidebar-modal' mixin's events cannot be merged",
@@ -860,6 +869,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-internal-override 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "component redefines 'createNotification', which the 'notification' composable calls internally",
@@ -870,6 +880,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-listing-no-get-list 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "component does not define 'getList', which the 'listing' composable calls",
@@ -880,19 +891,26 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-listing-scaffold 1`] = `
 {
+  "module": {
+    "fileName": "sw-mixin-listing-scaffold.module.js",
+    "source": "/**
+ * @sw-package framework
+ */
+
+const { Criteria } = Shopware.Data;
+
+/**
+ * @private
+ */
+export { Criteria };
+",
+  },
   "outcome": "partial",
   "reasons": [
     "array inject declaration requires runtime ref-unwrapping verification",
     "useListing() replaces the 'listing' mixin",
   ],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-const { Criteria } = Shopware.Data;
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_listing_scaffold">
         <div class="sw-mixin-listing-scaffold">
             <sw-entity-listing
@@ -916,6 +934,10 @@ const { Criteria } = Shopware.Data;
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 // TODO(sfc-migration) VERIFY: useListing() replaces the 'listing' mixin
 // Nothing is missing from the draft; what the codemod cannot decide is whether it behaves the same — check:
 // - getList() is passed to useListing() and still resolves everything it reads and writes
@@ -925,6 +947,7 @@ const { Criteria } = Shopware.Data;
 
 import { ref, computed, inject } from 'vue';
 import useListing from 'src/app/composables/use-listing';
+import { Criteria } from './sw-mixin-listing-scaffold.module';
 
 const repositoryFactory = inject('repositoryFactory');
 
@@ -1025,6 +1048,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-listing-wrapped-get-list 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "'getList' is declared in a shape that cannot be handed to the 'listing' composable",
@@ -1035,6 +1059,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-member-assign 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "'handleMediaItemClicked' is assigned to, but the 'media-grid-listener' composable returns it as a constant",
@@ -1045,6 +1070,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-missing-callback 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "component does not define 'selectableItems', which the 'media-grid-listener' composable calls",
@@ -1055,6 +1081,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-missing-prop 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "component does not declare the 'item' prop the 'video-cover' mixin reads",
@@ -1065,6 +1092,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-override 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "component redefines 'createNotificationSuccess' from the 'notification' mixin",
@@ -1075,15 +1103,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-prop-getter 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_prop_getter">
         <div class="sw-mixin-prop-getter">
             <button class="sw-mixin-prop-getter__select" :disabled="hasVideoCover" @click="onSelect">Set cover</button>
@@ -1094,6 +1117,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import useVideoCover from 'src/app/composables/use-video-cover';
 
 const props = defineProps({
@@ -1125,6 +1152,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-props-spread 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "props are not a plain object literal, so the 'validation' mixin's props cannot be merged",
@@ -1135,15 +1163,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-provided-props 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_provided_props">
         <div class="sw-mixin-provided-props" :class="containerRowClass">
             <span class="sw-mixin-provided-props__label">{{ entity.name }}</span>
@@ -1156,6 +1179,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import useRuleContainer from 'src/app/composables/use-rule-container';
 
 const props = defineProps({
@@ -1214,21 +1241,20 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-string-form 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_mixin_string_form">
         <p class="sw-mixin-string-form">{{ formatName() }} / {{ formatRaw() }}</p>
     </sw-block>
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import { ref, computed } from 'vue';
 import useSalutation from 'src/app/composables/use-salutation';
 
@@ -1266,6 +1292,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-template-collision 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "'salutation' is read in the template and its binding name is already taken",
@@ -1276,6 +1303,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-mixin-unmapped 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "'salutationFilter' is read but the 'salutation' composable does not provide it",
@@ -1286,15 +1314,12 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-module-level-code 1`] = `
 {
-  "outcome": "full",
-  "reasons": [],
-  "sfc": "<script data-sfc-migration-module lang="ts">
-/**
+  "module": {
+    "fileName": "sw-module-level-code.module.ts",
+    "source": "/**
  * @sw-package framework
  */
 
-// Hoistable: imports, type-only declarations and const bindings with a pure read as initializer.
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 type Row = { id: string };
@@ -1302,25 +1327,37 @@ type Row = { id: string };
 const MAX_ROWS = 25 as number;
 const LABEL = 'sw-module-level-code';
 
-// Not hoistable: a fresh Map per component instance instead of one shared module singleton.
+// One Map per module, not per instance: this has to stay module-level code.
 const sharedCache = new Map<string, Row>();
 
 function buildCriteria(): unknown {
     return new Criteria(1, MAX_ROWS);
 }
 
-// Not hoistable either: registering a listener here re-runs it on every mount.
+// Registered once per module load, not on every mount.
 Shopware.Service('loginService').addOnLoginListener(() => sharedCache.clear());
-</script>
 
-<template>
+/**
+ * @private
+ */
+export { LABEL, sharedCache, buildCriteria, type Row };
+",
+  },
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
     <sw-block name="sw_module_level_code">
         <div class="sw-module-level-code">{{ label }}</div>
     </sw-block>
 </template>
 
 <script setup lang="ts">
+/**
+ * @sw-package framework
+ */
+
 import { ref } from 'vue';
+import { LABEL, sharedCache, buildCriteria, type Row } from './sw-module-level-code.module';
 
 const cache = function (): Map<string, Row> {
     return sharedCache;
@@ -1344,6 +1381,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-name-mismatch 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "name 'sw-totally-different' does not match the directory name",
@@ -1354,17 +1392,12 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-object-prototype-member 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "unmapped this.hasOwnProperty",
   ],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_object_prototype_member">
         <div class="sw-object-prototype-member">
             {{ mapped }}
@@ -1373,6 +1406,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import { ref, computed } from 'vue';
 
 const readOwn = function (key) {
@@ -1403,6 +1440,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-partial-todos 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "unsupported inject declaration (only the array form is migrated)",
@@ -1460,6 +1498,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-ref-tag-collision 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "template ref 'swSelectResultList' shadows a component tag the template renders",
@@ -1470,6 +1509,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-root-comment 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
   "sfc": "<!-- @deprecated tag:v6.8.0 - Will be removed, use mt-thing instead -->
@@ -1494,6 +1534,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-shadowed-locals 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "this.currentPage is shadowed by a local binding",
@@ -1634,17 +1675,12 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-simple-card 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "array inject declaration requires runtime ref-unwrapping verification",
   ],
-  "sfc": "<script data-sfc-migration-module>
-/**
- * @sw-package framework
- */
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_simple_card">
         <div class="sw-simple-card">
             <sw-block name="sw_simple_card_header">
@@ -1661,6 +1697,10 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
+/**
+ * @sw-package framework
+ */
+
 import { ref, computed, inject } from 'vue';
 
 const repositoryFactory = inject('repositoryFactory');
@@ -1717,6 +1757,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-slot-in-child 1`] = `
 {
+  "module": null,
   "outcome": "full",
   "reasons": [],
   "sfc": "<template>
@@ -1744,6 +1785,7 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-super-demo 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "this.$super",
@@ -1754,6 +1796,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-tag-collision 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "binding 'routerLink' shadows a component tag the template renders",
@@ -1764,6 +1807,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-twig-parent 1`] = `
 {
+  "module": null,
   "outcome": "skipped",
   "reasons": [
     "{% parent %} needs override output (the codemod only writes base components)",
@@ -1774,6 +1818,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-watcher-demo 1`] = `
 {
+  "module": null,
   "outcome": "partial",
   "reasons": [
     "watch source '$route' has exact $route semantics that need runtime verification",
@@ -1833,29 +1878,38 @@ swDefinePublic({
 
 exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-wrap-config 1`] = `
 {
+  "module": {
+    "fileName": "sw-wrap-config.module.ts",
+    "source": "/**
+ * @sw-package framework
+ */
+
+const { Criteria } = Shopware.Data;
+
+/**
+ * @private
+ */
+export { Criteria };
+",
+  },
   "outcome": "partial",
   "reasons": [
     "array inject declaration requires runtime ref-unwrapping verification",
   ],
-  "sfc": "<script data-sfc-migration-module lang="ts">
-import './sw-wrap-config.scss';
-
-/**
- * @sw-package framework
- */
-
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
-</script>
-
-<template>
+  "sfc": "<template>
     <sw-block name="sw_wrap_config">
         <div class="sw-wrap-config"></div>
     </sw-block>
 </template>
 
 <script setup lang="ts">
+/**
+ * @sw-package framework
+ */
+
 import { computed, inject } from 'vue';
+import './sw-wrap-config.scss';
+import { Criteria } from './sw-wrap-config.module';
 
 const repositoryFactory = inject('repositoryFactory');
 

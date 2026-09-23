@@ -188,6 +188,7 @@ Shopware.Component.override('sw-product-detail', {
 
 > **Experimental** — available behind feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`, stable in v6.8.0.
 > See [04-composition-extension-system.md](./04-composition-extension-system.md) for the full technical reference.
+> `createExtendableSetup()` and `overrideComponentSetup()` are `@private` since 6.8: prefer native setup SFCs ([07-native-setup-authoring.md](./07-native-setup-authoring.md)), which compile to these calls. The examples below show the underlying mechanism.
 
 Components migrated to Composition API expose a typed public API that extensions can override with full type safety. There are two roles: **component author** (uses `createExtendableSetup`) and **plugin author** (uses `overrideComponentSetup`).
 
@@ -235,7 +236,7 @@ export default {
 
 Rules for `createExtendableSetup`:
 - The `originalSetup` callback **must** return `{ public?, private? }` — at least one is required.
-- Props must **not** be returned from the setup callback (enforced with a console error).
+- A setup binding must **not** share its name with a prop (throws in development).
 - `public` properties form the override API; `private` properties are accessible in overrides via `previousState._private`.
 
 #### Plugin Author: Overriding Component Setup
@@ -272,10 +273,8 @@ Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, p
     const cursor = previousState._private.internalCursor;
 
     return {
-        columns,          // replaces the existing ref (2-way sync for plain refs)
+        columns,          // replaces the existing binding
         loadData,         // replaces the existing function
-        customFilters,    // new ref added to component state
-        isCustomMode,     // new ref added to component state
     };
 });
 ```
@@ -284,20 +283,21 @@ Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, p
 
 | Return value | Behavior |
 |---|---|
-| Plain `ref` (non-computed) | 2-way synced with the existing ref in the component state |
-| `readonly` computed ref | Replaces the existing property directly |
-| Writable computed ref | Wrapped in a new computed with getter + setter |
-| `reactive` object | Merged into the existing reactive object (must preserve all existing keys) |
-| `function` | Replaces the existing method directly |
+| Plain `ref` replacing a writable ref | 2-way synced with the existing ref, which stays in the component state |
+| Any non-ref value (primitive, object, function) replacing a writable ref | Assigned to the existing ref's `.value` |
+| A `computed`, readonly or custom ref | Replaces the existing binding |
+| Any value replacing a binding that is not a writable ref (function, readonly computed, `reactive` object, …) | Replaces the existing binding. A `reactive` object is replaced, not merged; development builds warn about missing nested keys |
 
-Returning a prop key in the override result logs a console error and the value is ignored.
+Returning a prop key in the override result logs a console error and the value is ignored. Returning a key the component does not provide adds it and logs a development warning; keep helper state such as `customFilters` local to the override instead. An override that throws is reported through Vue's error handler, and the other overrides still apply.
+
+All overrides are applied once, synchronously, while the component is set up: Composition API overrides first, in registration order, then Options API overrides. Register them from your plugin's entry file, before the Administration mounts.
 
 #### Options API Backward-Compatibility Shim
 
 When a plugin overrides a Composition API component using old-style Options API patterns (e.g. `data`, `methods`, `computed`, `watch`, mixins, or lifecycle hooks), the administration **automatically activates a compatibility shim** instead of throwing an error. A deprecation warning is logged to the browser console.
 
 **Shim activation** — the shim is enabled when the override config contains any of:
-`data`, `methods`, `computed`, `watch`, `mixins`, `inject`, `extends`, or any lifecycle hook name.
+`data`, `methods`, `computed`, `watch`, `mixins`, `inject`, `extends`, or any lifecycle hook name. Each override is converted once per component and then runs inside the component's `setup()` with the real instance, so `this.$t`, `inject` and every lifecycle hook work.
 
 **Supported Options API features:**
 
@@ -312,10 +312,11 @@ When a plugin overrides a Composition API component using old-style Options API 
 | Lifecycle hooks | `beforeCreate`, `created`, `beforeMount`, `mounted`, `beforeUpdate`, `updated`, `beforeUnmount`, `unmounted`, `activated`, `deactivated`, `errorCaptured` |
 
 **`this` proxy resolution order** inside shim methods/computed/watchers:
-1. Local state (`data`, `computed`, `methods` from the override itself)
-2. Injected values (`inject`)
-3. Props
-4. `previousState` (the component's existing Composition API state)
+1. `$super`, and `$`-prefixed instance properties (`$t`, `$emit`, `$router`, …)
+2. Local state (`data`, `computed`, `methods` from the override itself)
+3. Injected values (`inject`)
+4. Props
+5. `previousState` (the component's existing Composition API state)
 
 `this.$super('methodName', ...args)` calls the method on `previousState`. For computed refs, `$super` unwraps the ref value.
 
@@ -330,10 +331,6 @@ When a plugin overrides a Composition API component using old-style Options API 
 | `inheritAttrs`, `emits` | `console.warn` | These are component-level declarations that affect how Vue compiles and validates the component. They cannot be changed at override time without re-compiling the component. |
 | `render()` | `console.error` — component will not work correctly | A custom render function completely replaces the compiled template. The shim cannot reconcile a custom render function with the existing Composition API template, so the component will break. |
 | Dot-notation `watch` paths (e.g. `'a.b.c'`) | `console.warn` — watcher is skipped | Resolving nested reactive paths requires deep traversal of the Composition API state graph, which adds significant complexity for a pattern that is rarely used in plugins or core code. |
-
-**Lifecycle hooks applied late** (overrides registered after `setup()` has already returned):
-- `beforeCreate`, `created`, `beforeMount`, `mounted` — called immediately
-- `beforeUnmount`, `unmounted`, and other future hooks — cannot be registered; a warning is logged
 
 #### Migration Guide: Options API Override → `overrideComponentSetup`
 
@@ -372,7 +369,8 @@ Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState) =
         isCustomMode.value = true;
     };
 
-    return { isCustomMode, columns, loadData };
+    // isCustomMode stays local: the component has no such binding to replace
+    return { columns, loadData };
 });
 ```
 

@@ -67,30 +67,11 @@ import {
 } from '@shopware-ag/meteor-component-library';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
-import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
-import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
+import { legacyBlockHelpers } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
 const { Component, State, Mixin } = Shopware;
-const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
-
-/**
- * Scopes a transformed block condition chain to the current Vue component instance.
- * Use it before delegating generated `$swLegacyBlock*` calls to the shared legacy condition runtime.
- *
- * @example
- * getLegacyBlockConditionKey(instance, 'sw_product_detail_base:0');
- */
-function getLegacyBlockConditionKey(instance: ComponentPublicInstance, chainKey: string): string {
-    const componentUid = instance.$?.uid;
-
-    if (typeof componentUid !== 'number') {
-        return chainKey;
-    }
-
-    return `${componentUid}:${chainKey}`;
-}
 
 type RouteGuardName = 'beforeRouteEnter' | 'beforeRouteLeave' | 'beforeRouteUpdate';
 type RouteGuard = (
@@ -204,64 +185,12 @@ export default class VueAdapter extends ViewAdapter {
             }
         };
 
-        // This is a hack for providing the data scope to the components.
+        // A getter, because the data scope belongs to the instance that is rendering.
         Object.defineProperty(this.app.config.globalProperties, '$dataScope', {
             get: getBlockDataScope,
             enumerable: true,
         });
-        /**
-         * Starts a transformed legacy block condition chain for the current component instance.
-         * Use it only from compiled templates produced by `transform-legacy-block-conditionals`.
-         *
-         * @example
-         * this.$swLegacyBlockIf('sw_card:0', isVisible, {
-         *     segmentCaseIndex: 0,
-         *     renderOrderSegment: 'defaultSlot',
-         * });
-         */
-        this.app.config.globalProperties.$swLegacyBlockIf = function legacyBlockIf(
-            this: ComponentPublicInstance,
-            chainKey: string,
-            expression: unknown,
-            options: LegacyConditionCaseOptions,
-        ): boolean {
-            return legacyIf(getLegacyBlockConditionKey(this, chainKey), expression, options);
-        };
-        /**
-         * Continues a transformed legacy block condition chain for the current component instance.
-         * Use it only from generated replacements for `v-else-if` in legacy-aware block templates.
-         *
-         * @example
-         * this.$swLegacyBlockElseIf('sw_card:0', hasFallback, {
-         *     segmentCaseIndex: 1,
-         *     renderOrderSegment: 'shimExtension',
-         * });
-         */
-        this.app.config.globalProperties.$swLegacyBlockElseIf = function legacyBlockElseIf(
-            this: ComponentPublicInstance,
-            chainKey: string,
-            expression: unknown,
-            options: LegacyConditionCaseOptions,
-        ): boolean {
-            return legacyElseIf(getLegacyBlockConditionKey(this, chainKey), expression, options);
-        };
-        /**
-         * Finishes a transformed legacy block condition chain for the current component instance.
-         * Use it only from generated replacements for `v-else` in legacy-aware block templates.
-         *
-         * @example
-         * this.$swLegacyBlockElse('sw_card:0', {
-         *     segmentCaseIndex: 2,
-         *     renderOrderSegment: 'nativeExtension',
-         * });
-         */
-        this.app.config.globalProperties.$swLegacyBlockElse = function legacyBlockElse(
-            this: ComponentPublicInstance,
-            chainKey: string,
-            options: LegacyConditionCaseOptions,
-        ): boolean {
-            return legacyElse(getLegacyBlockConditionKey(this, chainKey), options);
-        };
+        Object.assign(this.app.config.globalProperties, legacyBlockHelpers);
 
         /**
          * This is a hack for providing the services to the components.

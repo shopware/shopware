@@ -236,6 +236,7 @@ const config: Config = {
         '<rootDir>/build/vue-setup-transform/**/*.spec.ts',
         '<rootDir>/test/_helper_/**/*.spec.ts',
         '<rootDir>/test/_setup/**/*.spec.ts',
+        '<rootDir>/test/transformer/**/*.spec.js',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
     ],

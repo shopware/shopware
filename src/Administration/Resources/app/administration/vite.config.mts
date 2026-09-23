@@ -6,7 +6,6 @@ import { defineConfig, loadEnv } from 'vite';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgLoader from 'vite-svg-loader';
-import vue from '@vitejs/plugin-vue';
 import * as path from 'path';
 import * as fs from 'fs';
 import symfonyPlugin from 'vite-plugin-symfony';
@@ -17,7 +16,7 @@ import AssetPlugin from './build/vite-plugins/asset-plugin';
 import AssetPathPlugin from './build/vite-plugins/asset-path-plugin';
 import ImageDeprecationPlugin from './build/vite-plugins/image-deprecation';
 import AssetCssPostprocessPlugin from './build/vite-plugins/asset-css-postprocess-plugin';
-import ShopwareSetupPlugin from './build/vite-plugins/shopware-setup';
+import VueSfcPlugins from './build/vite-plugins/vue-sfc';
 
 console.log(colors.yellow('# Compiling Administration with Vite configuration'));
 
@@ -101,9 +100,6 @@ export default defineConfig(({ command }) => {
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
-                ShopwareSetupPlugin({
-                    administrationRoot: __dirname,
-                }),
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({
@@ -114,7 +110,7 @@ export default defineConfig(({ command }) => {
                     ],
                 }),
                 svgLoader(),
-                vue(),
+                ...VueSfcPlugins(),
             ];
 
             if (isDev) {

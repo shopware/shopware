@@ -72,6 +72,36 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
+### Native setup overrides apply synchronously and reach the base component's own functions
+
+These changes affect the experimental native setup SFCs (`ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`):
+
+* All overrides of a component are applied once, synchronously, while the component is set up: Composition API overrides first, then Options API overrides. An override registered after an instance was set up only affects instances set up later.
+* An `.override.vue` file registers its override when it is imported, not when its hidden component mounts.
+* A function in a base component now calls the override-aware binding: in `function save() { persist(); }`, an override's `persist()` runs. Code that runs during setup, such as `watch(count, …)`, still reads the component's own binding.
+* Top-level `let` and `var` bindings in a base component are rejected at build time. Declare them with `const` and keep mutable state in a ref, for example `const count = ref(0)`.
+* A setup binding that shares its name with a prop throws in development, instead of being removed from the state with a console error.
+* An override key the base component does not provide logs a warning in development.
+* `Shopware` and `__proto__` are allowed as binding names.
+* `useSwPreviousState<'sw-my-component'>()` is typed through `ComponentPublicApiMapping`, and `swDefinePublic()` returns the type of its argument.
+
+Bundles built before keep working, because the runtime still provides the entry points they call. Rebuild your extension to get the build-time changes. Generated code now calls the versioned, private `Shopware.Component.__setupRuntime.v1`, so later bundles are insulated from runtime changes.
+
+### Composition API override results are merged by simpler rules
+
+For `Shopware.Component.overrideComponentSetup()`, `createExtendableSetup()` and native setup overrides:
+
+* A plain `ref` that replaces a writable ref stays two-way synced with it. Any other value, including a string or number, is written into an existing writable ref, or replaces the binding otherwise. Returning a primitive no longer logs an error.
+* A returned `reactive` object replaces the existing one instead of being merged into it with `Object.assign`. Return every key you want to keep; in development a warning names the first missing nested key.
+* An override that throws is reported through Vue's error handler, and the other overrides of the component still apply.
+* Options API overrides (`Shopware.Component.override()`) of such components are converted once per component and run inside its `setup()` with the real instance, so `this.$t`, `this.$emit`, `inject` and every lifecycle hook, including `beforeUnmount` and `unmounted`, work.
+
+### SFC migration codemod writes module-level code into a sibling module
+
+`codemod:sfc-migration` now moves module-level code other than imports into a sibling `<component-name>.module.{js,ts}` that the generated SFC imports. The build no longer accepts a `<script data-sfc-migration-module>` block next to `<script setup>`; move its content into such a module in drafts you created earlier. A component that reassigns a module-level `let` is skipped.
+
+The `codemod:twig-remove-blocks` npm script was removed. `codemod:sfc-migration` converts Twig blocks to `<sw-block>` as part of the migration.
+
 ## Storefront
 
 ### Separate legal guarantee notice
@@ -1324,7 +1354,7 @@ A few things to know before you start:
 * **An override only works when the base component is itself native-setup.** `sw-my-component.override.vue` extends a base declared with `swDefinePublic()`; it cannot override a component registered through the component factory (Twig / Options API). The base must be authored as a native-setup SFC for `useSwPreviousState()` and the override to resolve.
 * **The API is experimental until 6.8.0.** It is marked `@experimental stableVersion:v6.8.0` and may still change.
 
-Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation, and `build/vue-setup-transform/templates/custom-plugin-workspace` contains ESLint and TypeScript templates to copy into `custom/` for local plugin development. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
+Rejections surface in your editor as well as in the build: the `valid-shopware-setup` ESLint rule runs the same validation. Run `composer admin:setup-extension-tooling` to set up ESLint and TypeScript for your extensions. Full authoring reference: `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md`.
 
 ### SFC migration codemod now emits native setup components
 

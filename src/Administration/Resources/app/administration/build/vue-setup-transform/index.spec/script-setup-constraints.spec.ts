@@ -4,11 +4,16 @@
 
 /**
  * Covers constraints on the `<script setup>` body itself, independent of any specific macro:
- * top-level await, ES module exports, the reserved `__swSetup` binding prefix, and ambient
- * `declare` hoisting.
+ * top-level await, ES module exports, reserved names, and ambient `declare` statements.
  */
 
-import { expectVueCompilerScriptToCompile, stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
+import {
+    expectVueCompilerScriptToCompile,
+    expectVueCompilerScriptToReject,
+    stripIndent,
+    transformOrFail,
+    transformShopwareSetupSfc,
+} from './helpers';
 
 describe('build/vue-setup-transform script setup constraints', () => {
     it('rejects top-level await', () => {
@@ -23,14 +28,29 @@ describe('build/vue-setup-transform script setup constraints', () => {
         );
     });
 
-    it('rejects ES module exports like native script setup', () => {
+    it('leaves ES module exports of a base component to Vue, which rejects them', () => {
         const source = stripIndent`
             <script setup>
-            export const count = 1;
+            export const exported = 1;
+            const count = 1;
+            swDefinePublic({ count });
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'export.vue')).toThrow(
+        const result = transformOrFail(source, 'export.vue').code;
+
+        expectVueCompilerScriptToReject(result, 'export.vue', '<script setup> cannot contain ES module exports');
+    });
+
+    it('rejects ES module exports of an override, whose body moves into a callback', () => {
+        const source = stripIndent`
+            <script setup>
+            export const exported = 1;
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformShopwareSetupSfc(source, 'export.override.vue')).toThrow(
             '<script setup> cannot contain ES module exports.',
         );
     });
@@ -97,7 +117,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
         );
     });
 
-    it('rejects a `__proto__` binding that the generated state map would silently drop', () => {
+    it('supports a `__proto__` binding through a computed key in the generated state map', () => {
         const source = stripIndent`
             <script setup>
             const __proto__ = 7;
@@ -105,11 +125,12 @@ describe('build/vue-setup-transform script setup constraints', () => {
             </script>
         `;
 
-        // `__proto__: alias` is prototype-setter syntax, not an own key, so the footer would read the
-        // prototype instead of the value. Reject rather than silently corrupt.
-        expect(() => transformShopwareSetupSfc(source, 'proto.vue')).toThrow(
-            '"__proto__" cannot be a Shopware setup binding',
-        );
+        const result = transformOrFail(source, 'proto.vue').code;
+
+        // `__proto__: alias` would set the prototype instead of an own key.
+        expect(result).toContain('["__proto__"]: __swSetupAuthor___proto__,');
+        expect(result).not.toMatch(/[^"]__proto__: /);
+        expectVueCompilerScriptToCompile(result, 'proto.vue');
     });
 
     it('keeps ambient declare declarations in place without collecting them as state', () => {
@@ -126,7 +147,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
         // Ambient declarations describe runtime values provided from elsewhere: they are not runtime
         // bindings, so they are neither renamed nor collected as returned setup state.
         expect(result).toContain('declare const injected: number;');
-        expect(result.indexOf('declare const injected')).toBeLessThan(result.indexOf('attachOverrides('));
+        expect(result.indexOf('declare const injected')).toBeLessThan(result.indexOf('__swSetupRuntime.attach('));
         expect(result).toContain('const __swSetupAuthor_count = injected + 1;');
         expect(result).not.toMatch(/\n\s*injected,/);
     });
@@ -148,9 +169,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
         expect(result).toContain('export type PublicCount = number;');
         // The interface member key is a type-space name and must survive the runtime rename untouched.
         expect(result).toContain('count: number;');
-        expect(result.indexOf('export interface PublicShape')).toBeLessThan(
-            result.indexOf('Shopware.Component.attachOverrides('),
-        );
+        expect(result.indexOf('export interface PublicShape')).toBeLessThan(result.indexOf('__swSetupRuntime.attach('));
         expectVueCompilerScriptToCompile(result, 'type-only-export.vue');
     });
 
@@ -170,34 +189,23 @@ describe('build/vue-setup-transform script setup constraints', () => {
         const result = transformOrFail(source, 'ambient-module-export.vue').code;
 
         expect(result).toContain("declare module 'vue' {");
-        expect(result.indexOf("declare module 'vue'")).toBeLessThan(result.indexOf('Shopware.Component.attachOverrides('));
+        expect(result.indexOf("declare module 'vue'")).toBeLessThan(result.indexOf('__swSetupRuntime.attach('));
     });
 
-    it('still rejects a value-carrying named export', () => {
-        const source = stripIndent`
-            <script setup lang="ts">
-            export const count = 1;
-            swDefinePublic({ count });
-            </script>
-        `;
-
-        expect(() => transformShopwareSetupSfc(source, 'value-export.vue')).toThrow(
-            '<script setup> cannot contain ES module exports.',
-        );
-    });
-
-    it('rejects a top-level binding named Shopware that would shadow the runtime global', () => {
+    it('allows a top-level binding named Shopware, since generated code reads globalThis.Shopware', () => {
         const source = stripIndent`
             <script setup>
             const Shopware = { custom: true };
             const count = Shopware.custom;
-            swDefinePublic({ count });
+            swDefinePublic({ count, Shopware });
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'reserved-shopware.vue')).toThrow(
-            '"Shopware" is reserved by the Shopware setup transform',
-        );
+        const result = transformOrFail(source, 'shopware-binding.vue').code;
+
+        expect(result).toContain('const __swSetupRuntime = globalThis.Shopware.Component.__setupRuntime.v1;');
+        expect(result).toContain('const __swSetupAuthor_count = __swSetupAuthor_Shopware.custom;');
+        expectVueCompilerScriptToCompile(result, 'shopware-binding.vue');
     });
 
     it('rejects an unsupported script lang', () => {
@@ -222,7 +230,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
 
         const result = transformOrFail(source, 'tsx-lang.vue').code;
 
-        expect(result).toContain('Shopware.Component.attachOverrides(');
+        expect(result).toContain('__swSetupRuntime.attach(');
     });
 
     it('reports transform errors at the offending author source offset', () => {
@@ -244,8 +252,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
 
         const error = thrown as { name: string; index: number; endIndex: number };
 
-        // The absolute SFC offset must land on the offending `await`, not at 0 (block-relative) or the
-        // block start - this is the contract index.ts's withBlockOffset() exists to preserve.
+        // The absolute SFC offset must land on the offending `await`, not at 0 or the block start.
         expect(error.name).toBe('ShopwareSetupTransformError');
         expect(source.slice(error.index, error.index + 'await'.length)).toBe('await');
         // The error also carries the full node range (endIndex), so ESLint can underline the whole
@@ -257,7 +264,7 @@ describe('build/vue-setup-transform script setup constraints', () => {
         const source = stripIndent`
             <template><div /></template>
             <script setup>
-            const Shopware = { custom: true };
+            const __swOverride = { custom: true };
             swDefinePublic({});
             </script>
         `;
@@ -274,6 +281,6 @@ describe('build/vue-setup-transform script setup constraints', () => {
 
         expect(error.name).toBe('ShopwareSetupTransformError');
         // The range spans the offending binding identifier, not just its first character.
-        expect(source.slice(error.index, error.endIndex)).toBe('Shopware');
+        expect(source.slice(error.index, error.endIndex)).toBe('__swOverride');
     });
 });

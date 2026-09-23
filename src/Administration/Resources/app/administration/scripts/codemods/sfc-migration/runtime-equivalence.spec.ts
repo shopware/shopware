@@ -4,7 +4,7 @@
 
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { ref } from 'vue';
-import type { VueWrapper } from '@vue/test-utils';
+import { config, type VueWrapper } from '@vue/test-utils';
 import {
     CLASS_THIS_FIXTURE,
     CREATED_ASYNC_FIXTURE,
@@ -26,302 +26,144 @@ import {
     SAFE_WATCH_FIXTURE,
     SIBLING_DATA_FIXTURE,
 } from './runtime-equivalence-fixtures';
+import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
+import { ASYNC_CREATED } from './option-handlers';
 import {
     convertFixture,
     flushPromises,
-    mountGenerated,
-    mountGeneratedPair,
-    mountOriginal,
-    mountOriginalPair,
-    resetOverrides,
-    runEquivalentOrConservative,
+    loadGenerated,
+    loadOriginal,
+    mountBoth,
+    mountComponent,
     setProbe,
 } from './runtime-equivalence-harness';
 
+const INJECT_TODO = 'array inject declaration requires runtime ref-unwrapping verification';
+const DATA_THIS_TODO = 'data() initializer reads component this and is not runtime-equivalent';
+
 type Vm = Record<string, unknown>;
 
-function vmOf(wrapper: { vm: unknown }): Vm {
-    return wrapper.vm as Vm;
+function call(wrapper: VueWrapper, name: string, ...args: unknown[]): unknown {
+    const method = (wrapper.vm as unknown as Vm)[name];
+
+    if (typeof method !== 'function') {
+        throw new Error(`${name} is not callable`);
+    }
+
+    return (method as (...values: unknown[]) => unknown)(...args);
 }
 
-function expectConservative(outcome: string): void {
-    expect(['partial', 'skipped']).toContain(outcome);
+function read(wrapper: VueWrapper, name: string): unknown {
+    return (wrapper.vm as unknown as Vm)[name];
 }
 
 describe('SFC migration runtime equivalence', () => {
-    beforeEach(() => {
-        resetOverrides();
-        setProbe();
-    });
-
     afterEach(() => {
-        resetOverrides();
         delete (globalThis as typeof globalThis & { __runtimeEquivalenceProbe?: unknown }).__runtimeEquivalenceProbe;
     });
 
     it('executes arguments, named recursion, concise object returns, async and generator functions equivalently', async () => {
-        const pair = await runEquivalentOrConservative(FUNCTION_FIXTURE, async (original, generated) => {
-            const originalVm = vmOf(original);
-            const generatedVm = vmOf(generated);
+        const result = await convertFixture(FUNCTION_FIXTURE);
 
-            const call = (vm: Vm, name: string, ...args: unknown[]): unknown => {
-                const method = vm[name];
+        expect(result).toMatchObject({ outcome: 'full', reasons: [] });
 
-                if (typeof method !== 'function') {
-                    throw new Error(`${name} is not callable`);
-                }
+        const [original, generated] = await mountBoth(FUNCTION_FIXTURE, result);
 
-                return (method as (...values: unknown[]) => unknown)(...args);
-            };
+        expect(call(generated, 'argumentsMethod', 2)).toBe(4);
+        expect(call(original, 'argumentsMethod', 2)).toBe(4);
+        expect(call(generated, 'recursive', 5)).toBe(120);
+        expect(call(original, 'recursive', 5)).toBe(120);
+        expect(call(generated, 'conciseObject')).toEqual(call(original, 'conciseObject'));
+        expect(await call(generated, 'load', 'ready')).toBe('ready');
+        expect(await call(original, 'load', 'ready')).toBe('ready');
+        expect((call(generated, 'generator', 4) as Iterator<unknown>).next()).toEqual({ value: 8, done: false });
+        expect((call(original, 'generator', 4) as Iterator<unknown>).next()).toEqual({ value: 8, done: false });
+    });
 
-            expect(call(generatedVm, 'argumentsMethod', 2)).toBe(call(originalVm, 'argumentsMethod', 2));
-            expect(call(generatedVm, 'recursive', 5)).toBe(call(originalVm, 'recursive', 5));
-            expect(call(generatedVm, 'conciseObject')).toEqual(call(originalVm, 'conciseObject'));
-            expect(await call(generatedVm, 'load', 'ready')).toBe(await call(originalVm, 'load', 'ready'));
-            const generatedIterator = call(generatedVm, 'generator', 4) as Iterator<unknown>;
-            const originalIterator = call(originalVm, 'generator', 4) as Iterator<unknown>;
+    it.each([
+        [PARAMETERIZED_DATA_FIXTURE, ['parameterized data() requires an explicit vm mapping']],
+        [SIBLING_DATA_FIXTURE, [DATA_THIS_TODO]],
+        [
+            DATA_DEPENDENCY_FIXTURE,
+            [
+                INJECT_TODO,
+                DATA_THIS_TODO,
+                DATA_THIS_TODO,
+                DATA_THIS_TODO,
+                DATA_THIS_TODO,
+            ],
+        ],
+    ])('keeps data initialization that reads the instance a draft: %#', async (fixture, reasons) => {
+        const result = await convertFixture(fixture);
 
-            expect(generatedIterator.next()).toEqual(originalIterator.next());
+        expect(result).toMatchObject({ outcome: 'partial', reasons });
+        expect(result.sfc).toContain('TODO(sfc-migration)');
+    });
+
+    it('reads props and injections in data() the same way, but keeps the draft partial', async () => {
+        const result = await convertFixture(PROP_INJECT_DATA_FIXTURE);
+
+        expect(result).toMatchObject({ outcome: 'partial', reasons: [INJECT_TODO, DATA_THIS_TODO, DATA_THIS_TODO] });
+
+        const [original, generated] = await mountBoth(PROP_INJECT_DATA_FIXTURE, result, {
+            props: { seed: 'prop' },
+            provide: { service: 'service' },
         });
 
-        expect(pair.result.outcome).toBeDefined();
-
-        if (pair.conservative) {
-            expectConservative(pair.result.outcome);
-        }
+        expect(read(original, 'fromProp')).toBe('prop');
+        expect(read(generated, 'fromProp')).toBe('prop');
+        expect(read(original, 'fromInject')).toBe('service');
+        expect(read(generated, 'fromInject')).toBe('service');
     });
 
-    it.each([PARAMETERIZED_DATA_FIXTURE, SIBLING_DATA_FIXTURE, DATA_DEPENDENCY_FIXTURE])(
-        'keeps unsafe data initialization conservative: %s',
-        async (fixture) => {
-            const result = await convertFixture(fixture);
+    it('keeps array injection partial: a provided primitive reads the same, a provided ref does not', async () => {
+        const result = await convertFixture(INJECTION_FIXTURE);
 
-            expect(result.outcome).toBeDefined();
-            expectConservative(result.outcome);
-        },
-    );
+        expect(result).toMatchObject({ outcome: 'partial', reasons: [INJECT_TODO] });
 
-    it('compares prop/inject data reads when the implementation supports them', async () => {
-        const pair = await runEquivalentOrConservative(
-            PROP_INJECT_DATA_FIXTURE,
-            (original, generated) => {
-                expect(vmOf(generated).fromProp).toBe(vmOf(original).fromProp);
-                expect(vmOf(generated).fromInject).toBe(vmOf(original).fromInject);
-            },
-            { props: { seed: 'prop' }, provide: { service: 'service' } },
-        );
+        const [primitiveOriginal, primitiveGenerated] = await mountBoth(INJECTION_FIXTURE, result, {
+            provide: { provided: 1 },
+        });
 
-        expect(pair.result.outcome).toBeDefined();
+        expect(call(primitiveOriginal, 'read')).toBe(1);
+        expect(call(primitiveGenerated, 'read')).toBe(1);
 
-        if (pair.conservative) {
-            expectConservative(pair.result.outcome);
-        }
+        const provided = ref(1);
+        const [refOriginal, refGenerated] = await mountBoth(INJECTION_FIXTURE, result, { provide: { provided } });
+
+        // The Options API unwraps an injected ref on read; the setup binding hands out the ref itself.
+        expect(call(refOriginal, 'read')).toBe(1);
+        expect(call(refGenerated, 'read')).toBe(provided);
     });
 
-    it.each([1, ref(1)])('compares primitive and Ref injection reads/writes or downgrades them', async (provided) => {
-        const pair = await runEquivalentOrConservative(
-            INJECTION_FIXTURE,
-            (original, generated) => {
-                const originalVm = vmOf(original);
-                const generatedVm = vmOf(generated);
-                const originalRead = originalVm.read as () => unknown;
-                const generatedRead = generatedVm.read as () => unknown;
-                const originalWrite = originalVm.write as (value: number) => void;
-                const generatedWrite = generatedVm.write as (value: number) => void;
+    // A hyphenated watch key reads `this['foo-bar']`, which prop normalization never defines, so it
+    // fires on neither side.
+    it('executes hyphenated and nested watch paths equivalently', async () => {
+        const result = await convertFixture(SAFE_WATCH_FIXTURE);
 
-                expect(generatedRead()).toBe(originalRead());
-                generatedWrite(7);
-                originalWrite(7);
-                expect(generatedRead()).toBe(originalRead());
-            },
-            { provide: { provided } },
-        );
+        expect(result).toMatchObject({ outcome: 'full', reasons: [] });
 
-        expect(pair.result.outcome).toBeDefined();
+        const [original, generated] = await mountBoth(SAFE_WATCH_FIXTURE, result, { props: { 'foo-bar': 'initial' } });
 
-        if (pair.conservative) {
-            expectConservative(pair.result.outcome);
+        for (const wrapper of [original, generated]) {
+            await wrapper.setProps({ 'foo-bar': 'next' });
+            (read(wrapper, 'nested') as { value: number }).value = 2;
         }
+
+        await flushPromises();
+
+        expect(read(original, 'log')).toEqual(['nested:2']);
+        expect(read(generated, 'log')).toEqual(['nested:2']);
     });
 
-    it('executes safe hyphenated and nested watch paths equivalently', async () => {
-        const pair = await runEquivalentOrConservative(
-            SAFE_WATCH_FIXTURE,
-            async (original, generated) => {
-                await generated.setProps({ 'foo-bar': 'next' });
-                await original.setProps({ 'foo-bar': 'next' });
-                (vmOf(generated).nested as { value: number }).value = 2;
-                (vmOf(original).nested as { value: number }).value = 2;
-                await flushPromises();
-
-                expect(vmOf(generated).log).toEqual(vmOf(original).log);
-            },
-            { props: { 'foo-bar': 'initial' } },
-        );
-
-        expect(pair.result.outcome).toBeDefined();
-
-        if (pair.conservative) {
-            expectConservative(pair.result.outcome);
-        }
-    });
-
-    it('keeps exact-$route watch sources conservative until their runtime contract is proven', async () => {
+    it('converts a $route.<path> watcher and leaves the exact $route watcher as a TODO', async () => {
         const result = await convertFixture(ROUTE_WATCH_FIXTURE);
 
-        expect(result.outcome).toBeDefined();
-        expectConservative(result.outcome);
-    });
-
-    it('does not confuse class-local this with component this', async () => {
-        const pair = await runEquivalentOrConservative(CLASS_THIS_FIXTURE, (original, generated) => {
-            expect((vmOf(generated).readClassField as () => unknown)()).toBe(
-                (vmOf(original).readClassField as () => unknown)(),
-            );
+        expect(result).toMatchObject({
+            outcome: 'partial',
+            reasons: ["watch source '$route' has exact $route semantics that need runtime verification"],
         });
 
-        expect(pair.result.outcome).toBeDefined();
-
-        if (pair.conservative) {
-            expectConservative(pair.result.outcome);
-        }
-    });
-
-    it('preserves module-once identity across two component instances or downgrades the prelude', async () => {
-        const result = await convertFixture(MODULE_IDENTITY_FIXTURE);
-
-        if (result.outcome !== 'full') {
-            expectConservative(result.outcome);
-            return;
-        }
-
-        const [firstOriginal, secondOriginal] = mountOriginalPair(MODULE_IDENTITY_FIXTURE);
-        const [firstGenerated, secondGenerated] = mountGeneratedPair(MODULE_IDENTITY_FIXTURE, result);
-
-        expect((vmOf(firstGenerated).getShared as () => unknown)()).toBe(
-            (vmOf(secondGenerated).getShared as () => unknown)(),
-        );
-        expect((vmOf(firstOriginal).getShared as () => unknown)()).toBe((vmOf(secondOriginal).getShared as () => unknown)());
-    });
-
-    it('preserves module regex identity, live getter timing and destructuring defaults', async () => {
-        const result = await convertFixture(MODULE_BINDING_FIXTURE);
-
-        if (result.outcome !== 'full') {
-            expectConservative(result.outcome);
-            return;
-        }
-
-        const [firstOriginal, secondOriginal] = mountOriginalPair(MODULE_BINDING_FIXTURE);
-        const [firstGenerated, secondGenerated] = mountGeneratedPair(MODULE_BINDING_FIXTURE, result);
-        const read = (wrapper: VueWrapper): { pattern: RegExp; getter: number; missing: number } =>
-            (vmOf(wrapper).readModule as () => { pattern: RegExp; getter: number; missing: number })();
-        const generatedFirst = read(firstGenerated);
-        const generatedSecond = read(secondGenerated);
-        const originalFirst = read(firstOriginal);
-        const originalSecond = read(secondOriginal);
-
-        expect(generatedFirst.pattern).toBe(generatedSecond.pattern);
-        expect(generatedFirst.getter).toBe(originalFirst.getter);
-        expect(generatedSecond.getter).toBe(originalSecond.getter);
-        expect(generatedFirst.missing).toBe(42);
-        expect(generatedSecond.missing).toBe(42);
-    });
-
-    it('downgrades cross-block conditions that can execute side effects more than once', async () => {
-        const result = await convertFixture(CROSS_BLOCK_SIDE_EFFECT_FIXTURE);
-
-        expect(result.outcome).toBeDefined();
-        expectConservative(result.outcome);
-    });
-
-    it('runs synchronous and asynchronous created hooks exactly once', async () => {
-        for (const fixture of [CREATED_ONCE_FIXTURE, CREATED_ASYNC_FIXTURE]) {
-            const originalProbe = setProbe();
-            mountOriginal(fixture);
-            await flushPromises();
-            const originalEvents = [...originalProbe.events];
-
-            const result = await convertFixture(fixture);
-
-            if (result.outcome !== 'full') {
-                expectConservative(result.outcome);
-                continue;
-            }
-
-            const generatedProbe = setProbe();
-            mountGenerated(fixture, result);
-            await flushPromises();
-
-            expect(generatedProbe.events).toEqual(originalEvents);
-            expect(generatedProbe.events).toHaveLength(1);
-        }
-    });
-
-    it('preserves created early returns or keeps them out of full conversion', async () => {
-        const pair = await runEquivalentOrConservative(CREATED_EARLY_RETURN_FIXTURE, () => undefined, {
-            props: { skip: true },
-        });
-
-        expect(pair.result.outcome).toBeDefined();
-
-        if (pair.conservative) {
-            expectConservative(pair.result.outcome);
-        }
-    });
-
-    it('keeps created local collisions conservative', async () => {
-        const result = await convertFixture(CREATED_LOCAL_COLLISION_FIXTURE);
-
-        expect(result.outcome).toBeDefined();
-        expectConservative(result.outcome);
-    });
-
-    it('records synchronous created throws and asynchronous rejections without forcing execution', async () => {
-        const outcomes: string[] = [];
-
-        for (const fixture of [CREATED_THROW_FIXTURE, CREATED_REJECT_FIXTURE]) {
-            const result = await convertFixture(fixture);
-
-            expect(result.outcome).toBeDefined();
-            outcomes.push(result.outcome);
-
-            if (result.outcome !== 'full') {
-                expectConservative(result.outcome);
-            }
-
-            expect(result.sfc === null).toBe(result.outcome === 'skipped');
-        }
-
-        expect(outcomes).toEqual(['full', 'full']);
-    });
-
-    it('runs the generated $dataScope path through the real setup transform without touching disk', async () => {
-        const result = await convertFixture(DATA_SCOPE_FIXTURE);
-
-        expect(result.sfc).not.toBeNull();
-
-        const lowered = result.sfc
-            ? (await import('../../../build/vue-setup-transform/index.ts')).transformShopwareSetupSfc(
-                  result.sfc,
-                  `${DATA_SCOPE_FIXTURE.name}.vue`,
-              )
-            : null;
-
-        expect(lowered?.code).toContain(':data="$dataScope"');
-
-        let mounted = false;
-
-        if (result.outcome === 'full') {
-            const wrapper = mountGenerated(DATA_SCOPE_FIXTURE, result, { useConvertedTemplate: true });
-
-            mounted = wrapper.exists();
-        }
-
-        expect(result.outcome === 'full' ? mounted : ['partial', 'skipped'].includes(result.outcome)).toBe(true);
-    });
-
-    it('keeps the runtime harness compatible with router-backed callers', async () => {
         const router = createRouter({
             history: createMemoryHistory(),
             routes: [
@@ -333,18 +175,183 @@ describe('SFC migration runtime equivalence', () => {
         await router.push('/one');
         await router.isReady();
 
-        const result = await convertFixture(ROUTE_WATCH_FIXTURE);
+        // The global test setup mocks `$route` with a static object, which would hide the router's.
+        const globalMocks = config.global.mocks;
+        let original: VueWrapper;
+        let generated: VueWrapper;
 
-        if (result.outcome !== 'full') {
-            expectConservative(result.outcome);
-            return;
+        config.global.mocks = Object.fromEntries(
+            Object.entries(globalMocks).filter(([key]) => key !== '$route' && key !== '$router'),
+        );
+
+        try {
+            [original, generated] = await mountBoth(ROUTE_WATCH_FIXTURE, result, { plugins: [router] });
+            await router.push('/two');
+            await flushPromises();
+        } finally {
+            config.global.mocks = globalMocks;
         }
 
-        const wrapper = mountGenerated(ROUTE_WATCH_FIXTURE, result, { plugins: [router] });
+        expect(read(original, 'log')).toEqual(['name', 'route']);
+        expect(read(generated, 'log')).toEqual(['name']);
+    });
 
-        await router.push('/two');
+    it('does not confuse class-local this with component this', async () => {
+        const result = await convertFixture(CLASS_THIS_FIXTURE);
+
+        expect(result).toMatchObject({
+            outcome: 'partial',
+            reasons: ['`this.count` inside a nested function keeps its own `this`', 'dynamic `this[...]` access'],
+        });
+
+        const [original, generated] = await mountBoth(CLASS_THIS_FIXTURE, result);
+
+        expect(call(original, 'readClassField')).toBeUndefined();
+        expect(call(generated, 'readClassField')).toBeUndefined();
+    });
+
+    it('evaluates module-level code once per module, shared by every instance', async () => {
+        const result = await convertFixture(MODULE_IDENTITY_FIXTURE);
+
+        expect(result).toMatchObject({ outcome: 'full', reasons: [] });
+        expect(result.module?.fileName).toBe(`${MODULE_IDENTITY_FIXTURE.name}.module.ts`);
+
+        const probe = setProbe();
+        const generated = await loadGenerated(MODULE_IDENTITY_FIXTURE, result);
+        const [first, second] = [mountComponent(generated), mountComponent(generated)];
+
+        expect(call(first, 'getShared')).toBe(call(second, 'getShared'));
+        expect(probe).toEqual([call(first, 'getShared'), call(first, 'getShared')]);
+    });
+
+    it('preserves module regex identity, live getter timing and destructuring defaults', async () => {
+        const result = await convertFixture(MODULE_BINDING_FIXTURE);
+
+        expect(result).toMatchObject({ outcome: 'full', reasons: [] });
+
+        type ModuleRead = { pattern: RegExp; getter: number; missing: number };
+        const readTwice = async (component: Promise<unknown>): Promise<[ModuleRead, ModuleRead]> => {
+            const loaded = (await component) as Parameters<typeof mountComponent>[0];
+
+            return [
+                call(mountComponent(loaded), 'readModule') as ModuleRead,
+                call(mountComponent(loaded), 'readModule') as ModuleRead,
+            ];
+        };
+        const originals = await readTwice(loadOriginal(MODULE_BINDING_FIXTURE));
+        const generated = await readTwice(loadGenerated(MODULE_BINDING_FIXTURE, result));
+
+        expect(generated[0].pattern).toBe(generated[1].pattern);
+        expect(generated.map(({ getter }) => getter)).toEqual(originals.map(({ getter }) => getter));
+        expect(generated.map(({ missing }) => missing)).toEqual([42, 42]);
+    });
+
+    it('refuses cross-block conditions that can execute side effects more than once', async () => {
+        const result = await convertFixture(CROSS_BLOCK_SIDE_EFFECT_FIXTURE);
+
+        expect(result).toEqual({
+            outcome: 'skipped',
+            reasons: ['cross-block conditional contains a side-effecting expression'],
+            sfc: null,
+            module: null,
+        });
+    });
+
+    it.each([
+        [CREATED_ONCE_FIXTURE, 'full', []],
+        [CREATED_ASYNC_FIXTURE, 'partial', [ASYNC_CREATED]],
+    ])('runs created exactly once: %#', async (fixture, outcome, reasons) => {
+        const result = await convertFixture(fixture);
+
+        expect(result).toMatchObject({ outcome, reasons });
+
+        const originalProbe = setProbe();
+
+        mountComponent(await loadOriginal(fixture));
         await flushPromises();
 
-        expect(wrapper.exists()).toBe(true);
+        const generatedProbe = setProbe();
+
+        mountComponent(await loadGenerated(fixture, result));
+        await flushPromises();
+
+        expect(originalProbe).toEqual(['created']);
+        expect(generatedProbe).toEqual(['created']);
+    });
+
+    it.each([
+        [true, []],
+        [false, ['created']],
+    ])('honours an early return in created (skip: %s)', async (skip, expected) => {
+        const result = await convertFixture(CREATED_EARLY_RETURN_FIXTURE);
+
+        expect(result).toMatchObject({ outcome: 'full', reasons: [] });
+
+        const originalProbe = setProbe();
+
+        mountComponent(await loadOriginal(CREATED_EARLY_RETURN_FIXTURE), { props: { skip } });
+
+        const generatedProbe = setProbe();
+
+        mountComponent(await loadGenerated(CREATED_EARLY_RETURN_FIXTURE, result), { props: { skip } });
+
+        expect(originalProbe).toEqual(expected);
+        expect(generatedProbe).toEqual(expected);
+    });
+
+    it('keeps a created() local that shadows a member a draft', async () => {
+        const result = await convertFixture(CREATED_LOCAL_COLLISION_FIXTURE);
+
+        expect(result).toMatchObject({ outcome: 'partial', reasons: ['this.ready is shadowed by a local binding'] });
+    });
+
+    it('reports a synchronous created throw through the app error handler on both sides', async () => {
+        const result = await convertFixture(CREATED_THROW_FIXTURE);
+
+        expect(result).toMatchObject({ outcome: 'full', reasons: [] });
+
+        const error = new Error('runtime-equivalence-created-throw');
+
+        for (const component of [
+            await loadOriginal(CREATED_THROW_FIXTURE),
+            await loadGenerated(CREATED_THROW_FIXTURE, result),
+        ]) {
+            const errors: unknown[] = [];
+
+            // Test utils rethrows what the handler saw during mount.
+            expect(() => mountComponent(component, { errorHandler: (thrown) => errors.push(thrown) })).toThrow(error);
+            expect(errors).toEqual([error]);
+        }
+    });
+
+    // The inlined created() call is not one of Vue's hooks, so its rejection would surface as an
+    // unhandled rejection instead of reaching the app error handler; the draft says so.
+    it('keeps an async created() a draft, whose rejection the original reports to the error handler', async () => {
+        const result = await convertFixture(CREATED_REJECT_FIXTURE);
+
+        expect(result).toMatchObject({ outcome: 'partial', reasons: [ASYNC_CREATED] });
+        expect(result.sfc).toContain(`TODO(sfc-migration) VERIFY: ${ASYNC_CREATED}`);
+
+        const errors: unknown[] = [];
+
+        mountComponent(await loadOriginal(CREATED_REJECT_FIXTURE), { errorHandler: (thrown) => errors.push(thrown) });
+        await flushPromises();
+
+        expect(errors).toEqual([new Error('runtime-equivalence-created-reject')]);
+    });
+
+    it('renders the converted block template with the data scope the setup transform binds', async () => {
+        const result = await convertFixture(DATA_SCOPE_FIXTURE);
+
+        expect(result).toMatchObject({ outcome: 'full', reasons: [] });
+
+        const wrapper = mountComponent(await loadGenerated(DATA_SCOPE_FIXTURE, result, true), {
+            useConvertedTemplate: true,
+        });
+        const block = wrapper.findComponent(SwBlock);
+
+        expect(block.props('name')).toBe('sw_runtime_data_scope');
+        expect((block.props('data') as { label?: unknown } | null)?.label).toBe('scope');
+        expect(wrapper.find('span').exists()).toBe(true);
     });
 });

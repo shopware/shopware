@@ -97,10 +97,7 @@ describe('core/factory/async-component.factory.ts', () => {
         TemplateFactory.disableTwigCache();
         ComponentFactory.markComponentTemplatesAsNotResolved();
 
-        const entries = [...Object.keys(_overridesMap)];
-        entries.forEach((key) => {
-            delete _overridesMap[key];
-        });
+        _overridesMap.clear();
         twigBlockIndex.resetBlockIndex();
     });
 

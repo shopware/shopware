@@ -3,12 +3,8 @@
  */
 
 /**
- * The single structural read of the JavaScript/TypeScript files the SFC migration codemod works on.
- * Discovery is deliberately conservative: a source file that cannot be read or parsed is retained as
- * a diagnostic, while comments, strings, tests, and fixtures never become registrations.
- *
- * Only what later stages actually consume is retained. ASTs are dropped once a file is analysed, so
- * scanning the whole Administration tree does not keep thousands of them alive.
+ * The one structural read of the source tree. A file that cannot be read or parsed becomes a
+ * diagnostic; tests and fixtures never become registrations. ASTs are dropped once analysed.
  */
 
 import * as fs from 'fs';
@@ -17,7 +13,7 @@ import { parse, type ParserPlugin } from '@babel/parser';
 import { traverseFast } from '@babel/types';
 import type * as t from '@babel/types';
 import { globSync } from 'glob';
-import { keyName, unwrapExpression, unwrapOptions } from './ast';
+import { errorText, findExportDefault, keyName, unwrapExpression, unwrapOptions } from './ast';
 
 type SourceRange = {
     start: number;
@@ -29,7 +25,6 @@ type SourceDiagnostic = {
     /** `<stage>/<code>`, printed verbatim in the run report — data, never branched on. */
     label: string;
     message: string;
-    /** The only two things a consumer asks about: does it refuse a component, does it count as an error. */
     isTemplateBinding?: boolean;
     isScanError?: boolean;
     range?: SourceRange;
@@ -53,7 +48,6 @@ type InlineOverride = {
     name: string;
 };
 
-/** Where a component's Twig template lives, and the import statement that has to be removed. */
 type TemplateBinding = {
     twigPath: string;
     importRange: SourceRange;
@@ -67,7 +61,6 @@ type ComponentSource = {
 };
 
 type ComponentSourceIndex = {
-    /** Every scanned file, mapped to its own scan diagnostics. */
     files: Map<string, SourceDiagnostic[]>;
     components: Map<string, ComponentSource>;
     registrationsByFile: Map<string, RegistrationReference[]>;
@@ -120,10 +113,7 @@ function isExcludedSourceFile(file: string, scanRoot: string): boolean {
     return parts.some((part) => EXCLUDED_DIRECTORY_NAMES.has(part)) || SPEC_OR_TEST_FILE.test(basename);
 }
 
-/**
- * Only a registration call or a default export can make a file interesting, and both leave a literal
- * token behind. Checking for it costs a substring scan and skips parsing the vast majority of files.
- */
+/** A substring scan that skips parsing most files. */
 function mayHoldComponentSource(source: string): boolean {
     return source.includes('Component.') || source.includes('export default');
 }
@@ -402,7 +392,6 @@ function extractRegistrations(
     return { registrations, diagnostics };
 }
 
-/** Reads and parses one file, mapping every failure to a diagnostic rather than an exception. */
 function parseSourceFile(
     file: string,
     readFile: (file: string) => string,
@@ -419,7 +408,7 @@ function parseSourceFile(
                 {
                     file,
                     label: 'scan/read-failed',
-                    message: `could not read source: ${error instanceof Error ? error.message : String(error)}`,
+                    message: `could not read source: ${errorText(error)}`,
                     isScanError: true,
                 },
             ],
@@ -440,7 +429,7 @@ function parseSourceFile(
                 {
                     file,
                     label: 'scan/parse-failed',
-                    message: `could not parse source: ${error instanceof Error ? error.message : String(error)}`,
+                    message: `could not parse source: ${errorText(error)}`,
                     isScanError: true,
                 },
             ],
@@ -484,10 +473,7 @@ function collectComponentSourceIndex(scanRoot: string, options: ComponentSourceI
         }
 
         const extracted = extractRegistrations(parsed.ast, file, absoluteScanRoot, adminSrc);
-        const exportDefault = parsed.ast.program.body.find(
-            (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
-        );
-        // Files without a default export are registries or barrels, not components.
+        const exportDefault = findExportDefault(parsed.ast.program);
         const componentOptions = exportDefault ? unwrapOptions(exportDefault.declaration) : null;
         const template = componentOptions
             ? findTemplateBinding(file, componentOptions, parsed.ast)

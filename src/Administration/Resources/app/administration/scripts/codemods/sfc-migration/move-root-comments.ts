@@ -3,13 +3,9 @@
  */
 
 /**
- * A Twig comment rendered no node, so keeping one at the Vue template root would turn a component
- * with one root into a development-only fragment. Root Twig comments are moved outside `<template>`
- * as SFC comments instead: the note stays in the generated source without entering the render tree.
- *
- * The marker preserves provenance while the other template passes run. An authored HTML comment is
- * left exactly where it was, because it already rendered as a comment before the migration. Markers
- * on nested Twig comments are only removed; those comments cannot change the component's root shape.
+ * A Twig comment rendered no node; at the template root it would make a development-only fragment,
+ * so it moves outside `<template>`. The marker tells it apart from an authored HTML comment, which
+ * already rendered and stays put.
  */
 
 import { NodeTypes } from '@vue/compiler-dom';

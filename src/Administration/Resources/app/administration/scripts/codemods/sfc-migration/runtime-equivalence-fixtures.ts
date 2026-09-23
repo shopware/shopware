@@ -2,12 +2,7 @@
  * @sw-package framework
  */
 
-/**
- * Small, self-contained source pairs for the SFC migration runtime oracle.
- *
- * These are deliberately strings rather than files: the oracle must never need to write into the
- * Administration or Commercial trees.
- */
+/** Options API sources for the runtime oracle, which writes them to a temp directory. */
 
 type RuntimeFixture = {
     name: string;
@@ -19,7 +14,6 @@ function twigBlock(name: string, content = '<div />'): string {
     return `{% block ${name} %}${content}{% endblock %}`;
 }
 
-/** By default a fixture's Twig is one block named after the component, holding an empty div. */
 function runtimeFixture(name: string, jsSource: string, twigSource = twigBlock(name.replace(/-/g, '_'))): RuntimeFixture {
     return { name, jsSource, twigSource };
 }
@@ -182,11 +176,10 @@ const CLASS_THIS_FIXTURE = runtimeFixture(
             methods: {
                 readClassField() {
                     class Local {
-                        static key = 'read';
                         field = this.count;
                         #private = this.count;
 
-                        [Local.key]() {
+                        read() {
                             return this.#private;
                         }
                     }

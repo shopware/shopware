@@ -2,66 +2,53 @@
  * @sw-package framework
  */
 
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
 const vueJest = require('@vue/vue3-jest');
-const { transformShopwareSetupSfc } = require('../../build/vue-setup-transform');
+const { SourceMapConsumer, SourceMapGenerator } = require('source-map-js');
+const { isDependencyFile, transformShopwareSetupSfc } = require('../../build/vue-setup-transform');
 
-/**
- * @typedef {object} JestTransformerConfig
- */
+const transformRoot = path.resolve(__dirname, '../../build/vue-setup-transform');
 
-/**
- * Whether a file belongs to an installed dependency.
- *
- * Mirrors the Vite plugin's guard. Needed despite Jest's default `transformIgnorePatterns`, because
- * the Jest config un-ignores `@shopware-ag/meteor-component-library`, which ships Options-API `.vue` files.
- *
- * @param {string} filename
- * @returns {boolean}
- */
-function isDependencyFile(filename) {
-    return filename.replace(/\\/g, '/').includes('/node_modules/');
-}
+// Jest reuses a cached result as long as the key matches, so the key has to change with the
+// transform's own sources instead of running the transform to find out.
+const transformVersion = (() => {
+    const hash = crypto.createHash('md5').update(fs.readFileSync(__filename));
 
-/**
- * Applies the shared pre-Vue transform before delegating to vue-jest.
- *
- * @param {string} source
- * @param {string} filename
- * @returns {string}
- */
-function transformSource(source, filename) {
-    if (isDependencyFile(filename)) {
-        return source;
-    }
+    fs.readdirSync(transformRoot, { recursive: true })
+        .map(String)
+        .filter((file) => /\.[jt]s$/.test(file) && !file.includes('.spec'))
+        .sort()
+        .forEach((file) => hash.update(file).update(fs.readFileSync(path.join(transformRoot, file))));
 
-    const result = transformShopwareSetupSfc(source, filename);
-
-    return result?.code ?? source;
-}
+    return hash.digest('hex');
+})();
 
 module.exports = {
-    /**
-     * Feeds vue-jest transformed code so tests exercise the same input shape as Vite.
-     *
-     * @param {string} source
-     * @param {string} filename
-     * @param {JestTransformerConfig} config
-     * @param {unknown} transformOptions
-     * @returns {unknown}
-     */
-    process(source, filename, config, transformOptions) {
-        return vueJest.process(transformSource(source, filename), filename, config, transformOptions);
+    process(source, filename, options) {
+        const setup = isDependencyFile(filename) ? null : transformShopwareSetupSfc(source, filename);
+
+        if (!setup) {
+            return vueJest.process(source, filename, options);
+        }
+
+        const compiled = vueJest.process(setup.code, filename, options);
+
+        // vue-jest takes no input map, so its map points into the transformed SFC. Chaining the
+        // transform's map underneath points stack traces and coverage at the authored lines.
+        const map = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(JSON.parse(compiled.map)));
+
+        map.applySourceMap(new SourceMapConsumer(setup.map), filename);
+
+        return { code: compiled.code, map: map.toJSON() };
     },
 
-    /**
-     * Mirrors the source transform for Jest cache keys to avoid stale compiled SFCs.
-     *
-     * @param {string} source
-     * @param {string} filename
-     * @param {unknown} options
-     * @returns {string}
-     */
     getCacheKey(source, filename, options) {
-        return vueJest.getCacheKey(transformSource(source, filename), filename, options);
+        return crypto
+            .createHash('md5')
+            .update(vueJest.getCacheKey(source, filename, options))
+            .update(transformVersion)
+            .digest('hex');
     },
 };

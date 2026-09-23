@@ -2,31 +2,28 @@
  * @sw-package framework
  */
 
-/**
- * Parses Vue SFCs and selects files that participate in the Shopware setup transform.
- *
- * Every `.vue` file is a Shopware setup component: the only escape hatch is a Vue parser error, which
- * Vue itself reports with better context. Everything else that is not a valid Shopware setup SFC becomes
- * a `ShopwareSetupTransformError` diagnostic with a source offset.
- */
-
 import { parse as parseWithVue } from '@vue/compiler-sfc';
-import {
-    inferShopwareSetupFromFilename,
-    normalizeShopwareSetupBlock,
-    type ShopwareSetupBlock,
-    type ShopwareSetupMode,
-} from './utils/shopware-setup-block';
-import { toScriptBlock } from './utils/sfc-script-block';
+import type { RootNode } from '@vue/compiler-dom';
+import { type ShopwareSetupMode, inferShopwareSetupFromFilename } from './naming';
 import { ShopwareSetupTransformError } from './utils/transform-error';
 
 /**
- * Builds the diagnostic for an SFC that has no `<script setup>` block.
- *
- * The two modes fail for the same reason but need different instructions: a base component declares its
- * extension surface with `swDefinePublic()`, an override registers itself with `swDefineOverride()`.
- * Both markers live in `<script setup>`, so a missing block means the file cannot participate at all.
+ * The `<script setup>` block of an SFC plus the component identity inferred from its filename. Only the
+ * block content is rewritten, so the tags and their attributes stay untouched.
  */
+type ShopwareSetupBlock = {
+    mode: ShopwareSetupMode;
+    componentName: string;
+    filename: string;
+    source: string;
+    content: string;
+    contentStart: number;
+    contentEnd: number;
+    lang: string | null;
+    /** Vue's template AST, with offsets into the whole SFC. */
+    template: RootNode | null;
+};
+
 function missingScriptSetupMessage(mode: ShopwareSetupMode): string {
     if (mode === 'override') {
         return (
@@ -45,54 +42,45 @@ function missingScriptSetupMessage(mode: ShopwareSetupMode): string {
 }
 
 /**
- * Reads Vue's SFC descriptor and returns the Shopware setup block every `.vue` file must have.
- *
- * `null` means "not this transform's problem": Vue's own parser already rejected the file. Anything
- * else - a plain `<script>`, a template-only SFC - is a Shopware setup violation and throws, because
- * a `.vue` file that the transform leaves alone would silently be a non-extendable component.
+ * Returns `null` when Vue's own parser rejects the SFC, since Vue reports that with better context.
+ * Every other `.vue` file must be a Shopware setup SFC: one left alone would silently be a component
+ * nothing can extend.
  */
-function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): ShopwareSetupBlock | null {
-    const parsed = parseWithVue(source, { filename });
+function parseShopwareSetupSfc(source: string, filename: string): ShopwareSetupBlock | null {
+    const { descriptor, errors } = parseWithVue(source, { filename });
 
-    if (parsed.errors.length > 0) {
-        // Vue already reports SFC parse errors with better context.
+    if (errors.length > 0) {
         return null;
     }
 
-    if (!parsed.descriptor.scriptSetup) {
-        // Hard error rather than a silent pass-through: an SFC without `<script setup>` has no place to
-        // put the markers, so it would compile into a component that cannot be extended and cannot be
-        // overridden - the one thing the Administration's component model requires of every component.
-        // An `.override.vue` fails even more visibly: it registers nothing and the override never runs.
-        throw new ShopwareSetupTransformError(missingScriptSetupMessage(inferShopwareSetupFromFilename(filename).mode), 0);
+    const { mode, componentName } = inferShopwareSetupFromFilename(filename);
+    const { scriptSetup, script, template } = descriptor;
+
+    if (!scriptSetup) {
+        throw new ShopwareSetupTransformError(missingScriptSetupMessage(mode), 0);
     }
 
-    const scriptSetupBlock = toScriptBlock(parsed.descriptor.scriptSetup, 'scriptSetup');
-    const shopwareSetupBlock = normalizeShopwareSetupBlock(scriptSetupBlock, filename);
-
-    const isCodemodModuleScript = parsed.descriptor.script
-        ? Object.prototype.hasOwnProperty.call(parsed.descriptor.script.attrs, 'data-sfc-migration-module')
-        : false;
-
-    if (parsed.descriptor.script && !isCodemodModuleScript) {
+    if (script) {
         throw new ShopwareSetupTransformError(
             'A Shopware setup block cannot be combined with another <script> block.',
-            parsed.descriptor.script.loc.start.offset,
+            script.loc.start.offset,
         );
     }
 
     return {
-        ...shopwareSetupBlock,
-        template: parsed.descriptor.template
-            ? {
-                  content: parsed.descriptor.template.content,
-                  contentStart: parsed.descriptor.template.loc.start.offset,
-              }
-            : null,
+        mode,
+        componentName,
+        filename,
+        source,
+        content: scriptSetup.content,
+        contentStart: scriptSetup.loc.start.offset,
+        contentEnd: scriptSetup.loc.end.offset,
+        lang: scriptSetup.lang ?? null,
+        template: template?.ast ?? null,
     };
 }
 
 /**
  * @private
  */
-export { parseShopwareSetupSfc };
+export { type ShopwareSetupBlock, parseShopwareSetupSfc };

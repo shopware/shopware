@@ -21,7 +21,7 @@ describe('build/vue-setup-transform SFC block detection', () => {
 
         const result = transformOrFail(source, 'sw-native.vue');
 
-        expect(result.code).toContain('Shopware.Component.attachOverrides(');
+        expect(result.code).toContain('__swSetupRuntime.attach(');
         expect(result.code).toContain("name: 'sw-native'");
     });
 
@@ -35,7 +35,7 @@ describe('build/vue-setup-transform SFC block detection', () => {
 
         const result = transformOrFail(source, 'script-attribute.vue').code;
 
-        expect(result).toContain('Shopware.Component.attachOverrides(');
+        expect(result).toContain('__swSetupRuntime.attach(');
         expect(result).toContain("name: 'script-attribute'");
     });
 
@@ -63,7 +63,7 @@ describe('build/vue-setup-transform SFC block detection', () => {
 
         // Exactly the real block is lowered; the fake tags survive verbatim as comment/string text
         // (the binding is renamed, but the string literal content is untouched).
-        expect(result.match(/attachOverrides\(/g)).toHaveLength(1);
+        expect(result.match(/__swSetupRuntime\.attach\(/g)).toHaveLength(1);
         expect(result).toContain("= '<script setup>';");
         expect(result).toContain('/* <script setup> */');
     });
@@ -145,7 +145,7 @@ describe('build/vue-setup-transform SFC block detection', () => {
         );
     });
 
-    it('preserves the codemod module prelude marker beside setup code', () => {
+    it('rejects a normal script block even when it carries the former codemod marker', () => {
         const source = stripIndent`
             <script data-sfc-migration-module>
             export const moduleValue = 1;
@@ -156,11 +156,9 @@ describe('build/vue-setup-transform SFC block detection', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'marked-module.vue');
-
-        expect(result.code).toContain('<script data-sfc-migration-module>');
-        expect(result.code).toContain('export const moduleValue = 1;');
-        expect(result.code).toContain("name: 'marked-module'");
+        expect(() => transformShopwareSetupSfc(source, 'marked-module.vue')).toThrow(
+            'A Shopware setup block cannot be combined with another <script> block',
+        );
     });
 
     it('skips transformation when Vue reports SFC parse errors', () => {

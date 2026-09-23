@@ -3,7 +3,7 @@
  */
 
 import { stripIndent, transformOrFail } from './helpers';
-import { expectOriginalLine, expectOriginalPosition } from './sourcemap-helpers';
+import { expectOriginalLine, expectOriginalPosition, parseSourceMap } from './sourcemap-helpers';
 
 describe('build/vue-setup-transform sourcemap original positions', () => {
     it('maps unchanged template expressions to their original template locations', () => {
@@ -54,6 +54,30 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
         // The body stays in place (the binding is renamed, but the initializer text is unchanged), so it
         // maps straight back to its original script-setup location.
         expectOriginalPosition(result, source, "computed(() => 'Hello')", "computed(() => 'Hello')");
+    });
+
+    it('maps every renamed identifier to its original token and name', () => {
+        expect.hasAssertions();
+
+        const source = stripIndent`
+            <script setup>
+            import { computed, ref } from 'vue';
+
+            const count = ref(0);
+            const doubled = computed(() => count.value * 2);
+
+            swDefinePublic({
+                count,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'renamed-identifiers.vue');
+
+        expectOriginalPosition(result, source, '__swSetupAuthor_count = ref', 'count = ref');
+        expectOriginalPosition(result, source, '__swSetupLate.count.value', 'count.value');
+        expectOriginalPosition(result, source, '__swSetupAuthor_doubled', 'doubled');
+        expect(parseSourceMap(result).names).toEqual(expect.arrayContaining(['count', 'doubled']));
     });
 
     it('maps copied override callback body code to its original script setup location', () => {
@@ -132,7 +156,7 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
         expectOriginalPosition(result, source, "'Hello';", "'Hello';");
     });
 
-    it('maps teleported base macros to their original script setup location', () => {
+    it('maps base macros to their original script setup location', () => {
         expect.hasAssertions();
 
         const source = stripIndent`

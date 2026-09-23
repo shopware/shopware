@@ -49,7 +49,6 @@ const CMS_ELEMENT_DESCRIPTOR: ComposableDescriptor = {
             'the defaults are merged at the point in the lifecycle the component expects them',
             'useCmsElementDeprecated is a stopover: useCmsElement routes the same writes through the cmsPage store',
         ],
-        forcesPartial: true,
     },
 };
 

@@ -39,7 +39,6 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expect(wrapper.find('.false-case').exists()).toBe(true);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders condition chains across more than two nested Twig component extensions', async () => {
         ComponentFactory.register('native-block-nested-twig-chain-base', {
             data() {
@@ -172,7 +171,6 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expect(greenWrapper.find('.fallback-case').exists()).toBe(false);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('continues a restarted native condition chain in a later block extension', async () => {
         ComponentFactory.register('native-block-legacy-restarted-chain', {
             data() {
@@ -232,8 +230,8 @@ describe('core/factory/async-component.factory.ts - native block condition chain
         expectOnlyBranch(wrapper, branches, '.restart-fallback');
     });
 
-    it('cleans native condition chains when the owning sw-block unmounts', async () => {
-        ComponentFactory.register('native-block-lifecycle-cleanup', {
+    it('keeps native condition chains on the host instance', async () => {
+        ComponentFactory.register('native-block-host-chain-state', {
             data() {
                 return {
                     showBaseCondition: false,
@@ -241,11 +239,11 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             },
             template: `
                 <div>
-                    <sw-block name="lifecycle_cleanup_block" :data="{}">
+                    <sw-block name="host_chain_state_block" :data="{}">
                         <div v-if="showBaseCondition" class="base-condition">base</div>
                     </sw-block>
 
-                    <sw-block extends="lifecycle_cleanup_block">
+                    <sw-block extends="host_chain_state_block">
                         <sw-block-parent />
                         <div v-else class="extension-fallback">fallback</div>
                     </sw-block>
@@ -253,25 +251,17 @@ describe('core/factory/async-component.factory.ts - native block condition chain
             `,
         });
 
-        const wrapper = await mountNativeBlockComponent('native-block-lifecycle-cleanup');
-        const useLegacyConditionContext = (
-            await import('src/app/component/structure/sw-block-override/shim/legacy-condition-context')
-        ).default;
-        const { legacyConditionContext } = useLegacyConditionContext();
-        const chainKey = `${wrapper.vm.$.uid}:lifecycle_cleanup_block:0`;
+        const wrapper = await mountNativeBlockComponent('native-block-host-chain-state');
+        const { getLegacyConditionChains } = await import(
+            'src/app/component/structure/sw-block-override/shim/legacy-condition-context'
+        );
         const branches = ['.base-condition', '.extension-fallback'];
 
         expectOnlyBranch(wrapper, branches, '.extension-fallback');
-        expect(legacyConditionContext[chainKey]).toBeDefined();
+        expect([...getLegacyConditionChains(wrapper.vm.$).keys()]).toEqual(['host_chain_state_block:0']);
 
         await wrapper.setData({ showBaseCondition: true });
-        await wrapper.vm.$nextTick();
 
         expectOnlyBranch(wrapper, branches, '.base-condition');
-        expect(legacyConditionContext[chainKey]).toBeDefined();
-
-        wrapper.unmount();
-
-        expect(legacyConditionContext[chainKey]).toBeUndefined();
     });
 });

@@ -5,35 +5,18 @@
 const { RuleTester } = require('eslint');
 const tsParser = require('@typescript-eslint/parser');
 const vueParser = require('vue-eslint-parser');
-/**
- * Rule under test, typed so fixture shape errors are easier to spot.
- *
- * @type {import('eslint').Rule.RuleModule}
- */
+/** @type {import('eslint').Rule.RuleModule} */
 const rule = require('./valid-shopware-setup');
 
-/**
- * The generated-only defineExpose() diagnostic. One per mode, because each mode rejects the marker the
- * other one would be told to reach for.
- *
- * @type {string}
- */
+// One per mode, because each mode rejects the marker the other one would be told to reach for.
 const EXPOSE_MESSAGE_BASE = 'defineExpose() is not supported inside Shopware setup blocks. '
     + 'Use swDefinePublic({ ... }) instead, which will call it for you automatically.';
 
-/**
- * @type {string}
- */
 const EXPOSE_MESSAGE_OVERRIDE = 'defineExpose() is not supported inside Shopware setup blocks. '
     + 'The base component owns the exposed API and its swDefinePublic() entries generate it, so a binding '
     + 'this override replaces is already what a parent reads. '
     + 'Declare replacement bindings with swDefineOverride({ ... }) instead.';
 
-/**
- * Shared tester configured for Vue SFC script parsing.
- *
- * @type {import('eslint').RuleTester}
- */
 const ruleTester = new RuleTester({
     languageOptions: {
         ecmaVersion: 'latest',

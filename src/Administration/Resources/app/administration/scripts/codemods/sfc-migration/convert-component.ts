@@ -2,16 +2,12 @@
  * @sw-package framework
  */
 
-/**
- * The per-component conversion pipeline: twig template + Options API script in, validated native
- * setup SFC out. Pure apart from prettier — the fixture snapshots and the batch runner both go
- * through exactly this function, so what the tests pin is what the CLI writes.
- */
+/** One component through the pipeline; the snapshots and the CLI share it, so tests pin what is written. */
 
 import { collectTemplateComponentTags, collectTemplateIdentifiers } from './template-ast';
 import { transformScript } from './transform-script';
 import { transformTemplate } from './transform-template';
-import { formatSfc, validateSfc } from './validate';
+import { formatModule, formatSfc, validateSfc } from './validate';
 
 type ConvertInput = {
     jsSource: string;
@@ -22,62 +18,70 @@ type ConvertInput = {
     templateImportRange: { start: number; end: number };
 };
 
-/** The one status vocabulary: three the conversion produces, two only the batch runner can. */
+/** Three outcomes the conversion produces, two only the batch runner can. */
 type Outcome = 'full' | 'partial' | 'skipped' | 'already-migrated' | 'error';
 
 type ConvertResult = {
     outcome: Outcome;
     reasons: string[];
     sfc: string | null;
+    /** The module-level code the SFC imports, written next to it. */
+    module: { fileName: string; source: string } | null;
 };
+
+function skipped(reasons: string[]): ConvertResult {
+    return { outcome: 'skipped', reasons, sfc: null, module: null };
+}
 
 async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
     const template = transformTemplate(input.twigSource);
 
     if (template.template === null) {
-        return { outcome: 'skipped', reasons: template.blockers, sfc: null };
+        return skipped(template.blockers);
     }
 
-    // The template runs first because the script transform needs to know which names the markup
-    // reads: a member only the template uses still has to end up as a binding.
+    // Template first: a member only the markup reads still needs a binding.
+    const moduleBasename = `${input.componentName}.module`;
     const script = transformScript(input.jsSource, input.componentName, {
         templateImportRange: input.templateImportRange,
         templateIdentifiers: collectTemplateIdentifiers(template.template),
         templateComponentTags: collectTemplateComponentTags(template.template),
+        moduleSpecifier: `./${moduleBasename}`,
     });
 
     if (script.script === null) {
-        return { outcome: 'skipped', reasons: script.reasons, sfc: null };
+        return skipped(script.reasons);
     }
 
     const langAttribute = input.lang === 'ts' ? ' lang="ts"' : '';
     const commentBlock = template.sfcComments?.length ? `${template.sfcComments.join('\n')}\n` : '';
-    const moduleBlock = script.moduleScript
-        ? `<script data-sfc-migration-module${langAttribute}>\n${script.moduleScript}\n</script>\n\n`
-        : '';
-    const rawSfc = `${commentBlock}${moduleBlock}<template>\n${template.template.trim()}\n</template>\n\n<script setup${langAttribute}>\n${script.script}\n</script>\n`;
+    const rawSfc = `${commentBlock}<template>\n${template.template.trim()}\n</template>\n\n<script setup${langAttribute}>\n${script.script}\n</script>\n`;
 
     let formatted: string;
+    let sibling: ConvertResult['module'] = null;
 
     try {
         formatted = await formatSfc(rawSfc);
+
+        if (script.moduleScript !== null) {
+            sibling = {
+                fileName: `${moduleBasename}.${input.lang}`,
+                source: await formatModule(script.moduleScript, input.lang),
+            };
+        }
     } catch (error) {
-        return { outcome: 'skipped', reasons: [`prettier: ${(error as Error).message}`], sfc: null };
+        return skipped([`prettier: ${(error as Error).message}`]);
     }
 
-    const validationError = validateSfc(formatted, input.vuePath);
+    const validationError = validateSfc(formatted, input.vuePath, `./${moduleBasename}`);
 
     if (validationError !== null) {
-        return { outcome: 'skipped', reasons: [`validation: ${validationError}`], sfc: null };
+        return skipped([`validation: ${validationError}`]);
     }
 
     const reasons = [...(template.warnings ?? []), ...script.reasons];
 
-    return {
-        outcome: reasons.length > 0 ? 'partial' : 'full',
-        reasons,
-        sfc: formatted,
-    };
+    return { outcome: reasons.length > 0 ? 'partial' : 'full', reasons, sfc: formatted, module: sibling };
 }
 
 export { convertComponent, type ConvertInput, type ConvertResult, type Outcome };

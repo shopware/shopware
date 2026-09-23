@@ -69,8 +69,8 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         expect(wrapper.find('.false-case').exists()).toBe(false);
     });
 
-    it('fails loudly when a legacy Twig conditional shim is rendered without host data scope', async () => {
-        ComponentFactory.register('native-block-legacy-twig-shim-missing-data-scope', {
+    it('renders a legacy Twig conditional shim of a block without an explicit data scope', async () => {
+        ComponentFactory.register('native-block-legacy-twig-shim-without-data-scope', {
             data() {
                 return {
                     condition1: false,
@@ -85,7 +85,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             `,
         });
 
-        ComponentFactory.override('native-block-legacy-twig-shim-missing-data-scope', {
+        ComponentFactory.override('native-block-legacy-twig-shim-without-data-scope', {
             template: `
                 {% block twig_shim_block %}
                     {% parent %}
@@ -94,16 +94,17 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
             `,
         });
 
-        await withMutedConsoleWarn(async () => {
-            await expect(mountNativeBlockComponent('native-block-legacy-twig-shim-missing-data-scope')).rejects.toThrow(
-                '[sw-block] Legacy Twig conditional override for block "twig_shim_block" ' +
-                    'in component "native-block-legacy-twig-shim-missing-data-scope" requires host data scope. ' +
-                    'Pass :data="$dataScope" to <sw-block name="twig_shim_block">.',
-            );
+        const wrapper = await withMutedConsoleWarn(() => {
+            return mountNativeBlockComponent('native-block-legacy-twig-shim-without-data-scope');
         });
+
+        expectOnlyBranch(wrapper, ['.condition-one', '.twig-fallback'], '.twig-fallback');
+
+        await wrapper.setData({ condition1: true });
+
+        expectOnlyBranch(wrapper, ['.condition-one', '.twig-fallback'], '.condition-one');
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders legacy Twig shim condition chains across multiple template overrides', async () => {
         ComponentFactory.register('native-block-legacy-twig-shim-override-chain', {
             data() {
@@ -211,15 +212,9 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
 
         expect(wrapper.find('.condition-one').exists()).toBe(false);
         expect(wrapper.find('.condition-two').exists()).toBe(false);
-        // Persistent shim chains schedule the later native branch after the removed shim branch has updated.
-        void wrapper.html();
-        void (await import('src/app/component/structure/sw-block-override/shim/legacy-condition-context')).default()
-            .legacyConditionContext;
-        await wrapper.vm.$nextTick();
         expect(wrapper.find('.native-fallback-condition').exists()).toBe(true);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('continues adjacent named block condition chains for legacy Twig shim v-else-if cases', async () => {
         ComponentFactory.register('native-block-legacy-twig-adjacent-named-chain', {
             data() {
@@ -280,7 +275,6 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         expectOnlyBranch(wrapper, branches, null);
     });
 
-    // eslint-disable-next-line jest/expect-expect
     it('renders a later legacy Twig fallback after an earlier legacy Twig v-if misses', async () => {
         ComponentFactory.register('native-block-legacy-twig-started-chain', {
             data() {

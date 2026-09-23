@@ -102,6 +102,12 @@ Variant products report their selected options as `item_variant`, for example `R
 `begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped.
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
+### Checkout form data is kept in the session storage
+
+The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.
+
+The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `data-checkout-customer-storage-reset`. It sits on the emptied cart, as both a page and an off-canvas, on the order confirmation page, and on the login page a logout lands on. Themes that replace those templates should keep the attribute, and can add it to any further place that ends a checkout.
+
 ### Separate legal guarantee notice
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
@@ -117,6 +123,15 @@ Product items now report the unit price after the discount as `price`, and the d
 The discount of a promotion is allocated to the products it was calculated from, using the composition the promotion already stores on its line item. It is allocated on the line total and only then divided by the quantity, because a promotion does not have to discount every unit of a line item. Combinable promotions can discount a product by more than it costs, because they are only capped at the cart total; what exceeds the product is spread over the other products, so the reported value still matches what the customer paid. Shipping discounts are not allocated to products; they already reduce the reported `shipping`.
 
 Themes that override the block `component_hidden_line_item_information` and read `data-price` or the `gaPrice` variable will now read the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from, because the rounded unit price times the quantity can miss it by a cent. The template exposes the allocation through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
+### Legal guarantee notice on the registration and other privacy notices
+
+`component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
+
+## App system
+
+### App requests keep body and signature across redirects
+
+Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
 
 # 6.7.15.0
 

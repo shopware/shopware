@@ -4,7 +4,7 @@
 
 ### Product line items expose the manufacturer and category names in their payload
 
-Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no visible category. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
+Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no category available in the sales channel. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
 
 Both keys were previously only present when a client posted them as part of the line item payload, which only the Storefront product detail page did. Core now resolves them during cart enrichment for every add-to-cart path and overwrites any client supplied value, so clients that post them can stop doing so.
 ### Dompdf page count placeholder replaced for core and fallback fonts
@@ -100,6 +100,9 @@ Variant products report their selected options as `item_variant`, for example `R
 `begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped.
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
+### Separate legal guarantee notice
+
+The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
 ### Google Analytics reports prices after the promotion discount
 

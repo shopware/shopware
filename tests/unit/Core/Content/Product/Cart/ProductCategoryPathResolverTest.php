@@ -51,11 +51,12 @@ class ProductCategoryPathResolverTest extends TestCase
         static::assertSame([], $this->resolver->getPath($product, $this->context));
     }
 
-    public function testPathIsEmptyWhenTheProductHasNoVisibleCategory(): void
+    public function testPathFallsBackToACategoryHiddenFromTheNavigation(): void
     {
+        // the storefront breadcrumb still resolves a hidden category, so the path does too
         $hidden = $this->category('hidden', ['Mid', 'Hidden'], visible: false);
 
-        static::assertSame([], $this->resolver->getPath($this->product([$hidden]), $this->context));
+        static::assertSame(['Mid', 'Hidden'], $this->resolver->getPath($this->product([$hidden]), $this->context));
     }
 
     public function testPathStartsBelowTheNavigationRoot(): void
@@ -76,16 +77,24 @@ class ProductCategoryPathResolverTest extends TestCase
         );
     }
 
-    public function testPathSkipsInactiveAndInvisibleCategories(): void
+    public function testPathSkipsInactiveCategoriesAndPrefersVisibleOverDeeper(): void
     {
         $inactive = $this->category('inactive', ['Mid', 'A', 'Inactive'], active: false);
-        $invisible = $this->category('invisible', ['Mid', 'A', 'Invisible'], visible: false);
+        $hidden = $this->category('hidden', ['Mid', 'A', 'Hidden'], visible: false);
         $visible = $this->category('visible', ['Visible']);
 
         static::assertSame(
             ['Visible'],
-            $this->resolver->getPath($this->product([$inactive, $invisible, $visible]), $this->context)
+            $this->resolver->getPath($this->product([$inactive, $hidden, $visible]), $this->context)
         );
+    }
+
+    public function testPathUsesTheDeepestOfSeveralHiddenCategories(): void
+    {
+        $shallow = $this->category('shallow', ['Shallow'], visible: false);
+        $deep = $this->category('deep', ['Mid', 'Deep'], visible: false);
+
+        static::assertSame(['Mid', 'Deep'], $this->resolver->getPath($this->product([$shallow, $deep]), $this->context));
     }
 
     public function testPathIgnoresCategoriesOutsideTheSalesChannelTree(): void
@@ -137,14 +146,49 @@ class ProductCategoryPathResolverTest extends TestCase
         static::assertSame(['Mid', 'Deepest'], $this->resolver->getPath($product, $this->context));
     }
 
-    public function testInvisibleMainCategoryFallsBackToTheDeepestCategory(): void
+    public function testMainCategoryHiddenFromTheNavigationIsStillUsed(): void
     {
         $main = $this->category('main', ['MainCat'], visible: false);
         $deep = $this->category('deep', ['Mid', 'Deepest']);
 
         $product = $this->product([$main, $deep], mainCategory: $main);
 
+        static::assertSame(['MainCat'], $this->resolver->getPath($product, $this->context));
+    }
+
+    public function testInactiveMainCategoryFallsBackToTheAssignedCategories(): void
+    {
+        $main = $this->category('main', ['MainCat'], active: false);
+        $deep = $this->category('deep', ['Mid', 'Deepest']);
+
+        $product = $this->product([$main, $deep], mainCategory: $main);
+
         static::assertSame(['Mid', 'Deepest'], $this->resolver->getPath($product, $this->context));
+    }
+
+    public function testPathFallsBackToStreamCategoriesWithoutDirectAssignment(): void
+    {
+        $product = $this->product([]);
+        $product->addExtension(
+            ProductCategoryPathResolver::STREAM_CATEGORIES_EXTENSION,
+            new CategoryCollection([
+                $this->category('sale', ['Sale']),
+                $this->category('outlet', ['Sale', 'Outlet']),
+            ])
+        );
+
+        static::assertSame(['Sale', 'Outlet'], $this->resolver->getPath($product, $this->context));
+    }
+
+    public function testStreamCategoriesAreIgnoredWhenTheProductHasDirectCategories(): void
+    {
+        $product = $this->product([$this->category('direct', ['Direct'])]);
+        $product->addExtension(
+            ProductCategoryPathResolver::STREAM_CATEGORIES_EXTENSION,
+            new CategoryCollection([$this->category('stream', ['Mid', 'Deeper', 'Stream'])])
+        );
+
+        static::assertSame(['Direct'], $this->resolver->getPath($product, $this->context));
     }
 
     public function testFullBreadcrumbIsUsedWhenItDoesNotContainAnEntryPoint(): void

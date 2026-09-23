@@ -555,7 +555,13 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         return $lineItem->getPriceDefinition() !== null
             && $lineItem->getLabel() !== null
             && $lineItem->getDeliveryInformation() !== null
-            && $lineItem->getQuantityInformation() !== null;
+            && $lineItem->getQuantityInformation() !== null
+            // A cart persisted before these keys were resolved has to be enriched once, otherwise
+            // its unchanged products are never loaded again and the order is placed without them.
+            // `hasPayloadValue()` is no use here: it is `isset()`, and `manufacturerName` is null for
+            // a product without manufacturer, which would reload that product on every request.
+            && \array_key_exists('manufacturerName', $lineItem->getPayload())
+            && \array_key_exists('categoryNames', $lineItem->getPayload());
     }
 
     private function shouldPriceBeRecalculated(LineItem $lineItem, CartBehavior $behavior): bool

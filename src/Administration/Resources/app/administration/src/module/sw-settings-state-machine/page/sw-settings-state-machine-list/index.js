@@ -12,14 +12,9 @@ export default Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {

@@ -2,14 +2,25 @@
     <li class="row order-detail-content-row">
         {% block page_account_order_document_item_detail_file_name %}
             <div class="col-12 col-md-6 document-item document-item-file-name">
-                {% set documentMediaFiles = [document.documentMediaFile, document.documentA11yMediaFile] %}
+                {% set isDocumentV2 = document.documentFiles is not empty %}
+                {% set documentFiles = isDocumentV2 ? document.documentFiles|filter(file => file.media is not null) : [document.documentMediaFile, document.documentA11yMediaFile]|filter(media => media is not null) %}
 
-                {% for media in documentMediaFiles|filter(media => media is not null) %}
-                    {% set documentLink = path('frontend.account.order.single.document', {
-                        documentId: document.id,
-                        deepLinkCode: document.deepLinkCode,
-                        fileType: media.fileExtension,
-                    }) %}
+                {% for documentFile in documentFiles %}
+                    {% if isDocumentV2 %}
+                        {% set media = documentFile.media %}
+                        {% set documentLink = path('frontend.account.order.single.document', {
+                            documentId: document.id,
+                            deepLinkCode: document.deepLinkCode,
+                            fileType: documentFile.documentFormat,
+                        }) %}
+                    {% else %}
+                        {% set media = documentFile %}
+                        {% set documentLink = path('frontend.account.order.single.document', {
+                            documentId: document.id,
+                            deepLinkCode: document.deepLinkCode,
+                            fileType: media.fileExtension,
+                        }) %}
+                    {% endif %}
 
                     <a href="{{ documentLink }}"
                        target="_blank">
@@ -18,7 +29,11 @@
                         {% endblock %}
 
                         {% block page_account_order_document_item_detail_file_name_value %}
-                            {{ document.config.filenamePrefix }}{{ document.config.documentNumber }}{{ document.config.filenameSuffix is not empty? document.config.filenameSuffix ~ '_': '_' }}{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ media.fileExtension }}
+                            {% if isDocumentV2 %}
+                                {{ media.fileName }}.{{ media.fileExtension }}
+                            {% else %}
+                                {{ document.config.filenamePrefix }}{{ document.config.documentNumber }}{{ document.config.filenameSuffix is not empty? document.config.filenameSuffix ~ '_': '_' }}{{ document.createdAt|format_date(pattern='Y-MM-dd') }}.{{ media.fileExtension }}
+                            {% endif %}
                         {% endblock %}
                     </a><br>
                 {% endfor %}

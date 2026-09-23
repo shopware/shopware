@@ -114,7 +114,7 @@ class TaxProviderLifecycleHandlerTest extends TestCase
 
     public function testNoTaxInManifest(): void
     {
-        $manifest = $this->createMock(Manifest::class);
+        $manifest = static::createStub(Manifest::class);
         $manifest
             ->method('getTax')
             ->willReturn(null);

@@ -43,10 +43,7 @@ export default {
         'domain-changed',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         salesChannel: {
@@ -132,10 +129,7 @@ export default {
         },
 
         isDomainAware() {
-            const domainAware = [
-                Defaults.storefrontSalesChannelTypeId,
-                Defaults.apiSalesChannelTypeId,
-            ];
+            const domainAware = [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId];
             return domainAware.includes(this.salesChannel.typeId);
         },
 
@@ -186,6 +180,13 @@ export default {
 
         storefrontSalesChannelDomainCriteria() {
             const criteria = new Criteria(1, 25);
+            criteria.addAssociation('salesChannel');
+            criteria.addFilter(
+                Criteria.multi('or', [
+                    Criteria.not('and', [Criteria.equals('salesChannel.typeId', Defaults.apiSalesChannelTypeId)]),
+                    Criteria.equals('isExternalStorefront', true),
+                ]),
+            );
 
             return criteria.addFilter(Criteria.equals('salesChannelId', this.productExport.storefrontSalesChannelId));
         },
@@ -303,12 +304,7 @@ export default {
 
         mainNavigationCriteria() {
             const criteria = new Criteria(1, 10);
-            return criteria.addFilter(
-                Criteria.equalsAny('type', [
-                    'page',
-                    'folder',
-                ]),
-            );
+            return criteria.addFilter(Criteria.equalsAny('type', ['page', 'folder']));
         },
 
         getIntervalOptions() {
@@ -468,11 +464,7 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('salesChannel', [
-            'name',
-            'customerGroupId',
-            'navigationCategoryId',
-        ]),
+        ...mapPropertyErrors('salesChannel', ['name', 'customerGroupId', 'navigationCategoryId']),
 
         ...mapPropertyErrors('productExport', [
             'productStreamId',
@@ -767,7 +759,10 @@ export default {
             this.productExport.salesChannelDomain = null;
             this.loadStorefrontDomains(storefrontSalesChannelId);
 
-            this.salesChannelRepository.get(storefrontSalesChannelId).then((entity) => {
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('language');
+
+            this.salesChannelRepository.get(storefrontSalesChannelId, Context.api, criteria).then((entity) => {
                 if (!entity) {
                     return;
                 }
@@ -780,7 +775,22 @@ export default {
                 this.salesChannel.navigationCategoryId = entity.navigationCategoryId;
                 this.salesChannel.navigationCategoryVersionId = entity.navigationCategoryVersionId;
                 this.salesChannel.customerGroupId = entity.customerGroupId;
+
+                this.addLanguageToSalesChannel(entity.language);
             });
+        },
+
+        /**
+         * The server-side SalesChannelValidator rejects a languageId that is
+         * not part of the sales channel's language list, so the adopted
+         * storefront language has to be added to the language association.
+         */
+        addLanguageToSalesChannel(language) {
+            if (!language || this.salesChannel.languages?.has(language.id) !== false) {
+                return;
+            }
+
+            this.salesChannel.languages.add(language);
         },
 
         onStorefrontDomainSelectionChange(storefrontSalesChannelDomainId) {
@@ -821,9 +831,7 @@ export default {
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('fileName', this.productExport.fileName),
-                    Criteria.not('AND', [
-                        Criteria.equals('id', this.productExport.id),
-                    ]),
+                    Criteria.not('AND', [Criteria.equals('id', this.productExport.id)]),
                 ]),
             );
 
@@ -948,12 +956,7 @@ export default {
         getAgenticCommerceExportElementBind(element) {
             const bind = objectHelper.deepCopyObject(element);
 
-            if (
-                [
-                    'single-select',
-                    'multi-select',
-                ].includes(bind.type)
-            ) {
+            if (['single-select', 'multi-select'].includes(bind.type)) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
             }

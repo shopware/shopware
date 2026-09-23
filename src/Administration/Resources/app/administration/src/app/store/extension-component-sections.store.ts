@@ -7,6 +7,7 @@ import { reactive } from 'vue';
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ComponentSectionEntry = Omit<uiComponentSectionRenderer, 'responseType' | 'positionId'> & {
     extensionName: string;
+    priority?: number;
 };
 
 interface ExtensionComponentSectionsState {
@@ -29,9 +30,14 @@ const ExtensionComponentSectionsStore = Shopware.Store.register({
             src,
             props,
             extensionName,
-        }: Omit<uiComponentSectionRenderer, 'responseType'> & { extensionName: string }) {
+            priority,
+        }: Omit<uiComponentSectionRenderer, 'responseType'> & { extensionName: string; priority?: number }) {
             if (!this.identifier[positionId]) {
                 this.identifier[positionId] = reactive([]);
+            }
+
+            if (typeof priority === 'number' && priority < 1) {
+                priority = undefined;
             }
 
             this.identifier[positionId].push({
@@ -39,6 +45,7 @@ const ExtensionComponentSectionsStore = Shopware.Store.register({
                 src,
                 props,
                 extensionName,
+                priority,
             });
         },
     },

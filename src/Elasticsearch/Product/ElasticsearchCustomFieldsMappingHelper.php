@@ -23,7 +23,7 @@ class ElasticsearchCustomFieldsMappingHelper
     }
 
     /**
-     * @return array{type: string}
+     * @return array{type: 'long'}|array{type: 'double'}|array{type: 'boolean'}|array{type: 'date', format: string, ignore_malformed: true}|array{type: 'object', dynamic: true}|array{type: 'keyword', ignore_above: int, normalizer: string, fields: array{search: array{type: string, analyzer: string}, ngram: array{type: string, analyzer: string}}}
      */
     public static function getTypeFromCustomFieldType(string $type): array
     {
@@ -53,7 +53,7 @@ class ElasticsearchCustomFieldsMappingHelper
     /**
      * @param array<string, string> $customFields
      *
-     * @return array<string, array{type: string}>
+     * @return array<string, array{type: 'long'}|array{type: 'double'}|array{type: 'boolean'}|array{type: 'date', format: string, ignore_malformed: true}|array{type: 'object', dynamic: true}|array{type: 'keyword', ignore_above: int, normalizer: string, fields: array{search: array{type: string, analyzer: string}, ngram: array{type: string, analyzer: string}}}>
      */
     public static function mapCustomFieldsToEsTypes(array $customFields): array
     {

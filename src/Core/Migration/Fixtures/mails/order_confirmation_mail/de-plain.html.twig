@@ -114,3 +114,7 @@ Folgend stellen wir barrierefreie Dokumente als HTML-Version zur Verfügung:
 Aus Datenschutzgründen ist für die HTML-Version ein Login erforderlich.
 Im Falle einer Gastbestellung können Sie Ihre E-Mail-Adresse und die Postleitzahl der Rechnungsanschrift verwenden.
 {% endif %}
+
+{% if config('core.cart.showLegalGuaranteeNotice') %}
+Hinweis zu Ihren gesetzlichen Gewährleistungsrechten: {{ context.languageId|sw_legal_guarantee_notice_link }}
+{% endif %}

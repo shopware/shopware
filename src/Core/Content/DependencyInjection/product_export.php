@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\Api\ProductExportController;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
@@ -47,7 +48,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
     $parameters->set('product_export.directory', 'export');
-    $parameters->set('product_export.read_buffer_size', 100);
+    $parameters->set('product_export.read_buffer_size', '%shopware.product_export.read_buffer_size%');
     // Stale detection tuning: unlock stuck exports when older than max(min_seconds, factor * interval)
     $parameters->set('product_export.stale_min_seconds', 300);
     $parameters->set('product_export.stale_interval_factor', 2.0);
@@ -101,6 +102,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDefinition::class),
             service(LanguageLocaleCodeProvider::class),
             service(TwigVariableParserFactory::class),
+            service(CategoryBreadcrumbBuilder::class),
         ]);
 
     $services->set(ProductExportGenerateCommand::class)
@@ -137,7 +139,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextService::class),
             service(SalesChannelContextPersister::class),
             service(Connection::class),
-            param('product_export.read_buffer_size'),
             service(LanguageLocaleCodeProvider::class),
             service(ClockInterface::class),
         ])

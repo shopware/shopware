@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[Package('fundamentals@discovery')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CurrencyRule::class)]
 class CurrencyRuleTest extends TestCase
 {

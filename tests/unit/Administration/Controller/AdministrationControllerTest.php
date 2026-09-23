@@ -54,7 +54,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 #[CoversClass(AdministrationController::class)]
 class AdministrationControllerTest extends TestCase
 {
@@ -142,6 +142,7 @@ class AdministrationControllerTest extends TestCase
                     'serviceRegistryUrl' => $this->serviceRegistryUrl,
                     'refreshTokenTtl' => 7 * 86400 * 1000,
                     'productStreamIndexingEnabled' => true,
+                    'hideUpdateModule' => true,
                     'analyticsGatewayUrl' => $this->analyticsGatewayUrl,
                 ]
             );

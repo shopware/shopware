@@ -1,0 +1,5 @@
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
+die Zahlung für Ihre Bestellung bei {{ salesChannel.translated.name }} (Nummer: {{ order.orderNumber }}) ist fehlgeschlagen.
+
+Bitte überprüfen Sie Ihre Zahlungsdaten oder wählen Sie in Ihrem Kundenkonto eine andere Zahlungsart.

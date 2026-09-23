@@ -6,7 +6,6 @@ use Dompdf\Adapter\CPDF;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
@@ -26,6 +25,8 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::PDF;
 
+    private const PAGE_COUNT_PLACEHOLDER = 'DOMPDF_PAGE_COUNT_PLACEHOLDER';
+
     /**
      * @param array<string, mixed> $dompdfOptions
      */
@@ -42,15 +43,6 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
     public function getFileExtension(): string
     {
         return self::FORMAT->fileExtension();
-    }
-
-    public function getDocumentTypes(): array
-    {
-        return [
-            DocumentType::INVOICE->value,
-            DocumentType::CANCELLATION_INVOICE->value,
-            DocumentType::DELIVERY_NOTE->value,
-        ];
     }
 
     public function getDependencies(): array
@@ -95,8 +87,11 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
 
     /**
      * Replaces the literal `DOMPDF_PAGE_COUNT_PLACEHOLDER` emitted by the footer Twig with the
-     * real page count after rendering. Strings are written into the CPDF object stream null-byte
-     * padded, so the search + replace value must match that encoding.
+     * real page count after rendering.
+     *
+     * Unicode TrueType fonts encode text in the CPDF stream as UTF-16BE (null-byte padded),
+     * while built-in standard 14 AFM fonts (such as Helvetica, when external fonts are blocked
+     * or fallback is used) encode text as single-byte strings. Both encodings are replaced.
      *
      * Verbatim port of the v1 implementation at
      * {@see \Shopware\Core\Checkout\Document\Service\PdfRenderer::injectPageCount}.
@@ -105,9 +100,16 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
     {
         /** @var CPDF $canvas */
         $canvas = $dompdf->getCanvas();
+        $pageCount = (string) $canvas->get_page_count();
 
-        $search = $this->insertNullByteBeforeEachCharacter('DOMPDF_PAGE_COUNT_PLACEHOLDER');
-        $replace = $this->insertNullByteBeforeEachCharacter((string) $canvas->get_page_count());
+        $search = [
+            $this->insertNullByteBeforeEachCharacter(self::PAGE_COUNT_PLACEHOLDER),
+            self::PAGE_COUNT_PLACEHOLDER,
+        ];
+        $replace = [
+            $this->insertNullByteBeforeEachCharacter($pageCount),
+            $pageCount,
+        ];
 
         $pdf = $canvas->get_cpdf();
 

@@ -8,6 +8,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 /**
  * @extends EntityCollection<SalesChannelTypeEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class SalesChannelTypeCollection extends EntityCollection

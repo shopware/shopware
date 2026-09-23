@@ -91,7 +91,8 @@ class PreviewRequestResolverTest extends TestCase
             ],
         ]);
 
-        $this->mailTemplateService->method('loadTemplate')->willReturn($mailTemplate);
+        $this->mailTemplateService->expects($this->once())->method('loadTemplate')->willReturn($mailTemplate);
+        $this->salesChannelProvider->expects($this->never())->method('getData');
 
         $result = $this->resolveRequest($request);
 
@@ -115,6 +116,8 @@ class PreviewRequestResolverTest extends TestCase
             'strictRendering' => true,
         ]);
 
+        $this->salesChannelProvider->expects($this->never())->method('getData');
+
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')
             ->with('template-id', $context)
@@ -137,6 +140,8 @@ class PreviewRequestResolverTest extends TestCase
             'strictRendering' => '0',
         ]);
 
+        $this->salesChannelProvider->expects($this->never())->method('getData');
+
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')
             ->with('template-id', $context)
@@ -156,6 +161,8 @@ class PreviewRequestResolverTest extends TestCase
             'mailTemplateId' => 'template-id',
             'entities' => 'invalid',
         ]);
+
+        $this->salesChannelProvider->expects($this->never())->method('getData');
 
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')
@@ -178,6 +185,8 @@ class PreviewRequestResolverTest extends TestCase
             'templateData' => 'invalid',
         ]);
 
+        $this->salesChannelProvider->expects($this->never())->method('getData');
+
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')
             ->with('template-id', $context)
@@ -198,6 +207,8 @@ class PreviewRequestResolverTest extends TestCase
             'mailTemplateId' => 'template-id',
             'salesChannelId' => 1,
         ]);
+
+        $this->salesChannelProvider->expects($this->never())->method('getData');
 
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')
@@ -246,6 +257,8 @@ class PreviewRequestResolverTest extends TestCase
             'includeHeaderFooter' => 'invalid',
         ]);
 
+        $this->salesChannelProvider->expects($this->never())->method('getData');
+
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')
             ->with('template-id', $context)
@@ -266,6 +279,8 @@ class PreviewRequestResolverTest extends TestCase
             'mailTemplateId' => 'template-id',
             'strictRendering' => 'invalid',
         ]);
+
+        $this->salesChannelProvider->expects($this->never())->method('getData');
 
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')

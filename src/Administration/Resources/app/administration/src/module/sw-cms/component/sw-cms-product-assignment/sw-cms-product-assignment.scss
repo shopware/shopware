@@ -2,5 +2,9 @@
     .sw-cms-product-assignment__empty-state {
         text-align: center;
         padding: 20px;
+
+        & img {
+            display: inline-block;
+        }
     }
 }

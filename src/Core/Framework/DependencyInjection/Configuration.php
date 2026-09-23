@@ -59,9 +59,11 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createProductExportSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
                 ->append($this->createMcpSection())
+                ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
                 ->append($this->createTranslationSection())
             ->end();
@@ -157,6 +159,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('url')->end()
                 ->scalarNode('strategy')->end()
+                ->booleanNode('path_cache_buster')->defaultTrue()->end()
                 ->arrayNode('fastly')
                     ->children()
                         ->scalarNode('api_key')->end()
@@ -203,6 +206,22 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
+            ->scalarNode('auth_code_ttl')->defaultValue('PT5M')->end()
+            ->arrayNode('oauth_clients')
+                ->info('Public OAuth clients allowed to use the authorization code grant with PKCE, keyed by client id.')
+                ->normalizeKeys(false)
+                ->useAttributeAsKey('client_id')
+                ->arrayPrototype()
+                    ->children()
+                        ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                        ->arrayNode('redirect_uris')
+                            ->isRequired()
+                            ->requiresAtLeastOneElement()
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
             ->scalarNode('max_limit')->end()
             ->arrayNode('static_token')
                 ->children()
@@ -265,6 +284,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('enabled')->end()
+                ->booleanNode('hide_module')->end()
             ->end();
 
         return $rootNode;
@@ -344,6 +364,16 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->booleanNode('enable')->end()
                         ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
+                        ->arrayNode('fallback_sizes')
+                            ->performNoDeepMerging()
+                            ->defaultValue([])
+                            ->arrayPrototype()
+                                ->children()
+                                    ->integerNode('width')->isRequired()->min(1)->end()
+                                    ->integerNode('height')->isRequired()->min(1)->end()
+                                ->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
                 ->scalarNode('thumbnail_processor')
@@ -358,6 +388,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
                     ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
                 ->end()
+                ->floatNode('url_upload_timeout')->defaultValue(0.0)->min(0)->end()
+                ->floatNode('external_link_timeout')->defaultValue(0.0)->min(0)->end()
                 ->arrayNode('presigned_upload')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -630,6 +662,9 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
                         ->booleanNode('major')->defaultFalse()->end()
+                        // Only for a major flag that is not named after its major: the major it
+                        // arrives in, so FEATURE_ALL=v6.8.0.0 can leave out a later major's flags.
+                        ->scalarNode('majorVersion')->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
@@ -1331,6 +1366,15 @@ class Configuration implements ConfigurationInterface
                                             ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
                                         ->end()
                                     ->end()
+                                    ->scalarNode('no_vary_search')
+                                        ->info('Verbatim value of the "No-Vary-Search" header, e.g. "key-order". Declares which query string differences clients may ignore when matching a stored response, both in the HTTP cache and in the prefetch/prerender cache. Never list parameters that change the rendered content (e.g. "p", "order", filter names) via "params", as the stored response would then be served for the wrong URL.')
+                                        ->defaultNull()
+                                        ->validate()
+                                            // `\z` instead of `$`, otherwise a trailing newline would pass and could smuggle a second header
+                                            ->ifTrue(static fn ($value): bool => $value !== null && (!\is_string($value) || preg_match('/^[\x20-\x7E]+\z/', $value) !== 1))
+                                            ->thenInvalid('The "no_vary_search" option must be a single line of printable ASCII, %s given.')
+                                        ->end()
+                                    ->end()
                                 ->end()
                             ->end()
                         ->end()
@@ -1613,6 +1657,24 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createProductExportSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product_export');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->integerNode('read_buffer_size')
+                    ->info('Number of products read and rendered per product export batch. Higher values reduce per-batch overhead but increase peak worker memory, as each batch hydrates and renders that many full product entities.')
+                    ->min(1)
+                    ->defaultValue(200)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createMcpSection(): ArrayNodeDefinition
     {
         $rootNode = (new TreeBuilder('mcp'))->getRootNode();
@@ -1676,6 +1738,32 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createAppSystemSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('app_system');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->booleanNode('enable_url_validation')->defaultTrue()->end()
+                ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
+                ->arrayNode('allowed_private_ip_addresses')
+                    ->performNoDeepMerging()
+                    ->defaultValue([])
+                    ->scalarPrototype()
+                        ->cannotBeEmpty()
+                        ->validate()
+                            ->ifTrue(static fn (string $value): bool => filter_var($value, \FILTER_VALIDATE_IP) === false)
+                            ->thenInvalid('"%s" is not a valid IP address.')
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createTranslationSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('translation');
@@ -1687,6 +1775,9 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('repository_url')->defaultNull()->end()
                 ->scalarNode('metadata_url')->defaultNull()->end()
+                ->scalarNode('community_translations_url')->defaultNull()->end()
+                ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
+                ->integerNode('completeness_threshold')->defaultNull()->end()
                 // list overrides default to null so an unset option (keep the shipped default) can be told apart from an explicit empty list (clear the shipped default)
                 ->arrayNode('plugins')
                     ->defaultNull()
@@ -1694,6 +1785,11 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->cannotBeEmpty()->end()
                 ->end()
                 ->arrayNode('excluded_locales')
+                    ->defaultNull()
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()->cannotBeEmpty()->end()
+                ->end()
+                ->arrayNode('pseudo_locales')
                     ->defaultNull()
                     ->performNoDeepMerging()
                     ->scalarPrototype()->cannotBeEmpty()->end()
@@ -1716,6 +1812,13 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
                             ->scalarNode('locale')->isRequired()->cannotBeEmpty()->end()
                         ->end()
+                    ->end()
+                ->end()
+                ->booleanNode('use_local_filesystem')->defaultFalse()->end()
+                ->arrayNode('scheduled_task')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
                     ->end()
                 ->end()
             ->end();

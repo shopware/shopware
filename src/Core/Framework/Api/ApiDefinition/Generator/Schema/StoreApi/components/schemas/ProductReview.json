@@ -1,0 +1,84 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductReview": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "productId",
+                    "salesChannelId",
+                    "languageId",
+                    "title",
+                    "content"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productId": {
+                        "description": "Unique identity of the product.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "salesChannelId": {
+                        "description": "Unique identity of the sales channel.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "languageId": {
+                        "description": "Unique identity of the language.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "externalUser": {
+                        "description": "External user name.",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "Title of product review.",
+                        "type": "string"
+                    },
+                    "content": {
+                        "description": "Short description or subject of the project review.",
+                        "type": "string"
+                    },
+                    "points": {
+                        "description": "A floating point number given to rate a product.",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "status": {
+                        "description": "When status is set, the rating is made visible.",
+                        "type": "boolean"
+                    },
+                    "comment": {
+                        "description": "Detailed review about the product.",
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

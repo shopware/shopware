@@ -137,7 +137,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $context = static::createStub(SalesChannelContext::class);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $handler = $this->getHandlerWithConnection($connection);
 

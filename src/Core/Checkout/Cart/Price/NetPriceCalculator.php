@@ -69,9 +69,7 @@ class NetPriceCalculator
             return null;
         }
 
-        if (!$definition->isCalculated()) {
-            $listPrice = $this->round($listPrice, $config);
-        }
+        $listPrice = $this->round($listPrice, $config);
 
         if ($listPrice <= 0) {
             return null;
@@ -87,9 +85,7 @@ class NetPriceCalculator
             return null;
         }
 
-        if (!$definition->isCalculated()) {
-            $regulationPrice = $this->round($regulationPrice, $config);
-        }
+        $regulationPrice = $this->round($regulationPrice, $config);
 
         return new RegulationPrice($regulationPrice);
     }

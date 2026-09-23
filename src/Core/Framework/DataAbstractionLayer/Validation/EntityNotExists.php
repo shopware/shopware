@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
@@ -21,9 +22,7 @@ class EntityNotExists extends Constraint
         self::ENTITY_EXISTS => 'ENTITY_EXISTS',
     ];
 
-    /**
-     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getMessage() instead.')]
     public string $message = 'The {{ entity }} entity already exists.';
 
     protected string $entity;
@@ -35,7 +34,7 @@ class EntityNotExists extends Constraint
     protected string $primaryProperty = 'id';
 
     /**
-     * @param array{entity: string, context: Context, criteria?: Criteria, primaryProperty?: string}|null $options
+     * @param array{entity?: string, context?: Context, criteria?: Criteria, primaryProperty?: string}|null $options
      *
      * The `$entity`, `$context`, `$primaryProperty` and `$message` properties will be natively typed via constructor property promotion in v6.8.0.
      *
@@ -90,7 +89,7 @@ class EntityNotExists extends Constraint
                 throw FrameworkException::missingOptions(\sprintf('Option "context" must be given for constraint %s', self::class));
             }
 
-            if (!($options['criteria'] ?? null) instanceof Criteria) {
+            if (!$options['criteria'] instanceof Criteria) {
                 throw FrameworkException::invalidOptions(\sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class));
             }
 

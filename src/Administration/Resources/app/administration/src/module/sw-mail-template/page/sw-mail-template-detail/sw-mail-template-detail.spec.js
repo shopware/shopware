@@ -134,18 +134,13 @@ class SyntaxValidationTemplateError extends Error {
 
 function createSimulationResponse(mailTemplateContent) {
     return Object.fromEntries(
-        Object.entries(mailTemplateContent).map(
-            ([
-                key,
+        Object.entries(mailTemplateContent).map(([key, content]) => [
+            key,
+            {
+                type: 'success',
                 content,
-            ]) => [
-                key,
-                {
-                    type: 'success',
-                    content,
-                },
-            ],
-        ),
+            },
+        ]),
     );
 }
 
@@ -243,9 +238,7 @@ async function createWrapper(privileges = []) {
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
                 'sw-code-editor': {
-                    props: [
-                        'disabled',
-                    ],
+                    props: ['disabled'],
                     template: '<input type="text" class="sw-code-editor" :disabled="disabled" />',
                     methods: {
                         defineAutocompletion() {},
@@ -560,6 +553,32 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             message: 'CTRL + S',
             appearance: 'light',
         });
+    });
+
+    it('should enable the preview button only with edit permission', async () => {
+        const wrapper = await createWrapper(['api_send_email']);
+        await wrapper.setData({
+            isLoading: false,
+            triggerEvent: { name: 'checkout.order.placed' },
+        });
+
+        const previewButton = wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'sw-mail-template.detail.previewModalTitle');
+
+        expect(previewButton?.attributes('disabled')).toBeDefined();
+
+        const editorWrapper = await createWrapper(['mail_templates.editor']);
+        await editorWrapper.setData({
+            isLoading: false,
+            triggerEvent: { name: 'checkout.order.placed' },
+        });
+
+        const editorPreviewButton = editorWrapper
+            .findAll('button')
+            .find((button) => button.text() === 'sw-mail-template.detail.previewModalTitle');
+
+        expect(editorPreviewButton?.attributes('disabled')).toBeUndefined();
     });
 
     it('should not be able to show preview if html content is empty', async () => {

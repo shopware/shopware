@@ -24,5 +24,15 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-hfxv-24rg-xrqf', // axios v0 ReDoS, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-p92q-9vqr-4j8v', // axios v0 proxy authorization leak, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
         'https://github.com/advisories/GHSA-j5f8-grm9-p9fc', // axios v0 proxy authorization leak, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-42h9-826w-cgv3', // axios v0 formDataToJSON DoS, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-pmv8-rq9r-6j72', // axios v0 formToJSON DoS, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-mmx7-hfxf-jppx', // axios v0 prototype pollution gadgets, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-f4gw-2p7v-4548', // axios v0 NO_PROXY bypass, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-gcfj-64vw-6mp9', // axios v0 inherited proxy use, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-hcpx-6fm6-wx23', // axios v0 form serializer maxDepth bypass, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-7q8q-rj6j-mhjq', // axios v0 nested option prototype pollution, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-cp6q-959q-f8rh', // @tiptap/core mergeAttributes prototype pollution, moderate. The 2.x copy is overridden to 2.27.3, which contains the mergeAttributes fix, but the published GHSA range is still >=2.0.0-alpha.0 <3.30.4 so npm audit keeps reporting it. Meteor 5.7.1 still depends on @tiptap ^2.22.3; forcing core 3.x here would be the same v2-to-v3 jump that shopware/meteor#1012 has not landed.
+        'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal via Puppeteer browser downloads, devDep only; fixed Puppeteer requires Node 22.12+ while this package still supports Node 20
+        'https://github.com/advisories/GHSA-7pqw-9j4j-h8q3', // extract-zip arbitrary file writes via symlink archive entries, devDep only; no fix in extract-zip itself and the fixed Puppeteer requires Node 22.12+ while this package still supports Node 20
     ],
 });

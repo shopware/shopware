@@ -48,11 +48,15 @@ class CriteriaValueResolver implements ValueResolverInterface
             throw RoutingException::missingRouteAttribute('context', $route);
         }
 
-        yield $this->criteriaBuilder->handleRequest(
+        $criteria = $this->criteriaBuilder->handleRequest(
             $request,
             new Criteria(),
             $this->registry->getByEntityName($entity),
             $context
         );
+
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CRITERIA, $criteria);
+
+        yield $criteria;
     }
 }

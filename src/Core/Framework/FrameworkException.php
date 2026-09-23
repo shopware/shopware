@@ -29,6 +29,7 @@ class FrameworkException extends HttpException
     private const MISSING_OPTIONS = 'FRAMEWORK__MISSING_OPTIONS';
     private const INVALID_OPTIONS = 'FRAMEWORK__INVALID_OPTIONS';
     private const ASSOCIATION_NOT_FOUND = 'FRAMEWORK__ASSOCIATION_NOT_FOUND';
+    private const CREATE_FROM_ERROR = 'FRAMEWORK__CREATE_FROM_ERROR';
 
     public static function projectDirNotExists(string $dir, ?\Throwable $e = null): self
     {
@@ -150,5 +151,19 @@ class FrameworkException extends HttpException
     public static function unexpectedType(mixed $givenType, string $expectedType): UnexpectedTypeException
     {
         return new UnexpectedTypeException($givenType, $expectedType);
+    }
+
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function createFromError(string $message): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException($message);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::CREATE_FROM_ERROR,
+            $message
+        );
     }
 }

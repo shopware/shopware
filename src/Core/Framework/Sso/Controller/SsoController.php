@@ -123,7 +123,7 @@ class SsoController extends AbstractController
     #[Route(
         path: '/api/_action/sso/invite-user',
         name: 'api.action.sso.invite-user',
-        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration']],
+        defaults: ['auth_required' => true, PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => ['administration'], PlatformRequest::ATTRIBUTE_ACL => ['user:create']],
         methods: [Request::METHOD_POST]
     )]
     public function inviteUser(RequestDataBag $requestDataBag, Context $context): JsonResponse

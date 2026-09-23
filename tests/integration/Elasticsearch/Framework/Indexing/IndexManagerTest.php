@@ -11,7 +11,7 @@ use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('framework')]
 class IndexManagerTest extends TestCase
 {
     use KernelTestBehaviour;

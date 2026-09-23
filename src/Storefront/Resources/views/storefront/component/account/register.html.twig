@@ -274,7 +274,11 @@
                         <div class="register-submit d-grid col-md-6 offset-md-6">
                             <button type="submit"
                                     class="btn btn-primary btn-lg">
-                                {{ 'account.registerSubmit'|trans|sw_sanitize }}
+                                {% if activeRoute === 'frontend.checkout.register.page' %}
+                                    {{ 'checkout.registerSubmit'|trans|sw_sanitize }}
+                                {% else %}
+                                    {{ 'account.registerSubmit'|trans|sw_sanitize }}
+                                {% endif %}
                             </button>
                         </div>
                     {% endblock %}

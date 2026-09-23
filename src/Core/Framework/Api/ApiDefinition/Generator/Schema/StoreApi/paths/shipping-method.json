@@ -43,11 +43,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -70,7 +66,7 @@
                                                 },
                                                 "aggregations": {
                                                     "description": "aggregation result",
-                                                    "type": "object"
+                                                    "$ref": "#/components/schemas/EntitySearchResult/properties/aggregations"
                                                 },
                                                 "elements": {
                                                     "type": "array",
@@ -88,6 +84,14 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -112,6 +116,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/ShippingMethodListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

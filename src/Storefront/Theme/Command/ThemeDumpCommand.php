@@ -122,20 +122,40 @@ class ThemeDumpCommand extends Command
         $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($themeConfig);
 
         $themeName = $themeEntity->getTechnicalName() ?? $themeEntity->getId();
-        $domainUrl = $input->getArgument('domain-url');
-        if ($input->isInteractive()) {
-            $domainUrl ??= $this->askForDomainUrlIfMoreThanOneExists($themeEntity, $input, $output);
 
-            if ($domainUrl === null) {
+        // An empty argument is treated as absent, so that `theme:dump <theme-id> "$UNSET_VAR"` resolves the domain
+        // instead of dumping an empty URL.
+        $domainUrl = $input->getArgument('domain-url') ?: null;
+
+        if ($domainUrl === null) {
+            $domainUrls = $this->getDomainUrls($themeEntity);
+
+            if ($domainUrls === []) {
                 $this->io->error(\sprintf('No domain URL for theme %s found', $themeName));
 
                 return self::FAILURE;
             }
+
+            if (\count($domainUrls) === 1) {
+                $domainUrl = $domainUrls[0];
+            } elseif ($input->isInteractive()) {
+                $domainUrl = $this->askForDomainUrl($domainUrls, $input, $output);
+            } else {
+                $domainUrl = $domainUrls[0];
+
+                $this->io->warning(\sprintf(
+                    'More than one domain URL is available for theme %s, using %s. Provide the domain URL as an argument to select one explicitly.',
+                    $themeName,
+                    $domainUrl
+                ));
+            }
         }
+
+        \assert(\is_string($domainUrl));
 
         $dump['themeId'] = $themeEntity->getId();
         $dump['technicalName'] = $themeConfig->getTechnicalName();
-        $dump['domainUrl'] = $domainUrl ?? '';
+        $dump['domainUrl'] = $domainUrl;
 
         $this->staticFileConfigDumper->dumpConfigInVar('theme-files.json', $dump);
 
@@ -193,39 +213,38 @@ class ThemeDumpCommand extends Command
         return $choices;
     }
 
-    private function askForDomainUrlIfMoreThanOneExists(ThemeEntity $themeEntity, InputInterface $input, OutputInterface $output): ?string
+    /**
+     * @return list<string>
+     */
+    private function getDomainUrls(ThemeEntity $themeEntity): array
     {
         $salesChannels = $themeEntity->getSalesChannels()?->filterByTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
 
-        if (!$salesChannels) {
-            return null;
-        }
-
         $domainUrls = [];
 
-        foreach ($salesChannels as $salesChannel) {
-            if (!$salesChannel->getDomains()?->count()) {
-                continue;
-            }
-
-            foreach ($salesChannel->getDomains() as $domain) {
+        foreach ($salesChannels ?? [] as $salesChannel) {
+            foreach ($salesChannel->getDomains() ?? [] as $domain) {
                 $domainUrls[] = $domain->getUrl();
             }
         }
 
-        if (\count($domainUrls) > 1) {
-            $helper = $this->getHelper('question');
-            \assert($helper instanceof QuestionHelper);
+        return $domainUrls;
+    }
 
-            $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
-            $domainUrl = $helper->ask($input, $output, $question);
+    /**
+     * @param non-empty-list<string> $domainUrls
+     */
+    private function askForDomainUrl(array $domainUrls, InputInterface $input, OutputInterface $output): string
+    {
+        $helper = $this->getHelper('question');
+        \assert($helper instanceof QuestionHelper);
 
-            \assert(filter_var($domainUrl, \FILTER_VALIDATE_URL));
+        $question = new ChoiceQuestion('Please select a domain url:', $domainUrls);
+        $domainUrl = $helper->ask($input, $output, $question);
 
-            return $domainUrl;
-        }
+        \assert(\is_string($domainUrl));
 
-        return $domainUrls[0] ?? null;
+        return $domainUrl;
     }
 
     private function getTechnicalName(string $themeId): ?string

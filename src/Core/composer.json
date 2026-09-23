@@ -10,7 +10,8 @@
     "license": "MIT",
     "autoload": {
         "files": [
-            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
+            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "Framework/Deprecation/class_aliases.php"
         ],
         "psr-4": {
             "Shopware\\Core\\": ""
@@ -74,10 +75,11 @@
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
         "league/oauth2-server": "^9.3",
-        "mcp/sdk": "^0.7.0",
+        "mcp/sdk": "^0.8.1",
         "monolog/monolog": "^3.3.1",
         "nikic/php-parser": "^5.8.0",
         "nyholm/psr7": "^1.5",
+        "php-http/discovery": "^1.20",
         "psr/cache": "^3.0.0",
         "psr/clock": "^1.0.0",
         "psr/container": "^2.0.2",
@@ -91,7 +93,7 @@
         "ramsey/uuid": "^4.7",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.2",
+        "shopware/conflicts": "0.6.3",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.12",
@@ -117,7 +119,7 @@
         "symfony/intl": "~7.4.0",
         "symfony/lock": "~7.4.0",
         "symfony/mailer": "~7.4.12",
-        "symfony/mcp-bundle": "~0.11.0",
+        "symfony/mcp-bundle": "~0.13.0",
         "symfony/messenger": "~7.4.12",
         "symfony/mime": "~7.4.12",
         "symfony/monolog-bridge": "~7.4.12",
@@ -154,7 +156,7 @@
         "symfony/yaml": "~7.4.12",
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
-        "twig/twig": "^3.26.0",
+        "twig/twig": "^3.29.0",
         "zircote/swagger-php": "^6.4"
     },
     "suggest": {
@@ -168,7 +170,7 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "php-http/discovery": false,
+            "php-http/discovery": true,
             "symfony/runtime": true
         }
     }

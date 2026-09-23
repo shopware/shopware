@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
@@ -90,7 +91,15 @@ class PromotionDeliveryCalculator
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$this->isAutomaticDiscount($discountItem)) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $toCalculate);
+                    $name = $discountItem->getLabel() ?? $discountItem->getId();
+                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                    } else {
+                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                            : [];
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                    }
                 }
 
                 continue;
@@ -217,11 +226,7 @@ class PromotionDeliveryCalculator
                 return false;
             }
 
-            if ($discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT) {
-                return true;
-            }
-
-            return false;
+            return $discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT;
         });
 
         // if there are no fixed price lineItems we may return all discount line items and calculate them
@@ -507,8 +512,9 @@ class PromotionDeliveryCalculator
         $idStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_ID, IdStruct::class);
         $versionIdStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_VERSION_ID, IdStruct::class);
 
+        // Own empty positions: never share the base delivery's order_delivery_position rows.
         $delivery = new Delivery(
-            $delivery->getPositions(),
+            new DeliveryPositionCollection(),
             $delivery->getDeliveryDate(),
             $delivery->getShippingMethod(),
             $delivery->getLocation(),

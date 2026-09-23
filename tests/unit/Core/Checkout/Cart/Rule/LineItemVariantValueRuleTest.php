@@ -23,7 +23,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemVariantValueRule::class)]
 #[Group('rules')]
 class LineItemVariantValueRuleTest extends TestCase
@@ -130,6 +130,36 @@ class LineItemVariantValueRuleTest extends TestCase
             'operators' => $operators,
             'isMatchAny' => true,
         ], $configData['operatorSet']);
+    }
+
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemVariantValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+
+        $lineItem = new LineItem(Uuid::randomHex(), $type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        if ($lineItemScope) {
+            $scope = new LineItemScope($lineItem, $context);
+        } else {
+            $cart = new Cart(Uuid::randomHex());
+            $cart->setLineItems(new LineItemCollection([$lineItem]));
+            $scope = new CartRuleScope($cart, $context);
+        }
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
     }
 
     /**

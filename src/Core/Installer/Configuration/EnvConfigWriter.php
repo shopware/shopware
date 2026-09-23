@@ -4,7 +4,6 @@ namespace Shopware\Core\Installer\Configuration;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 use Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -12,7 +11,7 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 /**
  * @internal
  *
- * @phpstan-import-type Shop from ShopConfigurationController
+ * @phpstan-import-type Shop from ShopConfigurationService
  */
 #[Package('framework')]
 class EnvConfigWriter

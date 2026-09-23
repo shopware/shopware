@@ -20,7 +20,9 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -174,5 +176,15 @@ class ShopIdControllerTest extends TestCase
 
         static::assertEmpty($response->getContent());
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testChangeShopIdRouteRequiresAppChangeAclPrivilege(): void
+    {
+        $this->shopIdChangeResolver->expects($this->never())->method('resolve');
+
+        $route = (new AttributeRouteControllerLoader())->load(ShopIdController::class)->get('api.app_system.shop_id.change');
+
+        static::assertNotNull($route);
+        static::assertSame(['system:app:change'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 }

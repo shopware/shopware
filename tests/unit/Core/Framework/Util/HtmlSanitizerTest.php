@@ -13,18 +13,20 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticHtmlPurifierConfigProvider;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type SetsArray from HtmlSanitizer
  */
 #[Package('framework')]
 #[CoversClass(HtmlSanitizer::class)]
 class HtmlSanitizerTest extends TestCase
 {
     /**
-     * @var array<string, array<string, mixed>>
+     * @var SetsArray
      */
     private array $sets;
 
     /**
-     * @var array<string, array<string, list<string>>>
+     * @var array<string, array{sets?: list<string>|null}>
      */
     private array $fieldSets;
 
@@ -44,7 +46,7 @@ class HtmlSanitizerTest extends TestCase
     }
 
     /**
-     * @param list<array<string, mixed>>|null $customTags
+     * @param list<array{tag: string, type: string, contents: string, attr_collections: list<string>, attributes: list<string>}>|null $customTags
      */
     #[TestDox('Registered custom tags and attributes survive purification; unregistered ones are stripped')]
     #[DataProvider('customTagsProvider')]
@@ -242,7 +244,7 @@ class HtmlSanitizerTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string, list<string>>>
+     * @return array<string, array{sets?: list<string>|null}>
      */
     private function getDefaultFieldsSets(): array
     {
@@ -257,7 +259,7 @@ class HtmlSanitizerTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return SetsArray
      */
     private function getDefaultSets(): array
     {

@@ -23,7 +23,7 @@ class SitemapControllerTest extends TestCase
         $response = $this->request('GET', '/sitemap.xml', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SitemapPageLoadedHook::HOOK_NAME, $traces);
     }

@@ -41,7 +41,7 @@ final readonly class DocumentDependencyResolver
      */
     public function resolve(string $documentType, array $requestedFormats): array
     {
-        $renderers = $this->documentRendererRegistry->mapRenderersByFormat($documentType);
+        $renderers = $this->documentRendererRegistry->getRenderers();
 
         $neededFormats = $this->resolveNeededFormats(
             $documentType,

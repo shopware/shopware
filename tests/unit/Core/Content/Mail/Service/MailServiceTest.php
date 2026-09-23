@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\Mail\Telemetry\MailMetricsInstrumentor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
@@ -18,6 +19,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -134,9 +136,75 @@ class MailServiceTest extends TestCase
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
         );
-        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            templateRenderer: $templateRenderer,
+            eventDispatcher: $eventDispatcher
+        )->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
+    }
+
+    public function testSendMailDispatchesMailSentEventWithRenderedSubject(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
+        $context = Context::createDefaultContext();
+
+        $salesChannelResult = new EntitySearchResult(
+            'sales_channel',
+            1,
+            new SalesChannelCollection([$salesChannel]),
+            null,
+            new Criteria(),
+            $context
+        );
+
+        $this->salesChannelRepository->expects($this->once())->method('search')->willReturn($salesChannelResult);
+
+        $data = [
+            'recipients' => [],
+            'senderName' => 'me',
+            'senderEmail' => 'me@shopware.com',
+            'subject' => 'Your order {{ order.orderNumber }}',
+            'contentPlain' => 'Content plain',
+            'contentHtml' => 'Content html',
+            'salesChannelId' => $salesChannelId,
+        ];
+
+        $email = (new Email())->subject('Your order 10001')
+            ->html($data['contentHtml'])
+            ->text($data['contentPlain'])
+            ->to('me@shopware.com')
+            ->from(new Address($data['senderEmail']));
+
+        $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
+
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $templateRenderer->expects($this->exactly(4))->method('render')->willReturnCallback(
+            static fn (string $template) => $template === 'Your order {{ order.orderNumber }}' ? 'Your order 10001' : $template
+        );
+
+        $mailSentEvent = null;
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->exactly(4))
+            ->method('dispatch')
+            ->willReturnCallback(static function (ShopwareEvent $event) use (&$mailSentEvent) {
+                if ($event instanceof MailSentEvent) {
+                    $mailSentEvent = $event;
+                }
+
+                return $event;
+            });
+
+        $this->createMailService(
+            templateRenderer: $templateRenderer,
+            eventDispatcher: $eventDispatcher
+        )->send($data, Context::createDefaultContext(), ['order' => ['orderNumber' => '10001']]);
+
+        static::assertInstanceOf(MailSentEvent::class, $mailSentEvent);
+        static::assertSame('Your order 10001', $mailSentEvent->getSubject());
     }
 
     public function testSendMailWithRenderingError(): void
@@ -200,9 +268,13 @@ class MailServiceTest extends TestCase
             });
 
         $templateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $templateRenderer->expects($this->exactly(1))->method('render')->willThrowException(new \Exception('cannot render'));
+        $templateRenderer->expects($this->once())->method('render')->willThrowException(new \Exception('cannot render'));
 
-        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher, logger: $logger)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            templateRenderer: $templateRenderer,
+            eventDispatcher: $eventDispatcher,
+            logger: $logger
+        )->send($data, Context::createDefaultContext());
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -267,7 +339,10 @@ class MailServiceTest extends TestCase
 
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
 
-        $email = $this->createMailService(eventDispatcher: $eventDispatcher, logger: $logger)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            eventDispatcher: $eventDispatcher,
+            logger: $logger
+        )->send($data, Context::createDefaultContext());
 
         static::assertInstanceOf(Email::class, $email);
     }
@@ -336,7 +411,11 @@ class MailServiceTest extends TestCase
         $mailSender = $this->createMock(AbstractMailSender::class);
         $mailSender->expects($this->once())->method('send')->willThrowException(new \Exception('Mail sending failed'));
 
-        $email = $this->createMailService(templateRenderer: $templateRenderer, mailSender: $mailSender, logger: $logger)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            templateRenderer: $templateRenderer,
+            mailSender: $mailSender,
+            logger: $logger
+        )->send($data, Context::createDefaultContext());
 
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
@@ -378,6 +457,10 @@ class MailServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
         ];
 
+        $templateData = [
+            'eventName' => 'checkout.order.placed',
+        ];
+
         $email = (new Email())->subject($data['subject'])
             ->html($data['contentHtml'])
             ->text($data['contentPlain'])
@@ -395,20 +478,196 @@ class MailServiceTest extends TestCase
             static::isInstanceOf(MailSentEvent::class)
         );
         $languageLocaleCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-        $languageLocaleCodeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn('en-GB');
+        $languageLocaleCodeProvider->expects($this->exactly(2))->method('getLocaleForLanguageId')->willReturn('en-GB');
 
-        $email = $this->createMailService(templateRenderer: $templateRenderer, eventDispatcher: $eventDispatcher, languageLocaleCodeProvider: $languageLocaleCodeProvider)->send($data, Context::createDefaultContext());
+        $email = $this->createMailService(
+            templateRenderer: $templateRenderer,
+            eventDispatcher: $eventDispatcher,
+            languageLocaleCodeProvider: $languageLocaleCodeProvider
+        )->send($data, Context::createDefaultContext(), $templateData);
 
         static::assertInstanceOf(Email::class, $email);
         $headers = $email->getHeaders();
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $headers->get('X-Shopware-Language-Id')?->getBody());
         static::assertSame($salesChannelId, $headers->get('X-Shopware-Sales-Channel-Id')?->getBody());
+        static::assertSame('checkout.order.placed', $headers->get('X-Shopware-Event-Name')?->getBody());
 
-        // check that no header is empty (e.g. Amazon SES doesn't like that)
+        // check that no header is empty (e.g., Amazon SES doesn't like that)
         foreach ($headers->all() as $header) {
             static::assertInstanceOf(HeaderInterface::class, $header);
             static::assertNotEmpty($header->getBodyAsString(), 'mail header ' . $header->getName() . ' should not be empty');
         }
+    }
+
+    public function testSendInjectsSalesChannelIntoTranslatorOnlyWhileRendering(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $calls = [];
+
+        $this->salesChannelRepository->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createSalesChannelResult($salesChannelId, $context));
+
+        $this->mailFactory->expects($this->once())->method('create')->willReturn($this->createEmail());
+
+        $languageLocaleCodeProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $languageLocaleCodeProvider->method('getLocaleForLanguageId')->willReturn('de-DE');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())
+            ->method('injectSettings')
+            ->with($salesChannelId, Defaults::LANGUAGE_SYSTEM, 'de-DE', $context)
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'inject';
+            });
+
+        $translator->expects($this->once())
+            ->method('resetInjection')
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'reset';
+            });
+
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $templateRenderer->expects($this->exactly(4))
+            ->method('render')
+            ->willReturnCallback(static function () use (&$calls): string {
+                $calls[] = 'render';
+
+                return 'rendered';
+            });
+
+        $mailSender = $this->createMock(AbstractMailSender::class);
+        $mailSender->expects($this->once())
+            ->method('send')
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'send';
+            });
+
+        $this->createMailService(
+            templateRenderer: $templateRenderer,
+            mailSender: $mailSender,
+            languageLocaleCodeProvider: $languageLocaleCodeProvider,
+            translator: $translator,
+        )->send($this->createMailData($salesChannelId), $context);
+
+        static::assertSame(['inject', 'render', 'render', 'render', 'render', 'reset', 'send'], $calls);
+    }
+
+    public function testSendResetsTranslatorWhenBuildingTheMailFails(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $exception = new \RuntimeException('Mail could not be built');
+
+        $this->salesChannelRepository->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createSalesChannelResult($salesChannelId, $context));
+
+        $this->mailFactory->expects($this->once())->method('create')->willThrowException($exception);
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())->method('injectSettings');
+        $translator->expects($this->once())->method('resetInjection');
+
+        $this->expectExceptionObject($exception);
+
+        $this->createMailService(translator: $translator)->send($this->createMailData($salesChannelId), $context);
+    }
+
+    public function testSendResetsTranslatorWhenInjectingTheSettingsFails(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $exception = new \RuntimeException('Snippet set could not be resolved');
+
+        $this->salesChannelRepository->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createSalesChannelResult($salesChannelId, $context));
+
+        $this->mailFactory->expects($this->never())->method('create');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())->method('injectSettings')->willThrowException($exception);
+        $translator->expects($this->once())->method('resetInjection');
+
+        $this->expectExceptionObject($exception);
+
+        $this->createMailService(translator: $translator)->send($this->createMailData($salesChannelId), $context);
+    }
+
+    public function testSendDoesNotInjectTranslatorWithoutSalesChannel(): void
+    {
+        $this->salesChannelRepository->expects($this->never())->method('search');
+        $this->mailFactory->expects($this->once())->method('create')->willReturn($this->createEmail());
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->never())->method('injectSettings');
+        $translator->expects($this->never())->method('resetInjection');
+
+        $this->createMailService(translator: $translator)->send($this->createMailData(null), Context::createDefaultContext());
+    }
+
+    public function testSendKeepsTranslatorSettingsThatAreAlreadyConfigured(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+
+        $this->salesChannelRepository->expects($this->once())
+            ->method('search')
+            ->willReturn($this->createSalesChannelResult($salesChannelId, $context));
+
+        $this->mailFactory->expects($this->once())->method('create')->willReturn($this->createEmail());
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->method('getSnippetSetId')->willReturn('snippet-set-id');
+        $translator->expects($this->never())->method('injectSettings');
+        $translator->expects($this->never())->method('resetInjection');
+
+        $this->createMailService(translator: $translator)->send($this->createMailData($salesChannelId), $context);
+    }
+
+    /**
+     * @return EntitySearchResult<SalesChannelCollection>
+     */
+    private function createSalesChannelResult(string $salesChannelId, Context $context): EntitySearchResult
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
+
+        return new EntitySearchResult(
+            'sales_channel',
+            1,
+            new SalesChannelCollection([$salesChannel]),
+            null,
+            new Criteria(),
+            $context
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function createMailData(?string $salesChannelId): array
+    {
+        return array_filter([
+            'recipients' => ['me@shopware.com' => 'me'],
+            'senderName' => 'me',
+            'senderEmail' => 'me@shopware.com',
+            'subject' => 'Test email',
+            'contentPlain' => 'Content plain',
+            'contentHtml' => 'Content html',
+            'salesChannelId' => $salesChannelId,
+        ]);
+    }
+
+    private function createEmail(): Email
+    {
+        return (new Email())->subject('Test email')
+            ->html('Content html')
+            ->text('Content plain')
+            ->to('me@shopware.com')
+            ->from(new Address('me@shopware.com'));
     }
 
     private function createMailService(
@@ -417,7 +676,13 @@ class MailServiceTest extends TestCase
         ?EventDispatcherInterface $eventDispatcher = null,
         ?LoggerInterface $logger = null,
         ?LanguageLocaleCodeProvider $languageLocaleCodeProvider = null,
+        ?AbstractTranslator $translator = null,
     ): MailService {
+        $mailMetrics = static::createStub(MailMetricsInstrumentor::class);
+        $mailMetrics->method('measureSend')->willReturnCallback(
+            static fn (?string $eventName, \Closure $send) => $send()
+        );
+
         return new MailService(
             static::createStub(DataValidator::class),
             $templateRenderer ?? $this->templateRenderer,
@@ -430,6 +695,8 @@ class MailServiceTest extends TestCase
             $logger ?? $this->logger,
             $languageLocaleCodeProvider ?? $this->languageLocaleCodeProvider,
             new MailTemplateContentBuilder(),
+            $mailMetrics,
+            $translator ?? static::createStub(AbstractTranslator::class),
         );
     }
 }

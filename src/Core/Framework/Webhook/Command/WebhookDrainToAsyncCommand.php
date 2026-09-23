@@ -69,6 +69,11 @@ final readonly class WebhookDrainToAsyncCommand
         #[Option(description: 'Skip the interactive confirmation prompt', shortcut: 'f')]
         bool $force = false,
     ): int {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The webhook:drain-to-async command is deprecated and will be removed in v6.8.0.0.',
+        );
+
         if (Feature::isActive('WEBHOOKS_REWORK')) {
             $io->error('WEBHOOKS_REWORK is active. This drain is only for after the flag is off — running it now would race the rework consumer.');
 

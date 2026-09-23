@@ -19,9 +19,7 @@ export default Shopware.Component.wrapComponentConfig({
         'mt-tabs-original': MtTabs,
     },
 
-    emits: [
-        'new-item-active',
-    ],
+    emits: ['new-item-active'],
 
     props: {
         positionIdentifier: {
@@ -56,6 +54,12 @@ export default Shopware.Component.wrapComponentConfig({
             default: false,
         },
 
+        vertical: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         items: {
             type: Array as PropType<TabItem[]>,
             required: true,
@@ -71,6 +75,13 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        meteorAttributes(): Record<string, unknown> {
+            const attributes = { ...this.$attrs };
+            delete attributes['position-identifier'];
+
+            return attributes;
+        },
+
         tabExtensions(): TabItemEntry[] {
             return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
@@ -120,23 +131,25 @@ export default Shopware.Component.wrapComponentConfig({
         mergedItems(): TabItem[] {
             const mergedItems: TabItem[] = [
                 ...this.items,
-                ...this.tabExtensions.map((extension) => {
-                    const tabItem: TabItem = {
-                        label: this.$t(extension.label) ?? '',
-                        name: extension.componentSectionId,
-                    };
-
-                    if (this.extensionTabsUseRoutes) {
-                        tabItem.onClick = () => {
-                            // Push route to extension.componentSectionId path
-                            void this.$router.push({
-                                path: extension.componentSectionId,
-                            });
+                ...this.tabExtensions
+                    .filter((extension) => extension.visible !== false)
+                    .map((extension) => {
+                        const tabItem: TabItem = {
+                            label: this.$t(extension.label) ?? '',
+                            name: extension.componentSectionId,
                         };
-                    }
 
-                    return tabItem;
-                }),
+                        if (this.extensionTabsUseRoutes) {
+                            tabItem.onClick = () => {
+                                // Push route to extension.componentSectionId path
+                                void this.$router.push({
+                                    path: extension.componentSectionId,
+                                });
+                            };
+                        }
+
+                        return tabItem;
+                    }),
             ];
 
             return mergedItems;

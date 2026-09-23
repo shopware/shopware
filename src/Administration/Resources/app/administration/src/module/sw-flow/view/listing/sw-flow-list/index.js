@@ -16,17 +16,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
     emits: ['on-update-total'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing')],
 
     props: {
         searchTerm: {
@@ -64,8 +58,8 @@ export default {
         flowCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            if (this.searchTerm) {
-                criteria.setTerm(this.searchTerm);
+            if (this.term) {
+                criteria.setTerm(this.term);
             }
 
             criteria

@@ -13,10 +13,11 @@ class Tokenizer implements TokenizerInterface
      * @param string[] $preservedChars
      *
      * @internal
-     *
-     *  @deprecated tag:v6.8.0 - Property `$tokenMinimumLength` will be removed
      */
     public function __construct(
+        /**
+         * @deprecated tag:v6.8.0 - Property `$tokenMinimumLength` will be removed
+         */
         private readonly int $tokenMinimumLength,
         private readonly array $preservedChars = ['-', '_', '+', '.', '@']
     ) {

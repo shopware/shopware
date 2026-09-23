@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\PdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdEmbeddedPdfRenderer;
 use Shopware\Core\Checkout\DocumentV2\Renderer\ZugferdXmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -112,8 +113,8 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
             documentNumber: self::DOCUMENT_NUMBER,
             order: $order,
             data: [
-                $this->metaProvider->getKey() => $this->metaProvider->provideRenderingData($order, $request, $this->context),
-                $this->dataProvider->getKey() => $this->dataProvider->provideRenderingData($order, $request, $this->context),
+                $this->metaProvider->getKey() => $this->metaProvider->provideRenderingData(new ProviderInput($order, $request), $this->context),
+                $this->dataProvider->getKey() => $this->dataProvider->provideRenderingData(new ProviderInput($order, $request), $this->context),
             ],
         );
 
@@ -125,7 +126,7 @@ class ZugferdEmbeddedPdfRendererTest extends TestCase
         $result = $this->embeddedRenderer->renderToString($input, $state, $this->context);
 
         static::assertSame(DocumentFormat::ZUGFERD_EMBEDDED_PDF->value, $result->format);
-        static::assertSame('invoice_' . self::DOCUMENT_NUMBER . '_zugferd_embedded_pdf', $result->fileName);
+        static::assertSame('invoice_' . self::DOCUMENT_NUMBER . '_zugferd', $result->fileName);
         static::assertSame('pdf', $result->fileExtension);
         static::assertSame('application/pdf', $result->mimeType);
         static::assertStringStartsWith('%PDF-', $result->content);

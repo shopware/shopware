@@ -42,6 +42,9 @@ XML));
         static::assertSame('single-select', $config->getConfig()[1]->getType());
     }
 
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

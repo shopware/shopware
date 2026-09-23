@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -23,7 +24,10 @@ use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -35,7 +39,7 @@ class ExtensionLoaderTest extends TestCase
 {
     public function testLoadFromPluginCollectionContinuesOnError(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService
             ->method('checkConfiguration')
             ->willReturnCallback(static function (string $domain): bool {
@@ -59,7 +63,7 @@ class ExtensionLoaderTest extends TestCase
                 })
             );
 
-        $loader = $this->createLoader(new EventDispatcher(), $configurationService, $logger);
+        $loader = $this->createLoader(configurationService: $configurationService, logger: $logger);
 
         $plugins = new PluginCollection([
             $this->createPlugin('WorkingPlugin'),
@@ -80,13 +84,13 @@ class ExtensionLoaderTest extends TestCase
 
     public function testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrors(): void
     {
-        $configurationService = $this->createMock(ConfigurationService::class);
+        $configurationService = static::createStub(ConfigurationService::class);
         $configurationService->method('checkConfiguration')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');
 
-        $loader = $this->createLoader(new EventDispatcher(), $configurationService, $logger);
+        $loader = $this->createLoader(configurationService: $configurationService, logger: $logger);
 
         $plugins = new PluginCollection([
             $this->createPlugin('Plugin1'),
@@ -156,7 +160,7 @@ class ExtensionLoaderTest extends TestCase
     #[TestDox('A plugin is not a theme when no listener flags the event')]
     public function testLoadFromPluginIsNotThemeWithoutListener(): void
     {
-        $extensions = $this->createLoader(new EventDispatcher())->loadFromPluginCollection(
+        $extensions = $this->createLoader()->loadFromPluginCollection(
             Context::createDefaultContext(),
             new PluginCollection([$this->createPlugin('PlainPlugin')])
         );
@@ -214,7 +218,7 @@ class ExtensionLoaderTest extends TestCase
     #[TestDox('An app is not a theme when no listener flags the event')]
     public function testLoadFromAppIsNotThemeWithoutListener(): void
     {
-        $extensions = $this->createLoader(new EventDispatcher())->loadFromAppCollection(
+        $extensions = $this->createLoader()->loadFromAppCollection(
             Context::createDefaultContext(),
             new AppCollection([$this->createApp('PlainApp')])
         );
@@ -224,20 +228,63 @@ class ExtensionLoaderTest extends TestCase
         static::assertFalse($extension->isTheme());
     }
 
+    #[TestDox('An app from the filesystem is added with its metadata translated, falling back per property')]
+    public function testLoadFromAppCollectionAddsLocalAppWithTranslatedMetadata(): void
+    {
+        $manifest = Manifest::createFromXml(
+            (new Filesystem())->readFile(__DIR__ . '/_fixtures/LocalApp/manifest.xml')
+        );
+
+        $appLoader = static::createStub(AppLoader::class);
+        $appLoader->method('load')->willReturn(['LocalApp' => $manifest]);
+
+        $extensions = $this->createLoader(
+            appLoader: $appLoader,
+            sourceResolver: new StaticSourceResolver(['LocalApp' => new StaticFilesystem(['icon.png' => 'icon-binary'])]),
+            locale: 'de-DE',
+        )->loadFromAppCollection(Context::createDefaultContext(), new AppCollection());
+
+        $extension = $extensions->get('LocalApp');
+        static::assertNotNull($extension);
+        // translation for the requested locale wins
+        static::assertSame('LocalApp Bezeichnung', $extension->getLabel());
+        // no de-DE translation, so the fallback translation is used
+        static::assertSame('LocalApp description', $extension->getDescription());
+        // no translation at all
+        static::assertNull($extension->getPrivacyPolicyExtension());
+        static::assertSame(base64_encode('icon-binary'), $extension->getIconRaw());
+        static::assertSame('shopware AG', $extension->getProducerName());
+        static::assertSame('MIT', $extension->getLicense());
+        static::assertSame('https://test.com/privacy', $extension->getPrivacyPolicyLink());
+        static::assertSame('1.0.0', $extension->getVersion());
+        static::assertSame('1.0.0', $extension->getLatestVersion());
+        static::assertSame(ExtensionStruct::EXTENSION_TYPE_APP, $extension->getType());
+        static::assertFalse($extension->getActive());
+        static::assertFalse($extension->isTheme());
+        static::assertNull($extension->getInstalledAt());
+        static::assertTrue($extension->isAllowUpdate());
+    }
+
     private function createLoader(
-        EventDispatcherInterface $eventDispatcher,
+        ?EventDispatcherInterface $eventDispatcher = null,
         ?ConfigurationService $configurationService = null,
         ?LoggerInterface $logger = null,
+        ?AppLoader $appLoader = null,
+        ?SourceResolver $sourceResolver = null,
+        string $locale = 'en-GB',
     ): ExtensionLoader {
+        $localeProvider = static::createStub(LocaleProvider::class);
+        $localeProvider->method('getLocaleFromContext')->willReturn($locale);
+
         return new ExtensionLoader(
-            static::createStub(AppLoader::class),
-            static::createStub(SourceResolver::class),
+            $appLoader ?? static::createStub(AppLoader::class),
+            $sourceResolver ?? static::createStub(SourceResolver::class),
             $configurationService ?? static::createStub(ConfigurationService::class),
-            static::createStub(LocaleProvider::class),
+            $localeProvider,
             static::createStub(LanguageLocaleCodeProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
             $logger ?? static::createStub(LoggerInterface::class),
-            $eventDispatcher,
+            $eventDispatcher ?? new EventDispatcher(),
         );
     }
 

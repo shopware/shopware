@@ -62,4 +62,29 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         static::assertSame([$failingId, $succeedingId], $handledIds);
     }
+
+    public function testUpdateThumbnailsForwardsStrictAndForceFlags(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+
+        $mediaRepository = new StaticEntityRepository([new MediaCollection([$media])]);
+
+        $thumbnailService = $this->createMock(ThumbnailService::class);
+        $thumbnailService->expects($this->once())
+            ->method('updateThumbnails')
+            ->with($media, static::anything(), true, true)
+            ->willReturn(1);
+
+        $handler = new GenerateThumbnailsHandler($thumbnailService, $mediaRepository, static::createStub(LoggerInterface::class));
+
+        $message = new UpdateThumbnailsMessage();
+        $message->setMediaIds([$mediaId]);
+        $message->setStrict(true);
+        $message->setForce(true);
+        $message->setContext(Context::createDefaultContext());
+
+        $handler($message);
+    }
 }

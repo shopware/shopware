@@ -5,7 +5,7 @@
 const { Filter, Defaults } = Shopware;
 
 type SalutationType = {
-    id: string;
+    id: EntityKey<'salutation'>;
     salutationKey: string;
     displayName: string;
 };
@@ -29,9 +29,7 @@ Filter.register(
         let hideSalutation = true;
 
         if (entity.salutation && entity.salutation.id !== Defaults.defaultSalutationId) {
-            hideSalutation = [
-                'not_specified',
-            ].some((item) => item === entity.salutation.salutationKey);
+            hideSalutation = ['not_specified'].some((item) => item === entity.salutation.salutationKey);
         }
 
         const params = {

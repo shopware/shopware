@@ -4,7 +4,10 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Context;
@@ -22,13 +25,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SeoUrlPersister::class)]
 class SeoUrlPersisterTest extends TestCase
 {
-    private SeoUrlPersister $seoUrlPersister;
-
-    protected function setUp(): void
-    {
-        $this->seoUrlPersister = $this->createSeoUrlPersister(static::createStub(Connection::class));
-    }
-
     public function testUpdateSeoUrlsWithNewSeoPaths(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -79,144 +75,105 @@ class SeoUrlPersisterTest extends TestCase
     }
 
     /**
-     * Regression for shopware/shopware#4413: when a SEO URL is write-protected (is_modified=1),
-     * the legacy guard in skipUpdate() should still protect it against automatic template
-     * regeneration (default overwrite=false).
+     * Regression for shopware/shopware#4413. An existing canonical SEO URL is only replaced when the
+     * update is a real change:
+     *
+     * 1. automatic template regeneration ({@see SeoUrlPersister::updateSeoUrls()}) must never replace a
+     *    manually modified (write-protected) URL that still has a non-empty path,
+     * 2. a different path is always a real change,
+     * 3. when the path is unchanged the update is skipped to avoid duplicate rows — except for an
+     *    explicit overwrite ({@see SeoUrlPersister::forceUpdateSeoUrls()}) that flips the isModified
+     *    flag, which is how an admin "reset to template" drops the write-protection even when the
+     *    manual value already equals the template output.
      */
-    public function testSkipUpdateProtectsWriteProtectedSeoUrlByDefault(): void
-    {
-        $existing = [
-            'id' => 'id-1',
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'isModified' => true,
-            'seoPathInfo' => 'manual-path',
-        ];
-        $payload = [
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'seoPathInfo' => 'template-path',
-            'isModified' => false,
-        ];
+    #[DataProvider('canonicalUpdateProvider')]
+    public function testExistingCanonicalSeoUrlIsOnlyReplacedByARealChange(
+        string $existingPath,
+        bool $existingIsModified,
+        string $newPath,
+        bool $newIsModified,
+        bool $overwrite,
+        bool $expectRowWritten
+    ): void {
+        $writtenValues = $this->persistSeoUrlUpdate(
+            ['seoPathInfo' => $existingPath, 'isModified' => $existingIsModified],
+            ['seoPathInfo' => $newPath, 'isModified' => $newIsModified],
+            $overwrite
+        );
 
-        static::assertTrue($this->invokeSkipUpdate($existing, $payload, false));
+        if ($expectRowWritten) {
+            static::assertContains($newPath, $writtenValues, \sprintf('Expected a SEO URL row for "%s" to be written.', $newPath));
+
+            return;
+        }
+
+        static::assertNotContains($newPath, $writtenValues, \sprintf('Expected no SEO URL row to be written for "%s".', $newPath));
     }
 
     /**
-     * Regression for shopware/shopware#4413: when the admin/API explicitly requests an overwrite,
-     * the skipUpdate() guard must no longer protect write-protected SEO URLs from being
-     * replaced with the template-generated path.
+     * @return \Generator<string, array{existingPath: string, existingIsModified: bool, newPath: string, newIsModified: bool, overwrite: bool, expectRowWritten: bool}>
      */
-    public function testSkipUpdateAllowsResetWithOverwrite(): void
+    public static function canonicalUpdateProvider(): \Generator
     {
-        $existing = [
-            'id' => 'id-1',
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'isModified' => true,
-            'seoPathInfo' => 'manual-path',
-        ];
-        $payload = [
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'seoPathInfo' => 'template-path',
-            'isModified' => false,
+        // the write-protection guard: regeneration may not throw away the manual path
+        yield 'automatic regeneration keeps a write-protected path' => [
+            'existingPath' => 'manual-path',
+            'existingIsModified' => true,
+            'newPath' => 'template-path',
+            'newIsModified' => false,
+            'overwrite' => false,
+            'expectRowWritten' => false,
         ];
 
-        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
-    }
-
-    /**
-     * Regression for shopware/shopware#4413: the admin must be able to persist an edit that
-     * replaces the write-protected path with a new manual path.
-     */
-    public function testSkipUpdateAllowsManualEditWithOverwrite(): void
-    {
-        $existing = [
-            'id' => 'id-1',
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'isModified' => true,
-            'seoPathInfo' => 'manual-path',
-        ];
-        $payload = [
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'seoPathInfo' => 'manual-path-edited',
-            'isModified' => true,
+        // an explicit overwrite bypasses the guard and resets the URL to the template path
+        yield 'explicit overwrite resets a write-protected path to the template path' => [
+            'existingPath' => 'manual-path',
+            'existingIsModified' => true,
+            'newPath' => 'template-path',
+            'newIsModified' => false,
+            'overwrite' => true,
+            'expectRowWritten' => true,
         ];
 
-        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
-    }
-
-    /**
-     * Regression for shopware/shopware#4413: even with overwrite=true the path-equality guard
-     * must still short-circuit, so re-saving the exact same SEO URL does not create a duplicate.
-     */
-    public function testSkipUpdateStillSkipsIdenticalPayloadWithOverwrite(): void
-    {
-        $existing = [
-            'id' => 'id-1',
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'isModified' => true,
-            'seoPathInfo' => 'manual-path',
-        ];
-        $payload = [
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'seoPathInfo' => 'manual-path',
-            'isModified' => true,
+        // an admin editing the write-protected URL to another manual path must be persisted
+        yield 'explicit overwrite persists a manual edit of a write-protected path' => [
+            'existingPath' => 'manual-path',
+            'existingIsModified' => true,
+            'newPath' => 'manual-path-edited',
+            'newIsModified' => true,
+            'overwrite' => true,
+            'expectRowWritten' => true,
         ];
 
-        static::assertTrue($this->invokeSkipUpdate($existing, $payload, true));
-    }
-
-    /**
-     * Regression for shopware/shopware#4413 (same-path reset): when a write-protected URL
-     * already equals the template output, an explicit overwrite that only flips isModified
-     * to false must NOT be skipped, so the write-protection flag is actually dropped.
-     */
-    public function testSkipUpdateClearsProtectionOnIdenticalPathWithOverwrite(): void
-    {
-        $existing = [
-            'id' => 'id-1',
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'isModified' => true,
-            'seoPathInfo' => 'red-shoe',
-        ];
-        $payload = [
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'seoPathInfo' => 'red-shoe',
-            'isModified' => false,
+        // nothing changed at all: re-saving the identical URL must not create a duplicate row
+        yield 'explicit overwrite of an unchanged path and flag creates no duplicate' => [
+            'existingPath' => 'manual-path',
+            'existingIsModified' => true,
+            'newPath' => 'manual-path',
+            'newIsModified' => true,
+            'overwrite' => true,
+            'expectRowWritten' => false,
         ];
 
-        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
-    }
-
-    /**
-     * Without overwrite the same-path automatic regeneration must keep skipping, regardless of
-     * the requested isModified state, so it never creates duplicate rows.
-     */
-    public function testSkipUpdateKeepsSkippingIdenticalPathWithoutOverwrite(): void
-    {
-        $existing = [
-            'id' => 'id-1',
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'isModified' => true,
-            'seoPathInfo' => 'red-shoe',
-        ];
-        $payload = [
-            'foreignKey' => 'fk-1',
-            'salesChannelId' => 'sc-1',
-            'seoPathInfo' => 'red-shoe',
-            'isModified' => false,
+        // same-path reset: only the write-protection flag changes, and that must still be persisted
+        yield 'explicit overwrite drops the write protection on an unchanged path' => [
+            'existingPath' => 'red-shoe',
+            'existingIsModified' => true,
+            'newPath' => 'red-shoe',
+            'newIsModified' => false,
+            'overwrite' => true,
+            'expectRowWritten' => true,
         ];
 
-        static::assertTrue($this->invokeSkipUpdate($existing, $payload, false));
+        // without an explicit overwrite the same situation keeps being skipped
+        yield 'automatic regeneration of an unchanged path keeps being skipped' => [
+            'existingPath' => 'red-shoe',
+            'existingIsModified' => true,
+            'newPath' => 'red-shoe',
+            'newIsModified' => false,
+            'overwrite' => false,
+            'expectRowWritten' => false,
+        ];
     }
 
     public function testForceUpdateSeoUrlsPersistsNewSeoPaths(): void
@@ -333,15 +290,91 @@ class SeoUrlPersisterTest extends TestCase
     }
 
     /**
-     * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
-     * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
+     * Runs an update for one entity that already has a canonical SEO URL and returns every value that was
+     * written to the database, so a test can check whether a row carrying a given `seo_path_info` was
+     * inserted. This is the only place that knows how the persister talks to the database: the canonical
+     * URL is served through the query builder used by `findCanonicalPaths()`, the writes are captured from
+     * the insert queue, which executes statements on the connection.
+     *
+     * @param array{seoPathInfo: string, isModified: bool} $existing the canonical SEO URL already stored
+     * @param array{seoPathInfo: string, isModified: bool} $update the SEO URL the persister is asked to store
+     *
+     * @return list<mixed> all values written to the database
      */
-    private function invokeSkipUpdate(array $existing, array $seoUrl, bool $overwrite): bool
+    private function persistSeoUrlUpdate(array $existing, array $update, bool $overwrite): array
     {
-        $reflection = new \ReflectionMethod(SeoUrlPersister::class, 'skipUpdate');
-        $reflection->setAccessible(true);
+        $foreignKey = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $routeName = 'frontend.detail.page';
 
-        return (bool) $reflection->invoke($this->seoUrlPersister, $existing, $seoUrl, $overwrite);
+        $canonicalResult = static::createStub(Result::class);
+        $canonicalResult->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => Uuid::randomHex(),
+                'foreignKey' => $foreignKey,
+                'salesChannelId' => $salesChannelId,
+                'isModified' => $existing['isModified'] ? 1 : 0,
+                'seoPathInfo' => $existing['seoPathInfo'],
+            ],
+        ]);
+
+        $queryBuilder = static::createStub(QueryBuilder::class);
+        $queryBuilder->method('executeQuery')->willReturn($canonicalResult);
+
+        $writtenValues = [];
+        $transactions = 0;
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->atLeastOnce())
+            ->method('createQueryBuilder')
+            ->willReturn($queryBuilder);
+
+        // the writes happen inside a retryable transaction, so the double has to really run the closure,
+        // otherwise no statement is ever reached and every assertion on the written values passes vacuously
+        $connection->expects($this->atLeastOnce())
+            ->method('transactional')
+            ->willReturnCallback(function (\Closure $closure) use (&$transactions, $connection) {
+                ++$transactions;
+
+                return $closure($connection);
+            });
+
+        // no other entity already occupies the generated path
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        $connection->method('executeStatement')
+            ->willReturnCallback(function (string $sql, array $params = []) use (&$writtenValues): int {
+                foreach ($params as $value) {
+                    $writtenValues[] = $value;
+                }
+
+                return 1;
+            });
+
+        $seoUrl = [
+            'foreignKey' => $foreignKey,
+            'salesChannelId' => $salesChannelId,
+            'routeName' => $routeName,
+            'pathInfo' => '/detail/' . $foreignKey,
+            'seoPathInfo' => $update['seoPathInfo'],
+            'isModified' => $update['isModified'],
+        ];
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
+
+        $seoUrlPersister = $this->createSeoUrlPersister($connection);
+        $context = Context::createDefaultContext();
+
+        if ($overwrite) {
+            $seoUrlPersister->forceUpdateSeoUrls($context, $routeName, [$foreignKey], [$seoUrl], $salesChannel);
+        } else {
+            $seoUrlPersister->updateSeoUrls($context, $routeName, [$foreignKey], [$seoUrl], $salesChannel);
+        }
+
+        static::assertGreaterThan(0, $transactions, 'The connection double did not run the transaction closure, so no write could have been observed.');
+
+        return $writtenValues;
     }
 
     private function createSeoUrlPersister(Connection $connection): SeoUrlPersister

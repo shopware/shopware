@@ -128,12 +128,12 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         ];
 
         foreach ($states as $state) {
-            foreach ($sides as $side) {
-                $machine = $state->getStateMachine();
-                if (!$machine) {
-                    continue;
-                }
+            $machine = $state->getStateMachine();
+            if (!$machine) {
+                continue;
+            }
 
+            foreach ($sides as $side) {
                 $name = implode('.', [
                     $side,
                     $machine->getTechnicalName(),

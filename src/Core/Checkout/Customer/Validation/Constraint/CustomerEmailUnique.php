@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,9 +24,7 @@ class CustomerEmailUnique extends Constraint
         self::CUSTOMER_EMAIL_NOT_UNIQUE => 'CUSTOMER_EMAIL_NOT_UNIQUE',
     ];
 
-    /**
-     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getMessage() instead.')]
     public string $message = 'The email address {{ email }} is already in use.';
 
     /**
@@ -36,7 +35,7 @@ class CustomerEmailUnique extends Constraint
     protected SalesChannelContext $salesChannelContext;
 
     /**
-     * @param array{salesChannelContext?: SalesChannelContext}|null $options
+     * @param array{salesChannelContext?: SalesChannelContext, context?: Context}|null $options
      *
      * @internal
      */
@@ -70,7 +69,7 @@ class CustomerEmailUnique extends Constraint
                 $options['context'] = $options['salesChannelContext']->getContext();
             }
 
-            if (!($options['context'] ?? null) instanceof Context) {
+            if (!$options['context'] instanceof Context) {
                 throw CustomerException::missingOption('context', self::class);
             }
 

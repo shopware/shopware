@@ -96,9 +96,9 @@
                                     {% endif %}
 
                                     {% block page_account_order_item_context_menu_reorder %}
-                                        {# reorderable as long as any product can still be bought #}
+                                        {# reorderable as long as any product is still shown in this sales channel #}
                                         {% set reorderable = order.lineItems is null or order.lineItems.firstWhere(item =>
-                                            item.type == PRODUCT_LINE_ITEM_TYPE and (item.extensions.productAvailable.available ?? true)
+                                            item.type == PRODUCT_LINE_ITEM_TYPE and (item.extensions.productAvailability.visible ?? true)
                                         ) is not null %}
 
                                         {% if reorderable %}

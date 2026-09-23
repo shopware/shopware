@@ -28,15 +28,15 @@ class OrderLineItemProductAvailabilityExtensionTest extends TestCase
         static::assertSame(OrderLineItemDefinition::class, $extension->getDefinitionClass());
     }
 
-    public function testProductAvailableIsAddedAsRuntimeField(): void
+    public function testProductAvailabilityIsAddedAsRuntimeField(): void
     {
         $field = $this->extendedField();
 
-        static::assertSame('productAvailable', $field->getPropertyName());
+        static::assertSame('productAvailability', $field->getPropertyName());
         static::assertNotNull($field->getFlag(Runtime::class));
     }
 
-    public function testProductAvailableIsReadableThroughTheStoreApi(): void
+    public function testProductAvailabilityIsReadableThroughTheStoreApi(): void
     {
         // StructEncoder drops extensions without an api aware field
         $flag = $this->extendedField()->getFlag(ApiAware::class);

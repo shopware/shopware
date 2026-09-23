@@ -42,27 +42,27 @@ class OrderProductAvailabilityRouteTest extends TestCase
         static::assertSame($decorated, $route->getDecorated());
     }
 
-    public function testAvailabilityIsResolvedWithASingleQueryForAllOrders(): void
+    public function testVisibilityIsResolvedWithASingleQueryForAllOrders(): void
     {
-        $availableId = Uuid::randomHex();
-        $unavailableId = Uuid::randomHex();
+        $visibleId = Uuid::randomHex();
+        $hiddenId = Uuid::randomHex();
 
         $orders = new OrderCollection([
-            $this->createOrder([[LineItem::PRODUCT_LINE_ITEM_TYPE, $availableId]]),
-            $this->createOrder([[LineItem::PRODUCT_LINE_ITEM_TYPE, $unavailableId]]),
-            $this->createOrder([[LineItem::PRODUCT_LINE_ITEM_TYPE, $availableId]]),
+            $this->createOrder([[LineItem::PRODUCT_LINE_ITEM_TYPE, $visibleId]]),
+            $this->createOrder([[LineItem::PRODUCT_LINE_ITEM_TYPE, $hiddenId]]),
+            $this->createOrder([[LineItem::PRODUCT_LINE_ITEM_TYPE, $visibleId]]),
         ]);
 
         $repository = static::createMock(SalesChannelRepository::class);
         $repository
             ->expects($this->once())
             ->method('searchIds')
-            ->with(static::callback(static function (Criteria $criteria) use ($availableId, $unavailableId): bool {
-                static::assertEqualsCanonicalizing([$availableId, $unavailableId], array_values($criteria->getIds()));
+            ->with(static::callback(static function (Criteria $criteria) use ($visibleId, $hiddenId): bool {
+                static::assertEqualsCanonicalizing([$visibleId, $hiddenId], array_values($criteria->getIds()));
 
                 return true;
             }))
-            ->willReturn($this->createIdSearchResult([$availableId]));
+            ->willReturn($this->createIdSearchResult([$visibleId]));
 
         $this->load($repository, $orders);
 
@@ -73,12 +73,12 @@ class OrderProductAvailabilityRouteTest extends TestCase
             foreach ($lineItems as $lineItem) {
                 $extension = $lineItem->getExtension(OrderProductAvailabilityRoute::LINE_ITEM_EXTENSION);
                 static::assertInstanceOf(ArrayStruct::class, $extension);
-                static::assertSame($lineItem->getProductId() === $availableId, $extension->get('available'));
+                static::assertSame($lineItem->getProductId() === $visibleId, $extension->get('visible'));
             }
         }
     }
 
-    public function testDeletedProductsAreNeverQueriedAndCountAsUnavailable(): void
+    public function testDeletedProductsAreNeverQueriedAndAreNotVisible(): void
     {
         $order = $this->createOrder([[LineItem::PRODUCT_LINE_ITEM_TYPE, null]]);
 
@@ -92,7 +92,7 @@ class OrderProductAvailabilityRouteTest extends TestCase
 
         $extension = $lineItems->first()?->getExtension(OrderProductAvailabilityRoute::LINE_ITEM_EXTENSION);
         static::assertInstanceOf(ArrayStruct::class, $extension);
-        static::assertFalse($extension->get('available'));
+        static::assertFalse($extension->get('visible'));
     }
 
     public function testNonProductLineItemsAreIgnored(): void

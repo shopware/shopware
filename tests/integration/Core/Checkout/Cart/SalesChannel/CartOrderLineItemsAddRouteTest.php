@@ -130,12 +130,12 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
     }
 
-    public function testOrderRouteExposesProductAvailabilityToHeadlessClients(): void
+    public function testOrderRouteExposesProductVisibilityToHeadlessClients(): void
     {
-        $availableId = $this->createProduct();
+        $visibleId = $this->createProduct();
         $deactivatedId = $this->createProduct(active: false);
 
-        $this->createOrder($this->ids->get('customer'), [$availableId, $deactivatedId]);
+        $this->createOrder($this->ids->get('customer'), [$visibleId, $deactivatedId]);
 
         $this->browser->request(
             'POST',
@@ -151,17 +151,17 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
 
-        $availability = [];
+        $visibility = [];
         foreach ($response['orders']['elements'][0]['lineItems'] as $lineItem) {
-            $availability[$lineItem['referencedId']] = $lineItem['extensions']['productAvailable']['available'];
+            $visibility[$lineItem['referencedId']] = $lineItem['extensions']['productAvailability']['visible'];
         }
 
         // headless gets the same answer without querying each product itself
-        static::assertTrue($availability[$availableId]);
-        static::assertFalse($availability[$deactivatedId]);
+        static::assertTrue($visibility[$visibleId]);
+        static::assertFalse($visibility[$deactivatedId]);
     }
 
-    public function testSoldOutCloseoutProductsCountAsUnavailableWhenTheyAreHidden(): void
+    public function testSoldOutCloseoutProductsAreNotVisibleWhenTheyAreHidden(): void
     {
         static::getContainer()->get(SystemConfigService::class)
             ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true, $this->salesChannelId);
@@ -182,14 +182,14 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $availability = [];
+        $visibility = [];
         foreach ($response['orders']['elements'][0]['lineItems'] as $lineItem) {
-            $availability[$lineItem['referencedId']] = $lineItem['extensions']['productAvailable']['available'];
+            $visibility[$lineItem['referencedId']] = $lineItem['extensions']['productAvailability']['visible'];
         }
 
         // its detail page is filtered out by the same config, so linking to it would run into a 404
-        static::assertTrue($availability[$inStockId]);
-        static::assertFalse($availability[$soldOutId]);
+        static::assertTrue($visibility[$inStockId]);
+        static::assertFalse($visibility[$soldOutId]);
     }
 
     private function createProduct(bool $active = true, bool $visible = true, int $stock = 10, bool $closeout = false): string

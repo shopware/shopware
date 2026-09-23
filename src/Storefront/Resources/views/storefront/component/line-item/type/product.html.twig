@@ -13,8 +13,8 @@
     {% set showSubtotal = true %}
 {% endif %}
 
-{# `productAvailable` comes from the order route and is absent outside order display mode, hence the default #}
-{% set isProductAvailable = displayMode !== 'order' or (lineItem.productId and (lineItem.extensions.productAvailable.available ?? true)) %}
+{# `productAvailability` comes from the order route and is absent outside order display mode, hence the default #}
+{% set isProductVisible = displayMode !== 'order' or (lineItem.productId and (lineItem.extensions.productAvailability.visible ?? true)) %}
 
 {% set lineItemClasses = 'line-item line-item-' ~ lineItem.type ~ ' is-' ~ displayMode %}
 
@@ -49,7 +49,7 @@
                                                     <div class="line-item-img-container">
                                                         {% block component_line_item_type_product_image_inner %}
                                                             {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
-                                                                lineItemLink: isProductAvailable ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
+                                                                lineItemLink: isProductVisible ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
                                                                 lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { productId: lineItem.referencedId }) : false,
                                                             } %}
                                                         {% endblock %}
@@ -64,7 +64,7 @@
                                                     <div class="line-item-details-container">
                                                     {% block component_line_item_type_product_label %}
                                                         {% sw_include '@Storefront/storefront/component/line-item/element/label.html.twig' with {
-                                                            lineItemLink: isProductAvailable ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
+                                                            lineItemLink: isProductVisible ? seoUrl('frontend.detail.page', { productId: lineItem.referencedId }) : null,
                                                             lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { productId: lineItem.referencedId }) : false,
                                                         } %}
                                                     {% endblock %}
@@ -97,7 +97,7 @@
                                                         {% endblock %}
                                                     {% endif %}
 
-                                                    {% if config('core.cart.wishlistEnabled') and isProductAvailable %}
+                                                    {% if config('core.cart.wishlistEnabled') and isProductVisible %}
                                                         {% block component_line_item_type_product_wishlist %}
                                                             {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                                                 showText: true,

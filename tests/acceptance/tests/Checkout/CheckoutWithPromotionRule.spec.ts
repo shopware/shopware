@@ -7,6 +7,10 @@ const discountValue = 5.0;
 const discountPercentage = 10;
 
 test.describe('Newsletter recipient promotion', () => {
+    // Guest and Registered both create products in beforeEach. Running them in parallel
+    // races MariaDB snapshot isolation on system_config (SQLSTATE 1020).
+    test.describe.configure({ mode: 'serial' });
+
     let product: Product;
     let guestCustomerEmail = '';
     let submittedOrderId = '';
@@ -79,6 +83,8 @@ test.describe('Newsletter recipient promotion', () => {
                 AddProductToCart,
                 SelectPaymentMethod,
                 SelectShippingMethod,
+                ConfirmTermsAndConditions,
+                SubmitOrder,
             }) => {
                 const customer =
                     customerType === 'Guest'
@@ -133,10 +139,8 @@ test.describe('Newsletter recipient promotion', () => {
                     formatPrice(discountPrice),
                 );
 
-                await StorefrontCheckoutConfirm.termsAndConditionsCheckbox.check();
-                await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).toBeChecked();
-                await StorefrontCheckoutConfirm.submitOrderButton.click();
-                await ShopCustomer.expects(StorefrontCheckoutFinish.headline).toBeVisible();
+                await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
+                await ShopCustomer.attemptsTo(SubmitOrder());
                 await ShopCustomer.expects(StorefrontCheckoutFinish.grandTotalPrice).toContainText(
                     formatPrice(discountPrice),
                 );

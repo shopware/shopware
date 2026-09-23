@@ -6,6 +6,10 @@
         "schemas": {
             "ContactFormRouteResponse": {
                 "type": "object",
+                "required": [
+                    "individualSuccessMessage",
+                    "apiAlias"
+                ],
                 "properties": {
                     "individualSuccessMessage": {
                         "description": "Confirmation text of the form element the submission was resolved to, or of the category that overrides it. Empty when neither is configured.",

@@ -189,7 +189,7 @@
                                     {
                                         "properties": {
                                             "slots": {
-                                                "description": "Resolves only the given slot identifiers. The identifiers have to be seperated by a `|` character.",
+                                                "description": "Resolves only the given slot identifiers. The identifiers have to be separated by a `|` character.",
                                                 "type": "string"
                                             }
                                         },
@@ -281,7 +281,7 @@
                     {
                         "name": "slots",
                         "in": "query",
-                        "description": "Resolves only the given slot identifiers. The identifiers have to be seperated by a `|` character.",
+                        "description": "Resolves only the given slot identifiers. The identifiers have to be separated by a `|` character.",
                         "required": false,
                         "schema": {
                             "type": "string"

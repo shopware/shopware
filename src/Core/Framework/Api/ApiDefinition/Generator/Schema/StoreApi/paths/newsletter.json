@@ -80,8 +80,7 @@
                             "schema": {
                                 "required": [
                                     "email",
-                                    "option",
-                                    "storefrontUrl"
+                                    "option"
                                 ],
                                 "properties": {
                                     "email": {

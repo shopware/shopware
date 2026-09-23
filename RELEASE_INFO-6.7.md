@@ -47,6 +47,15 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Store API OpenAPI schema matches the actual request validation
+
+The Store API request schemas were corrected where they contradicted what the routes accept. No validation and no response changed. If you generate clients from the schema, regenerate them. Notable changes:
+
+- `POST /contact-form` now requires `salutationId`. The route has always required it, so a contact form built from the schema failed on every submit.
+- `POST /account/register` requires `password` only when `guest` is not `true`, needs `billingAddress` **or** `shippingAddress` rather than `billingAddress` alone, and no longer requires `acceptedDataProtection`, `storefrontUrl`, or the top level `company` and `vatIds` of a business account.
+- Fields that are no longer required, because the routes only ask for them under a condition now named in their description: `vatIds` on `POST /account/change-profile`, `points` on `POST /product/{productId}/review` and `storefrontUrl` on `POST /newsletter/subscribe`. `POST /account/login` declares `email`, so one of `email` or `username` is required instead of `username`.
+- `buildTree` on `/navigation/{activeId}/{rootId}` is a boolean, not an array of objects, which was always answered with a `400`. `POST /contact-form` and `POST /revocation-request-form` describe their `200` body, and `slots` is declared on `POST /product/{productId}`.
+
 ## Administration
 
 ### New extension points for the Shopping Experiences layout list

@@ -121,9 +121,9 @@ class AssetService
      * @throws FilesystemException
      * @throws UnableToDeleteDirectory
      */
-    public function removeAssetsOfBundle(string $bundleName): void
+    public function removeAssetsOfBundle(string $bundleName, bool $deleteFiles = true): void
     {
-        $this->removeAssets($bundleName);
+        $this->removeAssets($bundleName, $deleteFiles);
 
         $bundle = null;
         try {
@@ -134,7 +134,7 @@ class AssetService
 
         if ($bundle instanceof Plugin) {
             foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
-                $this->removeAssets($additionalBundle->getName());
+                $this->removeAssets($additionalBundle->getName(), $deleteFiles);
             }
         }
     }
@@ -144,11 +144,11 @@ class AssetService
      * @throws FilesystemException
      * @throws UnableToDeleteDirectory
      */
-    public function removeAssets(string $name): void
+    public function removeAssets(string $name, bool $deleteFiles = true): void
     {
-        $targetDirectory = $this->getTargetDirectory($name);
-
-        $this->assetFilesystem->deleteDirectory($targetDirectory);
+        if ($deleteFiles) {
+            $this->assetFilesystem->deleteDirectory($this->getTargetDirectory($name));
+        }
 
         $manifest = $this->getManifest();
 

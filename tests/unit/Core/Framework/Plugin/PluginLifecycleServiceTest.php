@@ -819,6 +819,24 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertFalse($pluginEntityMock->getActive());
     }
 
+    public function testDeactivatePluginKeepsAssetsForReactivation(): void
+    {
+        $pluginEntity = $this->getPluginEntityMock();
+        $pluginEntity->setInstalledAt(new \DateTime());
+        $pluginEntity->setActive(true);
+        $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
+
+        $assetService = $this->createMock(AssetService::class);
+        $assetService->expects($this->once())
+            ->method('removeAssetsOfBundle')
+            ->with('MockPlugin', false);
+        $this->pluginLifecycleService = $this->createService(assetService: $assetService);
+
+        $this->pluginLifecycleService->deactivatePlugin($pluginEntity, Context::createDefaultContext());
+
+        static::assertFalse($pluginEntity->getActive());
+    }
+
     public function testDeactivatePluginNotInstalled(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -1122,6 +1140,7 @@ class PluginLifecycleServiceTest extends TestCase
         ?RequirementsValidator $requirementsValidator = null,
         ?PluginService $pluginService = null,
         ?CustomFieldSetPersister $customFieldSetPersister = null,
+        ?AssetService $assetService = null,
     ): PluginLifecycleService {
         return new PluginLifecycleService(
             $pluginRepo ?? $this->pluginRepoMock,
@@ -1129,7 +1148,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->kernelPluginCollectionMock,
             $this->container,
             $migrationLoader ?? $this->migrationLoaderMock,
-            static::createStub(AssetService::class),
+            $assetService ?? static::createStub(AssetService::class),
             $commandExecutor ?? $this->commandExecutor,
             $requirementsValidator ?? $this->requirementsValidatorMock,
             $this->cacheItemPoolInterfaceMock,

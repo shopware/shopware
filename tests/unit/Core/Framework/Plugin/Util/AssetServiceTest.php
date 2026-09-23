@@ -551,6 +551,21 @@ class AssetServiceTest extends TestCase
         static::assertTrue($privateFilesystem->fileExists('asset-manifest.json'));
     }
 
+    public function testCopyAfterDeactivationPreservesAssets(): void
+    {
+        $adapter = new DelayedDeleteAdapter();
+        $filesystem = new Filesystem($adapter);
+        $assetService = $this->createAssetService($filesystem, $this->createFilesystem());
+
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+        $assetService->removeAssetsOfBundle('ExampleBundle', false);
+        $assetService->copyAssetsFromBundle('ExampleBundle');
+        $adapter->completeDeletes();
+
+        static::assertTrue($filesystem->fileExists('bundles/example/test.txt'));
+        static::assertSame('TEST', trim($filesystem->read('bundles/example/test.txt')));
+    }
+
     public static function missingManifestProvider(): iterable
     {
         yield 'forced copy with an existing manifest' => [true, true];

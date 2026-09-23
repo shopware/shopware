@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Pagelet\Wishlist;
 
+use Shopware\Core\Content\Product\Cart\ProductStreamCategoryLoader;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
@@ -31,7 +32,8 @@ class GuestWishlistPageletLoader
         private readonly AbstractProductListRoute $productListRoute,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
+        private readonly ?ProductStreamCategoryLoader $streamCategoryLoader = null,
     ) {
     }
 
@@ -55,6 +57,9 @@ class GuestWishlistPageletLoader
                 $context->getContext()
             ));
         }
+
+        // products only listed through a dynamic product group report the categories of that group
+        $this->streamCategoryLoader?->load($response->getProducts(), $context);
 
         $page->setSearchResult($response);
 

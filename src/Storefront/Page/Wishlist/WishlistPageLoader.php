@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRouteResponse;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Product\Cart\ProductStreamCategoryLoader;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,7 +38,8 @@ class WishlistPageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly AbstractLoadWishlistRoute $wishlistLoadRoute,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?ProductStreamCategoryLoader $streamCategoryLoader = null,
     ) {
     }
 
@@ -74,6 +76,9 @@ class WishlistPageLoader
                 )
             );
         }
+
+        // products only listed through a dynamic product group report the categories of that group
+        $this->streamCategoryLoader?->load($page->getWishlist()->getProductListing()->getEntities(), $context);
 
         $this->eventDispatcher->dispatch(
             new WishlistPageLoadedEvent($page, $context, $request)

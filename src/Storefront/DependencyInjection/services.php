@@ -31,6 +31,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
+use Shopware\Core\Content\Product\Cart\ProductStreamCategoryLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
@@ -773,6 +774,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GenericPageLoader::class),
             service(LoadWishlistRoute::class),
             service('event_dispatcher'),
+            service(ProductStreamCategoryLoader::class),
         ]);
 
     $services->set(GuestWishlistPageLoader::class)
@@ -787,6 +789,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service('event_dispatcher'),
             service(ProductCloseoutFilterFactory::class),
+            service(ProductStreamCategoryLoader::class),
         ]);
 
     $services->set(IconTemplateLoader::class)

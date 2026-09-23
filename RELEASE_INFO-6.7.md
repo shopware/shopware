@@ -2,6 +2,10 @@
 
 ## Core
 
+### Large variant families no longer exhaust memory when several variants are read at once
+
+The `cheapest_price` container of a product family is stored on the parent and inherited by every variant, so a read that hydrates many variants of the same family carried and unserialized the same payload once per row. For families with thousands of variants the payload is several megabytes, and reading a few dozen variants in one request (cart recalculation, Store API `product` reads without `fields`, cross-selling by assignment) exhausted the PHP memory limit. `PHPUnserializeFieldSerializer` now unserializes an identical payload only once per request and shares the resulting container between the rows. The memo is bounded and cleared on kernel reset; behaviour and API output are unchanged.
+
 ### Dompdf page count placeholder replaced for core and fallback fonts
 
 In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.

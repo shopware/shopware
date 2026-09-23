@@ -89,9 +89,7 @@ swDefinePublic({});
         expect(result).toEqual([{ id: virtualId }]);
         expect(context.environment.logger.error).toHaveBeenCalledTimes(1);
         expect(context.environment.logger.error).toHaveBeenCalledWith(
-            expect.stringMatching(
-                /^\[shopware-setup\] \/example\/sw-broken-component\.vue:2:23\n.*Unable to parse Shopware setup script/s,
-            ),
+            '[shopware-setup] /example/sw-broken-component.vue:2:23\nUnable to parse Shopware setup script: Unexpected token, expected ","',
         );
     });
 

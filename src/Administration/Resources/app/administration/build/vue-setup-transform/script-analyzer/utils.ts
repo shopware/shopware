@@ -77,7 +77,10 @@ function parseScript(script: string, lang: string, scriptOffset: number): BabelF
     } catch (error: unknown) {
         const parserError = error as { pos?: unknown; message?: unknown };
         const offset = typeof parserError.pos === 'number' ? scriptOffset + parserError.pos : scriptOffset;
-        const message = typeof parserError.message === 'string' ? parserError.message : String(error);
+        // Babel appends a `(line:column)` relative to the script block; the absolute offset is the only
+        // position consumers should show.
+        const message =
+            typeof parserError.message === 'string' ? parserError.message.replace(/ \(\d+:\d+\)$/, '') : String(error);
         throw new ShopwareSetupTransformError(`Unable to parse Shopware setup script: ${message}`, offset);
     }
 }

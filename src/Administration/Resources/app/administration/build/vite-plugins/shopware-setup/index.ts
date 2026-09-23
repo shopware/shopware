@@ -60,9 +60,9 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
 
 /** Renders a transform diagnostic as `file:line:column` plus its message, so editors can jump to it. */
 function formatTransformError(error: unknown, fileName: string, source: string): string {
-    const message = error instanceof Error ? error.message : String(error);
-    // Duck-typed: `ShopwareSetupTransformError` lives in the lazily required transform module.
-    const index = (error as { index?: unknown } | null)?.index;
+    // Duck-typed: the lazily required transform module may throw from another realm, where `instanceof` fails.
+    const { message: rawMessage, index } = (error ?? {}) as { message?: unknown; index?: unknown };
+    const message = typeof rawMessage === 'string' ? rawMessage : String(error);
 
     if (typeof index !== 'number') {
         return `[shopware-setup] ${fileName}\n${message}`;

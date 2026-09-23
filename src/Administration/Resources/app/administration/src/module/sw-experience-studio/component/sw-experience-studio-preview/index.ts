@@ -12,6 +12,7 @@ type ContentSystemPreviewService = {
         entityType: string;
         entityId: string;
         salesChannelId: string;
+        settings?: Record<string, unknown>;
     }) => Promise<string>;
 };
 
@@ -164,6 +165,13 @@ export default Shopware.Component.wrapComponentConfig({
 
     watch: {
         'layout.layout': {
+            handler() {
+                this.schedulePreviewReload();
+            },
+            deep: true,
+        },
+
+        'layout.settings': {
             handler() {
                 this.schedulePreviewReload();
             },
@@ -509,12 +517,14 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 // Working-tree layout data crossing an outbound boundary is cloned at the call site.
                 const previewLayout = cloneDeep(serializedLayout);
+                const previewSettings = cloneDeep<Record<string, unknown>>(layout?.settings ?? {});
 
                 const previewUrl = await previewService.previewEntityUrl({
                     layout: previewLayout,
                     entityType,
                     entityId,
                     salesChannelId,
+                    settings: previewSettings,
                 });
 
                 if (requestId !== this.latestRequestId) {

@@ -27,12 +27,14 @@ class ContentPage extends Struct
 {
     /**
      * @param list<RenderedElement> $elements
+     * @param array<string, mixed> $settings
      */
     private function __construct(
         public string $id,
         public array $elements,
         public string $name,
         public ?string $version,
+        public array $settings,
     ) {
     }
 
@@ -47,6 +49,7 @@ class ContentPage extends Struct
             $result->tree,
             $result->reference->name,
             $result->reference->version,
+            $result->reference->settings,
         );
     }
 

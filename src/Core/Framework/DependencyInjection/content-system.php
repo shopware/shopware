@@ -38,6 +38,7 @@ use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\DraftLayoutChecker;
+use Shopware\Core\Framework\ContentSystem\Event\Listener\ScrollNavigationAnchorListener;
 use Shopware\Core\Framework\ContentSystem\Helper\ContentLayoutMetadataDeriver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigCanonicalizer;
@@ -742,6 +743,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Remaps the serializer's ExtraAttributesException to a content-system 400 for the strict-mapped admin routes
     $services->set(UnknownRequestFieldExceptionListener::class)
+        ->tag('kernel.event_subscriber');
+
+    // Stamps the layout's scroll-navigation anchors onto the rendered elements they name
+    $services->set(ScrollNavigationAnchorListener::class)
         ->tag('kernel.event_subscriber');
 
     // Layout Validation

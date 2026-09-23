@@ -3,13 +3,15 @@ import type Repository from 'src/core/data/repository.data';
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 
 /**
- * A `content_layout` entity whose `layout` field carries the canonical element type.
+ * A `content_layout` entity whose `layout` field carries the canonical element type and whose
+ * `settings` field is named as the string-keyed map the server stores.
  *
  * @private
  * @sw-package discovery
  */
-export type ContentLayoutEntity = Omit<Entity<'content_layout'>, 'layout'> & {
+export type ContentLayoutEntity = Omit<Entity<'content_layout'>, 'layout' | 'settings'> & {
     layout: ContentElementNode[];
+    settings?: Record<string, unknown> | null;
 };
 
 /**

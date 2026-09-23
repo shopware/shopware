@@ -18,6 +18,7 @@ final class ContentPreviewRequest
     /**
      * @param array<int|string, mixed> $layout
      * @param array<string, mixed> $queryParameters
+     * @param array<string, mixed> $settings
      */
     public function __construct(
         #[Assert\NotBlank]
@@ -36,6 +37,8 @@ final class ContentPreviewRequest
         #[Assert\Type('array')]
         #[Assert\Callback([self::class, 'rejectNonStringQueryParameterNames'])]
         public readonly array $queryParameters = [],
+        #[Assert\Type('array')]
+        public readonly array $settings = [],
     ) {
     }
 

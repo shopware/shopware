@@ -13,6 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * Dispatched before the line items derived from an order are added to the cart. Listeners may replace the
  * list to change what a reorder adds, for example to collapse bundle children back into a single line item.
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class BeforeOrderLineItemsAddedToCartEvent implements ShopwareSalesChannelEvent, CartEvent

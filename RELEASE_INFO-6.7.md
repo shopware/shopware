@@ -1,6 +1,166 @@
-# 6.7.15.0 (upcoming)
+# 6.7.16.0 (upcoming)
+
+## Core
+
+### Dompdf page count placeholder replaced for core and fallback fonts
+
+In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.
+
+### Moved PHP classes retain backwards-compatible aliases
+
+The following classes moved to their canonical Core namespaces. Their previous names remain available as runtime class aliases throughout 6.7 and are removed with 6.8:
+
+| Previous name | Canonical name |
+|---|---|
+| `Shopware\Administration\Controller\NotificationController` | `Shopware\Core\Framework\Notification\Api\NotificationController` |
+| `Shopware\Administration\Notification\NotificationCollection` | `Shopware\Core\Framework\Notification\NotificationCollection` |
+| `Shopware\Administration\Notification\NotificationDefinition` | `Shopware\Core\Framework\Notification\NotificationDefinition` |
+| `Shopware\Administration\Notification\NotificationEntity` | `Shopware\Core\Framework\Notification\NotificationEntity` |
+| `Shopware\Core\Framework\Plugin\Util\AssetService` | `Shopware\Core\Framework\Adapter\Asset\AssetService` |
+| `Shopware\Elasticsearch\Product\SearchConfigLoader` | `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` |
+
+Update imports, type declarations, static references, and service IDs to the canonical names.
+The aliases preserve runtime class identity during the transition; they do not create compatibility subclasses.
+`NotificationController` remains internal, and `AssetService` becomes internal with 6.8.
+Neither should be introduced as a new extension dependency.
+
+### Merged document downloads have a speaking file name
+
+Downloading several order documents at once from the order bulk edit delivered one merged PDF named with a 32 character random string, so merchants could not tell their downloads apart in the download folder.
+
+The merged file is now named after its document type and the date of the download, for example `delivery_note_2026-09-10.pdf`. A download that mixes document types is called `documents_<date>.pdf`, and a single document keeps the name it was rendered with. Unlike the random string, that name is no longer unique per download.
+
+### An unset MCP allowlist no longer grants unrestricted MCP access
+
+`user.mcp_allowlist` and `integration.mcp_allowlist` used to mean "everything is allowed" when they were unset, so every existing integration and non-admin user could reach the full MCP capability surface without anyone selecting it. They now mean the opposite: nothing is allowed until capabilities are selected explicitly. Only administrator users still bypass the allowlist; integrations never do.
+
+Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
+
+### Promotion redemptions are recounted faster
+
+Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
+
+## API
+
+### Store API OpenAPI schema matches the actual responses
+
+The Store API OpenAPI schema was corrected where it contradicted the real responses; the responses themselves are unchanged. If you generate types or validate responses from the schema, regenerate them. Notable changes:
+
+- `aggregations`, `Cart.errors`, `paymentChangeable`, `validationData` and `OrderLineItem.translated` allow an empty array; order price `calculatedTaxes`/`taxRules` and `CmsSlot.fieldConfig` are arrays.
+- `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
+- `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
+- `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
+## Administration
+
+### New extension points for the Shopping Experiences layout list
+
+The "Set as default" context menu item in `sw-cms-list` is now wrapped in its own Twig block, in both the grid and the list view:
+
+- `sw_cms_list_listing_list_item_option_set_as_default` (grid view)
+- `sw_cms_list_listing_list_data_grid_actions_set_as_default` (list view)
+
+It was previously the only context menu item in either view without a block, so extensions that had to change it were forced to replace the surrounding `sw_cms_list_listing_list_item` or `sw_cms_list_listing_list_data_grid_actions` block completely. That removed every other extension point inside those blocks for all other extensions.
+
+In addition, `sw-cms-list` has a new `isDefaultLayout(page)` method that decides whether a layout is a default layout. It backs the `is-default` property of `sw-cms-list-item`, the label built in `getPageType()`, and the visibility of the delete action in both views, all of which previously repeated the same check inline. Extensions that add their own default layout type can override this single method instead of the template, and their default layout is then marked and protected from deletion like the built-in ones:
+
+```js
+Shopware.Component.override('sw-cms-list', {
+    methods: {
+        isDefaultLayout(page) {
+            return this.myDefaultLayoutId === page.id || this.$super('isDefaultLayout', page);
+        },
+    },
+});
+```
+
+Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
+
+### Admin list and card empty states use `mt-empty-state`
+
+The prominent empty states of the Administration render `mt-empty-state` instead of `sw-empty-state`, plain text or illustration markup. List pages whose empty state means "nothing exists yet" offer their create action in its `button` slot, and the customer group, flow and rule lists hide their listing while the empty state shows, so blocks nested inside those listings no longer render.
+
+The Twig blocks that wrapped the former icon, image or label are now empty anchors, deprecated for removal in v6.8.0; pass a custom icon through the `icon` prop by overriding the surrounding `*_empty_state` block instead. `sw_promotion_v2_individual_codes_behavior_empty_state_actions` fills the `button` slot now, so overrides must switch from `<template #actions>` to `<template #button>`, and the former icon and label classes of these empty states no longer exist. The `assetFilter` computed of these components is deprecated for removal in v6.8.0; use `Shopware.Filter.getByName('asset')` instead.
+
+#### Deprecated Twig blocks and computed properties
+
+These Twig blocks are empty extension anchors now and are removed in v6.8.0:
+
+- `sw-flow-list`: `sw_flow_list_empty_state_icon`
+- `sw-mail-header-footer-list`: `sw_mail_header_footer_list_grid_empty_state_icon`
+- `sw-mail-template-list`: `sw_mail_template_list_grid_empty_state_icon`
+- `sw-order-create-address-modal`: `sw_order_create_address_modal_empty_state_content`
+- `sw-order-customer-grid`: `sw_order_customer_grid_empty_state_icon`
+- `sw-product-detail-context-prices`: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`
+- `sw-product-detail-cross-selling`: `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited`, `sw_product_detail_cross_selling_empty_state_content_empty`
+- `sw-promotion-v2-individual-codes-behavior`: `sw_promotion_v2_individual_codes_behavior_empty_state_icon`
+- `sw-sales-channel-products-assignment-dynamic-product-groups`: `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`
+- `sw-settings-listing`: `sw_settings_listing_content_card_view_options_card_empty_state_icon`
+- `sw-settings-listing-option-criteria-grid`: `sw_settings_listing_option_criteria_card_empty_state_icon`
+- `sw-settings-product-feature-sets-values-card`: `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`
+- `sw-tax-rule-card`: `sw_tax_rule_card_empty_state_image`, `sw_tax_rule_card_empty_state_label`
+
+The `assetFilter` computed property is removed in v6.8.0 in these components; use `Shopware.Filter.getByName('asset')` instead:
+
+- `sw-cms-layout-assignment-modal`
+- `sw-flow-list`
+- `sw-mail-header-footer-list`
+- `sw-mail-template-list`
+- `sw-order-customer-grid`
+- `sw-promotion-v2-individual-codes-behavior`
+- `sw-sales-channel-products-assignment-dynamic-product-groups`
+- `sw-settings-listing`
+- `sw-settings-listing-option-criteria-grid`
+- `sw-settings-product-feature-sets-values-card`
+- `sw-tax-rule-card`
+### Main menu group "Catalogues" is now "Products"
+
+The first main menu group is labelled "Products", its product list entry is labelled "Overview", and the matching group in Settings > Users & permissions is labelled "Products" as well. Menu ids and privilege parent keys are unchanged: entries still hook into the `sw-catalogue` menu id, and privileges still use `parent: 'catalogues'`.
+
+The category menu entry moved from position `20` to `25` so that it no longer ties with the reviews entry at `20`. Extension entries in the group that relied on the tie order need an explicit position.
+
+### Permission groups follow the main navigation
+
+The group order in the permissions grid of Settings > Users & permissions follows the main navigation (Products, Orders, Customers, Content, Marketing, Settings) instead of the alphabetical order of the translated labels, with groups of extensions sorted alphabetically after them and "Other" last.
+
+The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
+
+## Storefront
+
+### Checkout form data is kept in the session storage
+
+The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.
+
+The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `data-checkout-customer-storage-reset`. It sits on the emptied cart, as both a page and an off-canvas, on the order confirmation page, and on the login page a logout lands on. Themes that replace those templates should keep the attribute, and can add it to any further place that ends a checkout.
+
+### Separate legal guarantee notice
+
+The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
+
+### Legal guarantee notice on the registration and other privacy notices
+
+`component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
+
+## App system
+
+### App requests keep body and signature across redirects
+
+Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
+
+# 6.7.15.0
 
 ## Features
+
+### Connect-time toolset selection for the MCP server
+
+MCP toolsets can now be named in the URL an agent connects to, so their tools are advertised on the first `tools/list` instead of after a `shopware-toolset-enable` round trip:
+
+```
+https://<shop>/api/_mcp?toolsets=order,media
+https://<shop>/api/_mcp?toolsets=all
+```
+
+This is for agents that read `tools/list` once per connection. It changes visibility only: the MCP allowlist and the assigned role still decide what may be called, and a connection that passes no parameter behaves as before.
 
 ### Browser login for CLI tools and other public OAuth clients
 
@@ -10,7 +170,7 @@ Shopware ships the `shopware-cli` client. Operators can register their own publi
 
 ### Document generation v2 (experimental)
 
-Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is deprecated and will be removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.
+Shopware ships a new, opt-in implementation of order document generation. It replaces the legacy pipeline, which is marked with the `#[ExperimentalReplacement]` attribute, will be deprecated with Shopware 6.8 and removed with Shopware 6.9. Enable it with the `DOCUMENT_GENERATION_REWORK` feature flag. Without the flag, Shopware runs purely on the legacy implementation.
 
 The architecture and all extension points are documented in the [Document (v2) concept guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/). The coexistence and migration strategy is defined in the [migration ADR](adr/2026-08-05-document-generation-v1-to-v2-migration-strategy.md).
 
@@ -87,13 +247,30 @@ Customers download v2 documents through the existing storefront and Store API ro
 
 The `document.orderId` and `document.orderVersionId` fields are now optional. Extensions that read documents directly should not assume every document belongs to an order. Use the `order` association only when it is available.
 
-#### Deprecation of the legacy implementation
+#### Marking of the legacy implementation
 
-Everything replaced by v2 is deprecated with `@deprecated tag:v6.9.0`: the legacy document domain in `Shopware\Core\Checkout\Document`, the legacy Administration services and modals, and the `document_type` and `document_type_translation` entities. Document types and formats become code-registered strings. Surviving shared classes move into the `DocumentV2` namespace with 6.9.
+The legacy PHP document domain in `Shopware\Core\Checkout\Document` is superseded by v2 but not deprecated yet. Its classes carry `#[ExperimentalReplacement(version: 'v6.9.0', feature: 'DOCUMENT_GENERATION_REWORK', ...)]`, which stays silent for static analysis. The `@deprecated tag:v6.9.0` annotation follows with Shopware 6.8 once v2 is stable. The legacy Administration services and modals and the `document_type` and `document_type_translation` entities are deprecated with `@deprecated tag:v6.9.0` already. Document types and formats become code-registered strings. Surviving shared classes move into the `DocumentV2` namespace with 6.9.
 
 Timeline: 6.7 opt-in, 6.8 default (opt-out), 6.9 legacy implementation and flag removed. Migration steps are in `UPGRADE-6.9.md`.
 
 ## Core
+
+### New `#[ExperimentalReplacement]` BC-change attribute
+
+Core classes that are superseded by a feature which is still `@experimental` are no longer deprecated ahead of time. A `@deprecated` annotation asks you to migrate now, but an experimental replacement has no backwards-compatibility promise yet. Such classes now carry `#[ExperimentalReplacement]` from `Shopware\Core\Framework\Deprecation\BCChange` instead.
+
+### Configurator groups can be built from a supplied combination result
+
+`ProductConfiguratorLoader::load()` loads the variant combinations itself, so a caller that has to narrow which variants may be offered had no way in: it either constructed the loader with its own `AbstractAvailableCombinationLoader` or rebuilt the group assembly.
+
+`ProductConfiguratorLoader::loadFromCombinations(SalesChannelProductEntity $product, AvailableCombinationResult $combinations, SalesChannelContext $context)` takes the result as an argument and builds the groups from it. `load()` is unchanged and now delegates to it after loading the combinations, so existing callers behave exactly as before.
+
+### Store API responses vary on `sw-include-seo-urls`
+
+The `sw-include-seo-urls` request header adds `seoUrls` to Store API responses, but it was not part of `Vary` or of the built-in HTTP cache key. A cached response without `seoUrls` could be served to a request that asked for them. The header is now listed in `HttpCacheVariantHeaders::HEADERS`, so it is emitted in `Vary` and folded into the cache key. Reverse proxies that honor `Vary` need no change. Setups with a custom cache key should add the header. An empty header value now counts as absent, matching the cache key.
+### Shopware Services reconcile their full state daily
+
+A service that missed an account login or logout, a consent change, a failed update, or a deactivation during a system update stayed in that state until the next event for it fired. The daily `services.install` task now completes compatible service updates and repairs activation and permissions of every installed service according to its current requirements, even when no new revision is available. Account-bound services stay active while their permissions follow the account state. Permitted manual deactivation is preserved. A failure in one service no longer prevents the others from being reconciled. No configuration change is required.
 
 ### Extensions can change the API CORS header lists
 
@@ -135,7 +312,9 @@ The GARAN label that 6.7.14.0 added to the `order_confirmation_mail` template (s
 
 As with the original change, a migration re-applies the template only for shops that never edited their order confirmation mail template. If you customized that template and copied the label markup from 6.7.14.0, replace your `<tr><td colspan="6">` label row with the markup from `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
 
-Note that the label is embedded as an SVG `data:` URI, which Gmail and Outlook do not render at all. Recipients on those clients see the `alt` text; the label remains visible in the storefront and in the customer account.
+### GARAN label in the order confirmation mail is embedded as an inline PNG
+
+The order confirmation mail now attaches the GARAN label as an inline PNG instead of an SVG `data:` URI, which Gmail and Outlook do not display. If you customized that template, replace `sw_garan_label_nested_uri` with the new `sw_garan_label_mail` filter as shown in `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
 
 ### Primary/replica connections switch back to the replica between requests
 
@@ -295,6 +474,38 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
+### `MailService` renders mails with the snippets of their sales channel
+
+`MailService` now configures the translator for the mail's sales channel while it renders the subject and content. Previously the Flow Builder mail action and `SendMailTemplate` did this before calling it; now it applies to every mail sent through `MailService`.
+
+If you replace `AbstractMailService` without calling the decorated service, configure the translator in your implementation with `AbstractTranslator::injectSettings()` and `resetInjection()`. Because the settings only apply during rendering, listeners of `FlowSendMailActionEvent` and `MailBeforeValidateEvent` see the translator's default configuration.
+### MCP servers are registered declaratively
+
+Shopware runs on `symfony/mcp-bundle` 0.13 with `mcp/sdk` 0.8, which register both MCP servers declaratively. The extension tags `shopware.mcp.tool`, `shopware.mcp.prompt`, `shopware.mcp.resource` and their `shopware.store_api_mcp.*` equivalents are unchanged, so plugins and apps that register tools, prompts, or resources need no adjustment. Code that integrates with the MCP internals has to be updated; those classes are marked `@experimental stableVersion:v6.8.0`. The motivation, the considered alternatives, and the consequences are described in [MCP capability registration via the container](adr/2026-08-31-mcp-capability-registration-via-container.md).
+
+The bundle registers one set of services per server, so the flat service IDs are gone:
+
+| Before | After (Admin API) | After (Store API) |
+|---|---|---|
+| `mcp.server` | `mcp.server.admin` | `mcp.server.store_api` |
+| `mcp.server.builder` | `mcp.server.admin.builder` | `mcp.server.store_api.builder` |
+| `mcp.registry` | `mcp.server.admin.registry` | `mcp.server.store_api.registry` |
+| `mcp.session.store` | `mcp.server.admin.session.store` | `mcp.server.store_api.session.store` |
+
+The hand-built `mcp.store_api.registry`, `mcp.store_api.server.builder` and `mcp.store_api.server` services were removed, as was `StoreApiMcpServerBuilderCompilerPass`.
+
+Protocol request and notification handlers are scoped per server. Use `mcp.admin.request_handler` instead of `mcp.request_handler`, and `mcp.admin.notification_handler` instead of `mcp.notification_handler`, to target the Admin API server. The Store API tags `mcp.store_api.request_handler` and `mcp.store_api.notification_handler` are unchanged. A handler on the bundle's global `mcp.request_handler` tag reaches neither server.
+
+The `discovery.scan_dirs` option of the `mcp` extension was removed. Capabilities are registered from their DI tag at compile time, so an in-tree bundle capability needs no directory listing. Each server declares the namespace prefixes it exposes under `mcp.servers.<name>.registry`, and a capability whose namespace no server names is not registered. Run `bin/console debug:mcp --native` to list capabilities that ended up assigned to no server. Capabilities of plugins and third-party bundles are assigned by `McpToolDiscoveryCompilerPass` instead of by prefix.
+
+The bundle's `mcp.pagination_limit` parameter was removed. Shopware sets both servers from its own `shopware.mcp.pagination_limit` parameter (default 50).
+
+The MCP bundle ships a `debug:mcp` command of its own. Shopware keeps that name for its command and moves the bundle's command to `debug:mcp:native`, also reachable as `bin/console debug:mcp --native`.
+
+Each server owns its own session store, defaulting to `%kernel.cache_dir%/mcp-sessions/<server>`. Store API MCP sessions that existed before the update are not carried over, so clients re-initialize once.
+
+Both endpoints stay pinned to the protocol revision they served before, so the negotiated `protocolVersion` and the `Mcp-Session-Id` behaviour are unchanged.
+
 ## API
 
 ### OAuth authorization endpoint
@@ -337,8 +548,20 @@ Resolving the sales channel context now calculates the cart through `CartCalcula
 
 Store API responses requested with the `sw-include-seo-urls` header now also include the SEO URLs generated for headless (API type) sales channels. Previously only the storefront SEO URL routes were considered when loading the `seoUrls` of products, categories and landing pages, so the association stayed empty on headless sales channels even though SEO URLs had been generated for them (see "SEO URLs for headless sales channels" in 6.7.14.0). Storefront sales channels are unaffected.
 
+### Remote media request timeouts are configurable
+
+Installations can configure `shopware.media.url_upload_timeout` and
+`shopware.media.external_link_timeout` in seconds to bound remote media URL
+uploads and external-media link checks. Both values default to `0.0`, which
+preserves the previous unlimited behavior.
+
 ## Administration
 
+### An empty string can be saved on fields that allow one
+
+The changeset generator turned an empty string into `null` for every field. Fields flagged `Required` and `AllowEmptyString` reject `null` but accept an empty string, so clearing such a field in the Administration always failed with "This value should not be null." The generator now keeps the empty string for exactly those fields; every other field is unchanged.
+
+The entity validation service follows the same rule and no longer reports an empty string on such a field as missing. This affects `snippet.value` and `app_administration_snippet.value`, where clearing the field now saves an empty value instead of returning an error.
 ### Update wizard recommends Shopware CLI
 
 The administration update wizard now asks you to choose an update method before starting the web installer. `shopware-cli project upgrade` is the recommended path for developers and managed deployments. The existing web installer flow remains available.
@@ -548,6 +771,14 @@ The `assetFilter` computed of both components is deprecated for removal in v6.9.
 
 ## Storefront
 
+### New line item reference price block
+
+A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
+
+### Static theme compilation without a database
+
+Theme compilation with `StaticFileConfigLoader` now refreshes runtime configuration values when a database is available, while continuing to work without a reachable database in build environments.
+
 ### `robots.txt` allows crawling thumbnails
 
 The default storefront `robots.txt` now contains `Allow: /thumbnail/*?ts=` alongside the existing rules `Disallow: /*?` and `Allow: /media/*?ts=` to allow crawling thumbnails by bots.
@@ -612,6 +843,16 @@ A theme that lists several ancestors in the `configInheritance` of its `theme.js
 
 ## Hosting & Configuration
 
+### `No-Vary-Search` header on cacheable responses
+
+With `CACHE_REWORK` active, cacheable storefront and store-api responses send [`No-Vary-Search: key-order`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/No-Vary-Search), declaring that the order of query parameters does not change the response. The server already normalizes the query order before it looks up its cache entry, so the header only tells clients what was always true.
+
+The header is a specification draft, support differs per browser and per cache, and it does not replace query sorting in a reverse proxy such as Varnish or Fastly. A client that ignores it keeps treating a reordered query string as a different URL, which is the behaviour you have today.
+
+Set your own value per policy under `headers.no_vary_search`, for example `no_vary_search: 'key-order, params=("gclid")'`. It is passed through verbatim, validated only for being a single line of printable ASCII. If the key is omitted from the policy, no `No-Vary-Search` header is sent, and any value a controller or plugin set earlier in the request is removed. Unlike `Cache-Control`, the header cannot be influenced by a `#[HttpCache]` attribute. The policy is its only source.
+
+Never list parameters that change the rendered content, such as `p`, `order`, `search` or filter names. A client would then match a stored response against the wrong URL and show page 1 at a `?p=2` URL. Tracking parameters are safe, because reuse does not rewrite the document URL.
+
 ### Registering public OAuth clients
 
 Public OAuth clients that may use the authorization code grant are configured under `shopware.api.oauth_clients`. Shopware ships `shopware-cli` with the loopback redirect URIs `http://127.0.0.1/callback` and `http://[::1]/callback`. Loopback URIs accept any port (RFC 8252), all other redirect URIs must match exactly. Additional clients are added per project:
@@ -656,6 +897,15 @@ A static entry maps the given path to the script hook `storefront-<name>` on eve
 The script receives the entity id as `hook.query.id`. Templates link to such pages with `seoUrl('frontend.script_endpoint', { hook: 'blog-detail', id: entity.id })`; the placeholder is replaced with the SEO path like for products and categories.
 
 Two supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, and `seo_url.route_name` now allows 255 characters.
+# 6.7.14.2
+
+## Critical Fixes
+
+### Product and promotion duplication works again
+
+Duplicating products could fail because the request resubmitted the protected variant count. Promotion duplication failed for the same reason when it resubmitted the protected total and per-customer redemption counts.
+
+Both duplication flows now succeed. Products keep their correct variant count, while duplicated promotions start with zero total redemptions and no per-customer redemptions instead of inheriting the usage of the original promotion.
 
 # 6.7.14.1
 

@@ -79,17 +79,41 @@ class StorefrontSnippetStorage
         $files = $this->collect($appFilesystem);
         $this->write($appName, $version, $files);
 
-        return $previousFiles !== $files;
+        if ($previousFiles === $files) {
+            return false;
+        }
+
+        $this->removeLocalFiles($appName);
+
+        return true;
     }
 
     public function remove(string $appName): bool
     {
+        $removed = $this->removeLocalFiles($appName);
+
         $path = $this->path($appName);
-        if (!$this->filesystem->fileExists($path)) {
+        if ($this->filesystem->fileExists($path)) {
+            $this->filesystem->delete($path);
+            $removed = true;
+        }
+
+        return $removed;
+    }
+
+    /**
+     * Drops the local files: their version-keyed path cannot tell changed contents apart.
+     *
+     * @return bool whether local files existed
+     */
+    private function removeLocalFiles(string $appName): bool
+    {
+        $appDirectory = Path::join($this->directory, $appName);
+        if (!$this->io->exists($appDirectory)) {
             return false;
         }
 
-        $this->filesystem->delete($path);
+        $this->io->remove($appDirectory);
 
         return true;
     }

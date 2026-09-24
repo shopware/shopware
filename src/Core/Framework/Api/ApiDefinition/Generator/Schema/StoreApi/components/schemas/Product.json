@@ -319,13 +319,7 @@
                     "calculatedPrices": {
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "allOf": [
-                                {
-                                    "$ref": "#/components/schemas/CalculatedPrice"
-                                }
-                            ]
+                            "$ref": "#/components/schemas/CalculatedPrice"
                         }
                     },
                     "calculatedMaxPurchase": {

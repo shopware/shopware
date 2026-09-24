@@ -167,17 +167,12 @@ describe('src/module/sw-cms/elements/product-listing/config - sorting', () => {
         const wrapper = await createWrapper();
         const defaultSorting = { id: 'default_id', priority: 1 };
 
-        wrapper.vm.productSortings = new EntityCollection('', '', {}, {}, [
-            { id: 'foo_id', priority: 2 },
-        ]);
+        wrapper.vm.productSortings = new EntityCollection('', '', {}, {}, [{ id: 'foo_id', priority: 2 }]);
         wrapper.vm.defaultSorting = defaultSorting;
 
         wrapper.vm.onUpdateProductSortings();
 
-        expect([...wrapper.vm.productSortings.getIds()]).toEqual([
-            'foo_id',
-            'default_id',
-        ]);
+        expect([...wrapper.vm.productSortings.getIds()]).toEqual(['foo_id', 'default_id']);
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({
             foo_id: 2,
             default_id: 1,

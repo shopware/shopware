@@ -15,10 +15,7 @@ type SettingsItemHere = Omit<SettingsItem, 'label'> & {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
     data() {
         return {
@@ -69,22 +66,13 @@ export default Shopware.Component.wrapComponentConfig({
                 (
                     mapper: (settings: SettingsItemHere[], groupName: string) => SettingsItemHere[],
                 ): ((entry: [string, SettingsItemHere[]]) => [string, SettingsItemHere[]]) =>
-                ([
-                    name,
-                    settings,
-                ]) => [
-                    name,
-                    mapper(settings, name),
-                ];
+                ([name, settings]) => [name, mapper(settings, name)];
 
             const filterGroup =
                 (
                     predicate: (settings: SettingsItemHere[], groupName: string) => boolean,
                 ): ((entry: [string, SettingsItemHere[]]) => boolean) =>
-                ([
-                    name,
-                    settings,
-                ]) =>
+                ([name, settings]) =>
                     predicate(settings, name);
 
             // Mappers

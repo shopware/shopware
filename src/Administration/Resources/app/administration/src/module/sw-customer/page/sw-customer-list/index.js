@@ -12,17 +12,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'filterFactory',
-    ],
+    inject: ['repositoryFactory', 'acl', 'filterFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation'), Mixin.getByName('listing')],
 
     data() {
         return {
@@ -72,6 +64,10 @@ export default {
     },
 
     computed: {
+        hasActiveSearchOrFilter() {
+            return this.activeFilterNumber > 0 || this.isValidTerm(this.term);
+        },
+
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },
@@ -109,10 +105,7 @@ export default {
         filterSelectCriteria() {
             const criteria = new Criteria(1, 1);
             criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('affiliateCode', null),
-                    Criteria.equals('campaignCode', null),
-                ]),
+                Criteria.not('AND', [Criteria.equals('affiliateCode', null), Criteria.equals('campaignCode', null)]),
             );
             criteria.addAggregation(Criteria.terms('affiliateCodes', 'affiliateCode', null, null, null));
             criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));

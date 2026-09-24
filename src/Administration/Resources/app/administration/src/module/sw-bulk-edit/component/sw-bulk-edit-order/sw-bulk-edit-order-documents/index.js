@@ -17,9 +17,7 @@ export default {
         documentV2Service: {},
     },
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         documents: {

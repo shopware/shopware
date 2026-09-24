@@ -313,7 +313,7 @@ class PromotionValueRuleTest extends TestCase
             'operator' => Rule::OPERATOR_EQ,
         ]);
 
-        $mock = $this->createMock(SalesChannelContext::class);
+        $mock = static::createStub(SalesChannelContext::class);
         $scope = new CartRuleScope($cart, $mock);
 
         static::assertTrue($rule->match($scope));

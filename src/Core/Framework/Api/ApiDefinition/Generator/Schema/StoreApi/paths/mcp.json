@@ -116,6 +116,7 @@
                                             }
                                         },
                                         "required": [
+                                            "method",
                                             "params"
                                         ]
                                     },
@@ -134,7 +135,10 @@
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
+                                        "required": [
+                                            "method"
+                                        ]
                                     },
                                     {
                                         "title": "tools/call",
@@ -161,6 +165,7 @@
                                             }
                                         },
                                         "required": [
+                                            "method",
                                             "params"
                                         ]
                                     },
@@ -179,7 +184,10 @@
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
+                                        "required": [
+                                            "method"
+                                        ]
                                     },
                                     {
                                         "title": "resources/read",
@@ -201,6 +209,7 @@
                                             }
                                         },
                                         "required": [
+                                            "method",
                                             "params"
                                         ]
                                     },
@@ -219,7 +228,10 @@
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
+                                        "required": [
+                                            "method"
+                                        ]
                                     },
                                     {
                                         "title": "prompts/get",
@@ -248,6 +260,7 @@
                                             }
                                         },
                                         "required": [
+                                            "method",
                                             "params"
                                         ]
                                     },
@@ -257,7 +270,10 @@
                                             "method": {
                                                 "const": "ping"
                                             }
-                                        }
+                                        },
+                                        "required": [
+                                            "method"
+                                        ]
                                     }
                                 ]
                             }

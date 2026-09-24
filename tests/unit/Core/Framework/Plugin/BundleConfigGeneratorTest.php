@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Plugin\NullBundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -39,7 +38,7 @@ class BundleConfigGeneratorTest extends TestCase
         new BundleConfigGenerator(
             static::createStub(Kernel::class),
             static::createStub(ActiveAppsLoader::class),
-            new NullBundleConfigStyleFileResolver(),
+            styleFileResolvers: [],
         );
     }
 
@@ -89,7 +88,7 @@ class BundleConfigGeneratorTest extends TestCase
             ['name' => 'SwagDemoApp', 'path' => $appRelativePath],
         ]);
 
-        $generator = new BundleConfigGenerator($kernel, $activeAppsLoader, new NullBundleConfigStyleFileResolver());
+        $generator = new BundleConfigGenerator($kernel, $activeAppsLoader, styleFileResolvers: []);
         $config = $generator->getConfig();
 
         static::assertArrayHasKey($coreBundleName, $config);
@@ -140,7 +139,7 @@ class BundleConfigGeneratorTest extends TestCase
             ]);
 
         $kernel = $this->createKernelWithBundles([$bundle]);
-        $generator = new BundleConfigGenerator($kernel, static::createStub(ActiveAppsLoader::class), $resolver);
+        $generator = new BundleConfigGenerator($kernel, static::createStub(ActiveAppsLoader::class), [$resolver]);
         $config = $generator->getConfig();
 
         static::assertSame(
@@ -172,7 +171,35 @@ class BundleConfigGeneratorTest extends TestCase
             ]);
 
         $kernel = $this->createKernelWithBundles([]);
-        $generator = new BundleConfigGenerator($kernel, $activeAppsLoader, $resolver);
+        $generator = new BundleConfigGenerator($kernel, $activeAppsLoader, [$resolver]);
+        $config = $generator->getConfig();
+
+        static::assertSame(
+            [
+                $appPath . '/Resources/app/storefront/src/scss/base.scss',
+                $appPath . '/Resources/app/storefront/src/scss/overrides.scss',
+            ],
+            $config[$appName]['storefront']['styleFiles']
+        );
+    }
+
+    public function testGetConfigMergesStyleFilesOfAllResolversInOrder(): void
+    {
+        $appName = 'SwagDemoApp';
+        $appPath = 'extensions/apps/SwagDemoApp';
+
+        $activeAppsLoader = static::createStub(ActiveAppsLoader::class);
+        $activeAppsLoader->method('getActiveApps')->willReturn([
+            ['name' => $appName, 'path' => $appPath],
+        ]);
+
+        $firstResolver = static::createStub(BundleConfigStyleFileResolver::class);
+        $firstResolver->method('resolveStyleFiles')->willReturn([$appPath . '/Resources/app/storefront/src/scss/base.scss']);
+
+        $secondResolver = static::createStub(BundleConfigStyleFileResolver::class);
+        $secondResolver->method('resolveStyleFiles')->willReturn([$appPath . '/Resources/app/storefront/src/scss/overrides.scss']);
+
+        $generator = new BundleConfigGenerator($this->createKernelWithBundles([]), $activeAppsLoader, [$firstResolver, $secondResolver]);
         $config = $generator->getConfig();
 
         static::assertSame(
@@ -201,7 +228,7 @@ class BundleConfigGeneratorTest extends TestCase
         $bundleName = $bundle->getName();
 
         $kernel = $this->createKernelWithBundles([$bundle]);
-        $generator = new BundleConfigGenerator($kernel, static::createStub(ActiveAppsLoader::class), new NullBundleConfigStyleFileResolver());
+        $generator = new BundleConfigGenerator($kernel, static::createStub(ActiveAppsLoader::class), styleFileResolvers: []);
         $config = $generator->getConfig();
 
         static::assertFalse($config[$bundleName]['storefront']['hasComponentAssets']);

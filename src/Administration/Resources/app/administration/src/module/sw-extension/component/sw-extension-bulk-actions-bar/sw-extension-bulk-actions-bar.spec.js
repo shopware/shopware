@@ -71,26 +71,11 @@ describe('src/module/sw-extension/component/sw-extension-bulk-actions-bar', () =
     });
 
     it.each([
-        [
-            0,
-            'install',
-        ],
-        [
-            1,
-            'activate',
-        ],
-        [
-            2,
-            'deactivate',
-        ],
-        [
-            3,
-            'update',
-        ],
-        [
-            4,
-            'uninstall',
-        ],
+        [0, 'install'],
+        [1, 'activate'],
+        [2, 'deactivate'],
+        [3, 'update'],
+        [4, 'uninstall'],
     ])('should emit run-action for the action at index %i (%s)', async (index, action) => {
         const wrapper = await createWrapper();
 

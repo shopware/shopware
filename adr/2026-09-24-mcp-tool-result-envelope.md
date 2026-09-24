@@ -7,7 +7,7 @@ tags: [framework, mcp, ai, tool-result, structuredContent, bc]
 
 ## Context
 
-Epic [#19965](https://github.com/shopware/shopware/issues/19965). Today Shopware MCP tools largely return a JSON **string** shaped like `{"success": true, "data": …, "_meta": …}` via `McpToolResponse::success()` / `::error()`. `McpToolResponseRule` (PHPStan) forces plugin tools through that helper. The MCP result model is `content[]`, optional `structuredContent`, and `isError`; JSON-RPC errors are reserved for transport failures.
+Epic [#19965](https://github.com/shopware/shopware/issues/19965). Today Shopware MCP tools largely return a JSON **string** shaped like `{"success": true, "data": …, "_meta": …}` via `McpToolResponse::success()` / `::error()`. `McpToolResponseRule` (PHPStan) only requires that `#[McpTool]` classes **extend** `McpToolResponse`; it does **not** validate `__invoke()` return shapes or force `success()` / `error()`. The MCP result model is `content[]`, optional `structuredContent`, and `isError`; JSON-RPC errors are reserved for transport failures.
 
 `src/Core/Framework/Mcp/docs/spec-coverage.md` already flags the envelope as undecided (transitional vs long-term) and asks for a consistent business-error mapping. `mcp/sdk` 0.8 makes migration tractable: `ToolReference::extractStructuredContent()` gates on negotiated revision; on 2026-07-28, `outputSchema` / `structuredContent` follow SEP-2106 (any JSON Schema 2020-12 / any JSON value).
 
@@ -23,7 +23,7 @@ The Shopware string envelope is **transitional**, not long-term product contract
 
 1. **Dual-support** — helpers accept / emit both legacy string envelope and native MCP returns during the window.
 2. **Deprecate** — UPGRADE / RELEASE_INFO + PHPStan deprecation signal for the string envelope.
-3. **Remove** — drop string `{"success":…}` emission and the “must return that string” rule **no later than experimental → 6.8.0**.
+3. **Remove** — drop string `{"success":…}` emission and tighten/remove the **return-shape / deprecation** PHPStan rule that flagged legacy string returns **no later than experimental → 6.8.0**.
 
 Reject indefinite Shopware-only envelope. Reject a hard cut in this iteration while early-adopter parsers still assume `success`.
 
@@ -56,10 +56,18 @@ Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 - Prefer schemas for tools with stable, documented payloads; not mandatory for every tool in the first dual-support PR.
 - Handshake vs modern: respect SDK gating (`requiresObjectStructuredContent()`); do not emit modern-only shapes on handshake without dual-era tests.
 
-### `McpToolResponseRule` / PHPStan
+### PHPStan enforcement
 
-- Update the existing rule with the transitional contract (allow listed returns; stop treating string-only as forever).
-- **Follow-on (not this ADR merge):** MCP PHPStan **guidance pack** — envelope deprecation toward 6.8.0; **Admin ACL required** (audited exceptions); **Store tools ≠ Admin ACL**; reserved-group warn ([#20725](https://github.com/shopware/shopware/issues/20725)). Track under [#19965](https://github.com/shopware/shopware/issues/19965); do not implement the pack in the ADR merge itself.
+Today's `McpToolResponseRule` (`src/Core/DevOps/StaticAnalyze/PHPStan/Rules/McpToolResponseRule.php`) **only** checks that a `#[McpTool]` class extends `McpToolResponse`. It is **not** a return-shape validator.
+
+Intended enforcement (split — do not overload the inheritance rule):
+
+1. **Keep** — `McpToolResponseRule` as the **inheritance** rule (`#[McpTool]` → extend `McpToolResponse`). Remains valid through dual-support; revisit only if tools may stop extending the helper class.
+2. **Add** — a **new** return-shape / envelope-deprecation PHPStan rule (sibling of `McpToolResponseRule`) that:
+   - During dual-support: allows the listed returns in this ADR;
+   - Toward **6.8.0**: warns (then errors) on legacy string `{"success":…}` / obsolete helper-only paths so authors migrate to the allowed shapes above.
+
+**Follow-on (not this ADR merge):** MCP PHPStan **guidance pack** — the new envelope-deprecation rule above, plus **Admin ACL required** (audited exceptions), **Store tools ≠ Admin ACL**, and reserved-group warn ([#20725](https://github.com/shopware/shopware/issues/20725)). Track under [#19965](https://github.com/shopware/shopware/issues/19965); do not implement the pack in the ADR merge itself. Pack proposal / project ADR copy: MCP Iteration 3 `docs/mcp-phpstan-guidance.md` and `docs/adr-19967-envelope.md`.
 
 ### Sequencing
 
@@ -67,7 +75,7 @@ Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 |---|---|
 | Now | This ADR; unblock ResourceLink typing (#19966) and dual-era honesty |
 | Wave 3 | Helper dual-support → tool-by-tool migration → paired [shopware-mcp-evals](https://github.com/shopware/shopware-mcp-evals) dual-read |
-| By 6.8.0 | Remove string envelope; tighten PHPStan; UPGRADE final remove notes |
+| By 6.8.0 | Remove string envelope; tighten/remove the return-shape PHPStan rule; keep inheritance rule unless helpers go away; UPGRADE final remove notes |
 | After this ADR / with envelope migration | PHPStan guidance pack (follow-on) |
 
 ## Consequences
@@ -75,4 +83,4 @@ Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 - **Clients/agents:** Dual-read `success` **and** `content` / `structuredContent` / `isError` until 6.8.0; then drop string-envelope parsers.
 - **Plugins/apps/evals:** External BC — paired Shopware + evals PRs for contract moves; RELEASE_INFO + UPGRADE required for deprecate and remove.
 - **Eng:** One helper migration path; ResourceLink lands as Content; Sync (#20520) reuses this contract.
-- **PHPStan:** Rule change is part of the contract; guidance pack tracks under the epic as follow-on (Admin ≠ Store).
+- **PHPStan:** Keep inheritance rule; **add** return-shape / deprecation sibling as part of the contract; broader guidance pack (Admin ≠ Store, reserved groups) tracks under the epic as follow-on.

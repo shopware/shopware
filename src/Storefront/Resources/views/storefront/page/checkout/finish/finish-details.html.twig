@@ -47,8 +47,14 @@
 
                 {% block page_checkout_finish_subtitle %}
                     {% if page.changedPayment == true %}
+                        {% if feature('v6.8.0.0') %}
+                            {% set paymentName = page.order.primaryOrderTransaction.paymentMethod.translated.name %}
+                        {% else %}
+                            {# @deprecated tag:v6.8.0 - Use `order.primaryOrderTransaction` instead of the last transaction. #}
+                            {% set paymentName = page.order.transactions.last.paymentMethod.translated.name %}
+                        {% endif %}
                         <p class="finish-order-subtitle">
-                            {{ 'checkout.finishPaymentHeader'|trans({'%paymentName%': page.order.transactions.last.paymentMethod.translated.name})|sw_sanitize }}
+                            {{ 'checkout.finishPaymentHeader'|trans({'%paymentName%': paymentName})|sw_sanitize }}
                         </p>
                     {% endif %}
                 {% endblock %}

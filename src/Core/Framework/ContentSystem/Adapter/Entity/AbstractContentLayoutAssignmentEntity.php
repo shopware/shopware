@@ -11,7 +11,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 /**
  * Shared properties for sales channel and content layout across content layout assignments.
  *
- * @internal
  */
 #[Package('framework')]
 abstract class AbstractContentLayoutAssignmentEntity extends Entity

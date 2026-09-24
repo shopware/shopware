@@ -20,7 +20,10 @@ return static function (ContainerConfigurator $container, ContainerBuilder $buil
     $projectDir = (string) $builder->getParameter('kernel.project_dir');
     $bundles = $builder->getParameter('kernel.bundles_metadata');
 
-    $scanDirs = [Path::makeRelative($bundles['Framework']['path'] . '/Mcp', $projectDir)];
+    $scanDirs = [
+        Path::makeRelative($bundles['Framework']['path'] . '/Mcp', $projectDir),
+        Path::makeRelative($bundles['Framework']['path'] . '/ContentSystem/Mcp', $projectDir),
+    ];
     if (isset($bundles['Storefront'])) {
         $scanDirs[] = Path::makeRelative($bundles['Storefront']['path'] . '/Mcp', $projectDir);
     }

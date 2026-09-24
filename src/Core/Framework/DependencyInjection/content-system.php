@@ -91,6 +91,16 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
+use Shopware\Core\Framework\ContentSystem\Mcp\ElementTypeCatalogProjector;
+use Shopware\Core\Framework\ContentSystem\Mcp\LayoutEditOperationFactory;
+use Shopware\Core\Framework\ContentSystem\Mcp\LayoutOutlineBuilder;
+use Shopware\Core\Framework\ContentSystem\Mcp\Tool\ContentLayoutBranchCreateTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\Tool\ContentLayoutEditTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\Tool\ContentLayoutElementTypesTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\Tool\ContentLayoutListTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\Tool\ContentLayoutOutlineTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\Tool\ContentLayoutPreviewUrlTool;
+use Shopware\Core\Framework\ContentSystem\Mcp\Tool\ContentLayoutPublishTool;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
@@ -127,6 +137,9 @@ use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
+use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -865,4 +878,95 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LayoutRevisionService::class),
             service(StoredTreeCodec::class),
         ]);
+
+    // MCP tools for layout drafts
+    $services->set(LayoutOutlineBuilder::class);
+
+    $services->set(ElementTypeCatalogProjector::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(ContentSystemLayoutPresetRegistry::class),
+        ]);
+
+    $services->set(LayoutEditOperationFactory::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service(BindingApplicator::class),
+            service(ContentSystemLayoutPresetRegistry::class),
+            service(DraftLayoutDecoder::class),
+            service(MutationPipeline::class),
+            service(LayoutDiagnostics::class),
+        ]);
+
+    // An instanceof conditional applies only to the services of its own file, so the one in mcp.php misses these tools.
+    $services->instanceof(McpToolResponse::class)
+        ->call('setToolResultCache', [service(ToolResultCacheStorage::class), service('request_stack'), service('logger')])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set(ContentLayoutListTool::class)
+        ->args([
+            service('content_layout.repository'),
+            service(LayoutRevisionService::class),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentLayoutElementTypesTool::class)
+        ->args([
+            service(ElementTypeCatalogProjector::class),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentLayoutOutlineTool::class)
+        ->args([
+            service(LayoutRevisionService::class),
+            service(LayoutOutlineBuilder::class),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentLayoutBranchCreateTool::class)
+        ->args([
+            service(LayoutRevisionService::class),
+            service(McpContextProvider::class),
+            service(Connection::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentLayoutEditTool::class)
+        ->args([
+            service(LayoutRevisionService::class),
+            service(LayoutEditOperationFactory::class),
+            service(LayoutOutlineBuilder::class),
+            service(RootSourceRegistry::class),
+            service(StoredTreeCodec::class),
+            service('content_layout.repository'),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentLayoutPreviewUrlTool::class)
+        ->args([
+            service(LayoutRevisionService::class),
+            service(ContentPreviewPageBuilder::class),
+            service(ContentPreviewPayloadStore::class),
+            service(StoredTreeCodec::class),
+            service('content_layout.repository'),
+            service('sales_channel.repository'),
+            service('request_stack'),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
+
+    $services->set(ContentLayoutPublishTool::class)
+        ->args([
+            service(LayoutRevisionService::class),
+            service(LayoutDiagnostics::class),
+            service(RootSourceRegistry::class),
+            service('content_layout.repository'),
+            service(McpContextProvider::class),
+        ])
+        ->tag('mcp.tool');
 };

@@ -223,11 +223,15 @@ class LayoutRevisionService
         return $graph->revision($revisionId) ?? throw ContentSystemException::contentLayoutRevisionNotFound($layoutId, $revisionId);
     }
 
+    /**
+     * An integration request carries no user, so its integration id is recorded instead: `createdBy` is not
+     * always a user id.
+     */
     private function userId(Context $context): ?string
     {
         $source = $context->getSource();
 
-        return $source instanceof AdminApiSource ? $source->getUserId() : null;
+        return $source instanceof AdminApiSource ? $source->getUserId() ?? $source->getIntegrationId() : null;
     }
 
     private function now(): \DateTimeImmutable

@@ -5,6 +5,7 @@ namespace Shopware\Core\Service;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -248,6 +249,10 @@ class ServiceLifecycle
             $this->eventDispatcher->dispatch(new ServiceInstalledEvent($entry->name, $context));
 
             return true;
+        } catch (AppAlreadyInstalledException $e) {
+            $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
+
+            return false;
         } catch (\Exception $e) {
             $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
 

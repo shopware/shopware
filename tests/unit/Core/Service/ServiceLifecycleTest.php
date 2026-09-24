@@ -222,6 +222,33 @@ class ServiceLifecycleTest extends TestCase
         static::assertFalse($this->createLifecycle($this->buildAppRepository([], [$app], [$app]))->install($this->entry, $context));
     }
 
+    public function testInstallDoesNotRollBackAServiceAnotherRunInstalled(): void
+    {
+        $app = AppFixture::createAppEntity(name: 'MyCoolService', active: true);
+
+        $this->fetchReturnsAppInfo();
+        $this->requirementsMet(true);
+
+        $this->sourceResolver->expects($this->once())
+            ->method('filesystemForVersion')
+            ->willReturn(new StaticFilesystem());
+
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromXmlFile')
+            ->willReturn($this->createManifest());
+
+        $this->appManager->expects($this->once())
+            ->method('install')
+            ->willThrowException(AppException::alreadyInstalled('MyCoolService'));
+
+        $this->appManager->expects($this->never())->method('uninstall');
+
+        $this->logger->expects($this->once())->method('warning');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        static::assertFalse($this->createLifecycle($this->buildAppRepository([], [$app], [$app]))->install($this->entry, Context::createDefaultContext()));
+    }
+
     public function testInstallLeavesAnInactiveAppAloneWhenTheInstallFailed(): void
     {
         $app = AppFixture::createAppEntity(name: 'MyCoolService', active: false);

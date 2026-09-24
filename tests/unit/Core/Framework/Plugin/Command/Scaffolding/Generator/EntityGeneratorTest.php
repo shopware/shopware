@@ -243,20 +243,45 @@ class EntityGeneratorTest extends TestCase
 
         static::assertFalse($stubs->has('src/Core/Content/Test/TestDefinition.php'));
 
-        $entity = $stubs->get('src/Core/Content/Test/TestEntity.php')?->getContent();
-        static::assertIsString($entity);
-        static::assertStringContainsString('use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;', $entity);
-        static::assertStringContainsString("#[Entity('test', collectionClass: TestCollection::class)]", $entity);
-        static::assertStringContainsString('#[PrimaryKey]', $entity);
-        static::assertStringContainsString('#[Field(type: FieldType::UUID, api: true)]', $entity);
-        static::assertStringContainsString('class TestEntity extends EntityStruct', $entity);
-        static::assertStringNotContainsString('extends EntityDefinition', $entity);
+        $expectedEntity = <<<'PHP'
+<?php declare(strict_types=1);
 
-        $services = $stubs->get('src/Resources/config/services.php')?->getContent();
-        static::assertIsString($services);
-        static::assertStringContainsString('MyNamespace\Core\Content\Test\TestEntity::class', $services);
-        static::assertStringContainsString("->tag('shopware.entity')", $services);
-        static::assertStringNotContainsString('shopware.entity.definition', $services);
+namespace MyNamespace\Core\Content\Test;
+
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
+
+#[Entity('test', collectionClass: TestCollection::class)]
+class TestEntity extends EntityStruct
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID, api: true)]
+    public string $id;
+
+    #[Field(type: FieldType::STRING, api: true)]
+    public ?string $name = null;
+
+    #[Field(type: FieldType::STRING, api: true)]
+    public ?string $description = null;
+
+    #[Field(type: FieldType::BOOL, api: true)]
+    public ?bool $active = null;
+}
+
+PHP;
+
+        $expectedServices = <<<'PHP'
+
+    $services->set(\MyNamespace\Core\Content\Test\TestEntity::class)
+        ->tag('shopware.entity');
+
+PHP;
+
+        static::assertSame($expectedEntity, $stubs->get('src/Core/Content/Test/TestEntity.php')?->getContent());
+        static::assertSame($expectedServices, $stubs->get('src/Resources/config/services.php')?->getContent());
     }
 
     public function testDoesNotGenerateMigrationWhenEntityMigrationAlreadyExists(): void

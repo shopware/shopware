@@ -51,13 +51,14 @@
                 {% set isRegulationPrice = price.regulationPrice != null %}
                 {# A regulation price replaces the list price as the reference for the displayed saving. #}
                 {% set isListPrice = price.listPrice.percentage > 0 and not isRegulationPrice %}
+                {% set isRegulationPriceSaving = isRegulationPrice and price.regulationPrice.percentage > 0 %}
 
                 {#
                     Cheapest price display for variants. Used when the product is a single variant that is directly buy-able from the listing.
                     Example: "Variants from $120.00"
                 #}
                 {% block component_product_box_cheapest_price %}
-                    <div class="product-cheapest-price{% if isListPrice and isRegulationPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}{% if isRegulationPrice and not displayFrom and displayFromVariants %} with-regulation-price{% endif %}{% if displayFrom and isRegulationPrice %} with-from-price{% endif %}">
+                    <div class="product-cheapest-price{% if isRegulationPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}{% if isRegulationPrice and not displayFrom and displayFromVariants %} with-regulation-price{% endif %}{% if displayFrom and isRegulationPrice %} with-from-price{% endif %}">
                         {% if cheapest.unitPrice != real.unitPrice and cheapest.variantId != product.id %}
                             {{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}</span>
                         {% endif %}
@@ -71,7 +72,7 @@
                 #}
                 {% block component_product_box_price_label %}
                     <span class="visually-hidden product-price-label">
-                        {% if (isListPrice or isRegulationPrice) and not displayFrom and not displayFromVariants %}
+                        {% if (isListPrice or isRegulationPriceSaving) and not displayFrom and not displayFromVariants %}
                             {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
                         {% else %}
                             {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
@@ -134,14 +135,14 @@
                 {% endblock %}
 
                 {#
-                    Display for previous price
-                    Example: "previously €300.00"
+                    Display for the lowest price of the last 30 days (regulation price)
+                    Example: "Lowest price (last 30 days): €300.00 (10% saved)"
                 #}
                 {% block component_product_box_regulation_price %}
                     {% if isRegulationPrice %}
                         <span class="product-price with-regulation-price">
-                            {% if isListPrice %}<br aria-hidden="true">{% endif %}<span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
-                            {% if price.regulationPrice.percentage > 0 %}<span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': price.regulationPrice.percentage })|sw_sanitize }}</span>{% endif %}
+                            <br aria-hidden="true"><span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
+                            {% if isRegulationPriceSaving and not displayFrom and not displayFromVariants %}<span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': price.regulationPrice.percentage })|sw_sanitize }}</span>{% endif %}
                         </span>
                     {% endif %}
                 {% endblock %}

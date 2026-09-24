@@ -208,11 +208,16 @@ $box-image-height-img: 332px;
         }
     }
 
-    .regulation-price {
+    .regulation-price,
+    &.with-regulation-price .list-price-percentage {
         color: $headings-color;
         font-weight: $font-weight-normal;
         font-size: 0.75rem;
         padding-left: 0;
+    }
+
+    &.with-regulation-price .list-price-percentage {
+        white-space: nowrap;
     }
 
     .list-price-no-line-through .list-price-price {

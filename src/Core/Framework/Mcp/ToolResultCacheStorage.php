@@ -24,13 +24,13 @@ class ToolResultCacheStorage
     /**
      * How long a cached oversized tool result may remain after `created_at`.
      * Results are only read during the call that produced them and the model's immediate
-     * follow-up `resources/read`, so a fixed age is safe — unlike mcp_toolset_session,
+     * follow-up `resources/read`, so a fixed age is safe, unlike mcp_toolset_session,
      * which must wait for session-store liveness.
      */
     public const DEFAULT_TTL_SECONDS = 86400;
 
     /**
-     * Bounded DELETE batch size for TTL GC — matches CleanupCustomerRecoveryTaskHandler.
+     * Bounded DELETE batch size for TTL GC. Matches CleanupCustomerRecoveryTaskHandler.
      * Keeps lock / undo / replication pressure finite when the first run drains a backlog.
      */
     private const CLEANUP_BATCH_SIZE = 1000;
@@ -100,7 +100,7 @@ class ToolResultCacheStorage
 
     /**
      * Deletes rows older than `$threshold` (inclusive of equality at the boundary).
-     * Used by the scheduled TTL GC — does not consult session stores.
+     * Used by the scheduled TTL GC. Does not consult session stores.
      * Deletes in bounded LIMIT batches to avoid one unbounded transaction on backlog.
      *
      * @return int Number of deleted rows

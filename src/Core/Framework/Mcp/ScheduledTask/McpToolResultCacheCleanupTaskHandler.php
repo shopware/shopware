@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * is used deliberately (unlike mcp_toolset_session, which keys off session-store liveness):
  * a stored result is only read during the call that produced it and the model's immediate
  * follow-up, and the 2026-07-28 modern era has no durable session store / DELETE returns
- * 405 — so cleanup must not assume a SessionStoreInterface exists.
+ * 405. So cleanup must not assume a SessionStoreInterface exists.
  */
 #[Package('framework')]
 #[AsMessageHandler(handles: McpToolResultCacheCleanupTask::class)]

@@ -22,10 +22,6 @@ class Migration1790256569AddMcpToolResultCacheCreatedAtIndex extends MigrationSt
 
     public function update(Connection $connection): void
     {
-        if (!TableHelper::tableExists($connection, 'mcp_tool_result_cache')) {
-            return;
-        }
-
         if (TableHelper::indexExists($connection, 'mcp_tool_result_cache', self::INDEX_NAME)) {
             return;
         }

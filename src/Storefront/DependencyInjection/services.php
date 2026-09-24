@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
@@ -107,6 +108,7 @@ use Shopware\Storefront\Framework\Store\Subscriber\ExtensionThemeDetectionSubscr
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
@@ -824,7 +826,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelDomainUtil::class),
             service(SalesChannelDomainProvider::class),
             service('sales_channel.product.repository'),
-            service(SalesChannelContextFactory::class),
+            service(SalesChannelDomainContextFactory::class),
             service(ProductCloseoutFilterFactory::class),
             service(SystemConfigService::class),
         ])
@@ -836,13 +838,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(SalesChannelDomainProvider::class),
             service('sales_channel.category.repository'),
-            service(SalesChannelContextFactory::class),
+            service(SalesChannelDomainContextFactory::class),
         ])
         ->tag('shopware.system_check');
 
     $services->set(SalesChannelDomainProvider::class)
         ->args([
             service(Connection::class),
+        ]);
+
+    $services->set(SalesChannelDomainContextFactory::class)
+        ->args([
+            service(SalesChannelContextFactory::class),
+            service(CartRuleLoader::class),
         ]);
 
     $services->set(RobotsDirectiveParser::class)

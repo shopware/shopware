@@ -13,9 +13,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
@@ -24,6 +21,7 @@ use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainCollection;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,7 +39,7 @@ class ProductListingReadinessCheckTest extends TestCase
 
     private AbstractSalesChannelDomainProvider&Stub $domainProvider;
 
-    private AbstractSalesChannelContextFactory&Stub $contextFactory;
+    private SalesChannelDomainContextFactory&Stub $contextFactory;
 
     private IdsCollection $ids;
 
@@ -53,9 +51,9 @@ class ProductListingReadinessCheckTest extends TestCase
     private int $handledRequests = 0;
 
     /**
-     * @var list<array<string, mixed>>
+     * @var list<SalesChannelDomain>
      */
-    private array $contextOptions = [];
+    private array $contextDomains = [];
 
     protected function setUp(): void
     {
@@ -191,10 +189,9 @@ class ProductListingReadinessCheckTest extends TestCase
     }
 
     /**
-     * The URL that is probed belongs to one domain, and language, currency and domain all feed the
-     * criteria processing that decides which categories are visible. Looking the category up with the
-     * sales channel defaults instead would evaluate a restriction against a different context than the
-     * request that follows.
+     * The URL that is probed belongs to one domain, and the context of that domain feeds the criteria
+     * processing that decides which categories are visible. Looking the category up with any other context
+     * would evaluate a restriction against a different context than the request that follows.
      */
     #[TestDox('The lookup context describes the domain whose URL is probed, not the sales channel defaults')]
     public function testTheLookupContextIsBuiltForTheProbedDomain(): void
@@ -205,12 +202,11 @@ class ProductListingReadinessCheckTest extends TestCase
 
         $this->createCheck([[], []])->run();
 
-        static::assertNotSame([], $this->contextOptions);
+        // the third sales channel has no candidate category, so no context is needed for it
         static::assertSame([
-            SalesChannelContextService::DOMAIN_ID => $this->ids->get('domain-sales-channel-1'),
-            SalesChannelContextService::LANGUAGE_ID => $this->ids->get('language-sales-channel-1'),
-            SalesChannelContextService::CURRENCY_ID => $this->ids->get('currency-sales-channel-1'),
-        ], $this->contextOptions[0]);
+            $this->ids->get('domain-sales-channel-1'),
+            $this->ids->get('domain-sales-channel-2'),
+        ], array_map(static fn (SalesChannelDomain $domain) => $domain->id, $this->contextDomains));
     }
 
     /**
@@ -280,10 +276,10 @@ class ProductListingReadinessCheckTest extends TestCase
 
     private function initContextFactoryMock(): void
     {
-        $this->contextFactory = static::createStub(SalesChannelContextFactory::class);
+        $this->contextFactory = static::createStub(SalesChannelDomainContextFactory::class);
         $this->contextFactory->method('create')->willReturnCallback(
-            function (string $token, string $salesChannelId, array $options = []): SalesChannelContext {
-                $this->contextOptions[] = $options;
+            function (SalesChannelDomain $domain): SalesChannelContext {
+                $this->contextDomains[] = $domain;
 
                 return Generator::generateSalesChannelContext();
             }

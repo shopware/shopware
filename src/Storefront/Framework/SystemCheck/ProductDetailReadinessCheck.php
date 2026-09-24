@@ -12,14 +12,12 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -41,7 +39,7 @@ class ProductDetailReadinessCheck extends BaseCheck
         private readonly SalesChannelDomainUtil $util,
         private readonly AbstractSalesChannelDomainProvider $domainProvider,
         private readonly SalesChannelRepository $productRepository,
-        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly SalesChannelDomainContextFactory $contextFactory,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
         private readonly SystemConfigService $systemConfigService,
     ) {
@@ -120,20 +118,13 @@ class ProductDetailReadinessCheck extends BaseCheck
      * Otherwise the check could pick a product the storefront refuses to render for an anonymous visitor,
      * which would report an intentional restriction as an unhealthy product detail page.
      *
-     * The context is built for the domain whose URL is probed, not for the sales channel defaults, because
-     * language, currency and domain feed the same criteria processing. A restriction expressed against any
-     * of them would otherwise be evaluated against a different context than the request that follows.
-     * Rule IDs are out of reach here: they are resolved by the rule loader during cart calculation in
-     * SalesChannelContextService, which a readiness check must not trigger, and they depend on the visitor
-     * anyway.
+     * The context is the one an anonymous visitor gets on the probed domain, including the rules matching for
+     * them, see SalesChannelDomainContextFactory. A restriction is otherwise evaluated against a different
+     * context than the request that follows.
      */
     private function fetchVisibleProductId(SalesChannelDomain $domain): ?string
     {
-        $context = $this->salesChannelContextFactory->create(Uuid::randomHex(), $domain->salesChannelId, [
-            SalesChannelContextService::DOMAIN_ID => $domain->id,
-            SalesChannelContextService::LANGUAGE_ID => $domain->languageId,
-            SalesChannelContextService::CURRENCY_ID => $domain->currencyId,
-        ]);
+        $context = $this->contextFactory->create($domain);
 
         $criteria = new Criteria();
         $criteria->setTitle('product-detail-readiness-check');

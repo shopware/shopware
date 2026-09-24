@@ -17,9 +17,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
-use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -29,6 +26,7 @@ use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\Util\AbstractSalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainCollection;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\SystemCheck\Util\StorefrontHealthCheckResult;
@@ -45,19 +43,14 @@ class ProductDetailReadinessCheckTest extends TestCase
 
     private AbstractSalesChannelDomainProvider&Stub $domainProvider;
 
-    private AbstractSalesChannelContextFactory&Stub $contextFactory;
+    private SalesChannelDomainContextFactory&Stub $contextFactory;
 
     private IdsCollection $ids;
 
     /**
-     * @var list<string>
+     * @var list<SalesChannelDomain>
      */
-    private array $contextSalesChannelIds = [];
-
-    /**
-     * @var list<array<string, mixed>>
-     */
-    private array $contextOptions = [];
+    private array $contextDomains = [];
 
     private bool $hideCloseoutProducts = true;
 
@@ -198,7 +191,7 @@ class ProductDetailReadinessCheckTest extends TestCase
             $this->ids->get('sales-channel-1'),
             $this->ids->get('sales-channel-2'),
             $this->ids->get('sales-channel-3'),
-        ], $this->contextSalesChannelIds);
+        ], array_map(static fn (SalesChannelDomain $domain) => $domain->salesChannelId, $this->contextDomains));
     }
 
     /**
@@ -241,10 +234,9 @@ class ProductDetailReadinessCheckTest extends TestCase
     }
 
     /**
-     * The URL that is probed belongs to one domain, and language, currency and domain all feed the
-     * criteria processing that decides which products are visible. Looking the product up with the
-     * sales channel defaults instead would evaluate a restriction against a different context than
-     * the request that follows.
+     * The URL that is probed belongs to one domain, and the context of that domain feeds the criteria
+     * processing that decides which products are visible. Looking the product up with any other context
+     * would evaluate a restriction against a different context than the request that follows.
      */
     #[TestDox('The lookup context describes the domain whose URL is probed, not the sales channel defaults')]
     public function testTheLookupContextIsBuiltForTheProbedDomain(): void
@@ -255,12 +247,11 @@ class ProductDetailReadinessCheckTest extends TestCase
 
         $this->createCheck([[], [], []])->run();
 
-        static::assertCount(3, $this->contextOptions);
         static::assertSame([
-            SalesChannelContextService::DOMAIN_ID => $this->ids->get('domain-sales-channel-1'),
-            SalesChannelContextService::LANGUAGE_ID => $this->ids->get('language-sales-channel-1'),
-            SalesChannelContextService::CURRENCY_ID => $this->ids->get('currency-sales-channel-1'),
-        ], $this->contextOptions[0]);
+            $this->ids->get('domain-sales-channel-1'),
+            $this->ids->get('domain-sales-channel-2'),
+            $this->ids->get('domain-sales-channel-3'),
+        ], array_map(static fn (SalesChannelDomain $domain) => $domain->id, $this->contextDomains));
     }
 
     /**
@@ -334,11 +325,10 @@ class ProductDetailReadinessCheckTest extends TestCase
 
     private function initContextFactoryMock(): void
     {
-        $this->contextFactory = static::createStub(SalesChannelContextFactory::class);
+        $this->contextFactory = static::createStub(SalesChannelDomainContextFactory::class);
         $this->contextFactory->method('create')->willReturnCallback(
-            function (string $token, string $salesChannelId, array $options = []) {
-                $this->contextSalesChannelIds[] = $salesChannelId;
-                $this->contextOptions[] = $options;
+            function (SalesChannelDomain $domain): SalesChannelContext {
+                $this->contextDomains[] = $domain;
 
                 return Generator::generateSalesChannelContext();
             }

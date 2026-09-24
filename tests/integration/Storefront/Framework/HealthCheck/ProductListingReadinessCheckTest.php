@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\HealthCheck;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -104,19 +105,58 @@ class ProductListingReadinessCheckTest extends TestCase
     }
 
     /**
+     * Extensions like Dynamic Access can also expose a category only for a rule that matches an anonymous
+     * visitor. The probe request detects those rules, so the lookup has to as well, otherwise the check
+     * reports SKIPPED while the listing pages render fine.
+     */
+    public function testCategoriesRestrictedToARuleMatchingAnAnonymousVisitorAreProbed(): void
+    {
+        $categoryIds = [
+            $this->createMainNavigationWithSalesChannelAssignment($this->ids->get('sales-channel-1'), true),
+            $this->createMainNavigationWithSalesChannelAssignment($this->ids->get('sales-channel-2'), false),
+        ];
+
+        $this->restrictCategories(array_merge(...$categoryIds), unlessRuleId: $this->createAlwaysValidRule());
+
+        $result = $this->createCheck()->run();
+
+        static::assertSame(Status::OK, $result->status);
+        static::assertCount(2, $result->extra);
+    }
+
+    /**
      * @param list<string> $categoryIds
      */
-    private function restrictCategories(array $categoryIds): void
+    private function restrictCategories(array $categoryIds, ?string $unlessRuleId = null): void
     {
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             'sales_channel.category.process.criteria',
-            static function (SalesChannelProcessCriteriaEvent $event) use ($categoryIds): void {
+            static function (SalesChannelProcessCriteriaEvent $event) use ($categoryIds, $unlessRuleId): void {
+                if ($unlessRuleId !== null && \in_array($unlessRuleId, $event->getSalesChannelContext()->getRuleIds(), true)) {
+                    return;
+                }
+
                 $event->getCriteria()->addFilter(
                     new NotFilter(NotFilter::CONNECTION_AND, [new EqualsAnyFilter('category.id', $categoryIds)])
                 );
             }
         );
+    }
+
+    private function createAlwaysValidRule(): string
+    {
+        static::getContainer()->get('rule.repository')->create([[
+            'id' => $this->ids->create('always-valid-rule'),
+            'name' => 'always valid',
+            'priority' => 1,
+            'conditions' => [['type' => 'alwaysValid']],
+        ]], Context::createDefaultContext());
+
+        // the rule loader keeps the rules it loaded before in memory
+        static::getContainer()->get(CartRuleLoader::class)->invalidate();
+
+        return $this->ids->get('always-valid-rule');
     }
 
     private function createCheck(): ProductListingReadinessCheck

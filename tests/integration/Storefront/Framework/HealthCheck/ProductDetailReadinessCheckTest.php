@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\HealthCheck;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -113,6 +114,22 @@ class ProductDetailReadinessCheckTest extends TestCase
     }
 
     /**
+     * Extensions like Dynamic Access can also expose a product only for a rule that matches an anonymous
+     * visitor. The probe request detects those rules, so the lookup has to as well, otherwise the check
+     * reports SKIPPED while the product detail pages render fine.
+     */
+    public function testProductsRestrictedToARuleMatchingAnAnonymousVisitorAreProbed(): void
+    {
+        $productIds = $this->getProductIds($this->createProducts());
+        $this->restrictProducts($productIds, unlessRuleId: $this->createAlwaysValidRule());
+
+        $result = $this->createCheck()->run();
+
+        static::assertSame(Status::OK, $result->status);
+        static::assertCount(2, $result->extra);
+    }
+
+    /**
      * `ProductDetailRoute::addCloseoutFilter()` only excludes closeout products out of stock while
      * `core.listing.hideCloseoutProductsWhenOutOfStock` is on. With the setting off their detail pages
      * render, so the check must still probe them instead of reporting SKIPPED.
@@ -166,17 +183,36 @@ class ProductDetailReadinessCheckTest extends TestCase
     /**
      * @param list<string> $productIds
      */
-    private function restrictProducts(array $productIds): void
+    private function restrictProducts(array $productIds, ?string $unlessRuleId = null): void
     {
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             'sales_channel.product.process.criteria',
-            static function (SalesChannelProcessCriteriaEvent $event) use ($productIds): void {
+            static function (SalesChannelProcessCriteriaEvent $event) use ($productIds, $unlessRuleId): void {
+                if ($unlessRuleId !== null && \in_array($unlessRuleId, $event->getSalesChannelContext()->getRuleIds(), true)) {
+                    return;
+                }
+
                 $event->getCriteria()->addFilter(
                     new NotFilter(NotFilter::CONNECTION_AND, [new EqualsAnyFilter('product.id', $productIds)])
                 );
             }
         );
+    }
+
+    private function createAlwaysValidRule(): string
+    {
+        static::getContainer()->get('rule.repository')->create([[
+            'id' => $this->ids->create('always-valid-rule'),
+            'name' => 'always valid',
+            'priority' => 1,
+            'conditions' => [['type' => 'alwaysValid']],
+        ]], Context::createDefaultContext());
+
+        // the rule loader keeps the rules it loaded before in memory
+        static::getContainer()->get(CartRuleLoader::class)->invalidate();
+
+        return $this->ids->get('always-valid-rule');
     }
 
     /**

@@ -1,0 +1,51 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Framework\SystemCheck\Util;
+
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+/**
+ * @internal
+ *
+ * Creates the sales channel context an anonymous visitor gets on the given domain, so the readiness checks
+ * can pick the page to probe with the same criteria processing the probe request is answered with.
+ */
+#[Package('discovery')]
+class SalesChannelDomainContextFactory
+{
+    public function __construct(
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private readonly CartRuleLoader $cartRuleLoader,
+    ) {
+    }
+
+    /**
+     * @description Language, currency and domain are taken from the domain whose URL is probed, not from the
+     * sales channel defaults, because all of them feed the criteria processing. The rule IDs are detected the
+     * same way SalesChannelContextService::get() detects them for a visitor without a cart: by calculating a
+     * new, empty cart. The cart only lives in memory and is not persisted, and unlike
+     * SalesChannelContextService::get() this does not touch the current request, its session or the cart
+     * service, which matters when the check runs inside an Admin API request.
+     */
+    public function create(SalesChannelDomain $domain): SalesChannelContext
+    {
+        $token = Uuid::randomHex();
+
+        $context = $this->salesChannelContextFactory->create($token, $domain->salesChannelId, [
+            SalesChannelContextService::DOMAIN_ID => $domain->id,
+            SalesChannelContextService::LANGUAGE_ID => $domain->languageId,
+            SalesChannelContextService::CURRENCY_ID => $domain->currencyId,
+        ]);
+
+        $this->cartRuleLoader->loadByCart($context, new Cart($token), new CartBehavior($context->getPermissions()), true);
+
+        return $context;
+    }
+}

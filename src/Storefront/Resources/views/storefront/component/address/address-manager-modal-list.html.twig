@@ -12,7 +12,7 @@
 
 {% if not feature('v6.8.0.0') %}
     {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
-    {% set type = addressType %}
+    {% set type = deprecatedAlias(addressType) %}
 {% endif %}
 
 {% block address_base_default_address_item %}

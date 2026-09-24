@@ -2641,6 +2641,11 @@ The unused template `@/Storefront/Resources/views/storefront/page/account/addres
 The deprecated Twig variable `type` in `address-manager-modal-list.html.twig`, `address-manager-modal-create-address.html.twig`, and `address-manager-item.html.twig` was removed.
 Use `addressType` instead.
 
+## Removed `showVatIdField` handling from address templates
+
+The deprecated Twig variable `showVatIdField` is no longer handled by `address-form.html.twig` and `address-personal.html.twig`.
+Use `showCompanyFields` in `address-personal.html.twig`. VAT ID field handling was removed completely from `address-form.html.twig`, so passing `showVatIdField` as `true` has no effect.
+
 ## Removal of `ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION`
 
 The context-state flag that suppresses theme recompilation during app lifecycle operations is now owned by the Core app-lifecycle contract.

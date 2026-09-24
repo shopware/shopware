@@ -32,8 +32,8 @@
                                       data-form-handler="true">
                                     {% block page_account_profile_personal_fields %}
                                         {% if not feature('v6.8.0.0') %}
-                                            {# @deprecated tag:v6.8.0 - Unused variable `showVatIdField` will be removed, use variable showCompanyFields instead #}
-                                            {% set showVatIdField = true %}
+                                            {# @deprecated tag:v6.8.0 - Use `showCompanyFields` instead of `showVatIdField`. #}
+                                            {% set showVatIdField = deprecatedAlias(true) %}
                                         {% endif %}
 
                                         {# If customer is logged in (on profile page), they should be able to freely change their account type #}

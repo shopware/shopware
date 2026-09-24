@@ -74,6 +74,37 @@ Together, these two changes remove the need to override the surrounding blocks, 
 
 ## Storefront
 
+### Runtime deprecations for Storefront template inputs and aliases
+
+Mark deprecated Storefront template inputs with the existing `@deprecated` Twig comment. When a legacy fallback is detectable at runtime, call `sw_trigger_deprecation()` directly before applying it:
+
+```twig
+{% set addressType = addressType|default(null) %}
+{% if not feature('v6.8.0.0') and addressType is null and type|default(null) is not null %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
+    {% do sw_trigger_deprecation('v6.8.0.0', 'The "type" Twig input is deprecated. Use "addressType" instead.') %}
+    {% set addressType = type %}
+{% endif %}
+```
+
+The first argument must be the exact registered major feature flag. The function delegates to `Feature::triggerDeprecationOrThrow()`. Guarding the fallback with the inactive removal feature removes it entirely when opting into the next major behavior.
+The legacy `hasChildren` fallback in `layout/navigation/offcanvas/item-link.html.twig` now follows this behavior when an including template does not provide the variable.
+
+Wrap an explicitly published compatibility alias with `deprecatedAlias()`:
+
+```twig
+{% if not feature('v6.8.0.0') %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. #}
+    {% set type = deprecatedAlias(addressType) %}
+{% endif %}
+```
+
+The wrapper emits the deprecation only when `type` is read, so rendering the declaring template without using the alias does not produce a notice.
+The existing deprecated `infoColumnClass`, `editMode`, and `navigationId` compatibility variables now use the same access-time warning.
+Core templates can call `silentUnwrap()` on the alias when they must inspect it to implement a more specific compatibility warning without also emitting the generic access warning.
+
+The deprecated `showVatIdField` input is available only while the `v6.8.0.0` feature flag is inactive. Omitting it in `address-personal.html.twig` retains the previous `true` behavior. Explicitly setting it to `false` there, or to `true` in `address-form.html.twig`, emits a targeted deprecation. Use `showCompanyFields` in `address-personal.html.twig`. VAT ID field handling is removed completely from `address-form.html.twig`, so passing `showVatIdField` as `true` will no longer have any effect.
+
 ### Checkout form data is kept in the session storage
 
 The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.

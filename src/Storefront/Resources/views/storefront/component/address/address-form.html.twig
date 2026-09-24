@@ -1,4 +1,12 @@
 {% block component_address_form %}
+    {% if not feature('v6.8.0.0') %}
+        {# @deprecated tag:v6.8.0 - VAT ID field handling will be removed from this template. Passing `showVatIdField` as `true` will no longer have any effect. #}
+        {% set showVatIdFieldValue = showVatIdField is defined and showVatIdField.silentUnwrap() %}
+        {% if showVatIdFieldValue %}
+            {% do sw_trigger_deprecation('v6.8.0.0', 'VAT ID field handling will be removed from "address-form.html.twig". Passing the "showVatIdField" Twig variable as true will no longer have any effect.') %}
+        {% endif %}
+    {% endif %}
+
     {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_addressId %}
         {% if data.get('id') %}
@@ -27,11 +35,11 @@
                             {% endblock %}
 
                             {% if not feature('v6.8.0.0') %}
-                                {# @deprecated tag:v6.8.0 - Block component_address_form_company_vatId will be removed as `showVatIdField` was never true #}
+                                {# @deprecated tag:v6.8.0 - Block `component_address_form_company_vatId` and VAT ID field handling will be removed from this template. #}
 
                                 {# ludtwig-ignore twig-block-name-snake-case #}
                                 {% block component_address_form_company_vatId %}
-                                    {% if prefix == 'address' and showVatIdField %}
+                                    {% if prefix == 'address' and showVatIdFieldValue %}
                                         {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
                                             vatIds: context.customer.vatIds
                                         } %}

@@ -18,7 +18,7 @@
 
     {% if not feature('v6.8.0.0') %}
         {# @deprecated tag:v6.8.0 - Will be removed, use infoColumnSize with a prefix instead. #}
-        {% set infoColumnClass = 'col-' ~ infoColumnSize %}
+        {% set infoColumnClass = deprecatedAlias('col-' ~ infoColumnSize) %}
     {% endif %}
 
     {% block component_checkout_cart_header_element %}

@@ -141,6 +141,8 @@ class GuestWishlistPageletTest extends TestCase
             $expectedCriteria->setIds([$productId]);
             $expectedCriteria->addAssociation('manufacturer')
                 ->addAssociation('options.group')
+                ->addAssociation('categories')
+                ->addAssociation('mainCategories.category')
                 ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
             $filter = $this->productCloseoutFilterFactory->create($context);

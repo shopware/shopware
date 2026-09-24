@@ -1,5 +1,8 @@
 {% set paginationConfig = { page: searchResult.page } %}
 
+{# the position of the first product of the page, so the reported analytics item index counts across pages #}
+{% set listStart = searchResult.limit ? (searchResult.page - 1) * searchResult.limit : 0 %}
+
 {% if disableEmptyFilter is not defined %}
     {% set disableEmptyFilter = config('core.listing.disableEmptyFilterOptions') %}
 {% endif %}
@@ -19,7 +22,10 @@
 } %}
 
 {% block product_listing %}
+    {# identifies the list for analytics, reported as the GA4 `item_list_id` and `item_list_name` #}
     <div class="cms-element-product-listing-wrapper"
+         {% if listId|default(null) %}data-list-id="{{ listId }}"{% endif %}
+         {% if listName|default(null) %}data-list-name="{{ listName }}"{% endif %}
          data-listing-pagination="true"
          data-listing-pagination-options="{{ paginationConfig|json_encode }}"
          data-listing="true"
@@ -61,7 +67,9 @@
                         {% set ariaLiveText = 'listing.filterPanelAriaLive'|trans({'%count%': searchResult.total})|sw_sanitize %}
                     {% endif %}
 
-                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}"{% if searchResult.total > 0 %} role="list"{% endif %}>
+                    {# AJAX pagination only swaps the inner markup of `.cms-element-product-listing`, so the #}
+                    {# offset has to live below it to be updated along with the products #}
+                    <div class="row cms-listing-row js-listing-wrapper" data-aria-live-text="{{- ariaLiveText -}}" data-list-start="{{ listStart|default(0) }}"{% if searchResult.total > 0 %} role="list"{% endif %}>
                         {% if searchResult.total > 0 %}
                             {% block element_product_listing_col %}
                                 {% for product in searchResult.entities %}

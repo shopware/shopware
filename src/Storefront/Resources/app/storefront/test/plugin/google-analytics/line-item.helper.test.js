@@ -15,7 +15,9 @@ describe('plugin/google-analytics/line-item.helper', () => {
                         data-name="Test Product"
                         data-quantity="2"
                         data-price="99.99"
-                        data-brand="Test Brand">
+                        data-discount="10.00"
+                        data-brand="Test Brand"
+                        data-variant="Red, L">
                     </span>
                 </div>
             `;
@@ -24,12 +26,70 @@ describe('plugin/google-analytics/line-item.helper', () => {
 
             expect(lineItems).toHaveLength(1);
             expect(lineItems[0]).toEqual({
-                id: 'product-123',
-                name: 'Test Product',
+                item_id: 'product-123',
+                item_name: 'Test Product',
                 quantity: '2',
                 price: '99.99',
-                brand: 'Test Brand',
+                discount: '10.00',
+                item_brand: 'Test Brand',
+                item_variant: 'Red, L',
             });
+        });
+
+        test('leaves the discount empty for undiscounted line items', () => {
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information" data-currency="EUR">
+                    <span class="hidden-line-item"
+                        data-id="product-123"
+                        data-name="Test Product"
+                        data-quantity="1"
+                        data-price="99.99"
+                        data-discount="">
+                    </span>
+                </div>
+            `;
+
+            expect(LineItemHelper.getLineItems()[0].discount).toBe('');
+        });
+
+        test('derives the value from the discounted item prices', () => {
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information" data-currency="EUR" data-shipping="0" data-tax="0">
+                    <span class="hidden-line-item"
+                        data-id="product-1"
+                        data-quantity="3"
+                        data-price="8.00"
+                        data-discount="2.00">
+                    </span>
+                    <span class="hidden-line-item"
+                        data-id="product-2"
+                        data-quantity="1"
+                        data-price="17.60"
+                        data-discount="4.40">
+                    </span>
+                </div>
+            `;
+
+            // 3 x 8.00 + 1 x 17.60, the example from the GA4 discount documentation
+            expect(LineItemHelper.getAdditionalProperties().value).toBe(41.6);
+        });
+
+        test('leaves item_variant empty for products without variant options', () => {
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information" data-currency="EUR">
+                    <span class="hidden-line-item"
+                        data-id="product-123"
+                        data-name="Test Product"
+                        data-quantity="1"
+                        data-price="99.99"
+                        data-variant="">
+                    </span>
+                </div>
+            `;
+
+            const lineItems = LineItemHelper.getLineItems();
+
+            expect(lineItems[0].item_variant).toBe('');
         });
 
         test('returns line items with categories', () => {
@@ -80,19 +140,24 @@ describe('plugin/google-analytics/line-item.helper', () => {
             const lineItems = LineItemHelper.getLineItems();
 
             expect(lineItems).toHaveLength(2);
-            expect(lineItems[0].id).toBe('product-1');
-            expect(lineItems[1].id).toBe('product-2');
+            expect(lineItems[0].item_id).toBe('product-1');
+            expect(lineItems[1].item_id).toBe('product-2');
         });
     });
 
     describe('getAdditionalProperties', () => {
-        test('returns currency, shipping, value and tax', () => {
+        test('derives value from the emitted line items', () => {
             document.body.innerHTML = `
                 <div class="hidden-line-items-information"
                     data-currency="EUR"
                     data-shipping="4.99"
-                    data-value="104.98"
+                    data-value="94.98"
                     data-tax="16.76">
+                    <span class="hidden-line-item"
+                        data-id="product-1"
+                        data-quantity="2"
+                        data-price="49.99">
+                    </span>
                 </div>
             `;
 
@@ -101,9 +166,64 @@ describe('plugin/google-analytics/line-item.helper', () => {
             expect(props).toEqual({
                 currency: 'EUR',
                 shipping: '4.99',
-                value: '104.98',
+                value: 99.98,
                 tax: '16.76',
+                coupon: '',
             });
+        });
+
+        test('uses the paid line total over the rounded unit price', () => {
+            // 20.00 discounted over three units reports 6.67 each, which would sum to 20.01
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information" data-currency="EUR">
+                    <span class="hidden-line-item"
+                        data-id="product-1"
+                        data-quantity="3"
+                        data-price="6.67"
+                        data-total="20">
+                    </span>
+                    <span class="hidden-line-item"
+                        data-id="product-2"
+                        data-quantity="2"
+                        data-price="5">
+                    </span>
+                </div>
+            `;
+
+            expect(LineItemHelper.getAdditionalProperties().value).toBe(30);
+        });
+
+        test('joins the applied promotion codes into a single coupon', () => {
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information"
+                    data-currency="EUR"
+                    data-shipping="0"
+                    data-tax="0">
+                    <span class="hidden-line-item"
+                        data-id="product-1"
+                        data-quantity="1"
+                        data-price="49.99">
+                    </span>
+                    <span class="hidden-line-item-coupon" data-code="SAVE20"></span>
+                    <span class="hidden-line-item-coupon" data-code="FREESHIP"></span>
+                </div>
+            `;
+
+            expect(LineItemHelper.getAdditionalProperties().coupon).toBe('SAVE20, FREESHIP');
+        });
+
+        test('reports a code only once when a promotion adds several discounts', () => {
+            document.body.innerHTML = `
+                <div class="hidden-line-items-information"
+                    data-currency="EUR"
+                    data-shipping="0"
+                    data-tax="0">
+                    <span class="hidden-line-item-coupon" data-code="SAVE20"></span>
+                    <span class="hidden-line-item-coupon" data-code="SAVE20"></span>
+                </div>
+            `;
+
+            expect(LineItemHelper.getAdditionalProperties().coupon).toBe('SAVE20');
         });
     });
 
@@ -140,7 +260,8 @@ describe('plugin/google-analytics/line-item.helper', () => {
                         data-name="Test Product"
                         data-quantity="2"
                         data-price="99.99"
-                        data-brand="Test Brand">
+                        data-brand="Test Brand"
+                        data-variant="Red, L">
                     </span>
                 </div>
             `;
@@ -151,6 +272,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 id: 'product-123',
                 name: 'Test Product',
                 brand: 'Test Brand',
+                variant: 'Red, L',
                 value: '99.99',
                 currency: 'EUR',
                 categories: {},
@@ -178,6 +300,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 id: 'product-456',
                 name: 'Categorized Product',
                 brand: 'Brand',
+                variant: null,
                 value: '25.00',
                 currency: 'USD',
                 categories: {
@@ -212,6 +335,7 @@ describe('plugin/google-analytics/line-item.helper', () => {
                 id: 'product-2',
                 name: 'Second Product',
                 brand: 'Second Brand',
+                variant: null,
                 value: '100.00',
                 currency: 'EUR',
                 categories: {},

@@ -1,0 +1,110 @@
+import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
+
+export default class SelectItemEvent extends AnalyticsEvent
+{
+    /**
+     * Product boxes are rendered on listings, search results, sliders, cross selling and the
+     * wishlist, so the event is not bound to a route.
+     *
+     * @returns {boolean}
+     */
+    supports() {
+        return true;
+    }
+
+    execute() {
+        // The listing plugin replaces its whole subtree on every filter, sort and pagination, so a
+        // handler bound to a product box would be lost. A delegated listener survives.
+        this._boundOnClick = this._onClick.bind(this);
+
+        document.addEventListener('click', this._boundOnClick);
+    }
+
+    _onClick(event) {
+        if (!this.active) {
+            return;
+        }
+
+        // GA4 reports a selection, which is following a link to the product. A click on the padding
+        // of a card, on its variant characteristics or on a badge selects nothing, and adding to the
+        // cart or to the wishlist is not a selection either.
+        const link = event.target.closest('a');
+        if (!link || link.closest('form, button')) {
+            return;
+        }
+
+        const productBox = link.closest('.product-box');
+        if (!productBox?.dataset.productInformation) {
+            return;
+        }
+
+        let information;
+        try {
+            information = JSON.parse(productBox.dataset.productInformation);
+        } catch {
+            return;
+        }
+
+        const itemId = information.sku ?? information.id;
+        if (!itemId) {
+            return;
+        }
+
+        const list = ListAttributionHelper.getListFromElement(productBox);
+
+        // The detail page reports the same list, so both events describe one journey. A link opened
+        // in another tab never reaches `view_item` in this one, so storing it here would attribute a
+        // later direct visit of the product in this tab to the old list instead.
+        if (!this._opensInAnotherTab(event, link)) {
+            ListAttributionHelper.remember(itemId, list, information.id);
+        }
+
+        this.pushEvent('select_item', {
+            ...list,
+            'items': [{
+                'item_id': itemId,
+                'item_name': information.name,
+                'item_brand': information.brand,
+                'item_variant': information.variant,
+                'price': information.price,
+                'index': this._getIndex(productBox),
+            }],
+        });
+    }
+
+    /**
+     * @param {MouseEvent} event
+     * @param {HTMLAnchorElement} link
+     * @returns {boolean}
+     * @private
+     */
+    _opensInAnotherTab(event, link) {
+        const target = link.getAttribute('target');
+
+        return event.ctrlKey || event.metaKey || event.shiftKey || (!!target && target !== '_self');
+    }
+
+    /**
+     * The position of the product within its own list, counted from zero. A paginated listing
+     * reports the position within the whole list rather than within the rendered page, so the
+     * second page continues where the first ended.
+     *
+     * @param {HTMLElement} productBox
+     * @returns {number|undefined}
+     * @private
+     */
+    _getIndex(productBox) {
+        const list = productBox.closest('[data-list-id]');
+        if (!list) {
+            return undefined;
+        }
+
+        const index = [...list.querySelectorAll('.product-box')].indexOf(productBox);
+        if (index === -1) {
+            return undefined;
+        }
+
+        return index + ListAttributionHelper.getListStart(list);
+    }
+}

@@ -1,4 +1,5 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
+import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class ViewItemListEvent extends EventAwareAnalyticsEvent
@@ -41,6 +42,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
             return;
         }
 
+        const listing = document.querySelector('.cms-element-product-listing-wrapper');
         const items = this.getListItems();
         if (items.length === 0) {
             return;
@@ -49,34 +51,54 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         // Calculate total value of all visible items
         const value = items.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
 
-        gtag('event', 'view_item_list', {
+        this.pushEvent('view_item_list', {
             'currency': ProductPageHelper.getCurrency(),
-            'value': value.toFixed(2),
+            'value': value,
+            ...ListAttributionHelper.getListFromElement(listing),
             'items': items,
         });
     }
 
     getListItems() {
-        const productBoxes = document.querySelectorAll('.product-box');
+        // Scoped to the listing: a page can also render sliders and cross selling, whose products
+        // belong to their own lists and must not be reported as part of this one.
+        const listing = document.querySelector('.cms-element-product-listing-wrapper');
+        const productBoxes = listing?.querySelectorAll('.product-box') ?? [];
         const lineItems = [];
 
-        if (!productBoxes) {
-            return lineItems;
-        }
+        // The breadcrumb describes the listing rather than the product, so it is only the fallback
+        // for product boxes whose page did not load the category associations.
+        const breadcrumbCategories = ProductPageHelper.getCategories();
 
-        // Get category from breadcrumbs (same for all items on this page)
-        const categories = ProductPageHelper.getCategories();
+        // a paginated listing renders one page of a longer list, so the index counts across pages
+        const listStart = ListAttributionHelper.getListStart(listing);
 
         productBoxes.forEach(item => {
-            if (item.dataset.productInformation) {
-                const productData = JSON.parse(item.dataset.productInformation);
-                const { sku, id, ...properties } = productData;
-                lineItems.push({
-                    ...properties,
-                    id: sku ?? id,
-                    ...categories,
-                });
+            if (!item.dataset.productInformation) {
+                return;
             }
+
+            // The properties are mapped one by one on purpose. Spreading the parsed object would
+            // put every key a theme or a later feature adds to `data-product-information` into the
+            // GA4 item, where only documented properties belong.
+            let productData;
+            try {
+                productData = JSON.parse(item.dataset.productInformation);
+            } catch {
+                return;
+            }
+
+            const categories = ProductPageHelper.mapCategories(productData.categories);
+
+            lineItems.push({
+                item_id: productData.sku ?? productData.id,
+                item_name: productData.name,
+                item_brand: productData.brand,
+                item_variant: productData.variant,
+                price: productData.price,
+                index: listStart + lineItems.length,
+                ...(Object.keys(categories).length > 0 ? categories : breadcrumbCategories),
+            });
         });
 
         return lineItems;

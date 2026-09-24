@@ -2,6 +2,11 @@
 
 ## Core
 
+### Product line items expose the manufacturer and category names in their payload
+
+Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no category available in the sales channel. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
+
+Both keys were previously only present when a client posted them as part of the line item payload, which only the Storefront product detail page did. Core now resolves them during cart enrichment for every add-to-cart path and overwrites any client supplied value, so clients that post them can stop doing so.
 ### Dompdf page count placeholder replaced for core and fallback fonts
 
 In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.
@@ -78,6 +83,33 @@ Together, these two changes remove the need to override the surrounding blocks, 
 
 ## Storefront
 
+### Google Tag Manager events use the GA4 ecommerce data layer format
+
+Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties use the documented `item_id`, `item_name`, and `item_brand` names, numeric ecommerce values are sent as numbers, and unavailable optional properties are omitted. Event values are derived from the emitted product items, item prices represent unit prices, and non-product discount or shipping line items are not emitted as products.
+
+With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
+
+`item_brand` and `item_category1` to `item_category5` are now reported for every product in the cart, checkout, and purchase events, not only for products added from the product detail page. The values come from the product line item payload instead of the buy widget's hidden `manufacturerName` and `categoryNames` inputs, which are deprecated and removed with Shopware 6.8. Themes that extend the `buy_widget_buy_product_buy_info` block and read those inputs should switch to the payload.
+
+Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
+
+`add_to_cart` on the product detail page reports the unit price of the graduated price that applies to the added quantity. It used the `product:price:amount` meta tag, which carries the cheapest tier. The buy widget exposes the tiers as `data-product-prices`.
+
+`add_shipping_info` and `add_payment_info` are now reported once per selected method instead of on every load of the confirm page. Because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported the event again. A reload that keeps the method stays silent, while switching the method reports the new one, so the counts drop without losing the method the customer actually chose.
+
+`remove_from_cart` is no longer reported for line items that are not products, such as a removed discount. Those reported the line item id as `item_id`, where every other event reports a product number.
+
+The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements.
+
+Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
+
+`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped.
+
+`add_to_wishlist` and `remove_from_wishlist` report the category path of the product. Product boxes carry it in their `data-product-information` attribute, resolved by the new Twig function `sw_analytics_category_path(product, context)`. Both events previously fell back to the page breadcrumb, which describes the wishlist on the wishlist page and the listing category on a listing, so the reported categories were wrong or missing. The breadcrumb is still used when a product box carries no path, which keeps the product detail page correct.
+
+The path is only resolved when a page loads the `categories` and `mainCategories.category` associations. The customer and the guest wishlist page now do, together with `streams.categories` for products only listed through a dynamic product group, which costs a few additional database reads per wishlist page. Product listings, product sliders, and cross selling do not, so their product boxes report an empty path and their query count is unchanged.
+
+`view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 ### Checkout form data is kept in the session storage
 
 The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.
@@ -88,6 +120,35 @@ The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+### Google Analytics reports prices after the promotion discount
+
+**Shops that use promotions will see lower revenue figures in Google Analytics. The previous figures were too high.**
+
+Promotion discounts live in their own line items, which are not products and were therefore never reported. The reported item price was the undiscounted unit price, and because the event value is the sum of the reported items, every ecommerce event overstated the value by the full discount. A cart with a 20 percent coupon reported 20 percent more revenue than the customer paid.
+
+Product items now report the unit price after the discount as `price`, and the discount per unit as the new `discount` property. Google Analytics treats both as independent metrics and does not subtract one from the other, so only `price` contributes to the value. `begin_checkout`, `view_cart`, `add_shipping_info`, `add_payment_info`, `purchase`, and `remove_from_cart` are affected.
+
+The discount of a promotion is allocated to the products it was calculated from, using the composition the promotion already stores on its line item. It is allocated on the line total and only then divided by the quantity, because a promotion does not have to discount every unit of a line item. Combinable promotions can discount a product by more than it costs, because they are only capped at the cart total; what exceeds the product is spread over the other products, so the reported value still matches what the customer paid. Shipping discounts are not allocated to products; they already reduce the reported `shipping`.
+
+Themes that override the block `component_hidden_line_item_information` and read `data-price` or the `gaPrice` variable will now read the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from, because the rounded unit price times the quantity can miss it by a cent. The template exposes the allocation through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
+### Google Analytics reports `select_item` and the list a product was presented in
+
+Following a product link in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Only a link counts as a selection: adding a product to the cart or to the wishlist from the same card is not reported, and neither is a click that lands on the card without following a link.
+
+`view_item_list` and `select_item` report which list a product was presented in as `item_list_id` and `item_list_name`, and the position of the product within that list as `index`. `view_item` repeats the list of the `select_item` that led to it on its item, where GA4 defines it for that event, so the detail page view is attributed to the list the customer came from. This also holds when a listing displays the parent of a variant product and the detail page resolves to a variant, which the buy widget identifies with `data-product-id` and `data-product-parent-id`. The attribution is stored for the session and consumed once, so opening a product directly is not attributed. A product opened in another tab is still reported as `select_item`, but its attribution is not kept in the original tab.
+
+The list identifiers are a stable contract that Google Tag Manager triggers and Google Analytics reports are built on:
+
+- A category listing reports the category id, or the CMS slot id when a listing has no category, and the category name.
+- Search results report `search` and `Search results`.
+- The wishlist reports `wishlist` and `Wishlist`.
+- A cross selling tab reports the id and the name of the cross selling group.
+
+Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes. The `index` counts across the pages of a paginated listing, which `.cms-listing-row` reports as `data-list-start` so that AJAX pagination updates it; a list without that attribute counts from zero.
+
+Saving the cookie preferences again while analytics or ads stay enabled no longer registers a second set of analytics events, which reported every following interaction twice.
+
+`view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.

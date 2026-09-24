@@ -15,4 +15,14 @@ trait HasCommandOption
     {
         return new InputOption(self::OPTION_NAME, null, InputOption::VALUE_NONE, self::OPTION_DESCRIPTION);
     }
+
+    public function getCommandOptionTitle(): string
+    {
+        return self::OPTION_TITLE;
+    }
+
+    public function getCommandOptionDescriptionLong(): string
+    {
+        return self::OPTION_DESCRIPTION_LONG;
+    }
 }

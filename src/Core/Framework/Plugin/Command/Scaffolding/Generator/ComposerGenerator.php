@@ -7,8 +7,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -17,15 +16,35 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 #[Package('framework')]
 class ComposerGenerator implements ScaffoldingGenerator
 {
-    public function getCommandOption(): ?InputOption
+    public function hasCommandOption(): bool
     {
-        return null;
+        return false;
+    }
+
+    public function getCommandOptionName(): string
+    {
+        return '';
+    }
+
+    public function getCommandOptionDescription(): string
+    {
+        return '';
+    }
+
+    public function getCommandOptionTitle(): string
+    {
+        return '';
+    }
+
+    public function getCommandOptionDescriptionLong(): string
+    {
+        return '';
     }
 
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
         InputInterface $input,
-        SymfonyStyle $io
+        OutputInterface $output
     ): void {
     }
 

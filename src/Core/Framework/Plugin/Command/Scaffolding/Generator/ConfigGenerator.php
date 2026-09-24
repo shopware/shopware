@@ -17,7 +17,9 @@ class ConfigGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-plugin-config';
+    private const OPTION_TITLE = 'Plugin Config';
     private const OPTION_DESCRIPTION = 'Create an example plugin config';
+    private const OPTION_DESCRIPTION_LONG = 'A plugin config.xml file defines a settings form that Shopware shows in the Administration for your plugin. Use one when merchants should configure values such as API keys, feature toggles, or other options through the system config instead of hard-coding them.';
     private const CLI_QUESTION = 'Do you want to create an example plugin config?';
 
     public function generateStubs(

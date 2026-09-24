@@ -17,7 +17,9 @@ class CustomFieldsetGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-custom-fieldset';
+    private const OPTION_TITLE = 'Custom Fieldset';
     private const OPTION_DESCRIPTION = 'Create an example custom fieldset';
+    private const OPTION_DESCRIPTION_LONG = 'Custom fields are additional data fields that extend existing Shopware entities without requiring a complete entity extension. Use them when you need to store simple, scalar values such as text, numbers, or selections; for entity relationships, use an entity extension instead.';
     private const CLI_QUESTION = 'Do you want to create an example custom fieldset?';
 
     public function generateStubs(

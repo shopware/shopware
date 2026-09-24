@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
@@ -19,7 +19,9 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-storefront-controller';
+    private const OPTION_TITLE = 'Storefront Controller';
     private const OPTION_DESCRIPTION = 'Create an example storefront controller';
+    private const OPTION_DESCRIPTION_LONG = 'A custom Storefront controller is a class that handles requests for a defined URL route in the Shopware storefront. Use one when your plugin needs to provide custom pages, endpoints, or dynamic content that is not covered by Shopware\'s existing routes.';
     private const CLI_QUESTION = 'Do you want to create an example storefront controller?';
 
     private string $servicesPhpEntry = <<<'EOL'
@@ -39,7 +41,7 @@ EOL;
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
         InputInterface $input,
-        SymfonyStyle $io
+        OutputInterface $output
     ): void {
         $hasOption = $input->getOption(self::OPTION_NAME);
 
@@ -50,7 +52,7 @@ EOL;
             return;
         }
 
-        if ($this->shouldAskCliQuestion && $io->confirm(self::CLI_QUESTION)) {
+        if ($this->askCliQuestion($input, $output, self::CLI_QUESTION)) {
             $config->addOption(self::OPTION_NAME, true);
             $config->addOption(PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME, true);
         }

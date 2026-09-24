@@ -17,7 +17,9 @@ class ScheduledTaskGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-scheduled-task';
+    private const OPTION_TITLE = 'Scheduled Task';
     private const OPTION_DESCRIPTION = 'Create an example scheduled task';
+    private const OPTION_DESCRIPTION_LONG = 'Quite often one might want to run any type of code on a regular basis, e.g. to clean up very old entries every once in a while, automatically. Usually known as "Cronjobs", Shopware 6 supports a ScheduledTask for this.';
     private const CLI_QUESTION = 'Do you want to create an example scheduled task?';
 
     private string $servicesPhpEntry = <<<'EOL'

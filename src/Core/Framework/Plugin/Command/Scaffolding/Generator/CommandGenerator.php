@@ -17,7 +17,9 @@ class CommandGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-command';
+    private const OPTION_TITLE = 'Custom Command';
     private const OPTION_DESCRIPTION = 'Create an example console command';
+    private const OPTION_DESCRIPTION_LONG = 'Shopware CLI commands are based on Symfony Console. This means that creating custom commands in Shopware plugins follows the standard Symfony approach.';
     private const CLI_QUESTION = 'Do you want to create an example console command?';
 
     private string $servicesPhpEntry = <<<'EOL'

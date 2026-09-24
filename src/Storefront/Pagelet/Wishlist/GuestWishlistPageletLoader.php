@@ -2,13 +2,14 @@
 
 namespace Shopware\Storefront\Pagelet\Wishlist;
 
-use Shopware\Core\Content\Product\Cart\ProductStreamCategoryLoader;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,8 +33,7 @@ class GuestWishlistPageletLoader
         private readonly AbstractProductListRoute $productListRoute,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
-        private readonly ?ProductStreamCategoryLoader $streamCategoryLoader = null,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
     }
 
@@ -57,9 +57,6 @@ class GuestWishlistPageletLoader
                 $context->getContext()
             ));
         }
-
-        // products only listed through a dynamic product group report the categories of that group
-        $this->streamCategoryLoader?->load($response->getProducts(), $context);
 
         $page->setSearchResult($response);
 
@@ -102,6 +99,14 @@ class GuestWishlistPageletLoader
             ->addAssociation('categories')
             ->addAssociation('mainCategories.category')
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        // a product only listed through a dynamic product group reports the categories of that group;
+        // they are read through the route, because a page loader must not query a repository itself
+        $criteria->addAssociation('streams.categories');
+        $criteria->getAssociation('streams.categories')->addFilter(
+            new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
+            new EqualsFilter('active', true),
+        );
 
         if ($this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',

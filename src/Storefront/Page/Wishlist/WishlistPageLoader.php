@@ -8,12 +8,13 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRouteResponse;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Product\Cart\ProductStreamCategoryLoader;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -38,8 +39,7 @@ class WishlistPageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly AbstractLoadWishlistRoute $wishlistLoadRoute,
-        private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ?ProductStreamCategoryLoader $streamCategoryLoader = null,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -77,9 +77,6 @@ class WishlistPageLoader
             );
         }
 
-        // products only listed through a dynamic product group report the categories of that group
-        $this->streamCategoryLoader?->load($page->getWishlist()->getProductListing()->getEntities(), $context);
-
         $this->eventDispatcher->dispatch(
             new WishlistPageLoadedEvent($page, $context, $request)
         );
@@ -94,7 +91,7 @@ class WishlistPageLoader
         $page = $page ? (int) $page : self::DEFAULT_PAGE;
         $offset = $limit * ($page - 1);
 
-        return (new Criteria())
+        $criteria = (new Criteria())
             ->setTitle('wishlist::page')
             ->addSorting(new FieldSorting('wishlists.updatedAt', FieldSorting::ASCENDING))
             ->addAssociation('manufacturer')
@@ -105,5 +102,15 @@ class WishlistPageLoader
             ->setLimit($limit)
             ->setOffset($offset)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        // a product only listed through a dynamic product group reports the categories of that group;
+        // they are read through the route, because a page loader must not query a repository itself
+        $criteria->addAssociation('streams.categories');
+        $criteria->getAssociation('streams.categories')->addFilter(
+            new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
+            new EqualsFilter('active', true),
+        );
+
+        return $criteria;
     }
 }

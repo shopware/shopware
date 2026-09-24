@@ -4,16 +4,12 @@ namespace Shopware\Tests\Unit\Storefront\Pagelet\Wishlist;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Cart\ProductStreamCategoryLoader;
-use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
-use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
@@ -51,31 +47,21 @@ class GuestWishlistPageletLoaderTest extends TestCase
         static::assertTrue($criteria->hasAssociation('options'));
     }
 
-    public function testWishlistProductsGetTheirStreamCategories(): void
+    public function testCriteriaLoadsTheStreamCategoriesThroughTheRoute(): void
     {
-        $products = new ProductCollection([(new SalesChannelProductEntity())->assign(['id' => Uuid::randomHex()])]);
-        $context = Generator::generateSalesChannelContext();
+        $criteria = $this->captureCriteria();
 
-        $productListRoute = static::createStub(AbstractProductListRoute::class);
-        $productListRoute->method('load')->willReturn(new ProductListResponse(
-            new EntitySearchResult('sales_channel_product', 1, $products, null, new Criteria(), $context->getContext())
-        ));
+        static::assertTrue($criteria->hasAssociation('streams'));
+        static::assertTrue($criteria->getAssociation('streams')->hasAssociation('categories'));
 
-        $systemConfigService = static::createStub(SystemConfigService::class);
-        $systemConfigService->method('getBool')->willReturn(false);
-
-        $streamCategoryLoader = $this->createMock(ProductStreamCategoryLoader::class);
-        $streamCategoryLoader->expects($this->once())->method('load')->with($products, $context);
-
-        $loader = new GuestWishlistPageletLoader(
-            $productListRoute,
-            $systemConfigService,
-            static::createStub(EventDispatcherInterface::class),
-            static::createStub(AbstractProductCloseoutFilterFactory::class),
-            $streamCategoryLoader
+        // only categories that list products through the stream, not those using it for a slider
+        static::assertEquals(
+            [
+                new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
+                new EqualsFilter('active', true),
+            ],
+            $criteria->getAssociation('streams.categories')->getFilters()
         );
-
-        $loader->load(new Request([], ['productIds' => [Uuid::randomHex()]]), $context);
     }
 
     private function captureCriteria(): Criteria

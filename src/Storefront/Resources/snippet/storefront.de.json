@@ -57,7 +57,7 @@
     "next": "Nächstes",
     "previous": "Vorheriges",
     "formSubmit": "Absenden",
-    "listPricePreviously": "vorher %price%",
+    "listPricePreviously": "Niedrigster Preis (letzte 30 Tage): %price%",
     "skipToContentLink": "Zum Hauptinhalt springen",
     "skipToNavigation": "Zur Hauptnavigation springen",
     "skipToSearch": "Zur Suche springen",

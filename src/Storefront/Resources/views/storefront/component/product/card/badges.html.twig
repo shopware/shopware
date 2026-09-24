@@ -7,7 +7,7 @@
             {% endif %}
 
             {# A regulation price replaces the list price as the reference for the saving. #}
-            {% set hasDiscount = price.regulationPrice ? price.regulationPrice.percentage > 0 : price.listPrice.percentage > 0 %}
+            {% set hasDiscount = (price.regulationPrice ?? price.listPrice).percentage > 0 %}
             {% set hasRange = product.calculatedPrices.count > 1 %}
 
             {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}

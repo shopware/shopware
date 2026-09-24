@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -83,7 +84,8 @@ class ProductCategoryPathResolver
 
         $candidates = $categoryIds !== []
             ? $product->getCategories()
-            : $product->getExtensionOfType(self::STREAM_CATEGORIES_EXTENSION, CategoryCollection::class);
+            : $product->getExtensionOfType(self::STREAM_CATEGORIES_EXTENSION, CategoryCollection::class)
+                ?? $this->getStreamCategories($product);
 
         $best = null;
         foreach ($candidates?->getElements() ?? [] as $category) {
@@ -97,6 +99,33 @@ class ProductCategoryPathResolver
         }
 
         return $best;
+    }
+
+    /**
+     * The categories that list the product through a dynamic product group, when the caller loaded
+     * them as the `streams.categories` association. A Storefront page loader has to take this route,
+     * because it may only read through Store API routes, see {@see ProductStreamCategoryLoader}
+     * for the cart.
+     */
+    private function getStreamCategories(SalesChannelProductEntity $product): ?CategoryCollection
+    {
+        $streams = $product->getStreams();
+
+        if ($streams === null) {
+            return null;
+        }
+
+        $categories = new CategoryCollection();
+
+        foreach ($streams as $stream) {
+            foreach ($stream->getCategories() ?? [] as $category) {
+                if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM) {
+                    $categories->add($category);
+                }
+            }
+        }
+
+        return $categories;
     }
 
     private function isPreferred(CategoryEntity $category, CategoryEntity $current): bool

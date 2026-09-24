@@ -73,6 +73,10 @@ parameters:
         createMockWithoutExpectationsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
             - 'Shopware\Tests\DevOps\'
+        # narrows NoFeatureSkipInUnitTestsRule to the namespaces the FeatureFlagExtension rewrites; consumers
+        # registering their unit namespace with the extension append it here
+        featureSkipInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -85,4 +89,5 @@ parametersSchema:
         allowedStorefrontRouteNamespaces: list(string),
         allowedUnitTestClassNamespaces: list(string),
         createMockWithoutExpectationsEnabledNamespaces: list(string),
+        featureSkipInUnitTestsEnabledNamespaces: list(string),
 ])

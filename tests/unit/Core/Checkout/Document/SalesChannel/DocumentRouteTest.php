@@ -935,8 +935,6 @@ class DocumentRouteTest extends TestCase
     #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithInvalidFileTypeParameterShouldNotCallReadDocumentAndThrowException(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $customerID = Uuid::randomHex();
         $customer = $this->createCustomer($customerID, false);
         $order = $this->createOrder($customerID);

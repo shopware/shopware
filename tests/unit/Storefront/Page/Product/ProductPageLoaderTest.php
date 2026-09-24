@@ -125,8 +125,6 @@ class ProductPageLoaderTest extends TestCase
 
     public function testItSkipsStructuredDataReviewsWhenReviewsAreDisabled(): void
     {
-        Feature::skipTestIfInActive('JSON_LD_DATA', $this);
-
         $productId = Uuid::randomHex();
         $request = new Request([], [], ['productId' => $productId]);
         $salesChannelContext = $this->getSalesChannelContext();

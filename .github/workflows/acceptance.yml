@@ -2,6 +2,7 @@ name: Acceptance tests
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
   merge_group:
   workflow_dispatch:
     inputs:
@@ -33,6 +34,8 @@ permissions:
 
 jobs:
   markdown-only-changes:
+    # Only major labels should start an acceptance run when a label is added.
+    if: github.event.action != 'labeled' || github.event.label.name == 'major-acceptance' || github.event.label.name == 'major-tests'
     runs-on: ubuntu-24.04
     outputs:
       docs_only: ${{ steps.check.outputs.docs_only }}
@@ -115,7 +118,7 @@ jobs:
 
   acceptance-code-style:
     name: Acceptance code style
-    if: ${{ inputs.major != 'only' }}
+    if: ${{ inputs.major != 'only' && (github.event.action != 'labeled' || github.event.label.name == 'major-acceptance' || github.event.label.name == 'major-tests') }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -402,7 +405,7 @@ jobs:
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
   acceptance-check:
-    if: always()
+    if: always() && (github.event.action != 'labeled' || github.event.label.name == 'major-acceptance' || github.event.label.name == 'major-tests')
     needs:
       - acceptance-code-style
       - markdown-only-changes

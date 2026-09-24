@@ -42,6 +42,8 @@ use Symfony\Component\String\Inflector\EnglishInflector;
 class DefinitionValidator
 {
     private const IGNORE_FIELDS = [
+        // Read and written through LayoutRevisionStore only, so serving reads never select the revision graph.
+        'content_layout.revisions',
         'product.cover',
         'order_line_item.cover',
         'customer.activeShippingAddress',

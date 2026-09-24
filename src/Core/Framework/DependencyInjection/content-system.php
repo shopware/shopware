@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\DomainAwareLayoutResolver;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMutationController;
+use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutRevisionController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPageBuilder;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
@@ -74,6 +76,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetL
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionStore;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\RevisionGraphCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
@@ -824,5 +829,40 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DraftLayoutDecoder::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
+        ]);
+
+    // Layout revision graph (drafts as branches, publish moves the published pointer)
+    $services->set(RevisionGraphCodec::class)
+        ->args([
+            service(StoredTreeCodec::class),
+        ]);
+
+    $services->set(LayoutRevisionStore::class)
+        ->args([
+            service(Connection::class),
+            service(RevisionGraphCodec::class),
+        ]);
+
+    $services->set(LayoutRevisionService::class)
+        ->args([
+            service(Connection::class),
+            service(LayoutRevisionStore::class),
+            service(DraftLayoutDecoder::class),
+            service(LayoutWriteBoundary::class),
+            service(StoredTreeCodec::class),
+            service(StoredTreeConstraints::class),
+            service('validator'),
+            service(LayoutGate::class),
+            service(ViolationConstraintMapper::class),
+            service('content_layout.repository'),
+            service(ClockInterface::class),
+        ]);
+
+    // Layout Revision Actions (Admin API)
+    $services->set(ContentLayoutRevisionController::class)
+        ->public()
+        ->args([
+            service(LayoutRevisionService::class),
+            service(StoredTreeCodec::class),
         ]);
 };

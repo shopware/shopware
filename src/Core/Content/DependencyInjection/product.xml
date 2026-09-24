@@ -169,7 +169,15 @@
             <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelResolver"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelInlineImage"/>
             <tag name="twig.extension"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Garan\GaranLabelInlineImage"/>
+
+        <service id="Shopware\Core\Content\Product\Garan\GaranLabelMailSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelInlineImage"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Garan\GaranLabelProductValidator">

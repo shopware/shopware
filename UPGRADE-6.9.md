@@ -88,3 +88,23 @@ The legacy document services and components in the Administration were removed:
 
 - `DocumentApiService` (including `DocumentEvents`). Use the v2 Admin API routes (`/api/_action/order/document-v2/*`) instead.
 - The legacy document modals and their component registrations: `sw-order-document-settings-modal`, `sw-order-document-settings-invoice-modal`, `sw-order-document-settings-credit-note-modal`, `sw-order-document-settings-delivery-note-modal`, `sw-order-document-settings-storno-modal`, and `sw-order-select-document-type-modal`.
+
+## `$tc` and the vue-i18n 8 argument order removed
+
+The deprecated translation helpers `$tc()` and `Shopware.Snippet.tc()` were removed. Use `$t()` and `Shopware.Snippet.t()` instead, which handle pluralization natively.
+
+The vue-i18n 8 argument order `$t(key, plural, namedParameters)` is no longer converted. Pass the named parameters before the plural count:
+
+```js
+// Before
+this.$tc('sw-product.list.messageDelete', count, { name });
+
+// After
+this.$t('sw-product.list.messageDelete', { name }, count);
+```
+
+The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes both automatically in scripts and templates:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```

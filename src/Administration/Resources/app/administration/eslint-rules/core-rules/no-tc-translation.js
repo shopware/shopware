@@ -8,68 +8,185 @@
 const utilsModule = require('eslint-plugin-vue/dist/utils');
 const utils = utilsModule.default ?? utilsModule;
 
-function reportTc(context, node, isProperty) {
-    const target = isProperty ? node.callee.property : node.callee;
+// Keys of vue-i18n's `TranslateOptions`, see `src/app/adapter/view/i18n-legacy-syntax.ts`.
+const TRANSLATE_OPTION_KEYS = new Set([
+    'list',
+    'named',
+    'plural',
+    'default',
+    'locale',
+    'missingWarn',
+    'fallbackWarn',
+    'escapeParameter',
+    'resolvedMessage',
+    'part',
+]);
 
-    context.report({
-        node: target,
-        messageId: 'noTc',
-        fix(fixer) {
-            return fixer.replaceText(target, '$t');
-        },
+const NON_PLURAL_ARGUMENT_TYPES = new Set([
+    'ObjectExpression',
+    'ArrayExpression',
+    'TemplateLiteral',
+    'SpreadElement',
+]);
+
+function isSnippetObject(node) {
+    return (node.type === 'Identifier' && node.name === 'Snippet') ||
+        (node.type === 'MemberExpression' && !node.computed && node.property.name === 'Snippet');
+}
+
+/**
+ * Returns the callee node to rename and its replacement name, or null when the call is no translation call.
+ */
+function getTranslateCallee(callee) {
+    if (callee.type === 'Identifier' && ['$t', '$tc'].includes(callee.name)) {
+        return { node: callee, name: callee.name, replacement: '$t' };
+    }
+
+    if (callee.type !== 'MemberExpression' || callee.computed) {
+        return null;
+    }
+
+    const name = callee.property.name;
+    if (['$t', '$tc'].includes(name)) {
+        return { node: callee.property, name, replacement: '$t' };
+    }
+
+    if (['t', 'tc'].includes(name) && isSnippetObject(callee.object)) {
+        return { node: callee.property, name, replacement: 't' };
+    }
+
+    return null;
+}
+
+function hasLegacyArgumentOrder(args) {
+    if (args.length !== 3) {
+        return false;
+    }
+
+    const [, plural, named] = args;
+    if (NON_PLURAL_ARGUMENT_TYPES.has(plural.type) || (plural.type === 'Literal' && typeof plural.value !== 'number')) {
+        return false;
+    }
+
+    if (named.type !== 'ObjectExpression' || named.properties.length === 0) {
+        return false;
+    }
+
+    return named.properties.some((property) => {
+        if (property.type !== 'Property' || property.computed) {
+            return true;
+        }
+
+        const keyName = property.key.type === 'Identifier' ? property.key.name : String(property.key.value);
+
+        return !TRANSLATE_OPTION_KEYS.has(keyName);
     });
+}
+
+// Shopware's vue-eslint-parser patch keeps `{{ }}` in `.twig` templates as opaque text, so mustache calls are only
+// visible as VText and have to be matched textually.
+const TWIG_MUSTACHE_PATTERN = /{{([\s\S]*?)}}/g;
+const TWIG_TC_CALL_PATTERN = /(?<![\w$])\$tc(?=\s*\()/g;
+
+function* findTcInTwigText(text) {
+    for (const mustache of text.matchAll(TWIG_MUSTACHE_PATTERN)) {
+        const expressionStart = mustache.index + 2;
+
+        for (const call of mustache[1].matchAll(TWIG_TC_CALL_PATTERN)) {
+            yield expressionStart + call.index;
+        }
+    }
 }
 
 module.exports = {
     meta: {
         type: 'suggestion',
         docs: {
-            description: 'Disallow $tc() in favor of $t() for translations',
+            description: 'Disallow $tc() and the vue-i18n 8 argument order in favor of $t(key, named, plural)',
             category: 'Best Practices',
             recommended: true,
         },
         fixable: 'code',
         schema: [],
         messages: {
-            noTc: 'Use $t() instead of $tc(). $tc is deprecated — $t handles pluralization natively.',
+            noTc: 'Use {{replacement}}() instead of {{name}}(). {{name}} is deprecated — {{replacement}} handles pluralization natively.',
+            legacyArgumentOrder: 'Pass the named parameters before the plural count: {{name}}(key, named, plural). ' +
+                'The vue-i18n 8 order {{name}}(key, plural, named) is deprecated.',
         },
     },
 
     create(context) {
+        const sourceCode = context.sourceCode ?? context.getSourceCode();
+
         function checkCallExpression(node) {
-            // Matches something.$tc(...)
-            if (
-                node.callee.type === 'MemberExpression' &&
-                node.callee.property.name === '$tc'
-            ) {
-                reportTc(context, node, true);
+            const callee = getTranslateCallee(node.callee);
+            if (!callee) {
+                return;
             }
 
-            // Matches bare $tc(...)
-            if (
-                node.callee.type === 'Identifier' &&
-                node.callee.name === '$tc'
-            ) {
-                reportTc(context, node, false);
+            if (callee.name !== callee.replacement) {
+                context.report({
+                    node: callee.node,
+                    messageId: 'noTc',
+                    data: { name: callee.name, replacement: callee.replacement },
+                    fix(fixer) {
+                        return fixer.replaceText(callee.node, callee.replacement);
+                    },
+                });
+            }
+
+            if (hasLegacyArgumentOrder(node.arguments)) {
+                const [, plural, named] = node.arguments;
+
+                context.report({
+                    node,
+                    messageId: 'legacyArgumentOrder',
+                    data: { name: callee.replacement },
+                    fix(fixer) {
+                        return [
+                            fixer.replaceText(plural, sourceCode.getText(named)),
+                            fixer.replaceText(named, sourceCode.getText(plural)),
+                        ];
+                    },
+                });
             }
         }
 
-        // Script visitors (JS/TS files)
+        function checkTwigText(node) {
+            const text = sourceCode.getText(node);
+
+            for (const offset of findTcInTwigText(text)) {
+                const start = node.range[0] + offset;
+                const range = [start, start + '$tc'.length];
+
+                context.report({
+                    loc: {
+                        start: sourceCode.getLocFromIndex(range[0]),
+                        end: sourceCode.getLocFromIndex(range[1]),
+                    },
+                    messageId: 'noTc',
+                    data: { name: '$tc', replacement: '$t' },
+                    fix(fixer) {
+                        return fixer.replaceTextRange(range, '$t');
+                    },
+                });
+            }
+        }
+
         const scriptVisitors = {
             CallExpression: checkCallExpression,
         };
 
-        // Template visitors (Vue/Twig files)
-        const templateVisitors = {
-            CallExpression: checkCallExpression,
-        };
+        if (sourceCode.parserServices?.defineTemplateBodyVisitor) {
+            const templateVisitors = { CallExpression: checkCallExpression };
 
-        // If vue parser is available, register both script and template visitors
-        if (context.parserServices && context.parserServices.defineTemplateBodyVisitor) {
+            if (context.filename.endsWith('.twig')) {
+                templateVisitors.VText = checkTwigText;
+            }
+
             return utils.defineTemplateBodyVisitor(context, templateVisitors, scriptVisitors);
         }
 
-        // Fallback for non-vue files (plain JS/TS)
         return scriptVisitors;
     },
 };

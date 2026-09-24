@@ -43,6 +43,7 @@ import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import Store from 'src/app/store';
+import { createDeprecatedTc, createTranslate } from 'src/app/adapter/view/i18n-legacy-syntax';
 import {
     attachOverrides,
     createExtendableSetup,
@@ -280,11 +281,16 @@ class ShopwareClass implements CustomShopwareProperties {
             return null;
         }
 
+        // @ts-expect-error - type is currently not available
+        const i18nGlobal = Shopware.Application.view.i18n.global;
+
         return {
-            // @ts-expect-error - type is currently not available
-            ...Shopware.Application.view.i18n.global,
-            // @ts-expect-error - type is currently not available
-            tc: Shopware.Application.view.i18n.global.t,
+            ...i18nGlobal,
+            t: createTranslate(i18nGlobal.t, 'Shopware.Snippet.t'),
+            /**
+             * @deprecated tag:v6.9.0 - Will be removed, use Shopware.Snippet.t instead.
+             */
+            tc: createDeprecatedTc(i18nGlobal.t, 'Shopware.Snippet.tc', 'Shopware.Snippet.t'),
         };
     }
 

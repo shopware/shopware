@@ -254,9 +254,13 @@ export default {
                 const state = taxProvider.active ? 'active' : 'inactive';
 
                 this.createNotificationSuccess({
-                    message: this.$t(`sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`, 0, {
-                        name: taxProvider.translated.name,
-                    }),
+                    message: this.$t(
+                        `sw-settings-tax.list.taxProvider.statusChangedSuccess.${state}`,
+                        {
+                            name: taxProvider.translated.name,
+                        },
+                        0,
+                    ),
                 });
             });
         },

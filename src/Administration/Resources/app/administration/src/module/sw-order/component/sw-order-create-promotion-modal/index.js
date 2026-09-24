@@ -80,19 +80,27 @@ export default {
                 discountType === DiscountTypes.ABSOLUTE &&
                 Math.abs(totalPrice) < value
             ) {
-                return this.$t(`${snippet}.absoluteUpto`, 0, {
-                    value: format.currency(Number(value), this.currency.isoCode),
-                    totalPrice: format.currency(Math.abs(totalPrice), this.currency.isoCode),
-                });
+                return this.$t(
+                    `${snippet}.absoluteUpto`,
+                    {
+                        value: format.currency(Number(value), this.currency.isoCode),
+                        totalPrice: format.currency(Math.abs(totalPrice), this.currency.isoCode),
+                    },
+                    0,
+                );
             }
 
             const discountValue =
                 discountType === DiscountTypes.PERCENTAGE ? value : format.currency(Number(value), this.currency.isoCode);
 
-            return this.$t(`${snippet}.${discountType}`, 0, {
-                value: discountValue,
-                groupId,
-            });
+            return this.$t(
+                `${snippet}.${discountType}`,
+                {
+                    value: discountValue,
+                    groupId,
+                },
+                0,
+            );
         },
     },
 };

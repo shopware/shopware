@@ -1,6 +1,7 @@
 /**
  * @sw-package framework
  */
+import { config } from '@vue/test-utils';
 import createWrapper from './sw-settings-shopware-updates-wizard.spec/create-wrapper';
 import useSession from 'src/app/composables/use-session';
 import useSnackbar from 'src/app/composables/use-snackbar';
@@ -66,6 +67,40 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 message: expect.stringContaining('sw-extension.errors.messageDeactivationFailedThemeAssignment'),
             }),
         );
+    });
+
+    it.each([
+        [
+            'THEME__THEME_ASSIGNMENT',
+            { themeName: 'Swag Theme', assignments: 'Storefront' },
+            'sw-extension.errors.messageDeactivationFailedThemeAssignment {"themeName":"Swag Theme","assignments":"Storefront"}',
+        ],
+        [
+            'FRAMEWORK__PLUGIN_HAS_DEPENDANTS',
+            { dependency: 'SwagBase', dependantNames: 'SwagChild' },
+            'sw-extension.errors.messageDeactivationFailedDependencies {"dependency":"SwagBase","dependantNames":"SwagChild"}',
+        ],
+    ])('should pass the error parameters of %s to the deactivation warning', async (code, parameters, expectedMessage) => {
+        const translateMock = config.global.mocks.$t;
+        config.global.mocks.$t = (key, named) => (named ? `${key} ${JSON.stringify(named)}` : key);
+
+        wrapper.unmount();
+        wrapper = await createWrapper({
+            deactivateExtensions: () => {
+                const error = new Error();
+                error.response = { data: { errors: [{ code, meta: { parameters } }] } };
+
+                return Promise.reject(error);
+            },
+        });
+        await flushPromises();
+        const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
+
+        wrapper.vm.deactivateExtensions(0);
+        await flushPromises();
+        config.global.mocks.$t = translateMock;
+
+        expect(createNotificationWarningSpy).toHaveBeenCalledWith({ message: expectedMessage });
     });
 
     it('deactivate extensions success', async () => {

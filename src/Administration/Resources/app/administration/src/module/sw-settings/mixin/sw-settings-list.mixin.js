@@ -54,9 +54,13 @@ Mixin.register('sw-settings-list', {
                 }
 
                 if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess)`)) {
-                    return this.$t(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`, 0, {
-                        name: name,
-                    });
+                    return this.$t(
+                        `sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`,
+                        {
+                            name: name,
+                        },
+                        0,
+                    );
                 }
 
                 return this.$t(

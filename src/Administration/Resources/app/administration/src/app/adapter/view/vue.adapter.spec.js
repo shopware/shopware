@@ -815,6 +815,41 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$swLegacyBlockElse).toBeDefined();
         });
 
+        it('should translate with $t, the deprecated $tc and the Shopware.Snippet helpers', () => {
+            const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            vueAdapter.i18n.global.mergeLocaleMessage(vueAdapter.i18n.global.locale.value, {
+                'sw-vue-adapter-test': {
+                    items: 'no items | one item for {name} | {count} items for {name}',
+                },
+            });
+            const key = 'sw-vue-adapter-test.items';
+            const vm = { $options: { name: 'sw-vue-adapter-test' } };
+            const { $t, $tc } = rootComponent.config.globalProperties;
+
+            expect($t.call(vm, key, { name: 'Ada' }, 2)).toBe('2 items for Ada');
+            expect($t.call(vm, key, 1, { name: 'Ada' })).toBe('one item for Ada');
+            expect($tc.call(vm, key, 3, { name: 'Ada' })).toBe('3 items for Ada');
+            /* eslint-disable sw-core-rules/no-tc-translation */
+            expect(rootComponent.$t(key, { name: 'Ada' }, 1)).toBe('one item for Ada');
+            expect(rootComponent.$tc(key, { name: 'Ada' }, 2)).toBe('2 items for Ada');
+            expect(Shopware.Snippet.t(key, 1, { name: 'Ada' })).toBe('one item for Ada');
+            expect(Shopware.Snippet.tc(key, { name: 'Ada' }, 2)).toBe('2 items for Ada');
+            /* eslint-enable sw-core-rules/no-tc-translation */
+
+            expect(warnSpy).toHaveBeenCalledWith(
+                '[Deprecation]',
+                expect.stringContaining(
+                    `$tc() is deprecated and will be removed in v6.9.0. Replace $tc('${key}') with $t('${key}') in component "sw-vue-adapter-test".`,
+                ),
+            );
+            expect(warnSpy).toHaveBeenCalledWith(
+                '[Deprecation]',
+                expect.stringContaining(`Replace Shopware.Snippet.tc('${key}') with Shopware.Snippet.t('${key}').`),
+            );
+
+            warnSpy.mockRestore();
+        });
+
         it('should scope legacy block helpers by component instance', () => {
             const vmOne = { $: { uid: 1 } };
             const vmTwo = { $: { uid: 2 } };

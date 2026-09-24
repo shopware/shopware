@@ -152,11 +152,11 @@ export default {
                 title: this.$root.$t('global.default.success'),
                 message: this.$root.$t(
                     payload.customMessage ?? 'global.sw-media-upload.notification.success.message',
-                    payload.successAmount,
                     {
                         count: payload.successAmount,
                         total: payload.totalAmount,
                     },
+                    payload.successAmount,
                 ),
                 growl: payload.successAmount + payload.failureAmount === payload.totalAmount,
             };

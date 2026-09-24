@@ -19,8 +19,8 @@ class NoFeatureSkipInUnitTestsRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse([__DIR__ . '/data/NoFeatureSkipInUnitTestsRule/Cases.php'], [
-            [\sprintf(NoFeatureSkipInUnitTestsRule::ERROR_SKIP_GUARD, 'skipTestIfActive', 'skips forever'), 18],
-            [\sprintf(NoFeatureSkipInUnitTestsRule::ERROR_SKIP_GUARD, 'skipTestIfInActive', 'never skips'), 25],
+            [\sprintf(NoFeatureSkipInUnitTestsRule::ERROR_SKIP_GUARD, 'skipTestIfActive'), 18],
+            [\sprintf(NoFeatureSkipInUnitTestsRule::ERROR_SKIP_GUARD, 'skipTestIfInActive'), 25],
             [NoFeatureSkipInUnitTestsRule::ERROR_IS_ACTIVE_GUARD, 32],
             [NoFeatureSkipInUnitTestsRule::ERROR_IS_ACTIVE_GUARD, 41],
             // NOT flagged: 49 (#[DisabledFeatures] is the intended tool), 56 (skip on an extension, no

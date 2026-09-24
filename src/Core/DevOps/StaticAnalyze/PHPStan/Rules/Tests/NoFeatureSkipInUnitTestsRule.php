@@ -20,9 +20,10 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The unit suite runs with every registered feature flag active (the FeatureFlagExtension rewrites the
- * environment per test), so a skip guard on a flag cannot vary there: `Feature::skipTestIfActive()` skips
- * on every run and `Feature::skipTestIfInActive()` never does, and the same holds for a `markTestSkipped()`
- * behind `Feature::isActive()`. The legacy branch of a flag is exercised with `#[DisabledFeatures]` instead.
+ * environment per test) and, since no kernel boots, with every flag a plugin registers through its bundle
+ * configuration unknown and therefore inactive. A skip guard on a flag cannot vary there: it skips on every
+ * run or on none, and the same holds for a `markTestSkipped()` behind `Feature::isActive()`. The legacy
+ * branch of a flag is exercised with `#[DisabledFeatures]` instead.
  *
  * Enforcement is narrowed to the namespaces the extension rewrites ({@see Configuration}); suites whose flag
  * state comes from the job environment keep their guards.
@@ -34,14 +35,11 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class NoFeatureSkipInUnitTestsRule implements Rule
 {
-    public const ERROR_SKIP_GUARD = 'Feature::%s() cannot vary in the unit suite: every registered flag is active there, so this guard %s. Put #[DisabledFeatures([...])] on the test or the class to run the legacy branch, or drop the guard.';
+    public const ERROR_SKIP_GUARD = 'Feature::%s() cannot vary in the unit suite: every flag registered there is active and any other flag inactive on every run, so this guard skips forever or never. Put #[DisabledFeatures([...])] on the test or the class to run the legacy branch, or drop the guard.';
 
-    public const ERROR_IS_ACTIVE_GUARD = 'markTestSkipped() behind Feature::isActive() cannot vary in the unit suite: every registered flag is active there, so this guard skips forever or never. Put #[DisabledFeatures([...])] on the test or the class to run the legacy branch, or drop the guard.';
+    public const ERROR_IS_ACTIVE_GUARD = 'markTestSkipped() behind Feature::isActive() cannot vary in the unit suite: every flag registered there is active and any other flag inactive on every run, so this guard skips forever or never. Put #[DisabledFeatures([...])] on the test or the class to run the legacy branch, or drop the guard.';
 
-    private const SKIP_METHODS = [
-        'skipTestIfActive' => 'skips forever',
-        'skipTestIfInActive' => 'never skips',
-    ];
+    private const SKIP_METHODS = ['skipTestIfActive', 'skipTestIfInActive'];
 
     /**
      * @var list<string>
@@ -74,11 +72,11 @@ class NoFeatureSkipInUnitTestsRule implements Rule
         $finder = new NodeFinder();
         foreach ($finder->findInstanceOf($node->getOriginalNode(), StaticCall::class) as $call) {
             $method = $this->featureMethod($call, $scope);
-            if ($method === null || !isset(self::SKIP_METHODS[$method])) {
+            if ($method === null || !\in_array($method, self::SKIP_METHODS, true)) {
                 continue;
             }
 
-            $errors[] = RuleErrorBuilder::message(\sprintf(self::ERROR_SKIP_GUARD, $method, self::SKIP_METHODS[$method]))
+            $errors[] = RuleErrorBuilder::message(\sprintf(self::ERROR_SKIP_GUARD, $method))
                 ->identifier('shopware.featureSkipInUnitTest')
                 ->line($call->getStartLine())
                 ->build();

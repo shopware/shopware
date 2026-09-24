@@ -13,11 +13,21 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * Persists large tool results in the DB for the duration of an MCP session.
  * Each stored result is scoped to a session ID so it cannot be read by other sessions.
- * Rows are removed when the MCP session ends (DELETE /api/_mcp).
+ * Rows are removed when the MCP session ends (DELETE /api/_mcp), and by the periodic
+ * age-based McpToolResultCacheCleanupTask when a client disconnects without DELETE
+ * (or when the modern era answers DELETE with 405 and there is no session store).
  */
 #[Package('framework')]
 class ToolResultCacheStorage
 {
+    /**
+     * How long a cached oversized tool result may remain after `created_at`.
+     * Results are only read during the call that produced them and the model's immediate
+     * follow-up `resources/read`, so a fixed age is safe — unlike mcp_toolset_session,
+     * which must wait for session-store liveness.
+     */
+    public const DEFAULT_TTL_SECONDS = 86400;
+
     /**
      * @internal
      */
@@ -78,6 +88,20 @@ class ToolResultCacheStorage
         $this->connection->executeStatement(
             'DELETE FROM `mcp_tool_result_cache` WHERE `session_id` = :sessionId',
             ['sessionId' => $sessionId],
+        );
+    }
+
+    /**
+     * Deletes rows older than `$threshold` (inclusive of equality at the boundary).
+     * Used by the scheduled TTL GC — does not consult session stores.
+     *
+     * @return int Number of deleted rows
+     */
+    public function deleteOlderThan(\DateTimeInterface $threshold): int
+    {
+        return (int) $this->connection->executeStatement(
+            'DELETE FROM `mcp_tool_result_cache` WHERE `created_at` <= :threshold',
+            ['threshold' => $threshold->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
         );
     }
 }

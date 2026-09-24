@@ -118,4 +118,30 @@ class ToolResultCacheStorageTest extends TestCase
         $storage = new ToolResultCacheStorage($connection, new NativeClock());
         $storage->deleteForSession('session-abc');
     }
+
+    public function testDeleteOlderThanRemovesRowsAtOrBeforeThreshold(): void
+    {
+        $threshold = new \DateTimeImmutable('2026-09-23 12:00:00.000');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('executeStatement')
+            ->with(
+                static::logicalAnd(
+                    static::stringContains('created_at'),
+                    static::stringContains('<='),
+                ),
+                ['threshold' => '2026-09-23 12:00:00.000'],
+            )
+            ->willReturn(3);
+
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
+
+        static::assertSame(3, $storage->deleteOlderThan($threshold));
+    }
+
+    public function testDefaultTtlIsOneDay(): void
+    {
+        static::assertSame(86400, ToolResultCacheStorage::DEFAULT_TTL_SECONDS);
+    }
 }

@@ -11,9 +11,9 @@ Epic [#19965](https://github.com/shopware/shopware/issues/19965). Today Shopware
 
 `src/Core/Framework/Mcp/docs/spec-coverage.md` already flags the envelope as undecided (transitional vs long-term) and asks for a consistent business-error mapping. `mcp/sdk` 0.8 makes migration tractable: `ToolReference::extractStructuredContent()` gates on negotiated revision; on 2026-07-28, `outputSchema` / `structuredContent` follow SEP-2106 (any JSON Schema 2020-12 / any JSON value).
 
-This is the **widest blast radius** item in the epic: core tools, plugins (e.g. SwagMcpMerchantTools), apps, agentic-commerce parallels, and [shopware-mcp-evals](https://github.com/shopware/shopware-mcp-evals) all parse `success` / `data`. [#19966](https://github.com/shopware/shopware/issues/19966) needs allowed return shapes named once so ResourceLink typing is not rewritten twice. Sync tool [#20520](https://github.com/shopware/shopware/issues/20520) stays parked until this contract is clear (matrix D7).
+This is the **widest blast radius** item in the epic: core tools, plugins (e.g. SwagMcpMerchantTools), apps, agentic-commerce parallels, and [shopware-mcp-evals](https://github.com/shopware/shopware-mcp-evals) all parse `success` / `data`. [#19966](https://github.com/shopware/shopware/issues/19966) needs allowed return shapes named once so ResourceLink typing is not rewritten twice. Sync tool [#20520](https://github.com/shopware/shopware/issues/20520) stays parked until this contract is clear.
 
-**Decision lock (Björn 2026-09-24):** matrix **D3 = A** — transitional dual-support → deprecate → remove toward **spec shapes**; drop string `{"success":…}` by **experimental → 6.8.0**. Issue: [#19967](https://github.com/shopware/shopware/issues/19967). PHPStan guidance pack = **follow-on**, not Wave 1.
+**Locked 2026-09-24** for [#19967](https://github.com/shopware/shopware/issues/19967): transitional dual-support → deprecate → remove toward **spec shapes**; drop string `{"success":…}` by **experimental → 6.8.0**. A broader MCP PHPStan guidance pack (Admin ACL ≠ Store auth, reserved groups) is a **follow-on**, not part of merging this ADR.
 
 ## Decision
 
@@ -66,7 +66,7 @@ Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 | Phase | Work |
 |---|---|
 | Now | This ADR; unblock ResourceLink typing (#19966) and dual-era honesty |
-| Wave 3 | Helper dual-support → tool-by-tool migration → paired [shopware-mcp-evals](https://github.com/shopware/shopware-mcp-evals) dual-read (matrix D8) |
+| Wave 3 | Helper dual-support → tool-by-tool migration → paired [shopware-mcp-evals](https://github.com/shopware/shopware-mcp-evals) dual-read |
 | By 6.8.0 | Remove string envelope; tighten PHPStan; UPGRADE final remove notes |
 | After ADR / with D3 | PHPStan guidance pack (follow-on) |
 

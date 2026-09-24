@@ -3,23 +3,6 @@ title: MCP per-feature degradation policy for the modern (stateless) era
 date: 2026-09-24
 area: framework
 tags: [framework, mcp, ai, protocol, degradation, dual-era]
-issue: https://github.com/shopware/shopware/issues/20512
-status: decision-locked (Björn 2026-09-24 — matrix D1)
----
-
-# ADR paste source — #20512
-
-**Repo path when merged:** `adr/2026-09-24-mcp-stateless-era-degradation-policy.md`  
-**Locks:** D1 = **A** — request-derived visibility; Admin + Store move together; mid-session `toolset-enable` = handshake-only on modern.
-
-Use the YAML + `## Context` / `## Decision` / `## Consequences` body below as the ADR file (strip this header block).
-
----
-
-title: MCP per-feature degradation policy for the modern (stateless) era
-date: 2026-09-24
-area: framework
-tags: [framework, mcp, ai, protocol, degradation, dual-era]
 ---
 
 ## Context
@@ -34,9 +17,11 @@ Nine call sites, two tables, and DELETE-only cleanup still hang off durable sess
 | B | `tools/list_changed` delivery | Notifications never reach a durable session |
 | C | Large-result offload (`mcp_tool_result_cache`) | Session-keyed lookup / DELETE GC fail; silent inline fallback or orphan rows |
 
-Connect-time `?toolsets=` already shipped ([#20509](https://github.com/shopware/shopware/pull/20509) / [#20504](https://github.com/shopware/shopware/issues/20504)). Related locks: signed short-lived offload tokens + ResourceLink ([#19966](https://github.com/shopware/shopware/issues/19966), matrix D2); dual-serve both endpoints after gates ([#19969](https://github.com/shopware/shopware/issues/19969), D4); elicitUrl complements dryRun and needs `request_state` on modern ([#19972](https://github.com/shopware/shopware/issues/19972), D5).
+Connect-time `?toolsets=` already shipped ([#20509](https://github.com/shopware/shopware/pull/20509) / [#20504](https://github.com/shopware/shopware/issues/20504)). Related locks: signed short-lived offload tokens + ResourceLink ([#19966](https://github.com/shopware/shopware/issues/19966)); dual-serve both endpoints after gates ([#19969](https://github.com/shopware/shopware/issues/19969)); elicitUrl complements dryRun and needs `request_state` on modern ([#19972](https://github.com/shopware/shopware/issues/19972)).
 
 Without one written rule, Admin and Store drift, and dual-era tests ([#20513](https://github.com/shopware/shopware/issues/20513)) cannot assert an agreed degradation.
+
+**Locked 2026-09-24** for [#20512](https://github.com/shopware/shopware/issues/20512): request-derived visibility; Admin and Store move together; mid-session enable is handshake-only on modern.
 
 ## Decision
 

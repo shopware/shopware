@@ -36,6 +36,11 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Order transaction state machine gained a transition
+
+The order transaction state machine now allows transitions from the state "unconfirmed" to "in_progress".
+This will allow async payment methods to leave the order transaction in "unconfirmed" after the pay step and transition to "in_progress" in the finalize step.
+
 ### Promotion redemptions are recounted faster
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.

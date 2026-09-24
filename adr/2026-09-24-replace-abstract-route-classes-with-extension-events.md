@@ -32,6 +32,102 @@ Each route keeps its public method and `#[Route]` attribute and passes its body,
 A dedicated `Extension` subclass carries the input parameters as public readonly properties and declares a stable `NAME`.
 Its constructor is `@internal` and owned by Shopware; its properties are public API.
 
+### Example of a new route class
+
+#### Store-API route class
+
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\System\Country\SalesChannel;
+
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\System\Country\Extension\ActiveCountryRouteExtension;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Routing\Attribute\Route;
+
+/**
+ * @internal
+ */
+#[Package('fundamentals@discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
+class ActiveCountryRoute
+{
+    /**
+     * @param SalesChannelRepository<CountryCollection> $countryRepository
+     */
+    public function __construct(
+        private readonly SalesChannelRepository $countryRepository,
+        private readonly ExtensionDispatcher $extensions,
+    ) {
+    }
+
+    #[Route(
+        path: '/store-api/active-country',
+        name: 'store-api.active-country',
+        methods: ['GET', 'POST'],
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => CountryDefinition::ENTITY_NAME],
+    )]
+    public function load(Criteria $criteria, SalesChannelContext $context): CountryRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ActiveCountryRouteExtension::NAME,
+            extension: new ActiveCountryRouteExtension($criteria, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Criteria $criteria, SalesChannelContext $context): CountryRouteResponse
+    {
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        return new CountryRouteResponse($this->countryRepository->search($criteria, $context));
+    }
+}
+```
+
+#### Extension event class
+
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\System\Country\Extension;
+
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\Extension;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Country\SalesChannel\CountryRouteResponse;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+/**
+ * @public
+ *
+ * @extends Extension<CountryRouteResponse>
+ */
+#[Package('fundamentals@discovery')]
+final class ActiveCountryRouteExtension extends Extension
+{
+    public const NAME = 'active-country-route.load';
+
+    /**
+     * @internal Shopware owns the constructor; the properties are public API.
+     */
+    public function __construct(
+        public readonly Criteria $criteria,
+        public readonly SalesChannelContext $context,
+    ) {
+    }
+}
+```
+
 Plugins subscribe to the following hooks:
 
 * **`.pre`:**
@@ -60,13 +156,76 @@ Plugins subscribe to the following hooks:
   Deprecate a route's abstract class and decorator-based extension path only when the route is being adjusted anyway **and** a breaking change is necessary.
   Follow the normal backward-compatibility process for deprecation and removal.
   Introducing new events does not justify a deprecation, and there is no global timeline for phasing these patterns out.
-* Both mechanisms coexist while the abstract contract remains supported.
-  Plugin extensions should use events where available as soon as possible.
 * When adjusting a route, core decorators such as `ResolvedCriteriaProductSearchRoute` can become subscribers or be merged into the route body, subject to backward compatibility.
 * Route tests must verify that the correct extension name and object, including its input parameters, are dispatched.
 * Update the developer guides for [adding Store API routes](https://developer.shopware.com/docs/guides/plugins/plugins/framework/store-api/add-store-api-route.html) and [overriding existing routes](https://developer.shopware.com/docs/guides/plugins/plugins/framework/store-api/override-existing-route.html), which currently teach the decorator pattern.
   Document event-based extension and migration, retaining decoration guidance for routes that do not yet expose events.
 * Plugins migrating from decoration use listener priorities to control ordering.
+
+### Plugin migration
+
+Both mechanisms coexist while the abstract contract remains supported.
+Plugin extensions should use events where available as soon as possible.
+
+This plugin limits product search to products with free shipping.
+Before migration, it wraps `ProductSearchRoute`:
+
+```php
+<?php declare(strict_types=1);
+
+namespace Acme\FreeShipping;
+
+use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
+use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRouteResponse;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
+
+final class FreeShippingSearchRoute extends AbstractProductSearchRoute
+{
+    public function __construct(private readonly AbstractProductSearchRoute $decorated)
+    {
+    }
+
+    public function getDecorated(): AbstractProductSearchRoute
+    {
+        return $this->decorated;
+    }
+
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
+    {
+        $criteria->addFilter(new EqualsFilter('product.shippingFree', true));
+
+        return $this->decorated->load($request, $context, $criteria);
+    }
+}
+```
+
+After migration, the same filter is applied by a listener on the `.pre` event:
+
+```php
+<?php declare(strict_types=1);
+
+namespace Acme\FreeShipping;
+
+use Shopware\Core\Content\Product\Extension\ProductSearchRouteExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+final class FreeShippingSearchSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [ProductSearchRouteExtension::onPre() => 'filter'];
+    }
+
+    public function filter(ProductSearchRouteExtension $extension): void
+    {
+        $extension->criteria->addFilter(new EqualsFilter('product.shippingFree', true));
+    }
+}
+```
 
 ## Considered alternatives
 

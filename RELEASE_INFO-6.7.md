@@ -61,7 +61,20 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### Custom-field set loader computed properties deprecated
 
-The `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria`, and `customFieldRepository` computed properties on the affected detail and bulk-edit components are deprecated for v6.8.0. Load renderable custom-field sets through `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead. The shared provider caches results by entity, language, and requested limit.
+The following Administration components now load custom-field sets through `customFieldDataProviderService`. This replaces their separate loaders with one shared implementation and gives each component cached results by entity, language, and requested limit. Their previous loader computed properties remain available in 6.7 but are deprecated for v6.8.0:
+
+| Component | Deprecated computed properties |
+|---|---|
+| `sw-category-detail` (categories and landing pages) | `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria` |
+| `sw-customer-detail-base` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-customer-detail-addresses` | `customFieldSetRepository` |
+| `sw-manufacturer-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-order-detail-details` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-sales-channel-detail` | `customFieldRepository` |
+| `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` |
+
+Extensions that load renderable custom-field sets should use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
 
 ### New extension points for the Shopping Experiences layout list
 

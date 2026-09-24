@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
 use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Stub\MyTraitEntity;
 
 /**
  * @internal
@@ -84,27 +84,5 @@ class EntityCustomFieldsTraitTest extends TestCase
         );
         static::assertNull($entity->getTranslatedCustomFieldsValue('foo'));
         static::assertNull($entity->getTranslatedCustomFieldsValue('not-exists'));
-    }
-}
-
-/**
- * @internal
- */
-class MyTraitEntity extends Entity
-{
-    use EntityCustomFieldsTrait;
-
-    /**
-     * @param array<string, mixed>|null $customFields
-     * @param array<string, mixed> $translated
-     */
-    public function __construct(
-        string $_uniqueIdentifier,
-        ?array $customFields = [],
-        array $translated = [],
-    ) {
-        $this->_uniqueIdentifier = $_uniqueIdentifier;
-        $this->customFields = $customFields;
-        $this->translated = $translated;
     }
 }

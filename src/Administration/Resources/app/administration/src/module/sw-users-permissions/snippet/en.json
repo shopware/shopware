@@ -231,12 +231,12 @@
         },
         "permissions": {
             "parents": {
-                "catalogues": "Catalogues",
                 "content": "Content",
                 "customers": "Customers",
                 "marketing": "Marketing",
                 "other": "Other",
                 "orders": "Orders",
+                "products": "Products",
                 "settings": "Settings"
             },
             "users_and_permissions": {

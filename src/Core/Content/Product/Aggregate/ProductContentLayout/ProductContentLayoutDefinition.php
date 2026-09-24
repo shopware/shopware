@@ -22,6 +22,8 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
 
     final public const CONTENT_LAYOUT_ENTITY_TYPE = 'product';
 
+    final public const CONFIG_KEY_DEFAULT_CONTENT_LAYOUT = 'core.content_system.default_product_content_layout';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -45,6 +47,11 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
     public function getCacheTags(string $entityId): array
     {
         return [EntityCacheKeyGenerator::buildProductTag($entityId)];
+    }
+
+    public function getDefaultContentLayoutConfigKey(): string
+    {
+        return self::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT;
     }
 
     public function getPageDataRequirements(): array

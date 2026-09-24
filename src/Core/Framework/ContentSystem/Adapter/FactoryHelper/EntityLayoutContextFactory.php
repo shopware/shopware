@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -30,6 +31,7 @@ class EntityLayoutContextFactory
     public function __construct(
         private readonly EntityLayoutResolver $layoutResolver,
         private readonly RootContextMapper $rootContextMapper,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -68,7 +70,7 @@ class EntityLayoutContextFactory
             $entityId,
             $context,
             $repository
-        );
+        ) ?? $this->findDefaultLayoutId($definition, $context);
 
         if ($layoutId === null) {
             throw ContentSystemException::layoutAssignmentNotFound(
@@ -130,6 +132,19 @@ class EntityLayoutContextFactory
         $entityId = $this->extractEntityId($path, $definition);
 
         return $definition->getCacheTags($entityId);
+    }
+
+    private function findDefaultLayoutId(AbstractContentLayoutAssignableDefinition $definition, SalesChannelContext $context): ?string
+    {
+        $configKey = $definition->getDefaultContentLayoutConfigKey();
+
+        if ($configKey === null) {
+            return null;
+        }
+
+        $layoutId = $this->systemConfigService->getString($configKey, $context->getSalesChannelId());
+
+        return $layoutId !== '' ? $layoutId : null;
     }
 
     /**

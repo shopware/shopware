@@ -1,0 +1,68 @@
+{% block sw_experience_studio_assignment_modal %}
+<mt-modal-root
+    :is-open="true"
+    @change="onModalRootChange"
+>
+    <mt-modal
+        class="sw-experience-studio-assignment-modal"
+        :title="$t('sw-experience-studio.detail.assignmentModal.title')"
+    >
+        {% block sw_experience_studio_assignment_modal_content %}
+        <div
+            v-if="assignmentType"
+            class="sw-experience-studio-assignment-modal__content"
+        >
+            <p class="sw-experience-studio-assignment-modal__description">
+                {{ $t('sw-experience-studio.detail.assignmentModal.description') }}
+            </p>
+
+            {% block sw_experience_studio_assignment_modal_default %}
+            <mt-switch
+                class="sw-experience-studio-assignment-modal__default"
+                :label="$t(`sw-experience-studio.detail.assignmentModal.defaultLabel.${assignmentType.entity}`)"
+                :model-value="isDefault"
+                :disabled="!allowEdit || isLoading || undefined"
+                @update:model-value="onChangeDefault"
+            />
+            {% endblock %}
+
+            {% block sw_experience_studio_assignment_modal_entities %}
+            <sw-entity-multi-id-select
+                class="sw-experience-studio-assignment-modal__entities"
+                :repository="entityRepository"
+                :criteria="entityCriteria"
+                :label="$t(`sw-experience-studio.detail.assignmentModal.entitiesLabel.${assignmentType.entity}`)"
+                :help-text="$t('sw-experience-studio.detail.assignmentModal.entitiesHelpText')"
+                :value="entityIds"
+                :disabled="!allowEdit || isLoading || undefined"
+                @update:value="onChangeEntityIds"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_experience_studio_assignment_modal_footer %}
+        <template #footer>
+            <div class="sw-experience-studio-assignment-modal__footer">
+                <mt-button
+                    variant="secondary"
+                    @click="$emit('close')"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-button>
+
+                <mt-button
+                    class="sw-experience-studio-assignment-modal__save"
+                    variant="primary"
+                    :disabled="!allowEdit || isLoading || undefined"
+                    :is-loading="isLoading"
+                    @click="onSave"
+                >
+                    {{ $t('global.default.save') }}
+                </mt-button>
+            </div>
+        </template>
+        {% endblock %}
+    </mt-modal>
+</mt-modal-root>
+{% endblock %}

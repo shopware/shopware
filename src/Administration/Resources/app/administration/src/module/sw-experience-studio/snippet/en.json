@@ -69,7 +69,21 @@
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
+        "assignments": "Assignments",
         "save": "Save layout"
+      },
+      "assignmentModal": {
+        "title": "Layout assignments",
+        "description": "Experience Studio assignments take precedence over CMS layouts. Entities without an assignment use the default layout of their type, or their CMS layout if no default is set.",
+        "defaultLabel": {
+          "product": "Default layout for products",
+          "category": "Default layout for categories"
+        },
+        "entitiesLabel": {
+          "product": "Products",
+          "category": "Categories"
+        },
+        "entitiesHelpText": "An entity that is already assigned to another layout is moved to this layout."
       },
       "sidebarTree": {
         "title": "Structure",

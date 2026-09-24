@@ -12,6 +12,7 @@
   - `getPageDataRequirements(): array<DataRequirement>` — returns one `DataRequirement` for `EntityLoader::SOURCE`, built from the entity type, entity-id field, and `getEntityAssociations()`; consumed by `FactoryHelper/EntityLayoutContextFactory::providedRootContext()` (via `Diagnostics/RootContextMapper::map()`) to derive root-ambient context.
   - `getContentLayoutPathPrefix()` / `getContentLayoutRoutePattern()` — derived from the entity type via `Helper/ContentLayoutMetadataDeriver`; used for request routing and entity-ID extraction from the path.
   - `getContentLayoutEntityIdField(): non-empty-string` — the assignment-table field name identifying the assigned entity.
+  - `getDefaultContentLayoutConfigKey(): ?string`: the system config key holding the entity type's default layout, used by `FactoryHelper/EntityLayoutContextFactory::resolveLayoutId()` when no assignment matches; default `null` (no default). Overridden by `ProductContentLayoutDefinition` and `CategoryContentLayoutDefinition`.
   - `getEntityAssociations(): list<non-empty-string>` — (`protected`); overridable hook returning association paths eager-loaded for the page entity (default `[]`). Concrete definitions override it to declare eager-loaded associations (e.g. `ProductContentLayoutDefinition`, `CategoryContentLayoutDefinition`); consumed by `getPageDataRequirements()`.
 - `AbstractContentLayoutAssignmentEntity` - Base entity with shared properties (salesChannel, contentLayout)
 

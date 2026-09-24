@@ -78,6 +78,7 @@ class ContentSystemException extends HttpException
     public const ROOT_SOURCE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ROOT_SOURCE_RESOLUTION_UNSUPPORTED';
     public const NONE_SOURCE_NOT_RENDERABLE = 'CONTENT_SYSTEM__NONE_SOURCE_NOT_RENDERABLE';
     public const ROOT_SOURCE_ASSIGNMENT_MISMATCH = 'CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH';
+    public const DEFAULT_CONTENT_LAYOUT_DELETION = 'CONTENT_SYSTEM__DEFAULT_CONTENT_LAYOUT_DELETION';
     public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
     public const UNSUPPORTED_STYLE_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_STYLE_VALUE_TYPE';
     public const STYLE_OPTION_DUPLICATE = 'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE';
@@ -943,6 +944,19 @@ class ContentSystemException extends HttpException
             self::ROOT_SOURCE_ASSIGNMENT_MISMATCH,
             'Cannot assign a "{{ assignmentType }}" entity to a content layout whose root source is "{{ rootSource }}".',
             ['rootSource' => $rootSource, 'assignmentType' => $assignmentType]
+        );
+    }
+
+    /**
+     * @param list<string> $layoutIds
+     */
+    public static function defaultContentLayoutDeletion(array $layoutIds): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DEFAULT_CONTENT_LAYOUT_DELETION,
+            'The content layouts with ids "{{ layoutIds }}" are assigned as a default and therefore can not be deleted.',
+            ['layoutIds' => implode(', ', $layoutIds)]
         );
     }
 

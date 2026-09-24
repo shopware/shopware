@@ -51,3 +51,7 @@ Fields:
 Resolution priority: **sales channel specific** > **global** (null `salesChannelId`).
 
 Example: Product with global layout and B2B-specific layout. B2B channel uses specific assignment, all other channels use global.
+
+## Default Layout
+
+Products and categories can have a default layout, used for every entity of that type without an assignment. It is stored in system config (`core.content_system.default_product_content_layout` / `core.content_system.default_category_content_layout`, the keys `getDefaultContentLayoutConfigKey()` returns), so a sales channel value overrides the global one. Resolution order: assignment (sales channel, then global), then default (sales channel, then global). When neither exists, the route throws `CONTENT_SYSTEM__LAYOUT_ASSIGNMENT_NOT_FOUND` and the Storefront renders the CMS layout as before. `Validation/ContentLayoutDefaultValidator` guards the value and blocks deleting a default layout.

@@ -32,6 +32,7 @@
                     :preview-entity-id="previewEntityId"
                     :can-undo="canUndo"
                     :can-redo="canRedo"
+                    :can-manage-assignments="canManageAssignments"
                     @back="onClickBack"
                     @viewport-change="onViewportChange"
                     @preview-sales-channel-change="onPreviewSalesChannelChange"
@@ -39,6 +40,7 @@
                     @save="onSave"
                     @undo="onUndo"
                     @redo="onRedo"
+                    @open-assignments="isAssignmentModalOpen = true"
                 />
             {% endblock %}
 
@@ -106,6 +108,16 @@
                     @select="onSelectElementType"
                     @select-preset="onSelectPreset"
                 />
+
+            {% block sw_experience_studio_detail_assignment_modal %}
+                <sw-experience-studio-assignment-modal
+                    v-if="isAssignmentModalOpen && layout && layoutRootSource"
+                    :layout-id="layout.id"
+                    :root-source="layoutRootSource"
+                    :allow-edit="allowSave"
+                    @close="isAssignmentModalOpen = false"
+                />
+            {% endblock %}
             </template>
 
             <sw-loader v-if="isLoading" />

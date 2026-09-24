@@ -124,6 +124,18 @@
         </div>
         {% endblock %}
 
+        {% block sw_experience_studio_toolbar_assignments %}
+        <mt-button
+            v-if="canManageAssignments"
+            class="sw-experience-studio-toolbar__assignments"
+            variant="secondary"
+            :disabled="isLoading || undefined"
+            @click="$emit('open-assignments')"
+        >
+            {{ $t('sw-experience-studio.detail.toolbar.assignments') }}
+        </mt-button>
+        {% endblock %}
+
         <mt-button
             variant="primary"
             :disabled="!allowSave || isLoading || undefined"

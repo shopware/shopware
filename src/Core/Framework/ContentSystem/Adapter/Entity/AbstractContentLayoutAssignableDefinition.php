@@ -109,6 +109,15 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
     abstract public function getCacheTags(string $entityId): array;
 
     /**
+     * Returns the system config key holding the default layout used when an entity of this type has no explicit
+     * assignment, or null when this type has no default.
+     */
+    public function getDefaultContentLayoutConfigKey(): ?string
+    {
+        return null;
+    }
+
+    /**
      * Returns entity associations to eager-load with the page entity.
      *
      * @return list<non-empty-string>

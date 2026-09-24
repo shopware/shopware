@@ -69,7 +69,21 @@
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
+        "assignments": "Zuweisungen",
         "save": "Layout speichern"
+      },
+      "assignmentModal": {
+        "title": "Layout-Zuweisungen",
+        "description": "Experience-Studio-Zuweisungen haben Vorrang vor CMS-Layouts. Entitäten ohne Zuweisung verwenden das Standard-Layout ihres Typs oder, falls keins festgelegt ist, ihr CMS-Layout.",
+        "defaultLabel": {
+          "product": "Standard-Layout für Produkte",
+          "category": "Standard-Layout für Kategorien"
+        },
+        "entitiesLabel": {
+          "product": "Produkte",
+          "category": "Kategorien"
+        },
+        "entitiesHelpText": "Eine Entität, die bereits einem anderen Layout zugewiesen ist, wird diesem Layout zugewiesen."
       },
       "sidebarTree": {
         "title": "Struktur",

@@ -6,14 +6,7 @@ import { test } from '@fixtures/AcceptanceTest';
 test(
     'Merchant is able to be guided through the First Run Wizard.',
     { tag: '@FirstRunWizard' },
-    async ({
-        FRWSalesChannelSelectionPossibility,
-        SelectExtensionCategory,
-        ShopAdmin,
-        DefaultSalesChannel,
-        AdminFirstRunWizard,
-        InstanceMeta,
-    }) => {
+    async ({ FRWSalesChannelSelectionPossibility, ShopAdmin, DefaultSalesChannel, AdminFirstRunWizard, InstanceMeta }) => {
         test.skip(
             InstanceMeta.isSaaS || InstanceMeta.isPaaS,
             'Skipping test for the first run wizard, because it is disabled on SaaS and PaaS instances.',
@@ -64,7 +57,7 @@ test(
         // Extensions part
         await ShopAdmin.expects(AdminFirstRunWizard.extensionsHeader).toBeVisible();
         await AdminFirstRunWizard.germanRegionSelector.click();
-        await ShopAdmin.attemptsTo(SelectExtensionCategory(AdminFirstRunWizard.toolsSelector));
+        await AdminFirstRunWizard.toolsSelector.click();
         await ShopAdmin.expects(AdminFirstRunWizard.toolsRecommendedPlugin.first()).toContainText('Migration Assistant');
         await ShopAdmin.expects(AdminFirstRunWizard.recommendationHeader).toBeVisible();
         await AdminFirstRunWizard.nextButton.click();

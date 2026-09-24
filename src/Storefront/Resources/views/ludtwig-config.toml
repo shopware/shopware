@@ -50,6 +50,7 @@ active-rules = [
     "twig-valid-filter",
     "twig-valid-test",
     "twig-valid-function",
+    "twig-deprecated-feature-guard",
 # maybe activate in the future? these are okay because shopware extends the twig syntax
 #    "twig-use-is-same-as",
 #    "twig-use-is-not-same-as",
@@ -85,6 +86,8 @@ twig-quotation = "single"
 html-quotation = "double"
 
 [twig]
+deprecated-feature-flags = { "v6.8.0" = "v6.8.0.0" }
+
 # Valid twig filters that are allowed to be used.
 # checked by the 'twig-valid-filter' rule
 # Reference: https://twig.symfony.com/doc/3.x/filters/index.html

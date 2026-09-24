@@ -153,15 +153,15 @@ class SeoUrlPersister
 
         $inuseSeoUrls = $this->findInUseCanonicalSeoUrls($seoPathInfos, $languageId, $salesChannelId);
 
-        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
+        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $insertQuery, $foreignKeys, $updatedFks, $routeName, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $salesChannelId);
             $insertQuery->execute();
 
             $deletedIds = array_diff($foreignKeys, $updatedFks);
             $notDeletedIds = array_unique(array_intersect($foreignKeys, $updatedFks));
 
-            $this->markAsDeleted(true, $deletedIds, $salesChannelId);
-            $this->markAsDeleted(false, $notDeletedIds, $salesChannelId);
+            $this->markAsDeleted(true, $deletedIds, $routeName, $salesChannelId);
+            $this->markAsDeleted(false, $notDeletedIds, $routeName, $salesChannelId);
         });
 
         // When a seoPathInfo is added that is already associated with a foreignKey, EX: Entity A,
@@ -362,7 +362,7 @@ class SeoUrlPersister
     /**
      * @param array<string> $ids
      */
-    private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
+    private function markAsDeleted(bool $deleted, array $ids, string $routeName, ?string $salesChannelId): void
     {
         if ($ids === []) {
             return;
@@ -373,10 +373,12 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_deleted', $deleted ? '1' : '0')
             ->where('foreign_key IN (:fks)')
+            ->andWhere('route_name = :routeName')
             // skip rows that already hold the target value to reduce write amplification
             // and lock contention between concurrent url generations (see NEXT-22174)
             ->andWhere('is_deleted != ' . ($deleted ? '1' : '0'))
-            ->setParameter('fks', $ids, ArrayParameterType::BINARY);
+            ->setParameter('fks', $ids, ArrayParameterType::BINARY)
+            ->setParameter('routeName', $routeName);
 
         if ($salesChannelId) {
             $query->andWhere('sales_channel_id = :salesChannelId');

@@ -42,6 +42,8 @@ class SeoUrlPersisterTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
+    private const ANOTHER_ROUTE_NAME = 'another.route';
+
     private const LANGUAGE_IDS = [
         'en' => '1a2b3c4d5e6f708090a1b2c3d4e5f607',
         'de' => '2b3c4d5e6f708090a1b2c3d4e5f60708',
@@ -472,6 +474,54 @@ class SeoUrlPersisterTest extends TestCase
 
         static::assertNotNull($seoUrl);
         static::assertFalse($seoUrl->getIsDeleted());
+    }
+
+    public function testMarkingSeoUrlsAsDeletedLeavesOtherRoutesOfTheSameEntityAlone(): void
+    {
+        $category = $this->createCategory(true);
+        $this->createSeoUrlInDatabase($category->getId(), $this->salesChannel->getId());
+        $this->createSeoUrlOfAnotherRoute($category->getId(), isDeleted: false);
+
+        $this->seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            TestNavigationSeoUrlRoute::ROUTE_NAME,
+            [$category->getId()],
+            [],
+            $this->salesChannel
+        );
+
+        static::assertSame(
+            [self::ANOTHER_ROUTE_NAME => false, TestNavigationSeoUrlRoute::ROUTE_NAME => true],
+            $this->getDeletedFlagsByRouteName($category->getId())
+        );
+    }
+
+    public function testRestoringSeoUrlsLeavesDeletedSeoUrlsOfOtherRoutesOfTheSameEntityAlone(): void
+    {
+        $category = $this->createCategory(true);
+        $this->createSeoUrlInDatabase($category->getId(), $this->salesChannel->getId());
+        $this->createSeoUrlOfAnotherRoute($category->getId(), isDeleted: true);
+
+        $this->seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            TestNavigationSeoUrlRoute::ROUTE_NAME,
+            [$category->getId()],
+            [[
+                'foreignKey' => $category->getId(),
+                'pathInfo' => \sprintf('test/%s', $category->getId()),
+                'seoPathInfo' => 'FancyCategory',
+                'salesChannelId' => $this->salesChannel->getId(),
+                'isCanonical' => true,
+                'isModified' => false,
+                'isDeleted' => false,
+            ]],
+            $this->salesChannel
+        );
+
+        static::assertSame(
+            [self::ANOTHER_ROUTE_NAME => true, TestNavigationSeoUrlRoute::ROUTE_NAME => false],
+            $this->getDeletedFlagsByRouteName($category->getId())
+        );
     }
 
     public function testUpdateSeoUrlForDifferentSalesChannelsWithSameSeoPathInfo(): void
@@ -1026,6 +1076,39 @@ class SeoUrlPersisterTest extends TestCase
                 'isDeleted' => false,
             ],
         ], Context::createDefaultContext());
+    }
+
+    private function createSeoUrlOfAnotherRoute(string $categoryId, bool $isDeleted): void
+    {
+        $this->seoUrlRepository->create([
+            [
+                'foreignKey' => $categoryId,
+                'routeName' => self::ANOTHER_ROUTE_NAME,
+                'pathInfo' => \sprintf('another/%s', $categoryId),
+                'salesChannelId' => $this->salesChannel->getId(),
+                'seoPathInfo' => 'AnotherPath',
+                'isCanonical' => true,
+                'isDeleted' => $isDeleted,
+            ],
+        ], Context::createDefaultContext());
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    private function getDeletedFlagsByRouteName(string $categoryId): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $categoryId));
+
+        $flags = [];
+        foreach ($this->seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities() as $seoUrl) {
+            $flags[$seoUrl->getRouteName()] = $seoUrl->getIsDeleted();
+        }
+
+        ksort($flags);
+
+        return $flags;
     }
 
     private function findRandomSalesChannel(): SalesChannelEntity

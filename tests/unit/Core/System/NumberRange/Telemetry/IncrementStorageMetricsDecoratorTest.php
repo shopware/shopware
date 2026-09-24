@@ -122,6 +122,18 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
         static::assertSame([], $this->emitted);
     }
 
+    public function testIncreaseToAtLeastDelegatesAndEmitsNothing(): void
+    {
+        $decorated = $this->createMock(AbstractIncrementStorage::class);
+        $decorated->expects($this->once())
+            ->method('increaseToAtLeast')
+            ->with('config-id', 99);
+
+        $this->createDecorator($decorated, 'mysql')->increaseToAtLeast('config-id', 99);
+
+        static::assertSame([], $this->emitted);
+    }
+
     public function testGetDecoratedReturnsDecoratedInstance(): void
     {
         $decorated = static::createStub(AbstractIncrementStorage::class);

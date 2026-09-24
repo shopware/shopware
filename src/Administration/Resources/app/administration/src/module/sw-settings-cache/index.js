@@ -18,9 +18,9 @@ Module.register('sw-settings-cache', {
     description: 'sw-settings-cache.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-files',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

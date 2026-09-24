@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -57,7 +58,23 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
 
         $ids = $this->getNewsLetterIds($newsletterIds);
 
-        $this->connection->expects($this->once())->method('executeStatement')->willReturnCallback(static function ($sql, $params) use ($ids): int {
+        $consentReset = false;
+        $this->connection->expects($this->exactly(2))->method('executeStatement')->willReturnCallback(static function ($sql, $params) use ($ids, &$consentReset): int {
+            if (!$consentReset) {
+                $consentReset = true;
+
+                static::assertSame('UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn', $sql);
+
+                static::assertSame([
+                    'ids' => Uuid::fromHexToBytesList($ids),
+                    'email' => 'y.tran@shopware.com',
+                    'notSet' => NewsletterSubscribeRoute::STATUS_NOT_SET,
+                    'optIn' => NewsletterSubscribeRoute::STATUS_OPT_IN,
+                ], $params);
+
+                return 1;
+            }
+
             static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
             static::assertSame([
@@ -88,7 +105,23 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         ]);
 
         $ids = $this->getNewsLetterIds($newsletterIds);
-        $this->connection->expects($this->once())->method('executeStatement')->willReturnCallback(static function ($sql, $params) use ($ids): int {
+        $consentReset = false;
+        $this->connection->expects($this->exactly(2))->method('executeStatement')->willReturnCallback(static function ($sql, $params) use ($ids, &$consentReset): int {
+            if (!$consentReset) {
+                $consentReset = true;
+
+                static::assertSame('UPDATE newsletter_recipient SET status = (:notSet), confirmed_at = NULL WHERE id IN (:ids) AND email <> :email AND status = :optIn', $sql);
+
+                static::assertSame([
+                    'ids' => Uuid::fromHexToBytesList($ids),
+                    'email' => 'y.tran@shopware.com',
+                    'notSet' => NewsletterSubscribeRoute::STATUS_NOT_SET,
+                    'optIn' => NewsletterSubscribeRoute::STATUS_OPT_IN,
+                ], $params);
+
+                return 1;
+            }
+
             static::assertSame('UPDATE newsletter_recipient SET email = (:email), first_name = (:firstName), last_name = (:lastName) WHERE id IN (:ids)', $sql);
 
             static::assertSame([

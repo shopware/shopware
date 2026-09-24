@@ -6,23 +6,15 @@ import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 import * as mappings from './mocks/mappings.mock';
 import withRequiredProductType from 'src/../test/_helper_/withRequiredProductType';
 
-const requiredProductMappingsWithType = [
-    ...mappings.productProfileOnlyRequired,
-    { key: 'type', mappedKey: 'type' },
-];
+const requiredProductMappingsWithType = [...mappings.productProfileOnlyRequired, { key: 'type', mappedKey: 'type' }];
 
 describe('module/sw-import-export/service/importExportProfileMapping.service.spec.js', () => {
     let importExportProfileMappingService;
 
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(
-            ([
-                entityName,
-                entityDefinition,
-            ]) => {
-                Shopware.EntityDefinition.add(entityName, entityDefinition);
-            },
-        );
+        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
+            Shopware.EntityDefinition.add(entityName, entityDefinition);
+        });
 
         importExportProfileMappingService = new ImportExportProfileMappingService(Shopware.EntityDefinition);
     });
@@ -31,11 +23,10 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(typeof importExportProfileMappingService.validate).toBe('function');
     });
 
-    // Guards the assumption withRequiredProductType() relies on: the entity schema mock is a 6.7
-    // snapshot in which product.type is optional. Once the mock is regenerated from a v6.8 instance
-    // this fails, and the v6.8 variants below should assert against the real schema instead.
-    it('pins the product type flag in the entity schema mock', () => {
-        expect(Shopware.EntityDefinition.get('product').properties.type.flags.required).toBeUndefined();
+    it('uses the product type requirement for the active schema', () => {
+        expect(Shopware.EntityDefinition.get('product').properties.type.flags.required).toBe(
+            Shopware.Feature.isActive('v6.8.0.0') ? true : undefined,
+        );
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the optional product type mapping.
@@ -203,10 +194,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
         expect(violations.duplicateMappings).toHaveLength(0);
 
-        expect(violations.missingRequiredFields).toEqual([
-            'id',
-            'taxId',
-        ]);
+        expect(violations.missingRequiredFields).toEqual(['id', 'taxId']);
     });
 
     it('product: should not find any missing required when parentProduct is existing', async () => {
@@ -235,10 +223,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
         expect(violations.duplicateMappings).toHaveLength(0);
 
-        expect(violations.missingRequiredFields).toEqual([
-            'id',
-            'productNumber',
-        ]);
+        expect(violations.missingRequiredFields).toEqual(['id', 'productNumber']);
     });
 
     it('media: should not find any missing required fields', async () => {
@@ -423,17 +408,13 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     it('media: should list all required fields with depth 1', async () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('media', 1);
 
-        expect(Object.keys(systemRequiredFields)).toEqual([
-            'id',
-        ]);
+        expect(Object.keys(systemRequiredFields)).toEqual(['id']);
     });
 
     it('media: should list all required fields with depth 3', async () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('media', 3);
 
-        expect(Object.keys(systemRequiredFields)).toEqual([
-            'id',
-        ]);
+        expect(Object.keys(systemRequiredFields)).toEqual(['id']);
     });
 
     it('newsletter_recipient: should list all required fields with depth 1', async () => {
@@ -575,11 +556,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
     it('property_group_option: should list all required fields with depth 1', async () => {
         const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('property_group_option', 1);
 
-        expect(Object.keys(systemRequiredFields)).toEqual([
-            'id',
-            'group.id',
-            'translations.DEFAULT.name',
-        ]);
+        expect(Object.keys(systemRequiredFields)).toEqual(['id', 'group.id', 'translations.DEFAULT.name']);
     });
 
     it('property_group_option: should list all required fields with depth 3', async () => {
@@ -601,11 +578,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             1,
         );
 
-        expect(Object.keys(systemRequiredFields)).toEqual([
-            'id',
-            'product.id',
-            'option.id',
-        ]);
+        expect(Object.keys(systemRequiredFields)).toEqual(['id', 'product.id', 'option.id']);
     });
 
     // @deprecated tag:v6.8.0 - The test will be removed with the optional product type schema.

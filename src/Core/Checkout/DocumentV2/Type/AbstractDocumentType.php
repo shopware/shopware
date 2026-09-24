@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Type;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

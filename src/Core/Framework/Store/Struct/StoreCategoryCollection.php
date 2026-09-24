@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @template-extends StoreCollection<StoreCategoryStruct>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class StoreCategoryCollection extends StoreCollection

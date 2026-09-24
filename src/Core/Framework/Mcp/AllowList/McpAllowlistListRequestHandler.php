@@ -19,6 +19,7 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Handler\Request\RequestHandlerInterface;
 use Mcp\Server\Session\SessionInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -57,6 +58,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         private readonly ?McpToolsetRegistry $toolsetRegistry = null,
         private readonly ?McpToolsetSessionStorage $toolsetSessionStorage = null,
         private readonly ?RequestStack $requestStack = null,
+        private readonly ?McpRequestedToolsetResolver $requestedToolsetResolver = null,
     ) {
     }
 
@@ -109,7 +111,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function visibleToolNames(McpAllowlist $allowlist): array
     {
-        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetToolsForSession());
+        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetTools());
 
         if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
             array_unshift($advertisedTools, self::TOOL_SEARCH);
@@ -131,20 +133,35 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     }
 
     /**
+     * Toolsets pinned in the connect URL need no prior round trip, so they are already there on the
+     * first tools/list. Merged with the session's in one registry call to keep it at one catalogue
+     * read per tools/list.
+     *
      * @return list<string>
      */
-    private function toolsetToolsForSession(): array
+    private function toolsetTools(): array
     {
         if ($this->toolsetRegistry === null) {
             return [];
         }
 
+        return $this->toolsetRegistry->advertisedToolsForNames(array_merge(
+            $this->requestedToolsetResolver?->resolve() ?? [],
+            $this->sessionToolsets(),
+        ));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function sessionToolsets(): array
+    {
         $sessionId = $this->requestStack?->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
         if ($sessionId === '' || $this->toolsetSessionStorage === null) {
-            return $this->toolsetRegistry->advertisedTools([]);
+            return [];
         }
 
-        return $this->toolsetRegistry->advertisedTools($this->toolsetSessionStorage->enabledToolsets($sessionId));
+        return $this->toolsetSessionStorage->enabledToolsets($sessionId);
     }
 
     /**

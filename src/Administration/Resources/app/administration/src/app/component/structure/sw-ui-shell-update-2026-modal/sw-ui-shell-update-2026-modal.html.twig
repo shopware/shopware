@@ -1,0 +1,173 @@
+{# @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal #}
+<mt-modal-root
+    :is-open="isOpen"
+    @change="onModalChange"
+>
+    <mt-modal
+        class="sw-ui-shell-update-2026-modal"
+        width="m"
+        :title="$t('sw-ui-shell-update-2026-modal.title')"
+        inset
+    >
+        <div class="sw-ui-shell-update-2026-modal__content">
+            <div
+                class="sw-ui-shell-update-2026-modal__media"
+                :class="`sw-ui-shell-update-2026-modal__media--${activePage.id}`"
+            >
+                <img
+                    class="sw-ui-shell-update-2026-modal__media-image sw-ui-shell-update-2026-modal__media-image--light"
+                    :src="imageSrc('background-light.jpg')"
+                    alt=""
+                    aria-hidden="true"
+                >
+
+                <img
+                    class="sw-ui-shell-update-2026-modal__media-image sw-ui-shell-update-2026-modal__media-image--dark"
+                    :src="imageSrc('background-dark.jpg')"
+                    alt=""
+                    aria-hidden="true"
+                >
+
+                <div class="sw-ui-shell-update-2026-modal__glass">
+                    <div
+                        ref="compare"
+                        class="sw-ui-shell-update-2026-modal__compare"
+                        :class="{
+                            'sw-ui-shell-update-2026-modal__compare--settled': splitPosition !== null,
+                            'sw-ui-shell-update-2026-modal__compare--eased': isSplitEased,
+                            'sw-ui-shell-update-2026-modal__compare--pinned': isSplitPinned,
+                            'sw-ui-shell-update-2026-modal__compare--dragging': isDragging,
+                        }"
+                        :style="compareStyle"
+                    >
+                        <img
+                            class="sw-ui-shell-update-2026-modal__compare-image"
+                            :src="imageSrc('navigation-before.jpg')"
+                            alt=""
+                            aria-hidden="true"
+                        >
+
+                        <img
+                            class="sw-ui-shell-update-2026-modal__compare-image sw-ui-shell-update-2026-modal__compare-image--after sw-ui-shell-update-2026-modal__compare-image--after-light"
+                            :src="imageSrc('navigation-after.jpg')"
+                            alt=""
+                            aria-hidden="true"
+                        >
+
+                        <img
+                            class="sw-ui-shell-update-2026-modal__compare-image sw-ui-shell-update-2026-modal__compare-image--after sw-ui-shell-update-2026-modal__compare-image--after-dark"
+                            :src="imageSrc('navigation-after-dark.jpg')"
+                            alt=""
+                            aria-hidden="true"
+                        >
+
+                        <!-- Decorative pointer affordance; keyboard users page instead of dragging -->
+                        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+                        <div
+                            v-if="!isSplitPinned"
+                            class="sw-ui-shell-update-2026-modal__compare-handle"
+                            aria-hidden="true"
+                            @pointerdown="onDragStart"
+                            @pointermove="onDragMove"
+                            @pointerup="onDragEnd"
+                            @pointercancel="onDragEnd"
+                        ></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sw-ui-shell-update-2026-modal__text">
+                <mt-text
+                    as="h3"
+                    size="m"
+                    weight="semibold"
+                    class="sw-ui-shell-update-2026-modal__headline"
+                >
+                    {{ activePage.headline }}
+
+                    <mt-badge
+                        v-if="activePage.badge"
+                        variant="attention"
+                    >
+                        {{ activePage.badge }}
+                    </mt-badge>
+                </mt-text>
+
+                <mt-text
+                    as="p"
+                    size="s"
+                    color="color-text-secondary-default"
+                    class="sw-ui-shell-update-2026-modal__description"
+                >
+                    {{ $t(activePage.descriptionKey) }}
+                </mt-text>
+
+                <template v-if="activePage.hasThemeSelect">
+                    <mt-theme-select
+                        v-model="userTheme"
+                        name="sw-field--ui-shell-update-2026-theme"
+                        class="sw-ui-shell-update-2026-modal__theme-select"
+                        :label="$t('sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectLabel')"
+                    />
+
+                    <mt-text
+                        as="p"
+                        size="s"
+                        color="color-text-tertiary-default"
+                        class="sw-ui-shell-update-2026-modal__theme-hint"
+                    >
+                        <i18n-t keypath="sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectHint">
+                            <template #profileSettingsLink>
+                                <mt-link
+                                    class="sw-ui-shell-update-2026-modal__inline-link"
+                                    type="internal"
+                                    :to="{ name: 'sw.profile.index.general' }"
+                                    @click="onFinish"
+                                >
+                                    {{ $t('sw-ui-shell-update-2026-modal.pages.darkMode.profileSettingsLink') }}
+                                </mt-link>
+                            </template>
+                        </i18n-t>
+                    </mt-text>
+                </template>
+            </div>
+        </div>
+
+        <template #footer>
+            <div class="sw-ui-shell-update-2026-modal__footer">
+                <div class="sw-ui-shell-update-2026-modal__footer-left">
+                    <mt-button
+                        v-if="!isFirstPage"
+                        variant="secondary"
+                        @click="onPreviousPage"
+                    >
+                        {{ $t('global.default.back') }}
+                    </mt-button>
+                </div>
+
+                <sw-wizard-dot-navigation
+                    :pages="pages"
+                    :active-page="currentPage"
+                />
+
+                <div class="sw-ui-shell-update-2026-modal__footer-right">
+                    <mt-button
+                        v-if="!isLastPage"
+                        variant="primary"
+                        @click="onNextPage"
+                    >
+                        {{ $t('sw-ui-shell-update-2026-modal.nextButton') }}
+                    </mt-button>
+
+                    <mt-button
+                        v-else
+                        variant="primary"
+                        @click="onFinish"
+                    >
+                        {{ $t('sw-ui-shell-update-2026-modal.finishButton') }}
+                    </mt-button>
+                </div>
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>

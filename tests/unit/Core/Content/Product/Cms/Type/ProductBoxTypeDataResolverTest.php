@@ -24,6 +24,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -137,6 +138,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
         $product->setAvailableStock($availableStock);
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);

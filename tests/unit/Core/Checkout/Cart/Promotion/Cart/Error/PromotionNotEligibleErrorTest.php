@@ -28,6 +28,23 @@ class PromotionNotEligibleErrorTest extends TestCase
         static::assertSame(['name' => 'test-promotion'], $error->getParameters());
     }
 
+    public function testNotLoggedInReason(): void
+    {
+        $error = new PromotionNotEligibleError('my-promo', 'not-logged-in');
+
+        static::assertSame('promotion-not-eligible-not-logged-in', $error->getMessageKey());
+        static::assertSame('promotion-not-eligible', $error->getId());
+        static::assertSame([], $error->getRuleIds());
+    }
+
+    public function testSpecificProductsReason(): void
+    {
+        $error = new PromotionNotEligibleError('my-promo', 'specific-products');
+
+        static::assertSame('promotion-not-eligible-specific-products', $error->getMessageKey());
+        static::assertSame('promotion-not-eligible', $error->getId());
+    }
+
     public function testReasonProducesReasonSpecificMessageKey(): void
     {
         $error = new PromotionNotEligibleError('my-promo', 'some-reason');
@@ -54,5 +71,12 @@ class PromotionNotEligibleErrorTest extends TestCase
 
         static::assertSame('promotion-not-eligible', $error->getMessageKey());
         static::assertSame(['rule-id-1', 'rule-id-2'], $error->getRuleIds());
+    }
+
+    public function testNullReasonProducesBaseKey(): void
+    {
+        $error = new PromotionNotEligibleError('my-promo', null);
+
+        static::assertSame('promotion-not-eligible', $error->getMessageKey());
     }
 }

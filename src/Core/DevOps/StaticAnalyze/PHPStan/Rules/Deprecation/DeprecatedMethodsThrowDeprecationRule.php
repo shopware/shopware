@@ -27,30 +27,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     private const RULE_EXCEPTIONS = [
         // Subscribers still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-subscriber',
-        // Decorators still need to be called for BC reasons, therefore they do not trigger deprecations.
-        'reason:remove-decorator',
-        // Command methods are still called from symfony, the execute method should throw a deprecation though.
-        'reason:remove-command',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
-        // Only the route on controller will be removed
-        'reason:remove-route',
-        // Interface methods that will be removed should trigger deprecations instead.
-        'reason:remove-interface',
-        // Throwing deprecations in PHPStan rules would cause problems while executed
-        'reason:remove-phpstan-rule',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
-        // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
-        'reason:remove-getter-setter',
-        // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
-        'reason:blue-green-deployment',
-        // The class is a decorating class and will be removed. Third party code should never rely on explicit decorators
-        'reason:decoration-will-be-removed',
-        // The constraint can still be used, just not via an annotation
-        'reason:remove-constraint-annotation',
-        // Container factory for deprecated service
-        'reason:factory-for-deprecation',
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
         'reason:remove-rule',
     ];
@@ -86,7 +66,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+        if ($classDeprecation && !$this->isServiceDecorator($class) && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
             return [
                 RuleErrorBuilder::message(\sprintf(
                     'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
@@ -183,5 +163,23 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     {
         return $node->name->toString() === '__construct'
             && $this->serviceMap->getService($class->getName()) !== null;
+    }
+
+    private function isServiceDecorator(ClassReflection $class): bool
+    {
+        $service = $this->serviceMap->getService($class->getName());
+
+        if ($service === null) {
+            return false;
+        }
+
+        foreach ($service->getTags() as $tag) {
+            /** @phpstan-ignore phpstanApi.method */
+            if ($tag->getName() === 'container.decorator') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

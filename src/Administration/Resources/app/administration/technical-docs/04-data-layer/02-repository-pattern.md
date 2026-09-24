@@ -218,7 +218,7 @@ export default {
 ```html
 <sw-text-field
     v-model="manufacturer.name"
-    :label="$tc('sw-manufacturer.detail.labelName')"
+    :label="$t('sw-manufacturer.detail.labelName')"
     name="name"
     validation="required"
     required

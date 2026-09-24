@@ -1,6 +1,6 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
-import { config, mount } from '@vue/test-utils';
+import { config, DOMWrapper, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -112,10 +112,7 @@ const languageRepositoryMock = {
 };
 
 const languageSwitchStub = {
-    props: [
-        'saveChangesFunction',
-        'abortChangeFunction',
-    ],
+    props: ['saveChangesFunction', 'abortChangeFunction'],
     emits: ['on-change'],
     data() {
         return {
@@ -285,9 +282,6 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-select-result': await wrapTestComponent('sw-select-result'),
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
-                'mt-floating-ui': {
-                    template: '<div><slot /></div>',
-                },
                 'sw-discard-changes-modal': await wrapTestComponent('sw-discard-changes-modal'),
                 'sw-page': {
                     template: `
@@ -402,10 +396,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await createWrapper();
         await flushPromises();
 
-        const association = [
-            'tags',
-            'flowSequences',
-        ];
+        const association = ['tags', 'flowSequences'];
 
         const aggregations = [
             'personaPromotions',
@@ -451,11 +442,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: awarenessFunc,
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'personaPromotions',
-                    'orderPromotions',
-                    'cartPromotions',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['personaPromotions', 'orderPromotions', 'cartPromotions'],
                 getDeprecationsInTree: () => [],
                 getFlowOnlyTypesInTree: () => [],
             },
@@ -507,10 +494,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const expectedRepositories = [
             ['app_script_condition'],
             ['rule'],
-            [
-                ruleMock.conditions.entity,
-                ruleMock.conditions.source,
-            ],
+            [ruleMock.conditions.entity, ruleMock.conditions.source],
         ];
 
         expect(wrapper.vm.repositoryFactory.create).toHaveBeenCalledTimes(3);
@@ -654,10 +638,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         }
 
         expect(conditionRepositoryMock.search).toHaveBeenCalledTimes(2);
-        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([
-            criteria,
-            Context.api,
-        ]);
+        expect(conditionRepositoryMock.search.mock.calls[1]).toEqual([criteria, Context.api]);
     });
 
     it.each([
@@ -818,10 +799,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     });
 
     it('should clone duplicate rule', async () => {
-        global.activeAclRoles = [
-            'rule.editor',
-            'rule.creator',
-        ];
+        global.activeAclRoles = ['rule.editor', 'rule.creator'];
 
         const wrapper = await createWrapper();
         await wrapper.setData(conditionTreeMock);
@@ -834,7 +812,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         ruleRepositoryMock.search.mockClear();
 
-        await wrapper.find('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-settings-rule-detail__save-duplicate-action').trigger('click');
         await flushPromises();
 
         expect(ruleRepositoryMock.save).toHaveBeenCalledTimes(1);
@@ -1147,9 +1125,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: awarenessFunc,
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
                 getDeprecationsInTree: () => [],
                 getFlowOnlyTypesInTree: () => [],
             },
@@ -1177,9 +1153,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: awarenessFunc,
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
                 getDeprecationsInTree: () => [],
                 getFlowOnlyTypesInTree: () => [],
             },
@@ -1202,9 +1176,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getRestrictionsByAssociation: jest.fn(),
-                getAwarenessKeysWithEqualsAnyConfig: () => [
-                    'testRelation',
-                ],
+                getAwarenessKeysWithEqualsAnyConfig: () => ['testRelation'],
                 getDeprecationsInTree: () => [],
                 getFlowOnlyTypesInTree: () => [],
             },
@@ -1332,11 +1304,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         };
         await wrapper.setData({
             ...conditionTreeWithInvalidDateRanges,
-            conditions: [
-                { id: 'some-id' },
-                { id: 'another-id' },
-                { id: 'date-range-condition' },
-            ],
+            conditions: [{ id: 'some-id' }, { id: 'another-id' }, { id: 'date-range-condition' }],
         });
         wrapper.vm.createNotificationError = jest.fn();
 
@@ -1422,11 +1390,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     children: [],
                 },
             ],
-            conditions: [
-                { id: 'first-reversed' },
-                { id: 'second-reversed' },
-                { id: 'valid' },
-            ],
+            conditions: [{ id: 'first-reversed' }, { id: 'second-reversed' }, { id: 'valid' }],
         });
 
         await wrapper.get('.sw-settings-rule-detail__save-action').trigger('click');

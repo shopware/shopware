@@ -6,8 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
@@ -66,10 +66,10 @@ class CartRestorerTest extends TestCase
             ])
             ->willReturn($customerContext);
 
-        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $cartRuleLoader->expects($this->once())
-            ->method('loadByToken')
-            ->with($customerContext, $token);
+        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator->expects($this->once())
+            ->method('calculateByToken')
+            ->with($token, $customerContext);
 
         $eventIsThrown = false;
         $this->eventDispatcher->addListener(
@@ -83,7 +83,7 @@ class CartRestorerTest extends TestCase
             $this->salesChannelContextFactory,
             $this->persister,
             $this->cartService,
-            $cartRuleLoader,
+            $cartCalculator,
             $this->cartPersister,
             $this->eventDispatcher,
             $this->requestStack
@@ -109,7 +109,7 @@ class CartRestorerTest extends TestCase
             Generator::generateSalesChannelContext(token: $token)
         );
 
-        $cartRuleLoader = static::createStub(CartRuleLoader::class);
+        $cartCalculator = static::createStub(CartCalculator::class);
 
         $eventIsThrown = false;
         $this->eventDispatcher->addListener(
@@ -123,7 +123,7 @@ class CartRestorerTest extends TestCase
             $this->salesChannelContextFactory,
             $this->persister,
             $this->cartService,
-            $cartRuleLoader,
+            $cartCalculator,
             $this->cartPersister,
             $this->eventDispatcher,
             $this->requestStack
@@ -164,16 +164,16 @@ class CartRestorerTest extends TestCase
             ])
             ->willReturn($customerContext);
 
-        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $cartRuleLoader->expects($this->once())
-            ->method('loadByToken')
-            ->with($customerContext, $newToken);
+        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator->expects($this->once())
+            ->method('calculateByToken')
+            ->with($newToken, $customerContext);
 
         $cartRestorer = new CartRestorer(
             $this->salesChannelContextFactory,
             $this->persister,
             $this->cartService,
-            $cartRuleLoader,
+            $cartCalculator,
             $this->cartPersister,
             $this->eventDispatcher,
             $this->requestStack
@@ -201,14 +201,14 @@ class CartRestorerTest extends TestCase
         $this->persister->expects($this->once())->method('save');
 
         $this->salesChannelContextFactory->expects($this->never())->method('create');
-        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
-        $cartRuleLoader->expects($this->never())->method('loadByToken');
+        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator->expects($this->never())->method('calculateByToken');
 
         $cartRestorer = new CartRestorer(
             $this->salesChannelContextFactory,
             $this->persister,
             $this->cartService,
-            $cartRuleLoader,
+            $cartCalculator,
             $this->cartPersister,
             $this->eventDispatcher,
             $this->requestStack
@@ -237,7 +237,7 @@ class CartRestorerTest extends TestCase
             Generator::generateSalesChannelContext(token: $token)
         );
 
-        $cartRuleLoader = static::createStub(CartRuleLoader::class);
+        $cartCalculator = static::createStub(CartCalculator::class);
 
         $eventIsThrown = false;
         $this->eventDispatcher->addListener(
@@ -251,7 +251,7 @@ class CartRestorerTest extends TestCase
             $this->salesChannelContextFactory,
             $this->persister,
             $this->cartService,
-            $cartRuleLoader,
+            $cartCalculator,
             $this->cartPersister,
             $this->eventDispatcher,
             $this->requestStack

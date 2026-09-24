@@ -29,6 +29,7 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKe
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\SystemDefaultValidator;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\CategoryCriteriaSubscriber;
+use Shopware\Core\Content\ImportExport\Event\Subscriber\CustomerNumberRangeSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\FileDeletedSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCategoryPathsSubscriber;
 use Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber;
@@ -43,6 +44,8 @@ use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTask;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangePatternMatcher;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\FileService;
@@ -55,8 +58,10 @@ use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer as DalCustomFieldsSerializer;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -91,6 +96,23 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerNumberRangeSubscriber::class)
+        ->args([
+            service(CustomerNumberRangeConfigService::class),
+            service(CustomerNumberRangePatternMatcher::class),
+            service(AbstractIncrementStorage::class),
+            service('customer.repository'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerNumberRangePatternMatcher::class);
+
+    $services->set(CustomerNumberRangeConfigService::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ImportExportService::class)
         ->args([
@@ -143,6 +165,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('import_export_file.repository'),
             service('logger'),
             param('shopware.filesystem.private_local_download_strategy'),
+            service(RateLimiter::class),
             param('shopware.filesystem.private_local_path_prefix'),
             service(ClockInterface::class),
         ]);

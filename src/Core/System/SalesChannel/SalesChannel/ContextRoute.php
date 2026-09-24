@@ -21,6 +21,9 @@ class ContextRoute extends AbstractContextRoute
     #[Route(path: '/store-api/context', name: 'store-api.context', methods: ['GET'])]
     public function load(SalesChannelContext $context): ContextLoadRouteResponse
     {
-        return new ContextLoadRouteResponse($context);
+        $response = new ContextLoadRouteResponse($context);
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
+
+        return $response;
     }
 }

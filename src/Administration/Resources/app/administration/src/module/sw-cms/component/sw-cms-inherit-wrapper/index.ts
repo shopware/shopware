@@ -45,13 +45,8 @@ const BASE_FIELD_FALLBACK = {
 export default Shopware.Component.wrapComponentConfig({
     template,
     inject: ['cmsService'],
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
-    emits: [
-        EVENTS.RESTORE,
-        EVENTS.REMOVE,
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-state')],
+    emits: [EVENTS.RESTORE, EVENTS.REMOVE],
     props: {
         element: {
             type: Object as PropType<
@@ -103,12 +98,17 @@ export default Shopware.Component.wrapComponentConfig({
         supportsInheritance() {
             return !!this.contentEntity;
         },
+        isSystemDefaultLanguage() {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
+        },
         /**
          * Fields are inherited if the layout is used on a content page (product, category, landing page)
          * and the field is not overridden in the <entity>.slot_config
          */
         isInherited() {
-            return this.supportsInheritance && isUndefined(get(this.childConfig, this.field));
+            return (
+                this.supportsInheritance && !this.isSystemDefaultLanguage && isUndefined(get(this.childConfig, this.field))
+            );
         },
         fullPath() {
             return this.field.concat('.', this.fieldPath);

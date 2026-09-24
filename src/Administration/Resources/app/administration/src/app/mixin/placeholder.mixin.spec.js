@@ -12,9 +12,7 @@ async function createWrapper() {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('placeholder'),
-            ],
+            mixins: [Shopware.Mixin.getByName('placeholder')],
             data() {
                 return {
                     name: 'sw-mock-field',
@@ -46,22 +44,8 @@ describe('src/app/mixin/placeholder.mixin.ts', () => {
     });
 
     [
-        [
-            [
-                { description: 'The product description' },
-                'description',
-                'fallbackSnippet',
-            ],
-            'The product description',
-        ],
-        [
-            [
-                undefined,
-                'description',
-                'fallbackSnippet',
-            ],
-            'fallbackSnippet',
-        ],
+        [[{ description: 'The product description' }, 'description', 'fallbackSnippet'], 'The product description'],
+        [[undefined, 'description', 'fallbackSnippet'], 'fallbackSnippet'],
         [
             [
                 {
@@ -101,19 +85,11 @@ describe('src/app/mixin/placeholder.mixin.ts', () => {
             ],
             'fallbackSnippet',
         ],
-    ].forEach(
-        (
-            [
-                args,
-                expected,
-            ],
-            index,
-        ) => {
-            it(`${index}: should return the correct placeholder result: "${expected}"`, () => {
-                const result = wrapper.vm.placeholder(...args);
+    ].forEach(([args, expected], index) => {
+        it(`${index}: should return the correct placeholder result: "${expected}"`, () => {
+            const result = wrapper.vm.placeholder(...args);
 
-                expect(result).toBe(expected);
-            });
-        },
-    );
+            expect(result).toBe(expected);
+        });
+    });
 });

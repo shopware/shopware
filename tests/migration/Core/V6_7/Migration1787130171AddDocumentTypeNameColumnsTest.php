@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1787130171AddDocumentTypeNameColumns;
+use Shopware\Core\Migration\V6_7\Migration1787216476AddDocumentNumberTypeNameUniqueIndex;
 
 /**
  * @internal
@@ -45,6 +46,12 @@ class Migration1787130171AddDocumentTypeNameColumnsTest extends TestCase
 
     private function dropTypeNameColumns(): void
     {
+        $indexName = Migration1787216476AddDocumentNumberTypeNameUniqueIndex::INDEX_NAME;
+
+        if ($this->connection->fetchOne('SHOW INDEX FROM `document` WHERE `Key_name` = :name', ['name' => $indexName]) !== false) {
+            $this->connection->executeStatement(\sprintf('ALTER TABLE `document` DROP INDEX `%s`', $indexName));
+        }
+
         foreach (Migration1787130171AddDocumentTypeNameColumns::DOCUMENT_TYPE_TABLES as $table) {
             if (TableHelper::columnExists($this->connection, $table, 'type_name')) {
                 $this->connection->executeStatement(\sprintf('ALTER TABLE `%s` DROP COLUMN `type_name`', $table));

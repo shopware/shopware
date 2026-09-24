@@ -9,6 +9,8 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @phpstan-type JSONWebKey array{kty: string, kid: string, use: string, alg: string, n: string, e: string}
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class JWKStruct

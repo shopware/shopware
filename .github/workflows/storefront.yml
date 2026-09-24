@@ -102,18 +102,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Install ludtwig
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Build ludtwig HTML-fragment prototype
         run: |
-          gh release download v0.13.0 --repo MalteJanz/ludtwig  --pattern '*unknown-linux-gnu.tar.gz' && tar xf ./*.tar.gz
-          mv ./ludtwig /usr/local/bin
+          set -euo pipefail
+          rustup toolchain install stable --profile minimal
+          cargo +stable install --locked --git https://github.com/keulinho/ludtwig.git --rev 611c1c00ae50fc12a8b7de6e2d0404dedded9e91 --root "$RUNNER_TEMP/ludtwig" ludtwig
+          echo "$RUNNER_TEMP/ludtwig/bin" >> "$GITHUB_PATH"
 
       - name: Run ludtwig linter
         id: ludtwigStep
         run: |
+          set -euo pipefail
           cd ./src/Storefront/Resources/views
-          ludtwig .
+          ludtwig . | tee "$RUNNER_TEMP/ludtwig-scan.log"
+
+      - name: Verify Twig templates were scanned
+        run: |
+          grep -Eq '^Files scanned: [1-9][0-9]*,' "$RUNNER_TEMP/ludtwig-scan.log"
 
       - name: Instructions if ludtwig fails
         if: ${{ failure() && steps.ludtwigStep.outcome == 'failure'}}
@@ -122,7 +127,6 @@ jobs:
           echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
           echo "And then composer run ludtwig:storefront or ludtwig:storefront:fix"
           echo "Alternatively you also can run these in the DevEnv shell"
-          exit "$status"  # Fail the job if ludtwig . failed
 
   jest:
     name: "Jest Storefront"

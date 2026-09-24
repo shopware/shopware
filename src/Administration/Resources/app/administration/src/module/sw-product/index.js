@@ -151,9 +151,7 @@ Module.register('sw-product', {
                     };
 
                     if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                        props.creationStates = route.query.creationStates ?? [
-                            'is-physical',
-                        ];
+                        props.creationStates = route.query.creationStates ?? ['is-physical'];
                     }
 
                     return props;

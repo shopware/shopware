@@ -14,10 +14,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'grid-channel-add',
-        'grid-detail-open',
-    ],
+    emits: ['grid-channel-add', 'grid-detail-open'],
 
     props: {
         productStreamsExist: {

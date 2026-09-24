@@ -27,10 +27,7 @@ async function createWrapper(props = {}) {
                 ],
             },
             storno: {
-                formats: [
-                    'pdf',
-                    'html',
-                ],
+                formats: ['pdf', 'html'],
             },
         },
     } = props;
@@ -144,10 +141,7 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
             },
         );
 
-        expect(documentFormatCancellationInvoiceListElementsText).toEqual([
-            'pdf--snippet',
-            'html--snippet',
-        ]);
+        expect(documentFormatCancellationInvoiceListElementsText).toEqual(['pdf--snippet', 'html--snippet']);
     });
 
     it('does not preselect file formats after selecting a document type', async () => {
@@ -347,10 +341,7 @@ describe('src/module/sw-order/component/sw-order-upload-document-modal', () => {
             supportedDocumentTypes: {
                 invoice: { formats: ['pdf'] },
                 swag_warranty: {
-                    formats: [
-                        'pdf',
-                        'html',
-                    ],
+                    formats: ['pdf', 'html'],
                 },
             },
         });

@@ -192,9 +192,12 @@ class FeatureFlagsCompilerPassTest extends TestCase
         foreach ($previousClassNames as $previousClassName) {
             $currentClassName = ClassAliasRegistry::ALIASES[$previousClassName];
             $container->setDefinition($currentClassName, new Definition());
-            $container->setAlias($previousClassName, $currentClassName);
+            $container->setAlias($previousClassName, $currentClassName)
+                ->setDeprecated('shopware/core', '6.7.0.0', 'The "%alias_id%" service alias is deprecated.');
         }
-        $container->setAlias('unrelated_alias', ClassAliasRegistry::ALIASES[$previousClassNames[0]]);
+        $notDeprecatedAlias = 'Shopware\Administration\Notification\NotificationCollection';
+        $container->setDefinition(ClassAliasRegistry::ALIASES[$notDeprecatedAlias], new Definition());
+        $container->setAlias($notDeprecatedAlias, ClassAliasRegistry::ALIASES[$notDeprecatedAlias]);
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => true],
         ]);
@@ -205,7 +208,7 @@ class FeatureFlagsCompilerPassTest extends TestCase
             static::assertFalse($container->hasAlias($previousClassName));
             static::assertTrue($container->hasDefinition(ClassAliasRegistry::ALIASES[$previousClassName]));
         }
-        static::assertTrue($container->hasAlias('unrelated_alias'));
+        static::assertTrue($container->hasAlias($notDeprecatedAlias));
     }
 
     public function testItKeepsMovedClassServiceAliasWhenFlagIsInactive(): void
@@ -215,7 +218,8 @@ class FeatureFlagsCompilerPassTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->setDefinition($currentClassName, new Definition());
-        $container->setAlias($previousClassName, $currentClassName);
+        $container->setAlias($previousClassName, $currentClassName)
+            ->setDeprecated('shopware/core', '6.7.0.0', 'The "%alias_id%" service alias is deprecated.');
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => false],
         ]);
@@ -232,7 +236,8 @@ class FeatureFlagsCompilerPassTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->setDefinition($currentClassName, new Definition());
-        $container->setAlias($previousClassName, $currentClassName);
+        $container->setAlias($previousClassName, $currentClassName)
+            ->setDeprecated('shopware/core', '6.7.0.0', 'The "%alias_id%" service alias is deprecated.');
         $container->setParameter('shopware.feature.flags', []);
 
         Feature::fake([], fn () => $this->compilerPass->process($container));
@@ -244,7 +249,8 @@ class FeatureFlagsCompilerPassTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setDefinition(ProductStreamBuilder::class, new Definition());
-        $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class);
+        $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class)
+            ->setDeprecated('shopware/core', '6.8.0', 'The "%alias_id%" service alias is deprecated.');
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => true],
         ]);
@@ -259,7 +265,8 @@ class FeatureFlagsCompilerPassTest extends TestCase
     {
         $container = new ContainerBuilder();
         $container->setDefinition(ProductStreamBuilder::class, new Definition());
-        $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class);
+        $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class)
+            ->setDeprecated('shopware/core', '6.8.0', 'The "%alias_id%" service alias is deprecated.');
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => false],
         ]);

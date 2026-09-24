@@ -43,27 +43,31 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
             }
         }
 
-        foreach (ClassAliasRegistry::ALIASES as $previousClassName => $currentClassName) {
-            if (!$container->hasAlias($previousClassName)) {
+        foreach ($container->getAliases() as $aliasId => $alias) {
+            if (!$alias->isDeprecated()) {
                 continue;
             }
 
-            foreach ((new \ReflectionClass($currentClassName))->getAttributes(ClassMoved::class) as $attribute) {
-                $classMoved = $attribute->newInstance();
-                if ($classMoved->previousClassName !== $previousClassName) {
-                    continue;
-                }
+            $flag = null;
+            if (isset(ClassAliasRegistry::ALIASES[$aliasId])) {
+                foreach ((new \ReflectionClass(ClassAliasRegistry::ALIASES[$aliasId]))->getAttributes(ClassMoved::class) as $attribute) {
+                    $classMoved = $attribute->newInstance();
+                    if ($classMoved->previousClassName === $aliasId) {
+                        $flag = $classMoved->version . '.0';
 
-                $flag = $classMoved->version . '.0';
-                if (Feature::has($flag) && Feature::isActive($flag)) {
-                    $container->removeAlias($previousClassName);
+                        break;
+                    }
+                }
+            } elseif (\class_exists($aliasId) || \interface_exists($aliasId)) {
+                $docComment = (new \ReflectionClass($aliasId))->getDocComment();
+                if (\is_string($docComment) && \preg_match('/@deprecated\s+tag:(v\d+\.\d+\.\d+(?:\.\d+)?)/', $docComment, $matches)) {
+                    $flag = substr_count($matches[1], '.') === 2 ? $matches[1] . '.0' : $matches[1];
                 }
             }
-        }
 
-        // This deprecated interface is not a moved class and therefore has no ClassAliasRegistry entry.
-        if (Feature::has('v6.8.0.0') && Feature::isActive('v6.8.0.0')) {
-            $container->removeAlias('Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface');
+            if ($flag !== null && Feature::has($flag) && Feature::isActive($flag)) {
+                $container->removeAlias($aliasId);
+            }
         }
     }
 }

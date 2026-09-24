@@ -42,7 +42,25 @@
                         "type": "boolean"
                     },
                     "payload": {
-                        "$ref": "#/components/schemas/ProductJsonApi"
+                        "allOf": [
+                            { "$ref": "#/components/schemas/ProductJsonApi" },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "manufacturerName": {
+                                        "description": "The translated name of the product manufacturer, or null when the product has none. Resolved during cart enrichment for every product line item, overwriting a value sent by the client, and absent on line items that are not products.",
+                                        "type": ["string", "null"],
+                                        "readOnly": true
+                                    },
+                                    "categoryNames": {
+                                        "description": "The translated category path of the product, ordered from the top level down, starting below the sales channel navigation root. Empty when the product has no category available in the sales channel. Resolved during cart enrichment for every product line item, overwriting a value sent by the client, and absent on line items that are not products.",
+                                        "type": "array",
+                                        "items": { "type": "string" },
+                                        "readOnly": true
+                                    }
+                                }
+                            }
+                        ]
                     },
                     "price": {
                         "type": "object",

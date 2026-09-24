@@ -25,3 +25,21 @@ class CasesOutOfScope extends TestCase
         static::assertSame('stub', $dependency->value());
     }
 }
+
+/**
+ * @internal
+ *
+ * Same namespace gate for the PHPUnit 13 chain checks: a `->with()` without `->expects()` and a
+ * `->atLeast(0)` outside the enabled namespaces must NOT be flagged either.
+ */
+class ChainCasesOutOfScope extends TestCase
+{
+    public function testChainsAreNotFlaggedOutsideEnabledNamespaces(): void
+    {
+        $dependency = $this->getMockBuilder(OutOfScopeDependency::class)->getMock();
+        $dependency->method('value')->with()->willReturn('a');
+        $dependency->expects($this->atLeast(0))->method('value');
+
+        static::assertSame('a', $dependency->value());
+    }
+}

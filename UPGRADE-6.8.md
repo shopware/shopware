@@ -1258,7 +1258,8 @@ If you referenced this constant, build your own field list or switch to `Criteri
 
 ## Rate limiter: `salesChannelId` parameter is now part of the declared signatures
 
-`Shopware\Core\Framework\RateLimiter\RateLimiter::ensureAccepted()` and `Shopware\Core\Framework\RateLimiter\RateLimiterFactory::create()` accepted an optional sales channel id since 6.7, positionally only. With 6.8.0.0 the parameter is part of the declared method signatures. If you extend one of these classes and override the method, add the parameter to your override to keep a compatible signature:
+`Shopware\Core\Framework\RateLimiter\RateLimiter::ensureAccepted()` and `Shopware\Core\Framework\RateLimiter\RateLimiterFactory::create()` now accept an optional sales channel ID.
+If you extend one of these classes and override the method, add the parameter to your override to keep a compatible signature:
 
 ```php
 // Before

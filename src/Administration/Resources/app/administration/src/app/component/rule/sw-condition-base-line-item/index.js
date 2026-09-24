@@ -3,9 +3,7 @@ import './sw-condition-base-line-item.scss';
 
 const { EntityCollection } = Shopware.Data;
 
-const NON_GENERIC_MATCH_ANY_CONDITIONS = [
-    'cartLineItem',
-];
+const NON_GENERIC_MATCH_ANY_CONDITIONS = ['cartLineItem'];
 
 /**
  * @public

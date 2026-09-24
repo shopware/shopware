@@ -70,7 +70,11 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
     const scriptSetupBlock = toScriptBlock(parsed.descriptor.scriptSetup, 'scriptSetup');
     const shopwareSetupBlock = normalizeShopwareSetupBlock(scriptSetupBlock, filename);
 
-    if (parsed.descriptor.script) {
+    const isCodemodModuleScript = parsed.descriptor.script
+        ? Object.prototype.hasOwnProperty.call(parsed.descriptor.script.attrs, 'data-sfc-migration-module')
+        : false;
+
+    if (parsed.descriptor.script && !isCodemodModuleScript) {
         throw new ShopwareSetupTransformError(
             'A Shopware setup block cannot be combined with another <script> block.',
             parsed.descriptor.script.loc.start.offset,

@@ -17,8 +17,8 @@ into version 2.
 
 | Phase   | Version  | Action                                                                                                                                                                               |
 | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Phase 1 | 6.7      | Opt-in: v2 is available behind the feature flag (default off). Version 1 is fully deprecated for removal in 6.9. Compatibility gaps are closed and the backfill process is prepared. |
-| Phase 2 | 6.8      | Opt-out: v2 becomes the default (flag flips to `default: true`). The `@experimental` annotations are removed, the marked surface becomes the stable public API.                      |
+| Phase 1 | 6.7      | Opt-in: v2 is available behind the feature flag (default off). Version 1 is marked with `#[ExperimentalReplacement]` for removal in 6.9. Compatibility gaps are closed and the backfill process is prepared. |
+| Phase 2 | 6.8      | Opt-out: v2 becomes the default (flag flips to `default: true`). The `@experimental` annotations are removed, the marked surface becomes the stable public API. The `#[ExperimentalReplacement]` attributes become `@deprecated tag:v6.9.0` annotations and legacy implementation will throw if 6.9 flag is active. |
 | Phase 3 | 6.9      | Version 1 and the feature flag are completely removed. Backfills are executed.                                                                                                       |
 | Phase 4 | post-6.9 | Destructive schema drops are executed to finalize the database cleanup.                                                                                                              |
 
@@ -53,8 +53,7 @@ document stays usable in v1 surfaces after the flag is switched off whenever at 
 
 The read path for v1 auto-generates missing media for non-static documents. For documents that already carry `document_file`
 rows, it skips this and fails gracefully instead. Otherwise, switching back would produce a divergent v1 rendering from the
-nearly empty v2 `document.config`. This guard is the single deliberate exception to v1 taking no dependency on v2 and will
-be removed alongside v1.
+nearly empty v2 `document.config`. This guard prevents v1 from regenerating v2 documents and will be removed alongside v1.
 
 #### Legacy Zugferd types
 
@@ -74,9 +73,8 @@ The v2 admin API routes are available regardless of the flag state. The flag onl
 Entry points for v2 are annotated `@experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK` and may change
 until v2 becomes the default in 6.8.
 
-For customer-facing downloads, the storefront and Store API routes gain a flag-gated branch. This branch resolves files
-through the new document file structure first before falling back to legacy media fields. The URLs do not change and the
-routes survive the removal of v1 in 6.9.
+For customer-facing downloads, the storefront and Store API routes keep their URLs and resolve persisted files through the
+shared compatibility read path. The routes survive the removal of v1 in 6.9.
 
 ### Public Extension Surface
 
@@ -90,8 +88,13 @@ The `DocumentV2` namespace is permanent, and reused v1 classes (`DocumentEntity`
 
 ### Deprecations and Entity Removal
 
-Everything slated for removal in 6.9 is deprecated now, during 6.7, with `@deprecated tag:v6.9.0`. This covers the v1
-domain, legacy parts of document and mail actions, admin components, and legacy Twig branches.
+Everything slated for removal in 6.9 is announced now, during 6.7. Legacy parts of document and mail actions, admin
+components, and legacy Twig branches are deprecated with `@deprecated tag:v6.9.0`.
+
+**Amendment 2026-09-11:** the v1 PHP domain under `Shopware\Core\Checkout\Document` is *not* hard-deprecated
+during 6.7. A `@deprecated` annotation asks extension authors to migrate now, but v2 is still `@experimental` and offers
+no BC promise, so the deprecation would only produce non-actionable static-analysis noise and baseline pollution. The v1
+classes carry `#[ExperimentalReplacement(version: 'v6.9.0', feature: 'DOCUMENT_GENERATION_REWORK', ...)]` instead.
 
 Document types and formats are now code-registered strings rather than database entities. The legacy foreign keys currently
 live across three tables: `document`, `document_base_config`, and `document_base_config_sales_channel`.

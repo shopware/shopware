@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
+use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
@@ -30,12 +31,26 @@ class GaranLabelTwigFilterTest extends TestCase
 
         $filters = $filter->getFilters();
 
-        static::assertCount(5, $filters);
+        static::assertCount(8, $filters);
         static::assertSame('sw_garan_label_duration', $filters[0]->getName());
         static::assertSame('sw_garan_label', $filters[1]->getName());
         static::assertSame('sw_garan_label_nested', $filters[2]->getName());
         static::assertSame('sw_garan_label_data_uri', $filters[3]->getName());
         static::assertSame('sw_garan_label_nested_uri', $filters[4]->getName());
+        static::assertSame('sw_garan_label_text_length', $filters[5]->getName());
+        static::assertSame('sw_garan_label_duration_text_length', $filters[6]->getName());
+        static::assertSame('sw_garan_label_mail', $filters[7]->getName());
+    }
+
+    public function testTextLengthFiltersDelegateToFitter(): void
+    {
+        $filter = $this->createFilter([]);
+
+        static::assertNull($filter->fitTextLength('Acme', 190.43, 9));
+        static::assertSame(188.93, $filter->fitTextLength('Shopware Lebensmittel und Nahrungsmittel GmbH', 190.43, 9));
+
+        static::assertNull($filter->fitDurationTextLength('25', 116.4, 80, -0.03));
+        static::assertSame(114.9, $filter->fitDurationTextLength('25,5', 116.4, 80, -0.03));
     }
 
     public function testFormatDurationDelegatesToFormatter(): void
@@ -175,6 +190,71 @@ class GaranLabelTwigFilterTest extends TestCase
         static::assertStringContainsString('nested', $svg);
     }
 
+    public function testResolveMailLabelReturnsNullForNullProductId(): void
+    {
+        $filter = $this->createFilter([]);
+
+        static::assertNull($filter->resolveMailLabel(null, Context::createDefaultContext()));
+    }
+
+    public function testResolveMailLabelReturnsNullWhenProductNotConfirmed(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: false);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        static::assertNull($filter->resolveMailLabel($product->getId(), Context::createDefaultContext()));
+    }
+
+    public function testResolveMailLabelLoadsTheProductOnce(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true);
+
+        $filter = $this->createFilter([
+            new ProductCollection([$product]),
+            static fn () => static::fail('cid and duration have to come from a single product search'),
+        ]);
+
+        static::assertNotNull($filter->resolveMailLabel($product->getId(), Context::createDefaultContext()));
+    }
+
+    public function testResolveMailLabelReferencesThePreRenderedImage(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        static::assertSame(
+            ['cid' => 'cid:garan-label-nested-36.png', 'duration' => '3'],
+            $filter->resolveMailLabel($product->getId(), Context::createDefaultContext())
+        );
+    }
+
+    public function testResolveMailLabelFormatsHalfYears(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true, guaranteeMonths: 30);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        static::assertSame(
+            ['cid' => 'cid:garan-label-nested-30.png', 'duration' => '2,5'],
+            $filter->resolveMailLabel($product->getId(), Context::createDefaultContext())
+        );
+    }
+
+    public function testResolveMailLabelKeepsTheDurationWithoutPreRenderedImage(): void
+    {
+        $product = $this->createProduct(guaranteeConfirmed: true, guaranteeMonths: 606);
+
+        $filter = $this->createFilter([new ProductCollection([$product])]);
+
+        static::assertSame(
+            ['cid' => null, 'duration' => '50,5'],
+            $filter->resolveMailLabel($product->getId(), Context::createDefaultContext()),
+            'Legacy durations above the maximum have no image, the template falls back to the duration text'
+        );
+    }
+
     /**
      * @param list<mixed> $searchResults
      */
@@ -192,20 +272,21 @@ class GaranLabelTwigFilterTest extends TestCase
         /** @var StaticEntityRepository<ProductCollection> $productRepository */
         $productRepository = new StaticEntityRepository($searchResults, new ProductDefinition());
 
-        return new GaranLabelTwigFilter(new GaranLabelDurationFormatter(), $productRepository, $resolver);
+        return new GaranLabelTwigFilter(new GaranLabelDurationFormatter(), $productRepository, $resolver, new GaranLabelInlineImage());
     }
 
-    private function createProduct(bool $guaranteeConfirmed): ProductEntity
+    private function createProduct(bool $guaranteeConfirmed, int $guaranteeMonths = 36): ProductEntity
     {
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId('manufacturer-id');
         $manufacturer->setName('ACME');
+        $manufacturer->setTranslated(['name' => 'ACME']);
 
         $product = new ProductEntity();
         $product->setId('product-id');
         $product->setManufacturer($manufacturer);
         $product->setManufacturerNumber('ACME-123');
-        $product->setGuaranteeMonths(36);
+        $product->setGuaranteeMonths($guaranteeMonths);
         $product->setGuaranteeConfirmed($guaranteeConfirmed);
 
         return $product;

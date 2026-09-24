@@ -145,6 +145,20 @@
             :placeholder="$t('sw-datepicker.date.placeholder')"
         />
         {% endblock %}
+
+        {% block sw_customer_base_form_language_field %}
+        <sw-entity-single-select
+            v-model:value="customer.languageId"
+            name="sw-field--customer-languageId"
+            class="sw-customer-base-form__language-select"
+            entity="language"
+            required
+            show-clearable-button
+            :label="$t('sw-customer.baseForm.labelLanguage')"
+            :placeholder="$t('sw-customer.baseForm.placeholderLanguage')"
+            :criteria="languageCriteria"
+        />
+        {% endblock %}
     </sw-container>
 
     {% block sw_customer_base_form_tag_field %}

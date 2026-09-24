@@ -43,44 +43,6 @@ test.describe('Shopware Services', () => {
         }
     });
 
-    test(
-        'As a merchant, I want to see an advertisement banner for Shopware Services on the dashboard.',
-        { tag: '@Settings' },
-        async ({ ShopAdmin, AdminDashboard, AdminShopwareServices, InstanceMeta }) => {
-            test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
-
-            await ShopAdmin.goesTo(AdminDashboard.url());
-            await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toBeVisible();
-            await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toContainText(
-                'Introducing Shopware Services',
-            );
-            await ShopAdmin.expects(AdminDashboard.shopwareServicesExploreNowButton).toBeVisible();
-            await AdminDashboard.shopwareServicesExploreNowButton.click();
-            await ShopAdmin.expects(AdminShopwareServices.header).toBeVisible();
-        },
-    );
-
-    test(
-        'As a merchant, I want to hide the advertisement banner for Shopware Services on the dashboard.',
-        { tag: '@Settings' },
-        async ({ ShopAdmin, AdminDashboard, AdminSettingsListing, CheckVisibilityOfServicesBanner, InstanceMeta }) => {
-            test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
-
-            await ShopAdmin.goesTo(AdminDashboard.url());
-            await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).toBeVisible();
-            await AdminDashboard.shopwareServicesAdvertisementBannerCloseButton.click();
-            await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).not.toBeVisible();
-            await ShopAdmin.goesTo(AdminSettingsListing.url());
-            await ShopAdmin.expects(AdminSettingsListing.shopwareServicesLink).toBeVisible();
-            await ShopAdmin.goesTo(AdminDashboard.url());
-            await ShopAdmin.expects(AdminDashboard.shopwareServicesAdvertisementBanner).not.toBeVisible();
-
-            await test.step('Verify the visibility of the services banner for another admin user', async () => {
-                await ShopAdmin.attemptsTo(CheckVisibilityOfServicesBanner());
-            });
-        },
-    );
-
     // eslint-disable-next-line playwright/no-skipped-test
     test.skip(
         'As a merchant, I want to fully deactivate the Shopware Services feature.',
@@ -141,6 +103,10 @@ test.describe('Shopware Services', () => {
         { tag: '@Settings' },
         async ({ ShopAdmin, TestDataService, CheckAccessToShopwareServices, InstanceMeta }) => {
             test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
+            // The `CheckAccessToShopwareServices` task enters the services page through the dashboard
+            // advertisement banner, which was removed from the dashboard. Re-enable once the task in
+            // @shopware-ag/acceptance-test-suite navigates to `sw.settings.services.index` directly.
+            test.skip(true, 'Task depends on the removed services dashboard banner.');
 
             await test.step('Verify insufficient permissions prevent access to services.', async () => {
                 let aclRole;

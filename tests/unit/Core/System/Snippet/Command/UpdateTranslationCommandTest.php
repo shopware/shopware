@@ -69,8 +69,8 @@ class UpdateTranslationCommandTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('1/2 -- Fetching translations for locale: pl-PL', $output);
-        static::assertStringContainsString('2/2 -- Fetching translations for locale: es-ES', $output);
+        static::assertStringContainsString('1/2 -- Updating translations for locale: pl-PL', $output);
+        static::assertStringContainsString('2/2 -- Updating translations for locale: es-ES', $output);
         static::assertStringContainsString('Saving translation metadata...', $output);
         static::assertStringContainsString('Translation metadata saved successfully.', $output);
     }
@@ -150,7 +150,7 @@ class UpdateTranslationCommandTest extends TestCase
 
         $output = $tester->getDisplay();
         static::assertStringContainsString('The following locales are already up to date and will be skipped: es-ES, fr-FR', $output);
-        static::assertStringContainsString('1/1 -- Fetching translations for locale: pl-PL', $output);
+        static::assertStringContainsString('1/1 -- Updating translations for locale: pl-PL', $output);
         static::assertStringContainsString('Saving translation metadata...', $output);
         static::assertStringContainsString('Translation metadata saved successfully.', $output);
     }

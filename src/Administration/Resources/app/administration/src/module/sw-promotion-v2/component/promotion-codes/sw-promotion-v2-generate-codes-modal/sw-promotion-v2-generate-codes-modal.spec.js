@@ -182,9 +182,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         const replaceIndividualCodes = jest.fn().mockRejectedValue({
             response: {
                 data: {
-                    errors: [
-                        { code: 'CHECKOUT__INVALID_CODE_PATTERN' },
-                    ],
+                    errors: [{ code: 'CHECKOUT__INVALID_CODE_PATTERN' }],
                 },
             },
         });

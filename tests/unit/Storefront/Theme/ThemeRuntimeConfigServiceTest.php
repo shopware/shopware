@@ -24,7 +24,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeRuntimeConfigService::class)]
 class ThemeRuntimeConfigServiceTest extends TestCase
 {

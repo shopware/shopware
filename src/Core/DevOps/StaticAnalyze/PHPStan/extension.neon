@@ -4,6 +4,10 @@ services:
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\FuturePropertyTypeExtension
+        tags:
+            - phpstan.broker.expressionTypeResolverExtension
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\EntityExistenceHasEntityNameSpecifyingExtension
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension

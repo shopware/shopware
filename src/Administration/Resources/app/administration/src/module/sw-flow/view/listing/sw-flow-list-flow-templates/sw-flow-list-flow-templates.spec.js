@@ -20,7 +20,7 @@ const flowTemplateRepositorySearchMock = jest.fn((criteria) => {
     return Promise.resolve(new EntityCollection('', '', Context.api, criteria, mockData, 1));
 });
 
-async function createWrapper(privileges = [], props = {}) {
+async function createWrapper(privileges = [], props = {}, routeQuery = {}) {
     return mount(await wrapTestComponent('sw-flow-list-flow-templates', { sync: true }), {
         global: {
             stubs: {
@@ -108,6 +108,7 @@ async function createWrapper(privileges = [], props = {}) {
                     query: {
                         page: 1,
                         limit: 25,
+                        ...routeQuery,
                     },
                     meta: {
                         $module: {
@@ -123,9 +124,7 @@ async function createWrapper(privileges = [], props = {}) {
 
 describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     it('should be able to create a flow from template', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
+        const wrapper = await createWrapper(['flow.creator']);
         await flushPromises();
 
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
@@ -135,9 +134,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     });
 
     it('should not be able to create a flow from template', async () => {
-        const wrapper = await createWrapper([
-            'flow.viewer',
-        ]);
+        const wrapper = await createWrapper(['flow.viewer']);
         await flushPromises();
 
         const createFlowLink = wrapper.find('.sw-flow-list-my-flows__content__create-flow-link');
@@ -147,9 +144,7 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
     });
 
     it('should be able to view detail flow template', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
+        const wrapper = await createWrapper(['flow.creator']);
         await flushPromises();
 
         const routerPushSpy = jest.spyOn(wrapper.vm.$router, 'push');
@@ -194,6 +189,13 @@ describe('module/sw-flow/view/listing/sw-flow-list-flow-templates', () => {
                 term: 'test-term',
             }),
         );
+    });
+
+    it('should set the term of the route query to criteria', async () => {
+        await createWrapper([], {}, { term: 'Order' });
+        await flushPromises();
+
+        expect(flowTemplateRepositorySearchMock).toHaveBeenLastCalledWith(expect.objectContaining({ term: 'Order' }));
     });
 
     it('should correctly align table columns', async () => {

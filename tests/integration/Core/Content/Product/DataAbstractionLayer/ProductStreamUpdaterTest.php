@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexingMessage;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
@@ -19,17 +21,23 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
@@ -38,6 +46,7 @@ use Shopware\Core\Test\TestDefaults;
 class ProductStreamUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     /**
      * @var EntityRepository<ProductCollection>
@@ -54,6 +63,11 @@ class ProductStreamUpdaterTest extends TestCase
      */
     private EntityRepository $salesChannelLanguageRepository;
 
+    /**
+     * @var EntityRepository<ProductStreamFilterCollection>
+     */
+    private EntityRepository $productStreamFilterRepository;
+
     private SalesChannelContext $salesChannel;
 
     private ProductStreamUpdater $productStreamUpdater;
@@ -63,6 +77,7 @@ class ProductStreamUpdaterTest extends TestCase
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->productStreamRepository = static::getContainer()->get('product_stream.repository');
         $this->salesChannelLanguageRepository = static::getContainer()->get('sales_channel_language.repository');
+        $this->productStreamFilterRepository = static::getContainer()->get('product_stream_filter.repository');
         $this->salesChannel = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->productStreamUpdater = static::getContainer()->get(ProductStreamUpdater::class);
     }
@@ -160,6 +175,171 @@ class ProductStreamUpdaterTest extends TestCase
                 ],
             ]],
         ];
+    }
+
+    public function testDeletingAFilterUpdatesTheMapping(): void
+    {
+        $streamId = Uuid::randomHex();
+        $stockFilterId = Uuid::randomHex();
+
+        $this->createStream($streamId, [
+            [
+                'type' => 'equals',
+                'field' => 'active',
+                'value' => '1',
+            ],
+            [
+                'id' => $stockFilterId,
+                'type' => 'equals',
+                'field' => 'stock',
+                'value' => '999',
+            ],
+        ]);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        $this->productStreamUpdater->handle(new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext()));
+        $this->assertProductIsNotInStream($productId, $streamId);
+
+        $this->clearQueue();
+
+        // the product only matches once the stock condition is gone
+        $deleteEvent = $this->productStreamFilterRepository->delete([['id' => $stockFilterId]], Context::createDefaultContext());
+
+        $this->recompileStreamFilters($deleteEvent);
+        $this->handleDispatchedMappingMessages($streamId);
+
+        $this->assertProductIsInStream($productId, $streamId);
+    }
+
+    public function testUpdatingAnExistingFilterUpdatesTheMapping(): void
+    {
+        $streamId = Uuid::randomHex();
+        $stockFilterId = Uuid::randomHex();
+
+        $this->createStream($streamId, [
+            [
+                'id' => $stockFilterId,
+                'type' => 'equals',
+                'field' => 'stock',
+                'value' => '999',
+            ],
+        ]);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        $this->productStreamUpdater->handle(new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext()));
+        $this->assertProductIsNotInStream($productId, $streamId);
+
+        $this->clearQueue();
+
+        // only the value changes, so the write payload carries no product stream id
+        $updateEvent = $this->productStreamFilterRepository->update(
+            [['id' => $stockFilterId, 'value' => '1']],
+            Context::createDefaultContext()
+        );
+
+        $this->recompileStreamFilters($updateEvent);
+        $this->handleDispatchedMappingMessages($streamId);
+
+        $this->assertProductIsInStream($productId, $streamId);
+    }
+
+    /**
+     * A reassignment names only the new stream in its payload. The stream losing the filter must be
+     * re-indexed too, which is only possible from the previous row state.
+     */
+    public function testReassigningAFilterUpdatesTheMappingOfBothStreams(): void
+    {
+        // a stock value that no other fixture uses keeps both streams scoped to these two products
+        $stock = 4242;
+        $matchingProductId = Uuid::randomHex();
+        $otherProductId = Uuid::randomHex();
+        $this->createProduct($matchingProductId, $stock);
+        $this->createProduct($otherProductId, $stock);
+
+        $oldStreamId = Uuid::randomHex();
+        $newStreamId = Uuid::randomHex();
+        $filterId = Uuid::randomHex();
+
+        // the product number condition narrows the old stream down to one of the two products
+        $this->createStream($oldStreamId, [
+            [
+                'type' => 'equals',
+                'field' => 'stock',
+                'value' => (string) $stock,
+            ],
+            [
+                'id' => $filterId,
+                'type' => 'equals',
+                'field' => 'productNumber',
+                'value' => $matchingProductId,
+            ],
+        ]);
+        $this->createStream($newStreamId, [
+            [
+                'type' => 'equals',
+                'field' => 'stock',
+                'value' => (string) $stock,
+            ],
+        ]);
+
+        $context = Context::createDefaultContext();
+        $this->productStreamUpdater->handle(new ProductStreamMappingIndexingMessage($oldStreamId, null, $context));
+        $this->productStreamUpdater->handle(new ProductStreamMappingIndexingMessage($newStreamId, null, $context));
+        $this->assertProductIsNotInStream($otherProductId, $oldStreamId);
+        $this->assertProductIsInStream($otherProductId, $newStreamId);
+
+        $this->clearQueue();
+
+        $reassignEvent = $this->productStreamFilterRepository->update(
+            [['id' => $filterId, 'productStreamId' => $newStreamId]],
+            $context
+        );
+
+        $this->recompileStreamFilters($reassignEvent);
+        $this->handleDispatchedMappingMessages($oldStreamId, $newStreamId);
+
+        // the old stream lost its narrowing condition and now matches both products
+        $this->assertProductIsInStream($otherProductId, $oldStreamId);
+        // the new stream gained it and no longer matches the second product
+        $this->assertProductIsNotInStream($otherProductId, $newStreamId);
+    }
+
+    /**
+     * A group that lost its last condition must stop matching. The indexer returns no filter rows for
+     * it, so it has to be compiled to an empty api_filter rather than keeping its previous one.
+     */
+    public function testRemovingTheLastFilterClearsTheMapping(): void
+    {
+        $streamId = Uuid::randomHex();
+        $filterId = Uuid::randomHex();
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        $this->createStream($streamId, [
+            [
+                'id' => $filterId,
+                'type' => 'equals',
+                'field' => 'productNumber',
+                'value' => $productId,
+            ],
+        ]);
+
+        $this->productStreamUpdater->handle(new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext()));
+        $this->assertProductIsInStream($productId, $streamId);
+
+        $this->clearQueue();
+
+        $deleteEvent = $this->productStreamFilterRepository->delete([['id' => $filterId]], Context::createDefaultContext());
+
+        $this->recompileStreamFilters($deleteEvent);
+        $this->handleDispatchedMappingMessages($streamId);
+
+        $this->assertProductIsNotInStream($productId, $streamId);
     }
 
     public function testIndexingDoesNotBreakOnInvalidProductStreamFilters(): void
@@ -350,100 +530,146 @@ class ProductStreamUpdaterTest extends TestCase
         $this->assertProductIsInStream($productId, $streamId);
     }
 
-    /**
-     * Regression test for https://github.com/shopware/shopware/issues/10770.
-     *
-     * A product stream whose conditions traverse many associations used to produce
-     * the error 1116 ("Too many tables; MariaDB can only use 61 tables in a join")
-     * while indexing, because every condition added its joins to one query. The DAL
-     * now resolves the filter-only associations of such a criteria as `EXISTS` sub
-     * queries, which do not count towards the limit.
-     */
-    public function testIndexingHandlesStreamsWithMoreThanSixtyOneConditions(): void
+    public function testHandleSkipsProductsDeletedAfterTheStreamSearch(): void
     {
         $streamId = Uuid::randomHex();
-
-        $conditions = $this->buildManyDistinctAssociationConditions();
-        static::assertGreaterThan(61, \count($conditions));
-
-        $writtenEvent = $this->productStreamRepository->create([
-            [
-                'id' => $streamId,
-                'name' => 'large-stream',
-                // Shape the Administration always produces: a root OR container
-                // holding AND groups, see the `getOrContainerData()` /
-                // `getAndContainerData()` helpers of `product-stream-condition.service.js`.
-                'filters' => [
-                    [
-                        'type' => 'multi',
-                        'operator' => 'OR',
-                        'queries' => [
-                            [
-                                'type' => 'multi',
-                                'operator' => 'AND',
-                                'queries' => $conditions,
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
-        $update = $productStreamIndexer->update($writtenEvent);
-        static::assertInstanceOf(ProductStreamIndexingMessage::class, $update);
-        $productStreamIndexer->handle($update);
-
-        $productId = Uuid::randomHex();
-        $this->createProduct($productId);
-
-        // Without the fix both calls build a single criteria that joins far more
-        // than 61 tables and throw Doctrine\DBAL\Exception with
-        // SQLSTATE[HY000]: General error: 1116 (Too many tables ...).
-        $message = new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext());
-        $this->productStreamUpdater->handle($message);
-
-        $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
-
-        // The conditions reference relations that do not exist, so the product must
-        // not be mapped - the point is that the stream can be indexed at all.
-        $this->assertProductIsNotInStream($productId, $streamId);
-
-        // ... while a stream the product does match is still indexed correctly
-        $matchingStreamId = $this->createStream([[
+        $this->createStream($streamId, [[
             'type' => 'equals',
             'field' => 'active',
             'value' => '1',
         ]]);
 
-        $this->productStreamUpdater->handle(
-            new ProductStreamMappingIndexingMessage($matchingStreamId, null, Context::createDefaultContext())
-        );
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
 
-        $this->assertProductIsInStream($productId, $matchingStreamId);
+        $deletedProductId = Uuid::randomHex();
+        $this->createProduct($deletedProductId);
+        $this->productRepository->delete([['id' => $deletedProductId]], Context::createDefaultContext());
+
+        $updater = $this->createUpdaterWithStaticMatches([$productId, $deletedProductId]);
+
+        $updater->handle(new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext()));
+
+        static::assertSame([$productId], $this->getMappedProductIds($streamId));
+    }
+
+    public function testUpdateProductsSkipsProductsDeletedAfterTheStreamSearch(): void
+    {
+        $streamId = Uuid::randomHex();
+        $this->createStream($streamId, [[
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+        ]]);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        $deletedProductId = Uuid::randomHex();
+        $this->createProduct($deletedProductId);
+        $this->productRepository->delete([['id' => $deletedProductId]], Context::createDefaultContext());
+
+        $updater = $this->createUpdaterWithStaticMatches([$productId, $deletedProductId]);
+
+        $updater->updateProducts([$productId, $deletedProductId], Context::createDefaultContext());
+
+        static::assertSame([$productId], $this->getMappedProductIds($streamId));
     }
 
     /**
-     * @param list<array<string, mixed>> $conditions
+     * Returns an updater whose search reports a stale match, as a concurrent delete would.
+     *
+     * @param list<string> $matches
      */
-    private function createStream(array $conditions): string
+    private function createUpdaterWithStaticMatches(array $matches): ProductStreamUpdater
     {
-        $streamId = Uuid::randomHex();
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [], new ProductDefinition());
 
-        $writtenEvent = $this->productStreamRepository->create([
-            [
-                'id' => $streamId,
-                'name' => 'stream-' . $streamId,
-                'filters' => $conditions,
-            ],
-        ], Context::createDefaultContext());
+        // one search runs per stream and language context, so the stale match has to stay available
+        $search = static function () use ($matches, &$search, $productRepository): array {
+            $productRepository->searches[] = $search;
 
-        $indexer = static::getContainer()->get(ProductStreamIndexer::class);
-        $message = $indexer->update($writtenEvent);
-        static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
-        $indexer->handle($message);
+            return $matches;
+        };
+        $productRepository->searches[] = $search;
 
-        return $streamId;
+        $language = new LanguageEntity();
+        $language->setId(Defaults::LANGUAGE_SYSTEM);
+        $languageRepository = StaticEntityRepository::of(LanguageCollection::class, [new LanguageCollection([$language])]);
+
+        return new ProductStreamUpdater(
+            static::getContainer()->get(Connection::class),
+            static::getContainer()->get(ProductDefinition::class),
+            $productRepository,
+            static::getContainer()->get('messenger.default_bus'),
+            static::getContainer()->get(ManyToManyIdFieldUpdater::class),
+            $languageRepository,
+            true,
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getMappedProductIds(string $streamId): array
+    {
+        return static::getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
+            ['id' => Uuid::fromHexToBytes($streamId)]
+        );
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $filters
+     */
+    private function createStream(string $streamId, array $filters): void
+    {
+        $writtenEvent = $this->productStreamRepository->create([[
+            'id' => $streamId,
+            'name' => 'test',
+            'filters' => $filters,
+        ]], Context::createDefaultContext());
+
+        $this->recompileStreamFilters($writtenEvent);
+    }
+
+    private function recompileStreamFilters(EntityWrittenContainerEvent $event): void
+    {
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
+
+        $message = $productStreamIndexer->update($event);
+        static::assertInstanceOf(
+            ProductStreamIndexingMessage::class,
+            $message,
+            'expected the write to request a re-compilation of the stream filters'
+        );
+
+        $productStreamIndexer->handle($message);
+    }
+
+    private function handleDispatchedMappingMessages(string ...$expectedStreamIds): void
+    {
+        $bus = static::getContainer()->get('messenger.bus.test_shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $bus);
+
+        $handled = [];
+        foreach ($bus->getDispatchedMessages() as $dispatched) {
+            $message = $dispatched['message'];
+            if (!$message instanceof ProductStreamMappingIndexingMessage) {
+                continue;
+            }
+
+            $handled[] = $message->getData();
+            $this->productStreamUpdater->handle($message);
+        }
+
+        foreach ($expectedStreamIds as $expectedStreamId) {
+            static::assertContains(
+                $expectedStreamId,
+                $handled,
+                'expected the write to dispatch a mapping update for the affected stream'
+            );
+        }
     }
 
     private function assertProductIsNotInStream(string $productId, string $streamId): void
@@ -456,72 +682,11 @@ class ProductStreamUpdaterTest extends TestCase
         static::assertNotContains($streamId, $product->getStreamIds() ?? []);
     }
 
-    /**
-     * Builds a list of AND conditions whose fields each traverse a DISTINCT
-     * association path. Distinct paths each add their own SQL join(s), so the
-     * full conjunction joins well over 61 tables in a single query — while any
-     * chunk of <= CONDITION_CHUNK_SIZE conditions stays comfortably below the
-     * limit. (Repeating the SAME path would be collapsed into one join / an
-     * EXISTS subquery and would NOT reproduce the issue.)
-     *
-     * The conditions carry a value on purpose. A null check keeps its left join
-     * even when the criteria spills into sub queries, because inside an `EXISTS`
-     * it would stop matching records without the association at all.
-     *
-     * @return list<array<string, string>>
-     */
-    private function buildManyDistinctAssociationConditions(): array
-    {
-        // Each leaf traverses at least one association (and most a translation),
-        // so it contributes one or more joins that cannot be shared with the others.
-        $leaves = [
-            'manufacturer.name',
-            'tax.name',
-            'unit.name',
-            'deliveryTime.name',
-            'cmsPage.name',
-            'featureSet.name',
-            'cover.id',
-            'categories.name',
-            'properties.name',
-            'options.name',
-            'tags.name',
-            'categoriesRo.name',
-            'media.id',
-            'prices.quantityStart',
-            'visibilities.id',
-            'productReviews.id',
-            'mainCategories.id',
-            'seoUrls.id',
-            'crossSellings.id',
-            'configuratorSettings.id',
-        ];
-
-        // Re-root every leaf through self-referencing to-one associations to
-        // multiply the number of distinct paths far beyond the 61-table limit.
-        // The created product has neither a parent nor a canonical product, so
-        // every one of these paths resolves to NULL for it.
-        $prefixes = ['parent.', 'canonicalProduct.', 'parent.parent.', 'canonicalProduct.parent.'];
-
-        $conditions = [];
-        foreach ($prefixes as $prefix) {
-            foreach ($leaves as $leaf) {
-                $conditions[] = [
-                    'type' => 'equals',
-                    'field' => $prefix . $leaf,
-                    'value' => Uuid::randomHex(),
-                ];
-            }
-        }
-
-        return $conditions;
-    }
-
-    private function createProduct(string $productId): void
+    private function createProduct(string $productId, int $stock = 1): void
     {
         $this->productRepository->create(
             [
-                $this->getProductData($productId),
+                $this->getProductData($productId, $stock),
             ],
             $this->salesChannel->getContext()
         );
@@ -530,12 +695,12 @@ class ProductStreamUpdaterTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function getProductData(string $productId): array
+    private function getProductData(string $productId, int $stock = 1): array
     {
         return [
             'id' => $productId,
             'productNumber' => $productId,
-            'stock' => 1,
+            'stock' => $stock,
             'name' => 'Test',
             'active' => true,
             'type' => ProductDefinition::TYPE_PHYSICAL,

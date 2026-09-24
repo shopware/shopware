@@ -8,7 +8,7 @@
         "general": {
             "tooltipOpenStorefront": "Open storefront",
             "titleMenuItems": "Sales Channels",
-            "titleMenuMoreItems": "More",
+            "titleMenuMoreItems": "View all",
             "manageSalesChannels": "Manage Sales Channels",
             "addSalesChannel": "Add Sales Channel"
         },
@@ -17,6 +17,8 @@
             "subTitle": "Sales Channels let you sell items to your customers through social media, storefronts, marketplaces or in person.",
             "placeholderSearchBar": "Search Sales Channels...",
             "buttonAddSalesChannel": "Add Sales Channel",
+            "emptyStateHeadline": "No Sales Channels yet",
+            "emptyStateDescription": "Add your first Sales Channel to start selling through storefronts, marketplaces or social media.",
             "columnName": "Sales Channel",
             "columnType": "Type",
             "columnStatus": "Status",

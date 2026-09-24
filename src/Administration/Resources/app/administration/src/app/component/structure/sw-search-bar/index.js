@@ -1,3 +1,4 @@
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
@@ -5,6 +6,9 @@ const { Application, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
+
+// Matches the viewport at which the search becomes collapsible in sw-search-bar.scss.
+const COLLAPSE_BREAKPOINT = 500;
 
 /**
  * @sw-package framework
@@ -40,11 +44,7 @@ export default {
         };
     },
 
-    emits: [
-        'search',
-        'active-item-index-select',
-        'keyup-enter',
-    ],
+    emits: ['search', 'active-item-index-select', 'keyup-enter'],
 
     shortcuts: {
         f: 'setFocus',
@@ -203,6 +203,21 @@ export default {
         adminEsEnable() {
             return Context.app.adminEsEnable ?? false;
         },
+
+        searchTypeColor() {
+            return useModuleIconColors().enabled.value ? this.getEntityIconColor(this.currentSearchType) : null;
+        },
+
+        // Solid variant of the module icon, none while searching in all types
+        searchTypeIcon() {
+            if (!this.currentSearchType) {
+                return null;
+            }
+
+            const icon = this.getSearchTypeManifest(this.currentSearchType)?.icon ?? 'regular-books';
+
+            return icon.startsWith('regular-') ? icon.replace('regular-', 'solid-') : icon;
+        },
     },
 
     watch: {
@@ -247,16 +262,10 @@ export default {
 
     methods: {
         async createdComponent() {
-            const that = this;
-
-            this.showSearchFieldOnLargerViewports();
-
-            this.$device.onResize({
-                listener() {
-                    that.showSearchFieldOnLargerViewports();
-                },
-                component: this,
-            });
+            // Bound to the breakpoint itself, the debounced resize listener would lag behind it.
+            this.collapseQuery = this.$device.getMediaQuery(`(max-width: ${COLLAPSE_BREAKPOINT}px)`);
+            this.collapseQuery.addEventListener('change', this.syncSearchBarCollapse);
+            this.syncSearchBarCollapse();
 
             if (this.$route.query.term) {
                 this.searchTerm = this.$route.query.term;
@@ -276,6 +285,7 @@ export default {
         },
 
         destroyedComponent() {
+            this.collapseQuery?.removeEventListener('change', this.syncSearchBarCollapse);
             document.removeEventListener('click', this.closeOnClickOutside);
             Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
@@ -327,16 +337,22 @@ export default {
         },
 
         setFocus() {
-            this.$refs.searchInput.focus();
+            // The default input can be replaced through the search-input slot.
+            this.$refs.searchInput?.focus();
+        },
+
+        onClickFieldWrapper(event) {
+            // Interactive children keep their click behavior without focusing the search input
+            if (event.target.closest('.sw-search-bar__type--v2, .sw-search-bar__field-close')) {
+                return;
+            }
+
+            this.setFocus();
         },
 
         closeOnClickOutside(event) {
-            const target = event.target;
-
-            if (!target.closest('.sw-search-bar')) {
-                this.clearSearchTerm();
-                this.showTypeSelectContainer = false;
-                this.showModuleFiltersContainer = false;
+            if (!event.target.closest('.sw-search-bar')) {
+                this.closeSearchPanels();
             }
         },
 
@@ -344,6 +360,17 @@ export default {
             this.showResultsContainer = false;
             this.showResultsSearchTrends = false;
             this.activeResultPosition = 0;
+        },
+
+        closeSearchPanels() {
+            this.clearSearchTerm();
+            this.showTypeSelectContainer = false;
+            this.showModuleFiltersContainer = false;
+        },
+
+        onKeyUpEsc() {
+            this.closeSearchPanels();
+            this.$refs.searchInput?.blur();
         },
 
         onFocusInput() {
@@ -384,10 +411,8 @@ export default {
             this.showResultsContainer = false;
         },
 
-        showSearchFieldOnLargerViewports() {
-            if (this.$device.getViewportWidth() > 500) {
-                this.isSearchBarShown = true;
-            }
+        syncSearchBarCollapse() {
+            this.isSearchBarShown = !this.collapseQuery.matches;
         },
 
         onSearchTermChange() {
@@ -450,7 +475,7 @@ export default {
 
         onClickType(type) {
             this.setSearchType(type);
-            this.$refs.searchInput.focus();
+            this.setFocus();
         },
 
         setSearchType(type) {
@@ -578,10 +603,7 @@ export default {
 
                     this.results = this.results.filter((result) => entity !== result.entity);
 
-                    this.results = [
-                        ...this.results,
-                        item,
-                    ];
+                    this.results = [...this.results, item];
                 }
             });
 
@@ -659,10 +681,7 @@ export default {
             if (entityResults.total > 0) {
                 this.results = this.results.filter((result) => this.currentSearchType !== result.entity);
 
-                this.results = [
-                    ...this.results,
-                    entityResults,
-                ];
+                this.results = [...this.results, entityResults];
             }
 
             this.isLoading = false;
@@ -829,13 +848,30 @@ export default {
                 return this.entitySearchColor;
             }
 
+            return this.getSearchTypeManifest(entityName)?.color || '#5C738A';
+        },
+
+        getSearchTypeManifest(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            if (!module) {
-                return '#5C738A';
+            if (module) {
+                return module.manifest;
             }
 
-            return module.manifest.color || '#5C738A';
+            // List pages may pass an alias instead of their entity, so fall back to the current module
+            if (entityName && entityName === this.initialSearchType) {
+                return this.$route?.meta?.$module;
+            }
+
+            return undefined;
+        },
+
+        getTypeIconColor(entityName) {
+            if (!useModuleIconColors().enabled.value) {
+                return 'var(--color-icon-primary-default)';
+            }
+
+            return this.getEntityIconColor(entityName);
         },
 
         getEntityIcon(entityName) {
@@ -863,11 +899,7 @@ export default {
             return this.repositoryFactory
                 .create('sales_channel_type')
                 .search(new Criteria(1, 100), Shopware.Context.api, {
-                    cacheKey: [
-                        'shared-data',
-                        'sales-channel-types',
-                        Shopware.Context.api.languageId ?? 'default',
-                    ],
+                    cacheKey: ['shared-data', 'sales-channel-types', Shopware.Context.api.languageId ?? 'default'],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((salesChannelTypes) => {
@@ -978,7 +1010,7 @@ export default {
                     {
                         name: 'sales-channel',
                         icon: saleChannelType?.iconName ?? 'regular-server',
-                        color: '#14D7A5',
+                        color: 'var(--sw-color-module-brand-default)',
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,
                         route: {
@@ -1002,10 +1034,9 @@ export default {
         },
 
         loadSearchTrends() {
-            return Promise.all([
-                this.getFrequentlyUsedModules(),
-                this.getRecentlySearch(),
-            ]).then((response) => response.filter((item) => item?.total));
+            return Promise.all([this.getFrequentlyUsedModules(), this.getRecentlySearch()]).then((response) =>
+                response.filter((item) => item?.total),
+            );
         },
 
         async getFrequentlyUsedModules(checkNonExistentKeys = true) {
@@ -1076,10 +1107,7 @@ export default {
                             : new Criteria(1, 25);
                     }
 
-                    const ids = [
-                        item.id,
-                        ...queries[item.entity].ids,
-                    ];
+                    const ids = [item.id, ...queries[item.entity].ids];
                     queries[item.entity].setIds(ids);
                 });
 
@@ -1119,10 +1147,7 @@ export default {
         },
 
         getInfoModuleFrequentlyUsed(key) {
-            const [
-                moduleName,
-                routeName,
-            ] = key.split('@');
+            const [moduleName, routeName] = key.split('@');
             const module = this.moduleFactory.getModuleByKey('name', moduleName);
 
             if (!module) {

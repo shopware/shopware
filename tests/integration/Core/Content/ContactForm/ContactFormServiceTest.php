@@ -19,7 +19,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ContactFormServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

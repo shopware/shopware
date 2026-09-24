@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SystemConfig\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -12,7 +12,7 @@ use Shopware\Core\System\SystemConfig\SalesChannel\ConfigCastTrait;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(ConfigCastTrait::class)]
+#[CoversTrait(ConfigCastTrait::class)]
 class ConfigCastTraitTest extends TestCase
 {
     /**

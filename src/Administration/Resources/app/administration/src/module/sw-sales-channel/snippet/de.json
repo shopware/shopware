@@ -8,7 +8,7 @@
         "general": {
             "titleMenuItems": "Verkaufskanäle",
             "tooltipOpenStorefront": "Öffne Storefront",
-            "titleMenuMoreItems": "Mehr",
+            "titleMenuMoreItems": "Alle anzeigen",
             "manageSalesChannels": "Verkaufskanäle verwalten",
             "addSalesChannel": "Verkaufskanal hinzufügen"
         },
@@ -17,6 +17,8 @@
             "subTitle": "Über Verkaufskanäle können Sie Ihren Kunden Produkte über Social Media, der Storefront, Marktplätze oder persönlich verkaufen.",
             "placeholderSearchBar": "Durchsuche alle Verkaufskanäle ...",
             "buttonAddSalesChannel": "Verkaufskanal anlegen",
+            "emptyStateHeadline": "Noch keine Verkaufskanäle",
+            "emptyStateDescription": "Lege einen ersten Verkaufskanal an, um über Storefronts, Marktplätze oder Social Media zu verkaufen.",
             "columnName": "Verkaufskanal",
             "columnType": "Typ",
             "columnStatus": "Status",

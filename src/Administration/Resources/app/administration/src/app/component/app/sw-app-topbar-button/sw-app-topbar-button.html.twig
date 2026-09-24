@@ -1,5 +1,8 @@
 {% block sw_app_topbar_button %}
-<div class="sw-app-topbar-button">
+<div
+    v-if="topBarButtons.length"
+    class="sw-app-topbar-button"
+>
     <mt-button
         v-for="button in topBarButtons"
         :key="button.label"

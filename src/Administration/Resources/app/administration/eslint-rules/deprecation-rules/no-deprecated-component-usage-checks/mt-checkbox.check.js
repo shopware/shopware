@@ -17,16 +17,8 @@ const handleMtCheckbox = (context, node) => {
             attr?.key?.argument?.name === 'value';
     });
 
-    // Check if the mt-checkbox uses v-model
-    const vModelValue = node.startTag.attributes.find((attr) => {
-        return attr.key?.name?.name === 'model';
-    });
-
-    // Check if the mt-checkbox uses v-model:checked
-    const vModelChecked = node.startTag.attributes.find((attr) => {
-        return attr.key?.name?.name === 'model' &&
-            attr.key?.argument?.name === 'checked';
-    });
+    // "v-model" (modelValue) is the current API. "v-model:checked" is deprecated at runtime,
+    // but still used in many templates, so it cannot be flagged without a mass migration.
 
     // Check if the mt-checkbox has the slot "hint"
     const hintSlot = node.children.find((child) => {
@@ -91,36 +83,14 @@ const handleMtCheckbox = (context, node) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "checked" instead.`,
-            *fix(fixer)  {
-                if (context.options.includes('disableFix')) return;
-
-                yield fixer.replaceText(valueAttribute.key, 'checked');
-            }
-        });
-    }
-
-    if (vModelValue && !vModelChecked) {
-        context.report({
-            node: vModelValue,
-            message: `[${mtComponentName}] The "v-model" directive is deprecated. Use "v-model:checked" instead.`,
-            *fix(fixer)  {
-                if (context.options.includes('disableFix')) return;
-
-                yield fixer.replaceText(vModelValue.key, 'v-model:checked');
-            }
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "v-model" instead.`,
         });
     }
 
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "checked" instead.`,
-            *fix(fixer)  {
-                if (context.options.includes('disableFix')) return;
-
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'checked');
-            }
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "v-model" instead.`,
         });
     }
 
@@ -248,11 +218,11 @@ const handleMtCheckbox = (context, node) => {
     if (updateValueEvent) {
         context.report({
             node: updateValueEvent,
-            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:checked" instead.`,
+            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:modelValue" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(updateValueEvent.key.argument, 'update:checked');
+                yield fixer.replaceText(updateValueEvent.key.argument, 'update:modelValue');
             }
         });
     }
@@ -268,122 +238,46 @@ const mtCheckboxValidTests = [
             </template>`
     },
     {
-        name: '"mt-checkbox" wrong v-model usage should be replaced with "v-model:checked"',
+        name: '"mt-checkbox" with "v-model:checked" is still allowed until the mass migration',
         filename: 'test.html.twig',
         code: `
             <template>
                 <mt-checkbox v-model:checked="isCheckedValue" />
+            </template>`,
+    },
+    {
+        name: '"mt-checkbox" with plain "v-model" is allowed',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-checkbox v-model="isCheckedValue" />
             </template>`,
     },
 ]
 
 const mtCheckboxInvalidTests = [
     {
-        name: '"mt-checkbox" wrong "value" prop usage should be replaced with "checked"',
+        name: '"mt-checkbox" wrong "value" prop usage should be reported',
         filename: 'test.html.twig',
         code: `
             <template>
                 <mt-checkbox value="yes" />
             </template>`,
-        output: `
-            <template>
-                <mt-checkbox checked="yes" />
-            </template>`,
+        output: null,
         errors: [{
-            message: '[mt-checkbox] The "value" prop is deprecated. Use "checked" instead.',
+            message: '[mt-checkbox] The "value" prop is deprecated. Use "v-model" instead.',
         }]
     },
     {
-        name: '"mt-checkbox" wrong "value" prop usage should be replaced with "checked" [disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-checkbox value="yes" />
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "value" prop is deprecated. Use "checked" instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong "value" prop usage should be replaced with "checked" [expression]',
+        name: '"mt-checkbox" wrong "value" prop usage should be reported [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
                 <mt-checkbox :value="myValue" />
             </template>`,
-        output: `
-            <template>
-                <mt-checkbox :checked="myValue" />
-            </template>`,
+        output: null,
         errors: [{
-            message: '[mt-checkbox] The "value" prop is deprecated. Use "checked" instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong "value" prop usage should be replaced with "checked" [expression, disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-checkbox :value="myValue" />
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "value" prop is deprecated. Use "checked" instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong v-model usage should be replaced with "v-model:checked"',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-checkbox v-model="isCheckedValue" />
-            </template>`,
-        output: `
-            <template>
-                <mt-checkbox v-model:checked="isCheckedValue" />
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "v-model" directive is deprecated. Use "v-model:checked" instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong v-model usage should be replaced with "v-model:checked" [disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-checkbox v-model="isCheckedValue" />
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "v-model" directive is deprecated. Use "v-model:checked" instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong v-model usage should be replaced with "v-model:checked" [with :value]',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <mt-checkbox v-model:value="isCheckedValue" />
-            </template>`,
-        output: `
-            <template>
-                <mt-checkbox v-model:checked="isCheckedValue" />
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "v-model" directive is deprecated. Use "v-model:checked" instead.',
-        }]
-    },
-    {
-        name: '"mt-checkbox" wrong v-model usage should be replaced with "v-model:checked" [with :value, disableFix]',
-        filename: 'test.html.twig',
-        options: ['disableFix'],
-        code: `
-            <template>
-                <mt-checkbox v-model:value="isCheckedValue" />
-            </template>`,
-        errors: [{
-            message: '[mt-checkbox] The "v-model" directive is deprecated. Use "v-model:checked" instead.',
+            message: '[mt-checkbox] The "value" prop is deprecated. Use "v-model" instead.',
         }]
     },
     {
@@ -650,7 +544,7 @@ const mtCheckboxInvalidTests = [
         }]
     },
     {
-        name: '"mt-checkbox" wrong event "update:value" usage should be replaced with "update:checked"',
+        name: '"mt-checkbox" wrong event "update:value" usage should be replaced with "update:modelValue"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -658,14 +552,14 @@ const mtCheckboxInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-checkbox @update:checked="updateValue" />
+                <mt-checkbox @update:modelValue="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "update:value" event is deprecated. Use "update:checked" instead.',
+            message: '[mt-checkbox] The "update:value" event is deprecated. Use "update:modelValue" instead.',
         }]
     },
     {
-        name: '"mt-checkbox" wrong event "update:value" usage should be replaced with "update:checked" [disableFix]',
+        name: '"mt-checkbox" wrong event "update:value" usage should be replaced with "update:modelValue" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -673,7 +567,7 @@ const mtCheckboxInvalidTests = [
                 <mt-checkbox @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-checkbox] The "update:value" event is deprecated. Use "update:checked" instead.',
+            message: '[mt-checkbox] The "update:value" event is deprecated. Use "update:modelValue" instead.',
         }]
     }
 ]

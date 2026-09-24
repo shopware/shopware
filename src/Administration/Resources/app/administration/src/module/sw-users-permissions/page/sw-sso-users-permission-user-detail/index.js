@@ -1,4 +1,5 @@
 import template from './sw-sso-users-permission-user-detail.html.twig';
+import useTheme from 'src/app/composables/use-theme';
 import './sw-sso-users-permissions-user-detail.scss';
 
 const { Mixin } = Shopware;
@@ -24,10 +25,7 @@ export default {
         'userService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -53,6 +51,7 @@ export default {
             newAccessKey: '',
             newSecretAccessKey: '',
             editMode: MODE.CREATE,
+            userThemeSelection: null,
         };
     },
 
@@ -119,18 +118,27 @@ export default {
         keyRepository() {
             return this.repositoryFactory.create('user_access_key');
         },
+
+        // Falls back to the applied theme so late-loading or external changes are reflected until the user picks one
+        userTheme: {
+            get() {
+                return this.userThemeSelection ?? useTheme().theme.value;
+            },
+            set(theme) {
+                this.userThemeSelection = theme;
+            },
+        },
     },
 
     methods: {
         async createdComponent() {
+            // Create the theme singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
+            useTheme();
+
             this.userId = this.$route.params.id;
 
             this.isLoading = true;
-            await Promise.all([
-                this.loadUser(),
-                this.loadCurrentUser(),
-                this.loadLanguages(),
-            ]);
+            await Promise.all([this.loadUser(), this.loadCurrentUser(), this.loadLanguages()]);
             this.isLoading = false;
 
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
@@ -183,11 +191,34 @@ export default {
             this.isLoading = true;
             return this.userRepository
                 .save(this.user, { ...Shopware.Context.api })
+                .then(() => {
+                    if (this.isCurrentUser) {
+                        return this.saveUserTheme();
+                    }
+                })
                 .catch(() => {
                     this.createNotificationError({ message: this.$t('global.notification.unspecifiedSaveErrorMessage') });
                 })
                 .finally(() => {
                     this.isLoading = false;
+                });
+        },
+
+        saveUserTheme() {
+            // Persist only when the user picked a theme; keep the selection on failure so saving again retries
+            if (this.userThemeSelection === null) {
+                return Promise.resolve();
+            }
+
+            return useTheme()
+                .saveUserTheme(this.userThemeSelection)
+                .then(() => {
+                    this.userThemeSelection = null;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-users-permissions.users.user-detail.notification.themeSaveError.message'),
+                    });
                 });
         },
 

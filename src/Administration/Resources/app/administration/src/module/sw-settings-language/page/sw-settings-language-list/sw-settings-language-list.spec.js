@@ -55,10 +55,7 @@ async function createWrapper(privileges = [], customStubs = {}) {
                     translationService: {
                         getList: jest.fn().mockResolvedValue({ total: 0, items: [] }),
                         getMeta: jest.fn().mockResolvedValue({
-                            builtInLocales: [
-                                'de-DE',
-                                'en-GB',
-                            ],
+                            builtInLocales: ['de-DE', 'en-GB'],
                         }),
                         update: jest.fn().mockResolvedValue(),
                         install: jest.fn().mockResolvedValue(),
@@ -157,9 +154,7 @@ async function createWrapper(privileges = [], customStubs = {}) {
 
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     it('should be able to create a new language', async () => {
-        const wrapper = await createWrapper([
-            'language.creator',
-        ]);
+        const wrapper = await createWrapper(['language.creator']);
         await flushPromises();
 
         const addButton = wrapper.find('.sw-settings-language-list__button-create');
@@ -177,9 +172,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to view a language', async () => {
-        const wrapper = await createWrapper([
-            'language.viewer',
-        ]);
+        const wrapper = await createWrapper(['language.viewer']);
         await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -189,9 +182,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to edit a language', async () => {
-        const wrapper = await createWrapper([
-            'language.editor',
-        ]);
+        const wrapper = await createWrapper(['language.editor']);
         await flushPromises();
 
         const elementItemAction = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -211,9 +202,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to delete a language', async () => {
-        const wrapper = await createWrapper([
-            'language.deleter',
-        ]);
+        const wrapper = await createWrapper(['language.deleter']);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-language-list__delete-action');
@@ -231,9 +220,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to inline edit a language', async () => {
-        const wrapper = await createWrapper([
-            'language.editor',
-        ]);
+        const wrapper = await createWrapper(['language.editor']);
         await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-language-list-grid');
@@ -404,13 +391,36 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         expect(wrapper.vm.salesChannelLabel({})).toBe('');
         expect(
             wrapper.vm.salesChannelLabel({
-                salesChannels: [
-                    {},
-                    {},
-                    {},
-                ],
+                salesChannels: [{}, {}, {}],
             }),
         ).toContain('salesChannelCount');
+    });
+
+    it('should label the locale with its native name and the UI language', async () => {
+        const wrapper = await createWrapper();
+        const localeNameSpy = jest.spyOn(Shopware.Utils.format, 'localeName').mockReturnValue('Français (French, France)');
+
+        expect(wrapper.vm.localeLabel({ locale: { code: 'fr-FR' } })).toBe('Français (French, France)');
+        expect(localeNameSpy).toHaveBeenCalledWith('fr-FR');
+
+        // languages without a loaded locale association render nothing instead of a broken label
+        expect(wrapper.vm.localeLabel({})).toBe('');
+
+        localeNameSpy.mockRestore();
+    });
+
+    it('should label pseudo languages with their own name instead of the borrowed locale', async () => {
+        const wrapper = await createWrapper();
+        const localeNameSpy = jest.spyOn(Shopware.Utils.format, 'localeName');
+
+        wrapper.vm.translationMetadata = {
+            'ach-UG': { locale: 'ach-UG', name: 'Acholi', isPseudoLanguage: true },
+        };
+
+        expect(wrapper.vm.localeLabel({ locale: { code: 'ach-UG' } })).toBe('Acholi');
+        expect(localeNameSpy).not.toHaveBeenCalled();
+
+        localeNameSpy.mockRestore();
     });
 
     it('should only expose the update status derived from the translation metadata', async () => {
@@ -600,10 +610,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
             d: { locale: { code: 'de-DE' } },
         };
 
-        expect(wrapper.vm.selectedUpdatableLocales).toEqual([
-            'fr-FR',
-            'es-ES',
-        ]);
+        expect(wrapper.vm.selectedUpdatableLocales).toEqual(['fr-FR', 'es-ES']);
     });
 
     it('should sequentially install the snippets for each selected updatable language', async () => {
@@ -706,13 +713,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         wrapper.vm.deleteTranslationFiles = true;
         await wrapper.vm.confirmDelete();
 
-        expect(wrapper.vm.languageRepository.syncDeleted).toHaveBeenCalledWith(
-            [
-                'fr-id',
-                'es-id',
-            ],
-            expect.anything(),
-        );
+        expect(wrapper.vm.languageRepository.syncDeleted).toHaveBeenCalledWith(['fr-id', 'es-id'], expect.anything());
         expect(wrapper.vm.translationService.deleteTranslation).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.translationService.deleteTranslation).toHaveBeenCalledWith('fr-FR');
         // the grid selection is cleared once the deletion finished
@@ -742,10 +743,6 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
             { id: '3', name: 'Bosanski' },
         ];
 
-        expect(wrapper.vm.sortedDeleteCandidates.map((language) => language.name)).toEqual([
-            'Bosanski',
-            'Català',
-            'Zulu',
-        ]);
+        expect(wrapper.vm.sortedDeleteCandidates.map((language) => language.name)).toEqual(['Bosanski', 'Català', 'Zulu']);
     });
 });

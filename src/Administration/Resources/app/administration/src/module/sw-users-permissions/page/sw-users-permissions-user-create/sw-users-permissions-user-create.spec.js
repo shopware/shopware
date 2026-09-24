@@ -22,6 +22,7 @@ async function createWrapper(privileges = []) {
 
                             return privileges.includes(identifier);
                         },
+                        isAdmin: () => !!Shopware.Store.get('session').currentUser?.admin,
                     },
                     loginService: {},
                     userService: {
@@ -128,7 +129,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     it('should create a new user', async () => {
         expect(wrapper.vm.user).toStrictEqual({
             active: true,
-            admin: false,
             localeId: '',
             username: '',
             firstName: '',
@@ -152,7 +152,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     it('should not be an admin by default', async () => {
         await wrapper.setData({ isLoading: false });
 
-        expect(wrapper.vm.user.admin).toBe(false);
+        expect(wrapper.vm.user.admin).toBeUndefined();
     });
 
     it('should be active by default', async () => {

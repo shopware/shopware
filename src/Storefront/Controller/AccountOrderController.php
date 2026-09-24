@@ -64,7 +64,7 @@ class AccountOrderController extends StorefrontController
         /**
          * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
          */
-        private readonly AccountOrderDetailPageLoader $orderDetailPageLoader,
+        private readonly ?AccountOrderDetailPageLoader $orderDetailPageLoader,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly SystemConfigService $systemConfigService,
@@ -170,6 +170,7 @@ class AccountOrderController extends StorefrontController
             'Route "widgets.account.order.detail" is deprecated and will be removed in v6.8.0.0 without replacement.',
         );
 
+        \assert($this->orderDetailPageLoader !== null);
         $page = $this->orderDetailPageLoader->load($request, $context);
 
         $this->hook(new AccountOrderDetailPageLoadedHook($page, $context));

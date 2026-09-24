@@ -661,7 +661,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('twig.extension.intl'),
         ])
-        ->tag('twig.extension');
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SecurityExtension::class)
         ->args([
@@ -933,7 +934,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('cache.http'),
-            service(CacheStateValidator::class),
+            service(CacheStateValidator::class)->nullOnInvalid(),
             service('event_dispatcher'),
             service(HttpCacheKeyGenerator::class),
             service(MaintenanceModeResolver::class),
@@ -954,7 +955,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CacheStateValidator::class)
         ->args([
             param('shopware.cache.invalidation.http_cache'),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(BacktraceCollector::class);
 

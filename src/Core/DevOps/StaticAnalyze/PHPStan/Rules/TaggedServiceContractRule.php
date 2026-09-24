@@ -506,6 +506,10 @@ class TaggedServiceContractRule implements Rule
                     /** @phpstan-ignore phpstanApi.method (ServiceTag is returned by the public ServiceDefinition API, but this accessor is not marked API) */
                     $tagName = $tag->getName();
 
+                    if ($tagName === 'shopware.feature' || $tagName === 'shopware.inactiveFeature') {
+                        continue;
+                    }
+
                     $tags[] = $tagName;
                 }
             }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -127,5 +128,51 @@ class FeatureFlagsCompilerPassTest extends TestCase
         $this->compilerPass->process($container);
 
         static::assertArrayHasKey('feature_service', $container->findTaggedServiceIds('shopware.app_lifecycle.persister'));
+    }
+
+    public function testItRemovesInactiveFeatureTaggedServiceWhenFlagIsActive(): void
+    {
+        $definition = new Definition();
+        $definition->addTag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+
+        $container = new ContainerBuilder();
+        $container->setDefinition('deprecated_service', $definition);
+        $container->setParameter('shopware.feature.flags', [
+            'v6.8.0.0' => ['major' => true, 'active' => true],
+        ]);
+
+        Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
+
+        static::assertFalse($container->hasDefinition('deprecated_service'));
+    }
+
+    public function testItKeepsInactiveFeatureTaggedServiceWhenFlagIsInactive(): void
+    {
+        $definition = new Definition();
+        $definition->addTag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+
+        $container = new ContainerBuilder();
+        $container->setDefinition('deprecated_service', $definition);
+        $container->setParameter('shopware.feature.flags', [
+            'v6.8.0.0' => ['major' => true, 'active' => false],
+        ]);
+
+        Feature::withFeatureDisabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
+
+        static::assertTrue($container->hasDefinition('deprecated_service'));
+    }
+
+    public function testItKeepsInactiveFeatureTaggedServiceForPendingMajor(): void
+    {
+        $definition = new Definition();
+        $definition->addTag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
+
+        $container = new ContainerBuilder();
+        $container->setDefinition('deprecated_service', $definition);
+        $container->setParameter('shopware.feature.flags', []);
+
+        Feature::fake([], fn () => $this->compilerPass->process($container));
+
+        static::assertTrue($container->hasDefinition('deprecated_service'));
     }
 }

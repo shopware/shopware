@@ -2,6 +2,10 @@
 
 ## Core
 
+### Feature flags can remove legacy service definitions
+
+Extensions can tag a PHP service definition with `shopware.inactiveFeature` and a `flag` attribute, for example `v6.8.0.0`. The service remains registered while the flag is inactive and is absent from the rebuilt container once the flag is active. Use this for services that are removed with a major version; `shopware.feature` continues to register services only while their flag is active.
+
 ### Dompdf page count placeholder replaced for core and fallback fonts
 
 In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.

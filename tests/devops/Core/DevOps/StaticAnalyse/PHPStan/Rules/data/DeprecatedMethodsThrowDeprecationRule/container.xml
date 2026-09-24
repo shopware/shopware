@@ -5,6 +5,11 @@
         <service id="decorated.service" class="Shopware\Core\DevOps\MyFakeNamespace\DecoratedService"/>
         <service id="Shopware\Core\DevOps\MyFakeNamespace\DeprecatedDecorator" class="Shopware\Core\DevOps\MyFakeNamespace\DeprecatedDecorator">
             <tag name="container.decorator" id="decorated.service"/>
+            <tag name="shopware.inactiveFeature" flag="v6.9.0.0"/>
         </service>
+        <service id="legacy.service" class="Shopware\Core\DevOps\MyFakeNamespace\TaggedDeprecatedClass">
+            <tag name="shopware.inactiveFeature" flag="v6.8.0.0"/>
+        </service>
+        <service id="sales_channel_definition.legacy.service" class="Shopware\Core\DevOps\MyFakeNamespace\TaggedDeprecatedClass"/>
     </services>
 </container>

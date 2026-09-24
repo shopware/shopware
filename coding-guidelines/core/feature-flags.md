@@ -49,6 +49,17 @@ The unit suite is the exception: its bootstrap activates every registered flag r
 ## Using flags in PHP
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
+### Using flags for services
+
+Service configuration runs before the feature registry is initialized. Do not branch on `Feature::isActive()` in a PHP service configuration file. Tag a service that must disappear when a major flag is active instead:
+
+```php
+$services->set(LegacyService::class)
+    ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+```
+
+The compiler pass removes the service definition when the flag is active. `shopware.feature` has the inverse meaning: it removes the service while the flag is inactive. Changes to either flag require a rebuilt service container.
+
 ### Using flags in methods
 When there is no option via the container you can use additional helper functions:
 ```php

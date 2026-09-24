@@ -47,7 +47,7 @@ class CacheStore implements StoreInterface
         /**
          * @deprecated tag:v6.8.0 - Parameter $stateValidator will be removed
          */
-        private readonly CacheStateValidator $stateValidator,
+        private readonly ?CacheStateValidator $stateValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly HttpCacheKeyGenerator $cacheKeyGenerator,
         private readonly MaintenanceModeResolver $maintenanceResolver,
@@ -116,6 +116,7 @@ class CacheStore implements StoreInterface
         }
 
         if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            \assert($this->stateValidator !== null);
             $isValid = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
                 return $this->stateValidator->isValid($request, $response);
             });
@@ -145,6 +146,7 @@ class CacheStore implements StoreInterface
         }
 
         if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            \assert($this->stateValidator !== null);
             $isValid = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
                 return $this->stateValidator->isValid($request, $response);
             });

@@ -25,9 +25,6 @@ class BackwardCompatibleIntlExtension extends AbstractExtension
     ) {
     }
 
-    /**
-     * @phpstan-ignore shopware.deprecatedClass (framework-invoked; the extension returns no filters once v6.8.0.0 is active)
-     */
     public function getFilters(): array
     {
         if (Feature::isActive('v6.8.0.0')) {
@@ -86,8 +83,6 @@ class BackwardCompatibleIntlExtension extends AbstractExtension
 
     /**
      * @param array<string, null> $attrs
-     *
-     * @phpstan-ignore shopware.deprecatedClass (delegates to formatNumber(), which contains the legacy invalid-locale behavior)
      */
     public function formatNumberStyle(string $style, mixed $number, array $attrs = [], string $type = 'default', ?string $locale = null): string
     {

@@ -174,7 +174,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MessageBusInterface::class),
             service('logger'),
         ])
-        ->tag('console.command');
+        ->tag('console.command')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(WebhookManager::class)
         ->lazy()

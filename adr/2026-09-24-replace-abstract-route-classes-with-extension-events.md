@@ -59,8 +59,7 @@ Plugins subscribe to the following hooks:
 * Keep abstract route classes and `getDecorated()` supported for now.
   Deprecate a route's abstract class and decorator-based extension path only when the route is being adjusted anyway **and** a breaking change is necessary.
   Follow the normal backward-compatibility process for deprecation and removal.
-  Adding events alone does not trigger either.
-  There is no blanket schedule.
+  Introducing new events does not justify a deprecation, and there is no global timeline for phasing these patterns out.
 * Both mechanisms coexist while the abstract contract remains supported.
   Plugin extensions should use events where available as soon as possible.
 * When adjusting a route, core decorators such as `ResolvedCriteriaProductSearchRoute` can become subscribers or be merged into the route body, subject to backward compatibility.

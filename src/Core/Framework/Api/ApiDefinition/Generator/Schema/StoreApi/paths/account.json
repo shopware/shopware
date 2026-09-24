@@ -139,10 +139,15 @@
                                                         "default": "private"
                                                     },
                                                     "company": {
-                                                        "type": "null"
+                                                        "description": "Not used for a private account, the value is cleared.",
+                                                        "type": "string"
                                                     },
                                                     "vatIds": {
-                                                        "type": "null"
+                                                        "description": "Not used for a private account, the value is cleared.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
                                                     }
                                                 }
                                             },
@@ -168,8 +173,7 @@
                                                         "type": "array",
                                                         "items": {
                                                             "type": "string"
-                                                        },
-                                                        "minItems": 1
+                                                        }
                                                     }
                                                 }
                                             }
@@ -1280,10 +1284,15 @@
                                                         "default": "private"
                                                     },
                                                     "company": {
-                                                        "type": "null"
+                                                        "description": "Not used for a private account, the value is ignored.",
+                                                        "type": "string"
                                                     },
                                                     "vatIds": {
-                                                        "type": "null"
+                                                        "description": "Not used for a private account, the value is ignored.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
                                                     }
                                                 }
                                             },
@@ -1326,8 +1335,7 @@
                                                         "type": "array",
                                                         "items": {
                                                             "type": "string"
-                                                        },
-                                                        "minItems": 1
+                                                        }
                                                     }
                                                 }
                                             }

@@ -27,7 +27,7 @@ Without one written rule, Admin and Store drift, and dual-era tests ([#20513](ht
 
 ### Rule (future-proof)
 
-**Derive what a request can see from the request itself** — URL (`?toolsets=`), credential / principal, and ACL — **never from server-held connection state.**
+**Derive what a request can see from the request itself** (URL `?toolsets=`, credential / principal, and ACL), **never from server-held connection state.**
 
 Admin and Store **move together** under this rule. No second visibility model for Store.
 
@@ -37,9 +37,9 @@ Admin and Store **move together** under this rule. No second visibility model fo
 |---|---|---|
 | **Toolset visibility (cluster A)** | Request-derived | Supported path is `?toolsets=` (plus allowlist / ACL). Mid-session `shopware-toolset-enable` remains **handshake-only**; do not claim it works on modern. |
 | **`list_changed` (cluster B)** | Demoted; not load-bearing for progressive disclosure | After unpin, prefer SDK notification bus ([#19970](https://github.com/shopware/shopware/issues/19970)) on a shared pool ([#19980](https://github.com/shopware/shopware/issues/19980)). Clients that never re-list must use `?toolsets=`. Do not invent durable modern session state just to keep list_changed. |
-| **Large-result offload (cluster C)** | Honest on both eras via principal-scoped tokens | Re-key off `session_id`. Authorize `resources/read` with **signed short-lived offload tokens** (not raw OAuth `jti`). Ship ResourceLink ([#19966](https://github.com/shopware/shopware/issues/19966)). TTL GC mandatory ([#20511](https://github.com/shopware/shopware/issues/20511)) — cleanup must not assume a session store or DELETE. |
+| **Large-result offload (cluster C)** | Honest on both eras via principal-scoped tokens | Re-key off `session_id`. Authorize `resources/read` with **signed short-lived offload tokens** (not raw OAuth `jti`). Ship ResourceLink ([#19966](https://github.com/shopware/shopware/issues/19966)). TTL GC mandatory ([#20511](https://github.com/shopware/shopware/issues/20511)). Cleanup must not assume a session store or DELETE. |
 | **`McpSessionIdValidator`** | Handshake-era | Dead / no-op on a modern-only request path; do not reintroduce session validation as a modern gate. |
-| **Session DELETE cleanup** | Handshake-era only | Modern DELETE → 405. Age/TTL tasks cover cache and toolset rows. |
+| **Session DELETE cleanup** | Handshake-era only | Modern DELETE → 405. The age-based TTL task ([#20511](https://github.com/shopware/shopware/issues/20511)) covers `mcp_tool_result_cache`. `mcp_toolset_session` rows are only written on the handshake era and keep the session-liveness cleanup task. |
 
 ### Endpoints
 

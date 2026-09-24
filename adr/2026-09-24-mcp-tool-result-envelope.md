@@ -1,5 +1,5 @@
 ---
-title: MCP tool result envelope — transitional path to spec shapes
+title: MCP tool result envelope: transitional path to spec shapes
 date: 2026-09-24
 area: framework
 tags: [framework, mcp, ai, tool-result, structuredContent, bc]
@@ -21,9 +21,9 @@ This is the **widest blast radius** item in the epic: core tools, plugins (e.g. 
 
 The Shopware string envelope is **transitional**, not long-term product contract.
 
-1. **Dual-support** — helpers accept / emit both legacy string envelope and native MCP returns during the window.
-2. **Deprecate** — UPGRADE / RELEASE_INFO + PHPStan deprecation signal for the string envelope.
-3. **Remove** — drop string `{"success":…}` emission and tighten/remove the **return-shape / deprecation** PHPStan rule that flagged legacy string returns **no later than experimental → 6.8.0**.
+1. **Dual-support**: helpers accept / emit both legacy string envelope and native MCP returns during the window.
+2. **Deprecate**: UPGRADE / RELEASE_INFO + PHPStan deprecation signal for the string envelope.
+3. **Remove**: drop string `{"success":…}` emission and tighten/remove the **return-shape / deprecation** PHPStan rule that flagged legacy string returns **no later than experimental → 6.8.0**.
 
 Reject indefinite Shopware-only envelope. Reject a hard cut in this iteration while early-adopter parsers still assume `success`.
 
@@ -37,7 +37,7 @@ A tool `call` / invoke path may return:
 | **`Content` blocks** (incl. text / resource) | Preferred wire shape; **ResourceLink** is a Content return for large-result offload |
 | **`structuredContent`** (+ `content[]` as required by revision) | Machine-readable success payload (maps from today’s `data`) |
 | **`isError: true`** with error content / structured payload | Business / domain failure (maps from today’s `success: false` envelope) |
-| **JSON-RPC error** | Transport / protocol / unexpected server failure only — not ordinary business validation |
+| **JSON-RPC error** | Transport / protocol / unexpected server failure only, not ordinary business validation |
 
 Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 
@@ -46,8 +46,8 @@ Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 | Legacy | Spec |
 |---|---|
 | `success: true` + `data` | `structuredContent` = `data` (and/or text Content summarizing for models); `isError` absent/false |
-| `success: false` + error fields | `isError: true`; encode message/details in content / structured error object — **not** a JSON-RPC error |
-| `_meta` (incl. offload hints) | Prefer ResourceLink Content for offload; remaining meta follows MCP `_meta` rules for the negotiated revision — do not teach a long-lived prose `_meta.resourceUri` convention |
+| `success: false` + error fields | `isError: true`; encode message/details in content / structured error object, **not** a JSON-RPC error |
+| `_meta` (incl. offload hints) | Prefer ResourceLink Content for offload; remaining meta follows MCP `_meta` rules for the negotiated revision. Do not teach a long-lived prose `_meta.resourceUri` convention |
 | Thrown / transport failure | JSON-RPC error |
 
 ### `outputSchema`
@@ -60,14 +60,14 @@ Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 
 Today's `McpToolResponseRule` (`src/Core/DevOps/StaticAnalyze/PHPStan/Rules/McpToolResponseRule.php`) **only** checks that a `#[McpTool]` class extends `McpToolResponse`. It is **not** a return-shape validator.
 
-Intended enforcement (split — do not overload the inheritance rule):
+Intended enforcement (split, do not overload the inheritance rule):
 
-1. **Keep** — `McpToolResponseRule` as the **inheritance** rule (`#[McpTool]` → extend `McpToolResponse`). Remains valid through dual-support; revisit only if tools may stop extending the helper class.
-2. **Add** — a **new** return-shape / envelope-deprecation PHPStan rule (sibling of `McpToolResponseRule`) that:
+1. **Keep**: `McpToolResponseRule` as the **inheritance** rule (`#[McpTool]` → extend `McpToolResponse`). Remains valid through dual-support; revisit only if tools may stop extending the helper class.
+2. **Add**: a **new** return-shape / envelope-deprecation PHPStan rule (sibling of `McpToolResponseRule`) that:
    - During dual-support: allows the listed returns in this ADR;
    - Toward **6.8.0**: warns (then errors) on legacy string `{"success":…}` / obsolete helper-only paths so authors migrate to the allowed shapes above.
 
-**Follow-on (not this ADR merge):** MCP PHPStan **guidance pack** — the new envelope-deprecation rule above, plus **Admin ACL required** (audited exceptions), **Store tools ≠ Admin ACL**, and reserved-group warn ([#20725](https://github.com/shopware/shopware/issues/20725)). Track under [#19965](https://github.com/shopware/shopware/issues/19965); do not implement the pack in the ADR merge itself. Pack proposal / project ADR copy: MCP Iteration 3 `docs/mcp-phpstan-guidance.md` and `docs/adr-19967-envelope.md`.
+**Follow-on (not this ADR merge):** MCP PHPStan **guidance pack**: the new envelope-deprecation rule above, plus **Admin ACL required** (audited exceptions), **Store tools ≠ Admin ACL**, and reserved-group warn ([#20725](https://github.com/shopware/shopware/issues/20725)). Track under [#19965](https://github.com/shopware/shopware/issues/19965); do not implement the pack in the ADR merge itself.
 
 ### Sequencing
 
@@ -81,6 +81,6 @@ Intended enforcement (split — do not overload the inheritance rule):
 ## Consequences
 
 - **Clients/agents:** Dual-read `success` **and** `content` / `structuredContent` / `isError` until 6.8.0; then drop string-envelope parsers.
-- **Plugins/apps/evals:** External BC — paired Shopware + evals PRs for contract moves; RELEASE_INFO + UPGRADE required for deprecate and remove.
+- **Plugins/apps/evals:** External BC. Paired Shopware + evals PRs for contract moves; RELEASE_INFO + UPGRADE required for deprecate and remove.
 - **Eng:** One helper migration path; ResourceLink lands as Content; Sync (#20520) reuses this contract.
 - **PHPStan:** Keep inheritance rule; **add** return-shape / deprecation sibling as part of the contract; broader guidance pack (Admin ≠ Store, reserved groups) tracks under the epic as follow-on.

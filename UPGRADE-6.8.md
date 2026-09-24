@@ -326,6 +326,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `Feature` is final
+
+`Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.
+
 ## `AbstractCartPersister::exists()` is abstract
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister::exists()` was introduced in 6.7.15.0 with a default implementation that delegated to the decorated persister. It is abstract now, so every cart persister declares it itself:
@@ -2116,6 +2120,16 @@ The old classes are removed:
 
 `\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
 The HTTP route is still the same. The old class has been removed.
+
+## Removed Elasticsearch search configuration loader alias
+
+`Shopware\Elasticsearch\Product\SearchConfigLoader` was removed.
+Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
+
+## Removed asset service alias
+
+`Shopware\Core\Framework\Plugin\Util\AssetService` was removed.
+The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now internal and must not be used as an extension dependency.
 
 ## Removal of snippets
 

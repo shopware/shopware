@@ -289,6 +289,51 @@ class StorefrontSnippetStorageTest extends TestCase
         }
     }
 
+    public function testChangedContentsUnderTheSameVersionReplaceTheLocalCopy(): void
+    {
+        $storage = $this->createStorage();
+        $storage->persist('TestApp', '1.0.0', $this->source());
+        $directory = $storage->directory('TestApp', '1.0.0');
+        static::assertNotNull($directory);
+
+        static::assertTrue($storage->persist('TestApp', '1.0.0', $this->source('AppWithNestedSnippets')));
+
+        // same name and version, so the new contents land in the same directory
+        static::assertSame($directory, $storage->directory('TestApp', '1.0.0'));
+        static::assertJsonStringEqualsJsonString('{"app":{"title":"Root"}}', $this->io->readFile($directory . '/Resources/snippet/storefront.de.json'));
+        static::assertFalse($this->io->exists($directory . '/Resources/snippet/storefront.en.base.json'));
+    }
+
+    public function testRemoveDropsTheLocalCopiesOfOnlyTheRequestedApp(): void
+    {
+        $storage = $this->createStorage();
+        $storage->persist('TestApp', '1.0.0', $this->source());
+        $storage->persist('OtherApp', '1.0.0', $this->source());
+        $directory = $storage->directory('TestApp', '1.0.0');
+        $otherDirectory = $storage->directory('OtherApp', '1.0.0');
+        static::assertNotNull($directory);
+        static::assertNotNull($otherDirectory);
+
+        static::assertTrue($storage->remove('TestApp'));
+
+        static::assertFalse($this->io->exists($directory));
+        static::assertTrue($this->io->exists($otherDirectory));
+    }
+
+    public function testRemoveReportsLocalCopiesThatOutlivedTheirSnapshot(): void
+    {
+        $this->adapter->failWrites = true;
+        $source = $this->createMock(SourceResolver::class);
+        $source->expects($this->once())->method('filesystemForAppName')->willReturn($this->source());
+        $storage = $this->createStorage($source);
+        $directory = $storage->directory('TestApp', '1.0.0');
+        static::assertNotNull($directory);
+
+        static::assertTrue($storage->remove('TestApp'));
+
+        static::assertFalse($this->io->exists($directory));
+    }
+
     public function testRemoveOnlyDeletesTheRequestedAppSnapshot(): void
     {
         $storage = $this->createStorage();

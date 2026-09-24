@@ -204,9 +204,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->expectExceptionObject(MediaException::thumbnailAssociationNotLoaded());
 
-        $result = $this->thumbnailService->generate($mediaCollection, $this->context);
-
-        static::assertSame(0, $result);
+        $this->thumbnailService->generate($mediaCollection, $this->context);
     }
 
     public function testGenerateWithNonImageMediaTypes(): void

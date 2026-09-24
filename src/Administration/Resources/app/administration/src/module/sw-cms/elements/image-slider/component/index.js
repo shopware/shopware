@@ -14,16 +14,11 @@ export default {
 
     emits: ['active-image-change'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     props: {
         activeMedia: {
-            type: [
-                Object,
-                null,
-            ],
+            type: [Object, null],
             required: false,
             default: null,
         },

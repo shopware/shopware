@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -172,76 +173,9 @@ class FlowDispatcherTest extends TestCase
         $flowDispatcher->dispatch($event);
     }
 
-    public function testNestedTransactionExceptionsAreRethrownWhenSavePointsAreNotEnabled(): void
+    #[DisabledFeatures(['FLOW_EXECUTION_AFTER_BUSINESS_PROCESS', 'v6.8.0.0'])]
+    public function testExecuteSequenceExceptionsAreLoggedAndExecutionContinues(): void
     {
-        Feature::skipTestIfActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS', $this);
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
-
-        $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->expects($this->exactly(2))
-            ->method('dispatch')
-            ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
-        $flowDispatcher = new FlowDispatcher($dispatcher, $this->container);
-
-        $flow = new StorableFlow('state_enter.order.state.in_progress', $event->getContext(), [], []);
-        $flowFactory = $this->createMock(FlowFactory::class);
-        $flowFactory->expects($this->once())
-            ->method('create')
-            ->willReturn($flow);
-        $this->container->set(FlowFactory::class, $flowFactory);
-
-        $flowLoader = static::createStub(FlowLoader::class);
-        $flowLoader->method('load')->willReturn([
-            'state_enter.order.state.in_progress' => [
-                [
-                    'id' => 'flow-1',
-                    'name' => 'Order enters status in progress',
-                    'payload' => new Flow(Uuid::randomHex()),
-                ],
-            ],
-        ]);
-
-        $internalException = FlowException::transactionFailed(new TableNotFoundException(
-            new DbalPdoException('Table not found', null, 1146),
-            null
-        ));
-
-        $flowExecutor = $this->createMock(FlowExecutor::class);
-        $flowExecutor->expects($this->once())
-            ->method('execute')
-            ->willThrowException(new ExecuteSequenceException(
-                'flow-1',
-                'sequence-1',
-                $internalException->getMessage(),
-                0,
-                $internalException
-            ));
-
-        $this->container->set(FlowLoader::class, $flowLoader);
-        $this->container->set(FlowExecutor::class, $flowExecutor);
-
-        $this->expectExceptionObject($internalException);
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with(
-                "Could not execute flow with error message:\nFlow name: Order enters status in progress\nFlow id: flow-1\nSequence id: sequence-1\nFlow action transaction could not be committed and was rolled back. Exception: An exception occurred in the driver: Table not found\nError Code: 0\n",
-                static::callback(static function (array $context) {
-                    return $context['exception'] instanceof ExecuteSequenceException;
-                })
-            );
-        $this->container->set('logger', $logger);
-
-        $flowDispatcher->dispatch($event);
-    }
-
-    public function testExceptionsAreLoggedAndExecutionContinuesWhenNestedTransactionsWithSavePointsIsEnabled(): void
-    {
-        Feature::skipTestIfActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS', $this);
-        Feature::skipTestIfActive('v6.8.0.0', $this);
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
 
         $this->dispatcher->method('dispatch')->willReturnOnConsecutiveCalls(

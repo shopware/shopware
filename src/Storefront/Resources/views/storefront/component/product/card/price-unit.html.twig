@@ -99,9 +99,13 @@
                         {{ price.unitPrice|currency }}
 
                         {% if isListPrice and not displayFrom and not displayFromVariants %}
-                            {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
-                            {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
-                            {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
+                            {% set afterListPriceSnippetExists = false %}
+                            {% set beforeListPriceSnippetExists = false %}
+                            {% if not feature('v6.8.0.0') %}
+                                {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
+                                {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
+                                {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
+                            {% endif %}
 
                             <span class="list-price list-price-no-line-through">
                                 {% block component_product_box_main_price_before %}

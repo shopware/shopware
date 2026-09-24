@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\SystemCheck\Util;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -30,7 +31,8 @@ class SalesChannelDomainContextFactory
      * @description Language, currency and domain are taken from the domain whose URL is probed, not from the
      * sales channel defaults, because all of them feed the criteria processing. The rule IDs are detected the
      * same way SalesChannelContextService::get() detects them for a visitor without a cart: by calculating a
-     * new, empty cart. The cart only lives in memory and is not persisted, and unlike
+     * new, empty cart. The cart only lives in memory: persistence is skipped explicitly, because a cart processor
+     * adding a line item or an error would otherwise store a cart under a token nobody uses again. Unlike
      * SalesChannelContextService::get() this does not touch the current request, its session or the cart
      * service, which matters when the check runs inside an Admin API request.
      */
@@ -44,7 +46,12 @@ class SalesChannelDomainContextFactory
             SalesChannelContextService::CURRENCY_ID => $domain->currencyId,
         ]);
 
-        $this->cartRuleLoader->loadByCart($context, new Cart($token), new CartBehavior($context->getPermissions()), true);
+        $behavior = new CartBehavior([
+            ...$context->getPermissions(),
+            CheckoutPermissions::SKIP_CART_PERSISTENCE => true,
+        ]);
+
+        $this->cartRuleLoader->loadByCart($context, new Cart($token), $behavior, true);
 
         return $context;
     }

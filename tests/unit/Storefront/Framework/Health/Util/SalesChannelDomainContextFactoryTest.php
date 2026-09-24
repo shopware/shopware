@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\RuleLoaderResult;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -84,6 +85,7 @@ class SalesChannelDomainContextFactoryTest extends TestCase
                 static::assertSame($this->contextToken, $cart->getToken());
                 static::assertCount(0, $cart->getLineItems());
                 static::assertTrue($isNew, 'a new cart has to be matched against all rules');
+                static::assertTrue($behavior->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE), 'the cart must not be stored');
 
                 $context->setRuleIds([$this->ids->get('always-valid-rule')]);
 

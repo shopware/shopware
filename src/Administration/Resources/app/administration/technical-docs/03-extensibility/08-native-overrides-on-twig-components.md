@@ -79,13 +79,13 @@ This works when the block consists of exactly one slot template spanning its who
 
 The adapter therefore **reserves the slot early and fills it late**:
 
-1. `setup()` returns an empty object. Vue keeps a live reference to it as the component's setup state, the entry with the highest precedence.
-2. A `created()` hook, injected as the first mixin, runs the override callbacks. At that point `data` and `computed` exist, so `previousState` can read them.
+1. `setup()` checks per instance whether overrides are registered for the component. The check cannot happen at build time: sync components are built before the override SFCs mount and register. Without overrides, `setup()` returns the component's own `setup()` result untouched. Otherwise it returns that result, or `{}` if the component has no `setup()`. Vue keeps a live reference to it as the component's setup state, the entry with the highest precedence.
+2. A `created()` hook runs the override callbacks. It is injected as the first mixin of the innermost `extends` config, so it runs before every other `created()` hook, including those of a base component reached through `Component.extend()` or a legacy `Component.override()`. At that point `data` and `computed` exist, so `previousState` can read them.
 3. The results are written into the object from step 1, before the first render.
 
-`previousState` is a proxy that serves every key as a ref-like accessor, so `previousState.x.value` works for `data`, `props`, `computed` and `methods` alike, including calling a replaced method's original. It deliberately reads _past_ the setup state, because the override's own result already lives there and reading it would loop.
+`previousState` is a proxy. Every key except functions is served as a read-only ref, so `previousState.x.value` works for `data`, `props`, `computed` and the setup state alike, the same shape migrated components get. Functions are passed through as they are, so a replaced method's original is called as `previousState.x()`. Each override sees the component's own `setup()` result and everything earlier overrides returned, but not its own result, which is only written after the call.
 
-Writing back (`previousState.x.value = …`) lands in the base state, not in the override's result. Props stay read-only, as they are on Vue's own proxy.
+`previousState` is read-only. Writes (`previousState.x.value = …` or `previousState.x = …`) are reported with `console.error` and dropped. A value is changed by returning it from the override.
 
 ---
 

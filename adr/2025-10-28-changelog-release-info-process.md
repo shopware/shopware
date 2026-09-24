@@ -4,13 +4,12 @@ date: 2025-10-28
 area: process
 tags: [documentation, release, changelog, release-info, upgrade, developer-relations]
 authors: [Álvaro Thomas, Jonas Elfering]
-status: accepted
 ---
 
 ## Context
 
-Historically, Shopware used a changelog file workflow based on per-change markdown files under `/changelog/_unreleased` with an automated build step that aggregated them into `CHANGELOG.md` and `UPGRADE.md`.  
-While technically useful, this caused friction: duplication, missing high-level developer-facing context, and the release notes living in a separate repository.  
+Historically, Shopware used a changelog file workflow based on per-change markdown files under `/changelog/_unreleased` with an automated build step that aggregated them into `CHANGELOG.md` and `UPGRADE.md`.
+While technically useful, this caused friction: duplication, missing high-level developer-facing context, and the release notes living in a separate repository.
 The team now prefers a curated, in-repo workflow for developer-facing release notes.
 
 ---
@@ -30,13 +29,13 @@ Example: RELEASE_INFO-6.7.md
 - Improved indexing performance for product categories (PR #12657)
 ### Administration
 - Updated TypeScript target to ES2023 (PR #12408)
-``` 
+```
 ```
 Example: UPGRADE-6.8.md
 
 ## Deprecated SalesChannelContextSwitcher
 
-The `SalesChannelContextSwitcher` service is deprecated and will be removed in 6.8.  
+The `SalesChannelContextSwitcher` service is deprecated and will be removed in 6.8.
 Plugins using it should migrate to `ContextResolverInterface`.
 
 _(Tip: You can use short headings like “What changed” or “How to adjust” if it helps readability, but they’re not mandatory.)_
@@ -57,14 +56,14 @@ For details about how to write entries for these files, please refer to the rele
 
 ## Consequences
 
-- The old ADR is preserved in `_superseded` for historical reference.  
-- PR reviewers must ensure developer-facing entries are added or explicitly marked unnecessary.  
-- Marketing and Comms will pull content **only** from `RELEASE_INFO` and `UPGRADE`, not from the raw changelog.  
-- Internal documentation (Confluence, DevRel guides) links to these files as the single source of truth for developer-facing release information.  
+- The old ADR is preserved in `_superseded` for historical reference.
+- PR reviewers must ensure developer-facing entries are added or explicitly marked unnecessary.
+- Marketing and Comms will pull content **only** from `RELEASE_INFO` and `UPGRADE`, not from the raw changelog.
+- Internal documentation (Confluence, DevRel guides) links to these files as the single source of truth for developer-facing release information.
 - A future CI enhancement will enforce the presence of these updates where required.
 
 ---
 
 ## References
 
-- Superseded ADR: `adr/_superseded/2020-08-03-implement-new-changelog.md`  
+- Superseded ADR: `adr/_superseded/2020-08-03-implement-new-changelog.md`

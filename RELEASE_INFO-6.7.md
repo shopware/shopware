@@ -42,7 +42,7 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 ### Static analysis reports N+1 queries
 
-`shopware/phpstan-extension` gained two rules for this. `NoIndirectQueryInLoopRule` reports a loop that calls a method which queries, under the `shopware.indirectQueryInLoop` identifier — moving a query out of the loop body does not make the loop cheaper, so the rule follows the delegation, into a method of the same class or of a collaborator, resolving a call site typed against an abstract class or an interface to the implementation. It does not report a call that leads back to its own caller, because that recursion follows the shape of the data rather than the number of records.
+`shopware/phpstan-extension` gained two rules for this. `NoIndirectQueryInLoopRule` reports a loop that calls a method of the same class which queries, under the `shopware.indirectQueryInLoop` identifier — moving a query into a helper does not make the loop cheaper, so the rule follows the delegation. It does not report a call that leads back to its own caller, because that recursion follows the shape of the data rather than the number of records.
 
 Neither rule looks at migrations, demodata generators or `Shopware\Core\Framework\DataAbstractionLayer`, because a migration runs once, demodata only builds a development shop, and the DAL is the layer that does the batching.
 

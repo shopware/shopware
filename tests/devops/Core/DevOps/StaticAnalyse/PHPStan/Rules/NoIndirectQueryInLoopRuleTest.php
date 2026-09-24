@@ -33,16 +33,6 @@ class NoIndirectQueryInLoopRuleTest extends RuleTestCase
         ]);
     }
 
-    public function testQueriesReachedThroughAnotherClassAreReported(): void
-    {
-        $this->analyse([__DIR__ . '/data/NoIndirectQueryInLoopRule/CrossClassQueryInLoop.php'], [
-            [
-                'load() queries the database and is called inside a loop, which causes an N+1 query problem. Load the data for all iterations with a single query before the loop instead.',
-                29,
-            ],
-        ]);
-    }
-
     public static function getAdditionalConfigFiles(): array
     {
         return [

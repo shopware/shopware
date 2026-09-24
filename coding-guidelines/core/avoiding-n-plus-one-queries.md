@@ -8,10 +8,8 @@ up on a shop with 100,000 products.
 Two PHPStan rules report it:
 
 * `NoQueryInLoopRule` reports a query written inside a loop body, under the `shopware.queryInLoop` identifier.
-* `NoIndirectQueryInLoopRule` reports a loop that calls a method which queries, under the
-  `shopware.indirectQueryInLoop` identifier. The method may live in the same class or in a collaborator, and a call
-  site typed against an abstract class or an interface resolves to the implementation. Moving the query out of the
-  loop body does not make the loop cheaper, so the
+* `NoIndirectQueryInLoopRule` reports a loop that calls a method of the same class which queries, under the
+  `shopware.indirectQueryInLoop` identifier. Moving the query into a helper does not make the loop cheaper, so the
   rule follows the delegation, however many steps away the query is.
 
 Neither rule looks at migrations, demodata generators or the data abstraction layer itself: a migration runs once and

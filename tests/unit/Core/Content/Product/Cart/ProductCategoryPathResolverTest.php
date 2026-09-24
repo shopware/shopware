@@ -5,9 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Cart;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\ProductStream\ProductStreamCollection;
+use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -180,6 +183,23 @@ class ProductCategoryPathResolverTest extends TestCase
         static::assertSame(['Sale', 'Outlet'], $this->resolver->getPath($product, $this->context));
     }
 
+    public function testPathFallsBackToTheCategoriesOfLoadedStreams(): void
+    {
+        // a Storefront page loads them as `streams.categories` through the Store API route
+        $sale = $this->category('sale', ['Sale'], assignment: CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM);
+        $slider = $this->category('slider', ['Mid', 'Deeper', 'Slider']);
+
+        $stream = new ProductStreamEntity();
+        $stream->setUniqueIdentifier(Uuid::randomHex());
+        $stream->setCategories(new CategoryCollection([$sale, $slider]));
+
+        $product = $this->product([]);
+        $product->setStreams(new ProductStreamCollection([$stream]));
+
+        // a category that only uses the stream for a slider does not list the product
+        static::assertSame(['Sale'], $this->resolver->getPath($product, $this->context));
+    }
+
     public function testStreamCategoriesAreIgnoredWhenTheProductHasDirectCategories(): void
     {
         $product = $this->product([$this->category('direct', ['Direct'])]);
@@ -239,6 +259,7 @@ class ProductCategoryPathResolverTest extends TestCase
         bool $active = true,
         bool $visible = true,
         ?string $root = null,
+        string $assignment = CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
     ): CategoryEntity {
         $root ??= $this->navigationId;
 
@@ -252,6 +273,7 @@ class ProductCategoryPathResolverTest extends TestCase
         $category->setUniqueIdentifier($this->ids->get($key));
         $category->setActive($active);
         $category->setVisible($visible);
+        $category->setProductAssignmentType($assignment);
         $category->setLevel(\count($names) + 1);
         $category->setPath('|' . implode('|', $ancestors) . '|');
         $category->setTranslated([

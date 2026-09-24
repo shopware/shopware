@@ -56,10 +56,7 @@ async function createWrapper(options = {}) {
                     'mt-card': {
                         template:
                             '<div class="mt-card"><slot name="title"></slot><slot></slot><slot name="grid"></slot></div>',
-                        props: [
-                            'title',
-                            'isLoading',
-                        ],
+                        props: ['title', 'isLoading'],
                     },
                     'sw-data-grid': {
                         template: `
@@ -89,11 +86,7 @@ async function createWrapper(options = {}) {
                     'sw-label': {
                         template:
                             '<span class="sw-label" :data-appearance="appearance" :data-size="size" :data-variant="variant"><slot></slot></span>',
-                        props: [
-                            'appearance',
-                            'size',
-                            'variant',
-                        ],
+                        props: ['appearance', 'size', 'variant'],
                     },
                     'sw-pagination': {
                         template:
@@ -109,11 +102,7 @@ async function createWrapper(options = {}) {
                     },
                     'mt-icon': {
                         template: '<span class="mt-icon" :data-name="name"><slot></slot></span>',
-                        props: [
-                            'name',
-                            'size',
-                            'color',
-                        ],
+                        props: ['name', 'size', 'color'],
                     },
                     'sw-context-menu-item': {
                         template: `
@@ -133,18 +122,12 @@ async function createWrapper(options = {}) {
                                 <slot></slot>
                             </button>
                         `,
-                        props: [
-                            'disabled',
-                            'routerLink',
-                        ],
+                        props: ['disabled', 'routerLink'],
                     },
                     'router-link': RouterLinkStub,
                     'mt-empty-state': {
                         template: '<div class="mt-empty-state">{{ headline }}</div>',
-                        props: [
-                            'headline',
-                            'icon',
-                        ],
+                        props: ['headline', 'icon'],
                     },
                 },
                 provide: {
@@ -367,11 +350,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
             expect.objectContaining({
                 page: 1,
                 limit: 10,
-                steps: [
-                    10,
-                    25,
-                    50,
-                ],
+                steps: [10, 25, 50],
                 total: 26,
             }),
         );

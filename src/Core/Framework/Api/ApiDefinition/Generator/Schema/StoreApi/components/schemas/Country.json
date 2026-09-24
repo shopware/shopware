@@ -8,8 +8,7 @@
                 "description": "Added since version: 6.0.0.0",
                 "required": [
                     "id",
-                    "name",
-                    "addressFormat"
+                    "name"
                 ],
                 "properties": {
                     "id": {

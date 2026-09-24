@@ -27,11 +27,7 @@ export default {
         },
     },
 
-    emits: [
-        'toggle-active',
-        'close-content',
-        'click',
-    ],
+    emits: ['toggle-active', 'close-content', 'click'],
 
     props: {
         title: {
@@ -55,10 +51,7 @@ export default {
             required: false,
             default: 'top',
             validator(value) {
-                return [
-                    'top',
-                    'bottom',
-                ].includes(value);
+                return ['top', 'bottom'].includes(value);
             },
         },
 

@@ -56,10 +56,7 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-select-result': {
-                    props: [
-                        'item',
-                        'index',
-                    ],
+                    props: ['item', 'index'],
                     template: `<li :class="componentClasses" class="sw-select-result" @click.stop="onClickResult">
                         <slot></slot></li>`,
                     methods: {
@@ -69,9 +66,7 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
                     },
                     computed: {
                         componentClasses() {
-                            return [
-                                `sw-select-option--${this.index}`,
-                            ];
+                            return [`sw-select-option--${this.index}`];
                         },
                     },
                 },

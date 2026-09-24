@@ -133,9 +133,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     });
 
     it('should have all fields enabled', async () => {
-        const wrapper = await createWrapper([
-            'shipping.editor',
-        ]);
+        const wrapper = await createWrapper(['shipping.editor']);
         await wrapper.setData({
             isProcessLoading: false,
         });

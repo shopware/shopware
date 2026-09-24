@@ -66,9 +66,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
-        $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
+        $entityDefinitionService = static::createStub(EntityDefinitionService::class);
         $entityDefinitionService->method('getAllowedEntityDefinition')
-            ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
 
         $productIds = $this->setUpProducts();
@@ -117,9 +116,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
-        $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
+        $entityDefinitionService = static::createStub(EntityDefinitionService::class);
         $entityDefinitionService->method('getAllowedEntityDefinition')
-            ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
 
         $productIds = $this->setUpProducts();
@@ -166,9 +164,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
-        $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
+        $entityDefinitionService = static::createStub(EntityDefinitionService::class);
         $entityDefinitionService->method('getAllowedEntityDefinition')
-            ->with('product')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
 
         $ids = new IdsCollection();

@@ -103,7 +103,7 @@ this.$tc('sw-product.list.messageDelete', count, { name });
 this.$t('sw-product.list.messageDelete', { name }, count);
 ```
 
-The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes both automatically in scripts and templates:
+The ESLint rule `sw-core-rules/no-tc-translation` of the Administration extension tooling fixes both automatically in scripts and templates. Calls whose named parameters are no object literal, e.g. `$t(key, 1, params)`, are reported and have to be swapped manually:
 
 ```bash
 bin/console administration:check-extensions -- --only=MyPlugin --fix

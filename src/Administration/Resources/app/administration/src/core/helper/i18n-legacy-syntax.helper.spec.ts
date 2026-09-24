@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import { createI18n } from 'vue-i18n';
-import { createDeprecatedTc, createTranslate } from './i18n-legacy-syntax';
+import type * as LegacySyntax from './i18n-legacy-syntax.helper';
 
 // The vue-i18n 8 argument order is intentionally not covered by the vue-i18n 10 types.
 type Translate = (this: unknown, ...args: unknown[]) => string;
@@ -23,10 +23,15 @@ function createGlobalT(): Translate {
 
 const component = { $options: { name: 'sw-test-component' } };
 
-describe('src/app/adapter/view/i18n-legacy-syntax', () => {
+describe('src/core/helper/i18n-legacy-syntax.helper', () => {
     let warnSpy: jest.SpyInstance;
+    let createTranslate: typeof LegacySyntax.createTranslate;
+    let createDeprecatedTc: typeof LegacySyntax.createDeprecatedTc;
 
-    beforeEach(() => {
+    beforeEach(async () => {
+        // Fresh module per test, so the deduplicated warnings of one test do not leak into the next one.
+        jest.resetModules();
+        ({ createTranslate, createDeprecatedTc } = await import('./i18n-legacy-syntax.helper'));
         warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
@@ -57,6 +62,19 @@ describe('src/app/adapter/view/i18n-legacy-syntax', () => {
                     "$t('items', plural, namedParameters) uses the vue-i18n 8 argument order " +
                         'in component "sw-test-component". Use $t(\'items\', namedParameters, plural) instead.',
                 ),
+            );
+        });
+
+        it('warns separately per API for the same snippet key', () => {
+            const globalT = createGlobalT();
+
+            createTranslate(globalT)('upload', 2, { count: 2, total: 5 });
+            createTranslate(globalT, 'Shopware.Snippet.t')('upload', 2, { count: 2, total: 5 });
+
+            expect(warnSpy).toHaveBeenCalledTimes(2);
+            expect(warnSpy).toHaveBeenCalledWith(
+                '[Deprecation]',
+                expect.stringContaining("Use Shopware.Snippet.t('upload', namedParameters, plural) instead."),
             );
         });
 
@@ -112,12 +130,14 @@ describe('src/app/adapter/view/i18n-legacy-syntax', () => {
             const nodeEnv = process.env.NODE_ENV;
             process.env.NODE_ENV = 'production';
 
-            const tc = createDeprecatedTc(createGlobalT(), '$tc', '$t');
+            try {
+                const tc = createDeprecatedTc(createGlobalT(), '$tc', '$t');
 
-            expect(tc.call(component, 'items', 0)).toBe('no items');
-            expect(warnSpy).not.toHaveBeenCalled();
-
-            process.env.NODE_ENV = nodeEnv;
+                expect(tc.call(component, 'items', 0)).toBe('no items');
+                expect(warnSpy).not.toHaveBeenCalled();
+            } finally {
+                process.env.NODE_ENV = nodeEnv;
+            }
         });
     });
 });

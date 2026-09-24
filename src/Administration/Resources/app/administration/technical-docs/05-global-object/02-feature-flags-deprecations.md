@@ -149,16 +149,7 @@ This rule ensures proper handling of deprecated features and prevents inappropri
 
 ### Runtime Deprecation Warnings
 
-Deprecated developer-facing APIs report their usages at runtime. Keep these warnings actionable and quiet: log them only in development builds, deduplicate them per call site, and name the caller and the replacement.
-
-```typescript
-// Example from i18n-legacy-syntax.ts, used for the deprecated $tc
-reportDeprecationOnce(
-    `tc:${apiName}:${componentName ?? ''}:${key}`,
-    `${apiName}() is deprecated and will be removed in v6.9.0. ` +
-        `Replace ${apiName}('${key}') with ${replacement}('${key}')${inComponent(componentName)}.`,
-);
-```
+Deprecated developer-facing APIs report their usages at runtime. Keep these warnings actionable and quiet: log them only in development builds, deduplicate them per call site, and name the caller and the replacement. See `src/core/helper/i18n-legacy-syntax.helper.ts`, which reports the deprecated `$tc` and the vue-i18n 8 argument order.
 
 Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like `sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).
 

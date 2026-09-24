@@ -8,7 +8,7 @@
 const utilsModule = require('eslint-plugin-vue/dist/utils');
 const utils = utilsModule.default ?? utilsModule;
 
-// Keys of vue-i18n's `TranslateOptions`, see `src/app/adapter/view/i18n-legacy-syntax.ts`.
+// Keys of vue-i18n's `TranslateOptions`, keep in sync with `src/core/helper/i18n-legacy-syntax.helper.ts`.
 const TRANSLATE_OPTION_KEYS = new Set([
     'list',
     'named',
@@ -29,9 +29,19 @@ const NON_PLURAL_ARGUMENT_TYPES = new Set([
     'SpreadElement',
 ]);
 
+const NON_NAMED_ARGUMENT_TYPES = new Set([
+    'Literal',
+    'TemplateLiteral',
+    'ArrayExpression',
+]);
+
 function isSnippetObject(node) {
     return (node.type === 'Identifier' && node.name === 'Snippet') ||
-        (node.type === 'MemberExpression' && !node.computed && node.property.name === 'Snippet');
+        (node.type === 'MemberExpression' &&
+            !node.computed &&
+            node.property.name === 'Snippet' &&
+            node.object.type === 'Identifier' &&
+            node.object.name === 'Shopware');
 }
 
 /**
@@ -58,21 +68,27 @@ function getTranslateCallee(callee) {
     return null;
 }
 
-function hasLegacyArgumentOrder(args) {
+/**
+ * Returns `legacyArgumentOrder` for an autofixable vue-i18n 8 argument order, `legacyArgumentOrderManual` when the named
+ * parameters are no object literal and could also be vue-i18n 10 options, or null.
+ */
+function getLegacyArgumentOrder(args) {
     if (args.length !== 3) {
-        return false;
+        return null;
     }
 
     const [, plural, named] = args;
     if (NON_PLURAL_ARGUMENT_TYPES.has(plural.type) || (plural.type === 'Literal' && typeof plural.value !== 'number')) {
-        return false;
+        return null;
     }
 
-    if (named.type !== 'ObjectExpression' || named.properties.length === 0) {
-        return false;
+    if (named.type !== 'ObjectExpression') {
+        const isPluralLiteral = plural.type === 'Literal' && typeof plural.value === 'number';
+
+        return isPluralLiteral && !NON_NAMED_ARGUMENT_TYPES.has(named.type) ? 'legacyArgumentOrderManual' : null;
     }
 
-    return named.properties.some((property) => {
+    const hasNamedParameter = named.properties.some((property) => {
         if (property.type !== 'Property' || property.computed) {
             return true;
         }
@@ -81,6 +97,8 @@ function hasLegacyArgumentOrder(args) {
 
         return !TRANSLATE_OPTION_KEYS.has(keyName);
     });
+
+    return hasNamedParameter ? 'legacyArgumentOrder' : null;
 }
 
 // Shopware's vue-eslint-parser patch keeps `{{ }}` in `.twig` templates as opaque text, so mustache calls are only
@@ -112,6 +130,9 @@ module.exports = {
             noTc: 'Use {{replacement}}() instead of {{name}}(). {{name}} is deprecated — {{replacement}} handles pluralization natively.',
             legacyArgumentOrder: 'Pass the named parameters before the plural count: {{name}}(key, named, plural). ' +
                 'The vue-i18n 8 order {{name}}(key, plural, named) is deprecated.',
+            legacyArgumentOrderManual: 'The third argument of {{name}}(key, plural, …) is no object literal. ' +
+                'If it holds named parameters, pass them before the plural count: {{name}}(key, named, plural). ' +
+                'The vue-i18n 8 order {{name}}(key, plural, named) is deprecated.',
         },
     },
 
@@ -135,12 +156,19 @@ module.exports = {
                 });
             }
 
-            if (hasLegacyArgumentOrder(node.arguments)) {
+            const legacyArgumentOrder = getLegacyArgumentOrder(node.arguments);
+            if (legacyArgumentOrder === 'legacyArgumentOrderManual') {
+                context.report({
+                    node,
+                    messageId: legacyArgumentOrder,
+                    data: { name: callee.replacement },
+                });
+            } else if (legacyArgumentOrder) {
                 const [, plural, named] = node.arguments;
 
                 context.report({
                     node,
-                    messageId: 'legacyArgumentOrder',
+                    messageId: legacyArgumentOrder,
                     data: { name: callee.replacement },
                     fix(fixer) {
                         return [

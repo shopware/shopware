@@ -84,7 +84,7 @@ In development builds, the Administration now logs a deprecation warning once pe
 
 Calls in the vue-i18n 8 argument order `$t(key, plural, namedParameters)` lost their named parameters since the vue-i18n 10 update. They are now converted to `$t(key, namedParameters, plural)` and reported with a deprecation warning. The conversion will be removed in 6.9.
 
-The ESLint rule `sw-core-rules/no-tc-translation` in the Administration extension tooling reports and autofixes both patterns in JavaScript, TypeScript, Vue, and Twig templates:
+The ESLint rule `sw-core-rules/no-tc-translation` in the Administration extension tooling reports and autofixes both patterns in JavaScript, TypeScript, Vue, and Twig templates. Calls whose named parameters are no object literal, e.g. `$t(key, 1, params)`, are reported without an autofix. Like the other deprecation rules of the extension tooling, it follows `internalApiSeverity`:
 
 ```bash
 bin/console administration:check-extensions -- --only=MyPlugin --fix

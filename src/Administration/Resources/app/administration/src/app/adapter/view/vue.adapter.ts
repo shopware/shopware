@@ -18,7 +18,7 @@ import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
-import { createDeprecatedTc, createTranslate } from 'src/app/adapter/view/i18n-legacy-syntax';
+import { createDeprecatedTc, createTranslate } from 'src/core/helper/i18n-legacy-syntax.helper';
 
 import MtAvatar from '@shopware-ag/meteor-component-library/dist/esm/MtAvatar';
 import MtBanner from '@shopware-ag/meteor-component-library/dist/esm/MtBanner';
@@ -272,8 +272,8 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         // Add global properties to root view instance
-        this.app.$tc = createDeprecatedTc(i18n.global.t, '$tc', '$t');
-        this.app.$t = createTranslate(i18n.global.t);
+        this.app.$tc = this.app.config.globalProperties.$tc;
+        this.app.$t = this.app.config.globalProperties.$t;
 
         this.initTitle(this.app);
 

@@ -43,7 +43,7 @@ import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import Store from 'src/app/store';
-import { createDeprecatedTc, createTranslate } from 'src/app/adapter/view/i18n-legacy-syntax';
+import { createDeprecatedTc, createTranslate } from 'src/core/helper/i18n-legacy-syntax.helper';
 import {
     attachOverrides,
     createExtendableSetup,

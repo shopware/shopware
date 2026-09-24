@@ -9,7 +9,8 @@ type TranslateFunction = (...args: any[]) => string;
 type ComponentInstance = { $options?: { name?: string } } | undefined;
 
 // Keys of vue-i18n's `TranslateOptions`. An object after a plural count containing only these keys is a valid
-// vue-i18n 10 options object and is passed through untouched.
+// vue-i18n 10 options object and is passed through untouched. Keep in sync with
+// `eslint-rules/core-rules/no-tc-translation.js`.
 const TRANSLATE_OPTION_KEYS = new Set([
     'list',
     'named',
@@ -25,15 +26,12 @@ const TRANSLATE_OPTION_KEYS = new Set([
 
 const reportedDeprecations = new Set<string>();
 
-function getComponentName(instance: ComponentInstance): string | undefined {
-    return instance?.$options?.name;
-}
-
 function inComponent(componentName: string | undefined): string {
     return componentName ? ` in component "${componentName}"` : '';
 }
 
 function reportDeprecationOnce(id: string, message: string): void {
+    // `warn` is silent in production anyway, returning early keeps the set from growing there.
     if (process.env.NODE_ENV === 'production' || reportedDeprecations.has(id)) {
         return;
     }
@@ -61,14 +59,15 @@ function isLegacyPluralCall(args: unknown[]): boolean {
  *
  * @deprecated tag:v6.9.0 - Support for the vue-i18n 8 argument order will be removed.
  */
-function normalizeLegacyArguments(args: unknown[], apiName: string, componentName: string | undefined): unknown[] {
+function normalizeLegacyArguments(instance: ComponentInstance, args: unknown[], apiName: string): unknown[] {
     if (!isLegacyPluralCall(args)) {
         return args;
     }
 
+    const componentName = instance?.$options?.name;
     const key = String(args[0]);
     reportDeprecationOnce(
-        `legacy-order:${componentName ?? ''}:${key}`,
+        `legacy-order:${apiName}:${componentName ?? ''}:${key}`,
         `${apiName}('${key}', plural, namedParameters) uses the vue-i18n 8 argument order${inComponent(componentName)}. ` +
             `Use ${apiName}('${key}', namedParameters, plural) instead. ` +
             'Support for the old order will be removed in v6.9.0. ' +
@@ -83,7 +82,7 @@ function normalizeLegacyArguments(args: unknown[], apiName: string, componentNam
  */
 export function createTranslate<T extends TranslateFunction>(t: T, apiName = '$t'): T {
     return function translate(this: ComponentInstance, ...args: unknown[]) {
-        return t(...normalizeLegacyArguments(args, apiName, getComponentName(this)));
+        return t(...normalizeLegacyArguments(this, args, apiName));
     } as T;
 }
 
@@ -91,8 +90,10 @@ export function createTranslate<T extends TranslateFunction>(t: T, apiName = '$t
  * @private
  */
 export function createDeprecatedTc<T extends TranslateFunction>(t: T, apiName: string, replacement: string): T {
+    const translate = createTranslate(t, replacement);
+
     return function tc(this: ComponentInstance, ...args: unknown[]) {
-        const componentName = getComponentName(this);
+        const componentName = this?.$options?.name;
         const key = String(args[0]);
 
         reportDeprecationOnce(
@@ -102,6 +103,6 @@ export function createDeprecatedTc<T extends TranslateFunction>(t: T, apiName: s
                 'The ESLint rule "sw-core-rules/no-tc-translation" fixes this automatically.',
         );
 
-        return t(...normalizeLegacyArguments(args, replacement, componentName));
+        return translate.apply(this, args);
     } as T;
 }

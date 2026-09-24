@@ -54,6 +54,18 @@ tester.run('no-tc-translation', rule, {
             name: 'default message with named parameters is allowed',
             code: `this.$t('some.key', 'Default message', { name: 'foo' });`,
         },
+        {
+            name: 'tc() on another Snippet object is allowed',
+            code: `SomeLibrary.Snippet.tc('some.key');`,
+        },
+        {
+            name: 'default message after a plural count is allowed',
+            code: `this.$t('some.key', 2, 'Default message');`,
+        },
+        {
+            name: 'non-literal arguments in an ambiguous order are allowed',
+            code: `this.$t('some.key', params, count);`,
+        },
     ],
     invalid: [
         {
@@ -121,6 +133,18 @@ tester.run('no-tc-translation', rule, {
             code: `Shopware.Snippet.t('some.key', 0, { entityName });`,
             output: `Shopware.Snippet.t('some.key', { entityName }, 0);`,
             errors: [{ messageId: 'legacyArgumentOrder' }],
+        },
+        {
+            name: 'legacy argument order with named parameters from a variable is reported without autofix',
+            code: `this.$t('some.key', 1, params);`,
+            output: null,
+            errors: [{ messageId: 'legacyArgumentOrderManual' }],
+        },
+        {
+            name: 'legacy argument order with a named parameter fallback is reported without autofix',
+            code: `this.$t(translationKey, 1, this.formatParameters(error.parameters) || {});`,
+            output: null,
+            errors: [{ messageId: 'legacyArgumentOrderManual' }],
         },
         {
             name: '$tc() with the legacy argument order is renamed and swapped',

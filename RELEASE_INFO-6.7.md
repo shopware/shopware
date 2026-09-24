@@ -47,6 +47,12 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Regulation price contains the saving
+
+`regulationPrice` of a calculated price now contains `discount` and `percentage` next to `price`, calculated against the unit price like `listPrice`. `percentage` is negative when the unit price is above the regulation price, so only show a saving when it is greater than `0`.
+
+`Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is created with `RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice)`, which calculates both values. Its constructor becomes private in `v6.8.0`.
+
 ## Administration
 
 ### New extension points for the Shopping Experiences layout list
@@ -87,6 +93,14 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
+
+### Savings percentage is based on the regulation price
+
+When a regulation price (lowest price of the last 30 days) is set, the storefront calculates the savings percentage against it instead of the list price and no longer renders the crossed-out list price, as required by Art. 6a of Directive 98/6/EC (CJEU C-330/23). The sale price styling and the discount badges follow the same reference, so they are only shown while the unit price is below the regulation price, also for products without a list price. Without a regulation price nothing changes.
+
+The snippet `general.listPricePreviously` now reads "Lowest price (last 30 days): %price%" instead of "previously %price%", and "Niedrigster Preis (letzte 30 Tage): %price%" instead of "vorher %price%".
+
+If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `isListPrice` is `false` while a regulation price is set, the new `isRegulationPriceSaving` tells whether there is a saving against it, and the regulation price section renders a `list-price-percentage` element.
 
 ## App system
 
@@ -1544,12 +1558,6 @@ Note that `PluginManager.override()` still requires the exact selector the plugi
 Every storefront extension build inherits the core storefront webpack context and therefore used the default `webpackChunk` chunk loading global, the same one the core storefront and all other extensions use. Sharing that global lets one build's webpack runtime process another build's chunks, so a dynamic `import()` can resolve to a module from a different bundle when chunk ids collide.
 
 Extension builds now set `output.uniqueName` to their technical name, which gives each of them its own global, for example `webpackChunkswag_my_theme`. The core storefront bundle intentionally keeps the default `webpackChunk` global, so its emitted runtime stays unchanged. If you relied on the shared `window.webpackChunk` array, for example to inject chunks into another bundle, use the extension specific global instead. Rebuild your storefront assets to pick up the change.
-
-### Savings percentage is based on the regulation price
-
-When a regulation price (lowest price of the last 30 days) is set, the storefront calculates the savings percentage against it instead of the list price / RRP and no longer renders the crossed-out list price, as required by Art. 6a of Directive 98/6/EC (CJEU C-330/23). Without a regulation price nothing changes.
-
-`RegulationPrice` gained `discount` and `percentage`, computed by the new `RegulationPrice::createFromUnitPrice()` factory and exposed as `calculatedPrice.regulationPrice.percentage`; its constructor becomes private in `v6.8.0`. If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: the regulation section now renders `list-price-percentage`, and `isListPrice` is `false` while a regulation price is present.
 
 ### The "Top results" sorting label is translatable
 

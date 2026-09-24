@@ -325,7 +325,7 @@ jobs:
       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
-      FEATURE_ALL: ${{ matrix.suite == 'migration' && 'major' || '' }}
+      FEATURE_ALL: ${{ matrix.suite == 'migration' && '1' || '' }}
 
     services:
       elasticsearch:

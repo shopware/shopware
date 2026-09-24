@@ -51,6 +51,21 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(BooleanNodeDefinition::class, $node);
     }
 
+    public function testFeatureCanDeclareItsParentMajor(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0', 'major' => true],
+                    ['name' => 'JSON_LD_DATA', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+
+        static::assertTrue($config['feature']['flags']['v6.8.0.0']['major']);
+        static::assertSame('v6.8.0.0', $config['feature']['flags']['JSON_LD_DATA']['major']);
+    }
+
     public function testCdnPathCacheBusterDefaultsToTrue(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [['cdn' => []]]);
@@ -239,7 +254,7 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('major', $nodes);
         $node = $nodes['major'];
-        static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $node);
 
         static::assertArrayHasKey('toggleable', $nodes);
         $node = $nodes['toggleable'];

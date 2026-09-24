@@ -11,33 +11,25 @@ V6_5_0_0=1
 ```
 
 ### Activating whole groups of flags
-`FEATURE_ALL` switches a group on at once, which is how the test lanes run:
+Any truthy `FEATURE_ALL` value enables every registered feature. To activate only one major and its
+sub-features, set the version flag directly, for example `V6_8_0_0=1`. Explicit environment values
+and persisted toggles for individual features win over both `FEATURE_ALL` and the parent major.
 
-| Value | Active flags |
-|---|---|
-| `1`, `minor`, any truthy value except `false` | every non-major flag |
-| `major` | every major flag |
-| `v6.8.0.0` | the major flags arriving in v6.8.0.0 or earlier |
-
-A flag configured in the environment always wins over `FEATURE_ALL`.
-
-A major flag named after its major (`v6.8.0.0`) carries the major it arrives in. One that is not
-(`JSON_LD_DATA`, `BREADCRUMB_REWORK`) belongs to every major, so it is active in every major lane;
-declare `majorVersion` when the flag may only be active from a later major on:
+Use `major: true` for a standalone version flag and `major: v6.8.0.0` for a sub-feature that becomes
+active with that version flag:
 
 ```yaml
       - name: JSON_LD_DATA
         default: false
-        major: true
-        majorVersion: v6.9.0.0
+        major: v6.8.0.0
         toggleable: true
 ```
 
 ## While two majors are in flight
 
-Trunk then carries the flags of both majors, and "all majors on" no longer describes any release
+Trunk then carries the flags of both majors, and `FEATURE_ALL=1` no longer describes either release
 state: 6.9 changes decide the outcome of a 6.8 assertion. CI therefore runs one lane per unreleased
-major (`FEATURE_ALL=v6.8.0.0`, `FEATURE_ALL=v6.9.0.0`) in `integration-major.yml` and in the major
+major (`V6_8_0_0=1`, `V6_9_0_0=1`) in `integration-major.yml` and in the major
 arm of `acceptance.yml`. The lanes come from `feature.yaml` itself — a `major: true` flag named after
 its version and still `default: false` is a lane, see `.github/bin/lib/feature-flags.php` — so
 registering the next major flag adds its lane, with nothing to maintain in the workflows.
@@ -209,7 +201,7 @@ PHPStan validates the attribute, runtime alias, optional service alias, and cano
 ### Using flags in tests
 In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
 
-`#[DisabledFeatures]` only works in the unit suite: the feature-flag test extension processes `Shopware\Tests\Unit\` (plus namespaces registered via `FeatureFlagExtension::addTestNamespace()`). In integration tests the flag state comes from the job configuration (`FEATURE_ALL`), the attribute has no effect, and the test runner rejects it — a test carrying it fails the run. When an integration test must not run under a specific flag state, skip it at runtime with `Feature::skipTestIfActive()` / `Feature::skipTestIfInActive()`.
+`#[DisabledFeatures]` only works in the unit suite: the feature-flag test extension processes `Shopware\Tests\Unit\` (plus namespaces registered via `FeatureFlagExtension::addTestNamespace()`). In integration tests the flag state comes from the job configuration (the version flag in each major lane), the attribute has no effect, and the test runner rejects it — a test carrying it fails the run. When an integration test must not run under a specific flag state, skip it at runtime with `Feature::skipTestIfActive()` / `Feature::skipTestIfInActive()`.
 
 ```php
 use Shopware\Core\Test\Annotation\DisabledFeatures;

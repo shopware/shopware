@@ -27,7 +27,7 @@ const REGISTRY = `shopware:
         toggleable: false
       - name: WEBHOOKS_REWORK
         default: false
-        major: true
+        major: v6.8.0.0
         toggleable: true
       - name: TELEMETRY_METRICS
         default: false
@@ -70,13 +70,13 @@ test('parseFeatureRegistry reads name, major and default per flag', () => {
     assert.deepEqual(FLAGS, [
         { name: 'v6.7.0.0', major: true, default: true },
         { name: 'v6.8.0.0', major: true, default: false },
-        { name: 'WEBHOOKS_REWORK', major: true, default: false },
+        { name: 'WEBHOOKS_REWORK', major: 'v6.8.0.0', default: false },
         { name: 'TELEMETRY_METRICS', major: false, default: false },
     ]);
 });
 
-test('pendingMajorFlags excludes flags that already default to true', () => {
-    assert.deepEqual(pendingMajorFlags(FLAGS), ['v6.8.0.0', 'WEBHOOKS_REWORK']);
+test('pendingMajorFlags includes only unshipped root majors', () => {
+    assert.deepEqual(pendingMajorFlags(FLAGS), ['v6.8.0.0']);
 });
 
 test('resolveInFlightMajors derives the version from the pending major flag', () => {

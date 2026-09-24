@@ -19,7 +19,7 @@ $major = \strtolower($_SERVER['argv'][2] ?? '') === 'true';
 //   'only'    -> only major variants (used by the dedicated major nightly)
 $majorFilter = \strtolower($_SERVER['argv'][3] ?? '');
 
-// One major variant per in-flight major (`FEATURE_ALL=v6.8.0.0`), so a major's release state is
+// One major variant per in-flight major (`V6_8_0_0=1`), so a major's release state is
 // covered without the next major's changes active. See lib/feature-flags.php.
 $majorLanes = shopware_major_lanes();
 

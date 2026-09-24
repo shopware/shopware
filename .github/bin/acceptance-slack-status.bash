@@ -30,7 +30,7 @@ done
 
 # Keep only the acceptance jobs (named "acceptance (...)") and sort them for
 # stable, readable output: non-major before major, then PHP/shard, Install last.
-# The optional major token is the FEATURE_ALL lane: either the legacy `major` or a
+# The optional major token names the feature lane: either the all-features fallback `major` or a
 # single in-flight major such as `v6.8.0.0` (see bin/lib/feature-flags.php).
 acceptance_jobs=$(jq -r '
     .[]

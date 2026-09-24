@@ -375,7 +375,7 @@
         ],
         "admin:unit:major": [
             "Composer\\Config::disableProcessTimeout",
-            "@putenv FEATURE_ALL=major",
+            "@putenv FEATURE_ALL=1",
             "@framework:schema:dump",
             "@npm:admin run unit-setup",
             "@npm:admin run unit"

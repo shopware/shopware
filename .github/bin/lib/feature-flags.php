@@ -11,10 +11,10 @@
 const SHOPWARE_FEATURE_CONFIG = __DIR__ . '/../../../src/Core/Framework/Resources/config/packages/feature.yaml';
 
 /**
- * The test lanes that cover the in-flight majors: one `FEATURE_ALL` value per major that has not
+ * The test lanes that cover the in-flight majors: one version flag per major that has not
  * shipped yet, so each major's release state is exercised without the next one bleeding in.
  *
- * Falls back to the "all majors at once" lane when no unreleased major is registered — that is the
+ * Falls back to the "all features at once" lane when no unreleased major is registered — that is the
  * state of a maintenance branch whose major has already shipped, and it keeps the lane meaningful
  * for the major flags that are not named after a version.
  *
@@ -27,6 +27,24 @@ function shopware_major_lanes(string $featureConfigPath = SHOPWARE_FEATURE_CONFI
     return $lanes === [] ? ['major'] : $lanes;
 }
 
+/** The environment assignment for a CI lane, or an empty assignment for the ordinary lane. */
+function shopware_major_lane_env(string $lane): string
+{
+    if ($lane === '') {
+        return 'FEATURE_ALL=';
+    }
+
+    if ($lane === 'major' || $lane === 'true') {
+        return 'FEATURE_ALL=1';
+    }
+
+    if (!\preg_match('/^v\d+\.\d+\.\d+\.\d+$/i', $lane)) {
+        throw new \InvalidArgumentException(\sprintf('Invalid major lane "%s".', $lane));
+    }
+
+    return \strtoupper(\str_replace('.', '_', $lane)) . '=1';
+}
+
 /**
  * @return list<string> the registered majors that are still switched off by default
  */
@@ -35,8 +53,7 @@ function shopware_in_flight_majors(string $featureConfigPath = SHOPWARE_FEATURE_
     $majors = [];
 
     foreach (shopware_read_feature_flags($featureConfigPath) as $name => $flag) {
-        // Only majors named after their version identify a release state; the other major flags
-        // (JSON_LD_DATA, ACCESSIBILITY_TWEAKS, ...) ride along in every lane.
+        // Only standalone majors named after their version identify a release state.
         if (!\preg_match('/^v\d+\.\d+\.\d+\.\d+$/i', $name)) {
             continue;
         }

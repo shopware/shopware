@@ -41,7 +41,7 @@ class TestPreparationStartedSubscriberTest extends TestCase
         $subscriber = new TestPreparationStartedSubscriber(new SavedConfig());
 
         $this->expectExceptionObject(new \RuntimeException(\sprintf(
-            '#[DisabledFeatures] on %s::testSomething has no effect in the integration suite. Feature state there comes from the job configuration: the default integration job runs with feature flags off, integration-major runs with FEATURE_ALL=major. Remove the attribute; if the test must not run under an active major flag, guard it with Feature::skipTestIfActive() instead.',
+            '#[DisabledFeatures] on %s::testSomething has no effect in the integration suite. Feature state there comes from the job configuration: the default integration job runs with feature flags off, integration-major enables the version flag. Remove the attribute; if the test must not run under an active major flag, guard it with Feature::skipTestIfActive() instead.',
             $class
         )));
 

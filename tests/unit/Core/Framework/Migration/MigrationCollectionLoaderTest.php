@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationException;
@@ -26,9 +27,8 @@ class MigrationCollectionLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        // getLastSafeMajorVersion() bumps the major when FEATURE_ALL=major is set (e.g. on the
-        // nightly major runs) — pin the environment so the expectations stay deterministic
-        $this->setEnvVars(['FEATURE_ALL' => null]);
+        // Pin the environment so the expectations stay deterministic in a major test lane.
+        $this->setEnvVars(['FEATURE_ALL' => null, 'V6_8_0_0' => 'false']);
     }
 
     /**
@@ -41,13 +41,21 @@ class MigrationCollectionLoaderTest extends TestCase
         static::assertSame($expectedMajor, $this->createLoader()->getLastSafeMajorVersion($version, $mode));
     }
 
-    #[TestDox('getLastSafeMajorVersion simulates the next major when FEATURE_ALL=major')]
+    #[TestDox('getLastSafeMajorVersion simulates the next major when FEATURE_ALL is truthy')]
     public function testGetLastSafeMajorVersionWithSimulatedMajor(): void
     {
-        $this->setEnvVars(['FEATURE_ALL' => 'major']);
+        $this->setEnvVars(['FEATURE_ALL' => '1']);
 
         static::assertSame(6, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_ALL));
         static::assertSame(5, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN));
+    }
+
+    public function testGetLastSafeMajorVersionWithDirectMajorFlag(): void
+    {
+        Feature::registerFeature('v6.8.0.0', ['major' => true, 'default' => false]);
+        $this->setEnvVars(['V6_8_0_0' => '1']);
+
+        static::assertSame(8, $this->createLoader()->getLastSafeMajorVersion('6.7.2'));
     }
 
     public function testGetLastSafeMajorVersionRejectsUnknownMode(): void

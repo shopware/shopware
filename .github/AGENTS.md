@@ -20,7 +20,7 @@ nightlies and the release gate. Change one and you change all three contexts.
 |---|---|
 | `php.yml` | lint, phpstan, rector, bc-checker, openapi-lint, PHPUnit `unit` and `migration` suites, license-check, composer-audit, composer-prefer-lowest |
 | `integration.yml` | PHPUnit integration shards, dynamic matrix |
-| `integration-major.yml` | the same, plus Jest, once per in-flight major (`FEATURE_ALL: v6.8.0.0`) |
+| `integration-major.yml` | the same, plus Jest, once per in-flight major (`V6_8_0_0=1`) |
 | `admin.yml` | ESLint, Stylelint and Jest for the Administration |
 | `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
 | `acceptance.yml` | Playwright acceptance runs |

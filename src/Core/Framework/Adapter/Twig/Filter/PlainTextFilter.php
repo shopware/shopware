@@ -12,7 +12,11 @@ use Twig\TwigFilter;
 #[Package('framework')]
 class PlainTextFilter extends AbstractExtension
 {
-    private const BLOCK_TAG_PATTERN = '/<\/?(?:address|article|aside|blockquote|br|caption|dd|details|div|dl|dt|figcaption|figure|footer|h[1-6]|header|hr|li|main|nav|ol|p|pre|section|summary|table|tbody|td|tfoot|th|thead|tr|ul)(?=[\s\/>])[^>]*>/i';
+    /**
+     * Matches only the start of a block tag, so a space is inserted in front of it and removing the tag itself is left
+     * to `strip_tags`, which also handles a `>` inside quoted attribute values
+     */
+    private const BLOCK_TAG_PATTERN = '/<\/?(?:address|article|aside|blockquote|br|caption|dd|details|div|dl|dt|figcaption|figure|footer|h[1-6]|header|hr|li|main|nav|ol|p|pre|section|summary|table|tbody|td|tfoot|th|thead|tr|ul)(?=[\s\/>])/i';
 
     /**
      * Only ASCII whitespace, so multibyte UTF-8 sequences are never split, regardless of the PCRE locale tables
@@ -32,11 +36,8 @@ class PlainTextFilter extends AbstractExtension
      */
     public function toPlainText(?string $html): string
     {
-        if ($html === null || $html === '') {
-            return '';
-        }
-
-        $text = strip_tags(preg_replace(self::BLOCK_TAG_PATTERN, ' ', $html) ?? $html);
+        $html = (string) $html;
+        $text = strip_tags(preg_replace(self::BLOCK_TAG_PATTERN, ' $0', $html) ?? $html);
 
         return trim(preg_replace(self::WHITESPACE_PATTERN, ' ', $text) ?? $text);
     }

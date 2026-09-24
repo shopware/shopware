@@ -31,32 +31,10 @@ class ProductBoxDescriptionTemplateTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private SalesChannelProductEntity $product;
-
-    protected function setUp(): void
-    {
-        $ids = new IdsCollection();
-        $product = (new ProductBuilder($ids, productNumber: 'description-product'))
-            ->price(gross: 10)
-            ->description(self::DESCRIPTION)
-            ->visibility()
-            ->build();
-        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
-
-        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        $loadedProduct = static::getContainer()->get('sales_channel.product.repository')
-            ->search(new Criteria([$ids->get('description-product')]), $this->salesChannelContext)
-            ->first();
-        static::assertInstanceOf(SalesChannelProductEntity::class, $loadedProduct);
-        $this->product = $loadedProduct;
-    }
-
     public function testProductBoxKeepsASpaceBetweenDescriptionParagraphs(): void
     {
         $html = $this->render('@Storefront/storefront/component/product/card/box-standard.html.twig', [
-            'product' => $this->product,
+            'product' => $this->createProduct(self::DESCRIPTION),
             'layout' => 'standard',
         ]);
 
@@ -69,19 +47,54 @@ class ProductBoxDescriptionTemplateTest extends TestCase
 
     public function testDescriptionTabPreviewKeepsASpaceBetweenDescriptionParagraphs(): void
     {
+        $html = $this->renderDescriptionTabPreview(self::DESCRIPTION);
+
+        static::assertStringContainsString('sentence. Does', $html);
+        static::assertStringContainsString('product-detail-tab-preview-more', $html);
+    }
+
+    public function testDescriptionTabPreviewIgnoresMarkupWhenDecidingToShowMore(): void
+    {
+        $html = $this->renderDescriptionTabPreview(
+            '<p class="lead" style="font-weight: bold; color: #333333; margin-bottom: 16px;">Short description</p><p style="color: #333333;">with markup.</p>'
+        );
+
+        static::assertStringContainsString('Short description with markup.', $html);
+        static::assertStringNotContainsString('product-detail-tab-preview-more', $html);
+    }
+
+    private function renderDescriptionTabPreview(string $description): string
+    {
         $requestStack = static::getContainer()->get('request_stack');
         $requestStack->push(new Request());
 
         try {
-            $html = $this->render('@Storefront/storefront/element/cms-element-product-description-reviews.html.twig', [
-                'element' => ['data' => ['product' => $this->product]],
+            return $this->render('@Storefront/storefront/element/cms-element-product-description-reviews.html.twig', [
+                'element' => ['data' => ['product' => $this->createProduct($description)]],
             ]);
         } finally {
             $requestStack->pop();
         }
+    }
 
-        static::assertStringContainsString('sentence. Does', $html);
-        static::assertStringNotContainsString('sentence.Does', $html);
+    private function createProduct(string $description): SalesChannelProductEntity
+    {
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, productNumber: 'description-product'))
+            ->price(gross: 10)
+            ->description($description)
+            ->visibility()
+            ->build();
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $loadedProduct = static::getContainer()->get('sales_channel.product.repository')
+            ->search(new Criteria([$ids->get('description-product')]), $this->salesChannelContext)
+            ->first();
+        static::assertInstanceOf(SalesChannelProductEntity::class, $loadedProduct);
+
+        return $loadedProduct;
     }
 
     /**

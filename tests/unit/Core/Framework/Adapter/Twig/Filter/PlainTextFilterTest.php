@@ -32,28 +32,20 @@ class PlainTextFilterTest extends TestCase
             '<p>This is a short sentence. This is the second short sentence.</p><p>Does this improve the quality of the product description? I do not know.</p>',
             'This is a short sentence. This is the second short sentence. Does this improve the quality of the product description? I do not know.',
         ];
-        yield 'div boundary becomes a space' => [
-            '<div>First.</div><div>Second.</div>',
-            'First. Second.',
+        yield 'block tags are separated' => [
+            '<div>Div.</div><h2>Heading</h2><ul><li>Red</li><li>Green</li></ul><table><tr><th>Size</th><td>XL</td></tr></table>',
+            'Div. Heading Red Green Size XL',
         ];
         yield 'line breaks in all notations become a space' => [
             'One<br>Two<br/>Three<br />Four<BR>Five',
             'One Two Three Four Five',
         ];
-        yield 'list items are separated' => [
-            '<ul><li>Red</li><li>Green</li></ul><ol><li>Blue</li></ol>',
-            'Red Green Blue',
-        ];
-        yield 'headings are separated from the following text' => [
-            '<h1>Title</h1><h2>Subtitle</h2><h6>Small</h6><p>Text</p>',
-            'Title Subtitle Small Text',
-        ];
-        yield 'table cells are separated' => [
-            '<table><tr><th>Size</th><td>XL</td></tr></table>',
-            'Size XL',
-        ];
         yield 'block tags with attributes are separated' => [
             '<p class="lead" style="color: red;">First.</p><div data-foo="bar">Second.</div>',
+            'First. Second.',
+        ];
+        yield 'block tags with a closing angle bracket in an attribute value are removed completely' => [
+            '<p title="a>b">First.</p><p>Second.</p>',
             'First. Second.',
         ];
         yield 'nested block tags result in a single space' => [
@@ -86,10 +78,6 @@ class PlainTextFilterTest extends TestCase
         ];
         yield 'markup without text results in an empty string' => [
             '<p></p><br><div> </div>',
-            '',
-        ];
-        yield 'empty string stays empty' => [
-            '',
             '',
         ];
         yield 'null results in an empty string' => [

@@ -174,7 +174,10 @@ class AnalyticsLineItemPriceExtension extends AbstractExtension
             return [];
         }
 
-        $step = max($rounding->getInterval(), 10 ** -$rounding->getDecimals());
+        // cash rounding ignores the interval above two decimals and rounds to the decimals only
+        $step = $rounding->getDecimals() > 2
+            ? 10 ** -$rounding->getDecimals()
+            : max($rounding->getInterval(), 10 ** -$rounding->getDecimals());
         $difference = $this->rounding->cashRound(array_sum($exact), $rounding) - array_sum($totals);
         $steps = (int) round($difference / $step);
 
@@ -225,12 +228,25 @@ class AnalyticsLineItemPriceExtension extends AbstractExtension
                 continue;
             }
 
+            $composition = [];
             foreach ($payload['composition'] ?? [] as $entry) {
                 if (!\is_array($entry) || !\is_string($entry['id'] ?? null) || !is_numeric($entry['discount'] ?? null)) {
                     continue;
                 }
 
-                $discounts[$entry['id']] = ($discounts[$entry['id']] ?? 0.0) + abs((float) $entry['discount']);
+                $composition[$entry['id']] = ($composition[$entry['id']] ?? 0.0) + abs((float) $entry['discount']);
+            }
+
+            // A percentage promotion stores the unrounded share in its composition, while its line
+            // item carries the cash rounded amount the customer is charged: 10 percent of 0.05 is
+            // 0.005 in the composition and 0.01 on the line. The shares are scaled to the charged
+            // amount, so the reported value matches what was paid.
+            $composed = array_sum($composition);
+            $charged = abs($lineItem->getPrice()?->getTotalPrice() ?? $composed);
+            $factor = $composed > 0.0 ? $charged / $composed : 1.0;
+
+            foreach ($composition as $id => $discount) {
+                $discounts[$id] = ($discounts[$id] ?? 0.0) + $discount * $factor;
             }
         }
 

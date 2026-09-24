@@ -262,6 +262,46 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
         static::assertEqualsWithDelta(20.0, array_sum($totals), 0.0001);
     }
 
+    /**
+     * 10 percent of 0.05 is stored as 0.005 in the composition, while the promotion line charges the
+     * cash rounded 0.01, so the customer pays 0.04.
+     */
+    public function testScalesTheCompositionToTheChargedPromotionTotal(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 0.05, 1),
+            $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 0.005]], charged: 0.01),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 0.04, 'discount' => 0.01, 'total' => 0.04], $prices['product-1']);
+    }
+
+    /**
+     * Cash rounding ignores the interval above two decimals, so the correction steps have to use the
+     * decimals, or three 9.6666… lines report 29.0001.
+     */
+    public function testLineTotalsAddUpWithMoreThanTwoDecimals(): void
+    {
+        $share = 1.0 / 3;
+
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->product('product-2', 10.0, 1),
+            $this->product('product-3', 10.0, 1),
+            $this->promotion([
+                ['id' => 'product-1', 'quantity' => 1, 'discount' => $share],
+                ['id' => 'product-2', 'quantity' => 1, 'discount' => $share],
+                ['id' => 'product-3', 'quantity' => 1, 'discount' => $share],
+            ]),
+        ]);
+
+        $totals = array_column($this->extension->getPrices($lineItems, $this->context(new CashRoundingConfig(4, 0.01, true))), 'total');
+
+        static::assertEqualsWithDelta(29.0, array_sum($totals), 0.00001);
+    }
+
     private function context(?CashRoundingConfig $itemRounding = null): SalesChannelContext
     {
         return Generator::generateSalesChannelContext(
@@ -281,12 +321,18 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
     /**
      * @param list<array<string, mixed>> $composition
      */
-    private function promotion(array $composition): LineItem
+    private function promotion(array $composition, ?float $charged = null): LineItem
     {
+        // the promotion line item charges what its composition adds up to, unless a test says otherwise
+        $charged ??= array_sum(array_map(
+            static fn (array $entry) => isset($entry['id'], $entry['discount']) ? (float) $entry['discount'] : 0.0,
+            $composition
+        ));
+
         $lineItem = new LineItem('promotion-' . md5(json_encode($composition, \JSON_THROW_ON_ERROR)), LineItem::PROMOTION_LINE_ITEM_TYPE);
         $lineItem->setGood(false);
         $lineItem->setPayloadValue('composition', $composition);
-        $lineItem->setPrice($this->price(-1.0, 1));
+        $lineItem->setPrice($this->price(-$charged, 1));
 
         return $lineItem;
     }
@@ -316,7 +362,7 @@ class AnalyticsLineItemPriceExtensionTest extends TestCase
         $lineItem->setGood(false);
         $lineItem->setQuantity(1);
         $lineItem->setPayload(['composition' => $composition]);
-        $lineItem->setPrice($this->price(-1.0, 1));
+        $lineItem->setPrice($this->price(-array_sum(array_column($composition, 'discount')), 1));
 
         return $lineItem;
     }

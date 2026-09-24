@@ -928,8 +928,9 @@ The zoom modal no longer waits for images without a source before it opens.
 
 These additions are experimental and become stable with 6.8.0.
 ### Reorder posts only the order id
+### Reorder rebuilds its items from the order
 
-Reorder posts only the order id, so overrides of its hidden line item input blocks no longer apply.
+`frontend.checkout.line-item.order.add` rebuilds the reorder items from the order and ignores the posted `lineItems`, so overrides of the hidden input blocks no longer have an effect
 
 ## App system
 

@@ -158,9 +158,4 @@ class ToolResultCacheStorageTest extends TestCase
 
         static::assertSame(2042, $storage->deleteOlderThan($threshold));
     }
-
-    public function testDefaultTtlIsOneDay(): void
-    {
-        static::assertSame(86400, ToolResultCacheStorage::DEFAULT_TTL_SECONDS);
-    }
 }

@@ -48,4 +48,12 @@ final readonly class Configuration
     {
         return $this->parameters['createMockWithoutExpectationsEnabledNamespaces'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getFeatureSkipInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['featureSkipInUnitTestsEnabledNamespaces'] ?? [];
+    }
 }

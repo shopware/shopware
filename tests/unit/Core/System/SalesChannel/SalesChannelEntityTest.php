@@ -85,10 +85,6 @@ class SalesChannelEntityTest extends TestCase
 
     public function testDeprecatedGetterThrowsWhenMajorIsActive(): void
     {
-        if (!Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('The deprecation only throws while the v6.8.0.0 feature flag is active.');
-        }
-
         $this->expectException(\Throwable::class);
 
         (new SalesChannelEntity())->getMaintenanceIpWhitelist();

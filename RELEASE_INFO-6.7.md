@@ -55,6 +55,8 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 `regulationPrice` of a calculated price now contains `discount` and `percentage` next to `price`, calculated against the unit price like `listPrice`. `percentage` is negative when the unit price is above the regulation price, so only show a saving when it is greater than `0`.
 
+Store API responses contain the new properties wherever they contain a regulation price: in `calculatedPrice`, `calculatedPrices` and `calculatedCheapestPrice` of products, for example in the product listing, search and detail responses, and in `price` of cart and order line items.
+
 `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is created with `RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice)`, which calculates both values. Its constructor becomes private in `v6.8.0`.
 
 ## Administration

@@ -34,7 +34,7 @@
                     :can-redo="canRedo"
                     :is-create-mode="isCreateMode"
                     :has-draft="hasDraft"
-                    :draft-created-at="draftCreatedAt"
+                    :draft-name="branch ? branch.name : null"
                     :is-dirty="isDirty"
                     @back="onClickBack"
                     @viewport-change="onViewportChange"
@@ -43,6 +43,7 @@
                     @save="onSave"
                     @publish="onPublish"
                     @discard="onDiscardDraft"
+                    @history="onOpenRevisionsModal"
                     @undo="onUndo"
                     @redo="onRedo"
                 />
@@ -122,6 +123,17 @@
                     @confirm="onConfirmDiscardDraft"
                     @cancel="onCloseDiscardDraftModal"
                     @close="onCloseDiscardDraftModal"
+                />
+                {% endblock %}
+
+                {% block sw_experience_studio_detail_revisions_modal %}
+                <sw-experience-studio-revisions-modal
+                    v-if="showRevisionsModal"
+                    :layout-id="layoutId"
+                    :branch-id="branchId"
+                    @published="onRevisionPublished"
+                    @open-branch="onOpenRevisionAsDraft"
+                    @modal-close="onCloseRevisionsModal"
                 />
                 {% endblock %}
             </template>

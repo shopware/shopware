@@ -77,7 +77,8 @@
                 "statusDraft": "Draft",
                 "statusLive": "Live",
                 "statusUnsaved": "Unsaved",
-                "statusDraftCreatedAt": "Draft from {date}"
+                "statusDraftNamed": "Draft: {name}",
+                "history": "History"
             },
             "sidebarTree": {
                 "title": "Structure",
@@ -142,18 +143,44 @@
                 "title": "Discard draft",
                 "text": "The draft and all its changes will be deleted. The live layout is not affected. Continue anyway?"
             },
-            "messageDraftNotFound": "The draft no longer exists. The live layout has been opened instead."
+            "messageDraftNotFound": "The draft no longer exists. The live layout has been opened instead.",
+            "draftDefaultName": "Draft",
+            "messageDraftConflict": "The draft was changed in the meantime. Please reload the page to continue with the latest state.",
+            "messageDraftLoadError": "The draft could not be loaded. The live layout has been opened instead."
         },
         "draftsModal": {
             "title": "Drafts",
             "titleWithName": "Drafts of \"{name}\"",
-            "columnCreatedAt": "Created at",
+            "columnName": "Name",
             "columnUpdatedAt": "Last changed",
-            "columnVersionId": "Version",
+            "columnBase": "Based on",
+            "deleteTitle": "Delete draft",
+            "deleteText": "All changes in this draft will be lost. The live layout is not affected. Continue anyway?",
+            "messageDeleted": "Draft deleted.",
+            "messageDeleteError": "The draft could not be deleted. Please try again.",
             "emptyStateTitle": "No drafts",
             "emptyStateSubline": "Save changes in the page builder to create a draft of this layout.",
-            "messageLoadError": "The drafts could not be loaded. Please try again.",
-            "discardText": "All changes in this draft will be lost. The live layout is not affected. Continue anyway?"
+            "messageLoadError": "The drafts could not be loaded. Please try again."
+        },
+        "revisionsModal": {
+            "title": "History",
+            "columnCreatedAt": "Created at",
+            "columnAuthor": "Author",
+            "columnStatus": "Status",
+            "columnRevision": "Revision",
+            "badgeLive": "Live",
+            "actionPublish": "Publish",
+            "actionOpenAsDraft": "Open as draft",
+            "emptyStateTitle": "No history",
+            "emptyStateSubline": "Saved and published states of this layout appear here.",
+            "messageLoadError": "The history could not be loaded. Please try again.",
+            "messagePublished": "Revision published successfully.",
+            "messagePublishError": "The revision could not be published. Please try again.",
+            "messageOpenAsDraftError": "No draft could be created from this revision. Please try again.",
+            "publishModal": {
+                "title": "Publish revision",
+                "text": "This revision replaces the live layout. Unsaved changes in the editor are lost. Continue anyway?"
+            }
         }
     }
 }

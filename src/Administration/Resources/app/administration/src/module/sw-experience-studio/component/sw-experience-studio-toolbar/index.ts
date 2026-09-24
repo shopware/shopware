@@ -74,7 +74,7 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-        draftCreatedAt: {
+        draftName: {
             type: String,
             required: false,
             default: null,
@@ -87,6 +87,7 @@ export default Shopware.Component.wrapComponentConfig({
         'save',
         'publish',
         'discard',
+        'history',
         'preview-sales-channel-change',
         'preview-entity-id-change',
         'undo',
@@ -115,12 +116,12 @@ export default Shopware.Component.wrapComponentConfig({
                 return this.$t('sw-experience-studio.detail.toolbar.statusLive');
             }
 
-            if (!this.draftCreatedAt) {
+            if (!this.draftName) {
                 return this.$t('sw-experience-studio.detail.toolbar.statusDraft');
             }
 
-            return this.$t('sw-experience-studio.detail.toolbar.statusDraftCreatedAt', {
-                date: Shopware.Utils.format.date(this.draftCreatedAt),
+            return this.$t('sw-experience-studio.detail.toolbar.statusDraftNamed', {
+                name: this.draftName,
             });
         },
 
@@ -156,6 +157,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         onDiscard(): void {
             this.$emit('discard');
+        },
+
+        onHistory(): void {
+            this.$emit('history');
         },
 
         onUndo(): void {

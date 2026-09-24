@@ -123,6 +123,15 @@ Shopware.Component.register(
  * @private
  * @sw-package discovery
  */
+Shopware.Component.register(
+    'sw-experience-studio-revisions-modal',
+    () => import('./component/sw-experience-studio-revisions-modal'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-experience-studio', {
     type: 'core',

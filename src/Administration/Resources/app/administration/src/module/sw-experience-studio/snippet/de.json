@@ -77,7 +77,8 @@
                 "statusDraft": "Entwurf",
                 "statusLive": "Live",
                 "statusUnsaved": "Ungespeichert",
-                "statusDraftCreatedAt": "Entwurf vom {date}"
+                "statusDraftNamed": "Entwurf: {name}",
+                "history": "Verlauf"
             },
             "sidebarTree": {
                 "title": "Struktur",
@@ -142,18 +143,44 @@
                 "title": "Entwurf verwerfen",
                 "text": "Der Entwurf und alle seine Änderungen werden gelöscht. Das Live-Layout bleibt unverändert. Trotzdem fortfahren?"
             },
-            "messageDraftNotFound": "Der Entwurf existiert nicht mehr. Stattdessen wurde das Live-Layout geöffnet."
+            "messageDraftNotFound": "Der Entwurf existiert nicht mehr. Stattdessen wurde das Live-Layout geöffnet.",
+            "draftDefaultName": "Entwurf",
+            "messageDraftConflict": "Der Entwurf wurde zwischenzeitlich geändert. Bitte lade die Seite neu, um mit dem aktuellen Stand weiterzuarbeiten.",
+            "messageDraftLoadError": "Der Entwurf konnte nicht geladen werden. Stattdessen wurde das Live-Layout geöffnet."
         },
         "draftsModal": {
             "title": "Entwürfe",
             "titleWithName": "Entwürfe von „{name}“",
-            "columnCreatedAt": "Erstellt am",
+            "columnName": "Name",
             "columnUpdatedAt": "Zuletzt geändert",
-            "columnVersionId": "Version",
+            "columnBase": "Basiert auf",
+            "deleteTitle": "Entwurf löschen",
+            "deleteText": "Alle Änderungen in diesem Entwurf gehen verloren. Das Live-Layout bleibt unverändert. Trotzdem fortfahren?",
+            "messageDeleted": "Entwurf gelöscht.",
+            "messageDeleteError": "Der Entwurf konnte nicht gelöscht werden. Bitte erneut versuchen.",
             "emptyStateTitle": "Keine Entwürfe",
             "emptyStateSubline": "Speichere Änderungen im Seiten-Editor, um einen Entwurf dieses Layouts anzulegen.",
-            "messageLoadError": "Die Entwürfe konnten nicht geladen werden. Bitte erneut versuchen.",
-            "discardText": "Alle Änderungen in diesem Entwurf gehen verloren. Das Live-Layout bleibt unverändert. Trotzdem fortfahren?"
+            "messageLoadError": "Die Entwürfe konnten nicht geladen werden. Bitte erneut versuchen."
+        },
+        "revisionsModal": {
+            "title": "Verlauf",
+            "columnCreatedAt": "Erstellt am",
+            "columnAuthor": "Autor",
+            "columnStatus": "Status",
+            "columnRevision": "Revision",
+            "badgeLive": "Live",
+            "actionPublish": "Veröffentlichen",
+            "actionOpenAsDraft": "Als Entwurf öffnen",
+            "emptyStateTitle": "Kein Verlauf",
+            "emptyStateSubline": "Gespeicherte und veröffentlichte Stände dieses Layouts erscheinen hier.",
+            "messageLoadError": "Der Verlauf konnte nicht geladen werden. Bitte erneut versuchen.",
+            "messagePublished": "Revision erfolgreich veröffentlicht.",
+            "messagePublishError": "Die Revision konnte nicht veröffentlicht werden. Bitte erneut versuchen.",
+            "messageOpenAsDraftError": "Aus dieser Revision konnte kein Entwurf erstellt werden. Bitte erneut versuchen.",
+            "publishModal": {
+                "title": "Revision veröffentlichen",
+                "text": "Diese Revision ersetzt das Live-Layout. Ungespeicherte Änderungen im Editor gehen verloren. Trotzdem fortfahren?"
+            }
         }
     }
 }

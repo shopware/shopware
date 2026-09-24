@@ -1,7 +1,10 @@
 import type Repository from 'src/core/data/repository.data';
 import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
-import type ContentSystemLayoutDraftApiService from 'src/core/service/api/content-system-layout-draft.api.service';
-import type { ContentLayoutDraft } from 'src/core/service/api/content-system-layout-draft.api.service';
+import type ContentSystemLayoutRevisionApiService from 'src/core/service/api/content-system-layout-revision.api.service';
+import type {
+    ContentLayoutBranch,
+    ContentLayoutSavedRevision,
+} from 'src/core/service/api/content-system-layout-revision.api.service';
 import type {
     ContentLayoutDraftDuplicatePayload,
     ContentLayoutDraftInsertPayload,
@@ -121,12 +124,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     data(): {
         layout: ContentLayoutEntity | null;
-        liveLayout: ContentLayoutEntity | null;
-        versionContext: apiContext;
-        draftVersionId: string | null;
-        draftCreatedAt: string | null;
+        branch: ContentLayoutBranch | null;
         lastSavedSnapshot: string;
         showDiscardDraftModal: boolean;
+        showRevisionsModal: boolean;
         isLoading: boolean;
         isSaveSuccessful: boolean;
         currentViewport: Viewport;
@@ -148,12 +149,10 @@ export default Shopware.Component.wrapComponentConfig({
     } {
         return {
             layout: null,
-            liveLayout: null,
-            versionContext: Shopware.Context.api,
-            draftVersionId: null,
-            draftCreatedAt: null,
+            branch: null,
             lastSavedSnapshot: '',
             showDiscardDraftModal: false,
+            showRevisionsModal: false,
             isLoading: false,
             isSaveSuccessful: false,
             currentViewport: 'desktop',
@@ -196,10 +195,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.$route.params.id as string;
         },
 
-        routeVersionId(): string | null {
-            const versionId = this.$route.query.versionId;
+        routeBranchId(): string | null {
+            const branchId = this.$route.query.branch;
 
-            return typeof versionId === 'string' && versionId.length > 0 ? versionId : null;
+            return typeof branchId === 'string' && branchId.length > 0 ? branchId : null;
         },
 
         layoutRootSource(): string | null {
@@ -217,7 +216,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         resolvedPreviewContext(): LayoutPreviewContext | null {
-            return this.resolvePreviewContext(this.layout, this.liveLayout);
+            return this.resolvePreviewContext(this.layout);
         },
 
         previewEntityType(): LayoutPreviewContext['entityType'] | null {
@@ -233,7 +232,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasDraft(): boolean {
-            return this.draftVersionId !== null;
+            return this.branch !== null;
+        },
+
+        branchId(): string | null {
+            return this.branch?.id ?? null;
         },
 
         isDirty(): boolean {
@@ -349,12 +352,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        routeVersionId(versionId: string | null): void {
-            if (this.isCreateMode || versionId === this.draftVersionId) {
+        routeBranchId(branchId: string | null): void {
+            if (this.isCreateMode || branchId === this.branchId) {
                 return;
             }
 
-            void this.reloadForVersionSwitch();
+            void this.reloadForBranchSwitch();
         },
     },
 
@@ -409,61 +412,44 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async loadPersistedLayout(): Promise<void> {
-            const versionId = this.routeVersionId;
+            const branchId = this.routeBranchId;
 
-            this.liveLayout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api, this.layoutLoadCriteria);
+            this.branch = null;
+            this.layout = await this.layoutRepository.get(this.layoutId, Shopware.Context.api, this.layoutLoadCriteria);
 
-            if (!versionId) {
-                this.applyDraftVersion(null);
-                this.layout = this.liveLayout;
-
+            if (!branchId || !this.layout) {
                 return;
             }
 
-            const draft = await this.findDraft(versionId);
-            const draftContext = { ...Shopware.Context.api, versionId };
-            // Assignment associations are empty in the draft version; the preview context reads them from `liveLayout`.
-            const draftLayout = draft
-                ? await this.layoutRepository.get(this.layoutId, draftContext, new Criteria(1, 1))
-                : null;
-
-            if (!draft || !draftLayout) {
-                this.createNotificationError({
-                    message: this.$t('sw-experience-studio.detail.messageDraftNotFound'),
-                });
-                this.applyDraftVersion(null);
-                this.layout = this.liveLayout;
-                void this.navigateToVersion(null);
-
-                return;
-            }
-
-            this.applyDraftVersion(versionId, draft.createdAt);
-            this.layout = draftLayout;
-        },
-
-        async findDraft(versionId: string): Promise<ContentLayoutDraft | null> {
             try {
-                const drafts = await this.draftService().getDrafts(this.layoutId);
+                const { branch, layout } = await this.revisionService().getBranch(this.layoutId, branchId);
 
-                return drafts.find((draft) => draft.versionId === versionId) ?? null;
-            } catch {
-                return null;
+                this.layout.layout = layout;
+                this.branch = branch;
+            } catch (error) {
+                this.createNotificationError({
+                    message: this.$t(
+                        this.getErrorStatus(error) === 404
+                            ? 'sw-experience-studio.detail.messageDraftNotFound'
+                            : 'sw-experience-studio.detail.messageDraftLoadError',
+                    ),
+                });
+                void this.navigateToBranch(null);
             }
         },
 
-        async reloadForVersionSwitch(): Promise<void> {
-            // The history holds states of the version that is being left.
+        async reloadForBranchSwitch(): Promise<void> {
+            // The history holds states of the branch that is being left.
             this.editorStore.reset();
             this.selectedElementId = null;
             await this.loadLayout();
         },
 
-        navigateToVersion(versionId: string | null): Promise<unknown> {
+        navigateToBranch(branchId: string | null): Promise<unknown> {
             return this.$router.replace({
                 name: 'sw.experience.studio.detail',
                 params: { id: this.layoutId },
-                query: versionId ? { versionId } : {},
+                query: branchId ? { branch: branchId } : {},
             });
         },
 
@@ -473,18 +459,18 @@ export default Shopware.Component.wrapComponentConfig({
             this.applyPreviewContextDefaults();
         },
 
-        applyDraftVersion(versionId: string | null, createdAt: string | null = null): void {
-            this.draftVersionId = versionId;
-            this.draftCreatedAt = versionId ? createdAt : null;
-            this.versionContext = versionId ? { ...Shopware.Context.api, versionId } : Shopware.Context.api;
-        },
-
         createLayoutSnapshot(layout: ContentLayoutEntity | null): string {
             return JSON.stringify(layout?.layout ?? null);
         },
 
-        draftService(): ContentSystemLayoutDraftApiService {
-            return Shopware.Service('contentSystemLayoutDraftService');
+        revisionService(): ContentSystemLayoutRevisionApiService {
+            return Shopware.Service('contentSystemLayoutRevisionService');
+        },
+
+        getErrorStatus(error: unknown): number | null {
+            const status = (error as { response?: { status?: unknown } } | null)?.response?.status;
+
+            return typeof status === 'number' ? status : null;
         },
 
         onClickBack(): void {
@@ -1425,48 +1411,47 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = true;
 
             try {
-                const wasDraftMode = this.hasDraft;
-
                 if (this.isCreateMode) {
                     await this.saveNewLayout(layout);
-                } else {
-                    await this.saveDraft(layout);
-                }
 
-                if (!this.isCreateMode && !wasDraftMode) {
-                    await this.navigateToVersion(this.draftVersionId);
-                    void this.loadDraftCreatedAt();
-                }
+                    this.createNotificationSuccess({
+                        message: this.$t('sw-experience-studio.detail.messageSaved'),
+                    });
 
-                this.createNotificationSuccess({
-                    message: this.$t(
-                        this.isCreateMode
-                            ? 'sw-experience-studio.detail.messageSaved'
-                            : 'sw-experience-studio.detail.messageDraftSaved',
-                    ),
-                });
-
-                if (this.isCreateMode) {
                     void this.$router.push({
                         name: 'sw.experience.studio.detail',
                         params: { id: layout.id },
                     });
+
+                    return;
                 }
-            } catch {
-                this.createNotificationError({
-                    message: this.$t('sw-experience-studio.detail.messageSaveError'),
+
+                const wasDraftMode = this.hasDraft;
+
+                await this.saveDraft(layout);
+
+                if (!wasDraftMode) {
+                    await this.navigateToBranch(this.branchId);
+                }
+
+                this.createNotificationSuccess({
+                    message: this.$t('sw-experience-studio.detail.messageDraftSaved'),
                 });
-                this.leaveDraftCreatedFromLive();
+            } catch (error) {
+                this.notifySaveError(error);
             } finally {
                 this.isLoading = false;
             }
         },
 
-        leaveDraftCreatedFromLive(): void {
-            // A live-mode save that failed after branching a draft must not keep the live URL in draft state.
-            if (!this.routeVersionId && this.draftVersionId) {
-                this.applyDraftVersion(null);
-            }
+        notifySaveError(error: unknown): void {
+            this.createNotificationError({
+                message: this.$t(
+                    this.getErrorStatus(error) === 409
+                        ? 'sw-experience-studio.detail.messageDraftConflict'
+                        : 'sw-experience-studio.detail.messageSaveError',
+                ),
+            });
         },
 
         async saveNewLayout(layout: ContentLayoutEntity): Promise<void> {
@@ -1480,46 +1465,56 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async saveDraft(workingLayout: ContentLayoutEntity): Promise<void> {
-            // Working-tree layout data crossing an outbound boundary is cloned at the call site.
-            workingLayout.layout = cloneDeep(workingLayout.layout);
+            if (this.branch) {
+                await this.saveRevision(this.branch, workingLayout);
 
-            const layoutToSave = this.draftVersionId ? workingLayout : await this.createDraftFrom(workingLayout);
-
-            await this.layoutRepository.save(layoutToSave, this.versionContext);
-            this.layout = await this.layoutRepository.get(workingLayout.id, this.versionContext, new Criteria(1, 1));
-            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
-            this.applyPreviewContextDefaults();
-        },
-
-        async loadDraftCreatedAt(): Promise<void> {
-            const versionId = this.draftVersionId;
-
-            if (!versionId) {
                 return;
             }
 
-            const draft = await this.findDraft(versionId);
+            const branch = await this.revisionService().createBranch(this.layoutId, {
+                name: this.createDefaultDraftName(),
+            });
 
-            if (draft && this.draftVersionId === versionId) {
-                this.draftCreatedAt = draft.createdAt;
+            try {
+                await this.saveRevision(branch, workingLayout);
+            } catch (error) {
+                this.leaveDraftCreatedFromLive(branch.id);
+
+                throw error;
             }
         },
 
-        async createDraftFrom(workingLayout: ContentLayoutEntity): Promise<ContentLayoutEntity> {
-            this.applyDraftVersion(await this.draftService().createDraft(workingLayout.id));
+        async saveRevision(branch: ContentLayoutBranch, workingLayout: ContentLayoutEntity): Promise<void> {
+            const response = await this.revisionService().saveRevision(this.layoutId, branch.id, {
+                // Working-tree layout data crossing an outbound boundary is cloned at the call site.
+                layout: cloneDeep(workingLayout.layout),
+                expectedHead: branch.head,
+                name: workingLayout.name ?? undefined,
+            });
 
-            // The working copy's change tracking is against the live version, so the edits are carried
-            // onto the freshly created draft entity instead of saving the live entity into the draft.
-            const draftLayout = await this.layoutRepository.get(workingLayout.id, this.versionContext, new Criteria(1, 1));
+            this.applySavedRevision(response);
+        },
 
-            if (!draftLayout) {
-                throw new Error(`Draft of content_layout "${workingLayout.id}" could not be loaded.`);
+        applySavedRevision(response: ContentLayoutSavedRevision): void {
+            if (this.layout) {
+                this.layout.layout = response.layout;
             }
 
-            draftLayout.layout = workingLayout.layout;
-            draftLayout.name = workingLayout.name;
+            this.branch = response.branch;
+            this.lastSavedSnapshot = this.createLayoutSnapshot(this.layout);
+        },
 
-            return draftLayout;
+        leaveDraftCreatedFromLive(branchId: string): void {
+            // Create and first save are two requests; a live-mode save that failed in between must not leave an empty draft.
+            this.revisionService()
+                .deleteBranch(this.layoutId, branchId)
+                .catch(() => undefined);
+        },
+
+        createDefaultDraftName(): string {
+            const date = Shopware.Utils.format.date(new Date().toISOString());
+
+            return `${this.$t('sw-experience-studio.detail.draftDefaultName')} ${date}`;
         },
 
         async onPublish(): Promise<void> {
@@ -1543,17 +1538,31 @@ export default Shopware.Component.wrapComponentConfig({
                 if (this.isDirty) {
                     await this.saveDraft(this.layout);
                 }
+            } catch (error) {
+                this.notifySaveError(error);
+                this.isLoading = false;
 
-                if (!this.draftVersionId) {
-                    return;
-                }
+                return;
+            }
 
-                await this.draftService().publish(this.layoutId, this.draftVersionId);
-                this.applyDraftVersion(null);
+            const branch = this.branch;
+
+            if (!branch) {
+                this.isLoading = false;
+
+                return;
+            }
+
+            try {
+                await this.revisionService().publish(this.layoutId, {
+                    revisionId: branch.head,
+                    deleteBranchId: branch.id,
+                });
+                this.branch = null;
 
                 if (wasDraftMode) {
-                    await this.navigateToVersion(null);
-                    await this.reloadForVersionSwitch();
+                    await this.navigateToBranch(null);
+                    await this.reloadForBranchSwitch();
                 } else {
                     await this.reloadPersistedLayout();
                 }
@@ -1565,14 +1574,18 @@ export default Shopware.Component.wrapComponentConfig({
                 this.createNotificationError({
                     message: this.$t('sw-experience-studio.detail.messagePublishError'),
                 });
-                this.leaveDraftCreatedFromLive();
+
+                if (!wasDraftMode) {
+                    // The changes are saved in the new draft by now; continue there instead of on stale live state.
+                    await this.navigateToBranch(branch.id);
+                }
             } finally {
                 this.isLoading = false;
             }
         },
 
         onDiscardDraft(): void {
-            if (!this.draftVersionId || !this.allowSave) {
+            if (!this.branch || !this.allowSave) {
                 return;
             }
 
@@ -1586,19 +1599,19 @@ export default Shopware.Component.wrapComponentConfig({
         async onConfirmDiscardDraft(): Promise<void> {
             this.showDiscardDraftModal = false;
 
-            const versionId = this.draftVersionId;
+            const branchId = this.branchId;
 
-            if (!versionId) {
+            if (!branchId) {
                 return;
             }
 
             this.isLoading = true;
 
             try {
-                await this.draftService().discard(this.layoutId, versionId);
-                this.applyDraftVersion(null);
-                await this.navigateToVersion(null);
-                await this.reloadForVersionSwitch();
+                await this.revisionService().deleteBranch(this.layoutId, branchId);
+                this.branch = null;
+                await this.navigateToBranch(null);
+                await this.reloadForBranchSwitch();
 
                 this.createNotificationSuccess({
                     message: this.$t('sw-experience-studio.detail.messageDraftDiscarded'),
@@ -1610,6 +1623,31 @@ export default Shopware.Component.wrapComponentConfig({
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        onOpenRevisionsModal(): void {
+            this.showRevisionsModal = true;
+        },
+
+        onCloseRevisionsModal(): void {
+            this.showRevisionsModal = false;
+        },
+
+        async onRevisionPublished(): Promise<void> {
+            this.showRevisionsModal = false;
+            this.branch = null;
+
+            if (this.routeBranchId) {
+                await this.navigateToBranch(null);
+            }
+
+            await this.reloadForBranchSwitch();
+        },
+
+        async onOpenRevisionAsDraft(branchId: string): Promise<void> {
+            this.showRevisionsModal = false;
+
+            await this.navigateToBranch(branchId);
         },
     },
 });

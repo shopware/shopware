@@ -1,0 +1,122 @@
+{% block sw_experience_studio_revisions_modal %}
+<sw-confirm-modal
+    v-if="revisionPendingPublish"
+    class="sw-experience-studio-revisions-modal__publish-modal"
+    :title="$t('sw-experience-studio.revisionsModal.publishModal.title')"
+    :text="$t('sw-experience-studio.revisionsModal.publishModal.text')"
+    :text-confirm="$t('sw-experience-studio.revisionsModal.actionPublish')"
+    @confirm="onConfirmPublish"
+    @cancel="onCancelPublish"
+    @close="onCancelPublish"
+/>
+
+<sw-modal
+    v-else
+    class="sw-experience-studio-revisions-modal"
+    variant="large"
+    :title="$t('sw-experience-studio.revisionsModal.title')"
+    @modal-close="onClose"
+>
+    {% block sw_experience_studio_revisions_modal_content %}
+    <sw-loader v-if="isLoading && revisions.length === 0" />
+
+    <mt-empty-state
+        v-else-if="revisions.length === 0"
+        class="sw-experience-studio-revisions-modal__empty-state"
+        icon="regular-history"
+        :headline="$t('sw-experience-studio.revisionsModal.emptyStateTitle')"
+        :description="$t('sw-experience-studio.revisionsModal.emptyStateSubline')"
+    />
+
+    <sw-data-grid
+        v-else
+        class="sw-experience-studio-revisions-modal__grid"
+        :data-source="revisions"
+        :columns="columns"
+        :is-loading="isLoading"
+        :show-selection="false"
+        :show-settings="false"
+        :allow-inline-edit="false"
+        :allow-column-edit="false"
+        plain-appearance
+    >
+        <template #column-createdAt="{ item }">
+            {{ formatDate(item.createdAt) }}
+        </template>
+
+        <template #column-createdBy="{ item }">
+            {{ authorName(item.createdBy) }}
+        </template>
+
+        <template #column-branches="{ item }">
+            <div class="sw-experience-studio-revisions-modal__labels">
+                <mt-badge
+                    v-if="item.published"
+                    variant="positive"
+                    size="s"
+                >
+                    {{ $t('sw-experience-studio.revisionsModal.badgeLive') }}
+                </mt-badge>
+
+                <mt-badge
+                    v-for="label in branchLabels(item)"
+                    :key="label.id"
+                    :variant="label.id === branchId ? 'attention' : 'neutral'"
+                    size="s"
+                >
+                    {{ label.name }}
+                </mt-badge>
+            </div>
+        </template>
+
+        <template #column-id="{ item }">
+            <code class="sw-experience-studio-revisions-modal__revision-id">
+                {{ shortRevisionId(item.id) }}
+            </code>
+        </template>
+
+        <template #actions="{ item }">
+            <sw-context-menu-item
+                v-tooltip.bottom="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: allowEdit,
+                    showOnDisabledElements: true,
+                    zIndex: 9050,
+                }"
+                class="sw-experience-studio-revisions-modal__publish-action"
+                :disabled="!allowEdit || item.published || undefined"
+                @click="onPublishRevision(item.id)"
+            >
+                {{ $t('sw-experience-studio.revisionsModal.actionPublish') }}
+            </sw-context-menu-item>
+
+            <sw-context-menu-item
+                v-tooltip.bottom="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: allowEdit,
+                    showOnDisabledElements: true,
+                    zIndex: 9050,
+                }"
+                class="sw-experience-studio-revisions-modal__open-as-draft-action"
+                :disabled="!allowEdit || undefined"
+                @click="onOpenAsDraft(item.id)"
+            >
+                {{ $t('sw-experience-studio.revisionsModal.actionOpenAsDraft') }}
+            </sw-context-menu-item>
+        </template>
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_experience_studio_revisions_modal_footer %}
+    <template #modal-footer>
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="onClose"
+        >
+            {{ $t('global.default.close') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

@@ -1,13 +1,9 @@
-import type ContentSystemLayoutDraftApiService from 'src/core/service/api/content-system-layout-draft.api.service';
-import type { ContentLayoutDraft } from 'src/core/service/api/content-system-layout-draft.api.service';
+import type ContentSystemLayoutRevisionApiService from 'src/core/service/api/content-system-layout-revision.api.service';
+import type { ContentLayoutBranch } from 'src/core/service/api/content-system-layout-revision.api.service';
 
 import template from './sw-experience-studio-drafts-modal.html.twig';
 
 const { Mixin } = Shopware;
-
-type DraftRow = ContentLayoutDraft & {
-    id: string;
-};
 
 type ColumnConfig = {
     property: string;
@@ -42,27 +38,23 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['modal-close'],
 
     data(): {
-        drafts: ContentLayoutDraft[];
+        branches: ContentLayoutBranch[];
         isLoading: boolean;
-        draftPendingDiscard: string | null;
+        branchPendingDelete: string | null;
     } {
         return {
-            drafts: [],
+            branches: [],
             isLoading: false,
-            draftPendingDiscard: null,
+            branchPendingDelete: null,
         };
     },
 
     computed: {
-        rows(): DraftRow[] {
-            return this.drafts.map((draft) => ({ ...draft, id: draft.versionId }));
-        },
-
         columns(): ColumnConfig[] {
             return [
                 {
-                    property: 'createdAt',
-                    label: this.$t('sw-experience-studio.draftsModal.columnCreatedAt'),
+                    property: 'name',
+                    label: this.$t('sw-experience-studio.draftsModal.columnName'),
                     allowResize: false,
                     primary: true,
                 },
@@ -73,15 +65,15 @@ export default Shopware.Component.wrapComponentConfig({
                     primary: false,
                 },
                 {
-                    property: 'versionId',
-                    label: this.$t('sw-experience-studio.draftsModal.columnVersionId'),
+                    property: 'base',
+                    label: this.$t('sw-experience-studio.draftsModal.columnBase'),
                     allowResize: false,
                     primary: false,
                 },
             ];
         },
 
-        allowDiscard(): boolean {
+        allowDelete(): boolean {
             return this.acl.can('experience_studio.editor');
         },
 
@@ -93,21 +85,21 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created(): void {
-        void this.loadDrafts();
+        void this.loadBranches();
     },
 
     methods: {
-        draftService(): ContentSystemLayoutDraftApiService {
-            return Shopware.Service('contentSystemLayoutDraftService');
+        revisionService(): ContentSystemLayoutRevisionApiService {
+            return Shopware.Service('contentSystemLayoutRevisionService');
         },
 
-        async loadDrafts(): Promise<void> {
+        async loadBranches(): Promise<void> {
             this.isLoading = true;
 
             try {
-                this.drafts = await this.draftService().getDrafts(this.layoutId);
+                this.branches = await this.revisionService().getBranches(this.layoutId);
             } catch {
-                this.drafts = [];
+                this.branches = [];
                 this.createNotificationError({
                     message: this.$t('sw-experience-studio.draftsModal.messageLoadError'),
                 });
@@ -120,53 +112,53 @@ export default Shopware.Component.wrapComponentConfig({
             return value ? Shopware.Utils.format.date(value) : '';
         },
 
-        shortVersionId(versionId: string): string {
-            return versionId.slice(0, 8);
+        shortRevisionId(revisionId: string): string {
+            return revisionId.slice(0, 8);
         },
 
-        onOpenDraft(versionId: string): void {
+        onOpenBranch(branchId: string): void {
             this.$emit('modal-close');
             void this.$router.push({
                 name: 'sw.experience.studio.detail',
                 params: { id: this.layoutId },
-                query: { versionId },
+                query: { branch: branchId },
             });
         },
 
-        onDiscardDraft(versionId: string): void {
-            if (!this.allowDiscard) {
+        onDeleteBranch(branchId: string): void {
+            if (!this.allowDelete) {
                 return;
             }
 
-            this.draftPendingDiscard = versionId;
+            this.branchPendingDelete = branchId;
         },
 
-        onCancelDiscard(): void {
-            this.draftPendingDiscard = null;
+        onCancelDelete(): void {
+            this.branchPendingDelete = null;
         },
 
-        async onConfirmDiscard(): Promise<void> {
-            const versionId = this.draftPendingDiscard;
-            this.draftPendingDiscard = null;
+        async onConfirmDelete(): Promise<void> {
+            const branchId = this.branchPendingDelete;
+            this.branchPendingDelete = null;
 
-            if (!versionId) {
+            if (!branchId) {
                 return;
             }
 
             this.isLoading = true;
 
             try {
-                await this.draftService().discard(this.layoutId, versionId);
+                await this.revisionService().deleteBranch(this.layoutId, branchId);
                 this.createNotificationSuccess({
-                    message: this.$t('sw-experience-studio.detail.messageDraftDiscarded'),
+                    message: this.$t('sw-experience-studio.draftsModal.messageDeleted'),
                 });
             } catch {
                 this.createNotificationError({
-                    message: this.$t('sw-experience-studio.detail.messageDiscardError'),
+                    message: this.$t('sw-experience-studio.draftsModal.messageDeleteError'),
                 });
             }
 
-            await this.loadDrafts();
+            await this.loadBranches();
         },
 
         onClose(): void {

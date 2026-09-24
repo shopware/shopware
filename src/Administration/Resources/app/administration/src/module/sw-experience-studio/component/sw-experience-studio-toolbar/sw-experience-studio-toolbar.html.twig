@@ -146,6 +146,18 @@
         </div>
         {% endblock %}
 
+        {% block sw_experience_studio_toolbar_history_button %}
+        <mt-button
+            v-if="!isCreateMode"
+            class="sw-experience-studio-toolbar__history-button"
+            variant="secondary"
+            :disabled="isLoading || undefined"
+            @click="onHistory"
+        >
+            {{ $t('sw-experience-studio.detail.toolbar.history') }}
+        </mt-button>
+        {% endblock %}
+
         {% block sw_experience_studio_toolbar_discard_draft_button %}
         <mt-button
             v-if="!isCreateMode && hasDraft"

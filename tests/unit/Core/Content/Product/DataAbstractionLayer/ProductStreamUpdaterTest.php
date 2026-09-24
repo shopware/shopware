@@ -578,6 +578,153 @@ class ProductStreamUpdaterTest extends TestCase
         );
     }
 
+    public function testHandlePagesThroughTheProductTableWhenTheConditionsAreBatched(): void
+    {
+        $filters = array_fill(0, 70, ['type' => 'equals', 'field' => 'active', 'value' => '1']);
+
+        $productId = Uuid::randomHex();
+
+        $pages = [[Uuid::fromHexToBytes($productId)], []];
+
+        $connection = static::createStub(Connection::class);
+        $connection
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => json_encode($filters)]);
+
+        $connection
+            ->method('fetchFirstColumn')
+            ->willReturnCallback(static function (string $sql) use (&$pages): array {
+                if (str_contains($sql, 'product_stream_mapping')) {
+                    return [];
+                }
+
+                static::assertStringContainsString('FROM product WHERE version_id', $sql);
+
+                return array_shift($pages) ?? [];
+            });
+
+        $definition = new ProductDefinition();
+        $searches = [];
+        for ($i = 0; $i < 4; ++$i) {
+            $searches[] = static fn (): array => [$productId];
+        }
+
+        /** @var StaticEntityRepository<ProductCollection> $repository */
+        $repository = new StaticEntityRepository($searches, $definition);
+
+        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        $manyToManyFieldUpdater
+            ->expects($this->once())
+            ->method('update')
+            ->with($definition->getEntityName(), [$productId], Context::createDefaultContext(), 'streamIds');
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            $manyToManyFieldUpdater,
+            $this->createDefaultLanguageRepo(),
+            true
+        );
+
+        $updater->handle(new ProductStreamMappingIndexingMessage(Uuid::randomHex()));
+
+        // the second page came back empty, so the walk stopped there
+        static::assertSame([], $pages);
+    }
+
+    public function testSearchIsRetriedWithSmallerBatchesWhenTheJoinLimitIsHit(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $filters = array_fill(0, 70, ['type' => 'equals', 'field' => 'active', 'value' => '1']);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => Uuid::randomHex(), 'api_filter' => json_encode($filters)]]);
+
+        $candidateIds = [Uuid::randomHex()];
+
+        $attempts = 0;
+        $searches = [];
+        for ($i = 0; $i < 12; ++$i) {
+            $searches[] = static function () use (&$attempts, $candidateIds): array {
+                ++$attempts;
+
+                if ($attempts === 1) {
+                    throw new \RuntimeException('SQLSTATE[HY000]: General error: 1116 Too many tables', 1116);
+                }
+
+                return $candidateIds;
+            };
+        }
+
+        $definition = new ProductDefinition();
+        /** @var StaticEntityRepository<ProductCollection> $repository */
+        $repository = new StaticEntityRepository($searches, $definition);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            $this->createDefaultLanguageRepo(),
+            true
+        );
+
+        $updater->updateProducts($candidateIds, $context);
+
+        // 70 conditions is 4 batches, the first attempt throws, the retry halves the
+        // batch size to 10 and needs 7 more
+        static::assertSame(8, $attempts);
+    }
+
+    public function testDatabaseErrorsOtherThanTheJoinLimitAreNotRetried(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $filters = array_fill(0, 70, ['type' => 'equals', 'field' => 'active', 'value' => '1']);
+
+        $connection = $this->createMock(Connection::class);
+        $connection
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([['id' => Uuid::randomHex(), 'api_filter' => json_encode($filters)]]);
+
+        $attempts = 0;
+        $definition = new ProductDefinition();
+        /** @var StaticEntityRepository<ProductCollection> $repository */
+        $repository = new StaticEntityRepository([
+            static function () use (&$attempts): array {
+                ++$attempts;
+
+                throw new \RuntimeException('deadlock found', 1213);
+            },
+        ], $definition);
+
+        $updater = new ProductStreamUpdater(
+            $connection,
+            $definition,
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            $this->createDefaultLanguageRepo(),
+            true
+        );
+
+        $this->expectExceptionObject(new \RuntimeException('deadlock found', 1213));
+
+        try {
+            $updater->updateProducts([Uuid::randomHex()], $context);
+        } finally {
+            static::assertSame(1, $attempts);
+        }
+    }
+
     public function testInvalidFilter(): void
     {
         $context = Context::createDefaultContext();

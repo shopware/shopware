@@ -16,7 +16,12 @@ const { convert } = Shopware.Utils.unitConversion;
 export default {
     template,
 
-    inject: ['feature', 'bulkEditApiFactory', 'repositoryFactory', 'customFieldDataProviderService'],
+    inject: [
+        'feature',
+        'bulkEditApiFactory',
+        'repositoryFactory',
+        'customFieldDataProviderService',
+    ],
 
     data() {
         return {

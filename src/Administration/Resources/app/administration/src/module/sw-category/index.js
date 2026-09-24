@@ -204,7 +204,7 @@ Module.register('sw-category', {
             color: 'var(--sw-color-module-green-default)',
             parent: 'sw-catalogue',
             privilege: 'category.viewer',
-            position: 20,
+            position: 25,
         },
     ],
 

@@ -59,7 +59,7 @@ Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 ### `McpToolResponseRule` / PHPStan
 
 - Update the existing rule with the transitional contract (allow listed returns; stop treating string-only as forever).
-- **Follow-on (not Wave 1):** MCP PHPStan **guidance pack** — envelope deprecation toward 6.8.0; **Admin ACL required** (audited exceptions); **Store tools ≠ Admin ACL**; reserved-group warn ([#20725](https://github.com/shopware/shopware/issues/20725)). Pointer: Project note / epic child when filed — do not implement the pack in the ADR merge itself.
+- **Follow-on (not this ADR merge):** MCP PHPStan **guidance pack** — envelope deprecation toward 6.8.0; **Admin ACL required** (audited exceptions); **Store tools ≠ Admin ACL**; reserved-group warn ([#20725](https://github.com/shopware/shopware/issues/20725)). Track under [#19965](https://github.com/shopware/shopware/issues/19965); do not implement the pack in the ADR merge itself.
 
 ### Sequencing
 
@@ -68,7 +68,7 @@ Do not invent a parallel Shopware envelope for ResourceLink or Sync.
 | Now | This ADR; unblock ResourceLink typing (#19966) and dual-era honesty |
 | Wave 3 | Helper dual-support → tool-by-tool migration → paired [shopware-mcp-evals](https://github.com/shopware/shopware-mcp-evals) dual-read |
 | By 6.8.0 | Remove string envelope; tighten PHPStan; UPGRADE final remove notes |
-| After ADR / with D3 | PHPStan guidance pack (follow-on) |
+| After this ADR / with envelope migration | PHPStan guidance pack (follow-on) |
 
 ## Consequences
 

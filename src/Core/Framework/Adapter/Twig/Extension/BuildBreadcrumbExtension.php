@@ -37,6 +37,9 @@ class BuildBreadcrumbExtension extends AbstractExtension
     ) {
     }
 
+    /**
+     * @phpstan-ignore shopware.deprecatedClass (not triggering deprecation to avoid polluting logs, the registered functions trigger it themselves)
+     */
     public function getFunctions(): array
     {
         return [

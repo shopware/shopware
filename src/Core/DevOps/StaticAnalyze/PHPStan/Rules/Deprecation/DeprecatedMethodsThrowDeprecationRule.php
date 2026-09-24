@@ -66,7 +66,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->isServiceExcludedFromClassDeprecation($class) && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+        if ($classDeprecation && !$this->isServiceDecorator($class) && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
             return [
                 RuleErrorBuilder::message(\sprintf(
                     'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
@@ -165,19 +165,18 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
             && $this->serviceMap->getService($class->getName()) !== null;
     }
 
-    private function isServiceExcludedFromClassDeprecation(ClassReflection $class): bool
+    private function isServiceDecorator(ClassReflection $class): bool
     {
-        foreach ($this->serviceMap->getServices() as $service) {
-            if ($service->getAlias() !== null || $service->getClass() !== $class->getName()) {
-                continue;
-            }
+        $service = $this->serviceMap->getService($class->getName());
 
-            foreach ($service->getTags() as $tag) {
-                /** @phpstan-ignore phpstanApi.method */
-                $tagName = $tag->getName();
-                if ($tagName === 'container.decorator' || $tagName === 'shopware.inactiveFeature') {
-                    return true;
-                }
+        if ($service === null) {
+            return false;
+        }
+
+        foreach ($service->getTags() as $tag) {
+            /** @phpstan-ignore phpstanApi.method */
+            if ($tag->getName() === 'container.decorator') {
+                return true;
             }
         }
 

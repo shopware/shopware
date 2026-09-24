@@ -155,4 +155,22 @@ describe('plugin/google-analytics/events/select-item.event', () => {
             'items': [expect.objectContaining({ 'index': 25 })],
         }));
     });
+
+    test.each([
+        ['a Ctrl click', { ctrlKey: true }, ''],
+        ['a Cmd click', { metaKey: true }, ''],
+        ['a Shift click', { shiftKey: true }, ''],
+        ['a link with target _blank', {}, '_blank'],
+    ])('reports %s but keeps no attribution in this tab', (label, modifiers, target) => {
+        renderListing([shirt]);
+        const link = document.querySelector('.product-name');
+        if (target) {
+            link.setAttribute('target', target);
+        }
+
+        link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ...modifiers }));
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'select_item', expect.anything());
+        expect(ListAttributionHelper.consume('SW10000')).toEqual({});
+    });
 });

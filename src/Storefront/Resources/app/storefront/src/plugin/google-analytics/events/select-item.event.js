@@ -53,8 +53,12 @@ export default class SelectItemEvent extends AnalyticsEvent
 
         const list = ListAttributionHelper.getListFromElement(productBox);
 
-        // the detail page reports the same list, so both events describe one journey
-        ListAttributionHelper.remember(itemId, list, information.id);
+        // The detail page reports the same list, so both events describe one journey. A link opened
+        // in another tab never reaches `view_item` in this one, so storing it here would attribute a
+        // later direct visit of the product in this tab to the old list instead.
+        if (!this._opensInAnotherTab(event, link)) {
+            ListAttributionHelper.remember(itemId, list, information.id);
+        }
 
         this.pushEvent('select_item', {
             ...list,
@@ -67,6 +71,18 @@ export default class SelectItemEvent extends AnalyticsEvent
                 'index': this._getIndex(productBox),
             }],
         });
+    }
+
+    /**
+     * @param {MouseEvent} event
+     * @param {HTMLAnchorElement} link
+     * @returns {boolean}
+     * @private
+     */
+    _opensInAnotherTab(event, link) {
+        const target = link.getAttribute('target');
+
+        return event.ctrlKey || event.metaKey || event.shiftKey || (!!target && target !== '_self');
     }
 
     /**

@@ -2,13 +2,14 @@ diff --git a/src/CompareClasses.php b/src/CompareClasses.php
 index 2378ef8..9c8ceea 100644
 --- a/src/CompareClasses.php
 +++ b/src/CompareClasses.php
-@@ -72,6 +72,18 @@ final class CompareClasses implements CompareApi
+@@ -72,6 +72,19 @@ final class CompareClasses implements CompareApi
          try {
              $newClass = $newSourcesWithDependencies->reflectClass($oldSymbol->getName());
          } catch (IdentifierNotFound) {
-+            require_once getcwd() . '/vendor/autoload.php';
++            require_once dirname(__DIR__, 6) . '/vendor/autoload.php';
 +
-+            $newClassName = \Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases()[strtolower($oldSymbol->getName())] ?? null;
++            $aliases = array_change_key_case(\Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases(), CASE_LOWER);
++            $newClassName = $aliases[strtolower($oldSymbol->getName())] ?? null;
 +            if ($newClassName !== null) {
 +                try {
 +                    $newSourcesWithDependencies->reflectClass($newClassName);

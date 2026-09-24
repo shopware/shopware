@@ -25,3 +25,7 @@ Hand-assembling a data requirement means naming the right loader, the right conf
 The available specifications for each element type are folded into `GET /api/_info/content-system-element-types.json`. Applying one records which specification wired which key in the element's `attributedSpecifications` map; the system re-derives this bookkeeping on every save and drops an entry whose wiring was later hand-edited.
 
 Authoring specifications is an extension concern, covered in [custom-specifications.md](custom-specifications.md); the admin-facing introspection surface is covered in [introspection.md](introspection.md).
+
+## The Loading DTOs
+
+`Specification/Dto/BindingSpecificationDto` carries no id of its own: the loader passes the `bindings:` map key into `toBindingSpecification(id, source)`. `Specification/Dto/BindingSpecificationDtoCollection` holds the collection plus the `typeOverlay` field the semantic validator reads.

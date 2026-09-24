@@ -20,6 +20,7 @@
     "general": {
       "mainMenuItemGeneral": "Produkte",
       "mainMenuItemList": "Produkte",
+      "mainMenuItemOverview": "Übersicht",
       "mainMenuItemAdd": "Produkt anlegen",
       "descriptionTextModule": "Verwaltung von Produkten.",
       "placeholderSearchBar": "Durchsuche alle Produkte ...",

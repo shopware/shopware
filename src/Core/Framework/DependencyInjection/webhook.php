@@ -10,10 +10,14 @@ use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\NotHookablePolicy;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -75,6 +79,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             [
                 'timeout' => 20,
                 'connect_timeout' => 10,
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->call('after', [
@@ -185,6 +190,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.admin_worker.enable_admin_worker'),
             service(WebhookDeliveryService::class),
             service(WebhookOutboxStore::class),
+            service(PolicyRegistry::class),
         ]);
 
     $services->set(WebhookCacheClearer::class)
@@ -193,6 +199,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber')
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(PolicyRegistry::class)
+        ->args([
+            tagged_iterator('shopware.webhook.policy'),
+            service('logger'),
+        ]);
+
+    $services->set(NotHookablePolicy::class)
+        ->args([service(BusinessEventRegistry::class)])
+        ->tag('shopware.webhook.policy');
 
     $services->set(HookableEventFactory::class)
         ->lazy()

@@ -14,9 +14,7 @@ async function createWrapper() {
     return mount(
         {
             template: '<div class="sw-mock"></div>',
-            mixins: [
-                Shopware.Mixin.getByName('notification-translation'),
-            ],
+            mixins: [Shopware.Mixin.getByName('notification-translation')],
         },
         {
             global: {

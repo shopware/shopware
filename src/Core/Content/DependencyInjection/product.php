@@ -45,6 +45,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Api\ProductActionController;
 use Shopware\Core\Content\Product\Api\ProductNumberFkResolver;
+use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator;
 use Shopware\Core\Content\Product\Cart\ProductStreamCategoryLoader;
@@ -283,6 +284,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('category.repository'),
         ]);
+
+    $services->set(ProductCategoryPathResolver::class);
 
     $services->set(AbstractPropertyGroupSorter::class, PropertyGroupSorter::class);
 

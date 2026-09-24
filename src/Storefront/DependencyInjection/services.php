@@ -30,6 +30,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
+use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
@@ -111,6 +112,7 @@ use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
+use Shopware\Storefront\Framework\Twig\Extension\AnalyticsCategoryPathExtension;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
@@ -378,6 +380,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(UrlEncodingTwigFilter::class)
+        ->tag('twig.extension');
+
+    $services->set(AnalyticsCategoryPathExtension::class)
+        ->args([
+            service(ProductCategoryPathResolver::class),
+        ])
         ->tag('twig.extension');
 
     $services->set(IconCacheTwigFilter::class)

@@ -6,11 +6,13 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -25,7 +27,8 @@ class A11yRenderedDocumentStorer extends FlowStorer
      */
     public function __construct(
         private readonly EntityRepository $documentRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly MailAttachmentsBuilder $mailAttachmentsBuilder
     ) {
     }
 
@@ -59,14 +62,21 @@ class A11yRenderedDocumentStorer extends FlowStorer
      */
     private function lazyLoad(StorableFlow $storableFlow): array
     {
+        $config = $storableFlow->getConfig();
+        $orderId = $storableFlow->getData(OrderAware::ORDER_ID);
         $ids = $storableFlow->getStore(A11yRenderedDocumentAware::A11Y_DOCUMENT_IDS);
-        if (!\is_array($ids) || empty($ids)) {
+        $ids = \is_array($ids) ? $ids : [];
+
+        if (!empty($config['documentTypeIds']) && \is_array($config['documentTypeIds']) && $orderId) {
+            $latestDocuments = $this->mailAttachmentsBuilder->getLatestDocumentsOfTypes($orderId, $config['documentTypeIds']);
+            $ids = array_values(array_unique(array_merge($ids, $latestDocuments)));
+        }
+
+        if (empty($ids)) {
             return [];
         }
 
-        $criteria = new Criteria($ids);
-
-        return $this->loadA11yDocuments($criteria, $storableFlow->getContext());
+        return $this->loadA11yDocuments(new Criteria($ids), $storableFlow->getContext());
     }
 
     /**

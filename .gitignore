@@ -34,6 +34,15 @@ Thumbs.db
 .kite/
 .codewhispererignore
 
+# Local AI/LLM overrides
+# Claude.local.md
+*.local.md
+# AGENTS.override.md
+*.override.md
+*.cursorignore.local
+*.cursorindexingignore.local
+*.tabnineignore.local
+
 # Composer
 /composer.phar
 /auth.json
@@ -59,7 +68,6 @@ php.ini
 .eslintcache
 .stylelintcache
 .jestcache
-/.phpunit.cache
 
 /public/*
 !/public/index.php

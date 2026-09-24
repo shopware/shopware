@@ -493,6 +493,7 @@
     "confirmRevocationNoticeModal": "Please note our %revocationModalTagOpen%cancellation policy%revocationModalTagClose%.",
     "confirmRevocationNoticePage": "Please note our <a href=\"%url%\">cancellation policy</a>.",
     "confirmLegalGuaranteeNoticeLink": "Your legal guarantee rights",
+    "confirmLegalGuaranteeNotice": "Please note %legalGuaranteeNoticeModalTagOpen%your legal guarantee rights%legalGuaranteeNoticeModalTagClose%.",
     "confirmTermsText": "I have read and accepted the <a class=\"checkout-confirm-terms-modal\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\">general terms and conditions</a>.",
     "confirmTermsTextWithGuarantee": "I have read and accepted the <a class=\"checkout-confirm-terms-modal\" data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\">general terms and conditions</a> and acknowledged %legalGuaranteeNoticeModalTagOpen%my legal guarantee rights%legalGuaranteeNoticeModalTagClose%.",
     "confirmTermsTextModal": "I have read and accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%.",
@@ -562,6 +563,7 @@
     "boxUnitLabel": "Content:",
     "boxLabelTopseller": "Tip",
     "boxLabelNew": "New",
+    "boxLabelDiscount": "Discount",
     "listingTextSite": "Page",
     "listingTextFrom": "From",
     "boxAddProduct": "Add to shopping cart",
@@ -797,7 +799,13 @@
     "groupComfortFeaturesVimeoVideo": "Vimeo video",
     "groupMarketing": "Marketing",
     "groupMarketingDescription": "Allows Google to collect personal data for online advertising and marketing.",
-    "groupMarketingAdConsent": "Google Advertising"
+    "groupMarketingAdConsent": "Google Advertising",
+    "wishlist" : {
+      "description": "In order to use the wishlist functionality you need to accept the \"wishlist cookie\" or log in to your account.",
+      "title": "Missing cookie",
+      "accept": "Accept cookie",
+      "login": "Log In"
+    }
   },
   "ellipsis": {
     "expandLabel": "show more",

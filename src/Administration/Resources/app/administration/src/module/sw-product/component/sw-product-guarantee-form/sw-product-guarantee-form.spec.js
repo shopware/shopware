@@ -26,6 +26,9 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         store.product.getEntityName = () => 'product';
         store.product.guaranteeMonths = 36;
         store.product.guaranteeConfirmed = false;
+        store.product.manufacturer = { translated: { name: 'Manufacturer' } };
+        store.product.manufacturerNumber = 'MPN-1';
+        store.parentProduct = {};
 
         const acl = {
             can: (privilege) => {
@@ -133,5 +136,154 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
         expect(monthsField.element.disabled).toBe(true);
         expect(confirmedField.element.disabled).toBe(true);
+    });
+
+    describe('unmet label requirements notice', () => {
+        it('should not be shown while the label is deactivated', async () => {
+            store.product.guaranteeConfirmed = false;
+            store.product.guaranteeMonths = null;
+            store.product.manufacturer = null;
+            store.product.manufacturerNumber = null;
+            await flushPromises();
+
+            expect(wrapper.find('.sw-product-guarantee-form__requirements-notice').exists()).toBe(false);
+        });
+
+        it('should not be shown while all requirements are met', async () => {
+            store.product.guaranteeConfirmed = true;
+            await flushPromises();
+
+            expect(wrapper.find('.sw-product-guarantee-form__requirements-notice').exists()).toBe(false);
+        });
+
+        it.each([
+            [
+                'guarantee duration',
+                { guaranteeMonths: 12 },
+                'sw-product.settingsForm.noticeGuaranteeRequirementMonths',
+            ],
+            [
+                'guarantee duration above 600 months',
+                { guaranteeMonths: 606 },
+                'sw-product.settingsForm.noticeGuaranteeRequirementMonths',
+            ],
+            [
+                'manufacturer',
+                { manufacturer: null },
+                'sw-product.settingsForm.noticeGuaranteeRequirementManufacturer',
+            ],
+            [
+                'manufacturer number',
+                { manufacturerNumber: '  ' },
+                'sw-product.settingsForm.noticeGuaranteeRequirementManufacturerNumber',
+            ],
+        ])('should name the missing %s', async (_name, productOverride, snippet) => {
+            store.product.guaranteeConfirmed = true;
+            Object.assign(store.product, productOverride);
+            await flushPromises();
+
+            const requirements = wrapper.findAll('.sw-product-guarantee-form__requirements-notice li');
+
+            expect(requirements).toHaveLength(1);
+            expect(requirements.at(0).text()).toBe(snippet);
+        });
+
+        it('should name every missing requirement', async () => {
+            store.product.guaranteeConfirmed = true;
+            store.product.guaranteeMonths = null;
+            store.product.manufacturer = null;
+            store.product.manufacturerNumber = null;
+            await flushPromises();
+
+            expect(wrapper.findAll('.sw-product-guarantee-form__requirements-notice li').map((item) => item.text())).toEqual(
+                [
+                    'sw-product.settingsForm.noticeGuaranteeRequirementMonths',
+                    'sw-product.settingsForm.noticeGuaranteeRequirementManufacturer',
+                    'sw-product.settingsForm.noticeGuaranteeRequirementManufacturerNumber',
+                ],
+            );
+        });
+
+        it('should resolve the requirements inherited from the parent product', async () => {
+            store.product.guaranteeConfirmed = null;
+            store.product.guaranteeMonths = null;
+            store.product.manufacturer = null;
+            store.product.manufacturerNumber = null;
+            store.parentProduct = {
+                id: 'parentId',
+                guaranteeConfirmed: true,
+                guaranteeMonths: 36,
+                manufacturer: { translated: { name: 'Parent manufacturer' } },
+                manufacturerNumber: 'MPN-PARENT',
+            };
+            await flushPromises();
+
+            expect(wrapper.find('.sw-product-guarantee-form__requirements-notice').exists()).toBe(false);
+        });
+
+        it('should name the requirement a variant does not inherit either', async () => {
+            store.product.guaranteeConfirmed = true;
+            store.product.manufacturerNumber = null;
+            store.parentProduct = {
+                id: 'parentId',
+                guaranteeMonths: 36,
+                manufacturer: { translated: { name: 'Parent manufacturer' } },
+                manufacturerNumber: null,
+            };
+            await flushPromises();
+
+            const requirements = wrapper.findAll('.sw-product-guarantee-form__requirements-notice li');
+
+            expect(requirements).toHaveLength(1);
+            expect(requirements.at(0).text()).toBe('sw-product.settingsForm.noticeGuaranteeRequirementManufacturerNumber');
+        });
+
+        describe('after a successful save', () => {
+            let scrollIntoView;
+
+            beforeEach(() => {
+                // jsdom does not implement scrollIntoView at all.
+                scrollIntoView = jest.fn();
+                Element.prototype.scrollIntoView = scrollIntoView;
+            });
+
+            afterEach(() => {
+                delete Element.prototype.scrollIntoView;
+            });
+
+            it('should be scrolled into view', async () => {
+                store.product.guaranteeConfirmed = true;
+                store.product.manufacturerNumber = null;
+                await flushPromises();
+
+                Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+                await flushPromises();
+
+                expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
+            });
+
+            it('should not scroll anywhere while every requirement is met', async () => {
+                store.product.guaranteeConfirmed = true;
+                await flushPromises();
+
+                Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+                await flushPromises();
+
+                expect(scrollIntoView).not.toHaveBeenCalled();
+            });
+
+            it('should stop listening once the form is gone', async () => {
+                store.product.guaranteeConfirmed = true;
+                store.product.manufacturerNumber = null;
+                await flushPromises();
+
+                wrapper.unmount();
+
+                Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+                await flushPromises();
+
+                expect(scrollIntoView).not.toHaveBeenCalled();
+            });
+        });
     });
 });

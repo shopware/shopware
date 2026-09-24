@@ -17,7 +17,7 @@ use Twig\Template;
 /**
  * @internal
  */
-#[CoversClass('Shopware\Core\Framework\Adapter\Twig\SwTwigFunction')]
+#[CoversClass(SwTwigFunction::class)]
 class SwTwigFunctionTest extends TestCase
 {
     private MockObject&Environment $environmentMock;
@@ -25,7 +25,7 @@ class SwTwigFunctionTest extends TestCase
     protected function setUp(): void
     {
         $this->environmentMock = $this->createMock(Environment::class);
-        /** This is a fix for a autoload issue in the testsuite. Do not delete. */
+        /** This is a fix for an autoload issue in the testsuite. Do not delete it. */
         class_exists(CoreExtension::class);
     }
 
@@ -145,6 +145,62 @@ class SwTwigFunctionTest extends TestCase
         $result = SwTwigFunction::escapeFilter($env, 'cached_string', 'html', 'UTF-8');
 
         static::assertEquals('cached_string', $result);
+    }
+
+    public function testCallMacroWithReturnSupportReturnsNativeResultWithoutExplicitReturn(): void
+    {
+        static::assertSame('native result', SwTwigFunction::callMacro(static fn (): string => 'native result'));
+    }
+
+    public function testCallMacroWithReturnSupportReturnsExplicitNull(): void
+    {
+        $result = SwTwigFunction::callMacro(static function (): string {
+            SwTwigFunction::returnFromMacro(null);
+
+            return 'native result';
+        });
+
+        static::assertNull($result);
+    }
+
+    public function testCallMacroWithReturnSupportKeepsNestedReturnValuesSeparate(): void
+    {
+        $result = SwTwigFunction::callMacro(static function (): string {
+            $nestedResult = SwTwigFunction::callMacro(static function (): string {
+                SwTwigFunction::returnFromMacro(['nested result']);
+
+                return 'nested native result';
+            });
+
+            SwTwigFunction::returnFromMacro($nestedResult);
+
+            return 'native result';
+        });
+
+        static::assertSame(['nested result'], $result);
+    }
+
+    public function testCallMacroWithReturnSupportClearsReturnStateAfterException(): void
+    {
+        try {
+            SwTwigFunction::callMacro(static function (): never {
+                SwTwigFunction::returnFromMacro('stale result');
+
+                throw new \RuntimeException('Macro failed');
+            });
+            static::fail('Expected macro exception');
+        } catch (\RuntimeException $exception) {
+            static::assertSame('Macro failed', $exception->getMessage());
+        }
+
+        static::assertSame('native result', SwTwigFunction::callMacro(static fn (): string => 'native result'));
+    }
+
+    public function testReturnOutsideMacroDoesNotLeakIntoNextCall(): void
+    {
+        SwTwigFunction::returnFromMacro('stale result');
+
+        static::assertSame('native result', SwTwigFunction::callMacro(static fn (): string => 'native result'));
     }
 }
 

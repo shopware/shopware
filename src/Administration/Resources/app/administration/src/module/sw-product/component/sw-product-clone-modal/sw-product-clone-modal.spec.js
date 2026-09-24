@@ -74,7 +74,6 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                     variantListingConfig: {
                         mainVariantId: null,
                     },
-                    childCount: 1,
                 },
             },
             expect.anything(),

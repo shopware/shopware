@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -27,6 +28,12 @@ class ToolResultCacheStorage
      * which must wait for session-store liveness.
      */
     public const DEFAULT_TTL_SECONDS = 86400;
+
+    /**
+     * Bounded DELETE batch size for TTL GC — matches CleanupCustomerRecoveryTaskHandler.
+     * Keeps lock / undo / replication pressure finite when the first run drains a backlog.
+     */
+    private const CLEANUP_BATCH_SIZE = 1000;
 
     /**
      * @internal
@@ -94,14 +101,29 @@ class ToolResultCacheStorage
     /**
      * Deletes rows older than `$threshold` (inclusive of equality at the boundary).
      * Used by the scheduled TTL GC — does not consult session stores.
+     * Deletes in bounded LIMIT batches to avoid one unbounded transaction on backlog.
      *
      * @return int Number of deleted rows
      */
     public function deleteOlderThan(\DateTimeInterface $threshold): int
     {
-        return (int) $this->connection->executeStatement(
-            'DELETE FROM `mcp_tool_result_cache` WHERE `created_at` <= :threshold',
-            ['threshold' => $threshold->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
-        );
+        $formattedThreshold = $threshold->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $deleted = 0;
+
+        do {
+            $result = (int) $this->connection->executeStatement(
+                'DELETE FROM `mcp_tool_result_cache` WHERE `created_at` <= :threshold LIMIT :limit',
+                [
+                    'threshold' => $formattedThreshold,
+                    'limit' => self::CLEANUP_BATCH_SIZE,
+                ],
+                [
+                    'limit' => ParameterType::INTEGER,
+                ],
+            );
+            $deleted += $result;
+        } while ($result >= self::CLEANUP_BATCH_SIZE);
+
+        return $deleted;
     }
 }

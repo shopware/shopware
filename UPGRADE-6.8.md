@@ -326,6 +326,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `Feature` is final
+
+`Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.
+
 ## `AbstractCartPersister::exists()` is abstract
 
 `Shopware\Core\Checkout\Cart\AbstractCartPersister::exists()` was introduced in 6.7.15.0 with a default implementation that delegated to the decorated persister. It is abstract now, so every cart persister declares it itself:
@@ -1581,6 +1585,20 @@ Before:
 After:
 ```html
 <mt-empty-state title="short title" description="longer description"/>
+```
+
+## Removed empty state Twig block anchors
+
+The empty Twig anchors left behind when Administration empty states moved to `mt-empty-state` were removed: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. The product detail anchors went the same way: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`, `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited` and `sw_product_detail_cross_selling_empty_state_content_empty`. Override the surrounding `*_empty_state` block and pass the icon through the `icon` prop of `mt-empty-state` instead.
+
+## Removed the `assetFilter` computed of the empty state components
+
+The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card` and `sw-tax-rule-card`.
+
+An override that read it resolves the filter directly instead:
+
+```js
+Shopware.Filter.getByName('asset');
 ```
 
 ## `sw-tabs` automatic wrapper switch deferred

@@ -45,3 +45,11 @@ A malformed element **config** is reported as an `invalid_config` violation in t
 | Layout element missing a non-empty string `id`/`component` | 400  | `invalidLayoutStructure`                          |
 
 An internal fault during decoding (a non-client-defect `ContentSystemException`, e.g. an unexpected field type) propagates rather than being relabelled as an `invalid_config` violation — see `ContentSystemException::isClientDefect()`.
+
+## Root-Context Selection
+
+The request `rootSource` is resolved through `Adapter/RootSourceRegistry::resolveGated($rootSource, $context)`, which routes to the matching source via `sourceFor()` — an entity type, a section key, or `none` — and returns its `providedRootContext()`. An empty or absent `rootSource` means intrinsic well-formedness only.
+
+This is not the preview path: preview resolves through `Adapter/RenderingSpecificationResolver::resolveWithoutLayout(entityType, entityId, request, context)`, which is assignment-free and selects its source by `supportsEntityType()`.
+
+The draft mutation routes use the same `resolveGated()` selection as this route.

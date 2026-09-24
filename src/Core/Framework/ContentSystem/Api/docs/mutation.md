@@ -1,6 +1,8 @@
 # Mutation Endpoints
 
-The nine stateless draft mutation actions and the request envelope they share. Their response body is described in [mutation-response.md](mutation-response.md), their error model in [mutation-errors.md](mutation-errors.md), and applying a binding specification through a mutation in [mutation-binding.md](mutation-binding.md).
+The stateless draft mutation actions and the request envelope they share. Their response body is described in [mutation-response.md](mutation-response.md), their error model in [mutation-errors.md](mutation-errors.md), and applying a binding specification through a mutation in [mutation-binding.md](mutation-binding.md).
+
+Each action builds one `Mutation/Op` and hands it to the controller's private `respond()`, which decodes the draft layout through [`DraftLayoutDecoder`](request-contract.md#decoding), runs `Mutation/MutationPipeline::run()` over the decoded tree, and returns the response shape without persisting anything. `respond()` also resolves the optional `rootSource`; [routes.md](routes.md) lists every action and its route name.
 
 ```
 POST /api/_action/content-system/layout/insert-element

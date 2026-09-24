@@ -36,6 +36,18 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Sales-channel scoped limits for `system_config` rate limiters
+
+The cart setting "Maximum addable products to cart per minute through API" can be set per sales channel, but only the global value took effect.
+Per-sales-channel values now apply, a global value counts per sales channel instead of shop-wide, and cart-add counters restart once on update.
+Rate limiters with the `system_config` policy can resolve limits per sales channel when the caller passes the sales channel ID.
+
+To make use of it, you can already pass the sales channel ID to the following class methods:
+- `Shopware\Core\Framework\RateLimiter\RateLimiter::ensureAccepted()`
+- `Shopware\Core\Framework\RateLimiter\RateLimiterFactory::create()`
+
+The optional parameter will be part of the method signatures with 6.8.
+
 ### Promotion redemptions are recounted faster
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.

@@ -343,13 +343,49 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         /** @var array<string, true> $matches */
         $matches = [];
 
-        foreach ($languageContexts as $languageContext) {
-            $languageMatches = $languageContext->enableInheritance(
-                fn (Context $context): array => $this->searchMatchingProductIds($parsedFilters, $restrictToIds, $context, $elasticsearchAware)
-            );
+        $chunkSize = self::CONDITION_CHUNK_SIZE;
+        $chunks = $this->chunkFilters($parsedFilters, $chunkSize);
 
-            foreach ($languageMatches as $id) {
-                $matches[$id] = true;
+        while (\count($chunks) <= 1) {
+            try {
+                foreach ($languageContexts as $languageContext) {
+                    $ids = $languageContext->enableInheritance(
+                        fn (Context $context): array => $this->searchIds($chunks[0] ?? [], $restrictToIds, $context, $elasticsearchAware)
+                    );
+
+                    foreach ($ids as $id) {
+                        $matches[$id] = true;
+                    }
+                }
+
+                return array_keys($matches);
+            } catch (\Throwable $e) {
+                $matches = [];
+                $chunkSize = $this->reducedChunkSize($e, $chunkSize);
+                $chunks = $this->chunkFilters($parsedFilters, $chunkSize);
+            }
+        }
+
+        // the candidates are walked once for every language, and a batch that still
+        // hits the join limit only costs the page it was raised on
+        foreach ($this->iterateCandidateIds($restrictToIds) as $candidateIds) {
+            foreach ($languageContexts as $languageContext) {
+                while (true) {
+                    try {
+                        $ids = $languageContext->enableInheritance(
+                            fn (Context $context): array => $this->searchPage($chunks, $candidateIds, $context, $elasticsearchAware)
+                        );
+
+                        break;
+                    } catch (\Throwable $e) {
+                        $chunkSize = $this->reducedChunkSize($e, $chunkSize);
+                        $chunks = $this->chunkFilters($parsedFilters, $chunkSize);
+                    }
+                }
+
+                foreach ($ids as $id) {
+                    $matches[$id] = true;
+                }
             }
         }
 
@@ -380,54 +416,31 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     }
 
     /**
-     * @param list<Filter> $parsedFilters
-     * @param list<string>|null $restrictToIds
+     * @param list<list<Filter>> $chunks
+     * @param list<string> $candidateIds
      *
      * @return list<string>
      */
-    private function searchMatchingProductIds(array $parsedFilters, ?array $restrictToIds, Context $context, bool $elasticsearchAware): array
+    private function searchPage(array $chunks, array $candidateIds, Context $context, bool $elasticsearchAware): array
     {
-        $chunkSize = self::CONDITION_CHUNK_SIZE;
+        foreach ($chunks as $chunk) {
+            $candidateIds = $this->searchIds($chunk, $candidateIds, $context, $elasticsearchAware);
 
-        while (true) {
-            try {
-                return $this->searchChunked($this->chunkFilters($parsedFilters, $chunkSize), $restrictToIds, $context, $elasticsearchAware);
-            } catch (\Throwable $e) {
-                if ($chunkSize <= 1 || !$this->isTooManyTablesError($e)) {
-                    throw $e;
-                }
-
-                $chunkSize = intdiv($chunkSize, 2);
+            if ($candidateIds === []) {
+                return [];
             }
         }
+
+        return $candidateIds;
     }
 
-    /**
-     * @param list<list<Filter>> $chunks
-     * @param list<string>|null $restrictToIds
-     *
-     * @return list<string>
-     */
-    private function searchChunked(array $chunks, ?array $restrictToIds, Context $context, bool $elasticsearchAware): array
+    private function reducedChunkSize(\Throwable $e, int $chunkSize): int
     {
-        if (\count($chunks) <= 1) {
-            return $this->searchIds($chunks[0] ?? [], $restrictToIds, $context, $elasticsearchAware);
+        if ($chunkSize <= 1 || !$this->isTooManyTablesError($e)) {
+            throw $e;
         }
 
-        $matches = [];
-        foreach ($this->iterateCandidateIds($restrictToIds) as $candidateIds) {
-            foreach ($chunks as $chunk) {
-                $candidateIds = $this->searchIds($chunk, $candidateIds, $context, $elasticsearchAware);
-
-                if ($candidateIds === []) {
-                    break;
-                }
-            }
-
-            $matches = [...$matches, ...$candidateIds];
-        }
-
-        return $matches;
+        return intdiv($chunkSize, 2);
     }
 
     /**
@@ -682,12 +695,6 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         return false;
     }
-
-    /**
-     * @param array<int, array<string, mixed>> $filters
-     *
-     * @return array<int, array<string, mixed>>
-     */
 
     /**
      * @param array<int, array<string, mixed>> $filters

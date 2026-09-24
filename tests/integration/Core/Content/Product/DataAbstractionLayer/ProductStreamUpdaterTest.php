@@ -600,15 +600,26 @@ class ProductStreamUpdaterTest extends TestCase
         $productId = Uuid::randomHex();
         $this->createProduct($productId);
 
+        // passes every condition of the first batch - it has no parent - but fails the
+        // canonicalProduct conditions of a later one, so it must not be matched
+        $excludedId = Uuid::randomHex();
+        $this->createProduct($excludedId);
+        $this->productRepository->update(
+            [['id' => $excludedId, 'canonicalProductId' => $productId]],
+            Context::createDefaultContext()
+        );
+
         $this->productStreamUpdater->handle(
             new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext())
         );
 
         $this->assertProductIsInStream($productId, $streamId);
+        $this->assertProductIsNotInStream($excludedId, $streamId);
 
-        $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
+        $this->productStreamUpdater->updateProducts([$productId, $excludedId], Context::createDefaultContext());
 
         $this->assertProductIsInStream($productId, $streamId);
+        $this->assertProductIsNotInStream($excludedId, $streamId);
     }
 
     /**

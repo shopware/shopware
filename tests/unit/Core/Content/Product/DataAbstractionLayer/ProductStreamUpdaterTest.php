@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception as PdoDriverException;
+use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -655,7 +657,7 @@ class ProductStreamUpdaterTest extends TestCase
                 ++$attempts;
 
                 if ($attempts === 1) {
-                    throw new \RuntimeException('SQLSTATE[HY000]: General error: 1116 Too many tables', 1116);
+                    throw self::tooManyTablesException();
                 }
 
                 return $candidateIds;
@@ -988,6 +990,14 @@ class ProductStreamUpdaterTest extends TestCase
             'numOfTransactional' => 2, // add and delete
             'manyToManyUpdatedIds' => [$productId3, $productId4, $productId5, $productId1, $productId2],
         ];
+    }
+
+    private static function tooManyTablesException(): DriverException
+    {
+        $pdoException = new \PDOException('SQLSTATE[HY000]: General error: 1116 Too many tables; MariaDB can only use 61 tables in a join');
+        $pdoException->errorInfo = ['HY000', 1116, 'Too many tables; MariaDB can only use 61 tables in a join'];
+
+        return new DriverException(PdoDriverException::new($pdoException), null);
     }
 
     /**

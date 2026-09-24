@@ -220,17 +220,6 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
-    {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
-    }
-
-    /**
      * @param array<string> $streamIds
      */
     private function createLineItemWithProductStreams(array $streamIds): LineItem

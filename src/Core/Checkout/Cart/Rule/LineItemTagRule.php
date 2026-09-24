@@ -74,7 +74,7 @@ class LineItemTagRule extends Rule
 
     private function matchTags(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
             return false;
         }
 

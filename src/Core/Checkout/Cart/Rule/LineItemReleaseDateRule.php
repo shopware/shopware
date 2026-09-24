@@ -89,7 +89,7 @@ class LineItemReleaseDateRule extends Rule
      */
     private function matchesReleaseDate(LineItem $lineItem, string|array $ruleValue): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
             return false;
         }
 

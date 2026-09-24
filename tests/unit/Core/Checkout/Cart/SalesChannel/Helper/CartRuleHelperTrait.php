@@ -20,6 +20,37 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('fundamentals@after-sales')]
 trait CartRuleHelperTrait
 {
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        $types = [
+            'product' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true],
+            'custom' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true],
+            'credit' => [LineItem::CREDIT_LINE_ITEM_TYPE, true],
+            'plugin item' => ['my-plugin-item', true],
+            'container' => [LineItem::CONTAINER_LINE_ITEM, false],
+            'customized products option' => ['customized-products-option', false],
+            'customized products option value' => ['option-values', false],
+        ];
+
+        foreach ($types as $name => [$type, $expected]) {
+            yield $name . ' via line item scope' => [$type, true, $expected];
+            yield $name . ' via cart scope' => [$type, false, $expected];
+        }
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string}>
+     */
+    public static function nonProductLineItemTypeProvider(): \Generator
+    {
+        yield 'custom' => [LineItem::CUSTOM_LINE_ITEM_TYPE];
+        yield 'credit' => [LineItem::CREDIT_LINE_ITEM_TYPE];
+        yield 'plugin item' => ['my-plugin-item'];
+    }
+
     protected static function createLineItem(
         string $type = LineItem::PRODUCT_LINE_ITEM_TYPE,
         int $quantity = 1,

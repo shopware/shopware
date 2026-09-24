@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -28,6 +29,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Group('rules')]
 class LineItemVariantValueRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     private LineItemVariantValueRule $rule;
 
     protected function setUp(): void
@@ -149,17 +152,6 @@ class LineItemVariantValueRuleTest extends TestCase
         }
 
         static::assertSame($expected, $rule->match($scope));
-    }
-
-    /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
-    {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
     }
 
     /**

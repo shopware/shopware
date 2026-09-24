@@ -108,7 +108,7 @@ future extension point.
 
 ## Rate Limiting
 
-Every request is rate-limited via `McpRateLimiter` before the protocol runs (handshake-era `initialize` / `notifications/initialized` are exempt so Streamable HTTP session setup can complete after a `time_backoff` wait). The Store
+Every request is rate-limited via `McpRateLimiter` before the protocol runs (only the handshake-era follow-up `notifications/initialized` is exempt so Streamable HTTP session setup can complete after `initialize` has consumed the post-`time_backoff` slot; `initialize` itself stays limited). The Store
 API endpoint uses its own bucket (`mcp_store_api`, configured under
 `shopware.api.rate_limiter` in `shopware.yaml`), separate from the Admin API
 (`mcp_admin_api`). The key is `salesChannelId + sw-context-token`, falling back to the

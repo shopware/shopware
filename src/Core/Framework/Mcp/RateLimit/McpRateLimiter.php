@@ -18,28 +18,26 @@ use Symfony\Component\HttpFoundation\Request;
  * the Admin API keys on the OAuth access token, the Store API on the
  * sales-channel context plus a stable per-IP backstop.
  *
- * Handshake-era lifecycle methods ({@see self::HANDSHAKE_LIFECYCLE_METHODS}) are
- * exempt from the limiter. The MCP Streamable HTTP handshake requires
+ * Only the handshake-era follow-up {@see self::INITIALIZED_NOTIFICATION_METHOD}
+ * is exempt from the limiter. The MCP Streamable HTTP handshake requires
  * `initialize` then `notifications/initialized` back-to-back; Shopware's
- * `time_backoff` policy accepts only one request after a wait and would
- * otherwise make a standards-compliant handshake impossible once the first
- * threshold is crossed (see #18906). Tool calls and other methods stay limited.
- * The 2026-07-28 modern era has no such pair, so the exemption is handshake-only.
+ * `time_backoff` policy accepts only one request after a wait, so once
+ * `initialize` has consumed that slot the mandatory follow-up would otherwise
+ * get HTTP 429 (see #18906). `initialize` itself stays rate-limited — an
+ * unlimited initialize path would allow endless session creation. Tool calls
+ * and every other method stay limited. The 2026-07-28 modern era has no such
+ * pair, so the exemption is handshake-only.
  */
 #[Package('framework')]
 class McpRateLimiter
 {
     /**
-     * JSON-RPC methods that form the mandatory handshake-era session setup.
-     * Kept as a narrow allowlist so abuse protection stays in force for tools
-     * and every other protocol method.
-     *
-     * @var list<string>
+     * Handshake-era JSON-RPC notification that completes session setup after
+     * `initialize`. Kept as a single-method allowlist so `initialize` and every
+     * other protocol method (including tool abuse paths) still draw from the
+     * shared bucket.
      */
-    private const HANDSHAKE_LIFECYCLE_METHODS = [
-        'initialize',
-        'notifications/initialized',
-    ];
+    private const INITIALIZED_NOTIFICATION_METHOD = 'notifications/initialized';
 
     /**
      * @internal
@@ -50,7 +48,7 @@ class McpRateLimiter
 
     public function enforceForAdminApi(Request $request): void
     {
-        if ($this->isHandshakeLifecycleRequest($request)) {
+        if ($this->isInitializedNotificationOnlyRequest($request)) {
             return;
         }
 
@@ -63,7 +61,7 @@ class McpRateLimiter
 
     public function enforceForStoreApi(Request $request): void
     {
-        if ($this->isHandshakeLifecycleRequest($request)) {
+        if ($this->isInitializedNotificationOnlyRequest($request)) {
             return;
         }
 
@@ -83,10 +81,11 @@ class McpRateLimiter
     }
 
     /**
-     * True when every JSON-RPC message in the POST body is a handshake lifecycle method.
-     * Non-POST, unparseable, empty, or mixed batches still go through the limiter.
+     * True when every JSON-RPC message in the POST body is `notifications/initialized`.
+     * Non-POST, unparseable, empty, `initialize` (alone or in a batch), or mixed batches
+     * still go through the limiter — `initialize` always counts.
      */
-    private function isHandshakeLifecycleRequest(Request $request): bool
+    private function isInitializedNotificationOnlyRequest(Request $request): bool
     {
         if ($request->getMethod() !== Request::METHOD_POST) {
             return false;
@@ -109,7 +108,7 @@ class McpRateLimiter
 
         if (array_is_list($decoded)) {
             foreach ($decoded as $message) {
-                if (!\is_array($message) || !$this->isHandshakeLifecycleMethod($message)) {
+                if (!\is_array($message) || !$this->isInitializedNotification($message)) {
                     return false;
                 }
             }
@@ -117,17 +116,17 @@ class McpRateLimiter
             return true;
         }
 
-        return $this->isHandshakeLifecycleMethod($decoded);
+        return $this->isInitializedNotification($decoded);
     }
 
     /**
      * @param array<mixed> $message
      */
-    private function isHandshakeLifecycleMethod(array $message): bool
+    private function isInitializedNotification(array $message): bool
     {
         $method = $message['method'] ?? null;
 
-        return \is_string($method) && \in_array($method, self::HANDSHAKE_LIFECYCLE_METHODS, true);
+        return \is_string($method) && $method === self::INITIALIZED_NOTIFICATION_METHOD;
     }
 
     private function enforce(string $route, string $key): void

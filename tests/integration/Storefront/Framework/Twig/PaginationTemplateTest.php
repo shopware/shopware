@@ -4,7 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
 
 /**
@@ -13,7 +13,7 @@ use Twig\Environment;
 #[Package('discovery')]
 class PaginationTemplateTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testPaginationWithExcessivePageNumberDoesNotExhaustMemory(): void
     {
@@ -26,7 +26,8 @@ class PaginationTemplateTest extends TestCase
         ]);
 
         static::assertStringContainsString('class="pagination"', $output);
-        static::assertStringContainsString('data-page="2"', $output);
+        static::assertMatchesRegularExpression('/<li[^>]*class="[^"]*page-item[^"]*active[^"]*"[^>]*>\s*<a[^>]*data-page="2"/s', $output);
+        static::assertMatchesRegularExpression('/<li[^>]*class="[^"]*page-item page-next disabled[^"]*"/', $output);
         static::assertStringNotContainsString('data-page="100000000"', $output);
     }
 
@@ -41,6 +42,8 @@ class PaginationTemplateTest extends TestCase
         ]);
 
         static::assertStringContainsString('class="pagination"', $output);
-        static::assertStringContainsString('data-page="1"', $output);
+        static::assertMatchesRegularExpression('/<li[^>]*class="[^"]*page-item[^"]*active[^"]*"[^>]*>\s*<a[^>]*data-page="1"/s', $output);
+        static::assertMatchesRegularExpression('/<li[^>]*class="[^"]*page-item page-first disabled[^"]*"/', $output);
+        static::assertMatchesRegularExpression('/<li[^>]*class="[^"]*page-item page-prev disabled[^"]*"/', $output);
     }
 }

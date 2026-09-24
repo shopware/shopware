@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 final class CartRuleFixture
 {
     public static function createLineItem(

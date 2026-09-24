@@ -32,13 +32,13 @@ a dry run.
 
 ## Outcomes
 
-| Outcome            | Meaning                                          | `--write` behavior                                                                                                                                                     |
-| ------------------ | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `full`             | Everything converted, output validated           | Writes `<dir>/<component-name>.vue`; with `--replace-originals`, an unambiguous plain registration may also replace `index.js` with a re-export shim. Twig is retained |
-| `partial`          | Converted with `// TODO(sfc-migration)` comments | Writes the `.vue` draft only; `index.js` + twig stay untouched, the component keeps running as before                                                                  |
-| `skipped`          | Structural blocker                               | Writes nothing; the report names the reason                                                                                                                            |
-| `already-migrated` | A `.vue` with the component's name exists        | Writes nothing; the reason says whether it is an earlier draft, a half-migration, or a file this codemod never wrote                                                   |
-| `error`            | The conversion or a write threw                  | Reports what ended up on disk; the run continues and exits `1`                                                                                                         |
+| Outcome            | Meaning                                          | `--write` behavior                                                                                                                                                                                          |
+| ------------------ | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `full`             | Everything converted, output validated           | Writes `<dir>/<component-name>.vue` (plus its sibling module, see below); with `--replace-originals`, an unambiguous plain registration may also replace `index.js` with a re-export shim. Twig is retained |
+| `partial`          | Converted with `// TODO(sfc-migration)` comments | Writes the `.vue` draft only; `index.js` + twig stay untouched, the component keeps running as before                                                                                                       |
+| `skipped`          | Structural blocker                               | Writes nothing; the report names the reason                                                                                                                                                                 |
+| `already-migrated` | A `.vue` with the component's name exists        | Writes nothing; the reason says whether it is an earlier draft, a half-migration, or a file this codemod never wrote                                                                                        |
+| `error`            | The conversion or a write threw                  | Reports what ended up on disk; the run continues and exits `1`                                                                                                                                              |
 
 Every generated SFC must pass the real build transform (`build/vue-setup-transform`) plus Vue's own
 `compileScript`/`compileTemplate` before it is written — a non-compiling file is never produced.
@@ -239,8 +239,31 @@ produce compiles while rendering something different:
 
 These need structural decisions a codemod should not guess. Everything else that is not understood
 becomes a TODO comment in a draft instead of a silent conversion — including a `this.<member>` whose
-name a local binding shadows. Module-level code is retained in a normal script block so it still runs
-once per module load.
+name a local binding shadows.
+
+Two more refusals come from hoisting the members into one setup scope:
+
+- `binding 'x' would shadow the module-level or global 'x' the component reads` — a member named
+  like a module binding or a global the component itself reads (`kebabCase(value) { return
+kebabCase(value); }`, a `document` data entry next to `document.createElement`) would take over
+  those references;
+- `module-level 'x' is reassigned by the component` — see below.
+
+## Module-level code
+
+`<script setup>` runs once per instance and the build transform accepts no second `<script>`, so the
+code around the component options is split three ways:
+
+- imports stay in the SFC as authored (Vue hoists them to module scope anyway); a Vue, vue-i18n or
+  vue-router helper an author import already provides is not imported a second time;
+- a `const { X } = Shopware…` read nothing reads anymore — typically the `Component` and `Mixin` the
+  conversion made obsolete — is dropped;
+- everything else moves into a sibling `<component-name>.module.{js,ts}`, which the SFC imports.
+  It exports what the setup body reads, and repeats the imports its own statements need.
+
+An imported binding is read-only, so a component that assigns to a module-level `let` is refused. A
+sibling module name that is already taken skips the component rather than overwriting the file.
+The `@sw-package` docblock stays with the SFC, and the sibling module gets its own.
 
 ## Structure
 
@@ -251,11 +274,12 @@ Each file answers exactly one question:
 | `run-sfc-migration.ts`                    | How does a batch run work? CLI entry, clean-tree guard, discovery, file writes, report                                                                                                                                                         |
 | `component-source-model.ts`               | Which source files, registrations, and exact Twig binding belong together? The one structural read of the tree                                                                                                                                 |
 | `convert-component.ts`                    | What happens to one component? The pipeline: template + script transform → prettier → validation gate                                                                                                                                          |
+| `module-prelude.ts`                       | Where does the code around the component options go? Author imports in the SFC, the rest in a sibling module                                                                                                                                   |
 | `transform-template.ts`                   | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, the `{% parent %}` and leftover-twig gates)                                                                                                                      |
 | `template-ast.ts`                         | What does a converted template look like? Shared `@vue/compiler-dom` parse and the `<sw-block>` shape predicate                                                                                                                                |
 | `assert-block-slots.ts`                   | Does a converted block swallow content? Named-slot children of `<sw-block>`                                                                                                                                                                    |
 | `assert-single-root.ts`                   | Did the conversion cost the component its single root? Root tally before vs. after the blocks                                                                                                                                                  |
-| `move-root-comments.ts`                   | Where does a root Twig comment go? Outside `<template>`, so the note stays in the SFC without becoming a rendered root                                                                                                                          |
+| `move-root-comments.ts`                   | Where does a root Twig comment go? Outside `<template>`, so the note stays in the SFC without becoming a rendered root                                                                                                                         |
 | `normalize-cross-block-conditionals.ts`   | How does a `v-if` chain survive a block boundary? Guard branches for `v-else`/`v-else-if` the conversion orphaned                                                                                                                              |
 | `transform-script.ts`                     | In what order is the `<script setup>` assembled? Orchestrates parse → collect → rewrite → render                                                                                                                                               |
 | `option-handlers.ts`                      | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …)                                                                                                                                                     |
@@ -268,7 +292,7 @@ Each file answers exactly one question:
 | `mixin-composables.spec.ts`               | Which mixin declarations resolve, and which cases keep the Options API?                                                                                                                                                                        |
 | `run-sfc-migration.spec.ts`               | What does the runner do to files? CLI exit codes, draft/replacement modes, name derivation, and existing-`.vue` behaviour                                                                                                                      |
 | `spec-helpers.ts`                         | Helpers shared by the specs: throwaway component trees, and the one way a fixture reaches the pipeline                                                                                                                                         |
-| `runtime-equivalence-*.ts`                | Does a supported shape execute equivalently, or stay conservative?                                                                                                                                                                             |
+| `runtime-equivalence-*.ts`                | Does a converted shape execute like the original? Both sides are written to a temp directory and loaded through Jest's own transformers; every fixture pins its outcome                                                                        |
 
 ## Extending the codemod
 

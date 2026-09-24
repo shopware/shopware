@@ -1,158 +1,120 @@
 /**
  * @sw-package framework
  */
+import { nextTick, watchEffect } from 'vue';
+import useBlockContext from './use-block-context';
+
+function createLayer(overrides = {}) {
+    return { render: () => [], ...overrides };
+}
+
+function hostOf(...lineage) {
+    const type = lineage.reduce((parent, name) => ({ name, extends: parent }), undefined);
+
+    return { type };
+}
 
 describe('use-block-context', () => {
-    let useBlockContext;
+    const { addBlockLayer, removeBlockLayer, getBlockLayers } = useBlockContext();
+    let registered = [];
 
-    beforeEach(async () => {
-        useBlockContext = (await import('./use-block-context')).default;
-    });
+    function add(blockName, layer) {
+        addBlockLayer(blockName, layer);
+        registered.push([blockName, layer]);
+
+        return layer;
+    }
 
     afterEach(() => {
-        jest.resetModules();
+        registered.forEach(([blockName, layer]) => removeBlockLayer(blockName, layer));
+        registered = [];
     });
 
-    it('has initial empty context', () => {
-        const { blockContext } = useBlockContext();
-
-        expect(blockContext).toStrictEqual({});
+    it('returns no layers for an unknown block', () => {
+        expect(getBlockLayers('unknown')).toEqual([]);
     });
 
-    it('adds a new block to the context', () => {
-        const { addBlock, blockContext } = useBlockContext();
-        const testSlot = () => 'test';
+    it('returns layers in registration order', () => {
+        const first = add('block', createLayer());
+        const second = add('block', createLayer());
 
-        addBlock('test', testSlot);
-
-        expect(blockContext).toStrictEqual({
-            test: [testSlot],
-        });
+        expect(getBlockLayers('block')).toEqual([first, second]);
+        expect(getBlockLayers('other')).toEqual([]);
     });
 
-    it('adds multiple blocks with the same id', () => {
-        const { addBlock, blockContext } = useBlockContext();
-        const testSlot1 = () => 'test1';
-        const testSlot2 = () => 'test2';
-        const testSlot3 = () => 'test3';
+    it('keeps the position of a layer that is added again', () => {
+        const first = add('block', createLayer());
+        const second = add('block', createLayer());
 
-        addBlock('test', testSlot1);
-        addBlock('test', testSlot2);
-        addBlock('test', testSlot3);
+        addBlockLayer('block', first);
 
-        expect(blockContext).toStrictEqual({
-            test: [testSlot1, testSlot2, testSlot3],
-        });
+        expect(getBlockLayers('block')).toEqual([first, second]);
     });
 
-    it('adds multiple blocks with different ids', () => {
-        const { addBlock, blockContext } = useBlockContext();
-        const testSlot1 = () => 'test1';
-        const testSlot2 = () => 'test2';
-        const testSlot3 = () => 'test3';
+    it('removes exactly the given layer', () => {
+        const first = add('block', createLayer());
+        const second = add('block', createLayer());
 
-        addBlock('test1', testSlot1);
-        addBlock('test2', testSlot2);
-        addBlock('test3', testSlot3);
+        removeBlockLayer('block', first);
 
-        expect(blockContext).toStrictEqual({
-            test1: [testSlot1],
-            test2: [testSlot2],
-            test3: [testSlot3],
-        });
+        expect(getBlockLayers('block')).toEqual([second]);
     });
 
-    it('returns the block by id', () => {
-        const { addBlock, getBlocks } = useBlockContext();
-        const testSlot1 = () => 'test1';
-        const testSlot2 = () => 'test2';
-        const testSlot3 = () => 'test3';
+    it('orders by priority before registration', () => {
+        const late = add('block', createLayer({ priority: 5 }));
+        const early = add('block', createLayer({ priority: -1 }));
+        const unprioritised = add('block', createLayer());
 
-        addBlock('test1', testSlot1);
-        addBlock('test2', testSlot2);
-        addBlock('test3', testSlot3);
-
-        expect(getBlocks('test1')).toStrictEqual([testSlot1]);
-        expect(getBlocks('test2')).toStrictEqual([testSlot2]);
-        expect(getBlocks('test3')).toStrictEqual([testSlot3]);
+        expect(getBlockLayers('block')).toEqual([early, unprioritised, late]);
     });
 
-    it('removes blocks by id', () => {
-        const { addBlock, removeBlock, blockContext } = useBlockContext();
-        const testSlot1 = () => 'test1';
-        const testSlot2 = () => 'test2';
-        const testSlot3 = () => 'test3';
+    it('orders layers of a component after the layers of the component it extends', () => {
+        const childExtend = add('block', createLayer({ componentName: 'sw-child', scoped: true }));
+        const childOverride = add('block', createLayer({ componentName: 'sw-child' }));
+        const parentOverride = add('block', createLayer({ componentName: 'sw-parent' }));
+        const native = add('block', createLayer());
 
-        addBlock('test1', testSlot1);
-        addBlock('test2', testSlot2);
-        addBlock('test3', testSlot3);
-
-        removeBlock('test2', testSlot2);
-
-        expect(blockContext).toStrictEqual({
-            test1: [testSlot1],
-            test3: [testSlot3],
-        });
+        expect(getBlockLayers('block', hostOf('sw-parent', 'sw-child'))).toEqual([
+            parentOverride,
+            native,
+            childExtend,
+            childOverride,
+        ]);
     });
 
-    it('removes a exact block when there are multiple with the same id', () => {
-        const { addBlock, removeBlock, blockContext } = useBlockContext();
-        const testSlot1 = () => 'test1';
-        const testSlot2 = () => 'test2';
-        const testSlot3 = () => 'test3';
+    it('applies scoped layers only to the component and its children', () => {
+        const scoped = add('block', createLayer({ componentName: 'sw-child', scoped: true }));
 
-        addBlock('test', testSlot1);
-        addBlock('test', testSlot2);
-        addBlock('test', testSlot3);
-
-        removeBlock('test', testSlot2);
-
-        expect(blockContext).toStrictEqual({
-            test: [testSlot1, testSlot3],
-        });
+        expect(getBlockLayers('block', hostOf('sw-parent'))).toEqual([]);
+        expect(getBlockLayers('block', hostOf('sw-parent', 'sw-child'))).toEqual([scoped]);
+        expect(getBlockLayers('block', hostOf('sw-parent', 'sw-child', 'sw-grandchild'))).toEqual([scoped]);
     });
 
-    it('re-runs effects that read a block when it is invalidated', async () => {
-        const { addBlock, getBlocks, invalidateBlock } = useBlockContext();
-        const { watchEffect, nextTick } = await import('vue');
-        const testSlot = () => 'test';
+    it('re-runs effects that read a block when a layer of that block is added or re-added', async () => {
         const seen = [];
+        const layer = createLayer();
 
-        addBlock('test', testSlot);
         watchEffect(() => {
-            seen.push(getBlocks('test'));
+            seen.push(getBlockLayers('reactive-block').length);
         });
-
-        expect(seen).toHaveLength(1);
-
-        invalidateBlock('test');
+        add('reactive-block', layer);
+        await nextTick();
+        addBlockLayer('reactive-block', layer);
         await nextTick();
 
-        expect(seen).toHaveLength(2);
-        expect(seen[1]).toStrictEqual([testSlot]);
+        expect(seen).toEqual([0, 1, 1]);
     });
 
-    it('does not re-run effects that read a different block when a block is invalidated', async () => {
-        const { getBlocks, invalidateBlock } = useBlockContext();
-        const { watchEffect, nextTick } = await import('vue');
+    it('does not re-run effects that read a different block', async () => {
         let runs = 0;
 
         watchEffect(() => {
-            getBlocks('other');
+            getBlockLayers('unrelated-block');
             runs += 1;
         });
-
-        invalidateBlock('test');
+        add('reactive-block', createLayer());
         await nextTick();
 
         expect(runs).toBe(1);
-    });
-
-    it('does not expose the revision counter in the block context', () => {
-        const { blockContext, invalidateBlock } = useBlockContext();
-
-        invalidateBlock('test');
-
-        expect(blockContext).toStrictEqual({});
     });
 });

@@ -36,7 +36,7 @@ When `sw-product-detail` migrates its template from `{% block sw_product_detail_
 ## Design Principles
 
 **1. Zero touch for core developers**
-When migrating a component template, a core developer only replaces `{% block foo %}...{% endblock %}` with `<sw-block name="foo" :data="$dataScope">...</sw-block>`. Nothing else. The adapter detects the legacy override automatically.
+When migrating a component template, a core developer only replaces `{% block foo %}...{% endblock %}` with `<sw-block name="foo">...</sw-block>`. Nothing else: a block without `:data` uses the data scope of the component that declares it. The adapter detects the legacy override automatically.
 
 **2. Zero touch for plugin developers**
 Existing `Shopware.Component.override()` calls with Twig block templates continue to work. A `console.warn` tells the developer what to migrate and to which native syntax.
@@ -45,7 +45,7 @@ Existing `Shopware.Component.override()` calls with Twig block templates continu
 The adapter hooks into `<sw-block>` itself, not the component factory. This means it works whether the parent component is registered through `Shopware.Component.register()` or is a pure Vue SFC — the `<sw-block>` tag is always present in the template and always mounts.
 
 **4. Minimal overhead at render time**
-The block index is fully built at override registration time (during boot), before any Vue component mounts. At render time, `<sw-block>` resolves entries from the prebuilt index instead of reparsing Twig templates. The setup phase (which can also run post-boot, e.g. when a `v-if` condition turns true) iterates over the registered extend instances for that block name — in practice a very small set, bounded by the number of active plugin overrides for a single block.
+The block index is built at override registration time (during boot), before any Vue component mounts. At render time, `<sw-block>` reads its layers from the index instead of reparsing Twig templates, and each reconstructed template is compiled once. A block without Twig or native layers renders its default content directly.
 
 **5. No TwigJS rendering**
 TwigJS is used only as an AST parser to extract the block structure. The inner content is reconstructed verbatim from the token tree and compiled by Vue's own runtime template compiler — giving full Vue reactivity, including `v-if`, `v-for`, `{{ }}` interpolation, and event handlers.
@@ -73,218 +73,88 @@ Consequently, from TwigJS's perspective:
 - `v-if`, `@click`, `:title` — HTML attribute strings; raw text, passed through verbatim
 - `{% block %}` / `{% parent %}` — the **only** logic tokens TwigJS processes
 
-The inner content of any `{% block %}` is therefore already valid Vue template HTML. The adapter reconstructs it from the token tree and passes it as a `template` property on the ShimContent component options — Vue's runtime template compiler then compiles it on first mount and caches the result internally.
+The inner content of any `{% block %}` is therefore already valid Vue template HTML. The adapter reconstructs it from the token tree and compiles it once with Vue's runtime compiler (`compile` from `vue`).
 
 ---
 
 ## Architecture
 
 ```
-Boot time  (override() only — register() does not touch the block index)
+Boot time
 ─────────────────────────────────────────────────────────────────────
-Shopware.Component.override('sw-product-detail', { template: '...' })
+Shopware.Component.override('sw-product-detail', { template })   or   Shopware.Component.extend(name, parent, { template })
     │
-    ├─ existing ──► TemplateFactory.registerTemplateOverride()
+    ├─ TemplateFactory.registerTemplateOverride() / extendComponentTemplate()   (unchanged)
     │
-    └─ NEW ───────► indexTwigBlocksFromTemplate(componentName, rawTemplate)
-                        │
-                        │  parse TwigJS token tree
-                        │  extract each {% block name %}
-                        │  reconstruct inner Vue template string
-                        │  replace {% parent %} → <sw-block-parent />
-                        ▼
-                    blockIndex: Map<blockName, BlockEntry[]>
-                    {
-                      'sw_product_detail_content': [{
-                          componentName: 'sw-product-detail',
-                          innerTemplate: '...<div v-if="product.active">...',
-                      }]
-                    }
+    └─ indexTwigBlocksFromTemplate(componentName, template, { priority, scoped })
+            parse the TwigJS token tree, reconstruct each top-level {% block %}
+            {% parent %} → <sw-block-parent />
+            → one TwigBlockRecord per block, grouped per component
 
-Runtime (first mount of a given block name)
+Runtime (every render of <sw-block name="sw_product_detail_content">)
 ─────────────────────────────────────────────────────────────────────
-<sw-block name="sw_product_detail_content" :data="$dataScope"> mounts
-    │
-    ├─ hasBlockEntries('sw_product_detail_content') → true
-    │
-    ├─ createShimSlot(entry)
-    │       builds ShimContent with { template: innerTemplate }
-    │       Vue compiles the template on first mount and caches internally
-    │       returns: Slot = (dataScope) => [h(ShimContent)]
-    │
-    └─ addBlock('sw_product_detail_content', shimSlot)
-           │
-           └─ sw-block renders the slot natively
-                  <sw-block-parent /> resolves from sw-block's provide() stack ✓
-                  {{ product.name }} reactive via ShimContent setup() context ✓
+getBlockLayers(name, host)
+    │  Twig layers from the index (the condition rewrite of a group runs once, on first read)
+    │  + native <sw-block extends> layers, ordered by one rule (see 04)
+    ▼
+render default content, then every layer in order, in one pass
+    │  a Twig layer runs its compiled render function with the host as rendering instance
+    ▼
+<SwBlockLayers> renders the top layer; <sw-block-parent /> renders the layer below it
 ```
 
 ---
 
 ## Implementation
 
-### 1. Block Index — `src/core/factory/twig-block-index.ts`
+### 1. Block index — `src/core/factory/twig-block-index.ts`
 
-Built at override registration time. At mount time, `sw-block` resolves entries from the prebuilt index instead of reparsing Twig templates.
+`indexTwigBlocksFromTemplate(componentName, rawTemplate, { priority, scoped })` parses a template with TwigJS
+and stores one `TwigBlockRecord` per top-level `{% block %}`: block name, component name, priority, scope,
+registration order, the raw reconstructed template and the rewritten `BlockEntry`. Consecutive templates of the
+same component form a group, because a `v-if` chain can continue from one of their blocks into the next.
 
-```ts
-import Twig from 'twig';
-import reconstructInnerTemplate from './reconstruct-twig-template';
+A group is transformed (see §5) the first time one of its blocks is read after it changed. Reads happen at render
+time, so the continuation aliases of the host templates, which `template.factory.js` records when it resolves
+them, are known by then. Adding an override only transforms its own group; a new alias re-transforms the groups
+from the first affected one onward, because their case offsets depend on the groups before them.
 
-export interface BlockEntry {
-    componentName: string;
-    innerTemplate: string;
-}
+Malformed templates are skipped with a warning.
 
-const blockIndex = new Map<string, BlockEntry[]>();
+### 2. Template reconstruction — `src/core/factory/reconstruct-twig-template.ts`
 
-export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: string): void {
-    let parsed: ReturnType<typeof Twig.twig>;
-    try {
-        parsed = Twig.twig({ data: rawTemplate, rethrow: true });
-    } catch {
-        return;
-    }
+Walks the TwigJS token tree without running the TwigJS renderer. Raw tokens are kept verbatim, `{% parent %}`
+becomes `<sw-block-parent />`, a nested `{% block %}` becomes a `<sw-block name>` with the reconstructed content.
+Every other tag is dropped (see Known Limitations).
 
-    parsed.tokens
-        .filter((token) => token.type === 'logic' && !!token.token?.blockName)
-        .forEach((token) => {
-            const blockName = token.token!.blockName as string;
-            const output = token.token!.output ?? [];
-            const innerTemplate = reconstructInnerTemplate(output);
+### 3. Twig layers — `src/app/component/structure/sw-block-override/shim/twig-shim-layer.ts`
 
-            const existing = getBlockEntries(blockName);
-            existing.push({ componentName, innerTemplate });
-            blockIndex.set(blockName, existing);
-        });
-}
+A Twig layer compiles its template once and calls the render function with:
 
-export function getBlockEntries(blockName: string): BlockEntry[] {
-    return blockIndex.get(blockName) ?? [];
-}
+- the **host** (the component whose template declares the `<sw-block name>`) as current rendering instance, via
+  `withCtx(render, host)`. Template refs land in the host's `$refs`, scope ids and component resolution are the
+  host's, exactly as if the content were still part of the host template;
+- a render context as `_ctx`. It reads and writes setup state of a native setup host through its data scope and
+  everything else through the host proxy, so `@click="isOpen = true"`, `v-model`, `$emit`, `$slots` and `$t`
+  behave as under TwigJS. Its `has` trap mirrors Vue's proxy for runtime-compiled templates, which run inside
+  `with (_ctx)`.
 
-export function hasBlockEntries(blockName: string): boolean {
-    return blockIndex.has(blockName);
-}
-```
+There is no shim component: the layer's vnodes are part of the block's own render, which keeps DOM nodes (and
+input focus) stable across updates. The first render of a Twig layer for a block name logs the deprecation
+warning.
 
-### 2. Template Reconstruction — `src/core/factory/reconstruct-twig-template.ts`
+### 4. Hooks in `async-component.factory.ts`
 
-Walks the TwigJS token tree and reconstructs the raw Vue-compatible template string without invoking TwigJS's renderer. The `{% parent %}` custom tag is registered with `type: 'parent'` via `Twig.extendTag` in `template.factory.js`, and block tokens are identified by their `blockName` property.
+`override()` and `extend()` call `indexTwigBlocks()`. Object configs are indexed right away, function configs
+when they resolve; `initComponent()` awaits every config before Vue mounts anything (see Known Limitations).
+Override templates get their override index as priority. Extend templates are `scoped`: their blocks only apply
+to hosts that are, or extend, the extending component, so a child's block never leaks into its parent.
 
-```ts
-export default function reconstructInnerTemplate(tokens: TwigToken[]): string {
-    return tokens
-        .map((token) => {
-            if (token.type === 'raw') {
-                return token.value ?? '';
-            }
+### 5. Conditional chains across layers — `transform-legacy-block-conditionals.ts` + `legacy-condition-context.ts`
 
-            if (token.type === 'logic') {
-                if (token.token?.type === 'parent') {
-                    return '<sw-block-parent />';
-                }
-
-                if (token.token?.blockName !== undefined) {
-                    return reconstructInnerTemplate(token.token.output ?? []);
-                }
-            }
-
-            return '';
-        })
-        .join('');
-}
-```
-
-### 3. Slot Factory — `src/app/component/structure/sw-block-override/shim/create-shim-slot.ts`
-
-Builds a ShimContent component definition using the reconstructed template string and returns a slot function compatible with `sw-block`'s `blockContext`. Vue's runtime template compiler handles the `template` string on first mount and caches the result internally — no manual component definition caching is needed.
-
-```ts
-import { h, type Slot } from 'vue';
-import type { BlockEntry } from 'src/core/factory/twig-block-index';
-import swBlockParent from '../sw-block-parent/index';
-
-const warnedBlocks = new Set<string>();
-
-export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
-    if (!warnedBlocks.has(blockName)) {
-        warnedBlocks.add(blockName);
-        console.warn(
-            `[Shopware Deprecation] Block "${blockName}" in component "${entry.componentName}" ` +
-                `uses a legacy Twig override. ` +
-                `Migrate to: <sw-block extends="${blockName}">...</sw-block>`,
-        );
-    }
-
-    const def = {
-        name: `__twig-shim__${blockName}`,
-        template: entry.innerTemplate,
-        components: { 'sw-block-parent': swBlockParent },
-    };
-
-    return (dataScope) => [h({ ...def, setup: () => buildSetupContext(dataScope) })];
-}
-```
-
-**`dataScope`** is the Vue component proxy of the host component — the public instance exposing its data, computed properties, methods, and injections (equivalent to `this` in Options API or `getCurrentInstance().proxy` in Composition API). **`buildSetupContext`** receives this proxy and uses a `Proxy` (not `Object.keys` enumeration) to give ShimContent's compiled render function transparent, reactive read access to every public property — without triggering Vue's `ownKeys` warning. `Object.keys()` on a Vue component proxy returns an empty array in production mode and logs a warning in development, making plain enumeration broken. The Proxy delegates `get` to the component proxy so Vue's reactivity system tracks each read as a dependency.
-
-**How `<sw-block-parent />` works:** `ShimContent` is rendered inside `sw-block`'s render tree. `sw-block` already `provide()`s the parent VNode stack via `parentsInjectionKey`. `<sw-block-parent />` injects from that stack and pops the previous content — exactly as a natively written `<sw-block extends="...">` would behave. The `components: { 'sw-block-parent': swBlockParent }` registration ensures the component is available even in test environments where only local components are registered.
-
-### 4. Hook into `async-component.factory.ts`
-
-Two indexing paths are added to the `override()` function to handle both synchronous (direct object) and asynchronous (lazy-loaded function) config shapes:
-
-```ts
-// Synchronous indexing for direct-object configs (the common case)
-let alreadyIndexed = false;
-if (typeof componentConfiguration !== 'function') {
-    const { template: tpl } = componentConfiguration;
-    if (typeof tpl === 'string') {
-        indexTwigBlocksFromTemplate(componentName, tpl);
-        alreadyIndexed = true;
-    }
-}
-
-const configResolveMethod = async (): Promise<ComponentConfig> => {
-    // ... resolve config ...
-
-    if (config.template) {
-        // Async path: index here for lazy-loaded plugin overrides
-        if (!alreadyIndexed) {
-            indexTwigBlocksFromTemplate(componentName, config.template as string);
-        }
-
-        TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
-        delete config.template;
-    }
-    // ...
-};
-```
-
-### 5. Hook into `sw-block/index.ts`
-
-Two separate function namespaces are involved here:
-
-- `hasBlockEntries` / `getBlockEntries` — from `twig-block-index.ts`; they query the Twig block index built during boot.
-- `addBlock` / `removeBlock` — from `useBlockContext()`; they register/deregister slots in the sw-block slot context (used by the `extends` path).
-
-For the `name`-prop path, shim slots are **not** registered via `addBlock`. They are created once in `setup()` and stored in a local variable, keeping each `<sw-block name="...">` instance isolated:
-
-```ts
-const shimSlots: Slot[] =
-    props.name && hasBlockEntries(props.name)
-        ? getBlockEntries(props.name).map((entry) => createShimSlot(entry, props.name!))
-        : [];
-```
-
-Shim slots are not registered in the global `blockContext` so that multiple simultaneous instances of `<sw-block name="foo">` each maintain their own isolated shim slots and cannot double-render each other's content.
-
-### 6. Conditional Chain Shim for `v-if` / `v-else`
-
-Vue normally expects a `v-if`, `v-else-if`, and `v-else` chain to be compiled as one adjacent sequence. The legacy Twig adapter has to bridge across that boundary: the first case can live in a native `<sw-block name="...">`, while the continuation case can live in a legacy Twig override that is reconstructed later as an independent ShimContent component.
-
-Example before the adapter rewrites it:
+Under TwigJS, blocks vanish from the merged template, so a `v-else` in one block continues a `v-if` in the block
+before it or in the parent content of the block. Native blocks and Twig layers render those cases in separate
+render functions, where Vue cannot link them. The adapter keeps that behaviour:
 
 ```html
 <sw-block name="demo_block">
@@ -303,56 +173,49 @@ Shopware.Component.override('sw-demo', {
 });
 ```
 
-If Vue saw this directly, the `v-else` in the shim would no longer be adjacent to the original `v-if`. The adapter therefore rewrites both sides to ordinary `v-if` expressions backed by shared legacy helper state:
+**Rewrite.** Both sides are rewritten to plain `v-if`s that call `$swLegacyBlock*` helpers:
 
 ```html
-<div v-if="$swLegacyBlockIf('demo_block', showCore, { segmentCaseIndex: 0, isStartingCondition: true, renderOrderSegment: 'defaultSlot' })">Core case</div>
-<div v-if="$swLegacyBlockElse('demo_block', { segmentCaseIndex: 0, isStartingCondition: false, renderOrderSegment: 'shimExtension' })">Legacy fallback</div>
+<div v-if="$swLegacyBlockIf('demo_block:0', showCore, { segmentCaseIndex: 0, isStartingCondition: true, renderOrderSegment: 'defaultSlot' })">Core case</div>
+<div v-if="$swLegacyBlockElse('demo_block:0', { segmentCaseIndex: 0, isStartingCondition: false, renderOrderSegment: 'shimExtension' })">Legacy fallback</div>
 ```
 
-The helpers keep a reactive condition chain per host component and block name. This chain stores case results in three render-order segments that match the way `<sw-block>` evaluates default content, shimmed Twig extensions, and native extensions:
+- Templates are parsed with `parse` from `@vue/compiler-dom` (the module Vue's runtime compiler already bundles)
+  and each directive is replaced at its exact source offset; nothing else in the template changes.
+- Only the top-level elements of each block count. A chain that does not start with `v-if` continues the last
+  started chain in render order and takes its key `<block of the starting case>:<chain index>`.
+- Chains at the edge of a block are always rewritten, because a layer the template does not know about may
+  continue them; chains in the middle of a block that nothing continues stay native.
+- The Twig-rendered templates of native blocks are rewritten by `template.factory.js`. When a chain continues
+  into another named block there, an alias `<block>:<index> → <chain key>` is recorded per component, so the Twig
+  overrides of that block use the same key.
 
-1. `defaultSlotCases`
-2. `shimExtensionCases`
-3. `nativeExtensionCases`
+**Evaluation.** A case is addressed by its chain key, its render-order segment (`defaultSlot`, `shimExtension`,
+`nativeExtension`) and its index within that segment. Chain state lives per host instance in a `WeakMap`, so it
+disappears with the host. Because `<sw-block>` renders every layer in one pass and in order, an `else-if` /
+`else` finds the results of all earlier cases of the same render; it renders only if none of them, back to the
+case that started the chain, matched. A case whose block no longer renders it is dropped with the next render
+of that block. A block that reads a case written by another block (a chain across two named blocks) re-renders
+when that block renders a different result.
 
-Each generated helper call passes a `renderOrderSegment` and a `segmentCaseIndex`. The `segmentCaseIndex` is only local to that segment, so the runtime does not need to map shim-local cases into one shared absolute index range.
-
-- Default slot cases use the `defaultSlot` segment.
-- Twig shim cases use the `shimExtension` segment.
-- Native extension cases use the `nativeExtension` segment.
-- Only indexed Twig shim entries use `legacyConditionCases` with `caseStartIndex` and `caseCount`. Entries without a rewritten conditional chain keep this list empty. Default slot and native extension cases do not reserve ranges; their generated helper calls write directly to their segment via `segmentCaseIndex`.
-- The reservation indexes are local to `shimExtensionCases`, so multiple Twig overrides of the same chain reserve different positions in that segment.
-
-The reconstructed shim template contains generated helper calls such as `$swLegacyBlockElse('demo_block', { segmentCaseIndex: 0, isStartingCondition: false, renderOrderSegment: 'shimExtension' })`. Plugin templates do not need any additional syntax; the segment metadata is generated while the Twig block is indexed.
-
-Default and native extension slots are invoked synchronously when `<sw-block>` calls their slot functions. Shim slots are different: before the generated shim component renders, `createShimSlot()` reserves the generated case range in the reactive chain. A pending shim slot is stored as `undefined`, which means: "this case exists, but the shim has not evaluated it yet."
-
-That reservation is what keeps later cases correct. A later native fallback must not render while an earlier shim case is still pending. During evaluation, `$swLegacyBlockElseIf` and `$swLegacyBlockElse` scan all earlier positions. If any earlier case is `true` or still `undefined`, the current case does not render.
-
-For a chain with a default `v-if`, a Twig shim `v-else-if`, and a later native fallback, the segmented chain looks like this:
-
-| Step | Source                           | Stored position              | Stored value                                      |
-| ---- | -------------------------------- | ---------------------------- | ------------------------------------------------- |
-| 1    | Default `v-if`                   | `defaultSlotCases[0]`        | `false`                                           |
-| 2    | Twig shim reservation            | `shimExtensionCases[0]`      | `undefined`                                       |
-| 3    | Later native fallback evaluates  | `nativeExtensionCases[0]`    | `false` because the shim case is still pending    |
-| 4    | Twig shim `v-else-if` evaluates  | `shimExtensionCases[0]`      | `true`                                            |
-| 5    | Later native fallback re-renders | `nativeExtensionCases[0]`    | `false` because the shim case matched             |
-
-Shim-backed chains are marked as persistent, because the shim may evaluate in a later render tick than the native block that started the chain. Non-persistent chains are cleaned up after the current tick. The owning shim component clears the persistent chain state in `beforeUnmount`, so the state does not outlive the shim tree.
+**Native setup hosts.** `.vue` templates are not rewritten. When a Twig layer directly above the default
+content continues a chain, the chain start is taken from the rendered default content: a trailing `v-if`
+placeholder comment means no case matched. The helpers are global properties resolved through the host, so
+they work on any host.
 
 ---
 
 ## File Overview
 
-| File | Type | Purpose |
-|------|------|---------|
-| `core/factory/twig-block-index.ts` | New | Block name index (Map), built at registration time |
-| `core/factory/reconstruct-twig-template.ts` | New | TwigJS token tree → Vue template string |
-| `shim/create-shim-slot.ts` | New | Slot function factory, Proxy-based setup context |
-| `core/factory/async-component.factory.ts` | Modified | +16 lines: sync + async `indexTwigBlocksFromTemplate` calls |
-| `sw-block/index.ts` | Modified | +25 lines: shim bridge in `setup()` |
+| File | Purpose |
+|------|---------|
+| `core/factory/twig-block-index.ts` | Twig block records per block name, lazily transformed per component group |
+| `core/factory/reconstruct-twig-template.ts` | TwigJS token tree → Vue template string |
+| `core/factory/transform-legacy-block-conditionals.ts` | Cross-layer `v-if` chain rewrite on the Vue compiler AST |
+| `app/composables/use-block-context.ts` | Layer registry and the ordering rule |
+| `sw-block-override/shim/twig-shim-layer.ts` | Renders a Twig block in the host context |
+| `sw-block-override/shim/legacy-condition-context.ts` | Chain evaluation and the `$swLegacyBlock*` helpers |
+| `core/factory/async-component.factory.ts` | Indexes the templates of `override()` and `extend()` |
 
 ---
 
@@ -399,9 +262,16 @@ Twig shim path.
 
 ---
 
+### Twig blocks with the same name in different components
+
+Twig layers from `Component.override()` are keyed by block name only: an override of block `x` of component `A`
+also renders in every other component that declares a native `<sw-block name="x">`. This matches the native
+`<sw-block extends>` semantics but not TwigJS, where an override only affects its component and the components
+extending it. `Component.extend()` layers are already scoped to their component.
+
 ### Vue component references inside Twig overrides (e.g. `<sw-card>`)
 
-Resolved by Vue's runtime compiler using the global component registry — works as expected.
+Resolved like in the host template: the host's local components, then the global component registry.
 
 ---
 
@@ -430,7 +300,7 @@ before Vue mounts any component tree, so async overrides are always indexed befo
 **Failure mode if this invariant is violated:** If `app.mount()` runs before all async configs
 have been awaited (e.g. a plugin registers a lazy override outside the normal Shopware boot flow),
 any `<sw-block>` that mounts will query an empty registry. The async override's Twig blocks are
-never indexed, `hasBlockEntries()` returns `false`, no shim slots are created, and the default
+never indexed, the block has no Twig layers, and the default
 block content renders unchanged. There is no warning because `sw-block` has no concept of
 "expected overrides" — it only reads what is currently in the index.
 

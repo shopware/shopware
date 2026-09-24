@@ -5,8 +5,7 @@
  *
  * Two families: bindings the transform owns on `<sw-block>` (`data`, `#default`, `v-bind` objects,
  * a bound `:extends`), and structural rules for override templates (only `<sw-block extends>` at the
- * top level, no writes to forwarded bindings). Forwarding behaviour lives in
- * `override-template.spec.ts`.
+ * top level, no writes to forwarded override locals). Forwarding lives in `override-template.spec.ts`.
  */
 
 import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpers';
@@ -134,6 +133,77 @@ describe('build/vue-setup-transform override template guards', () => {
         expect(() => transformOrFail(source, 'forwarded-update.override.vue')).toThrow(
             'Cannot assign to "count" inside <sw-block extends> content',
         );
+    });
+
+    it.each([
+        ['a destructuring assignment', '@click="[count] = [1]"'],
+        ['an interpolation', '{{ count++ }}'],
+        ['an input alias', '@click="previousState = null"'],
+    ])('rejects writing to an override local through %s', (_name, write) => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <button ${write.startsWith('@') ? write : ''}>${write.startsWith('@') ? '' : write}</button>
+            </sw-block>
+            </template>
+            <script setup>
+            const previousState = useSwPreviousState();
+            const count = 0;
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(() => transformOrFail(source, 'forwarded-write-forms.override.vue')).toThrow(
+            /Cannot assign to "(count|previousState)" inside <sw-block extends> content/,
+        );
+    });
+
+    it('allows writes to template locals and JS locals that shadow an override local', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <p v-for="count in rows" @click="count = 1">{{ count }}</p>
+                <Child #default="{ count }"><button @click="count++">inc</button></Child>
+                <button @click="((count) => { count = 2; })(0)">local</button>
+            </sw-block>
+            </template>
+            <script setup>
+            const count = 0;
+            const rows = [];
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        expect(transformOrFail(source, 'shadowed-writes.override.vue').code).toContain(
+            '#default="{ __swOverride: { [__swSetupNamespace]: { count, rows } = {} } = {} }"',
+        );
+    });
+
+    it('points the write rejection at the writing expression', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <button @click="count = 1">inc</button>
+            </sw-block>
+            </template>
+            <script setup>
+            const count = 0;
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        let thrown: unknown;
+
+        try {
+            transformShopwareSetupSfc(source, 'write-offset.override.vue');
+        } catch (error) {
+            thrown = error;
+        }
+
+        expect((thrown as ShopwareSetupTransformError).index).toBe(source.indexOf('count = 1'));
     });
 
     it('rejects a bound :extends on sw-block (only a static extends is allowed)', () => {

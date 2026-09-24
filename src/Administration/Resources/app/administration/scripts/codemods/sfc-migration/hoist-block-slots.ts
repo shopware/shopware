@@ -3,26 +3,20 @@
  */
 
 /**
- * Lifts a named-slot `<template>` out of the `{% block %}` wrappers the twig conversion turned into
- * `<sw-block>` elements, so the slot addresses the component that owns it again.
- *
- * A `{% block %}` is transparent, `<sw-block>` is not: it forwards only its default slot, so a named
- * slot below one is re-parented onto the block and its content dropped — markup Vue compiles without
- * complaint. The build transform rejects the shape and names the remedy, "move the <sw-block> inside
- * the named-slot template", which is exactly the inversion performed here:
+ * Lifts a named-slot `<template>` out of the `<sw-block>` elements the twig blocks became, because
+ * `<sw-block>` forwards only its default slot:
  *
  *     <sw-block name="a"><template #footer>X</template></sw-block>
  *  →  <template #footer><sw-block name="a">X</sw-block></template>
  *
- * Block nesting order is preserved, so every block keeps its name and its position around the content
- * and therefore its override target. Only shapes where the inversion preserves that are rewritten:
- * every block on the path must wrap nothing but the path, or splitting it would need the same block
- * name twice — and two blocks of one name render every override for it twice.
+ * Every block keeps its name and position around the content, so its override target. That only
+ * holds when each block on the path wraps nothing but the path; splitting one would need its name
+ * twice, and two blocks of one name render every override twice.
  */
 
 import { ElementTypes, NodeTypes } from '@vue/compiler-dom';
 import type { ElementNode, TemplateChildNode } from '@vue/compiler-dom';
-import { isConvertedBlock, parseTemplate } from './template-ast';
+import { DYNAMIC_SLOT, isConvertedBlock, namedSlotName, parseTemplate } from './template-ast';
 
 const NON_HOISTABLE = 'named slot inside a twig block cannot be hoisted';
 
@@ -34,49 +28,19 @@ type Site = {
     reason: string | null;
 };
 
-/** The non-default slot a `<template>` addresses, or null when it addresses none. */
-function namedSlotOf(node: ElementNode): string | null {
-    if (node.tag !== 'template') {
-        return null;
-    }
-
-    for (const prop of node.props) {
-        if (prop.type !== NodeTypes.DIRECTIVE || prop.name !== 'slot') {
-            continue;
-        }
-
-        if (!prop.arg) {
-            return null;
-        }
-
-        if (prop.arg.type === NodeTypes.SIMPLE_EXPRESSION && prop.arg.isStatic) {
-            return prop.arg.content === 'default' ? null : prop.arg.content;
-        }
-
-        // A dynamic argument cannot be proven to be the default slot, so it counts as named.
-        return '[dynamic]';
-    }
-
-    return null;
-}
-
-/**
- * Can this tag own a named slot? Vue's parser already answered that while parsing, and reusing its
- * verdict keeps kebab-case, PascalCase and `<component :is>` owners together — a hyphen test refuses
- * everything but the first, and the build transform accepts all three.
- */
+/** Vue's parser verdict keeps kebab-case, PascalCase and `<component :is>` owners together. */
 function ownsNamedSlots(node: ElementNode): boolean {
     return node.tagType === ElementTypes.COMPONENT;
 }
 
-/** Children carrying content: elements plus non-whitespace text. Comments travel with the block. */
+/** Elements plus non-whitespace text; comments travel with the block. */
 function contentChildren(node: ElementNode): TemplateChildNode[] {
     return node.children.filter(
         (child) => child.type === NodeTypes.ELEMENT || (child.type === NodeTypes.TEXT && child.content.trim().length > 0),
     );
 }
 
-/** Offset of an opening tag's `>`, quote-aware so an attribute value cannot end the tag early. */
+/** Quote-aware, so an attribute value cannot end the tag early. */
 function openingTagEnd(source: string, start: number): number {
     let quote: '"' | "'" | null = null;
 
@@ -104,10 +68,7 @@ function openingTagEnd(source: string, start: number): number {
     return -1;
 }
 
-/**
- * Every named-slot template whose direct parent is a converted block, each with the chain of blocks it
- * has to be hoisted through and the reason it cannot be, if any.
- */
+/** Every named-slot template directly inside a converted block, with its block chain. */
 function findSites(nodes: TemplateChildNode[], parent: ElementNode | null, ancestors: ElementNode[]): Site[] {
     const sites: Site[] = [];
 
@@ -117,7 +78,7 @@ function findSites(nodes: TemplateChildNode[], parent: ElementNode | null, ances
         }
 
         const element = child;
-        const slotName = namedSlotOf(element);
+        const slotName = element.tag === 'template' ? namedSlotName(element) : null;
 
         if (slotName !== null && parent !== null && isConvertedBlock(parent)) {
             const chain: ElementNode[] = [parent];
@@ -145,7 +106,7 @@ function findSites(nodes: TemplateChildNode[], parent: ElementNode | null, ances
             }
 
             const reason =
-                slotName === '[dynamic]'
+                slotName === DYNAMIC_SLOT
                     ? `${NON_HOISTABLE} (dynamic slot name)`
                     : owner === null || !ownsNamedSlots(owner)
                       ? `${NON_HOISTABLE} (no component owns the slot)`
@@ -162,16 +123,11 @@ function findSites(nodes: TemplateChildNode[], parent: ElementNode | null, ances
     return sites;
 }
 
-/**
- * Returns the template with every hoistable named slot lifted above its blocks, plus one blocker per
- * distinct shape that could not be hoisted.
- */
 function hoistBlockSlots(template: string): HoistResult {
     let current = template;
     const blockers: string[] = [];
 
-    // One rewrite per parse: a rebuilt region invalidates every offset after it. The deepest site is
-    // taken first, so an inner rewrite is already in place when the region containing it is rebuilt.
+    // One rewrite per parse, since a rebuilt region invalidates later offsets; deepest site first.
     for (let guard = 0; guard < 200; guard += 1) {
         const ast = parseTemplate(current);
 
@@ -200,9 +156,8 @@ function hoistBlockSlots(template: string): HoistResult {
         const regionEnd = site.chain[0].loc.end.offset;
         const slotOpenEnd = openingTagEnd(current, site.slot.loc.start.offset);
         const authoredOpenTag = current.slice(site.slot.loc.start.offset, slotOpenEnd + 1);
-        // `<template #x />` carries its content in neither children nor an end tag, so the hoisted
-        // form has to re-open it around the blocks; taking the end tag's real offset rather than
-        // subtracting a literal `</template>` keeps `</template >` and friends intact too.
+        // A self-closing `<template #x />` is re-opened around the blocks; the end tag's real offset
+        // keeps `</template >` intact.
         const slotOpenTag = site.slot.isSelfClosing ? `${authoredOpenTag.slice(0, -2).trimEnd()}>` : authoredOpenTag;
         const slotInner = site.slot.isSelfClosing
             ? ''

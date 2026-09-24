@@ -11,7 +11,7 @@ import {
 } from './helpers';
 
 describe('build/vue-setup-transform base defineProps macro', () => {
-    it('keeps base defineProps() in place and passes the props object into attachOverrides', () => {
+    it('keeps base defineProps() in place and passes the props object into attach()', () => {
         const source = stripIndent`
             <template><div>{{ count }}</div></template>
             <script setup lang="ts">
@@ -33,7 +33,7 @@ describe('build/vue-setup-transform base defineProps macro', () => {
         expect(result).toContain(`const __swSetupAuthor_props = defineProps<{
     initialCount?: number;
 }>();`);
-        expect(result).toContain('Shopware.Component.attachOverrides(');
+        expect(result).toContain('__swSetupRuntime.attach(');
         expect(result).toContain("name: 'sw-my-component'");
         expect(result).toContain('props: __swSetupAuthor_props,');
         expect(result).toContain('const __swSetupAuthor_count = ref(__swSetupAuthor_props.initialCount ?? 0);');

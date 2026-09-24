@@ -106,10 +106,10 @@ describe('build/vue-setup-transform base transforms', () => {
         `;
 
         // The one end-to-end assertion for base lowering: the author body stays native (macros in place,
-        // `declare global` untouched, every binding renamed to its __swSetupAuthor_ alias), the template
-        // keeps its content with a generated `:data="$dataScope"` added to the <sw-block>, and a single
-        // footer re-declares the original names by destructuring attachOverrides() and hands the props
-        // and the public ones to defineExpose().
+        // `declare global` untouched, every binding renamed to its __swSetupAuthor_ alias), the runtime is
+        // read once, the computed that runs after setup reads `count` late, the <sw-block> gets a
+        // generated `:data="$dataScope"`, and a single footer re-declares the original names from
+        // attach() and hands the props and the public ones to defineExpose().
         //
         // Whitespace-insensitive on both sides, because the transform does not beautify its output - the
         // Vue round-trip below is what guarantees the result is still valid code.
@@ -129,12 +129,16 @@ describe('build/vue-setup-transform base transforms', () => {
                 }
             }
 
+            const __swSetupRuntime = globalThis.Shopware.Component.__setupRuntime.v1;
+            const __swSetupLate = __swSetupRuntime.late({
+                count: () => __swSetupAuthor_count,
+            });
             const __swSetupAuthor_props = defineProps<{
                 initialCount?: number;
             }>();
             const __swSetupAuthor_title = ref('Hello');
             const __swSetupAuthor_count = ref(__swSetupAuthor_props.initialCount ?? 0);
-            const __swSetupAuthor_doubled = computed(() => __swSetupAuthor_count.value * 2);
+            const __swSetupAuthor_doubled = computed(() => __swSetupLate.count.value * 2);
             const __swSetupAuthor_internalNote = ref('secret');
 
             const {
@@ -143,7 +147,7 @@ describe('build/vue-setup-transform base transforms', () => {
                 count,
                 doubled,
                 internalNote,
-            } = Shopware.Component.attachOverrides({
+            } = __swSetupRuntime.attach({
                 name: 'sw-example',
                 public: {
                     title: __swSetupAuthor_title,
@@ -154,10 +158,11 @@ describe('build/vue-setup-transform base transforms', () => {
                     props: __swSetupAuthor_props,
                     internalNote: __swSetupAuthor_internalNote,
                 },
+                late: __swSetupLate,
             });
 
             defineExpose({
-                ...Shopware.Component.getExposedProps(),
+                ...__swSetupRuntime.expose(),
                 title,
                 count,
                 doubled,
@@ -188,7 +193,7 @@ describe('build/vue-setup-transform base transforms', () => {
         expect(result).toContain('private: {},');
         // A component with nothing public still exposes its props, so a template ref keeps resolving
         // them after the switch from the instance proxy to the exposed proxy.
-        expect(result).toContain('defineExpose({\n    ...Shopware.Component.getExposedProps(),\n});');
+        expect(result).toContain('defineExpose({\n    ...__swSetupRuntime.expose(),\n});');
     });
 
     it('exposes the public entries to a parent and keeps private bindings out of the generated defineExpose()', () => {
@@ -215,9 +220,7 @@ describe('build/vue-setup-transform base transforms', () => {
 
         // swDefinePublic() is the whole parent-facing surface: the generated call sits after the
         // destructure, so it hands out the override-aware bindings rather than the author aliases.
-        expect(result).toContain(
-            'defineExpose({\n    ...Shopware.Component.getExposedProps(),\n    opened,\n    openTreeItem,\n});',
-        );
+        expect(result).toContain('defineExpose({\n    ...__swSetupRuntime.expose(),\n    opened,\n    openTreeItem,\n});');
         expect(result).not.toContain('internalNote,\n});');
         expectVueCompilerScriptToCompile(result, 'base-expose-surface.vue');
     });

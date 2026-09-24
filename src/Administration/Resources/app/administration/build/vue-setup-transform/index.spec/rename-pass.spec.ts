@@ -9,7 +9,7 @@
  * type-member keys, `typeof` queries, and lexical shadowing.
  */
 
-import { stripIndent, stripWhitespace, transformOrFail } from './helpers';
+import { expectVueCompilerScriptToCompile, stripIndent, stripWhitespace, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform base rename pass', () => {
     it('expands a shorthand property instead of renaming its key', () => {
@@ -54,7 +54,30 @@ describe('build/vue-setup-transform base rename pass', () => {
         `);
         // `typeof count` reads the value binding and must be renamed with it.
         expect(result).toContain('type CountType = typeof __swSetupAuthor_count;');
-        expect(result).toContain('const __swSetupAuthor_doubled = __swSetupAuthor_count * 2;');
+        // The rename replaces the name only, so the declaration keeps its type annotation.
+        expect(result).toContain('const __swSetupAuthor_doubled: CountType = __swSetupAuthor_count * 2;');
+    });
+
+    it('renames runtime bindings inside nested type arguments', () => {
+        const source = stripIndent`
+            <script setup lang="ts">
+            import { ref } from 'vue';
+            enum Kind { A, B }
+            class Box<T> {}
+            const count = ref(0);
+            const boxed = ref<Box<Kind>>(new Box());
+            type Counts = Array<typeof count>;
+            swDefinePublic({ count });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'sw-type-arguments.vue').code;
+
+        expect(result).toContain(
+            'const __swSetupAuthor_boxed = ref<__swSetupAuthor_Box<__swSetupAuthor_Kind>>(new __swSetupAuthor_Box());',
+        );
+        expect(result).toContain('type Counts = Array<typeof __swSetupAuthor_count>;');
+        expectVueCompilerScriptToCompile(result, 'sw-type-arguments.vue');
     });
 
     it('does not rename a name shadowed by a function parameter', () => {
@@ -280,9 +303,9 @@ describe('build/vue-setup-transform base rename pass', () => {
         const result = transformOrFail(source, 'sw-block-shadow.vue').code;
 
         // The inner-block `const source` shadows only its own block, so the later read outside that block
-        // is the top-level binding and must be renamed.
+        // is the top-level binding. It runs after setup, so it reads the late-bound state.
         expect(result).toContain('const source = { value: 2 };');
-        expect(result).toContain('return __swSetupAuthor_source.value;');
+        expect(result).toContain('return __swSetupLate.source.value;');
     });
 
     it('does not rename a named function-expression self-reference', () => {

@@ -5,18 +5,9 @@
 const { RuleTester } = require('eslint');
 const tsParser = require('@typescript-eslint/parser');
 const vueParser = require('vue-eslint-parser');
-/**
- * Rule under test, typed so fixture shape errors are easier to spot.
- *
- * @type {import('eslint').Rule.RuleModule}
- */
+/** @type {import('eslint').Rule.RuleModule} */
 const rule = require('./native-setup-filename');
 
-/**
- * Shared tester configured for Vue SFC script parsing.
- *
- * @type {import('eslint').RuleTester}
- */
 const ruleTester = new RuleTester({
     languageOptions: {
         ecmaVersion: 'latest',
@@ -51,6 +42,10 @@ swDefineOverride({});
         {
             // The name comes from the directory for an index file, so `index` itself is never the name.
             filename: '/plugin/src/sw-thing/index.vue',
+            code: setupBlock,
+        },
+        {
+            filename: 'C:\\plugin\\src\\sw-thing\\index.vue',
             code: setupBlock,
         },
         {

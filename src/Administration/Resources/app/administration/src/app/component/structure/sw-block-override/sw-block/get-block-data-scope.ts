@@ -1,18 +1,15 @@
-import { getCurrentInstance } from 'vue';
+import { getCurrentInstance, type ComponentInternalInstance } from 'vue';
 import { getScriptSetupDataScope } from 'src/app/adapter/composition-extension-system/data-scope-helper';
 
 /**
  * @sw-package framework
  * @private
  *
- * Resolves the data object exposed to `sw-block` slots for the current component instance.
- *
- * Native setup components register a proxy-compatible data scope outside Vue's public instance proxy,
- * while Options API components keep using the proxy fallback.
+ * The data scope `sw-block` passes to its layers: the setup state of a native setup component, the instance
+ * proxy of any other component. Without an argument it resolves the current instance, which is how the
+ * `$dataScope` global property uses it.
  */
-export default function getBlockDataScope() {
-    const instance = getCurrentInstance();
-
+export default function getBlockDataScope(instance: ComponentInternalInstance | null = getCurrentInstance()) {
     if (!instance) {
         return null;
     }

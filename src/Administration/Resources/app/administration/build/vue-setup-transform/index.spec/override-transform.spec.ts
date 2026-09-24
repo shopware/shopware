@@ -3,12 +3,9 @@
  */
 
 /**
- * Covers the end-to-end override lowering with no template involved: how an override `<script setup>`
- * becomes a hidden component that registers the setup override, the `swDefineOverride` return payload,
- * and how imports and type declarations are preserved in the generated component.
- *
- * Template-driven forwarding lives in override-template.spec.ts; the destructuring-pattern edge cases
- * in override-template-patterns.spec.ts.
+ * Covers the end-to-end override lowering: how an override `<script setup>` becomes a module that
+ * registers the setup override, the `swDefineOverride` return payload, and which statements are hoisted
+ * out of the callback. Template forwarding lives in override-template.spec.ts.
  */
 
 import { expectVueCompilerScriptToCompile, stripIndent, stripWhitespace, transformOrFail } from './helpers';
@@ -34,26 +31,24 @@ describe('build/vue-setup-transform override transforms', () => {
             </script>
         `;
 
-        // The one end-to-end assertion for override lowering, covering the three generated constructs that
-        // only co-occur on the <sw-block extends> path: the module-root Symbol() namespace, the
-        // `__swOverride` payload keyed by it, and the `#default` slot scope that forwards the
-        // override-local `suffix` into the block content. Imports are lifted out of the callback; the
-        // author body is preserved inside it.
-        //
-        // Whitespace-insensitive on both sides - the transform does not beautify its output, so its
-        // blank-line residue is not behaviour. The Vue round-trip below guards the token sequence.
+        // The one end-to-end assertion for override lowering: the author's <script setup> becomes a plain
+        // <script> that registers the callback at module scope, next to the module-scope Symbol()
+        // namespace; every override local reaches the block through the generated `#default` scope and
+        // the `__swOverride` payload. Whitespace-insensitive, since the transform does not beautify.
+        const fileKey =
+            /\.override\('sw-example', '([0-9a-f]{8})'/.exec(transformOrFail(source, 'sw-example.override.vue').code)?.[1] ??
+            '';
         const expected = stripWhitespace`
             <template>
-                <sw-block extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: { suffix } }, headline }">
+                <sw-block extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: { suffix, previousState } = {} } = {}, headline }">
                     <h1>{{ headline }} - {{ suffix }}</h1>
                 </sw-block>
             </template>
-            <script setup lang="ts">
+            <script lang="ts">
             import { computed } from 'vue';
 
             const __swSetupNamespace = Symbol('sw-example.override');
-
-            Shopware.Component.overrideComponentSetup()('sw-example', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
+            globalThis.Shopware.Component.__setupRuntime.v1.override('sw-example', '${fileKey}', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
             const useSwPreviousState = () => __swSetupPreviousState;
             const useSwProps = () => __swSetupProps;
             const useSwContext = () => __swSetupContext;
@@ -67,11 +62,13 @@ describe('build/vue-setup-transform override transforms', () => {
                 __swOverride: {
                     [__swSetupNamespace]: {
                         suffix,
+                        previousState,
                     },
                 },
             };
             });
             </script>
+            <script setup lang="ts">/* exposes the module-scope bindings to the template */</script>
         `;
 
         const result = transformOrFail(source, 'sw-example.override.vue').code;
@@ -93,11 +90,10 @@ describe('build/vue-setup-transform override transforms', () => {
 
         const result = transformOrFail(source, 'sw-my-component.override.vue').code;
 
-        // A template-less override still has to render: the hidden component only registers its callback
-        // once it mounts, and Vue warns about a component with neither template nor render function.
+        // The registration component is still mounted, and Vue warns about one without a template.
         expect(result).toContain('<template><!-- Shopware override registration component --></template>');
-        expect(result).toContain(
-            "Shopware.Component.overrideComponentSetup()('sw-my-component', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {",
+        expect(result).toMatch(
+            /globalThis\.Shopware\.Component\.__setupRuntime\.v1\.override\('sw-my-component', '[0-9a-f]{8}', \(__swSetupPreviousState, __swSetupProps, __swSetupContext\) => \{/,
         );
         expect(result).toContain('const useSwPreviousState = () => __swSetupPreviousState;');
         expect(result).toContain('const useSwProps = () => __swSetupProps;');
@@ -118,7 +114,7 @@ describe('build/vue-setup-transform override transforms', () => {
 
         expect(result.mode).toBe('override');
         expect(result.filename).toBe('component-name.override.vue');
-        expect(result.code).toContain("Shopware.Component.overrideComponentSetup()('component-name'");
+        expect(result.code).toContain(".__setupRuntime.v1.override('component-name', '");
     });
 
     it('keeps imports out of returned override state', () => {
@@ -144,30 +140,30 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result).not.toContain('computed,');
     });
 
-    it('hoists type declarations as a group so cross-references and type-only exports survive', () => {
+    it('hoists only what cannot live in the callback: imports, declare statements and type exports', () => {
         const source = stripIndent`
             <script setup lang="ts">
             type Inner = { a: string };
-            export type Outer = Inner;
-
             const props = useSwProps<Inner>();
-            const label = props.a;
+            export type Outer = Inner;
+            declare const injected: string;
+            import { ref } from 'vue';
+            interface Local { b: string }
+            const label = ref<Local | null>(null);
 
             swDefineOverride({ label });
             </script>
         `;
 
         const result = transformOrFail(source, 'typed.override.vue').code;
-        const callbackStart = result.indexOf('Shopware.Component.overrideComponentSetup()');
+        const callbackStart = result.indexOf('.override(');
 
-        // A bare `type`/`interface` would be legal inside the generated callback; `export type` and an
-        // ambient `declare` are not. They are hoisted as one group rather than selectively, because a
-        // hoisted declaration can reference a preceding one - `export type Outer = Inner` here - and would
-        // dangle if that one were left behind in the callback.
-        expect(result.indexOf('type Inner = { a: string };')).toBeLessThan(callbackStart);
         expect(result.indexOf('export type Outer = Inner;')).toBeLessThan(callbackStart);
-        expect(result).toContain('const props = useSwProps<Inner>();');
-        expect(result.match(/type Inner/g)).toHaveLength(1);
+        expect(result.indexOf('declare const injected: string;')).toBeLessThan(callbackStart);
+        expect(result.indexOf("import { ref } from 'vue';")).toBeLessThan(callbackStart);
+        // Types are legal inside a function body and stay where the author wrote them.
+        expect(result.indexOf('type Inner = { a: string };')).toBeGreaterThan(callbackStart);
+        expect(result.indexOf('interface Local')).toBeGreaterThan(callbackStart);
         expectVueCompilerScriptToCompile(result, 'typed.override.vue');
     });
 

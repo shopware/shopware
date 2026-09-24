@@ -1,336 +1,182 @@
 /**
  * @sw-package framework
  */
+import { createCommentVNode, h, nextTick, ref, watchEffect } from 'vue';
+import {
+    createBlockPass,
+    getLegacyConditionChains,
+    inferChainStart,
+    legacyBlockHelpers,
+    runBlockPass,
+} from './legacy-condition-context';
+
+const defaultCase = (segmentCaseIndex, isStartingCondition = false) => ({
+    segmentCaseIndex,
+    renderOrderSegment: 'defaultSlot',
+    isStartingCondition,
+});
+const shimCase = (segmentCaseIndex, isStartingCondition = false) => ({
+    segmentCaseIndex,
+    renderOrderSegment: 'shimExtension',
+    isStartingCondition,
+});
+const nativeCase = (segmentCaseIndex, isStartingCondition = false) => ({
+    segmentCaseIndex,
+    renderOrderSegment: 'nativeExtension',
+    isStartingCondition,
+});
+
+function createHost() {
+    const host = { $: {} };
+
+    return {
+        host,
+        if: (key, expression, options) => legacyBlockHelpers.$swLegacyBlockIf.call(host, key, expression, options),
+        elseIf: (key, expression, options) => legacyBlockHelpers.$swLegacyBlockElseIf.call(host, key, expression, options),
+        else: (key, options) => legacyBlockHelpers.$swLegacyBlockElse.call(host, key, options),
+    };
+}
 
 describe('app/component/structure/sw-block-override/shim/legacy-condition-context.ts', () => {
-    let legacyIf;
-    let legacyElseIf;
-    let legacyElse;
-    let reserveLegacyConditionCases;
-    let clearLegacyConditionChain;
-    let clearLegacyConditionChainsForBlock;
-    let legacyConditionContext;
-    const caseResult = (result) => ({ result });
-    const defaultCase = (segmentCaseIndex, isStartingCondition = false) => ({
-        segmentCaseIndex,
-        renderOrderSegment: 'defaultSlot',
-        isStartingCondition,
-    });
-    const shimCase = (segmentCaseIndex, isStartingCondition = false) => ({
-        segmentCaseIndex,
-        renderOrderSegment: 'shimExtension',
-        isStartingCondition,
-    });
-    const nativeCase = (segmentCaseIndex, isStartingCondition = false) => ({
-        segmentCaseIndex,
-        renderOrderSegment: 'nativeExtension',
-        isStartingCondition,
+    it('evaluates if / else-if / else chains', () => {
+        const chain = createHost();
+
+        expect(chain.if('test', false, defaultCase(0, true))).toBe(false);
+        expect(chain.elseIf('test', true, defaultCase(1))).toBe(true);
+        expect(chain.else('test', defaultCase(2))).toBe(false);
     });
 
-    beforeEach(async () => {
-        const useLegacyConditionContext = (await import('./legacy-condition-context')).default;
+    it('renders the else case when no earlier case matched', () => {
+        const chain = createHost();
 
-        const legacyConditionBlockContext = useLegacyConditionContext();
-        legacyIf = legacyConditionBlockContext.legacyIf;
-        legacyElseIf = legacyConditionBlockContext.legacyElseIf;
-        legacyElse = legacyConditionBlockContext.legacyElse;
-        reserveLegacyConditionCases = legacyConditionBlockContext.reserveLegacyConditionCases;
-        clearLegacyConditionChain = legacyConditionBlockContext.clearLegacyConditionChain;
-        clearLegacyConditionChainsForBlock = legacyConditionBlockContext.clearLegacyConditionChainsForBlock;
-        legacyConditionContext = legacyConditionBlockContext.legacyConditionContext;
+        expect(chain.if('test', false, defaultCase(0, true))).toBe(false);
+        expect(chain.elseIf('test', false, defaultCase(1))).toBe(false);
+        expect(chain.else('test', defaultCase(2))).toBe(true);
     });
 
-    afterEach(() => {
-        jest.resetModules();
+    it('does not render orphaned else cases', () => {
+        const chain = createHost();
+
+        expect(chain.elseIf('test', true, defaultCase(0))).toBe(false);
+        expect(chain.else('test', defaultCase(1))).toBe(false);
     });
 
-    it('evaluates legacy if / else-if / else chains', () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-        expect(legacyElseIf('test', true, defaultCase(1))).toBe(true);
-        expect(legacyElse('test', defaultCase(2))).toBe(false);
+    it('evaluates shim cases after default cases and before native cases', () => {
+        const chain = createHost();
+
+        chain.if('test', false, defaultCase(0, true));
+
+        expect(chain.elseIf('test', true, shimCase(0))).toBe(true);
+        expect(chain.else('test', nativeCase(0))).toBe(false);
     });
 
-    it('renders legacy else when no previous condition matched', () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-        expect(legacyElseIf('test', false, defaultCase(1))).toBe(false);
-        expect(legacyElse('test', defaultCase(2))).toBe(true);
+    it('starts a new chain at a starting case', () => {
+        const chain = createHost();
+
+        chain.if('test', true, defaultCase(0, true));
+        chain.if('test', false, shimCase(0, true));
+
+        expect(chain.else('test', nativeCase(0))).toBe(true);
     });
 
-    it('does not render orphaned legacy else cases', () => {
-        expect(legacyElseIf('test', true, defaultCase(0))).toBe(false);
-        expect(legacyElse('test', defaultCase(1))).toBe(false);
+    it('keeps the chains of different hosts apart', () => {
+        const first = createHost();
+        const second = createHost();
+
+        first.if('test', false, defaultCase(0, true));
+
+        expect(second.else('test', defaultCase(1))).toBe(false);
+        expect(first.else('test', defaultCase(1))).toBe(true);
     });
 
-    it('keeps legacy chains until lifecycle cleanup', async () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-        expect(legacyElseIf('test', true, defaultCase(1))).toBe(true);
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }, caseResult(true)],
-                shimExtensionCases: [],
-                nativeExtensionCases: [],
-                keepShimResultsForNextReservation: false,
-            },
+    it('stores the chains on the host instance instead of a module-level record', () => {
+        const chain = createHost();
+
+        chain.if('test', true, defaultCase(0, true));
+
+        expect([...getLegacyConditionChains(chain.host.$).keys()]).toEqual(['test']);
+        expect(getLegacyConditionChains({})).toBeUndefined();
+    });
+
+    it('drops the cases a block no longer renders', () => {
+        const chain = createHost();
+        const pass = createBlockPass();
+
+        runBlockPass(pass, () => {
+            chain.if('test', false, defaultCase(0, true));
+            chain.elseIf('test', true, nativeCase(0));
         });
+        runBlockPass(pass, () => {
+            chain.if('test', false, defaultCase(0, true));
 
-        await Promise.resolve();
-
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }, caseResult(true)],
-                shimExtensionCases: [],
-                nativeExtensionCases: [],
-                keepShimResultsForNextReservation: false,
-            },
+            expect(chain.else('test', nativeCase(1))).toBe(true);
         });
     });
 
-    it('keeps legacy else cases available during the current render tick', () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-        expect(legacyElse('test', defaultCase(1))).toBe(true);
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }, caseResult(true)],
-                shimExtensionCases: [],
-                nativeExtensionCases: [],
-                keepShimResultsForNextReservation: false,
-            },
+    it('re-renders a block that reads a case another block wrote, once that case changes', async () => {
+        const chain = createHost();
+        const writer = createBlockPass();
+        const reader = createBlockPass();
+        let condition = false;
+        const results = [];
+
+        const renderWriter = () => runBlockPass(writer, () => chain.if('test', condition, defaultCase(0, true)));
+        renderWriter();
+        watchEffect(() => {
+            results.push(runBlockPass(reader, () => chain.else('test', defaultCase(1))));
         });
+
+        condition = true;
+        renderWriter();
+        await nextTick();
+
+        expect(results).toEqual([true, false]);
     });
 
-    it('keeps reserved extension cases pending until the shim renders', async () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+    it('does not re-render a block for the cases it wrote itself', async () => {
+        const chain = createHost();
+        const pass = createBlockPass();
+        const condition = ref(false);
+        let renders = 0;
 
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-
-        expect(legacyElse('test', nativeCase(0))).toBe(false);
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }],
-                shimExtensionCases: [undefined],
-                nativeExtensionCases: [caseResult(false)],
-                keepShimResultsForNextReservation: false,
-            },
-        });
-
-        await Promise.resolve();
-
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }],
-                shimExtensionCases: [undefined],
-                nativeExtensionCases: [caseResult(false)],
-                keepShimResultsForNextReservation: false,
-            },
-        });
-    });
-
-    it('creates pending extension cases for a Twig-started shim chain', () => {
-        reserveLegacyConditionCases('test', {
-            caseStartIndex: 0,
-            caseCount: 1,
-            startsChain: true,
-        });
-
-        expect(legacyElse('test', shimCase(1))).toBe(false);
-        expect(legacyIf('test', false, shimCase(0, true))).toBe(false);
-        expect(legacyElse('test', shimCase(1))).toBe(true);
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [],
-                shimExtensionCases: [
-                    {
-                        result: false,
-                        isStartingCondition: true,
-                    },
-                    caseResult(true),
-                ],
-                nativeExtensionCases: [],
-                keepShimResultsForNextReservation: true,
-            },
-        });
-    });
-
-    it('updates parent else cases when reserved extension cases resolve', async () => {
-        const { nextTick, watchEffect } = await import('vue');
-        const parentElseResults = [];
-        const stopEffects = [];
-
-        try {
-            stopEffects.push(
-                watchEffect(() => {
-                    legacyIf('test', false, defaultCase(0, true));
-                    reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-
-                    parentElseResults.push(legacyElse('test', nativeCase(0)));
-                }),
-            );
-
-            stopEffects.push(
-                watchEffect(() => {
-                    legacyElseIf('test', false, shimCase(0));
-                }),
-            );
-
-            expect(parentElseResults[0]).toBe(false);
-
-            await Promise.resolve();
-            await nextTick();
-
-            expect(parentElseResults.at(-1)).toBe(true);
-        } finally {
-            stopEffects.forEach((stopEffect) => {
-                stopEffect();
+        watchEffect(() => {
+            renders += 1;
+            runBlockPass(pass, () => {
+                chain.if('test', condition.value, defaultCase(0, true));
+                chain.else('test', nativeCase(0));
             });
-        }
-    });
-
-    it('updates shim else-if cases when previous default slot cases change', async () => {
-        const { nextTick, ref, watchEffect } = await import('vue');
-        const defaultCondition = ref(false);
-        const shimElseIfResults = [];
-        const stopEffects = [];
-
-        try {
-            stopEffects.push(
-                watchEffect(() => {
-                    legacyIf('test', defaultCondition.value, defaultCase(0, true));
-                    reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-                }),
-            );
-
-            stopEffects.push(
-                watchEffect(() => {
-                    shimElseIfResults.push(legacyElseIf('test', true, shimCase(0)));
-                }),
-            );
-
-            expect(shimElseIfResults.at(-1)).toBe(true);
-
-            defaultCondition.value = true;
-
-            await Promise.resolve();
-            await nextTick();
-
-            expect(shimElseIfResults.at(-1)).toBe(false);
-        } finally {
-            stopEffects.forEach((stopEffect) => {
-                stopEffect();
-            });
-        }
-    });
-
-    it('updates reserved extension cases by their stable shim condition chain index', () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 2 });
-
-        expect(legacyElseIf('test', false, shimCase(0))).toBe(false);
-        expect(legacyElse('test', shimCase(1))).toBe(true);
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }],
-                shimExtensionCases: [caseResult(false), caseResult(true)],
-                nativeExtensionCases: [],
-                keepShimResultsForNextReservation: true,
-            },
         });
+        condition.value = true;
+        await nextTick();
+        await nextTick();
+
+        expect(renders).toBe(2);
     });
 
-    it('evaluates shim cases after default slot cases and before native extension cases', () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-        expect(legacyElseIf('test', false, defaultCase(1))).toBe(false);
+    describe('inferChainStart', () => {
+        it('starts an unmatched chain from default content that ends with a v-if placeholder', () => {
+            const chain = createHost();
 
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 2 });
+            inferChainStart(chain.host.$, 'test', [h('div'), createCommentVNode('v-if')]);
 
-        expect(legacyElseIf('test', true, shimCase(0))).toBe(true);
-        expect(legacyElse('test', shimCase(1))).toBe(false);
-        expect(legacyElse('test', nativeCase(0))).toBe(false);
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }, caseResult(false)],
-                shimExtensionCases: [caseResult(true), caseResult(false)],
-                nativeExtensionCases: [caseResult(false)],
-                keepShimResultsForNextReservation: true,
-            },
+            expect(chain.else('test', shimCase(0))).toBe(true);
         });
-    });
 
-    it('evaluates native extension cases behind reserved shim cases', () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        it('starts a matched chain from default content that ends with an element', () => {
+            const chain = createHost();
 
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
+            inferChainStart(chain.host.$, 'test', [createCommentVNode('author comment'), h('div')]);
 
-        expect(legacyElse('test', nativeCase(0))).toBe(false);
-        expect(legacyElseIf('test', true, shimCase(0))).toBe(true);
-        expect(legacyElse('test', nativeCase(0))).toBe(false);
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }],
-                shimExtensionCases: [caseResult(true)],
-                nativeExtensionCases: [caseResult(false)],
-                keepShimResultsForNextReservation: true,
-            },
+            expect(chain.else('test', shimCase(0))).toBe(false);
         });
-    });
 
-    it('clears legacy extension chains when the extension is removed', () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        it('keeps a chain started by rewritten default content', () => {
+            const chain = createHost();
 
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-        clearLegacyConditionChain('test');
+            chain.if('test', true, defaultCase(0, true));
+            inferChainStart(chain.host.$, 'test', [createCommentVNode('v-if')]);
 
-        expect(legacyConditionContext).toStrictEqual({});
-    });
-
-    it('clears legacy chains by owning block', () => {
-        expect(legacyIf('42:test:0', false, defaultCase(0, true))).toBe(false);
-        expect(legacyIf('42:other:0', false, defaultCase(0, true))).toBe(false);
-
-        clearLegacyConditionChainsForBlock('test', 42);
-
-        expect(legacyConditionContext['42:test:0']).toBeUndefined();
-        expect(legacyConditionContext['42:other:0']).toBeDefined();
-    });
-
-    it('keeps extension state when the parent legacy chain renders again', () => {
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-        expect(legacyElseIf('test', true, shimCase(0))).toBe(true);
-
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-        expect(legacyConditionContext).toStrictEqual({
-            test: {
-                defaultSlotCases: [{ result: false, isStartingCondition: true }],
-                shimExtensionCases: [caseResult(true)],
-                nativeExtensionCases: [],
-                keepShimResultsForNextReservation: true,
-            },
+            expect(chain.else('test', shimCase(0))).toBe(false);
         });
-    });
-
-    it('keeps native extension cases pending until stale shim cases re-evaluate', async () => {
-        // Initial parent render: the reserved shim case is pending, so the native fallback must wait.
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-        expect(legacyElse('test', nativeCase(0))).toBe(false);
-        expect(legacyElseIf('test', false, shimCase(0))).toBe(false);
-
-        // Follow-up render after the shim resolved to false: the native fallback can now render.
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-        expect(legacyElse('test', nativeCase(0))).toBe(true);
-
-        await Promise.resolve();
-
-        // Later parent render: the old false result is stale, so the native fallback must wait again.
-        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
-        reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-
-        expect(legacyElse('test', nativeCase(0))).toBe(false);
-        expect(legacyElseIf('test', true, shimCase(0))).toBe(true);
     });
 });

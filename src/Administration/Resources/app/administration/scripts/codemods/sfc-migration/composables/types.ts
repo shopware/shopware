@@ -3,11 +3,6 @@
  * @private
  */
 
-/**
- * The shape of a descriptor and the two helpers its member map is written with. The registry itself is
- * assembled in descriptors/index.ts.
- */
-
 /** `ref` appends `.value` on rewrite; `value` and `method` use the binding as written. */
 type ComposableMemberKind = 'value' | 'ref' | 'method';
 
@@ -17,10 +12,7 @@ type ComposableMember = {
     sourceKey?: string;
 };
 
-/**
- * A prop the mixin declared, which every component using it inherited. A composable cannot declare
- * props, so the codemod merges these into the component's own `defineProps` literal instead.
- */
+/** A prop the mixin declared; a composable cannot, so it is merged into the component's `defineProps`. */
 type ComposableProvidedProp = {
     name: string;
     /** Source text of the prop definition, e.g. `{ type: Object, required: true }`. */
@@ -39,27 +31,16 @@ type ComposableCallback = {
 };
 
 /**
- * A mixin that was an abstract controller rather than a helper: it owned the state a component worked
- * against — its own, or a prop it wrote to — and often a lifecycle and a member the component
- * implemented. Such a composable can be wired up mechanically, but not proven equivalent, so its output
- * is always a draft for a human to finish.
+ * A mixin that was a controller rather than a helper: it owned the state a component worked against,
+ * and often a lifecycle and a member the component implemented. Its output is always a draft.
  */
 type ComposableScaffold = {
-    /**
-     * The member the mixin called on its host, which the composable takes as a callback instead. A
-     * mixin that drove one also owned the lifecycle that called it, which is why its composable runs
-     * whether or not the component reads anything back from it.
-     */
+    /** The member the mixin called on its host; its composable runs even when nothing is read back. */
     iocMember?: string;
-    /**
-     * State keys a component set in its own `data()` purely to configure the mixin. They reach the
-     * composable through its options object instead of staying local refs.
-     */
+    /** `data()` keys that only configured the mixin; they move into the composable's options. */
     configKeys?: string[];
     /** What the reviewer of the draft has to check, listed in the summary TODO. */
     checks: string[];
-    /** Never `full`: the codemod cannot decide the questions above. */
-    forcesPartial: true;
 };
 
 type ComposableDescriptor = {
@@ -69,44 +50,18 @@ type ComposableDescriptor = {
     import: { source: string; name: string };
     /** Keyed by the `this.<member>` access the descriptor answers. */
     members: Record<string, ComposableMember>;
-    /**
-     * Members the composable calls internally. A component override of one cannot take effect after
-     * the migration — the composable keeps calling its own copy — so the component is refused.
-     */
+    /** Members the composable calls internally, so a component override of one is refused. */
     internallyReferencedMembers?: string[];
-    /**
-     * Members the mixin puts on `this` that the composable does not return, because it inlines them
-     * (typically the mixin's internal computeds). Reading one is refused, unless the component
-     * declares its own member of that name, which shadowed the mixin's to begin with.
-     */
+    /** Mixin members the composable inlines; reading one is refused unless the component shadows it. */
     unmappedMembers?: string[];
-    /**
-     * The events the mixin emitted, keyed by the callback the composable takes for each. The codemod
-     * merges the event names into `defineEmits` and hands `emit` over through those callbacks, so the
-     * composable names the intent instead of carrying event strings.
-     */
+    /** The events the mixin emitted, keyed by the callback the composable takes for each. */
     emits?: Record<string, string>;
-    /**
-     * Props the mixin read off the instance, passed as `() => props.<name>` getters. A component that
-     * does not declare one is refused: the prop came from the mixin's own `props` option, and nothing
-     * would supply it after the migration.
-     */
+    /** Props the mixin read, passed as getters; a component not declaring one is refused. */
     propArgs?: string[];
-    /**
-     * Members the mixin expected its host to define — the Options API's inversion of control. The
-     * codemod passes the component's own member into the options object.
-     */
+    /** Members the mixin expected its host to define, passed into the options object. */
     callbackArgs?: ComposableCallback[];
-    /**
-     * The props the mixin declared itself. Unlike the instance dependencies above, every declared
-     * mixin contributes these whether its composable ends up being called or not — the Options API
-     * merged them into the component the same way.
-     */
+    /** Merged for every declared mixin, whether its composable is called or not. */
     providedProps?: ComposableProvidedProp[];
-    /**
-     * Present for a mixin the codemod can only scaffold. Its composable is called even when the
-     * component reads none of its members, because it is the one running the lifecycle.
-     */
     scaffold?: ComposableScaffold;
 };
 

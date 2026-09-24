@@ -3,17 +3,10 @@
  */
 
 /**
- * Did the block conversion cost the component its single root?
- *
- * A `{% block %}` emits no node of its own, so it never contributed a root. A `<sw-block>` does:
- * it is a component vnode, and two of them side by side make the converted component multi-root.
- * Vue then has no root element to apply a caller's fallthrough attributes to, and `$el` becomes the
- * fragment's text anchor rather than an element — which throws in every directive and caller that
- * measures it, `v-popover` and `v-tooltip` among them.
- *
- * Only the change matters. A template that was already multi-root loses nothing by the conversion
- * and is left alone; `<sw-block>` reduces content that really is single-rooted back to that one
- * node at runtime, so a single block around a single node keeps the root it had.
+ * Did the block conversion cost the component its single root? Two `<sw-block>` vnodes side by side
+ * make it multi-root: fallthrough attributes are lost and `$el` becomes a text anchor, which throws
+ * in `v-popover`, `v-tooltip` and every caller that measures it. A single block around a single node
+ * keeps its root, since `<sw-block>` reduces single-rooted content back to that node at runtime.
  */
 
 import { NodeTypes } from '@vue/compiler-dom';
@@ -23,7 +16,7 @@ import { isConvertedBlock, parseTemplate } from './template-ast';
 const MULTI_ROOT =
     'the twig blocks make the component multi-root, so callers lose the attributes they pass and `$el` is no longer an element';
 
-/** Whitespace and comments render no root: the production compiler drops comments outright. */
+/** The production compiler drops comments outright. */
 function isSignificant(node: TemplateChildNode): boolean {
     if (node.type === NodeTypes.COMMENT) {
         return false;
@@ -39,15 +32,11 @@ function hasContinuationDirective(node: TemplateChildNode): boolean {
     );
 }
 
-/**
- * How many roots this list renders. A `v-if` chain renders exactly one of its branches, so its
- * continuations belong to the branch they continue rather than counting for themselves.
- */
+/** A `v-if` chain renders one branch, so its continuations do not count. */
 function rootCount(children: TemplateChildNode[]): number {
     return children.filter(isSignificant).filter((child) => !hasContinuationDirective(child)).length;
 }
 
-/** The same list as the twig rendered it, with every converted block transparent again. */
 function withoutBlocks(children: TemplateChildNode[]): TemplateChildNode[] {
     return children.flatMap((child) => {
         if (child.type === NodeTypes.ELEMENT && isConvertedBlock(child)) {
@@ -59,13 +48,8 @@ function withoutBlocks(children: TemplateChildNode[]): TemplateChildNode[] {
 }
 
 /**
- * Returns one warning when the conversion turned a single-rooted component multi-root, otherwise
- * nothing. A warning rather than a blocker: the draft renders and behaves correctly on its own, it
- * is the callers that lose something, so the component is written with the note attached.
- *
- * The twig's own root tally is read from `converted`, before the cross-block conditional guards are
- * inserted — a guard is a root the conversion added, so counting it on both sides would hide
- * exactly the case it marks.
+ * A warning, not a blocker: the draft itself behaves, its callers lose something. The twig's tally
+ * is read before the cross-block guards are inserted, which are roots the conversion added.
  */
 function assertSingleRoot(converted: string, normalized: string): string[] {
     const convertedAst = parseTemplate(converted);

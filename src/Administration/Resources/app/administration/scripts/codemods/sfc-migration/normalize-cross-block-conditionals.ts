@@ -3,12 +3,9 @@
  */
 
 /**
- * Reconnects `v-if` chains that the `{% block %}` → `<sw-block>` conversion tore apart.
- *
- * Twig blocks are transparent, `<sw-block>` elements are not: a `v-else`/`v-else-if` whose `v-if`
- * lived in the previous block loses its adjacent sibling and Vue rejects the template. Every such
- * continuation gets an empty guard branch carrying the conditions of all preceding branches, so the
- * chain is adjacent again and still renders nothing when an earlier branch already matched.
+ * Reconnects `v-if` chains the block conversion tore apart: a `v-else` whose `v-if` lived in the
+ * previous block gets an empty guard branch carrying all preceding conditions, so the chain is
+ * adjacent again and renders nothing when an earlier branch matched.
  */
 
 import { NodeTypes } from '@vue/compiler-dom';
@@ -145,10 +142,8 @@ function insertGuardBefore(node: ElementNode, conditions: string[], context: Nor
 }
 
 /**
- * Guard insertion evaluates the preceding conditions again. Only expressions with no callable,
- * assignment, update, allocation, or async evaluation may therefore cross a generated sw-block.
- * Parse failures are conservative: a normal compiler validation pass can still accept the source,
- * but this normalizer must not claim equivalent evaluation timing for syntax it cannot inspect.
+ * A guard evaluates the preceding conditions again, so only side-effect-free expressions may cross
+ * a block. What does not parse counts as unsafe.
  */
 function isSideEffectFreeCondition(expression: string): boolean {
     let parsed: t.Expression;
@@ -259,10 +254,6 @@ function walkSiblings(children: TemplateChildNode[], context: NormalizeContext):
     }
 }
 
-/**
- * Returns the markup with guard branches inserted, or the blocker when a continuation has no
- * preceding `v-if` at all — that one cannot be reconnected, only reported.
- */
 function normalizeCrossBlockConditionals(body: string): NormalizeResult {
     const ast = parseTemplate(body);
 

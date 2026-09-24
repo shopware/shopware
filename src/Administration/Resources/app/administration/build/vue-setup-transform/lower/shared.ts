@@ -2,35 +2,30 @@
  * @sw-package framework
  */
 
-/**
- * Provides shared code-generation helpers for base and override lowerers.
- *
- * Small string helpers for the two lowerers. Range-to-chunk translation lives in
- * `source-edits/transform-ranges`, which the override lowerer calls directly.
- */
+import { RESERVED_BINDING_PREFIX } from '../naming';
 
-/**
- * Escapes component names embedded in generated single-quoted strings.
- */
-function escapeSingleQuoted(value: string): string {
-    return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+const RUNTIME = `${RESERVED_BINDING_PREFIX}Runtime`;
+
+function quote(value: string): string {
+    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 }
 
-/**
- * Formats deterministic object literals for exact-string transform tests.
- */
-function formatObjectProperties(properties: string[], spaces: number): string {
+/** `__proto__: value` would set the prototype instead of an own property. */
+function propertyKey(name: string): string {
+    return name === '__proto__' ? '["__proto__"]' : name;
+}
+
+function formatObjectProperties(properties: string[], indent: number): string {
     if (properties.length === 0) {
         return '{}';
     }
 
-    const indentation = ' '.repeat(spaces);
-    const closingIndentation = ' '.repeat(spaces - 4);
+    const lines = properties.map((property) => `${' '.repeat(indent)}${property},`);
 
-    return `{\n${properties.map((property) => `${indentation}${property},`).join('\n')}\n${closingIndentation}}`;
+    return `{\n${lines.join('\n')}\n${' '.repeat(indent - 4)}}`;
 }
 
 /**
  * @private
  */
-export { escapeSingleQuoted, formatObjectProperties };
+export { RUNTIME, formatObjectProperties, propertyKey, quote };

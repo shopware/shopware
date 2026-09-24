@@ -3,9 +3,8 @@
  */
 
 import { MULTI_ROOT } from './assert-single-root';
-import { convertComponent } from './convert-component';
 import { OPTION_HANDLERS } from './option-handlers';
-import { convertFixture, fixtureNames, templateImportRange } from './spec-helpers';
+import { convertFixture, convertSource, fixtureNames } from './spec-helpers';
 import { LIFECYCLE_HOOKS, OPTION_TIERS } from './tables';
 import { TWIG_PARENT_BLOCKER, transformTemplate } from './transform-template';
 
@@ -81,21 +80,143 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.sfc).toContain('props.title');
         });
 
-        it('preserves module-level code in a normal script block', async () => {
+        it('moves module-level code into a sibling module the SFC imports what it reads from', async () => {
             const result = await convertFixture('sw-module-level-code');
 
-            expect(result.outcome).toBe('full');
-            expect(result.reasons).toEqual([]);
-            expect(result.sfc).toContain('<script data-sfc-migration-module lang="ts">');
+            expect(result).toMatchObject({ outcome: 'full', reasons: [] });
+            expect(result.sfc).not.toContain('<script data-sfc-migration-module');
+            expect(result.sfc).toContain(
+                "import { LABEL, sharedCache, buildCriteria, type Row } from './sw-module-level-code.module';",
+            );
+            expect(result.module?.fileName).toBe('sw-module-level-code.module.ts');
+            expect(result.module?.source).toContain(
+                "Shopware.Service('loginService').addOnLoginListener(() => sharedCache.clear());",
+            );
+            expect(result.module?.source).toContain('export { LABEL, sharedCache, buildCriteria, type Row };');
+            // Only the conversion itself read `Component`, so its destructure is gone.
+            expect(result.module?.source).not.toContain('const { Component } = Shopware;');
         });
 
-        // The `const { X } = Shopware` prelude is by far the most common shape in src/; widening the
-        // allowlist check to reject it would downgrade more than half of all components.
-        it('keeps a pure Shopware-namespace prelude a full migration', async () => {
+        it('keeps authored imports in the SFC and moves a Shopware read it still uses into the sibling', async () => {
             const result = await convertFixture('sw-wrap-config');
 
-            expect(result.outcome).toBe('partial');
-            expect(result.reasons).toContain('array inject declaration requires runtime ref-unwrapping verification');
+            expect(result.sfc).toContain("import './sw-wrap-config.scss';");
+            expect(result.sfc).toContain("import { Criteria } from './sw-wrap-config.module';");
+            expect(result.module?.source).toContain('const { Criteria } = Shopware.Data;');
+            expect(result.module?.source).not.toContain('Component');
+        });
+
+        it('writes no sibling module when only imports and unread Shopware reads surround the options', async () => {
+            const jsSource = `
+                import template from './sw-imports-only.html.twig';
+                import { debounce } from 'lodash-es';
+
+                /**
+                 * @sw-package framework
+                 */
+
+                const { Component } = Shopware;
+
+                export default Component.wrapComponentConfig({
+                    template,
+                    methods: {
+                        later() {
+                            return debounce(() => {}, 10);
+                        },
+                    },
+                });
+            `;
+            const importsOnly = await convertSource('sw-imports-only', jsSource);
+
+            expect(importsOnly).toMatchObject({ outcome: 'full', module: null });
+            expect(importsOnly.sfc).toContain("import { debounce } from 'lodash-es';");
+            expect(importsOnly.sfc).toContain(' * @sw-package framework');
+            expect(importsOnly.sfc).not.toContain('Shopware');
+        });
+
+        it('imports a Vue helper once when the component already imports it, and drops its lint directive', async () => {
+            const jsSource = `
+                import template from './sw-vue-import.html.twig';
+                import { computed } from 'vue';
+
+                // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+                export default {
+                    template,
+                    computed: {
+                        doubled() {
+                            return computed(() => 2).value;
+                        },
+                    },
+                };
+            `;
+            const result = await convertSource('sw-vue-import', jsSource);
+
+            expect(result).toMatchObject({ outcome: 'full', reasons: [], module: null });
+            expect(result.sfc?.match(/import \{[^}]*\bcomputed\b[^}]*\} from 'vue';/g)).toEqual([
+                "import { computed } from 'vue';",
+            ]);
+            expect(result.sfc).not.toContain('eslint-disable-next-line');
+        });
+
+        it.each([
+            [
+                'a module-level binding',
+                'const format = (value) => `#${value}`;',
+                'format',
+                'format(value)',
+            ],
+            [
+                'a global',
+                '',
+                'setTimeout',
+                'setTimeout(() => {}, 0)',
+            ],
+        ])('refuses a member named like %s the component reads', async (_label, prelude, member, use) => {
+            const jsSource = `
+                import template from './sw-outer-shadow.html.twig';
+                ${prelude}
+                export default {
+                    template,
+                    methods: {
+                        label(value) {
+                            return ${use};
+                        },
+                        ${member}(value) {
+                            return value;
+                        },
+                    },
+                };
+            `;
+            const result = await convertSource('sw-outer-shadow', jsSource);
+
+            expect(result).toMatchObject({
+                outcome: 'skipped',
+                reasons: [`binding '${member}' would shadow the module-level or global '${member}' the component reads`],
+            });
+        });
+
+        it('refuses a module-level binding the component reassigns, which an import cannot be', async () => {
+            const jsSource = `
+                import template from './sw-module-counter.html.twig';
+                let counter = 0;
+                export default {
+                    template,
+                    methods: {
+                        bump() {
+                            counter += 1;
+                            return counter;
+                        },
+                    },
+                };
+            `;
+            const result = await convertSource('sw-module-counter', jsSource);
+
+            expect(result).toMatchObject({
+                outcome: 'skipped',
+                reasons: [
+                    "module-level 'counter' is reassigned by the component, but the sibling module exports it read-only",
+                ],
+            });
         });
 
         it('skips components using this.$super', async () => {
@@ -138,23 +259,27 @@ describe('scripts/codemods/sfc-migration', () => {
             expect(result.reasons).toEqual(["binding 'routerLink' shadows a component tag the template renders"]);
         });
 
-        it('refuses a module binding that shadows the sw-block emitted by the template transform', async () => {
+        // The template only sees what the SFC imports from the sibling module, which is what the setup
+        // body reads — so an unread module binding named like a tag is harmless, a read one is refused.
+        it.each([
+            ['an unread', 'return 1;', { outcome: 'full', reasons: [] }],
+            [
+                'a read',
+                'return swBlock;',
+                {
+                    outcome: 'skipped',
+                    reasons: ["validation: binding 'swBlock' shadows a component tag the template renders"],
+                },
+            ],
+        ])('handles an %s module binding named after the emitted sw-block', async (_label, body, expected) => {
             const jsSource = `
                 import template from './sw-module-collision.html.twig';
                 const swBlock = false;
-                export default { name: 'sw-module-collision', template };
+                export default { name: 'sw-module-collision', template, methods: { read() { ${body} } } };
             `;
-            const result = await convertComponent({
-                jsSource,
-                twigSource: '{% block sw_module_collision %}<div />{% endblock %}',
-                componentName: 'sw-module-collision',
-                vuePath: '/tmp/sw-module-collision.vue',
-                lang: 'js',
-                templateImportRange: templateImportRange(jsSource),
-            });
+            const result = await convertSource('sw-module-collision', jsSource);
 
-            expect(result.outcome).toBe('skipped');
-            expect(result.reasons).toEqual(["validation: binding 'swBlock' shadows a component tag the template renders"]);
+            expect(result).toMatchObject(expected);
         });
 
         // A ref is nearly always named after the component it points at, and the `ref` attribute in
@@ -228,7 +353,7 @@ describe('scripts/codemods/sfc-migration', () => {
         it('skips a component whose twig uses {% parent %}', async () => {
             const result = await convertFixture('sw-twig-parent');
 
-            expect(result).toEqual({ outcome: 'skipped', reasons: [TWIG_PARENT_BLOCKER], sfc: null });
+            expect(result).toEqual({ outcome: 'skipped', reasons: [TWIG_PARENT_BLOCKER], sfc: null, module: null });
         });
 
         it('keeps a named slot that belongs to a child component inside the block', async () => {
@@ -255,14 +380,7 @@ describe('scripts/codemods/sfc-migration', () => {
                         },
                     };
                 `;
-            const result = await convertComponent({
-                componentName: 'sw-function-contracts',
-                jsSource,
-                twigSource: '{% block sw_function_contracts %}<div />{% endblock %}',
-                vuePath: 'sw-function-contracts.vue',
-                lang: 'ts',
-                templateImportRange: templateImportRange(jsSource),
-            });
+            const result = await convertSource('sw-function-contracts', jsSource, { lang: 'ts' });
 
             expect(result.outcome).toBe('full');
             expect(result.sfc).toContain(specialJsDoc);

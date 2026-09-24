@@ -234,6 +234,33 @@ describe('core/factory/transform-legacy-block-conditionals.ts - native template 
         expectTemplateCompiles(transformedTemplate);
     });
 
+    it('rewrites the case of the chain, not a nested element with the same directive', () => {
+        const template = `
+            <div>
+                <sw-block name="nested-block">
+                    <div><span v-if="a" class="nested">nested</span></div>
+                    <p v-if="a" class="chain-start">start</p>
+                </sw-block>
+
+                <sw-block extends="nested-block">
+                    <sw-block-parent />
+                    <p v-else class="chain-end">end</p>
+                </sw-block>
+            </div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockConditionals(template);
+
+        expect(transformedTemplate).toContain('<span v-if="a" class="nested">');
+        expect(transformedTemplate).toContain(
+            `<p v-if="$swLegacyBlockIf('nested-block:0', a, ${options(0, true, 'defaultSlot')})" class="chain-start">`,
+        );
+        expect(transformedTemplate).toContain(
+            `<p v-if="$swLegacyBlockElse('nested-block:0', ${options(0, false, 'nativeExtension')})" class="chain-end">`,
+        );
+        expectTemplateCompiles(transformedTemplate);
+    });
+
     it('leaves unrelated templates untouched', () => {
         const template = `
             <div>

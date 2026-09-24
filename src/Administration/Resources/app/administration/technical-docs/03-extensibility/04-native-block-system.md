@@ -30,7 +30,7 @@ The **native block system** replaces all of that with pure Vue 3 components. Blo
 | **Define** | `name` | Creates an extension point with default content |
 | **Override** | `extends` | Registers new content for a named extension point — **renders nothing itself** |
 
-> **`<sw-block extends>` is registration-only.** When the `extends` prop is set, `sw-block` registers its default slot in the global block registry and returns `{ template: null }` — no HTML is emitted at the location where the tag appears. The position of `<sw-block extends>` inside a template is therefore irrelevant to rendering. The only requirement is that the component is **mounted** (not blocked from mounting by an ancestor `v-if`) so that `addBlock()` is called and the slot is picked up by the target `<sw-block name>`.
+> **`<sw-block extends>` is registration-only.** When the `extends` prop is set, `sw-block` registers its default slot as a layer of the named block and renders nothing where the tag appears. The position of `<sw-block extends>` inside a template is therefore irrelevant to rendering. The only requirement is that the component is **mounted** (not blocked from mounting by an ancestor `v-if`), so that the layer is registered.
 
 ### `sw-block-parent` — the parent content placeholder
 
@@ -166,7 +166,7 @@ When there are multiple overrides and none uses `<sw-block-parent />`, only the 
 Override blocks are rendered outside the component they extend, so they have no implicit access to its reactive state. State flows through the Shopware setup transform instead:
 
 - The owning component's data scope is wired to every named `<sw-block>` by the transform, which is how `<sw-block-parent />` content keeps rendering with the base component's state.
-- Inside `<sw-block extends>` content, an override references its **own setup bindings** directly — the transform detects the references and exposes them to the block content. Public base state is read through `useSwPreviousState()`:
+- Inside `<sw-block extends>` content, an override references its **own setup bindings** directly — the transform forwards every one of them to the block content. Public base state is read through `useSwPreviousState()`:
 
 ```vue
 <template>
@@ -220,96 +220,52 @@ New named blocks are declared by the base components that own them; override fil
 
 ## How It Works Internally
 
-### The global block registry
+### The block layer registry
 
-The block system uses a module-level reactive object as its registry, exposed via the `useBlockContext` composable:
+`use-block-context.ts` keeps the layers of every block name. A layer is a render function
+`(scope, frame) => VNode[]`. Two sources feed it:
 
-```1:46:src/Administration/Resources/app/administration/src/app/composables/use-block-context.ts
-const blockContext: Record<string, Slot[]> = reactive({});
+- **Native layers**: every `<sw-block extends="...">` adds its default slot when it sets up and removes it when
+  it unmounts. The registry is a `shallowReactive` `Map<blockName, Layer[]>` whose arrays are replaced, never
+  mutated, so a registration re-renders only the blocks of that name. That is what makes an extension work when
+  it mounts after the block rendered, e.g. when both sit in one template. Vue swaps an extension's slot function
+  without a reactive signal when the scope around it changes, so an updated extension re-adds its layer.
+- **Twig layers**: the `{% block %}`s of `Component.override()` / `Component.extend()` templates, indexed at boot
+  by `twig-block-index.ts` (see [06](./06-twig-native-block-adapter.md)).
 
-function getBlocks(blockName: string): Slot[] {
-    return blockContext[blockName] ?? [];
-}
+`getBlockLayers(name, host)` merges both and orders them with one rule:
 
-function addBlock(blockName: string, block?: Slot): void {
-    if (!block) {
-        return;
-    }
-    if (!blockContext[blockName]) {
-        blockContext[blockName] = [];
-    }
-    blockContext[blockName].push(block);
-}
+1. inheritance depth: the position of the layer's component in the host's `extends` chain; a component's own
+   `Component.extend()` template comes before the overrides of that component. Native layers and components that
+   are not in the chain count as the base;
+2. priority: the override index passed to `Component.override()`, `0` otherwise;
+3. Twig layers before native layers;
+4. registration order.
 
-function removeBlock(blockName: string, block?: Slot): void {
-    if (!block) {
-        return;
-    }
-    if (!blockContext[blockName]) {
-        return;
-    }
-    blockContext[blockName] = blockContext[blockName].filter((b) => b !== block);
-
-    if (blockContext[blockName].length === 0) {
-        delete blockContext[blockName];
-    }
-}
-```
-
-The registry maps a block name to an ordered array of Vue `Slot` functions. Every `sw-block extends="..."` adds its default slot to this array on mount and removes it on `onBeforeUnmount`.
+With default priorities this gives `default content → Twig overrides → native overrides`, and for Twig layers
+it is the order in which TwigJS merges the same templates.
 
 ### `sw-block` render logic
 
-```148:180:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block/index.ts
-        const template = computed(() => {
-            if (!props.name) {
-                throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
-            }
+A `<sw-block name>` renders every layer in order, bottom first, within one render:
 
-            // shimSlots come before nativeBlocks so that Twig plugin overrides (registered
-            // at boot time) are positioned below native <sw-block extends> overrides
-            // (registered at mount time), matching the expected stacking order:
-            //   default → shim (legacy plugin) → native (newer plugin or core extension)
-            const nativeBlocks = getBlocks(props.name);
-            const blocksAndParent = [
-                slots.default ?? (() => []),
-                ...shimSlots,
-                ...nativeBlocks,
-            ];
-            const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
+```ts
+const scope = props.data ?? getBlockDataScope(host);
+const rendered = [slots.default?.(scope) ?? []];
+getBlockLayers(props.name, host).forEach((layer) => rendered.push(layer.render(scope, frame)));
 
-            const lastNode = blocksNodes.pop();
-            // Each <sw-block-parent /> calls .pop() exactly once in its own setup()
-            // to claim its parent slot. The array must be reset to the current render's
-            // ordered list so that each parent instance pops the correct slot — not a
-            // stale or accumulated list from a previous render cycle.
-            providedParents.value = blocksNodes;
-            return lastNode;
-        });
-
-        return {
-            template,
-        };
-    },
-    render() {
-        return reduceToSingleRoot(this.template);
-    },
-});
+return rendered.length === 1 ? reduceToSingleRoot(rendered[0]) : h(SwBlockLayers, { layers: rendered });
 ```
 
-`shimSlots` is built once in `setup()` from the legacy TwigJS overrides for this block name (via `getBlockEntries`), giving each shim a stable VNode type so reactive updates don't remount it.
+- `host` is the component whose template declares the block (`vnode.ctx`), not the component that renders it
+  into a slot. Without `:data` the block uses the host's data scope, so slot patterns never destructure `null`.
+- A block without layers renders its default content directly: no extra component, no provide.
+- Rendering all layers in one pass, in order, is what lets the legacy `v-if` bridge see earlier cases first.
+- `SwBlockLayers` renders the top layer and receives the rendered layers as a prop. Every `<sw-block-parent>`
+  below reads them from there, so it re-renders whenever the block renders new layers, without any reactive
+  state written during render.
 
-The key steps when rendering a **named block** (`name` prop):
-
-1. Build the ordered slot array `[defaultSlot, ...shimSlots, ...nativeBlocks]` — the default content, then legacy Twig-plugin overrides (shim slots), then native `<sw-block extends>` overrides from `getBlocks(name)`
-2. Call each slot function with the `data` prop (making scope available)
-3. **Pop the last element** — that is what actually gets rendered
-4. **Assign all others** to the `providedParents` ref (exposed via `provide`), replacing the previous list so stale entries are released
-5. **Reduce the winning slot's nodes to a single root** where it has one, so the block renders that node rather than a fragment around it
-
-This is why the last registered override wins when no `<sw-block-parent />` is used.
-
-#### Why the reduction in step 5 matters
+#### Why the single-root reduction matters
 
 Calling a slot yields an array, and Vue turns any array — even one of length 1 — into a fragment. A
 component rendering a fragment has no root element, so Vue has nowhere to put the attributes a
@@ -328,78 +284,33 @@ with an unmount plus remount.
 
 ### `sw-block-parent` render logic
 
-```16:42:src/Administration/Resources/app/administration/src/app/component/structure/sw-block-override/sw-block-parent/index.ts
-export default Shopware.Component.wrapComponentConfig({
-    setup() {
-        const parents = inject(parentsInjectionKey, null);
-        const initialParents = parents?.value;
-        const initialParent = initialParents?.pop();
-        const parentIndex = initialParents ? initialParents.length : -1;
-        // Reserve the stack slot once, then read the current VNode at that slot after reactive parent updates.
-        const parent = computed(() => {
-            if (parentIndex < 0 || !parents || parents.value === initialParents) {
-                return initialParent;
-            }
-
-            return parents.value[parentIndex];
-        });
-
-        return {
-            parent,
-        };
-    },
-    // The parent content is returned directly instead of through a wrapping functional component:
-    // a fresh arrow function as the VNode type on every render reads to Vue as a different
-    // component and makes it unmount plus remount the content, and a functional component would
-    // additionally swallow every fallthrough attribute except class, style and listeners.
-    render() {
-        return reduceToSingleRoot(this.parent);
-    },
-});
-```
-
-`sw-block-parent` **injects** the `providedParents` array from the nearest ancestor `sw-block` (via Vue's provide/inject using a Symbol key) and **pops** its last element **once** during `setup()`, claiming the previous block in the chain. It remembers that slot index and reads it through a `computed`, so when `sw-block` re-renders and replaces `providedParents.value`, the parent re-reads the current VNode at its reserved slot instead of popping again. It renders that as its output, through the same single-root reduction `sw-block` uses.
+`SwBlockLayers` provides `{ layers, index: top - 1 }`. A `<sw-block-parent>` injects the nearest context, renders
+`layers[index]` and provides `index - 1` to its own subtree. The layer is therefore found by the position of the
+`<sw-block-parent>` in the tree, not by setup order, so it works inside `v-if`, `v-for`, lazy tabs, modals and
+async components. Outside of a layer it renders nothing.
 
 ### Data flow diagram
 
 ```
-Component with <sw-block name="foo"> (data scope wired by the setup transform)
+<sw-block name="foo">                       layers: default, Twig shim, native override
 │
-│  Mount
+│  render: rendered = [default(scope), shim(scope), native(scope)]
+│  → <SwBlockLayers :layers="rendered">     provides index 1, renders rendered[2]
 │
-│  Compose [defaultSlot, ...shimSlots, ...getBlocks("foo")]
-│  → [defaultSlot, shimSlot, nativeSlot]   (one legacy shim, one native override)
+│       ↓ inside the native override ↓
+│  <sw-block-parent />                      injects index 1, renders rendered[1], provides index 0
 │
-│  Call each slot with $dataScope
-│  → [defaultVNodes, shimVNodes, nativeVNodes]
-│
-│  providedParents.value = [defaultVNodes, shimVNodes]
-│  render → nativeVNodes   ← last one wins
-│
-│       ↓ inside nativeVNodes template ↓
-│
-│  <sw-block-parent />
-│  setup() reserves slot 1, computed reads providedParents.value[1]
-│  → shimVNodes   ← previous in chain
-│
-│       ↓ inside shimVNodes template ↓
-│
-│  <sw-block-parent />
-│  setup() reserves slot 0, computed reads providedParents.value[0]
-│  → defaultVNodes
+│       ↓ inside the Twig shim ↓
+│  <sw-block-parent />                      injects index 0, renders rendered[0] (default content)
 ```
 
 ---
 
 ## Lifecycle Reactivity
 
-Because override `sw-block` components register and deregister themselves using Vue's lifecycle hooks, the system is fully reactive to mounting and unmounting:
-
-- An override's content appears as soon as the `sw-block extends="..."` mounts
-- It disappears when it unmounts (e.g., when a plugin's component is conditionally hidden with `v-if`)
-- Multiple mount/unmount cycles do not accumulate duplicates
-
-This is verified in the test suite — toggling `v-if` on an override component correctly adds and removes its contribution without leaving stale entries.
+- An override's content appears as soon as its `<sw-block extends="...">` mounts, wherever it is placed.
+- It disappears when it unmounts (e.g., when a plugin's component is conditionally hidden with `v-if`).
+- Mounting an extension again does not register it twice.
 
 ---
 
@@ -408,7 +319,7 @@ This is verified in the test suite — toggling `v-if` on an override component 
 | Aspect | TwigJS `{% block %}` | Native `<sw-block>` |
 |--------|----------------------|---------------------|
 | Template file | `.html.twig` | Vue SFC `<template>` |
-| Resolution time | Build-time string merge | Vue reactive runtime |
+| Resolution time | Runtime string merge | Vue render |
 | Parent content | `{% parent %}` | `<sw-block-parent />` |
 | Data access | Via `$super`, `this` in JS | Setup bindings (`useSwPreviousState()`, generated block scope) |
 | TypeScript support | None inside templates | Full (slot typing, props) |
@@ -434,40 +345,9 @@ From the ADR (`2024-09-26-native-block-system.md`):
 
 **Slot composition breakage** — placing an `sw-block` between a `<template #slot>` and its intended parent component disrupts Vue's slot composition.
 
-**`<sw-block-parent />` inside `v-for`** — prohibited. Each list iteration creates a separate `sw-block-parent` instance, and each calls `.pop()` on the shared `providedParents` array during `setup()`. Multiple pops in a single render pass consume more parent slots than intended, silently corrupting the chain:
-
-```html
-<!-- ❌ Multiple instances each pop() a different slot from the chain -->
-<sw-block extends="sw_product_detail_summary">
-    <template v-for="item in items">
-        <sw-block-parent />
-    </template>
-</sw-block>
-```
-
-**`<sw-block-parent />` inside `v-if`** — unsupported. A toggle that unmounts then remounts `<sw-block-parent />` re-runs `setup()`, which calls `.pop()` again. The parent `sw-block` resets `providedParents` in its `template` computed on each re-render, but the interleaving between that reset and the child's mount order is not guaranteed to be safe:
-
-```html
-<!-- ❌ Re-mounting sw-block-parent calls .pop() again -->
-<sw-block extends="sw_product_detail_summary">
-    <sw-block-parent v-if="condition" />
-    <div>My content</div>
-</sw-block>
-```
-
-**`v-if` / `v-else` directly on `<sw-block-parent />`** — prohibited. `<sw-block-parent />` must not be part of a Vue conditional chain. It must always render unconditionally inside an extending block, otherwise local `v-else` branches can break the parent chain resolution:
-
-```html
-<!-- ❌ Conditional sw-block-parent breaks the parent chain -->
-<sw-block extends="sw_product_detail_summary">
-    <sw-block-parent v-if="showParent" />
-    <div v-else>Local fallback</div>
-</sw-block>
-```
-
 **Override-local state needs a native-setup host** — an override's `<sw-block extends>` content can read the override's own setup bindings (the transform forwards them through the block's generated data scope). That forwarding only works when the component actually rendering the block is itself a native-setup (Composition API) component. If the block is rendered by an Options API component, the block data scope has no override-local (`__swOverride`) channel, so override-local bindings are not available there. Read shared base state through `useSwPreviousState()` instead, which does not depend on this channel.
 
-**`<sw-block extends>` inside `v-for`** — prohibited. Each iteration independently calls `addBlock()`, registering a separate override entry per list item and causing the override content to be rendered multiple times:
+**`<sw-block extends>` inside `v-for`** — prohibited. Each iteration independently registers a layer, registering a separate override entry per list item and causing the override content to be rendered multiple times:
 
 ```html
 <!-- ❌ Registers one override per list item -->
@@ -504,7 +384,7 @@ From the ADR (`2024-09-26-native-block-system.md`):
 
 Rename one side; `vue/no-dupe-keys` does not cover this case, and nothing fails at build time.
 
-> **Note:** `<sw-block extends>` inside `v-if` is explicitly **supported**. The `addBlock`/`removeBlock` lifecycle hooks handle registration and deregistration correctly as the component mounts and unmounts. See [Lifecycle Reactivity](#lifecycle-reactivity) above.
+> **Note:** `<sw-block extends>` inside `v-if` is explicitly **supported**: the layer is registered on mount and removed on unmount. See [Lifecycle Reactivity](#lifecycle-reactivity) above.
 
 ---
 
@@ -514,6 +394,6 @@ The `sw-block` system replaces TwigJS block inheritance with two Vue components:
 
 - `<sw-block name="...">` — declares an extension point with default content; reactively incorporates any registered overrides at render time
 - `<sw-block extends="...">` — registers override content for a named block; renders nothing itself, just adds its slot to the global registry
-- `<sw-block-parent />` — renders the previous content in the chain (default or prior override), via Vue's provide/inject
+- `<sw-block-parent />` — renders the previous content in the chain (default or prior override), found by its position in the tree
 
-The global block registry (`useBlockContext`) is a reactive module-level map of block names to ordered slot arrays. The last registered override is always the outermost render layer; `<sw-block-parent />` walks backwards through the chain via Vue's `inject`.
+The block layer registry (`useBlockContext`) maps block names to layers, native and Twig alike, ordered by one rule. The last layer is the outermost one; `<sw-block-parent />` walks backwards through the chain via Vue's `inject`.

@@ -47,6 +47,7 @@ export default {
     getComponentTemplate,
     getComponentRegistry,
     getOverrideRegistry,
+    getResolvedOverrideConfigs,
     getComponentHelper,
     _clearComponentHelper,
     registerComponentHelper,
@@ -84,6 +85,7 @@ type IndexedAwaitedComponentConfig = {
     config: AwaitedComponentConfig;
 };
 const overrideRegistry = new Map<string, IndexedAwaitedComponentConfig[]>();
+const resolvedOverrideConfigs = new WeakMap<AwaitedComponentConfig, ComponentConfig>();
 
 /**
  * Registry for globally registered helper functions like src/app/service/map-error.service.ts
@@ -128,6 +130,15 @@ function getComponentRegistry(): Map<string, AwaitedComponentConfig> {
  */
 function getOverrideRegistry(): Map<string, IndexedAwaitedComponentConfig[]> {
     return overrideRegistry;
+}
+
+/**
+ * Returns the override configs of a component in index order, with `null` for every override that was
+ * not resolved yet. `build()` resolves all of them.
+ * @private
+ */
+function getResolvedOverrideConfigs(componentName: string): Array<ComponentConfig | null> {
+    return (overrideRegistry.get(componentName) ?? []).map((entry) => resolvedOverrideConfigs.get(entry.config) ?? null);
 }
 
 /**
@@ -543,6 +554,32 @@ function register(componentName: string, componentConfiguration: unknown): unkno
 }
 
 /**
+ * Registers the Twig blocks of a component template as layers of the native `<sw-block>`s of the same name.
+ * Object configs are indexed right away, function configs once they resolve, which `initComponent()` awaits for
+ * every component before Vue mounts anything. Returns the indexer for the resolved template.
+ */
+function indexTwigBlocks(
+    componentName: string,
+    componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>),
+    options: { priority?: number; scoped?: boolean },
+): (resolvedTemplate: unknown) => void {
+    const indexedNow =
+        typeof componentConfiguration === 'object' &&
+        componentConfiguration !== null &&
+        typeof componentConfiguration.template === 'string';
+
+    if (indexedNow) {
+        indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string, options);
+    }
+
+    return (resolvedTemplate) => {
+        if (!indexedNow && typeof resolvedTemplate === 'string') {
+            indexTwigBlocksFromTemplate(componentName, resolvedTemplate, options);
+        }
+    };
+}
+
+/**
  * Create a new component extending from another existing component.
  * @public
  */
@@ -552,6 +589,7 @@ function extend(
     componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>) = { name: '' },
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
+    const indexResolvedTemplate = indexTwigBlocks(componentName, componentConfiguration, { scoped: true });
 
     const configurationResolveMethod = async (): Promise<ComponentConfig> => {
         if (config) {
@@ -577,6 +615,8 @@ function extend(
         config = { ...awaitedConfigResult };
 
         if (config.template) {
+            indexResolvedTemplate(config.template);
+
             /**
              * Register the main template of the component based on the extended component.
              */
@@ -612,22 +652,7 @@ function override(
     overrideIndex: number | null = null,
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
-
-    /**
-     * For sync object configs the block index is populated here, before any
-     * `<sw-block>` mounts. For async function configs it is populated inside
-     * `configResolveMethod` when awaited — this relies on `initComponent()` being
-     * called for all components before Vue mounts anything. If that boot order
-     * changes, async Twig overrides will silently produce no output.
-     */
-    const isSyncWithTemplate =
-        componentConfiguration !== null &&
-        typeof componentConfiguration !== 'function' &&
-        typeof componentConfiguration.template === 'string';
-
-    if (isSyncWithTemplate) {
-        indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string);
-    }
+    const indexResolvedTemplate = indexTwigBlocks(componentName, componentConfiguration, { priority: overrideIndex ?? 0 });
 
     const configResolveMethod = async (): Promise<ComponentConfig> => {
         if (config) {
@@ -653,18 +678,15 @@ function override(
         config.name = componentName;
 
         if (config.template) {
-            // Async-only path: direct-object configs were already indexed synchronously
-            // above so the block index is ready before any <sw-block> setup() runs.
-            if (!isSyncWithTemplate) {
-                indexTwigBlocksFromTemplate(componentName, config.template as string);
-            }
-
+            indexResolvedTemplate(config.template);
             TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
 
             // The merged template (default + all overrides) is compiled later by
             // TemplateFactory, so the raw string on the config object is no longer needed.
             delete config.template;
         }
+
+        resolvedOverrideConfigs.set(configResolveMethod, config);
 
         return config;
     };
@@ -750,15 +772,16 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         // clone the override configuration to prevent side-effects to the config
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
-        // Resolve all override configs in parallel, then separate by type
         const resolvedEntries = await Promise.all(overrides!.map((overrideEntry) => overrideEntry.config()));
 
         const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
             (resolvedConfig) => () => Promise.resolve(resolvedConfig),
         );
 
-        // Continue with standard Options API overrides
-        if (standardOverrideConfigs.length > 0) {
+        // A native setup component renders itself and applies Options API overrides in its own setup
+        // through the compatibility shim. Merging them through `extends` as well would run them twice and
+        // leave the merged config without a render function.
+        if (standardOverrideConfigs.length > 0 && !isNativeSetupComponent(config)) {
             const convertedOverrides = await convertOverrides(standardOverrideConfigs, config);
 
             convertedOverrides.forEach((overrideComp) => {
@@ -1206,6 +1229,12 @@ function resolveGetterSetterChain(
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return extension[methodsOrComputed][methodName][cmd];
+}
+
+function isNativeSetupComponent(config: ComponentConfig): boolean {
+    return (
+        typeof config.setup === 'function' && (typeof config.render === 'function' || config._renderedBySfcTemplate === true)
+    );
 }
 
 /**

@@ -6,7 +6,7 @@ import { stripIndent, transformOrFail } from './helpers';
 import { expectGeneratedTokenUnmapped, expectUnmapped } from './sourcemap-helpers';
 
 describe('build/vue-setup-transform sourcemap generated code', () => {
-    it('does not map the generated attachOverrides footer to user source', () => {
+    it('does not map the generated runtime header and footer to user source', () => {
         expect.hasAssertions();
 
         const source = stripIndent`
@@ -33,10 +33,10 @@ describe('build/vue-setup-transform sourcemap generated code', () => {
 
         const result = transformOrFail(source, 'generated-footer.vue');
 
-        // The author body stays in place (macros untouched, bindings renamed), so the footer is the only
-        // transform-authored code in a base block and the only thing that must stay unmapped. A base
-        // block emits no generated headers at all - its body runs as a native <script setup>.
-        expectGeneratedTokenUnmapped(result, 'Shopware.Component.attachOverrides({');
+        // The author body stays in place (macros untouched, bindings renamed); the runtime header and the
+        // footer are the only transform-authored code in a base block.
+        expectGeneratedTokenUnmapped(result, 'const __swSetupRuntime = globalThis.Shopware.Component.__setupRuntime.v1;');
+        expectGeneratedTokenUnmapped(result, '__swSetupRuntime.attach({');
     });
 
     it('does not map the generated override setup-input headers to user source', () => {
@@ -144,7 +144,11 @@ swDefineOverride({
 
         const result = transformOrFail(source, 'generated-bridge.override.vue');
 
-        expectUnmapped(result, 'overrideComponentSetup');
+        expectUnmapped(result, '__setupRuntime.v1.override');
+        expectGeneratedTokenUnmapped(
+            result,
+            '<script setup>/* exposes the module-scope bindings to the template */</script>',
+        );
     });
 
     it('does not map generated code when macros, template edits, and script lowering happen together', () => {
@@ -182,7 +186,8 @@ swDefineOverride({
 
         const result = transformOrFail(source, 'combined-edits.vue');
 
+        expectGeneratedTokenUnmapped(result, 'const __swSetupLate = __swSetupRuntime.late({');
         expectGeneratedTokenUnmapped(result, ':data="$dataScope"');
-        expectGeneratedTokenUnmapped(result, 'Shopware.Component.attachOverrides({');
+        expectGeneratedTokenUnmapped(result, '__swSetupRuntime.attach({');
     });
 });

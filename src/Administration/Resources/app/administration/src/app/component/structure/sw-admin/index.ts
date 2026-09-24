@@ -37,11 +37,11 @@ export default Shopware.Component.wrapComponentConfig({
         /**
          * @private
          *
-         * Generated override components, rendered once in a hidden container so their setup bodies run and
-         * register their override callbacks. Internal to the composition extension system.
+         * Native setup overrides with `<sw-block extends>` content. They are mounted once, hidden, because their
+         * block content only reaches the base component through that mount.
          */
         overrideComponents() {
-            return Component.getOverrideComponents();
+            return Component.__setupRuntime.v1.getComponents();
         },
     },
 

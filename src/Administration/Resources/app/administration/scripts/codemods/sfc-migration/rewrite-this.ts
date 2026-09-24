@@ -3,15 +3,13 @@
  */
 
 /**
- * The scope-aware `this.*` rewrite pass. Traverses collected member functions with @babel/traverse
- * and overwrites every component-bound `this` reference in the MagicString: data/computed →
- * `x.value`, props → `props.x`, methods/injects → `x`, instance properties via the INSTANCE_PROPS
- * table. References the tables cannot map become TODO entries — never a wrong rewrite.
+ * The scope-aware `this.*` rewrite pass: data/computed → `x.value`, props → `props.x`,
+ * methods/injects → `x`, instance properties via INSTANCE_PROPS. What the tables cannot map becomes
+ * a TODO, never a wrong rewrite.
  *
- * Every rewrite emits a bare root identifier, so it is only correct while no local binding of that
- * name is in scope at the emit site: `onChange(perPage) { this.perPage = perPage; }` must not become
- * `perPage.value = perPage`. Babel's scope chain answers that, walked only up to the scope
- * surrounding the pass root — above it live the component's own members, which are not shadowing.
+ * A rewrite emits a bare identifier, so it is only correct while no local of that name is in scope:
+ * `onChange(perPage) { this.perPage = perPage; }` must not become `perPage.value = perPage`. The
+ * scope walk stops at the pass root, above which live the component's own members.
  */
 
 import type { NodePath } from '@babel/core';
@@ -42,11 +40,9 @@ const REBINDS_THIS = new Set<string>([
     'ClassExpression',
 ]);
 
-/** The boundaries of one rewrite pass, so the visitor is a pure function of the visited path. */
 /**
- * Second arguments of `$t` that mean the same to legacy `$t` and to Composition `t()`: an object of
- * named values, a list, or a plural count. A count is only recognized where it provably is a number —
- * anything whose type could be a string has to be treated as a locale.
+ * Second arguments of `$t` that mean the same to legacy `$t` and Composition `t()`: named values, a
+ * list, or a count that provably is a number — anything that could be a string may be a locale.
  */
 function isPortableI18nArgument(node: t.Node): boolean {
     switch (node.type) {
@@ -67,14 +63,9 @@ function isPortableI18nArgument(node: t.Node): boolean {
 }
 
 /**
- * The legacy vue-i18n call shapes Composition `t()` reads differently, described for a TODO comment.
- *
- * `INSTANCE_PROPS` maps `$t` and `$tc` onto `t` unconditionally, which is only right where the
- * arguments mean the same in both APIs: `$t(key)`, `$t(key, values)`, `$t(key, list)`, `$t(key,
- * plural)` and `$tc(key, choice)` all do. A locale as `$t`'s second argument does not — Composition
- * `t()` takes a default message there and would render the locale itself — and neither does `$tc`'s
- * third `values` argument, where Composition `t()` expects TranslateOptions and drops the
- * interpolation. Both need the locale or the values moved, which is a call rewrite, not a rename.
+ * The legacy vue-i18n call shapes Composition `t()` reads differently: a locale as `$t`'s second
+ * argument (read as a default message) and `$tc`'s third `values` argument (read as options). Both
+ * need a call rewrite, not the rename INSTANCE_PROPS applies.
  */
 function legacyI18nShape(call: t.CallExpression, name: string): { reason: string; explanation: string } | null {
     if (name === '$t' && call.arguments.length >= 2 && !isPortableI18nArgument(call.arguments[1])) {
@@ -95,6 +86,7 @@ function legacyI18nShape(call: t.CallExpression, name: string): { reason: string
     return null;
 }
 
+/** The boundaries of one rewrite pass, so the visitor is a pure function of the visited path. */
 type Pass = {
     ctx: Ctx;
     /** `this` semantics at the pass root — ancestors below `stopAt` can only revoke it. */
@@ -119,7 +111,6 @@ function thisIsComponent(pass: Pass, path: NodePath): boolean {
     return true;
 }
 
-/** True when a bare `name` emitted here would resolve to a local binding instead of the setup one. */
 function isShadowed(pass: Pass, path: NodePath, name: string): boolean {
     for (let scope: Scope | undefined = path.scope; scope && scope !== pass.outerScope; scope = scope.parent) {
         if (scope.hasOwnBinding(name)) {
@@ -130,7 +121,7 @@ function isShadowed(pass: Pass, path: NodePath, name: string): boolean {
     return false;
 }
 
-/** `this.$refs.x` → `x.value`, handled on the outer member so the ref name is known. */
+/** Handled on the outer member, where the ref name is known. */
 function rewriteRefsAccess(pass: Pass, node: t.MemberExpression, path: NodePath, isComponent: boolean): boolean {
     const { ctx } = pass;
 
@@ -147,8 +138,7 @@ function rewriteRefsAccess(pass: Pass, node: t.MemberExpression, path: NodePath,
         return false;
     }
 
-    // The shadowed case must not register the ref either — transform-script would emit a
-    // `const x = ref(null)` that nothing ever assigns.
+    // Not registered either: nothing would ever assign the `ref(null)`.
     report(
         ctx,
         'todo',
@@ -185,7 +175,7 @@ function rewriteThisMember(pass: Pass, node: t.MemberExpression, path: NodePath,
     const instanceProp = INSTANCE_PROPS[name];
 
     if (instanceProp) {
-        // Bail before registering the helper, so a shadowed reference does not declare an unused one.
+        // Checked before the helper is registered, so a shadowed reference declares no unused one.
         if (isShadowed(pass, path, instanceProp.replacement)) {
             report(ctx, 'todo', `this.${name} is shadowed by a local binding`);
             return false;
@@ -242,7 +232,6 @@ function visit(pass: Pass, path: NodePath): boolean {
 
     const isComponent = thisIsComponent(pass, path);
 
-    // `this.$emit('event', ...)`: infer the emits declaration from literal event names.
     if (node.type === 'CallExpression' && isComponent && isThisMember(node.callee) && memberName(node.callee) === '$emit') {
         const event = node.arguments[0];
 
@@ -271,8 +260,8 @@ function visit(pass: Pass, path: NodePath): boolean {
     if (isThisMember(node)) {
         const name = memberName(node);
 
-        // The callee of a legacy i18n call is left as authored, so the draft shows the shape a human
-        // has to decide on. Its arguments are ordinary component code and keep rewriting.
+        // The callee of a legacy i18n call stays as authored for a human to decide; its arguments
+        // keep rewriting.
         if (
             isComponent &&
             name !== null &&
@@ -295,9 +284,8 @@ function visit(pass: Pass, path: NodePath): boolean {
 }
 
 /**
- * `rootIsRewritten` distinguishes the two entry points: a spliced-in node is itself part of the
- * rewritten region, so its own `this` rebinding applies, whereas a member function *is* the
- * component frame and only its interior can rebind.
+ * A spliced-in node is itself part of the rewritten region, so its own `this` rebinding applies; a
+ * member function *is* the component frame and only its interior can rebind.
  */
 function runPass(ctx: Ctx, root: NodePath, baseIsComponent: boolean, rootIsRewritten: boolean): void {
     const pass: Pass = {
@@ -320,7 +308,6 @@ function runPass(ctx: Ctx, root: NodePath, baseIsComponent: boolean, rootIsRewri
     });
 }
 
-/** Rewrites every component-bound `this.*` inside `node`, which is spliced in as-is. */
 function rewriteThis(ctx: Ctx, node: t.Node, thisIsComponentAtNode: boolean): void {
     const root = ctx.paths.get(node);
 
@@ -329,10 +316,7 @@ function rewriteThis(ctx: Ctx, node: t.Node, thisIsComponentAtNode: boolean): vo
     }
 }
 
-/**
- * Rewrites a member function's body with component `this` semantics. Arrow-function members never
- * had component `this` in the Options API either, so their contents are treated as foreign.
- */
+/** An arrow-function member never had component `this`, so its contents are foreign. */
 function rewriteMemberFn(ctx: Ctx, fn: FnLike): void {
     const root = ctx.paths.get(fn.fnNode);
 

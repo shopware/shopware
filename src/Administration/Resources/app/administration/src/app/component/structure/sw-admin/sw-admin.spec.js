@@ -189,6 +189,18 @@ describe('src/app/component/structure/sw-admin/index.ts', () => {
         expect(wrapper.findComponent('.mt-toast').emitted('remove-toast')).toHaveLength(1);
     });
 
+    it('mounts every registered override component once in the hidden container', async () => {
+        const overrideComponent = { name: 'sw-admin-test-override', template: '<span class="sw-admin-test-override" />' };
+        Shopware.Component.__setupRuntime.v1.registerComponent(overrideComponent);
+        Shopware.Component.__setupRuntime.v1.registerComponent(overrideComponent);
+
+        wrapper = await createWrapper(false);
+        const container = wrapper.find('#overrideComponents');
+
+        expect(container.attributes('style')).toContain('display: none');
+        expect(container.findAll('.sw-admin-test-override')).toHaveLength(1);
+    });
+
     it('should add snackbar notification', async () => {
         wrapper = await createWrapper(true, () => {}, 'sw.wofoo.index', { 'mt-snackbar': MtSnackbar });
 

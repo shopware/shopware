@@ -44,13 +44,13 @@ Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Web
 
 ## Composition API extension system is no longer a public entry point
 
-The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
+The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with `Shopware.Component.attachOverrides()` and `Shopware.Component.__setupRuntime`.
 
-The same applies to the override-component mounting hooks `Shopware.Component.registerOverrideComponent()` and `Shopware.Component.getOverrideComponents()`, which exist so a generated override component can be rendered once, hidden, at boot — that is what causes its setup body to run and register its override callback.
+The same applies to the override-component mounting hooks `Shopware.Component.registerOverrideComponent()` and `Shopware.Component.getOverrideComponents()`, which render override components that extend `<sw-block>` content once, hidden, at boot.
 
-Nothing is removed from the `Shopware.Component` global — generated component code resolves these at runtime — but they are no longer intended to be called directly, and their signatures may change without a deprecation.
+Nothing is removed from the `Shopware.Component` global — generated component code resolves these at runtime through the versioned `Shopware.Component.__setupRuntime.v1` object — but they are no longer intended to be called directly, and their signatures may change without a deprecation.
 
-Write native setup SFCs instead. The build-time transform emits these calls for you: a base component (`sw-thing.vue`) keeps its `<script setup>` body and gains a generated `attachOverrides(...)` footer, and an override (`sw-thing.override.vue`) registers its callback through `overrideComponentSetup()`. Extension points are declared with `swDefinePublic({ ... })` in the base and consumed with `swDefineOverride({ ... })` in the override.
+Write native setup SFCs instead. The build-time transform emits these calls for you: a base component (`sw-thing.vue`) keeps its `<script setup>` body and gains a generated `__setupRuntime.v1.attach(...)` footer, and an override (`sw-thing.override.vue`) registers its callback through `__setupRuntime.v1.override(...)` when its module is imported. Extension points are declared with `swDefinePublic({ ... })` in the base and consumed with `swDefineOverride({ ... })` in the override.
 
 See `src/Administration/Resources/app/administration/technical-docs/03-extensibility/07-native-setup-authoring.md` for the authoring rules.
 
@@ -1382,7 +1382,7 @@ Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, p
 
     // method — call the original via previousState
     async function loadData() {
-        await previousState.loadData.value();
+        await previousState.loadData();
         customFilters.value = await fetchCustomFilters();
     }
 
@@ -1394,12 +1394,10 @@ Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, p
         if (val) loadData();
     });
 
+    // customFilters, isCustomMode and fetchCustomFilters stay local: only return bindings the component has
     return {
-        customFilters,
-        isCustomMode,
         columns,
         loadData,
-        fetchCustomFilters,
     };
 });
 ```
@@ -1409,7 +1407,7 @@ Shopware.Component.overrideComponentSetup()('sw-product-list', (previousState, p
 | Concept | Options API (`override`) | Composition API (`overrideComponentSetup`) |
 |---|---|---|
 | Reactive state | `data()` returning an object | `ref()` / `reactive()` |
-| Calling the original method | `this.$super('methodName')` | `previousState.methodName.value()` |
+| Calling the original method | `this.$super('methodName')` | `previousState.methodName()` |
 | Accessing original computed | `this.$super('columns')` | `previousState.columns.value` |
 | Watching state | `watch: { prop: handler }` | `watch(ref, handler)` |
 | Accessing props | `this.myProp` | `props.myProp` |

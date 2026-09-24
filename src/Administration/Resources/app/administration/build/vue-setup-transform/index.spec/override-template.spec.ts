@@ -1,22 +1,19 @@
 /**
  * @sw-package framework
  *
- * Covers which override-local setup bindings reach a `<sw-block extends>` slot scope.
- *
- * These are the positive cases: reference detection across Vue expression positions, input-alias
- * forwarding, and the scope rules that decide a binding is *not* forwarded (v-for aliases, slot
- * scopes, nested callback patterns). Rejections live in `override-template-guards.spec.ts`.
+ * Covers how override-local bindings reach `<sw-block extends>` content: every one of them is forwarded
+ * through the generated slot scope, and Vue's own scoping decides what the content reads. Rejections
+ * live in `override-template-guards.spec.ts`.
  */
 
-import { stripIndent, stripWhitespace, transformOrFail } from './helpers';
+import { expectVueCompilerScriptToCompile, stripIndent, stripWhitespace, transformOrFail } from './helpers';
 
 describe('build/vue-setup-transform override template forwarding', () => {
-    it('returns template-used override-local state through a deterministic private namespace', () => {
+    it('forwards every override local, public ones by name and the rest under the namespace', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
                 <p>{{ body }}</p>
-                <small>{{ info }}</small>
             </sw-block>
             </template>
             <script setup lang="ts">
@@ -24,7 +21,7 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
             const previousState = useSwPreviousState();
             const info = ref('local');
-            const unused = ref('not exposed');
+            const unused = ref('not read by the template');
             const body = computed(() => previousState.body.value + info.value);
 
             swDefineOverride({
@@ -36,7 +33,7 @@ describe('build/vue-setup-transform override template forwarding', () => {
         const result = transformOrFail(source, 'src/plugin/sw-example-component.override.vue').code;
 
         expect(result).toContain(
-            `<sw-block extends="sw_example_component_body" #default="{ __swOverride: { [__swSetupNamespace]: { info } }, body }">`,
+            '<sw-block extends="sw_example_component_body" #default="{ __swOverride: { [__swSetupNamespace]: { info, unused, previousState } = {} } = {}, body }">',
         );
         expect(stripWhitespace(result)).toContain(stripWhitespace`
             return {
@@ -44,14 +41,84 @@ describe('build/vue-setup-transform override template forwarding', () => {
                 __swOverride: {
                     [__swSetupNamespace]: {
                         info,
+                        unused,
+                        previousState,
                     },
                 },
             };
         `);
-        expect(result).not.toContain('unused,');
+        expectVueCompilerScriptToCompile(result, 'sw-example-component.override.vue');
     });
 
-    it('does not add generated data scope to override sw-block extensions', () => {
+    it('keeps the slot scope destructurable for hosts without override-local state', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <p>{{ info }}</p>
+            </sw-block>
+            </template>
+            <script setup>
+            const info = 'local';
+            const headline = 'public';
+
+            swDefineOverride({ headline });
+            </script>
+        `;
+
+        const pattern = /#default="([^"]+)"/.exec(transformOrFail(source, 'defaults.override.vue').code)?.[1];
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        const createSlot = new Function('__swSetupNamespace', `return (${pattern}) => [info, headline];`) as (
+            namespace: symbol,
+        ) => (scope: object) => unknown[];
+        const slot = createSlot(Symbol('ns'));
+
+        // Options API hosts and nested Twig blocks pass no `__swOverride` entry at all.
+        expect(slot({ headline: 'host' })).toEqual([undefined, 'host']);
+        expect(slot({ __swOverride: {} })).toEqual([undefined, undefined]);
+    });
+
+    it('forwards every useSw* alias, since the content may read any of them', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <p>{{ props.title }}</p>
+            </sw-block>
+            </template>
+            <script setup>
+            const props = useSwProps();
+            const context = useSwContext();
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'usesw-props-forward.override.vue').code;
+
+        expect(result).toContain('#default="{ __swOverride: { [__swSetupNamespace]: { props, context } = {} } = {} }"');
+    });
+
+    it('forwards a binding read through the same-name shorthand :item-count', () => {
+        const source = stripIndent`
+            <template>
+            <sw-block extends="sw_example_component_body">
+                <sw-counter :item-count />
+            </sw-block>
+            </template>
+            <script setup>
+            const itemCount = 3;
+
+            swDefineOverride({});
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'same-name-shorthand.override.vue').code;
+
+        // `:item-count` binds `itemCount`, not `item - count`.
+        expect(result).toContain('#default="{ __swOverride: { [__swSetupNamespace]: { itemCount } = {} } = {} }"');
+        expect(result).toContain('itemCount,');
+    });
+
+    it('destructures only the public names when every local is public', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_headline">
@@ -67,151 +134,50 @@ describe('build/vue-setup-transform override template forwarding', () => {
             </script>
         `;
 
-        const result = transformOrFail(source, 'override-sw-block-data.override.vue').code;
+        const result = transformOrFail(source, 'public-only.override.vue').code;
 
         expect(result).toContain('<sw-block extends="sw_example_component_headline" #default="{ headline }">');
+        expect(result).not.toContain('__swOverride');
+        expect(result).not.toContain('__swSetupNamespace');
         expect(result).not.toContain(':data="$dataScope"');
     });
 
-    it('detects override-local template references in Vue expression positions', () => {
+    it('adds no slot scope to a block when the override has no locals', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
-                <p v-if="visible">{{ info }}</p>
-                <button
-                    @[eventName]="track(info)"
-                    :title="info"
-                    :[dynamicProp]="info"
-                    :info
-                    v-bind="{ info, label: infoLabel }"
-                />
-                <span v-for="item in items">{{ item }}{{ info }}</span>
+                <p>static</p>
             </sw-block>
             </template>
             <script setup>
-            const visible = true;
-            const info = 'local';
-            const eventName = 'click';
-            const track = () => {};
-            const dynamicProp = 'title';
-            const infoLabel = 'label';
-            const items = [];
-
             swDefineOverride({});
             </script>
         `;
 
-        const result = transformOrFail(source, 'template-references.override.vue').code;
+        const result = transformOrFail(source, 'no-locals.override.vue').code;
 
-        expect(result).toContain(
-            `#default="{ __swOverride: { [__swSetupNamespace]: { visible, info, eventName, track, dynamicProp, infoLabel, items } } }"`,
-        );
-        // The v-for alias `item` is a template-local binding, not a setup reference.
-        expect(result).not.toMatch(/\bitem,/);
-    });
-
-    it('detects override-local references in TypeScript and optional-chain template expressions', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body">
-                <p>{{ (maybeInfo as string | undefined)?.toUpperCase() }}</p>
-                <p>{{ source?.[dynamicKey] }}</p>
-            </sw-block>
-            </template>
-            <script setup lang="ts">
-            const maybeInfo = 'local';
-            const source = {
-                headline: 'Headline',
-            };
-            const dynamicKey = 'headline';
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'typescript-template-references.override.vue').code;
-
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { maybeInfo, source, dynamicKey } } }"`);
-    });
-
-    it('forwards override input-alias references used in the template', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body">
-                <p>{{ previousState.body }}</p>
-            </sw-block>
-            </template>
-            <script setup>
-            const previousState = useSwPreviousState();
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'input-alias-reference.override.vue').code;
-
-        // useSwPreviousState()/useSwProps()/useSwContext() are not returned as independent state, but an
-        // override template may still read them, so a referenced alias is forwarded like any setup local.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { previousState } } }"`);
-    });
-
-    it('ignores template identifiers that are not override-local setup references', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body">
-                plain info text
-                <p>{{ [1].map((info) => info).join(',') }}</p>
-                <p>{{ ({ info: localInfo }) => localInfo }}</p>
-                <p>{{ ({ info: 'static key only' }) }}</p>
-            </sw-block>
-            </template>
-            <script setup>
-            const info = 'local';
-            const track = () => {};
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'ignored-template-references.override.vue').code;
-
-        expect(result).not.toContain('__swOverride');
+        expect(result).toContain('<sw-block extends="sw_example_component_body">');
         expect(result).toContain('return {};');
     });
 
-    it('ignores identifiers shadowed by v-for aliases, slot scopes, and nested callback patterns', () => {
+    it('forwards nothing through the namespace when the override has no <sw-block extends>', () => {
         const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body">
-                <p v-for="({ info, label: localLabel }, index) in rows">
-                    {{ info }}{{ localLabel }}{{ index }}{{ rows.length }}
-                </p>
-
-                <Child #default="{ info, nested: { localInfo }, items: [firstItem] }">
-                    {{ info }}{{ localInfo }}{{ firstItem }}{{ rows.length }}
-                </Child>
-
-                <p>{{ items.map(({ info, label: localLabel }) => info + localLabel).join(',') }}</p>
-            </sw-block>
-            </template>
             <script setup>
-            const info = 'setup info';
-            const localInfo = 'setup nested info';
-            const firstItem = 'setup first item';
-            const localLabel = 'setup label';
-            const index = 0;
-            const rows = [];
-            const items = [];
+            const local = 1;
+            const headline = local + 1;
 
-            swDefineOverride({});
+            swDefineOverride({ headline });
             </script>
         `;
 
-        const result = transformOrFail(source, 'template-shadowing-patterns.override.vue').code;
+        const result = transformOrFail(source, 'script-only.override.vue').code;
 
-        // Only `rows` and `items` are genuine setup references; every other name is shadowed by a
-        // v-for alias, slot scope, or nested callback parameter and must not be forwarded.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { rows, items } } }"`);
+        expect(result).not.toContain('__swSetupNamespace');
+        expect(stripWhitespace(result)).toContain(stripWhitespace`
+            return {
+                headline,
+            };
+        `);
     });
 
     it.each([
@@ -257,74 +223,5 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         expect(result.extendedBlockNames).toEqual(['sw_example_component_headline', 'sw_example_component_body']);
         expect(result.ownedBlockNames).toEqual([]);
-    });
-
-    it('forwards useSwProps() aliases referenced in override slot content', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body">
-                <p>{{ props.title }}</p>
-            </sw-block>
-            </template>
-            <script setup>
-            const props = useSwProps();
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'usesw-props-forward.override.vue').code;
-
-        // useSwProps() is both a setup input and a runtime input alias; like useSwPreviousState() its
-        // referenced name must reach the generated slot scope, or `props` resolves against the hidden
-        // boot component and `props.title` throws during the base component's render.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { props } } }"`);
-    });
-
-    it('forwards references inside named slot binding-pattern defaults', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body">
-                <Child>
-                    <template #item="{ label = fallbackLabel }">{{ label }}</template>
-                </Child>
-            </sw-block>
-            </template>
-            <script setup>
-            const fallbackLabel = 'fallback';
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'named-slot-default-ref.override.vue').code;
-
-        // The default expression of the named slot `#item` must be scanned like a default slot's, or
-        // `fallbackLabel` resolves against the hidden component and `label` silently becomes undefined.
-        expect(result).toContain(`#default="{ __swOverride: { [__swSetupNamespace]: { fallbackLabel } } }"`);
-    });
-
-    it('does not forward a setup binding shadowed by a named slot scope', () => {
-        const source = stripIndent`
-            <template>
-            <sw-block extends="sw_example_component_body">
-                <Child>
-                    <template #item="{ info }">{{ info }}</template>
-                </Child>
-            </sw-block>
-            </template>
-            <script setup>
-            const info = 'local';
-
-            swDefineOverride({});
-            </script>
-        `;
-
-        const result = transformOrFail(source, 'named-slot-shadow.override.vue').code;
-
-        // `info` inside `#item="{ info }"` is the slot's own binding, so the setup `info` is shadowed
-        // and must not be forwarded (over-detection fix).
-        expect(result).not.toContain('__swOverride');
-        expect(result).toContain('return {};');
     });
 });

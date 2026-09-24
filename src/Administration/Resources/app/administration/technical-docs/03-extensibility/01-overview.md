@@ -122,7 +122,7 @@ Shopware.Component.overrideComponentSetup()('originalComponent', (previousState,
   };
 
   return {
-    message: newMessage,
+    message: newMessage, // a plain value is written into an existing ref
     increment: newIncrement,
   };
 });

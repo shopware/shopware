@@ -3,33 +3,22 @@
  */
 
 /**
- * Converts an Options API component script into a native setup `<script setup>` body ending in
- * `swDefinePublic({ ... })`.
+ * Converts an Options API component script into a `<script setup>` body ending in `swDefinePublic`.
  *
- * Strategy: parse once with @babel/parser for positions, then run three phases in order.
- *
- * 1. collect — `classifyOptions()` / `collectWatchers()` turn the options object into plain
- *    descriptors (option-handlers.ts). Nothing is rendered yet.
- * 2. rewrite — every component-bound `this.*` reference is rewritten in place in the MagicString
- *    (rewrite-this.ts).
- * 3. render — `renderScript()` reads the rewritten text back out and assembles the new script from
- *    verbatim source slices. It must not run earlier: a slice taken before the rewrite would still
- *    carry `this.`.
- *
- * Conversion policy lives in tables.ts (tier table, rewrite map) and option-handlers.ts (one handler
- * per supported option); indentation is left to prettier and correctness to the validation gate
- * (validate.ts). This module owns the orchestration and the section ordering of the assembled
- * script — the order is TDZ-driven: eager consumers (data initializers, watchers, the inlined
+ * Three phases, in this order: collect descriptors, rewrite every component-bound `this.*` in the
+ * MagicString, render from the rewritten slices — a slice taken before the rewrite still carries
+ * `this.`. The section order is TDZ-driven: eager consumers (data initializers, watchers, the inlined
  * created() body) come after everything they may reference.
  */
 
-import { traverse } from '@babel/core';
+import { traverse, type NodePath } from '@babel/core';
 import { parse } from '@babel/parser';
 import type * as t from '@babel/types';
-import { getBindingIdentifiers } from '@babel/types';
 import MagicString from 'magic-string';
-import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type ReportKind, type TodoEntry } from './tables';
-import { type Ctx, arrowText, report, snip, unwrapOptions } from './ast';
+import { isReservedBindingName } from '../../../build/vue-setup-transform/naming';
+import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, type ReportKind, type TodoEntry } from './tables';
+import { type Ctx, arrowText, errorText, findExportDefault, packageName, report, snip, unwrapOptions } from './ast';
+import { type PreludeSplit, type PreludeStatement, splitPrelude } from './module-prelude';
 import {
     type Collected,
     type CollectedWatcher,
@@ -69,40 +58,17 @@ function todoBlock(entry: TodoEntry): string {
     return [...lines.slice(0, -1), `${lines[lines.length - 1]} — original code:`, ...codeLines].join('\n');
 }
 
-/**
- * Names the module body binds outside the component options. The module `<script>` block shares its
- * scope with `<script setup>`, so a generated binding of the same name would either be a duplicate
- * declaration or quietly take over the references meant for the prelude's.
- */
-function collectTopLevelBindings(body: t.Statement[], exportDefault: t.Statement): Set<string> {
-    const names = new Set<string>();
-
-    for (const statement of body) {
-        if (statement === exportDefault) {
-            continue;
-        }
-
-        for (const name of Object.keys(getBindingIdentifiers(statement))) {
-            names.add(name);
-        }
-    }
-
-    return names;
-}
-
 function eventList(events: string[]): string {
     return `[${events.map((event) => `'${event}'`).join(', ')}]`;
 }
 
 /**
- * The `defineEmits` argument. A mixin's events have to be merged into the component's own list,
- * because its composable emits them through the callbacks the codemod hands it. With no mixin event in
- * play the `emits` option is spliced verbatim instead, which keeps the object form and its validators.
+ * A mixin's events are merged into the component's list, because its composable emits them through
+ * the callbacks handed to it. Otherwise `emits` is spliced verbatim, validators included.
  */
 function emitsArgument(ctx: Ctx, collected: Collected, mixinEvents: string[], usesEmit: boolean): string | null {
     if (mixinEvents.length > 0) {
-        // resolveMixins refuses a component whose `emits` option is not a plain list, so a declaration
-        // that reaches here always parses.
+        // resolveMixins refused every `emits` option that is not a plain list.
         const declared = collected.emitsNode ? (emitsEventNames(collected.emitsNode) as string[]) : ctx.inferredEmits;
 
         return eventList([...new Set([...declared, ...mixinEvents])]);
@@ -115,11 +81,7 @@ function emitsArgument(ctx: Ctx, collected: Collected, mixinEvents: string[], us
     return ctx.inferredEmits.length > 0 || usesEmit ? eventList(ctx.inferredEmits) : null;
 }
 
-/**
- * The `defineProps` argument, with the props the mixins declared merged into the component's own
- * literal. `defineProps` is a compiler macro, so both have to end up in one literal — which is why
- * resolveMixins refuses a component whose `props` option is not one.
- */
+/** `defineProps` is a compiler macro, so the mixins' props have to be merged into one literal. */
 function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): string | null {
     const provided = collected.providedProps.map(({ name, definition }) => `${name}: ${definition},`);
     const ownText = collected.propsNode ? snip(ctx, collected.propsNode) : null;
@@ -134,15 +96,13 @@ function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): stri
     return `{\n${ownEntries}${separator}\n${provided.join('\n')}\n}`;
 }
 
-/**
- * The render phase: collected descriptors plus the rewritten MagicString become the `<script setup>`
- * body. Every `snip()` below reads text the rewrite pass already touched, so this must run last.
- */
+/** Every `snip()` below reads rewritten text, so this runs after the rewrite pass. */
 function renderScript(
     ctx: Ctx,
     collected: Collected,
     watchers: CollectedWatcher[],
     composables: ResolvedComposable[],
+    prelude: Pick<PreludeSplit, 'declarations' | 'namedImports'> = { declarations: '', namedImports: new Set() },
 ): string {
     const usesEmit = ctx.helpers.has('emit');
     const usesProps = ctx.helpers.has('props');
@@ -165,13 +125,18 @@ function renderScript(
     const emitsText = emitsArgument(ctx, collected, mixinEvents, usesEmit);
     const propsText = propsArgument(ctx, collected, usesProps);
 
-    // One-line declarations are grouped into contiguous blocks so the output reads hand-written;
-    // multi-line members keep a blank line between them.
+    // An author import of the same name from the same module already provides the binding.
+    const importLine = (names: string[], source: string): string | null => {
+        const missing = names.filter((name) => !prelude.namedImports.has(`${source}:${name}`));
+
+        return missing.length > 0 ? `import { ${missing.join(', ')} } from '${source}';` : null;
+    };
     const importBlock = [
-        vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
-        ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
-        routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
+        importLine(vueImports, 'vue'),
+        importLine(ctx.helpers.has('t') ? ['useI18n'] : [], 'vue-i18n'),
+        importLine(routerImports, 'vue-router'),
         ...composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`),
+        prelude.declarations,
     ]
         .filter(Boolean)
         .join('\n');
@@ -198,7 +163,7 @@ function renderScript(
                 )
                 .join(', ');
 
-            // A scaffold runs the lifecycle, so its call stands on its own when nothing is read from it.
+            // A scaffold runs a lifecycle, so its call stands alone when nothing is read from it.
             const declaration = entries.length > 0 ? `const { ${destructured} } = ${call}` : call;
 
             return [
@@ -214,9 +179,7 @@ function renderScript(
 
     const publicNames = [
         ...collected.injects,
-        // The mixin's members were part of the instance surface an override could reach, so they stay
-        // public. A renamed one cannot: swDefinePublic only takes shorthand bindings, so exposing it
-        // would publish the generated name instead of the one the mixin had.
+        // Mixin members stay public, except a renamed one: exposing it would publish the generated name.
         ...composables.flatMap(({ entries }) =>
             entries.filter((entry) => entry.binding === entry.member).map((entry) => entry.binding),
         ),
@@ -226,8 +189,7 @@ function renderScript(
         ...collected.methods.map((method) => method.name),
     ];
 
-    // A review TODO is about the whole draft, so it leads the file instead of trailing the code its
-    // checks are about. An anchored one was already emitted above the declaration it names.
+    // A review TODO is about the whole draft, so it leads the file; an anchored one is already placed.
     const fileTodos = ctx.reports.filter((entry) => entry.kind === 'todo' && !entry.anchored);
     const reviewTodos = fileTodos.filter((entry) => entry.checks !== undefined);
     const siteTodos = fileTodos.filter((entry) => entry.checks === undefined);
@@ -248,8 +210,7 @@ function renderScript(
                 ? `const emit = defineEmits(${emitsText});`
                 : `defineEmits(${emitsText});`
             : null,
-        // After the macro bindings a composable call can be handed, before the member sections that
-        // read what it returns.
+        // After the macros it may be handed, before the members that read what it returns.
         composableBlock || null,
         ...collected.methods.map((method) => renderMember(ctx, method)),
         ...collected.computeds.map((computedEntry) => renderMember(ctx, computedEntry)),
@@ -267,6 +228,101 @@ function renderScript(
     return sections.filter((section): section is string => Boolean(section)).join('\n\n');
 }
 
+function isWithin(node: t.Node, container: t.Node): boolean {
+    return (node.start as number) >= (container.start as number) && (node.end as number) <= (container.end as number);
+}
+
+/**
+ * Names the options reach outside themselves (module bindings, globals), which a setup binding of
+ * the same name would take over. Also fills `ctx.paths` for the rewrite pass.
+ */
+function collectOuterReferences(ctx: Ctx, ast: t.File, exportDefault: t.Node): Set<string> {
+    const names = new Set<string>();
+
+    traverse(ast, {
+        enter(path) {
+            ctx.paths.set(path.node, path);
+
+            if (!path.isReferencedIdentifier() || path.node.type !== 'Identifier' || !isWithin(path.node, exportDefault)) {
+                return;
+            }
+
+            const binding = path.scope.getBinding(path.node.name);
+
+            if (!binding || binding.scope.block.type === 'Program') {
+                names.add(path.node.name);
+            }
+        },
+    });
+
+    return names;
+}
+
+type ModuleBindings = NodePath['scope']['bindings'];
+
+/** An import from the sibling module is read-only, so the component must not assign to its source. */
+function reassignedModuleBindings(moduleBindings: ModuleBindings, exportDefault: t.Node): string[] {
+    return Object.entries(moduleBindings)
+        .filter(([, binding]) => binding.kind !== 'module')
+        .filter(([, binding]) => binding.constantViolations.some((violation) => isWithin(violation.node, exportDefault)))
+        .map(([name]) => name);
+}
+
+const DISABLE_NEXT_LINE = /^\s*eslint-disable-next-line\b/;
+
+/**
+ * The statements around the options in source order, each with the comments in front of it. The
+ * `@sw-package` docblock and the comments no statement claims (those above the Twig import and the
+ * options) are returned as the header instead — minus lint directives for the removed export.
+ */
+function preludeStatements(
+    ast: t.File,
+    source: string,
+    exportDefault: t.Statement,
+    templateImportStart: number,
+): { statements: PreludeStatement[]; header: string[] } {
+    const statements: PreludeStatement[] = [];
+    const header: string[] = [];
+    let cursor = 0;
+
+    const leadingText = (end: number, dropDirectives = false): string => {
+        let text = source.slice(cursor, end);
+
+        for (const comment of ast.comments ?? []) {
+            const commentText = source.slice(comment.start as number, comment.end as number);
+
+            if ((comment.start as number) < cursor || (comment.end as number) > end) {
+                continue;
+            }
+
+            if (packageName(comment.value)) {
+                header.push(commentText);
+                text = text.replace(commentText, '');
+            } else if (dropDirectives && DISABLE_NEXT_LINE.test(comment.value)) {
+                text = text.replace(commentText, '');
+            }
+        }
+
+        return text;
+    };
+
+    for (const node of ast.program.body) {
+        const leading = leadingText(node.start as number, node === exportDefault);
+
+        cursor = node.end as number;
+
+        if (node === exportDefault || node.start === templateImportStart) {
+            header.push(leading);
+        } else {
+            statements.push({ node, leading });
+        }
+    }
+
+    header.push(leadingText(source.length));
+
+    return { statements, header: header.map((part) => part.trim()).filter(Boolean) };
+}
+
 function transformScript(
     source: string,
     componentName: string,
@@ -274,6 +330,7 @@ function transformScript(
         templateImportRange: { start: number; end: number };
         templateIdentifiers: ReadonlySet<string>;
         templateComponentTags: ReadonlySet<string>;
+        moduleSpecifier: string;
     },
 ): ScriptResult {
     const ctx: Ctx = {
@@ -290,7 +347,7 @@ function transformScript(
         inferredEmits: [],
         reports: [],
     };
-
+    const refused = (reasons: string[]): ScriptResult => ({ script: null, moduleScript: null, reasons });
     const reasonsOf = (kind: ReportKind): string[] =>
         ctx.reports.filter((entry) => entry.kind === kind).map((entry) => entry.reason);
 
@@ -299,31 +356,33 @@ function transformScript(
     try {
         ast = parse(source, { sourceType: 'module', plugins: ['typescript'] });
     } catch (error) {
-        return { script: null, moduleScript: null, reasons: [`script parse error: ${(error as Error).message}`] };
+        return refused([`script parse error: ${errorText(error)}`]);
     }
 
-    const body = ast.program.body;
-    const exportDefault = body.find(
-        (statement): statement is t.ExportDefaultDeclaration => statement.type === 'ExportDefaultDeclaration',
-    );
+    const exportDefault = findExportDefault(ast.program);
 
     if (!exportDefault) {
-        return { script: null, moduleScript: null, reasons: ['no default export'] };
+        return refused(['no default export']);
     }
 
     const options = unwrapOptions(exportDefault.declaration);
 
     if (!options) {
-        return { script: null, moduleScript: null, reasons: ['unsupported default export shape'] };
+        return refused(['unsupported default export shape']);
     }
 
-    // --- collect ----------------------------------------------------------------------------------
+    const outerReferences = collectOuterReferences(ctx, ast, exportDefault);
+    // The SFC imports the module bindings the setup body reads, so a generated binding must not take one.
+    const moduleBindings: ModuleBindings = ctx.paths.get(ast.program)?.scope.bindings ?? {};
 
     const collected = classifyOptions(ctx, options);
-    const composables = resolveMixins(ctx, collected, options, collectTopLevelBindings(body, exportDefault));
+    const composables = resolveMixins(
+        ctx,
+        collected,
+        options,
+        new Set([...Object.keys(moduleBindings), ...outerReferences]),
+    );
     const watchers = collectWatchers(ctx, collected);
-
-    // --- name safety checks --------------------------------------------------------------------
 
     const setupBindingNames = [
         ...collected.injects,
@@ -333,7 +392,7 @@ function transformScript(
     ];
 
     for (const bindingName of setupBindingNames) {
-        if (RESERVED_BINDING.test(bindingName)) {
+        if (isReservedBindingName(bindingName)) {
             report(ctx, 'skip', `binding '${bindingName}' uses a reserved name`);
         }
 
@@ -341,34 +400,30 @@ function transformScript(
             report(ctx, 'skip', `binding '${bindingName}' collides with a generated helper`);
         }
 
-        // The runtime strips declared prop keys from returned setup state, so such a binding would
-        // silently render as `undefined`.
+        // The runtime strips declared prop keys from the setup state, so it would render `undefined`.
         if (collected.propNames.has(bindingName)) {
             report(ctx, 'skip', `'${bindingName}' is declared as both a prop and a component member`);
         }
     }
 
-    // A template resolves a component tag against setup bindings first, so a binding named after a
-    // tag the template renders replaces that component with the binding's value. Props are included
-    // because they become setup bindings too, and are where this shows up in practice.
+    // A template resolves a tag against setup bindings first; props are setup bindings too.
     for (const bindingName of [...setupBindingNames, ...collected.propNames]) {
         if (ctx.templateComponentTags.has(bindingName)) {
             report(ctx, 'skip', `binding '${bindingName}' shadows a component tag the template renders`);
         }
     }
 
-    if (ctx.reports.some((entry) => entry.kind === 'skip')) {
-        return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
+    for (const name of reassignedModuleBindings(moduleBindings, exportDefault)) {
+        report(
+            ctx,
+            'skip',
+            `module-level '${name}' is reassigned by the component, but the sibling module exports it read-only`,
+        );
     }
 
-    // --- rewrite pass ---------------------------------------------------------------------------
-
-    // Classification collects bare AST nodes; the rewrite needs their paths to read Babel's scope.
-    traverse(ast, {
-        enter(path) {
-            ctx.paths.set(path.node, path);
-        },
-    });
+    if (ctx.reports.some((entry) => entry.kind === 'skip')) {
+        return refused(reasonsOf('skip'));
+    }
 
     if (collected.createdFn) {
         collected.rewriteFns.push(collected.createdFn);
@@ -382,8 +437,7 @@ function transformScript(
         rewriteMemberFn(ctx, fn);
     }
 
-    // Data initializers and foreign nodes are spliced in at the top level, so no function frame
-    // encloses them.
+    // Spliced in at the top level, so no function frame encloses them.
     for (const entry of collected.dataEntries) {
         rewriteThis(ctx, entry.valueNode, true);
     }
@@ -398,38 +452,41 @@ function transformScript(
         rewriteThis(ctx, node, false);
     }
 
-    // Template refs are collected by the rewrite pass, so their tag collisions are only visible
-    // here. A ref cannot be renamed around one either: the `ref` attribute in the template names it.
+    // Template refs and helpers are only known after the rewrite. A ref cannot be renamed: the
+    // template's `ref` attribute names it.
     for (const refName of ctx.templateRefs) {
         if (ctx.templateComponentTags.has(refName)) {
             report(ctx, 'skip', `template ref '${refName}' shadows a component tag the template renders`);
         }
     }
 
-    if (ctx.reports.some((entry) => entry.kind === 'skip')) {
-        return { script: null, moduleScript: null, reasons: reasonsOf('skip') };
+    for (const name of [...setupBindingNames, ...ctx.templateRefs, ...ctx.helpers]) {
+        if (outerReferences.has(name)) {
+            report(ctx, 'skip', `binding '${name}' would shadow the module-level or global '${name}' the component reads`);
+        }
     }
 
-    // --- prelude (module-level code outside the component options) ------------------------------
+    if (ctx.reports.some((entry) => entry.kind === 'skip')) {
+        return refused(reasonsOf('skip'));
+    }
 
-    const end = ctx.source.indexOf('\n', transformOptions.templateImportRange.end);
-    ctx.ms.remove(
-        transformOptions.templateImportRange.start,
-        end === -1 ? transformOptions.templateImportRange.end : end + 1,
-    );
+    let prelude: PreludeSplit;
 
-    // Keep the module prelude in a normal `<script>` block. `<script setup>` runs once per
-    // component instance, so even a getter, regex, live import, or apparently pure member read can
-    // change identity or evaluation timing when moved there.
-    const moduleMagicString = ctx.ms.clone();
-    moduleMagicString.remove(exportDefault.start as number, exportDefault.end as number);
-    const moduleScript = moduleMagicString.toString().trim() || null;
-
-    // --- render ------------------------------------------------------------------------------------
+    // The split reads which module bindings the setup body references, so it renders twice.
+    try {
+        prelude = splitPrelude({
+            source,
+            ...preludeStatements(ast, source, exportDefault, transformOptions.templateImportRange.start),
+            setupScript: renderScript(ctx, collected, watchers, composables),
+            moduleSpecifier: transformOptions.moduleSpecifier,
+        });
+    } catch (error) {
+        return refused([`generated script does not parse: ${errorText(error)}`]);
+    }
 
     return {
-        script: renderScript(ctx, collected, watchers, composables),
-        moduleScript,
+        script: [prelude.header, renderScript(ctx, collected, watchers, composables, prelude)].filter(Boolean).join('\n\n'),
+        moduleScript: prelude.moduleScript,
         reasons: reasonsOf('todo'),
     };
 }

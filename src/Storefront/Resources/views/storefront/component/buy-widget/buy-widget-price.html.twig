@@ -107,7 +107,7 @@
                 {% endif %}
             </span>
 
-            <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
+            <p class="product-detail-price{% if isListPrice or isRegulationPriceSaving %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
                 {{ price.unitPrice|currency }}
             </p>
 
@@ -152,6 +152,9 @@
                 {% endblock %}
             {% endif %}
             {% if isRegulationPrice %}
+                {% if isRegulationPriceSaving %}
+                    {{ block('buy_widget_was_price_badge') }}
+                {% endif %}
                 <span class="product-detail-list-price-wrapper">
                     <span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
                     {% if isRegulationPriceSaving %}

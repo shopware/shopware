@@ -97,7 +97,7 @@
                     Example with list price: €400.00 <s>€500.00</s> (20% saved)"
                 #}
                 {% block component_product_box_main_price %}
-                    <span class="product-price{% if isListPrice and not displayFrom and not displayFromVariants %} with-list-price{% endif %}">
+                    <span class="product-price{% if (isListPrice or isRegulationPriceSaving) and not displayFrom and not displayFromVariants %} with-list-price{% endif %}">
                         {{ price.unitPrice|currency }}
 
                         {% if isListPrice and not displayFrom and not displayFromVariants %}

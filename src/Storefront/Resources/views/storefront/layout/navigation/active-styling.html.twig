@@ -5,7 +5,9 @@
 {# The style tag is different for each navigation and will be cached accordingly #}
 
 {# @deprecated tag:v6.8.0 - Block "layout_navigation_active_styling" will be removed because the file is deprecated. The active styling class `.active` is set by navbar.plugin.js. #}
-{% block layout_navigation_active_styling %}
-    {# @deprecated tag:v6.8.0 - Variable `navigationId` will be removed because the file is deprecated. The active styling class `.active` is set by navbar.plugin.js. #}
-    {% set navigationId = shopware.navigation.id %}
-{% endblock %}
+{% if not feature('v6.8.0.0') %}
+    {% block layout_navigation_active_styling %}
+        {# @deprecated tag:v6.8.0 - Variable `navigationId` will be removed because the file is deprecated. The active styling class `.active` is set by navbar.plugin.js. #}
+        {% set navigationId = shopware.navigation.id %}
+    {% endblock %}
+{% endif %}

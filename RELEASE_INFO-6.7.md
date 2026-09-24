@@ -78,6 +78,10 @@ Together, these two changes remove the need to override the surrounding blocks, 
 
 ## Storefront
 
+### Deprecated block shims honor the 6.8 feature flag
+
+With `v6.8.0.0` active, deprecated Storefront Twig blocks for navigation styling, CMS video image content, product-card image content and buy-button labels, and address-book welcome headings are no longer invoked. The old price-unit blocks in `buy-widget-price.html.twig` are also skipped. Move overrides to the replacement blocks documented in `UPGRADE-6.8.md`.
+
 ### Checkout form data is kept in the session storage
 
 The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.

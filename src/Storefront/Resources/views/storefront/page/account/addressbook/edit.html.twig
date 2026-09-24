@@ -2,14 +2,18 @@
 
 {% block page_account_main_content %}
     <div class="account-address account-address-form">
-        {# @deprecated tag:v6.8.0 - Block page_account_address_form_welcome is superfluous, use page_account_address_form_welcome_headline. #}
-        {% block page_account_address_form_welcome %}
-            {% block page_account_address_form_welcome_headline %}
-                <h1 class="account-welcome">
-                    {{ 'account.addressEditMetaTitle'|trans|sw_sanitize }}
-                </h1>
+        {% if feature('v6.8.0.0') %}
+            {{ block('page_account_address_form_welcome_headline') }}
+        {% else %}
+            {# @deprecated tag:v6.8.0 - Block page_account_address_form_welcome is superfluous, use page_account_address_form_welcome_headline. #}
+            {% block page_account_address_form_welcome %}
+                {% block page_account_address_form_welcome_headline %}
+                    <h1 class="account-welcome">
+                        {{ 'account.addressEditMetaTitle'|trans|sw_sanitize }}
+                    </h1>
+                {% endblock %}
             {% endblock %}
-        {% endblock %}
+        {% endif %}
 
         {% block page_account_address_form_main %}
             <div class="card">

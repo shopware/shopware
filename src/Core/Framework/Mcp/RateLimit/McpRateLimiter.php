@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  * `initialize` then `notifications/initialized` back-to-back; Shopware's
  * `time_backoff` policy accepts only one request after a wait, so once
  * `initialize` has consumed that slot the mandatory follow-up would otherwise
- * get HTTP 429 (see #18906). `initialize` itself stays rate-limited — an
+ * get HTTP 429 (see #18906). `initialize` itself stays rate-limited, because an
  * unlimited initialize path would allow endless session creation. Tool calls
  * and every other method stay limited. The 2026-07-28 modern era has no such
  * pair, so the exemption is handshake-only.
@@ -83,7 +83,7 @@ class McpRateLimiter
     /**
      * True when every JSON-RPC message in the POST body is `notifications/initialized`.
      * Non-POST, unparseable, empty, `initialize` (alone or in a batch), or mixed batches
-     * still go through the limiter — `initialize` always counts.
+     * still go through the limiter. `initialize` always counts.
      */
     private function isInitializedNotificationOnlyRequest(Request $request): bool
     {
@@ -92,7 +92,10 @@ class McpRateLimiter
         }
 
         $content = $request->getContent();
-        if ($content === '') {
+
+        // Cheap substring pre-check so ordinary (possibly large) tool calls are not JSON-decoded
+        // twice; McpServerController decodes the body again. Also matches `notifications\/initialized`.
+        if (!str_contains($content, 'initialized')) {
             return false;
         }
 
@@ -106,27 +109,14 @@ class McpRateLimiter
             return false;
         }
 
-        if (array_is_list($decoded)) {
-            foreach ($decoded as $message) {
-                if (!\is_array($message) || !$this->isInitializedNotification($message)) {
-                    return false;
-                }
+        $messages = array_is_list($decoded) ? $decoded : [$decoded];
+        foreach ($messages as $message) {
+            if (!\is_array($message) || ($message['method'] ?? null) !== self::INITIALIZED_NOTIFICATION_METHOD) {
+                return false;
             }
-
-            return true;
         }
 
-        return $this->isInitializedNotification($decoded);
-    }
-
-    /**
-     * @param array<mixed> $message
-     */
-    private function isInitializedNotification(array $message): bool
-    {
-        $method = $message['method'] ?? null;
-
-        return \is_string($method) && $method === self::INITIALIZED_NOTIFICATION_METHOD;
+        return true;
     }
 
     private function enforce(string $route, string $key): void

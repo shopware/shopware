@@ -247,6 +247,38 @@ class McpRateLimiterTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string}>
+     */
+    public static function limitedPostBodyProvider(): iterable
+    {
+        yield 'empty body' => [''];
+        yield 'malformed JSON mentioning initialized' => ['{"jsonrpc":"2.0","method":"notifications/initialized"'];
+        yield 'JSON string scalar' => ['"notifications/initialized"'];
+        yield 'batch with scalar entry' => ['["notifications/initialized"]'];
+        yield 'object without method' => ['{"jsonrpc":"2.0","initialized":true}'];
+        yield 'method with wrong type' => ['{"jsonrpc":"2.0","method":["notifications/initialized"]}'];
+    }
+
+    #[DataProvider('limitedPostBodyProvider')]
+    public function testEnforceForAdminApiStillLimitsNonInitializedPostBodies(string $content): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForAdminApi(Request::create('/api/_mcp', 'POST', content: $content));
+    }
+
+    public function testEnforceForAdminApiSkipsInitializedNotificationWithEscapedSlash(): void
+    {
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+
+        $request = Request::create('/api/_mcp', 'POST', content: '{"jsonrpc":"2.0","method":"notifications\/initialized"}');
+
+        $this->mcpRateLimiter->enforceForAdminApi($request);
+    }
+
+    /**
      * Reproduces #18906: after time_backoff accepts one post-wait request,
      * initialize consumes that slot; the mandatory notifications/initialized
      * follow-up is exempt so the handshake can finish. tools/list still counts.

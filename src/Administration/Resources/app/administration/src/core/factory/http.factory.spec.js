@@ -4,34 +4,10 @@
  * @sw-package framework
  */
 
-import axios from 'axios';
-import axiosV1 from 'axios-v1';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 Shopware.Application.view.deleteReactive = () => {};
-
-function createHTTPClientWithSpies() {
-    const axiosV0Create = axios.create.bind(axios);
-    const axiosV1Create = axiosV1.create.bind(axiosV1);
-    let axiosV0;
-    let axiosV1Client;
-
-    const axiosV0CreateSpy = jest.spyOn(axios, 'create').mockImplementationOnce((config) => {
-        axiosV0 = axiosV0Create(config);
-        return axiosV0;
-    });
-    const axiosV1CreateSpy = jest.spyOn(axiosV1, 'create').mockImplementationOnce((config) => {
-        axiosV1Client = axiosV1Create(config);
-        return axiosV1Client;
-    });
-
-    const client = createHTTPClient();
-    axiosV0CreateSpy.mockRestore();
-    axiosV1CreateSpy.mockRestore();
-
-    return { client, axiosV0, axiosV1: axiosV1Client };
-}
 
 describe('core/factory/http.factory.js', () => {
     let httpClient;
@@ -39,7 +15,8 @@ describe('core/factory/http.factory.js', () => {
 
     beforeEach(async () => {
         /**
-         * axios-client-mock does not work with request interceptors. So we enable our interceptor here
+         * The tracing and cache interceptors are disabled in the test environment. Enable them here
+         * so the interceptor chain under test matches production.
          */
         process.env.NODE_ENV = 'prod';
         httpClient = createHTTPClient();
@@ -47,8 +24,12 @@ describe('core/factory/http.factory.js', () => {
         process.env.NODE_ENV = 'test';
     });
 
-    it('should create a HTTP client with response interceptors', async () => {
-        expect(Object.getPrototypeOf(httpClient).isPrototypeOf(axios)).toBeTruthy();
+    it('should create a single axios instance with the Shopware base configuration', () => {
+        expect(httpClient.defaults.baseURL).toBe(Shopware.Context.api.apiPath);
+        expect(httpClient.defaults.timeout).toBe(30000);
+        expect(httpClient.defaults.maxContentLength).toBe(50 * 1024 * 1024);
+        expect(httpClient.defaults.maxBodyLength).toBe(50 * 1024 * 1024);
+        expect(httpClient.interceptors.response.handlers.length).toBeGreaterThan(0);
     });
 
     it('should not intercept if store session has not expired', async () => {
@@ -170,7 +151,10 @@ describe('core/factory/http.factory.js', () => {
         mock.onGet('/test').reply((request) => {
             expect(request.headers['shopware-admin-active-route']).toBe('sw-dashboard-index');
 
-            return [200, {}];
+            return [
+                200,
+                {},
+            ];
         });
 
         await httpClient.get('/test');
@@ -202,7 +186,10 @@ describe('core/factory/http.factory.js', () => {
                             entity: 'product',
                             usages: [
                                 {
-                                    count: [2, 2],
+                                    count: [
+                                        2,
+                                        2,
+                                    ],
                                     entityName: 'category',
                                 },
                             ],
@@ -231,223 +218,218 @@ describe('core/factory/http.factory.js', () => {
         expect(typeof httpClient.put).toBe('function');
         expect(typeof httpClient.patch).toBe('function');
         expect(typeof httpClient.delete).toBe('function');
+        expect(typeof httpClient.head).toBe('function');
+        expect(typeof httpClient.options).toBe('function');
         expect(typeof httpClient.request).toBe('function');
+        expect(typeof httpClient.getUri).toBe('function');
     });
 
-    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
-    it.deprecated('v6.8.0.0')('should use axios v0 by default before v6.8', async () => {
-        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
-        const axiosV0Request = jest.spyOn(axiosV0, 'request');
-        const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
-        const clientMock = new MockAdapter(client);
-        clientMock.onGet('/test-v0-default').reply(200, { version: 'v0' });
+    it('should support the axios URL and config call form', async () => {
+        mock.onPost('/test-callable').reply(200, { success: true });
 
-        const response = await client.get('/test-v0-default');
-
-        expect(response.data).toEqual({ version: 'v0' });
-        expect(axiosV0Request).toHaveBeenCalledTimes(1);
-        expect(axiosV1Request).not.toHaveBeenCalled();
-    });
-
-    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
-    it.deprecated('v6.8.0.0')('should opt in to axios v1 per request before v6.8', async () => {
-        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
-        const axiosV0Request = jest.spyOn(axiosV0, 'request');
-        const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
-        const clientMock = new MockAdapter(client);
-        clientMock.onPost('/test-with-flag').reply(200, { success: true });
-
-        const response = await client.post(
-            '/test-with-flag',
-            { data: 'test' },
-            {
-                useAxiosV1: true,
-            },
-        );
-
-        expect(response.data).toEqual({ success: true });
-        expect(axiosV0Request).not.toHaveBeenCalled();
-        expect(axiosV1Request).toHaveBeenCalledTimes(1);
-    });
-
-    // @deprecated tag:v6.8.0 - Axios v1 becomes the default client.
-    it.deprecated('v6.8.0.0')('should support the axios URL and config call form', async () => {
-        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
-        const axiosV0Request = jest.spyOn(axiosV0, 'request');
-        const axiosV1Request = jest.spyOn(axiosV1Client, 'request').mockResolvedValue({ data: { success: true } });
-
-        const response = await client('/test-callable', {
+        const response = await httpClient('/test-callable', {
             method: 'post',
             headers: { 'x-shopware-test': 'value' },
             data: { id: 'test-id' },
-            useAxiosV1: true,
         });
 
         expect(response.data).toEqual({ success: true });
-        expect(axiosV0Request).not.toHaveBeenCalled();
-        expect(axiosV1Request).toHaveBeenCalledWith({
-            method: 'post',
-            headers: { 'x-shopware-test': 'value' },
-            data: { id: 'test-id' },
-            useAxiosV1: true,
-            url: '/test-callable',
-        });
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('should use axios v1 by default with v6.8', async () => {
-        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
-        const axiosV0Request = jest.spyOn(axiosV0, 'request');
-        const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
-        const clientMock = new MockAdapter(client);
-        clientMock.onGet('/test-v1-default').reply(200, { version: 'v1' });
-
-        const response = await client.get('/test-v1-default');
-
-        expect(response.data).toEqual({ version: 'v1' });
-        expect(axiosV0Request).not.toHaveBeenCalled();
-        expect(axiosV1Request).toHaveBeenCalledTimes(1);
-    });
-
-    it.activeFeatureFlags(['v6.8.0.0'])('should opt out to axios v0 per request with v6.8', async () => {
-        const { client, axiosV0, axiosV1: axiosV1Client } = createHTTPClientWithSpies();
-        const axiosV0Request = jest.spyOn(axiosV0, 'request');
-        const axiosV1Request = jest.spyOn(axiosV1Client, 'request');
-        const clientMock = new MockAdapter(client);
-        clientMock.onGet('/test-v0-opt-out').reply(200, { version: 'v0' });
-
-        const response = await client.get('/test-v0-opt-out', { useAxiosV1: false });
-
-        expect(response.data).toEqual({ version: 'v0' });
-        expect(axiosV0Request).toHaveBeenCalledTimes(1);
-        expect(axiosV1Request).not.toHaveBeenCalled();
+        expect(mock.history.post).toHaveLength(1);
+        expect(mock.history.post[0].url).toBe('/test-callable');
+        expect(mock.history.post[0].headers['x-shopware-test']).toBe('value');
+        expect(JSON.parse(mock.history.post[0].data)).toEqual({ id: 'test-id' });
     });
 
     it('should keep the axios form helpers compatible', async () => {
-        const client = createHTTPClient();
-        const clientMock = new MockAdapter(client);
-        clientMock.onPost('/test-form').reply((config) => {
+        mock.onPost('/test-form').reply((config) => {
             expect(config.headers['Content-Type']).toContain('multipart/form-data');
-            return [200, {}];
+            return [
+                200,
+                {},
+            ];
         });
 
-        await client.postForm('/test-form', { name: 'v0' }, { useAxiosV1: false });
-        await client.postForm('/test-form', { name: 'v1' }, { useAxiosV1: true });
+        await httpClient.postForm('/test-form', { name: 'shopware' });
 
-        expect(clientMock.history.post).toHaveLength(2);
+        expect(mock.history.post).toHaveLength(1);
     });
 
-    it('should apply public interceptors and defaults to both axios versions', async () => {
-        const client = createHTTPClient();
-        const clientMock = new MockAdapter(client);
+    it('should register public interceptors and defaults on the client', async () => {
         const requestInterceptor = jest.fn((config) => config);
         const responseInterceptor = jest.fn((response) => response);
 
-        client.defaults.headers.common['x-shopware-test'] = 'mirrored';
-        const requestInterceptorId = client.interceptors.request.use(requestInterceptor);
-        const responseInterceptorId = client.interceptors.response.use(responseInterceptor);
+        httpClient.defaults.headers.common['x-shopware-test'] = 'default-header';
+        const requestInterceptorId = httpClient.interceptors.request.use(requestInterceptor);
+        const responseInterceptorId = httpClient.interceptors.response.use(responseInterceptor);
 
-        expect(client.interceptors.request.handlers[requestInterceptorId]).toMatchObject({
+        expect(httpClient.interceptors.request.handlers[requestInterceptorId]).toMatchObject({
             fulfilled: requestInterceptor,
-            synchronous: false,
-            runWhen: null,
         });
-        expect(client.interceptors.response.handlers[responseInterceptorId]).toMatchObject({
+        expect(httpClient.interceptors.response.handlers[responseInterceptorId]).toMatchObject({
             fulfilled: responseInterceptor,
-            synchronous: false,
-            runWhen: null,
         });
-        clientMock.onGet('/test-mirrored').reply((config) => {
-            expect(config.headers['x-shopware-test']).toBe('mirrored');
-            return [200, {}];
+        mock.onGet('/test-defaults').reply((config) => {
+            expect(config.headers['x-shopware-test']).toBe('default-header');
+            return [
+                200,
+                {},
+            ];
         });
 
-        await client.get('/test-mirrored', { useAxiosV1: false });
-        await client.get('/test-mirrored', { useAxiosV1: true });
+        await httpClient.get('/test-defaults');
 
-        expect(requestInterceptor).toHaveBeenCalledTimes(2);
-        expect(responseInterceptor).toHaveBeenCalledTimes(2);
-        expect(clientMock.history.get).toHaveLength(2);
+        expect(requestInterceptor).toHaveBeenCalledTimes(1);
+        expect(responseInterceptor).toHaveBeenCalledTimes(1);
 
-        client.interceptors.request.eject(requestInterceptorId);
-        client.interceptors.response.eject(responseInterceptorId);
+        httpClient.interceptors.request.eject(requestInterceptorId);
+        httpClient.interceptors.response.eject(responseInterceptorId);
 
-        expect(client.interceptors.request.handlers[requestInterceptorId]).toBeNull();
-        expect(client.interceptors.response.handlers[responseInterceptorId]).toBeNull();
-        await client.get('/test-mirrored', { useAxiosV1: false });
-        await client.get('/test-mirrored', { useAxiosV1: true });
+        expect(httpClient.interceptors.request.handlers[requestInterceptorId]).toBeFalsy();
+        expect(httpClient.interceptors.response.handlers[responseInterceptorId]).toBeFalsy();
 
-        expect(requestInterceptor).toHaveBeenCalledTimes(2);
-        expect(responseInterceptor).toHaveBeenCalledTimes(2);
+        await httpClient.get('/test-defaults');
+
+        expect(requestInterceptor).toHaveBeenCalledTimes(1);
+        expect(responseInterceptor).toHaveBeenCalledTimes(1);
+        expect(mock.history.get).toHaveLength(2);
     });
 
-    it('should clear public interceptor handlers from both axios versions', () => {
-        const client = createHTTPClient();
+    it('should detect AbortController cancellations with isCancel', async () => {
+        mock.onGet('/abort-me').reply(200, {});
+        const controller = new AbortController();
+        controller.abort();
 
-        client.interceptors.response.use((response) => response);
-        client.interceptors.response.clear();
+        const getError = async () => {
+            try {
+                await httpClient.get('/abort-me', { signal: controller.signal });
 
-        expect(client.interceptors.response.handlers).toHaveLength(0);
-        expect(client.interceptorsV0.response.handlers).toHaveLength(0);
-        expect(client.interceptorsV1.response.handlers).toHaveLength(0);
-    });
-
-    it('should register public interceptors after handlers are replaced', () => {
-        const client = createHTTPClient();
-        client.interceptors.response.handlers = [];
-
-        expect(client.interceptorsV0.response.handlers).toHaveLength(0);
-        expect(client.interceptorsV1.response.handlers).toHaveLength(0);
-
-        const interceptorId = client.interceptors.response.use((response) => response);
-
-        expect(client.interceptors.response.handlers).toHaveLength(1);
-        expect(interceptorId).toBe(0);
-        expect(client.interceptorsV0.response.handlers).toHaveLength(1);
-        expect(client.interceptorsV1.response.handlers).toHaveLength(1);
-    });
-
-    it('should mirror direct public interceptor handler mutations', () => {
-        const client = createHTTPClient();
-        const handler = {
-            fulfilled: (response) => response,
-            rejected: null,
-            synchronous: false,
-            runWhen: null,
+                throw new Error('Expected error to be thrown');
+            } catch (error) {
+                return error;
+            }
         };
 
-        client.interceptors.response.handlers = [];
-        client.interceptors.response.handlers.push(handler);
+        const error = await getError();
 
-        expect(client.interceptorsV0.response.handlers).toEqual([handler]);
-        expect(client.interceptorsV1.response.handlers).toEqual([handler]);
-    });
-
-    it('should keep the legacy runtime axios escape hatches', () => {
-        expect(httpClient).toHaveProperty('axiosV0');
-        expect(httpClient).toHaveProperty('axiosV1');
-        expect(httpClient).toHaveProperty('interceptorsV0');
-        expect(httpClient).toHaveProperty('interceptorsV1');
-        expect(httpClient).toHaveProperty('defaultsV0');
-        expect(httpClient).toHaveProperty('defaultsV1');
+        expect(httpClient.isCancel(error)).toBe(true);
+        expect(mock.history.get).toHaveLength(0);
     });
 
     it('should have an isCancel method that detects cancellations', () => {
-        // Test axios v0 style cancellation - axios.isCancel checks for __CANCEL__ property
-        const v0CancelError = { __CANCEL__: true };
-        expect(httpClient.isCancel(v0CancelError)).toBe(true);
+        // Errors produced by the deprecated CancelToken carry the __CANCEL__ marker
+        const cancelTokenError = { __CANCEL__: true };
+        expect(httpClient.isCancel(cancelTokenError)).toBe(true);
 
-        // Test axios v1 style cancellation
-        const v1CancelError = { name: 'CanceledError', code: 'ERR_CANCELED' };
-        expect(httpClient.isCancel(v1CancelError)).toBe(true);
+        // Errors produced by AbortController cancellations
+        const canceledError = { name: 'CanceledError', code: 'ERR_CANCELED' };
+        expect(httpClient.isCancel(canceledError)).toBe(true);
 
-        // Test non-cancellation error
         const regularError = new Error('Regular error');
         expect(httpClient.isCancel(regularError)).toBe(false);
+        expect(httpClient.isCancel(null)).toBe(false);
+        expect(httpClient.isCancel('string')).toBe(false);
     });
 
-    it('should have CancelToken for backward compatibility', () => {
-        expect(httpClient.CancelToken).toBeDefined();
+    // @deprecated tag:v6.9.0 - The useAxiosV1 request option will be removed.
+    describe('legacy compatibility mode', () => {
+        const params = { ids: [1, 2], filter: { term: 'a,b' } };
+
+        it.deprecated('v6.9.0.0')('should keep the legacy query encoding for useAxiosV1: false', async () => {
+            jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet(/\/legacy-params/).reply(200, { ok: true });
+
+            await httpClient.get('/legacy-params', { params, useAxiosV1: false });
+
+            expect(mock.history.get[0].paramsSerializer.serialize(params)).toBe('ids[]=1&ids[]=2&filter[term]=a,b');
+        });
+
+        it.deprecated('v6.9.0.0')('should use the Axios 1.x query encoding for useAxiosV1: true', async () => {
+            jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet(/\/modern-params/).reply(200, { ok: true });
+
+            await httpClient.get('/modern-params', { params, useAxiosV1: true });
+
+            expect(mock.history.get[0].paramsSerializer).toBeUndefined();
+        });
+
+        it.deprecated('v6.9.0.0')('should warn once about the useAxiosV1 request option', async () => {
+            const warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet('/legacy-flag').reply(200, { ok: true });
+
+            const optIn = await httpClient.get('/legacy-flag', { useAxiosV1: true });
+            const optOut = await httpClient.get('/legacy-flag', { useAxiosV1: false });
+
+            expect(optIn.data).toEqual({ ok: true });
+            expect(optOut.data).toEqual({ ok: true });
+            expect(mock.history.get).toHaveLength(2);
+            expect(warnSpy).toHaveBeenCalledTimes(1);
+            expect(warnSpy).toHaveBeenCalledWith('[http.factory]', expect.stringContaining('useAxiosV1'));
+
+            warnSpy.mockRestore();
+        });
+
+        it.deprecated('v6.9.0.0')('should hand out plain response headers for useAxiosV1: false', async () => {
+            jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet('/legacy-headers').reply(200, {}, { 'x-custom': 'yes' });
+
+            const legacy = await httpClient.get('/legacy-headers', { useAxiosV1: false });
+            const modern = await httpClient.get('/legacy-headers', { useAxiosV1: true });
+
+            expect(Object.getPrototypeOf(legacy.headers)).toBe(Object.prototype);
+            expect(legacy.headers['x-custom']).toBe('yes');
+            expect(Object.getPrototypeOf(modern.headers)).not.toBe(Object.prototype);
+            expect(modern.headers['x-custom']).toBe('yes');
+        });
+
+        it.deprecated('v6.9.0.0')('should not overwrite an explicit paramsSerializer', async () => {
+            jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+            mock.onGet(/\/own-serializer/).reply(200, { ok: true });
+            const paramsSerializer = () => 'custom=1';
+
+            await httpClient.get('/own-serializer', { params, paramsSerializer, useAxiosV1: false });
+
+            expect(mock.history.get[0].paramsSerializer).toEqual({ serialize: paramsSerializer });
+        });
+    });
+
+    // @deprecated tag:v6.8.0 - CancelToken will be removed in favour of AbortController.
+    it.deprecated('v6.8.0.0')('should keep CancelToken working and warn once', async () => {
+        const warnSpy = jest.spyOn(global.console, 'warn').mockImplementation(() => {});
+        mock.onGet('/cancel-token').reply(200, {});
+
         expect(typeof httpClient.CancelToken.source).toBe('function');
+
+        const source = httpClient.CancelToken.source();
+        source.cancel('Operation cancelled');
+
+        const getError = async () => {
+            try {
+                await httpClient.get('/cancel-token', { cancelToken: source.token });
+
+                throw new Error('Expected error to be thrown');
+            } catch (error) {
+                return error;
+            }
+        };
+
+        const error = await getError();
+
+        expect(httpClient.isCancel(error)).toBe(true);
+        expect(mock.history.get).toHaveLength(0);
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy).toHaveBeenCalledWith('[http.factory]', expect.stringContaining('cancelToken'));
+
+        warnSpy.mockRestore();
+    });
+
+    // @deprecated tag:v6.9.0 - The version-specific runtime escape hatches will be removed.
+    it.deprecated('v6.9.0.0')('should keep the runtime escape hatches as aliases of the single client', () => {
+        expect(httpClient.axiosV0).toBe(httpClient);
+        expect(httpClient.axiosV1).toBe(httpClient);
+        expect(httpClient.interceptorsV0).toBe(httpClient.interceptors);
+        expect(httpClient.interceptorsV1).toBe(httpClient.interceptors);
+        expect(httpClient.defaultsV0).toBe(httpClient.defaults);
+        expect(httpClient.defaultsV1).toBe(httpClient.defaults);
     });
 
     describe('Cache Interceptor', () => {
@@ -461,7 +443,7 @@ describe('core/factory/http.factory.js', () => {
             jest.restoreAllMocks();
         });
 
-        it('should cache identical requests with axios v0 (default)', async () => {
+        it('should cache identical requests', async () => {
             // Enable cache interceptor by setting NODE_ENV to prod
             process.env.NODE_ENV = 'prod';
             const client = createHTTPClient();
@@ -479,33 +461,6 @@ describe('core/factory/http.factory.js', () => {
             await client.get('/search/product');
 
             // Should still be only 1 actual request due to caching
-            expect(clientMock.history.get).toHaveLength(1);
-            expect(console.warn).toHaveBeenCalledWith(
-                expect.anything(),
-                expect.stringContaining('Duplicated requests'),
-                expect.anything(),
-                expect.anything(),
-            );
-        });
-
-        it('should cache identical requests with axios v1 (useAxiosV1: true)', async () => {
-            process.env.NODE_ENV = 'prod';
-            const client = createHTTPClient();
-            const clientMock = new MockAdapter(client.axiosV1);
-            process.env.NODE_ENV = 'test';
-
-            clientMock.onGet('/search/product').reply(200, { data: 'product' });
-
-            expect(client.axiosV0.interceptors.request.handlers[0].fulfilled).not.toBe(
-                client.axiosV1.interceptors.request.handlers[0].fulfilled,
-            );
-
-            await client.get('/search/product', { useAxiosV1: true });
-            expect(clientMock.history.get).toHaveLength(1);
-
-            jest.advanceTimersByTime(1000);
-            await client.get('/search/product', { useAxiosV1: true });
-
             expect(clientMock.history.get).toHaveLength(1);
             expect(console.warn).toHaveBeenCalledWith(
                 expect.anything(),

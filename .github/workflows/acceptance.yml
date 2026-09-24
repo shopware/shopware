@@ -58,7 +58,7 @@ jobs:
       - id: generate-matrix
         run: |
           # The major arm is a PR opt-in via the `major-acceptance` label (or `major-tests`, the umbrella label that enables every major arm).
-          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-acceptance') || contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-acceptance') || contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ github.event.action == 'labeled' && 'only' || inputs.major }}")
           jq . <<<"$MATRIX"
           {
             echo "matrix<<EOF"
@@ -118,7 +118,7 @@ jobs:
 
   acceptance-code-style:
     name: Acceptance code style
-    if: ${{ inputs.major != 'only' && (github.event.action != 'labeled' || github.event.label.name == 'major-acceptance' || github.event.label.name == 'major-tests') }}
+    if: ${{ inputs.major != 'only' && github.event.action != 'labeled' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -152,7 +152,7 @@ jobs:
       id-token: write
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' }}
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' && github.event.action != 'labeled' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -184,7 +184,7 @@ jobs:
     name: tested-versions
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' }}
+    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' && inputs.major != 'only' && github.event.action != 'labeled' }}
     runs-on: ubuntu-24.04
     outputs:
       first-version: ${{ steps.versions.outputs.first-version }}
@@ -405,7 +405,7 @@ jobs:
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
   acceptance-check:
-    if: always() && (github.event.action != 'labeled' || github.event.label.name == 'major-acceptance' || github.event.label.name == 'major-tests')
+    if: always() && (github.event.action != 'labeled' || ((github.event.label.name == 'major-acceptance' || github.event.label.name == 'major-tests') && needs.markdown-only-changes.outputs.docs_only != 'true'))
     needs:
       - acceptance-code-style
       - markdown-only-changes
@@ -417,9 +417,9 @@ jobs:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
-          # allow markdown-only PRs to skip the expensive jobs, and the major-only nightly to skip
-          # the jobs that are irrelevant to it, but fail on unexpected skips otherwise
+          # Allow markdown-only PRs to skip expensive jobs, and major-only nightly or labeled
+          # runs to skip the regular jobs, but fail on unexpected skips otherwise.
           allowed-skips: >-
-            ${{ inputs.major == 'only' && 'acceptance-code-style, acceptance-update'
+            ${{ (inputs.major == 'only' || github.event.action == 'labeled') && 'acceptance-code-style, acceptance-update'
               || (needs.markdown-only-changes.outputs.docs_only == 'true' && 'acceptance, acceptance-update' || '') }}
           jobs: ${{ toJSON(needs) }}

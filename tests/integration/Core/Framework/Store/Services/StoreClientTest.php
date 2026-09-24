@@ -227,7 +227,7 @@ class StoreClientTest extends TestCase
     {
         $this->getStoreRequestHandler()->append(new ConnectException(
             'cURL error 7: Failed to connect to api.shopware.com port 443 after 4102 ms: Network is unreachable (see https://curl.haxx.se/libcurl/c/libcurl-errors.html) for https://api.shopware.com/swplatform/pluginupdates?shopwareVersion=6.4.12.0&language=de-DE&domain=',
-            $this->createMock(RequestInterface::class)
+            static::createStub(RequestInterface::class)
         ));
 
         $pluginList = new ExtensionCollection();

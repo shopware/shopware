@@ -6,6 +6,7 @@ import {
     computed,
     getCurrentInstance,
     onBeforeUnmount,
+    onBeforeUpdate,
     provide,
     ref,
     watch,
@@ -83,19 +84,32 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
     setup(props, { slots }) {
-        const { addBlock, removeBlock, getBlocks } = useBlockContext();
+        const { addBlock, removeBlock, getBlocks, invalidateBlock } = useBlockContext();
         const { clearLegacyConditionChainsForBlock } = useLegacyConditionContext();
         const instance = getCurrentInstance();
 
         if (props.extends) {
-            // addBlock is a no-op for undefined, so an explicit guard is not needed.
-            addBlock(props.extends, slots.default);
+            const extendedBlockName = props.extends;
 
-            onBeforeUnmount(() => {
-                if (props.extends) {
-                    removeBlock(props.extends, slots.default);
-                }
-            });
+            if (slots.default) {
+                // Vue reassigns `slots.default` whenever the surrounding slot scope changes.
+                // Registering the function itself would pin the first scope forever and leave
+                // `removeBlock` with a reference that no longer matches anything, so register a
+                // stable wrapper that resolves the current slot function on every call instead.
+                const overrideSlot: Slot = (data?: unknown) => slots.default?.(data) ?? [];
+                addBlock(extendedBlockName, overrideSlot);
+
+                // The block rendering this override has no reactive link to the scope this
+                // override lives in. Vue has already swapped in the new slot function when this
+                // hook runs, so this is the moment to make the rendering block pick it up.
+                onBeforeUpdate(() => {
+                    invalidateBlock(extendedBlockName);
+                });
+
+                onBeforeUnmount(() => {
+                    removeBlock(extendedBlockName, overrideSlot);
+                });
+            }
 
             return { template: null };
         }
@@ -145,7 +159,18 @@ export default Shopware.Component.wrapComponentConfig({
         const providedParents = ref<ReturnType<Slot>[]>([]);
         provide(parentsInjectionKey, providedParents);
 
+        // Slot scope arrives as a function argument, not a reactive read, so a
+        // scope-only change never invalidates the computed below — bump a counter
+        // on every update so the cached nodes are rebuilt from the fresh slots.
+        const slotGeneration = ref(0);
+        onBeforeUpdate(() => {
+            slotGeneration.value += 1;
+        });
+
         const template = computed(() => {
+            // Read so a new slot function from the parent invalidates the cached nodes below.
+            void slotGeneration.value;
+
             if (!props.name) {
                 throw new Error('[sw-block] The "name" prop is required when "extends" is not set.');
             }

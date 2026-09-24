@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
+use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
 use Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter;
@@ -151,6 +152,7 @@ class GaranLabelRendererTest extends TestCase
             $durationFormatter,
             $productRepository,
             new GaranLabelResolver($durationFormatter, $renderer),
+            new GaranLabelInlineImage(),
         ));
 
         return $renderer;

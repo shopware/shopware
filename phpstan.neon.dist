@@ -30,9 +30,6 @@ parameters:
         - src/**/node_modules/*
         - tests/**/node_modules/*
 
-        # @todo NEXT-22697 - Remove when re-enabling cms-aware
-        - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
 
@@ -61,6 +58,11 @@ parameters:
                 - tests/migration/**/*Test.php
                 - tests/integration/**/*Test.php
                 - tests/integration/**/*TestCase.php
+
+        - # ignore errors caused by static::markTestSkipped
+            message: '#Unreachable statement - code above always terminates.#'
+            paths:
+                - tests/**/*Test.php
 
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773

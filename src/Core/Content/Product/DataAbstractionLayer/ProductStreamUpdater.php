@@ -16,12 +16,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -34,6 +41,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     public const INDEXER_NAME = 'product_stream_mapping.indexer';
+
+    private const CONDITION_CHUNK_SIZE = 20;
+
+    private const ID_CHUNK_SIZE = 500;
+
+    private const TOO_MANY_TABLES_ERROR_CODE = 1116;
 
     /**
      * @internal
@@ -85,16 +98,14 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         }
 
         // an invalid stream, or one left without filters, has nothing to match against
-        $criteria = null;
+        $parsedFilters = null;
         if ((int) $stream['invalid'] === 0 && $stream['api_filter'] !== null) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
 
             if (\is_array($filter)) {
-                $criteria = $this->getCriteria($filter);
+                $parsedFilters = $this->parseFilters($filter);
             }
         }
-
-        $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
@@ -104,12 +115,12 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             ['id' => $binaryStreamId],
         );
 
-        if ($criteria === null) {
+        if ($parsedFilters === null) {
             // nothing left to match against, so every mapping the stream still holds has to go
             $newMatches = [];
         } else {
             try {
-                $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
+                $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $parsedFilters, null, true);
             } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
                 // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // invalid filter, remove all mappings
@@ -198,14 +209,16 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 continue;
             }
 
-            $criteria = $this->getCriteria($filter, $ids);
+            $parsedFilters = $this->parseFilters($filter);
 
-            if ($criteria === null) {
+            if ($parsedFilters === null) {
                 continue;
             }
 
             try {
-                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
+                // runs inside the product indexer, before the Elasticsearch documents
+                // of the written products are updated
+                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $parsedFilters, array_values($ids), false);
             } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
                 // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // skip if filter field is not found
@@ -320,17 +333,19 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     /**
      * @param list<Context> $languageContexts
+     * @param list<Filter> $parsedFilters
+     * @param list<string>|null $restrictToIds
      *
      * @return list<string>
      */
-    private function collectMatchingIdsInLanguageContexts(array $languageContexts, Criteria $criteria): array
+    private function collectMatchingIdsInLanguageContexts(array $languageContexts, array $parsedFilters, ?array $restrictToIds, bool $elasticsearchAware): array
     {
         /** @var array<string, true> $matches */
         $matches = [];
 
         foreach ($languageContexts as $languageContext) {
             $languageMatches = $languageContext->enableInheritance(
-                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
+                fn (Context $context): array => $this->searchMatchingProductIds($parsedFilters, $restrictToIds, $context, $elasticsearchAware)
             );
 
             foreach ($languageMatches as $id) {
@@ -343,31 +358,336 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     /**
      * @param array<int, array<string, mixed>> $filters
-     * @param string[]|null $ids
+     *
+     * @return list<Filter>|null
      */
-    private function getCriteria(array $filters, ?array $ids = null): ?Criteria
+    private function parseFilters(array $filters): ?array
     {
+        if ($filters === []) {
+            return null;
+        }
+
         $exception = new SearchRequestException();
 
         $filters = $this->replaceCheapestPriceFilters($filters);
+
         $parsed = [];
         foreach ($filters as $filter) {
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if ($filters === []) {
-            return null;
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(...$parsed);
-
-        if ($ids !== null) {
-            $criteria->addFilter(new EqualsAnyFilter('id', $ids));
-        }
-
-        return $criteria;
+        return $parsed;
     }
+
+    /**
+     * @param list<Filter> $parsedFilters
+     * @param list<string>|null $restrictToIds
+     *
+     * @return list<string>
+     */
+    private function searchMatchingProductIds(array $parsedFilters, ?array $restrictToIds, Context $context, bool $elasticsearchAware): array
+    {
+        $chunkSize = self::CONDITION_CHUNK_SIZE;
+
+        while (true) {
+            try {
+                return $this->searchChunked($this->chunkFilters($parsedFilters, $chunkSize), $restrictToIds, $context, $elasticsearchAware);
+            } catch (\Throwable $e) {
+                if ($chunkSize <= 1 || !$this->isTooManyTablesError($e)) {
+                    throw $e;
+                }
+
+                $chunkSize = intdiv($chunkSize, 2);
+            }
+        }
+    }
+
+    /**
+     * @param list<list<Filter>> $chunks
+     * @param list<string>|null $restrictToIds
+     *
+     * @return list<string>
+     */
+    private function searchChunked(array $chunks, ?array $restrictToIds, Context $context, bool $elasticsearchAware): array
+    {
+        if (\count($chunks) <= 1) {
+            return $this->searchIds($chunks[0] ?? [], $restrictToIds, $context, $elasticsearchAware);
+        }
+
+        $matches = [];
+        foreach ($this->iterateCandidateIds($restrictToIds) as $candidateIds) {
+            foreach ($chunks as $chunk) {
+                $candidateIds = $this->searchIds($chunk, $candidateIds, $context, $elasticsearchAware);
+
+                if ($candidateIds === []) {
+                    break;
+                }
+            }
+
+            $matches = [...$matches, ...$candidateIds];
+        }
+
+        return $matches;
+    }
+
+    /**
+     * @param list<Filter> $filters
+     * @param list<string>|null $restrictToIds
+     *
+     * @return list<string>
+     */
+    private function searchIds(array $filters, ?array $restrictToIds, Context $context, bool $elasticsearchAware): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(...$filters);
+
+        if ($elasticsearchAware) {
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        }
+
+        if ($restrictToIds !== null) {
+            $criteria->addFilter(new EqualsAnyFilter('id', $restrictToIds));
+        }
+
+        $ids = $this->repository->searchIds($criteria, $context)->getIds();
+
+        return $ids;
+    }
+
+    /**
+     * @param list<string>|null $restrictToIds
+     *
+     * @return \Generator<int, list<string>>
+     */
+    private function iterateCandidateIds(?array $restrictToIds): \Generator
+    {
+        if ($restrictToIds !== null) {
+            foreach (array_chunk($restrictToIds, self::ID_CHUNK_SIZE) as $chunk) {
+                yield $chunk;
+            }
+
+            return;
+        }
+
+        $lastId = '';
+        while (true) {
+            $binaryIds = $this->connection->fetchFirstColumn(
+                'SELECT id FROM product WHERE version_id = :version AND id > :lastId ORDER BY id LIMIT ' . self::ID_CHUNK_SIZE,
+                ['version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION), 'lastId' => $lastId],
+            );
+
+            if ($binaryIds === []) {
+                return;
+            }
+
+            $lastId = end($binaryIds);
+
+            yield array_map(static fn (string $id): string => bin2hex($id), $binaryIds);
+        }
+    }
+
+    /**
+     * @param list<Filter> $parsedFilters
+     *
+     * @return list<list<Filter>>
+     */
+    private function chunkFilters(array $parsedFilters, int $chunkSize): array
+    {
+        $splitted = [];
+        foreach ($parsedFilters as $filter) {
+            $splitted = [...$splitted, ...$this->splitFilter($filter)];
+        }
+
+        $chunks = [];
+        $chunk = [];
+        $size = 0;
+
+        foreach ($splitted as $filter) {
+            $conditions = max(1, \count($filter->getFields()));
+
+            if ($chunk !== [] && $size + $conditions > $chunkSize) {
+                $chunks[] = $chunk;
+                $chunk = [];
+                $size = 0;
+            }
+
+            $chunk[] = $filter;
+            $size += $conditions;
+        }
+
+        if ($chunk !== []) {
+            $chunks[] = $chunk;
+        }
+
+        return $chunks;
+    }
+
+    /**
+     * @return list<Filter>
+     */
+    private function splitFilter(Filter $filter): array
+    {
+        if (!$filter instanceof MultiFilter || $filter instanceof NotFilter) {
+            return [$filter];
+        }
+
+        $queries = array_values($filter->getQueries());
+
+        if (\count($queries) === 1) {
+            return $this->splitFilter($queries[0]);
+        }
+
+        if ($filter->getOperator() !== MultiFilter::CONNECTION_AND) {
+            return [$filter];
+        }
+
+        $groups = $this->groupByToManyAssociation($queries);
+        if (\count($groups) <= 1) {
+            return [$filter];
+        }
+
+        $splitted = [];
+        foreach ($groups as $group) {
+            if (\count($group) === 1) {
+                $splitted = [...$splitted, ...$this->splitFilter($group[0])];
+
+                continue;
+            }
+
+            $splitted[] = new AndFilter($group);
+        }
+
+        return $splitted;
+    }
+
+    /**
+     * @param list<Filter> $filters
+     *
+     * @return list<list<Filter>>
+     */
+    private function groupByToManyAssociation(array $filters): array
+    {
+        /** @var array<string, int> $groupOfPath */
+        $groupOfPath = [];
+        /** @var array<int, int> $groupOfFilter */
+        $groupOfFilter = [];
+        $nextGroup = 0;
+
+        foreach ($filters as $index => $filter) {
+            $paths = $this->getToManyPaths($filter);
+
+            $targets = [];
+            foreach ($paths as $path) {
+                if (isset($groupOfPath[$path])) {
+                    $targets[$groupOfPath[$path]] = true;
+                }
+            }
+            $targets = array_keys($targets);
+
+            $group = $targets[0] ?? $nextGroup++;
+
+            foreach ($targets as $target) {
+                if ($target === $group) {
+                    continue;
+                }
+
+                foreach ($groupOfPath as $path => $current) {
+                    if ($current === $target) {
+                        $groupOfPath[$path] = $group;
+                    }
+                }
+
+                foreach ($groupOfFilter as $key => $current) {
+                    if ($current === $target) {
+                        $groupOfFilter[$key] = $group;
+                    }
+                }
+            }
+
+            foreach ($paths as $path) {
+                $groupOfPath[$path] = $group;
+            }
+
+            $groupOfFilter[$index] = $group;
+        }
+
+        /** @var array<int, list<Filter>> $byGroup */
+        $byGroup = [];
+        foreach ($filters as $index => $filter) {
+            $byGroup[$groupOfFilter[$index]][] = $filter;
+        }
+
+        $grouped = [];
+        foreach ($byGroup as $group) {
+            $grouped[] = $group;
+        }
+
+        return $grouped;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getToManyPaths(Filter $filter): array
+    {
+        $paths = [];
+        foreach ($filter->getFields() as $field) {
+            $path = $this->getToManyPath($field);
+
+            if ($path !== null) {
+                $paths[$path] = true;
+            }
+        }
+
+        return array_keys($paths);
+    }
+
+    private function getToManyPath(string $accessor): ?string
+    {
+        $definition = $this->productDefinition;
+
+        $parts = explode('.', str_replace('extensions.', '', $accessor));
+        if ($parts[0] === $definition->getEntityName()) {
+            array_shift($parts);
+        }
+
+        $path = [$definition->getEntityName()];
+
+        foreach ($parts as $part) {
+            $field = $definition->getFields()->get($part);
+
+            if (!$field instanceof AssociationField) {
+                return null;
+            }
+
+            $path[] = $field->getPropertyName();
+
+            if ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+                return implode('.', $path);
+            }
+
+            $definition = $field->getReferenceDefinition();
+        }
+
+        return null;
+    }
+
+    private function isTooManyTablesError(\Throwable $e): bool
+    {
+        for ($current = $e; $current !== null; $current = $current->getPrevious()) {
+            if ((int) $current->getCode() === self::TOO_MANY_TABLES_ERROR_CODE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $filters
+     *
+     * @return array<int, array<string, mixed>>
+     */
 
     /**
      * @param array<int, array<string, mixed>> $filters

@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\PDO\Exception as PdoDriverException;
-use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -372,30 +370,18 @@ class ProductStreamUpdaterTest extends TestCase
         $candidateIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
 
         $calls = [];
+        $searches = [];
+        for ($i = 0; $i < 7; ++$i) {
+            // always return the candidate ids so that subsequent batches keep matching
+            $searches[] = static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
+                $calls[] = $actualCriteria;
+
+                return $candidateIds;
+            };
+        }
+
         /** @var StaticEntityRepository<ProductCollection> $repository */
-        $repository = new StaticEntityRepository([
-            static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
-                $calls[] = $actualCriteria;
-
-                // Always return the candidate ids so that subsequent chunks keep matching.
-                return $candidateIds;
-            },
-            static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
-                $calls[] = $actualCriteria;
-
-                return $candidateIds;
-            },
-            static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
-                $calls[] = $actualCriteria;
-
-                return $candidateIds;
-            },
-            static function (Criteria $actualCriteria) use (&$calls, $candidateIds): array {
-                $calls[] = $actualCriteria;
-
-                return $candidateIds;
-            },
-        ]);
+        $repository = new StaticEntityRepository($searches);
 
         $updater = new ProductStreamUpdater(
             $connection,
@@ -409,9 +395,9 @@ class ProductStreamUpdaterTest extends TestCase
 
         $updater->updateProducts($candidateIds, $context);
 
-        // 70 conditions with a chunk size of 20 → 4 batches (20 + 20 + 20 + 10),
-        // executed once for the single (system) language context.
-        static::assertCount(4, $calls);
+        // 70 conditions with a chunk size of 10 → 7 batches, executed once for the
+        // single (system) language context.
+        static::assertCount(7, $calls);
 
         foreach ($calls as $i => $criteria) {
             $criteriaFilters = $criteria->getFilters();
@@ -428,7 +414,7 @@ class ProductStreamUpdaterTest extends TestCase
 
             // Each chunk must carry at most CONDITION_CHUNK_SIZE condition filters
             // (plus the id filter) — which proves we never build a single giant criteria.
-            static::assertLessThanOrEqual(21, \count($criteriaFilters));
+            static::assertLessThanOrEqual(11, \count($criteriaFilters));
         }
     }
 
@@ -475,7 +461,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $calls = 0;
         $searches = [];
-        for ($i = 0; $i < 4; ++$i) {
+        for ($i = 0; $i < 7; ++$i) {
             $searches[] = static function (Criteria $criteria) use (&$calls, $candidateIds): array {
                 ++$calls;
 
@@ -500,8 +486,8 @@ class ProductStreamUpdaterTest extends TestCase
 
         $updater->updateProducts($candidateIds, $context);
 
-        // 70 conditions with a chunk size of 20 → 4 batches (20 + 20 + 20 + 10)
-        static::assertSame(4, $calls);
+        // 70 conditions with a chunk size of 10 → 7 batches
+        static::assertSame(7, $calls);
     }
 
     /**
@@ -541,7 +527,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $grouped = null;
         $searches = [];
-        for ($i = 0; $i < 3; ++$i) {
+        for ($i = 0; $i < 5; ++$i) {
             $searches[] = static function (Criteria $criteria) use (&$grouped, $candidateIds): array {
                 foreach ($criteria->getFilters() as $filter) {
                     if ($filter instanceof MultiFilter && $filter->getOperator() === MultiFilter::CONNECTION_AND) {
@@ -607,7 +593,7 @@ class ProductStreamUpdaterTest extends TestCase
 
         $definition = new ProductDefinition();
         $searches = [];
-        for ($i = 0; $i < 4; ++$i) {
+        for ($i = 0; $i < 7; ++$i) {
             $searches[] = static fn (): array => [$productId];
         }
 
@@ -634,97 +620,6 @@ class ProductStreamUpdaterTest extends TestCase
 
         // the second page came back empty, so the walk stopped there
         static::assertSame([], $pages);
-    }
-
-    public function testSearchIsRetriedWithSmallerBatchesWhenTheJoinLimitIsHit(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $filters = array_fill(0, 70, ['type' => 'equals', 'field' => 'active', 'value' => '1']);
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['id' => Uuid::randomHex(), 'api_filter' => json_encode($filters)]]);
-
-        $candidateIds = [Uuid::randomHex()];
-
-        $attempts = 0;
-        $searches = [];
-        for ($i = 0; $i < 12; ++$i) {
-            $searches[] = static function () use (&$attempts, $candidateIds): array {
-                ++$attempts;
-
-                if ($attempts === 1) {
-                    throw self::tooManyTablesException();
-                }
-
-                return $candidateIds;
-            };
-        }
-
-        $definition = new ProductDefinition();
-        /** @var StaticEntityRepository<ProductCollection> $repository */
-        $repository = new StaticEntityRepository($searches, $definition);
-
-        $updater = new ProductStreamUpdater(
-            $connection,
-            $definition,
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            static::createStub(ManyToManyIdFieldUpdater::class),
-            $this->createDefaultLanguageRepo(),
-            true
-        );
-
-        $updater->updateProducts($candidateIds, $context);
-
-        // 70 conditions is 4 batches, the first attempt throws, the retry halves the
-        // batch size to 10 and needs 7 more
-        static::assertSame(8, $attempts);
-    }
-
-    public function testDatabaseErrorsOtherThanTheJoinLimitAreNotRetried(): void
-    {
-        $context = Context::createDefaultContext();
-
-        $filters = array_fill(0, 70, ['type' => 'equals', 'field' => 'active', 'value' => '1']);
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['id' => Uuid::randomHex(), 'api_filter' => json_encode($filters)]]);
-
-        $attempts = 0;
-        $definition = new ProductDefinition();
-        /** @var StaticEntityRepository<ProductCollection> $repository */
-        $repository = new StaticEntityRepository([
-            static function () use (&$attempts): array {
-                ++$attempts;
-
-                throw new \RuntimeException('deadlock found', 1213);
-            },
-        ], $definition);
-
-        $updater = new ProductStreamUpdater(
-            $connection,
-            $definition,
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            static::createStub(ManyToManyIdFieldUpdater::class),
-            $this->createDefaultLanguageRepo(),
-            true
-        );
-
-        $this->expectExceptionObject(new \RuntimeException('deadlock found', 1213));
-
-        try {
-            $updater->updateProducts([Uuid::randomHex()], $context);
-        } finally {
-            static::assertSame(1, $attempts);
-        }
     }
 
     public function testInvalidFilter(): void
@@ -990,14 +885,6 @@ class ProductStreamUpdaterTest extends TestCase
             'numOfTransactional' => 2, // add and delete
             'manyToManyUpdatedIds' => [$productId3, $productId4, $productId5, $productId1, $productId2],
         ];
-    }
-
-    private static function tooManyTablesException(): DriverException
-    {
-        $pdoException = new \PDOException('SQLSTATE[HY000]: General error: 1116 Too many tables; MariaDB can only use 61 tables in a join');
-        $pdoException->errorInfo = ['HY000', 1116, 'Too many tables; MariaDB can only use 61 tables in a join'];
-
-        return new DriverException(PdoDriverException::new($pdoException), null);
     }
 
     /**

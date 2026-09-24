@@ -10,7 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['customFieldDataProviderService'],
+    inject: [
+        // @deprecated tag:v6.8.0 - Only used by customFieldSetRepository; will be removed with it.
+        'repositoryFactory',
+        'customFieldDataProviderService',
+    ],
 
     props: {
         customer: {

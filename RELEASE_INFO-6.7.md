@@ -113,6 +113,17 @@ The `assetFilter` computed property is removed in v6.8.0 in these components; us
 - `sw-settings-listing-option-criteria-grid`
 - `sw-settings-product-feature-sets-values-card`
 - `sw-tax-rule-card`
+### Main menu group "Catalogues" is now "Products"
+
+The first main menu group is labelled "Products", its product list entry is labelled "Overview", and the matching group in Settings > Users & permissions is labelled "Products" as well. Menu ids and privilege parent keys are unchanged: entries still hook into the `sw-catalogue` menu id, and privileges still use `parent: 'catalogues'`.
+
+The category menu entry moved from position `20` to `25` so that it no longer ties with the reviews entry at `20`. Extension entries in the group that relied on the tie order need an explicit position.
+
+### Permission groups follow the main navigation
+
+The group order in the permissions grid of Settings > Users & permissions follows the main navigation (Products, Orders, Customers, Content, Marketing, Settings) instead of the alphabetical order of the translated labels, with groups of extensions sorted alphabetically after them and "Other" last.
+
+The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
 ## Storefront
 

@@ -181,7 +181,7 @@
       "administrator": "Administrator",
       "navigation": {
         "label": "Main navigation",
-        "mainMenuItemCatalogue": "Catalogues",
+        "mainMenuItemProducts": "Products",
         "mainMenuItemContent": "Content",
         "mainMenuItemMarketing": "Marketing",
         "mainMenuItemAutomation": "Automation"

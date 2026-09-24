@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox as TestDoxAttribute;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\MetadataCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\SavedConfig;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestPreparationStartedSubscriber;
@@ -66,6 +67,30 @@ class TestPreparationStartedSubscriberTest extends TestCase
         $subscriber->notify($this->preparationStartedFor(CleanFixture::class, 'testSomething'));
 
         static::assertNull($savedConfig->savedFeatureConfig, 'a non-allowed namespace must not reach the flag-rewriting path');
+    }
+
+    public function testNotifySnapshotsTheEnvironmentForTheUnitNamespace(): void
+    {
+        $serverVars = $_SERVER;
+        $features = Feature::getRegisteredFeatures();
+        $_ENV['ENVIRONMENT_MARKER'] = 'before';
+        putenv('ENVIRONMENT_MARKER=before');
+        $savedConfig = new SavedConfig();
+
+        try {
+            // this test class lives in the unit namespace the extension rewrites
+            (new TestPreparationStartedSubscriber($savedConfig))->notify($this->preparationStartedFor(self::class, __FUNCTION__));
+
+            static::assertNotNull($savedConfig->savedEnvironment);
+            static::assertSame('before', $savedConfig->savedEnvironment['env']['ENVIRONMENT_MARKER']);
+            static::assertSame('before', $savedConfig->savedEnvironment['environment']['ENVIRONMENT_MARKER']);
+        } finally {
+            $_SERVER = $serverVars;
+            Feature::resetRegisteredFeatures();
+            Feature::registerFeatures($features);
+            unset($_ENV['ENVIRONMENT_MARKER']);
+            putenv('ENVIRONMENT_MARKER');
+        }
     }
 
     /**

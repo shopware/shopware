@@ -17,12 +17,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Core\Test\TestEnvironment;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -52,8 +52,6 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private string $mockSalesChannelId;
 
     /**
@@ -687,7 +685,7 @@ PHP_EOL,
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('error');
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'V6_6_0_0' => 1,
         ]);
 

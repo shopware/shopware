@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -21,8 +21,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 #[CoversClass(AppTemplateIterator::class)]
 class AppTemplateIteratorTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testIteratorYieldsFilesystemAndDatabaseTemplates(): void
     {
         $filesystemTemplates = new AppTemplateIteratorStaticTemplateIterator(['storefront/base.html.twig', 'storefront/page.html.twig']);
@@ -50,7 +48,7 @@ class AppTemplateIteratorTest extends TestCase
 
     public function testIteratorYieldsOnlyFilesystemTemplatesInDatabaselessMode(): void
     {
-        $this->setEnvVars(['DATABASE_URL' => MySQLFactory::PLACEHOLDER_DATABASE_URL]);
+        TestEnvironment::set(['DATABASE_URL' => MySQLFactory::PLACEHOLDER_DATABASE_URL]);
 
         $filesystemTemplates = new AppTemplateIteratorStaticTemplateIterator(['storefront/base.html.twig']);
 

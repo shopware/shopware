@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -16,8 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 #[CoversClass(AppUrl::class)]
 class AppUrlTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testIdentifier(): void
     {
         $fingerprint = new AppUrl();
@@ -36,10 +34,10 @@ class AppUrlTest extends TestCase
     {
         $fingerprint = new AppUrl();
 
-        $this->setEnvVars(['APP_URL' => 'https://example.com']);
+        TestEnvironment::set(['APP_URL' => 'https://example.com']);
         static::assertSame('https://example.com', $fingerprint->getStamp());
 
-        $this->setEnvVars(['APP_URL' => 'https://foo.bar.com']);
+        TestEnvironment::set(['APP_URL' => 'https://foo.bar.com']);
         static::assertSame('https://foo.bar.com', $fingerprint->getStamp());
     }
 
@@ -47,7 +45,7 @@ class AppUrlTest extends TestCase
     {
         $fingerprint = new AppUrl();
 
-        $this->setEnvVars(['APP_URL' => null]);
+        TestEnvironment::set(['APP_URL' => null]);
 
         $this->expectExceptionObject(AppException::appUrlNotConfigured());
 

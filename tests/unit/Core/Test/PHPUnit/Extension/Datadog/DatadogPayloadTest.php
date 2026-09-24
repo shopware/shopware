@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\Datadog;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayload;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -15,11 +15,9 @@ use Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogPayload;
 #[CoversClass(DatadogPayload::class)]
 class DatadogPayloadTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testSerializeOutsideACiPipeline(): void
     {
-        $this->setEnvVars(['CI_PROJECT_URL' => null, 'CI_JOB_ID' => null, 'CI_BUILD_ID' => null]);
+        TestEnvironment::set(['CI_PROJECT_URL' => null, 'CI_JOB_ID' => null, 'CI_BUILD_ID' => null]);
 
         $payload = new DatadogPayload('phpunit', 'phpunit,test:failed', 'message', 'PHPUnit', 'fakeFile', 1.5);
 
@@ -36,7 +34,7 @@ class DatadogPayloadTest extends TestCase
 
     public function testSerializeLinksTheCiBuild(): void
     {
-        $this->setEnvVars(['CI_PROJECT_URL' => 'https://ci.example/project', 'CI_JOB_ID' => '42']);
+        TestEnvironment::set(['CI_PROJECT_URL' => 'https://ci.example/project', 'CI_JOB_ID' => '42']);
 
         $payload = new DatadogPayload('phpunit', 'phpunit,test:slow', 'message', 'PHPUnit');
 

@@ -10,7 +10,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
@@ -23,6 +22,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
 use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -39,7 +39,6 @@ use Twig\Environment;
 #[CoversClass(ShopConfigurationController::class)]
 class ShopConfigurationControllerTest extends TestCase
 {
-    use EnvTestBehaviour;
     use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
@@ -220,7 +219,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->request->set('config_mail', 'info@test.com');
         $request->request->set('available_currencies', ['EUR', 'USD', 'GBP']);
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'HTTPS' => 'on',
             'HTTP_HOST' => 'localhost',
             'SCRIPT_NAME' => '/shop/index.php',
@@ -281,7 +280,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->setSession($session);
         $request->attributes->set('_locale', 'de');
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'HTTPS' => 'on',
             'HTTP_HOST' => 'localhost',
             'SCRIPT_NAME' => '/shop/index.php',
@@ -352,7 +351,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->setSession($session);
         $request->attributes->set('_locale', 'de');
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'HTTPS' => 'on',
             'HTTP_HOST' => 'localhost',
             'SCRIPT_NAME' => '/shop/index.php',

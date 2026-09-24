@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationException;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -22,13 +22,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 #[CoversClass(MigrationCollectionLoader::class)]
 class MigrationCollectionLoaderTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     protected function setUp(): void
     {
         // getLastSafeMajorVersion() bumps the major when FEATURE_ALL=major is set (e.g. on the
         // nightly major runs) — pin the environment so the expectations stay deterministic
-        $this->setEnvVars(['FEATURE_ALL' => null]);
+        TestEnvironment::set(['FEATURE_ALL' => null]);
     }
 
     /**
@@ -44,7 +42,7 @@ class MigrationCollectionLoaderTest extends TestCase
     #[TestDox('getLastSafeMajorVersion simulates the next major when FEATURE_ALL=major')]
     public function testGetLastSafeMajorVersionWithSimulatedMajor(): void
     {
-        $this->setEnvVars(['FEATURE_ALL' => 'major']);
+        TestEnvironment::set(['FEATURE_ALL' => 'major']);
 
         static::assertSame(6, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_ALL));
         static::assertSame(5, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN));

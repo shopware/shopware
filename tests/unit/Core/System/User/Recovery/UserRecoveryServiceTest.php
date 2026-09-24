@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -28,6 +27,7 @@ use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\System\User\UserException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,14 +41,12 @@ use Symfony\Component\Routing\RouterInterface;
 #[CoversClass(UserRecoveryService::class)]
 class UserRecoveryServiceTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private const HASH = 'Ynp1oKlXNlLRnjTHVCXBSLnFmQCLLbNe';
 
     protected function setUp(): void
     {
         Request::setTrustedHosts([]);
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_URL' => 'https://shop.example.com',
             'SHOPWARE_ADMINISTRATION_PATH_NAME' => null,
         ]);
@@ -326,7 +324,7 @@ class UserRecoveryServiceTest extends TestCase
     public function testAppUrlIsNotValidatedWhileTheRouterProvidesTheUrl(): void
     {
         Request::setTrustedHosts(['shop.example.com']);
-        $this->setEnvVars(['APP_URL' => 'not-a-url']);
+        TestEnvironment::set(['APP_URL' => 'not-a-url']);
 
         $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willReturn('https://shop.example.com/admin');
@@ -340,7 +338,7 @@ class UserRecoveryServiceTest extends TestCase
     public function testRecoveryUrlThrowsWhenAppUrlIsInvalidAndAdministrationRouteIsNotRegistered(): void
     {
         Request::setTrustedHosts(['shop.example.com']);
-        $this->setEnvVars(['APP_URL' => 'not-a-url']);
+        TestEnvironment::set(['APP_URL' => 'not-a-url']);
 
         $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willThrowException(new RouteNotFoundException());
@@ -352,7 +350,7 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testRecoveryUrlUsesConfiguredAdministrationPathName(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_URL' => 'https://shop.example.com/',
             'SHOPWARE_ADMINISTRATION_PATH_NAME' => '/backoffice/',
         ]);
@@ -377,7 +375,7 @@ class UserRecoveryServiceTest extends TestCase
     #[DataProvider('invalidAppUrlProvider')]
     public function testRecoveryUrlThrowsWhenAppUrlIsNotAValidHttpUrl(string $appUrl): void
     {
-        $this->setEnvVars(['APP_URL' => $appUrl]);
+        TestEnvironment::set(['APP_URL' => $appUrl]);
 
         $this->expectExceptionObject(UserException::invalidAppUrl(rtrim($appUrl, '/')));
 

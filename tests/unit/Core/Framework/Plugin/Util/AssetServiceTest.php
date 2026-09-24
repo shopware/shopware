@@ -21,11 +21,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
+use Shopware\Core\Test\TestEnvironment;
 use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\ExampleBundle\ExampleBundle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -39,8 +39,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[CoversClass(AssetService::class)]
 class AssetServiceTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testCopyAssetsFromBundlePluginDoesNotExists(): void
     {
         $kernelMock = $this->createMock(KernelInterface::class);
@@ -74,7 +72,7 @@ class AssetServiceTest extends TestCase
 
     public function testCopyAssetsFromBundlePluginWithoutInvalidation(): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_ASSET_INSTALL_CACHE_INVALIDATION' => '1']);
+        TestEnvironment::set(['SHOPWARE_SKIP_ASSET_INSTALL_CACHE_INVALIDATION' => '1']);
 
         $filesystem = $this->createFilesystem();
 

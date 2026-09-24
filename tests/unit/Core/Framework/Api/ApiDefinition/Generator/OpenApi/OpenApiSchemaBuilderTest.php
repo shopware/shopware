@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -21,8 +21,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(OpenApiSchemaBuilder::class)]
 class OpenApiSchemaBuilderTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testEnrichAddsDefaultErrorResponsesForStoreApi(): void
     {
         $openApi = new OpenApi([]);
@@ -80,7 +78,7 @@ class OpenApiSchemaBuilderTest extends TestCase
     #[DataProvider('serverUrlProvider')]
     public function testServerUrl(string $api, string $appUrl, string $appEnv, string $expectedUrl): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_ENV' => $appEnv,
             'APP_URL' => $appUrl,
         ]);

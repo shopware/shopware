@@ -25,9 +25,10 @@ class TraitUsageInNewUnitTests
     /**
      * Behaviours that hook into the test lifecycle and therefore need the test instance. `EventDispatcherBehaviour`
      * is not one of them in the unit suite: a unit test owns its dispatcher, so it registers listeners on it directly.
+     * `EnvTestBehaviour` is not either: `TestEnvironment::set()` writes the variables and the FeatureFlag extension
+     * restores them after every unit test.
      */
     private const ALLOWED_TRAITS = [
-        'Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour',
         'Symfony\Component\Clock\Test\ClockSensitiveTrait',
     ];
 
@@ -51,7 +52,7 @@ class TraitUsageInNewUnitTests
             $context->failure(
                 'A new unit test class does not pull helpers in through a trait. Put fixture builders into a static'
                 . ' fixture class, doubles into a `Stub/` folder next to the test, and keep kernel-booting behaviours'
-                . ' out of the unit suite. Only lifecycle behaviours such as `EnvTestBehaviour` may stay:<br/>'
+                . ' out of the unit suite. Only `ClockSensitiveTrait` may stay; environment variables go through `TestEnvironment::set()`:<br/>'
                 . implode('<br/>', $violations)
             );
         }

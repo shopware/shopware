@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\SavedConfig;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -49,6 +50,7 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
 
         $this->savedConfig->savedFeatureConfig = Feature::getRegisteredFeatures();
         $this->savedConfig->savedServerVars = $_SERVER;
+        $this->savedConfig->savedEnvironment = TestEnvironment::snapshot();
 
         Feature::resetRegisteredFeatures();
         foreach ($_SERVER as $key => $value) {

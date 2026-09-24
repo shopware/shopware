@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -19,8 +19,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[CoversClass(FallbackUrlPackage::class)]
 class FallbackUrlPackageTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testCliFallbacksToAppUrl(): void
     {
         $url = $this->createPackage()->getUrl('test');
@@ -37,7 +35,7 @@ class FallbackUrlPackageTest extends TestCase
 
     public function testWebFallbackToRequest(): void
     {
-        $this->setEnvVars(['HTTP_HOST' => 'test.de']);
+        TestEnvironment::set(['HTTP_HOST' => 'test.de']);
         $url = $this->createPackage()->getUrl('test');
 
         static::assertSame('http://test.de/test', $url);

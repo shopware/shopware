@@ -12,10 +12,10 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -33,8 +33,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Group('cache')]
 class CacheInvalidatorTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testInvalidateNothingShouldNotCall(): void
     {
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
@@ -403,7 +401,7 @@ class CacheInvalidatorTest extends TestCase
 
     public function testStoreFailureFallsBackToImmediateInvalidation(): void
     {
-        $this->setEnvVars(['CI' => null]);
+        TestEnvironment::set(['CI' => null]);
 
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter
@@ -442,7 +440,7 @@ class CacheInvalidatorTest extends TestCase
 
     public function testStoreFailureLogsWarningInCiMode(): void
     {
-        $this->setEnvVars(['CI' => '1']);
+        TestEnvironment::set(['CI' => '1']);
 
         $tagAwareAdapter = $this->createMock(TagAwareAdapterInterface::class);
         $tagAwareAdapter

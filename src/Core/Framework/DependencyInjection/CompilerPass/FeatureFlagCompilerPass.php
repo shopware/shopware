@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
-use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -12,6 +10,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[Package('framework')]
 class FeatureFlagCompilerPass implements CompilerPassInterface
 {
+    public const ALIASES_TO_REMOVE = [
+        'v6.8.0.0' => [
+            'Shopware\Administration\Controller\NotificationController',
+            'Shopware\Administration\Notification\NotificationDefinition',
+            'Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface',
+            'Shopware\Core\Framework\Plugin\Util\AssetService',
+            'Shopware\Elasticsearch\Product\SearchConfigLoader',
+        ],
+    ];
+
     public function process(ContainerBuilder $container): void
     {
         $featureFlags = $container->getParameter('shopware.feature.flags');
@@ -43,29 +51,12 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
             }
         }
 
-        foreach ($container->getAliases() as $aliasId => $alias) {
-            if (!$alias->isDeprecated()) {
+        foreach (self::ALIASES_TO_REMOVE as $flag => $aliases) {
+            if (!Feature::has($flag) || !Feature::isActive($flag)) {
                 continue;
             }
 
-            $flag = null;
-            if (isset(ClassAliasRegistry::ALIASES[$aliasId])) {
-                foreach ((new \ReflectionClass(ClassAliasRegistry::ALIASES[$aliasId]))->getAttributes(ClassMoved::class) as $attribute) {
-                    $classMoved = $attribute->newInstance();
-                    if ($classMoved->previousClassName === $aliasId) {
-                        $flag = $classMoved->version . '.0';
-
-                        break;
-                    }
-                }
-            } elseif (\class_exists($aliasId) || \interface_exists($aliasId)) {
-                $docComment = (new \ReflectionClass($aliasId))->getDocComment();
-                if (\is_string($docComment) && \preg_match('/@deprecated\s+tag:(v\d+\.\d+\.\d+(?:\.\d+)?)/', $docComment, $matches)) {
-                    $flag = substr_count($matches[1], '.') === 2 ? $matches[1] . '.0' : $matches[1];
-                }
-            }
-
-            if ($flag !== null && Feature::has($flag) && Feature::isActive($flag)) {
+            foreach ($aliases as $aliasId) {
                 $container->removeAlias($aliasId);
             }
         }

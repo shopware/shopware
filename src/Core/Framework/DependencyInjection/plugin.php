@@ -287,6 +287,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ]);
 
+    // @deprecated tag:v6.8.0 Will be removed
     $services->alias(
         'Shopware\Core\Framework\Plugin\Util\AssetService',
         AssetService::class,

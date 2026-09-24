@@ -60,7 +60,7 @@ $services->set(LegacyService::class)
 
 The compiler pass removes the service definition when the flag is active. `shopware.feature` has the inverse meaning: it removes the service while the flag is inactive. Changes to either flag require a rebuilt service container.
 
-Symfony service aliases cannot be tagged. Mark an alias with `->deprecate(...)` when it should be removed, and provide the removal version on the old class or interface: `#[ClassMoved]` with a `ClassAliasRegistry` entry for moved classes, or `@deprecated tag:vX.Y.Z` for a class that still has its own declaration. The compiler pass checks deprecated aliases and removes each one when its removal flag is active. The version passed to `->deprecate(...)` is when the deprecation was introduced, not the removal version.
+Symfony service aliases cannot be tagged. For an alias scheduled for removal, add an adjacent `// @deprecated tag:vX.Y.Z` comment and list its ID under the matching `vX.Y.Z.0` key in `FeatureFlagCompilerPass::ALIASES_TO_REMOVE`. The compiler pass removes listed aliases when the flag is active, and PHPStan checks that annotated aliases are listed under the correct flag. Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument is when the deprecation was introduced, not the removal version.
 
 ### Using flags in methods
 When there is no option via the container you can use additional helper functions:

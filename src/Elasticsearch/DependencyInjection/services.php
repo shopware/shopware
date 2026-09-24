@@ -392,6 +392,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElasticsearchTokenizer::class),
         ]);
 
+    // @deprecated tag:v6.8.0 Will be removed
     $services->alias(
         'Shopware\Elasticsearch\Product\SearchConfigLoader',
         SearchConfigLoader::class,

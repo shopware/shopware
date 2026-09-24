@@ -12,6 +12,7 @@ use PhpParser\Node\Stmt\Expression;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -50,6 +51,44 @@ class DeprecatedServiceDefinitionFeatureTagRule implements Rule
         }
 
         $methods = array_reverse($methods);
+        $commentFlag = null;
+        foreach ($node->getComments() as $comment) {
+            if ($comment->getEndLine() !== $node->getStartLine() - 1) {
+                continue;
+            }
+
+            if (preg_match('/@deprecated\s+tag:(v\d+\.\d+\.\d+(?:\.\d+)?)/', $comment->getText(), $matches)) {
+                $commentFlag = $matches[1];
+            }
+        }
+
+        if ($commentFlag !== null && substr_count($commentFlag, '.') === 2) {
+            $commentFlag .= '.0';
+        }
+
+        if ($methods[0]['name'] === 'alias') {
+            if ($commentFlag === null) {
+                return [];
+            }
+
+            $aliasArgument = $methods[0]['call']->getArgs()[0]->value ?? null;
+            $aliasIds = $aliasArgument === null ? [] : $scope->getType($aliasArgument)->getConstantStrings();
+            if (\count($aliasIds) !== 1) {
+                return [RuleErrorBuilder::message('Deprecated service aliases must have a constant ID to check the removal flag.')
+                    ->identifier('shopware.deprecatedServiceAliasFeatureFlag')
+                    ->build()];
+            }
+
+            $aliasId = $aliasIds[0]->getValue();
+            if (\in_array($aliasId, FeatureFlagCompilerPass::ALIASES_TO_REMOVE[$commentFlag] ?? [], true)) {
+                return [];
+            }
+
+            return [RuleErrorBuilder::message(\sprintf('Deprecated service alias "%s" scheduled for "%s" must be listed in FeatureFlagCompilerPass::ALIASES_TO_REMOVE.', $aliasId, $commentFlag))
+                ->identifier('shopware.deprecatedServiceAliasFeatureFlag')
+                ->build()];
+        }
+
         if ($methods[0]['name'] !== 'set') {
             return [];
         }
@@ -86,15 +125,7 @@ class DeprecatedServiceDefinitionFeatureTagRule implements Rule
             $flag = 'v' . $matches[1];
         }
 
-        foreach ($node->getComments() as $comment) {
-            if ($comment->getEndLine() !== $node->getStartLine() - 1) {
-                continue;
-            }
-
-            if (preg_match('/@deprecated\s+tag:(v\d+\.\d+\.\d+(?:\.\d+)?)/', $comment->getText(), $matches)) {
-                $flag ??= $matches[1];
-            }
-        }
+        $flag ??= $commentFlag;
 
         if ($deprecation === null && $flag === null) {
             return [];

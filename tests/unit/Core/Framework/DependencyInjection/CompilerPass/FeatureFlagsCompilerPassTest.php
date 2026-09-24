@@ -179,7 +179,7 @@ class FeatureFlagsCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition('deprecated_service'));
     }
 
-    public function testItRemovesMovedClassServiceAliasWhenFlagIsActive(): void
+    public function testItRemovesListedServiceAliasesWhenFlagIsActive(): void
     {
         $previousClassNames = [
             'Shopware\Administration\Controller\NotificationController',
@@ -192,12 +192,12 @@ class FeatureFlagsCompilerPassTest extends TestCase
         foreach ($previousClassNames as $previousClassName) {
             $currentClassName = ClassAliasRegistry::ALIASES[$previousClassName];
             $container->setDefinition($currentClassName, new Definition());
-            $container->setAlias($previousClassName, $currentClassName)
-                ->setDeprecated('shopware/core', '6.7.0.0', 'The "%alias_id%" service alias is deprecated.');
+            $container->setAlias($previousClassName, $currentClassName);
         }
-        $notDeprecatedAlias = 'Shopware\Administration\Notification\NotificationCollection';
-        $container->setDefinition(ClassAliasRegistry::ALIASES[$notDeprecatedAlias], new Definition());
-        $container->setAlias($notDeprecatedAlias, ClassAliasRegistry::ALIASES[$notDeprecatedAlias]);
+        $unlistedAlias = 'Shopware\Administration\Notification\NotificationCollection';
+        $container->setDefinition(ClassAliasRegistry::ALIASES[$unlistedAlias], new Definition());
+        $container->setAlias($unlistedAlias, ClassAliasRegistry::ALIASES[$unlistedAlias])
+            ->setDeprecated('shopware/core', '6.7.0.0', 'The "%alias_id%" service alias is deprecated.');
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => true],
         ]);
@@ -208,7 +208,7 @@ class FeatureFlagsCompilerPassTest extends TestCase
             static::assertFalse($container->hasAlias($previousClassName));
             static::assertTrue($container->hasDefinition(ClassAliasRegistry::ALIASES[$previousClassName]));
         }
-        static::assertTrue($container->hasAlias($notDeprecatedAlias));
+        static::assertTrue($container->hasAlias($unlistedAlias));
     }
 
     public function testItKeepsMovedClassServiceAliasWhenFlagIsInactive(): void

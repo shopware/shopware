@@ -20,19 +20,31 @@ class DeprecatedServiceDefinitionFeatureTagRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/DeprecatedServiceDefinitionFeatureTagRule/services.php'], [
             [
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
-                8,
+                9,
             ],
             [
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
-                11,
+                12,
             ],
             [
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
-                22,
+                23,
             ],
             [
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
-                25,
+                26,
+            ],
+            [
+                'Deprecated service alias "unlisted-alias" scheduled for "v6.8.0.0" must be listed in FeatureFlagCompilerPass::ALIASES_TO_REMOVE.',
+                45,
+            ],
+            [
+                'Deprecated service alias "Shopware\Administration\Notification\NotificationDefinition" scheduled for "v6.9.0.0" must be listed in FeatureFlagCompilerPass::ALIASES_TO_REMOVE.',
+                48,
+            ],
+            [
+                'Deprecated service aliases must have a constant ID to check the removal flag.',
+                58,
             ],
         ]);
     }

@@ -117,7 +117,8 @@ jobs:
           ludtwig . | tee "$RUNNER_TEMP/ludtwig-scan.log"
 
       - name: Verify Twig templates were scanned
-        run: grep -Eq '^Files scanned: [1-9][0-9]*,' "$RUNNER_TEMP/ludtwig-scan.log"
+        run: |
+          grep -Eq '^Files scanned: [1-9][0-9]*,' "$RUNNER_TEMP/ludtwig-scan.log"
 
       - name: Instructions if ludtwig fails
         if: ${{ failure() && steps.ludtwigStep.outcome == 'failure'}}

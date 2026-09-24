@@ -5,7 +5,7 @@ Loads the short suggestion listing shown while a visitor types in the search box
 ```json
 {
   "id": "search-suggest",
-  "component": "Sw:Product:Suggest",
+  "component": "Sw:Product:Listing",
   "properties": {
     "searchTerm": "{{search}}"
   },

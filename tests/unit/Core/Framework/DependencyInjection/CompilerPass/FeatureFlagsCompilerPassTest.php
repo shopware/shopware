@@ -4,7 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
+use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -176,63 +179,93 @@ class FeatureFlagsCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition('deprecated_service'));
     }
 
-    public function testItRemovesInactiveFeatureAliasWhenFlagIsActive(): void
+    public function testItRemovesMovedClassServiceAliasWhenFlagIsActive(): void
     {
+        $previousClassNames = [
+            'Shopware\Administration\Controller\NotificationController',
+            'Shopware\Administration\Notification\NotificationDefinition',
+            'Shopware\Core\Framework\Plugin\Util\AssetService',
+            'Shopware\Elasticsearch\Product\SearchConfigLoader',
+        ];
+
         $container = new ContainerBuilder();
-        $container->setDefinition('canonical_service', new Definition());
-        $container->setAlias('legacy_service', 'canonical_service');
-        $container->setParameter('shopware.inactiveFeature.alias.legacy_service', 'v6.8.0.0');
+        foreach ($previousClassNames as $previousClassName) {
+            $currentClassName = ClassAliasRegistry::ALIASES[$previousClassName];
+            $container->setDefinition($currentClassName, new Definition());
+            $container->setAlias($previousClassName, $currentClassName);
+        }
+        $container->setAlias('unrelated_alias', ClassAliasRegistry::ALIASES[$previousClassNames[0]]);
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => true],
         ]);
 
         Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
 
-        static::assertFalse($container->hasAlias('legacy_service'));
-        static::assertTrue($container->hasDefinition('canonical_service'));
-        static::assertFalse($container->hasParameter('shopware.inactiveFeature.alias.legacy_service'));
+        foreach ($previousClassNames as $previousClassName) {
+            static::assertFalse($container->hasAlias($previousClassName));
+            static::assertTrue($container->hasDefinition(ClassAliasRegistry::ALIASES[$previousClassName]));
+        }
+        static::assertTrue($container->hasAlias('unrelated_alias'));
     }
 
-    public function testItKeepsInactiveFeatureAliasWhenFlagIsInactive(): void
+    public function testItKeepsMovedClassServiceAliasWhenFlagIsInactive(): void
     {
+        $previousClassName = 'Shopware\Administration\Controller\NotificationController';
+        $currentClassName = ClassAliasRegistry::ALIASES[$previousClassName];
+
         $container = new ContainerBuilder();
-        $container->setDefinition('canonical_service', new Definition());
-        $container->setAlias('legacy_service', 'canonical_service');
-        $container->setParameter('shopware.inactiveFeature.alias.legacy_service', 'v6.8.0.0');
+        $container->setDefinition($currentClassName, new Definition());
+        $container->setAlias($previousClassName, $currentClassName);
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => false],
         ]);
 
         Feature::withFeatureDisabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
 
-        static::assertTrue($container->hasAlias('legacy_service'));
-        static::assertFalse($container->hasParameter('shopware.inactiveFeature.alias.legacy_service'));
+        static::assertTrue($container->hasAlias($previousClassName));
     }
 
-    public function testItKeepsInactiveFeatureAliasForPendingMajor(): void
+    public function testItKeepsMovedClassServiceAliasForUnregisteredMajor(): void
     {
+        $previousClassName = 'Shopware\Administration\Controller\NotificationController';
+        $currentClassName = ClassAliasRegistry::ALIASES[$previousClassName];
+
         $container = new ContainerBuilder();
-        $container->setDefinition('canonical_service', new Definition());
-        $container->setAlias('legacy_service', 'canonical_service');
-        $container->setParameter('shopware.inactiveFeature.alias.legacy_service', 'v6.9.0.0');
+        $container->setDefinition($currentClassName, new Definition());
+        $container->setAlias($previousClassName, $currentClassName);
         $container->setParameter('shopware.feature.flags', []);
 
         Feature::fake([], fn () => $this->compilerPass->process($container));
 
-        static::assertTrue($container->hasAlias('legacy_service'));
-        static::assertFalse($container->hasParameter('shopware.inactiveFeature.alias.legacy_service'));
+        static::assertTrue($container->hasAlias($previousClassName));
     }
 
-    public function testItRejectsInactiveFeatureMarkerForMissingAlias(): void
+    public function testItRemovesDeprecatedProductStreamInterfaceAliasWhenFlagIsActive(): void
     {
         $container = new ContainerBuilder();
-        $container->setParameter('shopware.inactiveFeature.alias.missing_service', 'v6.8.0.0');
+        $container->setDefinition(ProductStreamBuilder::class, new Definition());
+        $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class);
         $container->setParameter('shopware.feature.flags', [
             'v6.8.0.0' => ['major' => true, 'active' => true],
         ]);
 
-        $this->expectExceptionObject(new \RuntimeException('Invalid inactive feature alias marker "shopware.inactiveFeature.alias.missing_service"'));
-
         Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
+
+        static::assertFalse($container->hasAlias(ProductStreamBuilderInterface::class));
+        static::assertTrue($container->hasDefinition(ProductStreamBuilder::class));
+    }
+
+    public function testItKeepsDeprecatedProductStreamInterfaceAliasWhenFlagIsInactive(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition(ProductStreamBuilder::class, new Definition());
+        $container->setAlias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class);
+        $container->setParameter('shopware.feature.flags', [
+            'v6.8.0.0' => ['major' => true, 'active' => false],
+        ]);
+
+        Feature::withFeatureDisabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
+
+        static::assertTrue($container->hasAlias(ProductStreamBuilderInterface::class));
     }
 }

@@ -39,7 +39,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->alias(ProductStreamBuilderInterface::class, ProductStreamBuilder::class)
         ->deprecate('shopware/core', '6.8.0', 'The %alias_id% service is deprecated and will be removed in 6.8.0. Use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder instead');
-    $containerConfigurator->parameters()->set('shopware.inactiveFeature.alias.' . ProductStreamBuilderInterface::class, 'v6.8.0.0');
 
     $services->set(ProductStreamIndexer::class)
         ->args([

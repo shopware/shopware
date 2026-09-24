@@ -16,14 +16,15 @@ use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * Builds the products, slot and resolver context the product slider processor tests share. The slot takes
+ * the field configuration the test assembled, so no state lives here.
+ *
  * @internal
  */
 #[Package('discovery')]
-trait ProductSliderUnitTrait
+final class ProductSliderFixture
 {
-    protected FieldConfigCollection $config;
-
-    private function getProducts(): ProductCollection
+    public static function getProducts(): ProductCollection
     {
         $product = (new ProductEntity())->assign([
             'id' => 'product-1',
@@ -50,7 +51,7 @@ trait ProductSliderUnitTrait
     /**
      * @return EntitySearchResult<ProductCollection>
      */
-    private function getEntitySearchResult(ProductCollection $products): EntitySearchResult
+    public static function getEntitySearchResult(ProductCollection $products): EntitySearchResult
     {
         return new EntitySearchResult(
             'product',
@@ -62,21 +63,18 @@ trait ProductSliderUnitTrait
         );
     }
 
-    private function getSlot(): CmsSlotEntity
+    public static function getSlot(FieldConfigCollection $config): CmsSlotEntity
     {
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
         $slot->setType('product-slider');
-        $slot->setFieldConfig($this->config);
+        $slot->setFieldConfig($config);
 
         return $slot;
     }
 
-    private function getResolverContext(): ResolverContext
+    public static function getResolverContext(): ResolverContext
     {
-        $context = Generator::generateSalesChannelContext();
-        $request = new Request();
-
-        return new ResolverContext($context, $request);
+        return new ResolverContext(Generator::generateSalesChannelContext(), new Request());
     }
 }

@@ -22,8 +22,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 #[CoversClass(AbstractProductSliderProcessor::class)]
 class AbstractProductSliderProcessorTest extends TestCase
 {
-    use ProductSliderUnitTrait;
-
     public function testGetDecorated(): void
     {
         $this->expectException(DecorationPatternException::class);
@@ -38,7 +36,7 @@ class AbstractProductSliderProcessorTest extends TestCase
 
     public function testFilterOutOutOfStockHiddenCloseoutProducts(): void
     {
-        $products = $this->getProducts();
+        $products = ProductSliderFixture::getProducts();
         static::assertCount(2, $products);
 
         $processor = new TestAbstractProductSliderProcessor();

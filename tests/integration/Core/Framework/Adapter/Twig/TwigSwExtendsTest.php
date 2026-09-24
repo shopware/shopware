@@ -130,30 +130,6 @@ class TwigSwExtendsTest extends TestCase
         static::assertSame('TestPlugin1/TestPlugin2', $template->render([]));
     }
 
-    public function testMultipleInheritanceWithChangingTemplateChain(): void
-    {
-        static::markTestSkipped('Twig cache is not invalidated');
-
-        [$twig, $templateFinder] = $this->createFinder([
-            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
-            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
-        ]);
-
-        $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
-        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
-        static::assertSame('Base/TestPlugin1/TestPlugin2', $template->render([]));
-
-        [$twig, $templateFinder] = $this->createFinder([
-            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
-            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
-        ]);
-
-        $templatePath = $templateFinder->find('storefront/frontend/base.html.twig');
-        $template = $twig->loadTemplate($twig->getTemplateClass($templatePath), $templatePath);
-        static::assertSame('Base/TestPlugin2', $template->render([]));
-    }
-
     public function testPluginExtendsOtherPlugin(): void
     {
         [$twig, $templateFinder] = $this->createFinder([

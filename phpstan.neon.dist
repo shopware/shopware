@@ -32,7 +32,6 @@ parameters:
 
         # @todo NEXT-22697 - Remove when re-enabling cms-aware
         - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-        - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
 
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*

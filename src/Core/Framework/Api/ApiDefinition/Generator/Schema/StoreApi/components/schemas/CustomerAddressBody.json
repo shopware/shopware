@@ -35,7 +35,7 @@
                     },
                     "city": { "type": "string" },
                     "accountType": {
-                        "description": "Type of the customer account, `private` or `business`. Only evaluated when the `core.loginRegistration.showAccountTypeSelection` setting is enabled, and then it makes `company` required. It is not stored on the address, and during registration the account type of the customer is taken from the top level of the request instead.",
+                        "description": "Type of the account the address belongs to, `private` or `business`. A `business` address requires `company`, which is only enforced while the `core.loginRegistration.showAccountTypeSelection` setting is enabled. The value is not stored on the address. During registration the billing address follows the top-level `accountType` instead, and the shipping address keeps its own.",
                         "type": "string",
                         "enum": [
                             "private",
@@ -43,7 +43,7 @@
                         ]
                     },
                     "company": {
-                        "description": "Company of the address. Required when the address is sent with `accountType` set to `business` and the account type selection is enabled.",
+                        "description": "Company of the address. Required when `accountType` is `business`.",
                         "type": "string"
                     },
                     "street": { "type": "string" },
@@ -68,6 +68,37 @@
                     },
                     "salutation": { "$ref": "#/components/schemas/Salutation" }
                 },
+                "allOf": [
+                    {
+                        "anyOf": [
+                            {
+                                "properties": {
+                                    "accountType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "private"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "required": [
+                                    "accountType",
+                                    "company"
+                                ],
+                                "properties": {
+                                    "accountType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "business"
+                                        ]
+                                    },
+                                    "company": { "type": "string" }
+                                }
+                            }
+                        ]
+                    }
+                ],
                 "type": "object"
             }
         }

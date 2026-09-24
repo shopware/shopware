@@ -36,14 +36,6 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
-### Store API resolves the context from the storefront session on request
-
-A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.
-
-The session is resumed, never created, so this only works alongside a storefront. When it cannot be used the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) instead of falling back to a new context, for example without a session cookie, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header are unaffected. Deployments that widen the default CORS configuration must keep `sw-context-source` out of the allowed headers.
-
-Session-resolved responses are `private, no-store` and carry no `sw-context-token` header. `sw-context-source` is part of the `Vary` set; reverse proxies building their own cache key must include it or bypass these requests.
-
 ### Promotion redemptions are recounted faster
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
@@ -58,6 +50,14 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
+### Store API resolves the context from the storefront session on request
+
+A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.
+
+The session is resumed, never created, so this only works alongside a storefront. When it cannot be used the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) instead of falling back to a new context, for example without a session cookie, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header are unaffected. Deployments that widen the default CORS configuration must keep `sw-context-source` out of the allowed headers.
+
+Session-resolved responses are `private, no-store` and carry no `sw-context-token` header. `sw-context-source` is part of the `Vary` set; reverse proxies building their own cache key must include it or bypass these requests.
 
 ## Administration
 

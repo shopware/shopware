@@ -3,21 +3,21 @@
 namespace Shopware\Storefront\Framework\Seo\App;
 
 use Shopware\Core\Content\Seo\SeoUrlPersister;
-use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -25,82 +25,71 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 #[Package('inventory')]
 class AppSeoUrlSynchronizer
 {
-    private const CHUNK_SIZE = 500;
-
-    private const FALLBACK_LOCALE = 'en-GB';
-
     /**
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
     public function __construct(
-        private readonly AppSeoUrlRouteProvider $routes,
+        private readonly AppFeatureStorage $storage,
         private readonly EntityRepository $salesChannelRepository,
         private readonly SeoUrlPersister $seoUrlPersister,
-        private readonly SeoUrlUpdater $seoUrlUpdater,
-        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly RouterInterface $router,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
     public function syncStaticRoutes(?string $appId = null): void
     {
-        $routes = $this->routes->getStaticRoutes($appId);
+        $seoUrls = $this->fetchSeoUrls($appId);
 
-        if ($routes->count() === 0) {
+        if ($seoUrls === []) {
             return;
         }
 
+        $pathInfos = [];
+        foreach ($seoUrls as $seoUrl) {
+            $pathInfos[$seoUrl->getRouteName()] = $this->generatePathInfo($seoUrl);
+        }
+
         foreach ($this->fetchSalesChannels() as $salesChannel) {
-            foreach ($this->localesByLanguage($salesChannel) as $languageId => $localeCode) {
-                $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$languageId, Defaults::LANGUAGE_SYSTEM]);
+            foreach ($this->languageChains($salesChannel) as $languageChain) {
+                $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $languageChain);
 
-                foreach ($routes as $route) {
-                    $this->writeStaticRoute($route, $salesChannel, $localeCode, $context);
+                foreach ($seoUrls as $seoUrl) {
+                    $this->write($seoUrl, $pathInfos[$seoUrl->getRouteName()], $salesChannel, $context);
                 }
             }
         }
     }
 
-    public function regenerateEntityRoutes(?string $appId = null): void
+    /**
+     * @return list<AppSeoUrlConfig>
+     */
+    private function fetchSeoUrls(?string $appId): array
     {
-        foreach ($this->routes->getEntityRoutes($appId) as $route) {
-            if ($route->entityName === null || !$this->definitionRegistry->has($route->entityName)) {
-                continue;
-            }
+        $seoUrls = [];
 
-            $criteria = new Criteria();
-            $criteria->setTitle('app-seo-url-routes::regenerate');
-            $criteria->setLimit(self::CHUNK_SIZE);
-
-            $iterator = new RepositoryIterator(
-                $this->definitionRegistry->getRepository($route->entityName),
-                Context::createDefaultContext(),
-                $criteria
-            );
-
-            while (($ids = $iterator->fetchIds()) !== null) {
-                $ids = array_values(array_filter($ids, 'is_string'));
-
-                if ($ids === []) {
-                    continue;
-                }
-
-                $this->seoUrlUpdater->update($route->routeName, $ids);
+        foreach ($this->storage->forActiveApps(AppSeoUrlConfig::class) as $feature) {
+            if ($appId === null || $feature->appId === $appId) {
+                $seoUrls[] = $feature->config;
             }
         }
+
+        return $seoUrls;
     }
 
-    private function writeStaticRoute(AppSeoUrlRouteEntity $route, SalesChannelEntity $salesChannel, ?string $localeCode, Context $context): void
+    private function write(AppSeoUrlConfig $seoUrl, string $pathInfo, SalesChannelEntity $salesChannel, Context $context): void
     {
-        $foreignKey = Uuid::fromStringToHex($route->routeName);
+        $foreignKey = Uuid::fromStringToHex($seoUrl->getRouteName());
 
         $this->seoUrlPersister->forceUpdateSeoUrls(
             $context,
-            $route->routeName,
+            $seoUrl->getRouteName(),
             [$foreignKey],
             [[
                 'foreignKey' => $foreignKey,
-                'pathInfo' => AppSeoUrlRoute::PATH_PREFIX . $route->hook,
-                'seoPathInfo' => $this->resolvePath($route->paths ?? [], $localeCode),
+                'pathInfo' => $pathInfo,
+                'seoPathInfo' => $this->resolvePath($seoUrl, $context),
                 'salesChannelId' => $salesChannel->getId(),
                 'isCanonical' => true,
                 'isModified' => true,
@@ -110,48 +99,69 @@ class AppSeoUrlSynchronizer
         );
     }
 
+    private function generatePathInfo(AppSeoUrlConfig $seoUrl): string
+    {
+        $pathInfo = $this->router->generate(AppSeoUrlRoute::TARGET_ROUTE, ['hook' => $seoUrl->getHook()]);
+        $basePath = $this->requestStack->getMainRequest()?->getBasePath() ?? '';
+
+        if ($basePath === '' || !str_starts_with($pathInfo, $basePath)) {
+            return $pathInfo;
+        }
+
+        return substr($pathInfo, \strlen($basePath));
+    }
+
+    private function resolvePath(AppSeoUrlConfig $seoUrl, Context $context): string
+    {
+        $paths = $seoUrl->getPaths();
+
+        foreach ($context->getLanguageIdChain() as $languageId) {
+            $path = $paths[$this->languageLocaleProvider->getLocaleForLanguageId($languageId)] ?? null;
+
+            if ($path !== null) {
+                return $path;
+            }
+        }
+
+        return (string) array_first($paths);
+    }
+
     private function fetchSalesChannels(): SalesChannelCollection
     {
         $criteria = new Criteria();
-        $criteria->setTitle('app-seo-url-routes::static-sync');
+        $criteria->setTitle('app-seo-url::static-sync');
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
             new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API),
         ]));
-        $criteria->addAssociation('domains.language.locale');
+        $criteria->addAssociation('domains.language');
 
         return $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->getEntities();
     }
 
     /**
-     * @return array<string, string|null>
+     * @return list<non-empty-list<string>>
      */
-    private function localesByLanguage(SalesChannelEntity $salesChannel): array
+    private function languageChains(SalesChannelEntity $salesChannel): array
     {
-        $locales = [];
+        $languageChains = [];
 
         foreach ($salesChannel->getDomains() ?? [] as $domain) {
             $languageId = $domain->getLanguageId();
 
-            if (\array_key_exists($languageId, $locales)) {
+            if (isset($languageChains[$languageId])) {
                 continue;
             }
 
-            $locales[$languageId] = $domain->getLanguage()?->getLocale()?->getCode();
+            $parentId = $domain->getLanguage()?->getParentId();
+
+            $languageChains[$languageId] = array_values(array_unique(
+                $parentId === null
+                    ? [$languageId, Defaults::LANGUAGE_SYSTEM]
+                    : [$languageId, $parentId, Defaults::LANGUAGE_SYSTEM]
+            ));
         }
 
-        return $locales;
-    }
-
-    /**
-     * @param array<string, string> $paths
-     */
-    private function resolvePath(array $paths, ?string $localeCode): string
-    {
-        if ($localeCode !== null && isset($paths[$localeCode])) {
-            return $paths[$localeCode];
-        }
-
-        return $paths[self::FALLBACK_LOCALE] ?? (string) array_first($paths);
+        return array_values($languageChains);
     }
 }

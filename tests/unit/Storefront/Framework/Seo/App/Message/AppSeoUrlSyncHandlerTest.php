@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Seo\App\Message;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlSynchronizer;
@@ -18,29 +19,21 @@ class AppSeoUrlSyncHandlerTest extends TestCase
 {
     private const APP_ID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-    public function testTheStaticRoutesAreSynchronisedWithoutRegeneratingTheEntityRoutes(): void
+    #[DataProvider('messages')]
+    public function testTheStaticSeoUrlsOfTheRequestedAppsAreSynchronised(?string $appId): void
     {
         $synchronizer = $this->createMock(AppSeoUrlSynchronizer::class);
-        $synchronizer->expects($this->once())->method('syncStaticRoutes')->with(self::APP_ID);
-        $synchronizer->expects($this->never())->method('regenerateEntityRoutes');
+        $synchronizer->expects($this->once())->method('syncStaticRoutes')->with($appId);
 
-        (new AppSeoUrlSyncHandler($synchronizer))(new AppSeoUrlSyncMessage(self::APP_ID));
+        (new AppSeoUrlSyncHandler($synchronizer))(new AppSeoUrlSyncMessage($appId));
     }
 
-    public function testAFullSyncAlsoRegeneratesTheEntityRoutes(): void
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function messages(): iterable
     {
-        $synchronizer = $this->createMock(AppSeoUrlSynchronizer::class);
-        $synchronizer->expects($this->once())->method('syncStaticRoutes')->with(self::APP_ID);
-        $synchronizer->expects($this->once())->method('regenerateEntityRoutes')->with(self::APP_ID);
-
-        (new AppSeoUrlSyncHandler($synchronizer))(new AppSeoUrlSyncMessage(self::APP_ID, true));
-    }
-
-    public function testAMessageWithoutAnAppSynchronisesAllApps(): void
-    {
-        $synchronizer = $this->createMock(AppSeoUrlSynchronizer::class);
-        $synchronizer->expects($this->once())->method('syncStaticRoutes')->with(null);
-
-        (new AppSeoUrlSyncHandler($synchronizer))(new AppSeoUrlSyncMessage());
+        yield 'a message for one app synchronises only that app' => [self::APP_ID];
+        yield 'a message without an app synchronises all apps' => [null];
     }
 }

@@ -21,16 +21,14 @@ class AppSeoUrlRouteLoader implements SeoUrlRouteLoaderInterface
 
     public function load(): iterable
     {
-        foreach ($this->routes->getEntityRoutes() as $route) {
-            if ($route->entityName === null || $route->defaultTemplate === null || !$this->definitionRegistry->has($route->entityName)) {
+        foreach ($this->routes->getEntityRoutes() as $seoUrl) {
+            if (!$this->definitionRegistry->has($seoUrl->getEntityName())) {
                 continue;
             }
 
             yield new ConfiguredEntitySeoUrlRoute(new AppSeoUrlRoute(
-                $this->definitionRegistry->getByEntityName($route->entityName),
-                $route->routeName,
-                $route->hook,
-                $route->defaultTemplate,
+                $this->definitionRegistry->getByEntityName($seoUrl->getEntityName()),
+                $seoUrl,
             ));
         }
     }

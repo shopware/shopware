@@ -20,9 +20,5 @@ final class AppSeoUrlSyncHandler
     public function __invoke(AppSeoUrlSyncMessage $message): void
     {
         $this->synchronizer->syncStaticRoutes($message->getAppId());
-
-        if ($message->shouldRegenerateEntityRoutes()) {
-            $this->synchronizer->regenerateEntityRoutes($message->getAppId());
-        }
     }
 }

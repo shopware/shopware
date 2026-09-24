@@ -17,26 +17,34 @@ class AppSeoUrlRoute implements EntitySeoUrlRouteInterface
 {
     public const TARGET_ROUTE = 'frontend.script_endpoint';
 
-    public const PATH_PREFIX = '/storefront/script/';
+    private const ROUTE_NAME_PREFIX = 'storefront.app.';
 
     public function __construct(
         private readonly EntityDefinition $definition,
-        private readonly string $routeName,
-        private readonly string $hook,
-        private readonly string $defaultTemplate,
+        private readonly AppEntitySeoUrlConfig $seoUrl,
     ) {
+    }
+
+    public static function buildRouteName(string $appName, string $name): string
+    {
+        return self::routeNamePrefix($appName) . $name;
+    }
+
+    public static function routeNamePrefix(string $appName): string
+    {
+        return self::ROUTE_NAME_PREFIX . $appName . '.';
     }
 
     public function getConfig(): SeoUrlRouteConfig
     {
         return new SeoUrlRouteConfig(
             $this->definition,
-            $this->routeName,
-            $this->defaultTemplate,
+            $this->seoUrl->getRouteName(),
+            $this->seoUrl->getDefaultTemplate(),
             true,
             'id',
             self::TARGET_ROUTE,
-            ['hook' => $this->hook]
+            ['hook' => $this->seoUrl->getHook()]
         );
     }
 

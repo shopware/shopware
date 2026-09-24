@@ -73,4 +73,34 @@ class SeoExceptionTest extends TestCase
         static::assertSame('Could not find sales channel with id "not-found-sales-channel-id"', $exception->getMessage());
         static::assertSame($salesChannelId, $exception->getParameters()['value']);
     }
+
+    public function testAppSeoUrlPathInvalid(): void
+    {
+        $exception = SeoException::appSeoUrlPathInvalid('imprint', 'legal#notice');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_SEO_URL_PATH_INVALID, $exception->getErrorCode());
+        static::assertSame('The path "legal#notice" of the SEO URL "imprint" contains characters that are not allowed in URLs.', $exception->getMessage());
+        static::assertSame(['path' => 'legal#notice', 'seoUrlName' => 'imprint'], $exception->getParameters());
+    }
+
+    public function testAppSeoUrlPathAlreadyRegistered(): void
+    {
+        $exception = SeoException::appSeoUrlPathAlreadyRegistered('imprint', 'legal-notice', 'SwagLegalApp');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_SEO_URL_PATH_ALREADY_REGISTERED, $exception->getErrorCode());
+        static::assertSame('The path "legal-notice" of the SEO URL "imprint" is already registered by app "SwagLegalApp".', $exception->getMessage());
+        static::assertSame(['path' => 'legal-notice', 'seoUrlName' => 'imprint', 'owningApp' => 'SwagLegalApp'], $exception->getParameters());
+    }
+
+    public function testAppSeoUrlPathInUse(): void
+    {
+        $exception = SeoException::appSeoUrlPathInUse('login', 'account/login');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_SEO_URL_PATH_IN_USE, $exception->getErrorCode());
+        static::assertSame('The path "account/login" of the SEO URL "login" is already used by a storefront route or another SEO URL.', $exception->getMessage());
+        static::assertSame(['path' => 'account/login', 'seoUrlName' => 'login'], $exception->getParameters());
+    }
 }

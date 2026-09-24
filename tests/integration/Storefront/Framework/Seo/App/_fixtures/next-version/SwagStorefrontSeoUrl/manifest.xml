@@ -7,7 +7,7 @@
         <description>Declares storefront SEO URLs for app scripts</description>
         <author>shopware AG</author>
         <copyright>(c) by shopware AG</copyright>
-        <version>1.0.0</version>
+        <version>2.0.0</version>
         <license>MIT</license>
     </meta>
     <storefront>
@@ -18,8 +18,12 @@
         <entity-seo-url name="app-product" entity="product">
             <default-template>app-product/{{ product.productNumber }}</default-template>
         </entity-seo-url>
+        <entity-seo-url name="product-reviews" entity="product_review">
+            <default-template>product-reviews/{{ productReview.title }}</default-template>
+        </entity-seo-url>
     </storefront>
     <permissions>
         <read>product</read>
+        <read>product_review</read>
     </permissions>
 </manifest>

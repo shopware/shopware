@@ -16,48 +16,29 @@ class AppSeoUrlSyncMessageTest extends TestCase
 {
     private const APP_ID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-    public function testTheMessageDefaultsToAStaticSyncOfAllApps(): void
+    private const OTHER_APP_ID = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+
+    public function testWithoutAnAppTheMessageSynchronisesAllApps(): void
     {
         $message = new AppSeoUrlSyncMessage();
 
         static::assertNull($message->getAppId());
-        static::assertFalse($message->shouldRegenerateEntityRoutes());
+        static::assertSame('all', $message->deduplicationId());
     }
 
-    public function testTheMessageCarriesTheAppAndTheRegenerationRequest(): void
+    public function testTheMessageCarriesTheAppToSynchronise(): void
     {
-        $message = new AppSeoUrlSyncMessage(self::APP_ID, true);
+        $message = new AppSeoUrlSyncMessage(self::APP_ID);
 
         static::assertSame(self::APP_ID, $message->getAppId());
-        static::assertTrue($message->shouldRegenerateEntityRoutes());
+        static::assertSame(self::APP_ID, $message->deduplicationId());
     }
 
-    public function testAStaticSyncIsNotDeduplicatedAgainstAFullSync(): void
+    public function testTheSyncOfOneAppIsNotDeduplicatedAgainstAnotherAppOrAllApps(): void
     {
-        static::assertNotSame(
-            (new AppSeoUrlSyncMessage(self::APP_ID))->deduplicationId(),
-            (new AppSeoUrlSyncMessage(self::APP_ID, true))->deduplicationId()
-        );
-    }
+        $deduplicationId = (new AppSeoUrlSyncMessage(self::APP_ID))->deduplicationId();
 
-    public function testTheSyncOfOneAppIsNotDeduplicatedAgainstAnother(): void
-    {
-        static::assertNotSame(
-            (new AppSeoUrlSyncMessage(self::APP_ID))->deduplicationId(),
-            (new AppSeoUrlSyncMessage('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'))->deduplicationId()
-        );
-
-        static::assertNotSame(
-            (new AppSeoUrlSyncMessage(self::APP_ID))->deduplicationId(),
-            (new AppSeoUrlSyncMessage())->deduplicationId()
-        );
-    }
-
-    public function testTwoIdenticalRequestsShareTheirDeduplicationId(): void
-    {
-        static::assertSame(
-            (new AppSeoUrlSyncMessage(self::APP_ID, true))->deduplicationId(),
-            (new AppSeoUrlSyncMessage(self::APP_ID, true))->deduplicationId()
-        );
+        static::assertNotSame($deduplicationId, (new AppSeoUrlSyncMessage(self::OTHER_APP_ID))->deduplicationId());
+        static::assertNotSame($deduplicationId, (new AppSeoUrlSyncMessage())->deduplicationId());
     }
 }

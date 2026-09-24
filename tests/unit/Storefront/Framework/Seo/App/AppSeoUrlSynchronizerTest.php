@@ -3,35 +3,30 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Seo\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
-use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityWriterGateway;
-use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteProvider;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlConfig;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlSynchronizer;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\Validator\Validation;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -42,77 +37,86 @@ class AppSeoUrlSynchronizerTest extends TestCase
 {
     private const APP_ID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
+    private const OTHER_APP_ID = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+
     private const IMPRINT_ROUTE = 'storefront.app.SwagSeoUrlApp.imprint';
 
-    private const TEASER_ROUTE = 'storefront.app.SwagSeoUrlApp.product-teaser';
+    private const CONTACT_ROUTE = 'storefront.app.SwagSeoUrlApp.contact';
 
     private const SALES_CHANNEL_ID = 'cccccccccccccccccccccccccccccccc';
 
-    private const ENGLISH_ID = 'dddddddddddddddddddddddddddddddd';
+    private const OTHER_SALES_CHANNEL_ID = 'dddddddddddddddddddddddddddddddd';
+
+    private const SALES_CHANNEL_WITHOUT_DOMAINS_ID = '33333333333333333333333333333333';
 
     private const GERMAN_ID = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
+    private const SWISS_GERMAN_ID = 'ffffffffffffffffffffffffffffffff';
+
+    private const AMERICAN_ID = '11111111111111111111111111111111';
+
+    private const FRENCH_ID = '22222222222222222222222222222222';
+
+    private const LOCALES = [
+        Defaults::LANGUAGE_SYSTEM => 'en-GB',
+        self::GERMAN_ID => 'de-DE',
+        self::SWISS_GERMAN_ID => 'de-CH',
+        self::AMERICAN_ID => 'en-US',
+        self::FRENCH_ID => 'fr-FR',
+    ];
+
     /**
-     * @var list<array{context: Context, routeName: string, foreignKeys: list<string>, seoUrls: list<array<string, mixed>>, salesChannelId: string}>
+     * @var list<array{context: Context, routeName: string, foreignKeys: list<string>, seoUrls: list<array<string, mixed>>, salesChannel: SalesChannelEntity}>
      */
     private array $written = [];
 
-    /**
-     * @var list<array{routeName: string, ids: list<string>}>
-     */
-    private array $regenerated = [];
+    private SeoUrlPersister $seoUrlPersister;
 
-    private SeoUrlPersister $persister;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
-    private SeoUrlUpdater $seoUrlUpdater;
+    private RequestStack $requestStack;
 
     protected function setUp(): void
     {
         $this->written = [];
-        $this->regenerated = [];
+        $this->requestStack = new RequestStack();
 
-        $persister = static::createStub(SeoUrlPersister::class);
-        $persister->method('forceUpdateSeoUrls')->willReturnCallback(
+        $seoUrlPersister = static::createStub(SeoUrlPersister::class);
+        $seoUrlPersister->method('forceUpdateSeoUrls')->willReturnCallback(
             function (Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void {
-                /** @var list<string> $keys */
-                $keys = array_values($foreignKeys);
-                /** @var list<array<string, mixed>> $rows */
-                $rows = [...$seoUrls];
-
                 $this->written[] = [
                     'context' => $context,
                     'routeName' => $routeName,
-                    'foreignKeys' => $keys,
-                    'seoUrls' => $rows,
-                    'salesChannelId' => $salesChannel->getId(),
+                    'foreignKeys' => array_values($foreignKeys),
+                    'seoUrls' => iterator_to_array($seoUrls, false),
+                    'salesChannel' => $salesChannel,
                 ];
             }
         );
-        $this->persister = $persister;
+        $this->seoUrlPersister = $seoUrlPersister;
 
-        $seoUrlUpdater = static::createStub(SeoUrlUpdater::class);
-        $seoUrlUpdater->method('update')->willReturnCallback(function (string $routeName, array $ids): void {
-            /** @var list<string> $ids */
-            $this->regenerated[] = ['routeName' => $routeName, 'ids' => $ids];
-        });
-        $this->seoUrlUpdater = $seoUrlUpdater;
+        $languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $languageLocaleProvider->method('getLocaleForLanguageId')->willReturnCallback(
+            static fn (string $languageId): string => self::LOCALES[$languageId] ?? static::fail('Unknown language ' . $languageId)
+        );
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
-    public function testEveryDomainLanguageGetsItsOwnCanonicalRow(): void
+    public function testEveryDomainLanguageGetsACanonicalModifiedSeoUrl(): void
     {
-        $synchronizer = $this->synchronizer(
-            $this->provider(static: [$this->staticRoute(['en-GB' => 'imprint', 'de-DE' => 'impressum'])]),
-            $this->salesChannelRepository($this->salesChannel([self::ENGLISH_ID => 'en-GB', self::GERMAN_ID => 'de-DE']))
-        );
+        $salesChannel = $this->salesChannel(self::SALES_CHANNEL_ID, $this->domain(Defaults::LANGUAGE_SYSTEM), $this->domain(self::GERMAN_ID));
 
-        $synchronizer->syncStaticRoutes();
+        $this->synchronizer(
+            [$this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint', 'de-DE' => 'impressum']))],
+            $this->salesChannelRepository($salesChannel)
+        )->syncStaticRoutes();
 
         static::assertCount(2, $this->written);
 
         static::assertSame(self::IMPRINT_ROUTE, $this->written[0]['routeName']);
-        static::assertSame(self::SALES_CHANNEL_ID, $this->written[0]['salesChannelId']);
-        static::assertSame(self::ENGLISH_ID, $this->written[0]['context']->getLanguageId());
         static::assertSame([Uuid::fromStringToHex(self::IMPRINT_ROUTE)], $this->written[0]['foreignKeys']);
+        static::assertSame($salesChannel, $this->written[0]['salesChannel']);
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $this->written[0]['context']->getLanguageId());
         static::assertSame([[
             'foreignKey' => Uuid::fromStringToHex(self::IMPRINT_ROUTE),
             'pathInfo' => '/storefront/script/imprint',
@@ -127,200 +131,302 @@ class AppSeoUrlSynchronizerTest extends TestCase
         static::assertSame('impressum', $this->written[1]['seoUrls'][0]['seoPathInfo']);
     }
 
-    public function testAnUndeclaredLocaleFallsBackToTheDefaultLocalePath(): void
+    /**
+     * @param list<string> $expectedLanguageChain
+     */
+    #[DataProvider('domainLanguages')]
+    public function testTheSeoUrlIsWrittenWithTheLanguageChainOfTheDomain(string $languageId, ?string $parentLanguageId, array $expectedLanguageChain): void
     {
-        $synchronizer = $this->synchronizer(
-            $this->provider(static: [$this->staticRoute(['en-GB' => 'imprint', 'de-DE' => 'impressum'])]),
-            $this->salesChannelRepository($this->salesChannel([self::GERMAN_ID => 'fr-FR']))
-        );
-
-        $synchronizer->syncStaticRoutes();
+        $this->synchronizer(
+            [$this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint']))],
+            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain($languageId, $parentLanguageId)))
+        )->syncStaticRoutes();
 
         static::assertCount(1, $this->written);
-        static::assertSame('imprint', $this->written[0]['seoUrls'][0]['seoPathInfo']);
+        static::assertSame($expectedLanguageChain, $this->written[0]['context']->getLanguageIdChain());
     }
 
-    public function testWithoutADefaultLocalePathTheFirstDeclaredPathIsUsed(): void
+    /**
+     * @return iterable<string, array{string, ?string, list<string>}>
+     */
+    public static function domainLanguages(): iterable
     {
-        $synchronizer = $this->synchronizer(
-            $this->provider(static: [$this->staticRoute(['de-DE' => 'impressum'])]),
-            $this->salesChannelRepository($this->salesChannel([self::GERMAN_ID => 'fr-FR']))
-        );
+        yield 'a root language falls back to the system language' => [
+            self::GERMAN_ID,
+            null,
+            [self::GERMAN_ID, Defaults::LANGUAGE_SYSTEM],
+        ];
+        yield 'a child language falls back to its parent before the system language' => [
+            self::SWISS_GERMAN_ID,
+            self::GERMAN_ID,
+            [self::SWISS_GERMAN_ID, self::GERMAN_ID, Defaults::LANGUAGE_SYSTEM],
+        ];
+        yield 'the system language is not repeated' => [
+            Defaults::LANGUAGE_SYSTEM,
+            null,
+            [Defaults::LANGUAGE_SYSTEM],
+        ];
+        yield 'the system language as parent is not repeated' => [
+            self::AMERICAN_ID,
+            Defaults::LANGUAGE_SYSTEM,
+            [self::AMERICAN_ID, Defaults::LANGUAGE_SYSTEM],
+        ];
+    }
 
-        $synchronizer->syncStaticRoutes();
+    /**
+     * @param array<string, string> $paths
+     */
+    #[DataProvider('pathsByLocale')]
+    public function testThePathOfTheFirstLocaleInTheLanguageChainIsUsed(string $languageId, ?string $parentLanguageId, array $paths, string $expectedPath): void
+    {
+        $this->synchronizer(
+            [$this->feature($this->seoUrl('imprint', $paths))],
+            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain($languageId, $parentLanguageId)))
+        )->syncStaticRoutes();
 
         static::assertCount(1, $this->written);
-        static::assertSame('impressum', $this->written[0]['seoUrls'][0]['seoPathInfo']);
+        static::assertSame($expectedPath, $this->written[0]['seoUrls'][0]['seoPathInfo']);
+    }
+
+    /**
+     * @return iterable<string, array{string, ?string, array<string, string>, string}>
+     */
+    public static function pathsByLocale(): iterable
+    {
+        yield 'the path of the domain language wins' => [
+            self::GERMAN_ID,
+            null,
+            ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
+            'impressum',
+        ];
+        yield 'a child language without a path of its own uses the path of its parent' => [
+            self::SWISS_GERMAN_ID,
+            self::GERMAN_ID,
+            ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
+            'impressum',
+        ];
+        yield 'the order of the language chain beats the order of the declaration' => [
+            self::SWISS_GERMAN_ID,
+            self::GERMAN_ID,
+            ['de-DE' => 'impressum', 'de-CH' => 'impressum-schweiz'],
+            'impressum-schweiz',
+        ];
+        yield 'a language without a path uses the path of the system language' => [
+            self::FRENCH_ID,
+            null,
+            ['de-DE' => 'impressum', 'en-GB' => 'imprint'],
+            'imprint',
+        ];
+        yield 'without a path for any language of the chain the first declared path is used' => [
+            self::FRENCH_ID,
+            null,
+            ['de-DE' => 'impressum', 'nl-NL' => 'colofon'],
+            'impressum',
+        ];
     }
 
     public function testDomainsSharingALanguageAreWrittenOnce(): void
     {
-        $salesChannel = $this->salesChannel([self::ENGLISH_ID => 'en-GB']);
-        $second = new SalesChannelDomainEntity();
-        $second->setUniqueIdentifier(Uuid::randomHex());
-        $second->setLanguageId(self::ENGLISH_ID);
-        $domains = $salesChannel->getDomains();
-        static::assertInstanceOf(SalesChannelDomainCollection::class, $domains);
-        $domains->add($second);
-
-        $synchronizer = $this->synchronizer(
-            $this->provider(static: [$this->staticRoute(['en-GB' => 'imprint'])]),
-            $this->salesChannelRepository($salesChannel)
-        );
-
-        $synchronizer->syncStaticRoutes();
+        $this->synchronizer(
+            [$this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint']))],
+            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain(self::GERMAN_ID), $this->domain(self::GERMAN_ID)))
+        )->syncStaticRoutes();
 
         static::assertCount(1, $this->written);
     }
 
-    public function testOnlyActiveStorefrontSalesChannelsAreSynchronised(): void
+    public function testEveryStaticSeoUrlIsWrittenForEverySalesChannel(): void
     {
-        $criteria = null;
-
-        $salesChannelRepository = StaticEntityRepository::of(
-            SalesChannelCollection::class,
-            [function (Criteria $given) use (&$criteria): SalesChannelCollection {
-                $criteria = $given;
-
-                return new SalesChannelCollection([$this->salesChannel([self::ENGLISH_ID => 'en-GB'])]);
-            }]
-        );
-
         $this->synchronizer(
-            $this->provider(static: [$this->staticRoute(['en-GB' => 'imprint'])]),
-            $salesChannelRepository
+            [
+                $this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint'])),
+                $this->feature($this->seoUrl('contact', ['en-GB' => 'contact'])),
+            ],
+            $this->salesChannelRepository(
+                $this->salesChannel(self::SALES_CHANNEL_ID, $this->domain(Defaults::LANGUAGE_SYSTEM)),
+                $this->salesChannel(self::OTHER_SALES_CHANNEL_ID, $this->domain(Defaults::LANGUAGE_SYSTEM)),
+            )
         )->syncStaticRoutes();
 
-        static::assertInstanceOf(Criteria::class, $criteria);
-        static::assertEquals(
+        static::assertSame(
             [
-                new EqualsFilter('active', true),
-                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]),
+                [self::SALES_CHANNEL_ID, self::IMPRINT_ROUTE, 'imprint'],
+                [self::SALES_CHANNEL_ID, self::CONTACT_ROUTE, 'contact'],
+                [self::OTHER_SALES_CHANNEL_ID, self::IMPRINT_ROUTE, 'imprint'],
+                [self::OTHER_SALES_CHANNEL_ID, self::CONTACT_ROUTE, 'contact'],
             ],
-            $criteria->getFilters()
-        );
-        static::assertTrue($criteria->hasAssociation('domains'));
-        static::assertTrue($criteria->getAssociation('domains')->hasAssociation('language'));
-        static::assertTrue($criteria->getAssociation('domains.language')->hasAssociation('locale'));
-    }
-
-    public function testWithoutStaticRoutesTheSalesChannelsAreNotLoaded(): void
-    {
-        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [
-            static fn (): SalesChannelCollection => static::fail('sales channels must not be loaded without static routes'),
-        ]);
-
-        $this->synchronizer($this->provider(), $salesChannelRepository)->syncStaticRoutes();
-
-        static::assertSame([], $this->written);
-    }
-
-    public function testTheAppFilterIsPassedThroughToTheProviderForStaticRoutes(): void
-    {
-        $provider = $this->createMock(AppSeoUrlRouteProvider::class);
-        $provider->expects($this->once())
-            ->method('getStaticRoutes')
-            ->with(self::APP_ID)
-            ->willReturn(new EntityCollection());
-
-        $this->synchronizer($provider, StaticEntityRepository::of(SalesChannelCollection::class, []))
-            ->syncStaticRoutes(self::APP_ID);
-    }
-
-    public function testEveryEntityRouteIsRegeneratedInChunks(): void
-    {
-        $limits = [];
-
-        $productRepository = StaticEntityRepository::of(
-            ProductCollection::class,
-            [
-                static function (Criteria $criteria) use (&$limits): array {
-                    $limits[] = $criteria->getLimit();
-
-                    return ['product-1', 'product-2'];
-                },
-                static function (Criteria $criteria) use (&$limits): array {
-                    $limits[] = $criteria->getLimit();
-
-                    return ['product-3'];
-                },
-                static fn (): array => [],
-            ],
-            $this->productDefinition()
-        );
-
-        $this->synchronizer(
-            $this->provider(entity: [$this->entityRoute('product')]),
-            StaticEntityRepository::of(SalesChannelCollection::class, []),
-            $productRepository
-        )->regenerateEntityRoutes();
-
-        static::assertSame([
-            ['routeName' => self::TEASER_ROUTE, 'ids' => ['product-1', 'product-2']],
-            ['routeName' => self::TEASER_ROUTE, 'ids' => ['product-3']],
-        ], $this->regenerated);
-
-        static::assertSame([500, 500], $limits);
-    }
-
-    public function testEntityRoutesBoundToAnUnknownEntityAreSkipped(): void
-    {
-        $this->synchronizer(
-            $this->provider(entity: [$this->entityRoute('ce_blog')]),
-            StaticEntityRepository::of(SalesChannelCollection::class, [])
-        )->regenerateEntityRoutes();
-
-        static::assertSame([], $this->regenerated);
-    }
-
-    public function testTheAppFilterIsPassedThroughToTheProviderForEntityRoutes(): void
-    {
-        $provider = $this->createMock(AppSeoUrlRouteProvider::class);
-        $provider->expects($this->once())
-            ->method('getEntityRoutes')
-            ->with(self::APP_ID)
-            ->willReturn(new EntityCollection());
-
-        $this->synchronizer($provider, StaticEntityRepository::of(SalesChannelCollection::class, []))
-            ->regenerateEntityRoutes(self::APP_ID);
-    }
-
-    /**
-     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
-     * @param StaticEntityRepository<ProductCollection>|null $productRepository
-     */
-    private function synchronizer(
-        AppSeoUrlRouteProvider $provider,
-        EntityRepository $salesChannelRepository,
-        ?StaticEntityRepository $productRepository = null
-    ): AppSeoUrlSynchronizer {
-        $container = new Container();
-        $container->set('product.repository', $productRepository ?? StaticEntityRepository::of(ProductCollection::class, []));
-
-        return new AppSeoUrlSynchronizer(
-            $provider,
-            $salesChannelRepository,
-            $this->persister,
-            $this->seoUrlUpdater,
-            new DefinitionInstanceRegistry(
-                $container,
-                ['product' => ProductDefinition::class],
-                ['product' => 'product.repository']
+            array_map(
+                static fn (array $write): array => [$write['salesChannel']->getId(), $write['routeName'], $write['seoUrls'][0]['seoPathInfo']],
+                $this->written
             )
         );
     }
 
-    /**
-     * @param list<AppSeoUrlRouteEntity> $static
-     * @param list<AppSeoUrlRouteEntity> $entity
-     */
-    private function provider(array $static = [], array $entity = []): AppSeoUrlRouteProvider
+    public function testSalesChannelsWithoutDomainsGetNoSeoUrls(): void
     {
-        $provider = static::createStub(AppSeoUrlRouteProvider::class);
-        $provider->method('getStaticRoutes')->willReturn(new EntityCollection($static));
-        $provider->method('getEntityRoutes')->willReturn(new EntityCollection($entity));
+        $withoutLoadedDomains = new SalesChannelEntity();
+        $withoutLoadedDomains->setId(self::OTHER_SALES_CHANNEL_ID);
 
-        return $provider;
+        $this->synchronizer(
+            [$this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint']))],
+            $this->salesChannelRepository(
+                $withoutLoadedDomains,
+                $this->salesChannel(self::SALES_CHANNEL_WITHOUT_DOMAINS_ID),
+                $this->salesChannel(self::SALES_CHANNEL_ID, $this->domain(Defaults::LANGUAGE_SYSTEM)),
+            )
+        )->syncStaticRoutes();
+
+        static::assertCount(1, $this->written);
+        static::assertSame(self::SALES_CHANNEL_ID, $this->written[0]['salesChannel']->getId());
+    }
+
+    /**
+     * @param list<string> $expectedRouteNames
+     */
+    #[DataProvider('appFilters')]
+    public function testTheSyncCanBeLimitedToOneApp(?string $appId, array $expectedRouteNames): void
+    {
+        $this->synchronizer(
+            [
+                $this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint']), appId: self::APP_ID),
+                $this->feature($this->seoUrl('contact', ['en-GB' => 'contact']), appId: self::OTHER_APP_ID),
+            ],
+            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain(Defaults::LANGUAGE_SYSTEM)))
+        )->syncStaticRoutes($appId);
+
+        static::assertSame($expectedRouteNames, array_column($this->written, 'routeName'));
+    }
+
+    /**
+     * @return iterable<string, array{?string, list<string>}>
+     */
+    public static function appFilters(): iterable
+    {
+        yield 'without an app the static SEO URLs of all active apps are written' => [null, [self::IMPRINT_ROUTE, self::CONTACT_ROUTE]];
+        yield 'with an app only its static SEO URLs are written' => [self::OTHER_APP_ID, [self::CONTACT_ROUTE]];
+    }
+
+    public function testWithoutStaticSeoUrlsOfActiveAppsNoSalesChannelIsLoaded(): void
+    {
+        $this->synchronizer([], $this->salesChannelRepositoryThatMustNotBeSearched())->syncStaticRoutes();
+
+        static::assertSame([], $this->written);
+    }
+
+    public function testWithoutStaticSeoUrlsOfTheGivenAppNoSalesChannelIsLoaded(): void
+    {
+        $this->synchronizer(
+            [$this->feature($this->seoUrl('contact', ['en-GB' => 'contact']), appId: self::OTHER_APP_ID)],
+            $this->salesChannelRepositoryThatMustNotBeSearched()
+        )->syncStaticRoutes(self::APP_ID);
+
+        static::assertSame([], $this->written);
+    }
+
+    public function testOnlyActiveSalesChannelsThatAreNotHeadlessAreLoadedWithTheirDomainLanguages(): void
+    {
+        $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [
+            static function (Criteria $criteria): SalesChannelCollection {
+                static::assertEquals(
+                    [
+                        new EqualsFilter('active', true),
+                        new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]),
+                    ],
+                    $criteria->getFilters()
+                );
+                static::assertTrue($criteria->hasAssociation('domains'));
+                static::assertTrue($criteria->getAssociation('domains')->hasAssociation('language'));
+
+                return new SalesChannelCollection();
+            },
+        ]);
+
+        $this->synchronizer([$this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint']))], $salesChannelRepository)->syncStaticRoutes();
+
+        static::assertSame([], $salesChannelRepository->searches);
+    }
+
+    public function testThePathInfoPointsToTheScriptEndpointOfTheHook(): void
+    {
+        $router = static::createStub(RouterInterface::class);
+        $router->method('generate')->willReturnCallback(static function (string $name, array $parameters): string {
+            static::assertSame('frontend.script_endpoint', $name);
+            static::assertSame(['hook' => 'legal-notice'], $parameters);
+
+            return '/storefront/script/legal-notice';
+        });
+
+        $this->synchronizer(
+            [$this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint'], hook: 'legal-notice'))],
+            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain(Defaults::LANGUAGE_SYSTEM))),
+            $router
+        )->syncStaticRoutes();
+
+        static::assertCount(1, $this->written);
+        static::assertSame('/storefront/script/legal-notice', $this->written[0]['seoUrls'][0]['pathInfo']);
+    }
+
+    #[DataProvider('basePaths')]
+    public function testTheBasePathOfTheMainRequestIsNotPartOfThePathInfo(?string $basePath, string $generatedPath, string $expectedPathInfo): void
+    {
+        if ($basePath !== null) {
+            $this->requestStack->push(Request::create(
+                $basePath . '/admin',
+                server: ['SCRIPT_FILENAME' => '/var/www/html' . $basePath . '/index.php', 'SCRIPT_NAME' => $basePath . '/index.php']
+            ));
+        }
+
+        $router = static::createStub(RouterInterface::class);
+        $router->method('generate')->willReturn($generatedPath);
+
+        $this->synchronizer(
+            [$this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint']))],
+            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain(Defaults::LANGUAGE_SYSTEM))),
+            $router
+        )->syncStaticRoutes();
+
+        static::assertCount(1, $this->written);
+        static::assertSame($expectedPathInfo, $this->written[0]['seoUrls'][0]['pathInfo']);
+    }
+
+    /**
+     * @return iterable<string, array{?string, string, string}>
+     */
+    public static function basePaths(): iterable
+    {
+        yield 'without a main request the generated path is used' => [null, '/storefront/script/imprint', '/storefront/script/imprint'];
+        yield 'the base path of the main request is stripped' => ['/shop', '/shop/storefront/script/imprint', '/storefront/script/imprint'];
+        yield 'a generated path outside of the base path is used as it is' => ['/shop', '/storefront/script/imprint', '/storefront/script/imprint'];
+    }
+
+    /**
+     * @param list<AppFeature<AppSeoUrlConfig>> $features
+     * @param StaticEntityRepository<SalesChannelCollection> $salesChannelRepository
+     */
+    private function synchronizer(array $features, StaticEntityRepository $salesChannelRepository, ?RouterInterface $router = null): AppSeoUrlSynchronizer
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturnCallback(static function (string $featureClass) use ($features): array {
+            static::assertSame(AppSeoUrlConfig::class, $featureClass);
+
+            return $features;
+        });
+
+        if ($router === null) {
+            $router = static::createStub(RouterInterface::class);
+            $router->method('generate')->willReturnCallback(
+                static fn (string $name, array $parameters): string => '/storefront/script/' . $parameters['hook']
+            );
+        }
+
+        return new AppSeoUrlSynchronizer(
+            $storage,
+            $salesChannelRepository,
+            $this->seoUrlPersister,
+            $this->languageLocaleProvider,
+            $router,
+            $this->requestStack,
+        );
     }
 
     /**
@@ -332,81 +438,64 @@ class AppSeoUrlSynchronizerTest extends TestCase
     }
 
     /**
-     * @param non-empty-array<string, string> $paths
+     * @return StaticEntityRepository<SalesChannelCollection>
      */
-    private function staticRoute(array $paths): AppSeoUrlRouteEntity
+    private function salesChannelRepositoryThatMustNotBeSearched(): StaticEntityRepository
     {
-        $route = $this->route('imprint');
-        $route->paths = $paths;
-
-        return $route;
-    }
-
-    private function entityRoute(string $entityName): AppSeoUrlRouteEntity
-    {
-        $route = $this->route('product-teaser');
-        $route->entityName = $entityName;
-        $route->defaultTemplate = '{{ ' . $entityName . '.translated.name }}';
-
-        return $route;
-    }
-
-    private function route(string $name): AppSeoUrlRouteEntity
-    {
-        $route = new AppSeoUrlRouteEntity();
-        $route->id = Uuid::randomHex();
-        $route->appId = self::APP_ID;
-        $route->name = $name;
-        $route->routeName = 'storefront.app.SwagSeoUrlApp.' . $name;
-        $route->hook = $name;
-        $route->setUniqueIdentifier($route->id);
-
-        return $route;
+        return StaticEntityRepository::of(SalesChannelCollection::class, [
+            static fn (): SalesChannelCollection => static::fail('No sales channel must be loaded without static SEO URLs to write'),
+        ]);
     }
 
     /**
-     * @param array<string, string> $localesByLanguage
+     * @return AppFeature<AppSeoUrlConfig>
      */
-    private function salesChannel(array $localesByLanguage): SalesChannelEntity
+    private function feature(AppSeoUrlConfig $seoUrl, string $appId = self::APP_ID): AppFeature
     {
-        $domains = new SalesChannelDomainCollection();
+        return new AppFeature(
+            appId: $appId,
+            appName: 'SwagSeoUrlApp',
+            appActive: true,
+            appVersion: '1.0.0',
+            appHasSecret: false,
+            createdAt: new \DateTimeImmutable('2026-01-01 00:00:00'),
+            config: $seoUrl,
+        );
+    }
 
-        foreach ($localesByLanguage as $languageId => $localeCode) {
-            $locale = new LocaleEntity();
-            $locale->setUniqueIdentifier(Uuid::randomHex());
-            $locale->setCode($localeCode);
+    /**
+     * @param array<string, string> $paths
+     */
+    private function seoUrl(string $name, array $paths, ?string $hook = null): AppSeoUrlConfig
+    {
+        return new AppSeoUrlConfig(
+            name: $name,
+            routeName: 'storefront.app.SwagSeoUrlApp.' . $name,
+            hook: $hook ?? $name,
+            paths: $paths,
+        );
+    }
 
-            $language = new LanguageEntity();
-            $language->setUniqueIdentifier($languageId);
-            $language->setLocale($locale);
-
-            $domain = new SalesChannelDomainEntity();
-            $domain->setUniqueIdentifier(Uuid::randomHex());
-            $domain->setLanguageId($languageId);
-            $domain->setLanguage($language);
-
-            $domains->add($domain);
-        }
-
+    private function salesChannel(string $id, SalesChannelDomainEntity ...$domains): SalesChannelEntity
+    {
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setUniqueIdentifier(self::SALES_CHANNEL_ID);
-        $salesChannel->setId(self::SALES_CHANNEL_ID);
-        $salesChannel->setDomains($domains);
+        $salesChannel->setId($id);
+        $salesChannel->setDomains(new SalesChannelDomainCollection($domains));
 
         return $salesChannel;
     }
 
-    private function productDefinition(): ProductDefinition
+    private function domain(string $languageId, ?string $parentLanguageId = null): SalesChannelDomainEntity
     {
-        $registry = new StaticDefinitionInstanceRegistry(
-            [ProductDefinition::class],
-            Validation::createValidator(),
-            new StaticEntityWriterGateway()
-        );
+        $language = new LanguageEntity();
+        $language->setId($languageId);
+        $language->setParentId($parentLanguageId);
 
-        $definition = $registry->getByEntityName(ProductDefinition::ENTITY_NAME);
-        static::assertInstanceOf(ProductDefinition::class, $definition);
+        $domain = new SalesChannelDomainEntity();
+        $domain->setId(Uuid::randomHex());
+        $domain->setLanguageId($languageId);
+        $domain->setLanguage($language);
 
-        return $definition;
+        return $domain;
     }
 }

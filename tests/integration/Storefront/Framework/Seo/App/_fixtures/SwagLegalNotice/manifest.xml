@@ -2,24 +2,17 @@
 <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
     <meta>
-        <name>SwagStorefrontSeoUrl</name>
-        <label>Swag Storefront SEO URLs</label>
-        <description>Declares storefront SEO URLs for app scripts</description>
+        <name>SwagLegalNotice</name>
+        <label>Swag Legal Notice</label>
+        <description>Declares a static storefront SEO URL on the imprint path</description>
         <author>shopware AG</author>
         <copyright>(c) by shopware AG</copyright>
         <version>1.0.0</version>
         <license>MIT</license>
     </meta>
     <storefront>
-        <seo-url name="imprint">
+        <seo-url name="legal-notice">
             <path>imprint</path>
-            <path lang="de-DE">impressum</path>
         </seo-url>
-        <entity-seo-url name="app-product" entity="product">
-            <default-template>app-product/{{ product.productNumber }}</default-template>
-        </entity-seo-url>
     </storefront>
-    <permissions>
-        <read>product</read>
-    </permissions>
 </manifest>

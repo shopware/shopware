@@ -3,11 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\Storefront;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront\SeoUrl;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
@@ -16,104 +17,116 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(SeoUrl::class)]
 class SeoUrlTest extends TestCase
 {
-    public function testStaticSeoUrlFromXml(): void
+    public function testFromXmlReadsNameHookAndTranslatedPaths(): void
     {
-        $seoUrl = $this->loadSeoUrls()['imprint'];
+        $seoUrl = $this->parse(<<<'XML'
+            <seo-url name="imprint" hook="legal-notice">
+                <path>imprint</path>
+                <path lang="de-DE">impressum</path>
+            </seo-url>
+            XML);
 
         static::assertSame('imprint', $seoUrl->getName());
-        static::assertSame('imprint', $seoUrl->getHook());
-        static::assertNull($seoUrl->getEntity());
-        static::assertNull($seoUrl->getDefaultTemplate());
-        static::assertSame(['en-GB' => 'Imprint', 'de-DE' => 'Impressum'], $seoUrl->getLabel());
+        static::assertSame('legal-notice', $seoUrl->getHook());
         static::assertSame(['en-GB' => 'imprint', 'de-DE' => 'impressum'], $seoUrl->getPath());
     }
 
-    public function testEntityBoundSeoUrlFromXml(): void
+    public function testFromXmlDefaultsTheHookToTheName(): void
     {
-        $seoUrl = $this->loadSeoUrls()['blog-detail'];
+        $seoUrl = $this->parse('<seo-url name="imprint"><path>imprint</path></seo-url>');
 
-        static::assertSame('blog-detail', $seoUrl->getName());
-        static::assertSame('blog-detail', $seoUrl->getHook());
-        static::assertSame('ce_blog', $seoUrl->getEntity());
-        static::assertSame('blog/{{ ceBlog.translated.title }}', $seoUrl->getDefaultTemplate());
-        static::assertSame(['en-GB' => 'Blog post'], $seoUrl->getLabel());
-        static::assertSame([], $seoUrl->getPath());
+        static::assertSame('imprint', $seoUrl->getHook());
     }
 
-    public function testHookDefaultsToTheName(): void
+    public function testFromXmlTrimsThePaths(): void
     {
-        $seoUrl = SeoUrl::fromArray(['name' => 'blog-overview']);
+        $seoUrl = $this->parse(<<<'XML'
+            <seo-url name="imprint">
+                <path>  imprint  </path>
+                <path lang="de-DE">
+                    impressum
+                </path>
+            </seo-url>
+            XML);
 
-        static::assertSame('blog-overview', $seoUrl->getHook());
+        static::assertSame(['en-GB' => 'imprint', 'de-DE' => 'impressum'], $seoUrl->getPath());
     }
 
-    public function testTheRouteNameIsNamespacedByTheAppAndTheDeclaredName(): void
+    public function testToArrayReturnsNameHookAndPath(): void
     {
-        static::assertSame(
-            'storefront.app.SwagSeoUrlApp.imprint',
-            SeoUrl::buildRouteName('SwagSeoUrlApp', 'imprint')
-        );
-    }
-
-    public function testTheRouteNameOfADeclarationUsesItsOwnName(): void
-    {
-        $seoUrl = $this->loadSeoUrls()['blog-detail'];
-
-        static::assertSame('storefront.app.SwagSeoUrlApp.blog-detail', $seoUrl->getRouteName('SwagSeoUrlApp'));
-        static::assertSame(
-            SeoUrl::buildRouteName('SwagSeoUrlApp', 'blog-detail'),
-            $seoUrl->getRouteName('SwagSeoUrlApp')
-        );
-    }
-
-    public function testNameIsRequired(): void
-    {
-        $this->expectExceptionObject(AppException::invalidArgument('name must not be empty'));
-
-        SeoUrl::fromArray(['hook' => 'imprint']);
-    }
-
-    public function testToArrayReturnsTheStaticPersistencePayload(): void
-    {
-        $payload = $this->loadSeoUrls()['imprint']->toArray('en-GB');
+        $seoUrl = SeoUrl::fromArray([
+            'name' => 'imprint',
+            'hook' => 'legal-notice',
+            'path' => ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
+        ]);
 
         static::assertSame([
             'name' => 'imprint',
-            'hook' => 'imprint',
-            'label' => ['en-GB' => 'Imprint', 'de-DE' => 'Impressum'],
-            'defaultTemplate' => null,
-            'entityName' => null,
-            'paths' => ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
-        ], $payload);
-    }
-
-    public function testToArrayAddsTheMissingDefaultLocaleTranslation(): void
-    {
-        $payload = $this->loadSeoUrls()['blog-detail']->toArray('de-DE');
-
-        static::assertSame([
-            'name' => 'blog-detail',
-            'hook' => 'blog-detail',
-            'label' => ['en-GB' => 'Blog post', 'de-DE' => 'Blog post'],
-            'defaultTemplate' => 'blog/{{ ceBlog.translated.title }}',
-            'entityName' => 'ce_blog',
-            'paths' => null,
-        ], $payload);
+            'hook' => 'legal-notice',
+            'path' => ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
+        ], $seoUrl->toArray('en-GB'));
     }
 
     /**
-     * @return array<string, SeoUrl>
+     * @param array<string, string> $path
+     * @param array<string, string> $expectedPath
      */
-    private function loadSeoUrls(): array
+    #[DataProvider('defaultLocaleProvider')]
+    public function testToArrayBackfillsThePathForTheDefaultLocale(array $path, string $defaultLocale, array $expectedPath): void
     {
-        $storefront = Manifest::createFromXmlFile(__DIR__ . '/../../_fixtures/test/manifest.xml')->getStorefront();
-        static::assertNotNull($storefront);
+        $seoUrl = SeoUrl::fromArray(['name' => 'imprint', 'path' => $path]);
 
-        $seoUrls = [];
-        foreach ($storefront->getSeoUrls() as $seoUrl) {
-            $seoUrls[$seoUrl->getName()] = $seoUrl;
-        }
+        static::assertSame(
+            ['name' => 'imprint', 'hook' => 'imprint', 'path' => $expectedPath],
+            $seoUrl->toArray($defaultLocale)
+        );
+    }
 
-        return $seoUrls;
+    /**
+     * @return iterable<string, array{path: array<string, string>, defaultLocale: string, expectedPath: array<string, string>}>
+     */
+    public static function defaultLocaleProvider(): iterable
+    {
+        yield 'a path declared for the default locale is kept untouched' => [
+            'path' => ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
+            'defaultLocale' => 'de-DE',
+            'expectedPath' => ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
+        ];
+
+        yield 'a missing default locale prefers the en-GB path over the first one' => [
+            'path' => ['de-DE' => 'impressum', 'en-GB' => 'imprint'],
+            'defaultLocale' => 'fr-FR',
+            'expectedPath' => ['de-DE' => 'impressum', 'en-GB' => 'imprint', 'fr-FR' => 'imprint'],
+        ];
+
+        yield 'a missing default locale without en-GB path falls back to the first path' => [
+            'path' => ['de-DE' => 'impressum', 'nl-NL' => 'colofon'],
+            'defaultLocale' => 'fr-FR',
+            'expectedPath' => ['de-DE' => 'impressum', 'nl-NL' => 'colofon', 'fr-FR' => 'impressum'],
+        ];
+    }
+
+    public function testFromArrayWithOnlyANameDefaultsTheHookAndHasNoPaths(): void
+    {
+        $seoUrl = SeoUrl::fromArray(['name' => 'imprint']);
+
+        static::assertSame('imprint', $seoUrl->getName());
+        static::assertSame('imprint', $seoUrl->getHook());
+        static::assertSame([], $seoUrl->getPath());
+    }
+
+    public function testFromArrayRequiresAName(): void
+    {
+        $this->expectExceptionObject(AppException::invalidArgument('name must not be empty'));
+
+        SeoUrl::fromArray(['hook' => 'imprint', 'path' => ['en-GB' => 'imprint']]);
+    }
+
+    private function parse(string $xml): SeoUrl
+    {
+        $element = XmlUtils::parse($xml)->documentElement;
+        static::assertInstanceOf(\DOMElement::class, $element);
+
+        return SeoUrl::fromXml($element);
     }
 }

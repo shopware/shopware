@@ -12,10 +12,8 @@ use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
 #[Package('inventory')]
 class AppSeoUrlSyncMessage implements AsyncMessageInterface, DeduplicatableMessageInterface
 {
-    public function __construct(
-        private readonly ?string $appId = null,
-        private readonly bool $regenerateEntityRoutes = false,
-    ) {
+    public function __construct(private readonly ?string $appId = null)
+    {
     }
 
     public function getAppId(): ?string
@@ -23,13 +21,8 @@ class AppSeoUrlSyncMessage implements AsyncMessageInterface, DeduplicatableMessa
         return $this->appId;
     }
 
-    public function shouldRegenerateEntityRoutes(): bool
-    {
-        return $this->regenerateEntityRoutes;
-    }
-
     public function deduplicationId(): ?string
     {
-        return ($this->appId ?? 'all') . ($this->regenerateEntityRoutes ? ':full' : ':static');
+        return $this->appId ?? 'all';
     }
 }

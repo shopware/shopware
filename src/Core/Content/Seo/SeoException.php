@@ -21,6 +21,9 @@ class SeoException extends HttpException
     public const ENTITY_NAME_PARAMETER_IS_MISSING = 'FRAMEWORK__ENTITY_NAME_PARAMETER_IS_MISSING';
     public const SALES_CHANNEL_NOT_FOUND = 'FRAMEWORK__SALES_CHANNEL_NOT_FOUND';
     public const SEO_URL_ROUTE_NOT_FOUND = 'CONTENT__SEO_URL_ROUTE_NOT_FOUND';
+    public const APP_SEO_URL_PATH_INVALID = 'CONTENT__SEO_APP_SEO_URL_PATH_INVALID';
+    public const APP_SEO_URL_PATH_ALREADY_REGISTERED = 'CONTENT__SEO_APP_SEO_URL_PATH_ALREADY_REGISTERED';
+    public const APP_SEO_URL_PATH_IN_USE = 'CONTENT__SEO_APP_SEO_URL_PATH_IN_USE';
     /**
      * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
      */
@@ -107,5 +110,35 @@ class SeoException extends HttpException
     public static function unexpectedType(mixed $givenType, string $expectedType): UnexpectedTypeException
     {
         return new UnexpectedTypeException($givenType, $expectedType);
+    }
+
+    public static function appSeoUrlPathInvalid(string $seoUrlName, string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SEO_URL_PATH_INVALID,
+            'The path "{{ path }}" of the SEO URL "{{ seoUrlName }}" contains characters that are not allowed in URLs.',
+            ['path' => $path, 'seoUrlName' => $seoUrlName],
+        );
+    }
+
+    public static function appSeoUrlPathAlreadyRegistered(string $seoUrlName, string $path, string $owningApp): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SEO_URL_PATH_ALREADY_REGISTERED,
+            'The path "{{ path }}" of the SEO URL "{{ seoUrlName }}" is already registered by app "{{ owningApp }}".',
+            ['path' => $path, 'seoUrlName' => $seoUrlName, 'owningApp' => $owningApp],
+        );
+    }
+
+    public static function appSeoUrlPathInUse(string $seoUrlName, string $path): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SEO_URL_PATH_IN_USE,
+            'The path "{{ path }}" of the SEO URL "{{ seoUrlName }}" is already used by a storefront route or another SEO URL.',
+            ['path' => $path, 'seoUrlName' => $seoUrlName],
+        );
     }
 }

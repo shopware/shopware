@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\DependencyInjection;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
@@ -10,13 +11,19 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlDomainListener;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlIndexer;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlLifecycleHandler;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteLoader;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteProvider;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlSynchronizer;
-use Shopware\Storefront\Framework\Seo\App\AppSeoUrlUpdateListener;
+use Shopware\Storefront\Framework\Seo\App\EntitySeoUrlAppFeatureDefinition;
 use Shopware\Storefront\Framework\Seo\App\Message\AppSeoUrlSyncHandler;
+use Shopware\Storefront\Framework\Seo\App\SeoUrlAppFeatureDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
@@ -56,9 +63,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(SeoUrlAppFeatureDefinition::class)
+        ->args([
+            service(Connection::class),
+            service(RouteBlocklistService::class),
+        ])
+        ->tag('shopware.app_feature.definition');
+
+    $services->set(EntitySeoUrlAppFeatureDefinition::class)
+        ->args([
+            service('seo_url_template.repository'),
+        ])
+        ->tag('shopware.app_feature.definition');
+
     $services->set(AppSeoUrlRouteProvider::class)
         ->args([
-            service('app_seo_url_route.repository'),
+            service(AppFeatureStorage::class),
             service('cache.object'),
         ])
         ->tag('kernel.event_subscriber')
@@ -71,13 +91,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.seo_url.route_loader');
 
-    $services->set(AppSeoUrlSynchronizer::class)
+    $services->set(AppSeoUrlIndexer::class)
         ->args([
             service(AppSeoUrlRouteProvider::class),
+            service(SeoUrlUpdater::class),
+            service(MessageBusInterface::class),
+        ])
+        ->tag('shopware.entity_indexer');
+
+    $services->set(AppSeoUrlSynchronizer::class)
+        ->args([
+            service(AppFeatureStorage::class),
             service('sales_channel.repository'),
             service(SeoUrlPersister::class),
-            service(SeoUrlUpdater::class),
-            service(DefinitionInstanceRegistry::class),
+            service(LanguageLocaleCodeProvider::class),
+            service('router'),
+            service('request_stack'),
         ]);
 
     $services->set(AppSeoUrlSyncHandler::class)
@@ -88,14 +117,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(AppSeoUrlLifecycleHandler::class)
         ->args([
+            service(AppFeatureStorage::class),
+            service('seo_url.repository'),
+            service('seo_url_template.repository'),
             service(MessageBusInterface::class),
         ])
-        ->tag('shopware.app_lifecycle.handler', ['priority' => -1500]);
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1250])
+        ->tag('kernel.event_subscriber');
 
-    $services->set(AppSeoUrlUpdateListener::class)
+    $services->set(AppSeoUrlDomainListener::class)
         ->args([
-            service(AppSeoUrlRouteProvider::class),
-            service(SeoUrlUpdater::class),
             service(MessageBusInterface::class),
         ])
         ->tag('kernel.event_subscriber');

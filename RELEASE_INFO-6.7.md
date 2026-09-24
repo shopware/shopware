@@ -149,7 +149,7 @@ Shopware now follows a `301` or `302` from an app endpoint without dropping the 
 
 ### SEO URLs for app storefront routes
 
-Apps can give their script-rendered storefront pages SEO URLs by declaring `<seo-url>` elements inside `<storefront>` in `manifest.xml`.
+Apps can give their script-rendered storefront pages SEO URLs by declaring `<seo-url>` and `<entity-seo-url>` elements inside `<storefront>` in `manifest.xml`.
 
 ```xml
 <storefront>
@@ -157,17 +157,19 @@ Apps can give their script-rendered storefront pages SEO URLs by declaring `<seo
         <path>imprint</path>
         <path lang="de-DE">impressum</path>
     </seo-url>
-    <seo-url name="blog-detail" entity="ce_blog">
+    <entity-seo-url name="blog-detail" entity="ce_blog">
         <default-template>blog/{{ ceBlog.translated.title }}</default-template>
-    </seo-url>
+    </entity-seo-url>
 </storefront>
 ```
 
-A static entry maps the given path to the script hook `storefront-<name>` on every storefront sales channel domain; the `hook` attribute overrides the hook name. An entity-bound entry generates one SEO URL per entity from the Twig template. Merchants can adjust that template per sales channel in Settings > SEO, where the route is listed as `storefront.app.<appName>.<name>`. The template context exposes the entity under its camel-cased name, for example `ceBlog`. URLs are regenerated whenever the entity is written and marked as deleted while the app is inactive or after it is uninstalled.
+A `<seo-url>` maps its path to the script hook `storefront-<name>` on every storefront sales channel domain, using the path of the domain's language; the `hook` attribute overrides the hook name. Installing or updating an app fails when one of its paths is already used by a storefront route, another app or an existing SEO URL.
+
+An `<entity-seo-url>` generates one SEO URL per entity. Its default template is only seeded: merchants adjust it per sales channel in Settings > SEO, where the route is listed as `storefront.app.<appName>.<name>`, and app updates don't overwrite it. The template context exposes the entity under its camel-cased name, for example `ceBlog`. The URLs follow entity writes and the indexing behaviour like the core SEO URLs, get rebuilt by `dal:refresh:index`, and are marked as deleted while the app is inactive or after it is uninstalled.
 
 The script receives the entity id as `hook.query.id`. Templates link to such pages with `seoUrl('frontend.script_endpoint', { hook: 'blog-detail', id: entity.id })`; the placeholder is replaced with the SEO path like for products and categories.
 
-Two supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, and `seo_url.route_name` now allows 255 characters.
+Three supporting changes apply to all SEO URLs: query parameters stored in `seo_url.path_info` are merged into the request when the SEO URL is resolved and take precedence over the browser's query string, `seo_url.route_name` now allows 255 characters, and updating the SEO URLs of one route no longer marks the SEO URLs of other routes for the same entity as deleted or restores them.
 
 # 6.7.15.0
 

@@ -5,13 +5,11 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Seo\App;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
-use Shopware\Core\Framework\App\Aggregate\AppSeoUrlRoute\AppSeoUrlRouteEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\App\AppEvents;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Storefront\Framework\Seo\App\AppEntitySeoUrlConfig;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteProvider;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -23,10 +21,6 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 #[CoversClass(AppSeoUrlRouteProvider::class)]
 class AppSeoUrlRouteProviderTest extends TestCase
 {
-    private const APP_ID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-
-    private const OTHER_APP_ID = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-
     private TagAwareAdapter $cache;
 
     protected function setUp(): void
@@ -34,235 +28,143 @@ class AppSeoUrlRouteProviderTest extends TestCase
         $this->cache = new TagAwareAdapter(new ArrayAdapter());
     }
 
-    public function testWrittenAppsAndRoutesInvalidateTheCache(): void
+    public function testWrittenAndDeletedAppsInvalidateTheRoutes(): void
     {
         static::assertSame(
             [
-                'app.written' => 'invalidate',
-                'app.deleted' => 'invalidate',
-                'app_seo_url_route.written' => 'invalidate',
-                'app_seo_url_route.deleted' => 'invalidate',
+                AppEvents::APP_WRITTEN_EVENT => 'invalidate',
+                AppEvents::APP_DELETED_EVENT => 'invalidate',
             ],
             AppSeoUrlRouteProvider::getSubscribedEvents()
         );
     }
 
-    public function testEntityBoundAndStaticRoutesAreSeparated(): void
+    public function testACacheMissReturnsTheEntitySeoUrlsOfActiveAppsAsLoaded(): void
     {
-        $provider = $this->provider(
-            $this->staticRoute('imprint', ['en-GB' => 'imprint']),
-            $this->entityRoute('product-teaser', 'product')
-        );
+        $teaser = $this->seoUrl('product-teaser', 'product');
+        $blog = $this->seoUrl('blog-detail', 'ce_blog');
 
-        static::assertSame(
-            ['storefront.app.SwagSeoUrlApp.product-teaser'],
-            $this->routeNames($provider->getEntityRoutes())
-        );
-        static::assertSame(
-            ['storefront.app.SwagSeoUrlApp.imprint'],
-            $this->routeNames($provider->getStaticRoutes())
-        );
+        $storage = $this->createMock(AppFeatureStorage::class);
+        $storage->expects($this->once())
+            ->method('forActiveApps')
+            ->with(AppEntitySeoUrlConfig::class)
+            ->willReturn([$this->feature($teaser), $this->feature($blog)]);
+
+        static::assertSame([$teaser, $blog], (new AppSeoUrlRouteProvider($storage, $this->cache))->getEntityRoutes());
     }
 
-    public function testStaticRoutesWithoutAnyPathAreIgnored(): void
+    public function testTheLoadedRoutesAreCachedCompressedAndTaggedForInvalidation(): void
     {
-        $provider = $this->provider(
-            $this->staticRoute('imprint', null),
-            $this->staticRoute('contact', [])
-        );
+        $teaser = $this->seoUrl('product-teaser', 'product');
 
-        static::assertSame([], $this->routeNames($provider->getStaticRoutes()));
-    }
-
-    public function testEntityRoutesWithoutADefaultTemplateAreIgnored(): void
-    {
-        $route = $this->entityRoute('product-teaser', 'product');
-        $route->defaultTemplate = null;
-
-        $provider = $this->provider($route);
-
-        static::assertSame([], $this->routeNames($provider->getEntityRoutes()));
-        static::assertSame([], $this->routeNames($provider->getStaticRoutes()));
-    }
-
-    public function testRoutesCanBeFilteredByApp(): void
-    {
-        $otherStatic = $this->staticRoute('other-imprint', ['en-GB' => 'other-imprint']);
-        $otherStatic->appId = self::OTHER_APP_ID;
-        $otherEntity = $this->entityRoute('other-teaser', 'product');
-        $otherEntity->appId = self::OTHER_APP_ID;
-
-        $provider = $this->provider(
-            $this->staticRoute('imprint', ['en-GB' => 'imprint']),
-            $this->entityRoute('product-teaser', 'product'),
-            $otherStatic,
-            $otherEntity
-        );
-
-        static::assertSame(
-            ['storefront.app.SwagSeoUrlApp.imprint'],
-            $this->routeNames($provider->getStaticRoutes(self::APP_ID))
-        );
-        static::assertSame(
-            ['storefront.app.SwagSeoUrlApp.product-teaser'],
-            $this->routeNames($provider->getEntityRoutes(self::APP_ID))
-        );
-        static::assertSame(
-            ['storefront.app.SwagSeoUrlApp.other-imprint'],
-            $this->routeNames($provider->getStaticRoutes(self::OTHER_APP_ID))
-        );
-        static::assertSame(
-            ['storefront.app.SwagSeoUrlApp.other-teaser'],
-            $this->routeNames($provider->getEntityRoutes(self::OTHER_APP_ID))
-        );
-    }
-
-    public function testOnlyTheRoutesOfActiveAppsAreLoaded(): void
-    {
-        $criteria = null;
-        $route = $this->staticRoute('imprint', ['en-GB' => 'imprint']);
-
-        $repository = new StaticEntityRepository([
-            static function (Criteria $given) use (&$criteria, $route): EntityCollection {
-                $criteria = $given;
-
-                return new EntityCollection([$route]);
-            },
-        ]);
-
-        (new AppSeoUrlRouteProvider($repository, $this->cache))->getStaticRoutes();
-
-        static::assertInstanceOf(Criteria::class, $criteria);
-        static::assertEquals([new EqualsFilter('app.active', true)], $criteria->getFilters());
-    }
-
-    public function testTheCacheMissStoresTheRoutesCompressed(): void
-    {
-        $this->provider($this->staticRoute('imprint', ['en-GB' => 'imprint']))->getStaticRoutes();
+        (new AppSeoUrlRouteProvider($this->storage($teaser), $this->cache))->getEntityRoutes();
 
         $item = $this->cache->getItem(AppSeoUrlRouteProvider::CACHE_KEY);
         static::assertTrue($item->isHit());
-
-        $cached = CacheValueCompressor::uncompress($item->get());
-        static::assertInstanceOf(EntityCollection::class, $cached);
-        static::assertSame(['storefront.app.SwagSeoUrlApp.imprint'], $this->routeNames($cached));
-    }
-
-    public function testTheCachedRoutesAreTaggedForInvalidation(): void
-    {
-        $this->provider($this->staticRoute('imprint', ['en-GB' => 'imprint']))->getStaticRoutes();
+        static::assertEquals([$teaser], CacheValueCompressor::uncompress($item->get()));
 
         $this->cache->invalidateTags([AppSeoUrlRouteProvider::CACHE_KEY]);
 
         static::assertFalse($this->cache->getItem(AppSeoUrlRouteProvider::CACHE_KEY)->isHit());
     }
 
-    public function testASecondProviderReadsTheRoutesFromTheSharedCache(): void
+    public function testACacheHitIsServedWithoutLoadingFromTheStorage(): void
     {
-        $this->provider($this->staticRoute('imprint', ['en-GB' => 'imprint']))->getStaticRoutes();
+        $teaser = $this->seoUrl('product-teaser', 'product');
+        (new AppSeoUrlRouteProvider($this->storage($teaser), $this->cache))->getEntityRoutes();
 
-        $repository = $this->repository();
-        $cold = new AppSeoUrlRouteProvider($repository, $this->cache);
+        $storage = $this->createMock(AppFeatureStorage::class);
+        $storage->expects($this->never())->method('forActiveApps');
 
-        static::assertSame(
-            ['storefront.app.SwagSeoUrlApp.imprint'],
-            $this->routeNames($cold->getStaticRoutes())
-        );
-        static::assertCount(2, $repository->searches);
+        static::assertEquals([$teaser], (new AppSeoUrlRouteProvider($storage, $this->cache))->getEntityRoutes());
     }
 
-    public function testTheRepositoryIsQueriedOnceWhileTheRoutesAreMemoised(): void
+    public function testTheRoutesAreMemoisedWithinTheProcess(): void
     {
-        $repository = $this->repository($this->staticRoute('imprint', ['en-GB' => 'imprint']));
-        $provider = new AppSeoUrlRouteProvider($repository, $this->cache);
+        $teaser = $this->seoUrl('product-teaser', 'product');
 
-        $provider->getStaticRoutes();
+        $storage = $this->createMock(AppFeatureStorage::class);
+        $storage->expects($this->once())->method('forActiveApps')->willReturn([$this->feature($teaser)]);
+
+        $provider = new AppSeoUrlRouteProvider($storage, $this->cache);
         $provider->getEntityRoutes();
-        $provider->getStaticRoutes();
 
-        static::assertCount(1, $repository->searches);
+        $this->cache->delete(AppSeoUrlRouteProvider::CACHE_KEY);
+
+        static::assertSame([$teaser], $provider->getEntityRoutes());
     }
 
-    public function testResetOnlyDropsTheInProcessMemoisation(): void
+    public function testResetDropsTheMemoisationButKeepsTheCachedRoutes(): void
     {
-        $repository = $this->repository($this->staticRoute('imprint', ['en-GB' => 'imprint']));
-        $provider = new AppSeoUrlRouteProvider($repository, $this->cache);
+        $storage = $this->createMock(AppFeatureStorage::class);
+        $storage->expects($this->once())
+            ->method('forActiveApps')
+            ->willReturn([$this->feature($this->seoUrl('product-teaser', 'product'))]);
 
-        $provider->getStaticRoutes();
+        $provider = new AppSeoUrlRouteProvider($storage, $this->cache);
+        $provider->getEntityRoutes();
+
+        $refreshedByAnotherProcess = $this->seoUrl('blog-detail', 'ce_blog');
+        $item = $this->cache->getItem(AppSeoUrlRouteProvider::CACHE_KEY);
+        $item->set(CacheValueCompressor::compress([$refreshedByAnotherProcess]));
+        $this->cache->save($item);
+
         $provider->reset();
 
-        static::assertCount(1, $provider->getStaticRoutes());
-        static::assertCount(1, $repository->searches);
-        static::assertTrue($this->cache->getItem(AppSeoUrlRouteProvider::CACHE_KEY)->isHit());
+        static::assertEquals([$refreshedByAnotherProcess], $provider->getEntityRoutes());
     }
 
-    public function testInvalidateAlsoDeletesTheCachedRoutes(): void
+    public function testInvalidateDropsTheMemoisationAndTheCachedRoutes(): void
     {
-        $repository = $this->repository($this->staticRoute('imprint', ['en-GB' => 'imprint']));
-        $provider = new AppSeoUrlRouteProvider($repository, $this->cache);
+        $teaser = $this->seoUrl('product-teaser', 'product');
+        $blog = $this->seoUrl('blog-detail', 'ce_blog');
 
-        $provider->getStaticRoutes();
+        $storage = $this->createMock(AppFeatureStorage::class);
+        $storage->expects($this->exactly(2))
+            ->method('forActiveApps')
+            ->willReturnOnConsecutiveCalls([$this->feature($teaser)], [$this->feature($blog)]);
+
+        $provider = new AppSeoUrlRouteProvider($storage, $this->cache);
+        static::assertSame([$teaser], $provider->getEntityRoutes());
+
         $provider->invalidate();
 
         static::assertFalse($this->cache->getItem(AppSeoUrlRouteProvider::CACHE_KEY)->isHit());
-
-        static::assertCount(1, $provider->getStaticRoutes());
-        static::assertSame([], $repository->searches);
+        static::assertSame([$blog], $provider->getEntityRoutes());
     }
 
-    private function provider(AppSeoUrlRouteEntity ...$routes): AppSeoUrlRouteProvider
+    private function storage(AppEntitySeoUrlConfig ...$seoUrls): AppFeatureStorage
     {
-        return new AppSeoUrlRouteProvider($this->repository(...$routes), $this->cache);
-    }
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn(array_map($this->feature(...), $seoUrls));
 
-    /**
-     * @return StaticEntityRepository<EntityCollection<AppSeoUrlRouteEntity>>
-     */
-    private function repository(AppSeoUrlRouteEntity ...$routes): StaticEntityRepository
-    {
-        return new StaticEntityRepository([new EntityCollection($routes), new EntityCollection($routes)]);
+        return $storage;
     }
 
     /**
-     * @param EntityCollection<AppSeoUrlRouteEntity> $routes
-     *
-     * @return list<string>
+     * @return AppFeature<AppEntitySeoUrlConfig>
      */
-    private function routeNames(EntityCollection $routes): array
+    private function feature(AppEntitySeoUrlConfig $seoUrl): AppFeature
     {
-        return array_values($routes->map(static fn (AppSeoUrlRouteEntity $route): string => $route->routeName));
+        return new AppFeature(
+            appId: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            appName: 'SwagSeoUrlApp',
+            appActive: true,
+            appVersion: '1.0.0',
+            appHasSecret: false,
+            createdAt: new \DateTimeImmutable('2026-01-01 00:00:00'),
+            config: $seoUrl,
+        );
     }
 
-    /**
-     * @param array<string, string>|null $paths
-     */
-    private function staticRoute(string $name, ?array $paths): AppSeoUrlRouteEntity
+    private function seoUrl(string $name, string $entityName): AppEntitySeoUrlConfig
     {
-        $route = $this->route($name);
-        $route->paths = $paths;
-
-        return $route;
-    }
-
-    private function entityRoute(string $name, string $entityName): AppSeoUrlRouteEntity
-    {
-        $route = $this->route($name);
-        $route->entityName = $entityName;
-        $route->defaultTemplate = '{{ ' . $entityName . '.translated.name }}';
-
-        return $route;
-    }
-
-    private function route(string $name): AppSeoUrlRouteEntity
-    {
-        $route = new AppSeoUrlRouteEntity();
-        $route->id = Uuid::randomHex();
-        $route->appId = self::APP_ID;
-        $route->name = $name;
-        $route->routeName = 'storefront.app.SwagSeoUrlApp.' . $name;
-        $route->hook = $name;
-        $route->setUniqueIdentifier($route->id);
-
-        return $route;
+        return new AppEntitySeoUrlConfig(
+            name: $name,
+            routeName: 'storefront.app.SwagSeoUrlApp.' . $name,
+            hook: $name,
+            entityName: $entityName,
+            defaultTemplate: '{{ ' . $entityName . '.translated.name }}',
+        );
     }
 }

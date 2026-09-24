@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Seo\App\AppEntitySeoUrlConfig;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRoute;
 
 /**
@@ -19,54 +20,52 @@ class AppSeoUrlRouteTest extends TestCase
 {
     public function testConfigGeneratesPathsThroughTheScriptEndpointOfTheDeclaredHook(): void
     {
-        $definition = static::createStub(ProductDefinition::class);
+        $definition = new ProductDefinition();
 
-        $route = new AppSeoUrlRoute(
-            $definition,
-            'storefront.app.SwagSeoUrlApp.product-teaser',
-            'product-teaser',
-            '{{ product.translated.name }}'
-        );
-
-        $config = $route->getConfig();
+        $config = (new AppSeoUrlRoute($definition, $this->seoUrl()))->getConfig();
 
         static::assertSame($definition, $config->getDefinition());
         static::assertSame('storefront.app.SwagSeoUrlApp.product-teaser', $config->getRouteName());
         static::assertSame('frontend.script_endpoint', $config->getTargetRouteName());
         static::assertSame(AppSeoUrlRoute::TARGET_ROUTE, $config->getTargetRouteName());
-        static::assertSame('{{ product.translated.name }}', $config->getTemplate());
+        static::assertSame('teaser/{{ product.productNumber }}', $config->getTemplate());
         static::assertTrue($config->getSkipInvalid());
     }
 
     public function testPrimaryKeyIsPassedAsIdNextToTheHookParameter(): void
     {
-        $route = new AppSeoUrlRoute(
-            static::createStub(ProductDefinition::class),
-            'storefront.app.SwagSeoUrlApp.product-teaser',
-            'product-teaser',
-            '{{ product.translated.name }}'
-        );
+        $route = new AppSeoUrlRoute(new ProductDefinition(), $this->seoUrl());
 
         static::assertSame(
-            ['hook' => 'product-teaser', 'id' => 'c1a5b1a3c1a5b1a3c1a5b1a3c1a5b1a3'],
+            ['hook' => 'teaser-page', 'id' => 'c1a5b1a3c1a5b1a3c1a5b1a3c1a5b1a3'],
             $route->getConfig()->getPrimaryKeyParameter('c1a5b1a3c1a5b1a3c1a5b1a3c1a5b1a3')
         );
     }
 
     public function testPrepareCriteriaLeavesTheCriteriaUntouched(): void
     {
-        $route = new AppSeoUrlRoute(
-            static::createStub(ProductDefinition::class),
-            'storefront.app.SwagSeoUrlApp.product-teaser',
-            'product-teaser',
-            '{{ product.translated.name }}'
-        );
+        $route = new AppSeoUrlRoute(new ProductDefinition(), $this->seoUrl());
 
         $criteria = new Criteria();
         $route->prepareCriteria($criteria, new SalesChannelEntity());
 
-        static::assertSame([], $criteria->getFilters());
-        static::assertSame([], $criteria->getAssociations());
-        static::assertSame([], $criteria->getSorting());
+        static::assertEquals(new Criteria(), $criteria);
+    }
+
+    public function testRouteNamesAreNamespacedByTheDeclaringApp(): void
+    {
+        static::assertSame('storefront.app.SwagSeoUrlApp.', AppSeoUrlRoute::routeNamePrefix('SwagSeoUrlApp'));
+        static::assertSame('storefront.app.SwagSeoUrlApp.imprint', AppSeoUrlRoute::buildRouteName('SwagSeoUrlApp', 'imprint'));
+    }
+
+    private function seoUrl(): AppEntitySeoUrlConfig
+    {
+        return new AppEntitySeoUrlConfig(
+            name: 'product-teaser',
+            routeName: 'storefront.app.SwagSeoUrlApp.product-teaser',
+            hook: 'teaser-page',
+            entityName: 'product',
+            defaultTemplate: 'teaser/{{ product.productNumber }}',
+        );
     }
 }

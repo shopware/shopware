@@ -44,10 +44,10 @@ test(
             await ShopAdmin.expects(documentRow.row).toBeVisible();
             await documentRow.contextMenuButton.click();
 
-            await ShopAdmin.expects(AdminOrderDetail.contextMenu).toBeVisible();
+            await ShopAdmin.expects(AdminOrderDetail.contextMenuMarkAsSent).toBeVisible();
             await AdminOrderDetail.contextMenuMarkAsSent.click();
 
-            await ShopAdmin.expects(AdminOrderDetail.contextMenu).not.toBeVisible();
+            await ShopAdmin.expects(AdminOrderDetail.contextMenuMarkAsSent).not.toBeVisible();
             await ShopAdmin.expects(documentRow.sentCheckmark).toBeVisible();
         });
 

@@ -1,10 +1,10 @@
 # Api
 
-Admin API controllers for the content system. Store API rendering lives in `SalesChannel/`; this directory holds Admin-scoped (`ApiRouteScope`) endpoints: layout preview, resolve-and-diagnose, the nine stateless draft mutation actions, and the nine persisted mutation actions that commit one edit to a stored layout.
+Admin API controllers for the content system. Store API rendering lives in `SalesChannel/`; this directory holds Admin-scoped (`ApiRouteScope`) endpoints: layout preview, resolve-and-diagnose, the ten stateless draft mutation actions, and the nine persisted mutation actions that commit one edit to a stored layout.
 
 ## What Lives Here
 
-Four controllers sit behind the Admin API's content-system actions: one mints a preview URL, one resolves and diagnoses a draft, and two apply structural operations — one to a tree the request carries, one to a stored layout. They share a request decoder and a response shape rather than each modelling their own, which is what keeps a draft edit and a committed edit answering in the same form.
+Four controllers sit behind the Admin API's content-system actions: one mints a preview URL, one resolves and diagnoses a draft, and two apply structural operations — one to a tree the request carries, one to a stored layout. All four decode a request-supplied tree through the same `DraftLayoutDecoder` rather than each modelling the element themselves, and the two mutation controllers share one response shape, which is what keeps a draft edit and a committed edit answering in the same form.
 
 The class index lives in [AGENTS.md](AGENTS.md); the per-subject references are indexed from its `## Navigation` section, and [docs/routes.md](docs/routes.md) lists every route with its name and OpenAPI file.
 
@@ -14,7 +14,7 @@ The class index lives in [AGENTS.md](AGENTS.md); the per-subject references are 
 - [docs/preview-url.md](docs/preview-url.md) - The preview action that mints a short-lived, openable URL for a draft layout: route, request envelope, response, and error model.
 - [docs/diagnose.md](docs/diagnose.md) - The resolve-and-diagnose action: route, request envelope, and error model.
 - [docs/diagnose-response.md](docs/diagnose-response.md) - The diagnose response body: resolutions, diagnostics, and the violation codes.
-- [docs/mutation.md](docs/mutation.md) - The nine stateless draft mutation actions and the request envelope they share.
+- [docs/mutation.md](docs/mutation.md) - The stateless draft mutation actions and the request envelope they share.
 - [docs/mutation-response.md](docs/mutation-response.md) - The seven-key response body every stateless mutation action returns.
 - [docs/mutation-errors.md](docs/mutation-errors.md) - The failure conditions that abort a stateless mutation instead of being reported in diagnostics.
 - [docs/mutation-binding.md](docs/mutation-binding.md) - Applying a binding specification through `bind-element` or `insert-element`, and the automatic default the scaffold applies.

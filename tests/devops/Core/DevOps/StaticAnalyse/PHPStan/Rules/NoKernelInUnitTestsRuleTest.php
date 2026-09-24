@@ -30,8 +30,8 @@ class NoKernelInUnitTestsRuleTest extends RuleTestCase
             [\sprintf(NoKernelInUnitTestsRule::ERROR_TRAIT, SalesChannelApiTestBehaviour::class), 27],
             // the local trait itself is harmless, the kernel behaviour it composes is reported
             [\sprintf(NoKernelInUnitTestsRule::ERROR_TRAIT, KernelTestBehaviour::class), 40],
-            [\sprintf(NoKernelInUnitTestsRule::ERROR_LIFECYCLE_MANAGER, 'getKernel'), 57],
-            // NOT flagged: 66 (EnvTestBehaviour restores state and never boots)
+            // NOT flagged: 53 (a lifecycle call is NoKernelLifecycleManagerInUnitTestsRule's job), 66 (EnvTestBehaviour
+            // restores state and never boots)
         ]);
     }
 

@@ -3,10 +3,6 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
-use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Reflection\ClassReflection;
@@ -17,7 +13,6 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 
 /**
  * A unit test never boots the kernel. The behaviours under `Shopware\Core\Framework\Test\TestCaseBase` and
@@ -27,7 +22,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
  * Such a test belongs in `tests/integration`, or it builds its subject from the constructor and test doubles.
  *
  * The check follows trait composition, so a test-local trait that composes `KernelTestBehaviour` is reported
- * as well, and it covers direct calls into `KernelLifecycleManager`. Enforcement is narrowed to the unit
+ * as well. Direct calls into `KernelLifecycleManager`, wherever they sit in the class, its traits or its
+ * parents, are the job of {@see NoKernelLifecycleManagerInUnitTestsRule}. Enforcement is narrowed to the unit
  * namespaces ({@see Configuration}); the migration suite runs against a database on purpose.
  *
  * @implements Rule<InClassNode>
@@ -38,8 +34,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 class NoKernelInUnitTestsRule implements Rule
 {
     public const ERROR_TRAIT = 'Unit test composes %s, which boots the kernel and needs a database; it only passes because the unit CI job provides one. Move the test to tests/integration, or build the subject with its constructor and test doubles.';
-
-    public const ERROR_LIFECYCLE_MANAGER = 'Unit test calls KernelLifecycleManager::%s(), which boots the kernel and needs a database; it only passes because the unit CI job provides one. Move the test to tests/integration, or build the subject with its constructor and test doubles.';
 
     /**
      * Namespace prefixes whose traits reach for the kernel, the container or the database.
@@ -93,21 +87,6 @@ class NoKernelInUnitTestsRule implements Rule
             $errors[] = RuleErrorBuilder::message(\sprintf(self::ERROR_TRAIT, $trait))
                 ->identifier('shopware.kernelInUnitTest')
                 ->line($node->getStartLine())
-                ->build();
-        }
-
-        foreach ((new NodeFinder())->findInstanceOf($node->getOriginalNode(), StaticCall::class) as $call) {
-            if (!$call->class instanceof Name || !$call->name instanceof Identifier) {
-                continue;
-            }
-
-            if ($scope->resolveName($call->class) !== KernelLifecycleManager::class) {
-                continue;
-            }
-
-            $errors[] = RuleErrorBuilder::message(\sprintf(self::ERROR_LIFECYCLE_MANAGER, $call->name->name))
-                ->identifier('shopware.kernelInUnitTest')
-                ->line($call->getStartLine())
                 ->build();
         }
 

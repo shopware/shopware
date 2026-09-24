@@ -7,9 +7,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -18,8 +18,6 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 #[CoversClass(DatabaseConnectionInformation::class)]
 class DatabaseConnectionInformationTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testValidInformation(): void
     {
         $info = new DatabaseConnectionInformation();
@@ -267,7 +265,7 @@ class DatabaseConnectionInformationTest extends TestCase
     #[DataProvider('validEnvProvider')]
     public function testFromEnv(array $env, DatabaseConnectionInformation $expected): void
     {
-        $this->setEnvVars($env);
+        TestEnvironment::set($env);
 
         $info = DatabaseConnectionInformation::fromEnv();
 
@@ -364,7 +362,7 @@ class DatabaseConnectionInformationTest extends TestCase
     #[DataProvider('invalidEnvProvider')]
     public function testFromEnvWithInvalidEnv(array $env, MaintenanceException $expectedException): void
     {
-        $this->setEnvVars($env);
+        TestEnvironment::set($env);
 
         $this->expectExceptionObject($expectedException);
         DatabaseConnectionInformation::fromEnv();

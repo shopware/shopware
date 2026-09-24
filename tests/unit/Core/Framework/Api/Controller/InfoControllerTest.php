@@ -29,11 +29,11 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -46,8 +46,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(InfoController::class)]
 class InfoControllerTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private ShopIdProvider&MockObject $shopIdProvider;
 
     private StatsService&Stub $statsService;
@@ -72,7 +70,7 @@ class InfoControllerTest extends TestCase
     {
         $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'APP_URL' => 'https://app.url',
         ]);
 

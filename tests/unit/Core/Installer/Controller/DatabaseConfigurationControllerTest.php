@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Controller\DatabaseConfigurationController;
 use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
@@ -15,6 +14,7 @@ use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,7 +33,6 @@ use Twig\Environment;
 #[CoversClass(InstallerController::class)]
 class DatabaseConfigurationControllerTest extends TestCase
 {
-    use EnvTestBehaviour;
     use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
@@ -75,7 +74,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->setupDatabaseAdapter->expects($this->never())->method('getTableCount');
         $this->router->expects($this->never())->method('generate');
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://shopware:secret@db.example:3307/shopware_prefill',
         ]);
 
@@ -116,7 +115,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->setupDatabaseAdapter->expects($this->never())->method('getTableCount');
         $this->router->expects($this->never())->method('generate');
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'not-a-valid-url',
         ]);
 

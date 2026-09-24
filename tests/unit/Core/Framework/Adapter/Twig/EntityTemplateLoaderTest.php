@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 use Twig\Error\LoaderError;
 
 /**
@@ -18,8 +18,6 @@ use Twig\Error\LoaderError;
 #[CoversClass(EntityTemplateLoader::class)]
 class EntityTemplateLoaderTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testTemplatesAreOnlyLoadedOnce(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -226,7 +224,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testDatabaselessModeReturnsFalse(): void
     {
-        $this->setEnvVars(['DATABASE_URL' => MySQLFactory::PLACEHOLDER_DATABASE_URL]);
+        TestEnvironment::set(['DATABASE_URL' => MySQLFactory::PLACEHOLDER_DATABASE_URL]);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('fetchAllAssociative');

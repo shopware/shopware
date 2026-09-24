@@ -11,7 +11,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -20,8 +20,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 #[CoversClass(MySQLFactory::class)]
 class MySQLFactoryTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     public function testMiddlewaresAreUsed(): void
     {
         $conn = MySQLFactory::create([new MyMiddleware()]);
@@ -31,7 +29,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testReplicaConfigurationParsesDsnParameters(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware',
             'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
             'DATABASE_REPLICA_1_URL' => 'mysql://replica_user2:replica_pass2@replica_host2:3308/replica_db2',
@@ -92,7 +90,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testReplicaConfigurationKeepsReplicaConnectionByDefault(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware',
             'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
         ]);
@@ -105,7 +103,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testKeepReplicaCanBeDisabledViaDsn(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?keepReplica=0',
             'DATABASE_REPLICA_0_URL' => 'mysql://replica_user:replica_pass@replica_host:3307/replica_db',
         ]);
@@ -122,7 +120,7 @@ class MySQLFactoryTest extends TestCase
         $customOption = 1001;
         $customValue = 1;
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => \sprintf(
                 'mysql://user:pass@localhost:3306/shopware?driverOptions[%d]=%d',
                 $customOption,
@@ -153,7 +151,7 @@ class MySQLFactoryTest extends TestCase
         $replicaCustomOption = 1004;
         $replicaCustomValue = 1;
 
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => \sprintf(
                 'mysql://user:pass@localhost:3306/shopware?driverOptions[%d]=%d',
                 $customOption,
@@ -186,7 +184,7 @@ class MySQLFactoryTest extends TestCase
 
     public function testWrapperClassWithDriverOptions(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?wrapperClass=Shopware\Tests\Unit\Core\Framework\Adapter\Database\MyWrapper&driverOptions[x_foo_bar]=3&driverOptions[foo][bar]=true',
         ]);
 

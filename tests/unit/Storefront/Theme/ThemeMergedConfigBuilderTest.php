@@ -12,10 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\TestEnvironment;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -33,8 +33,6 @@ use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeFixtures_6_7;
 #[CoversClass(ThemeMergedConfigBuilder::class)]
 class ThemeMergedConfigBuilderTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     private StorefrontPluginRegistry&Stub $storefrontPluginRegistryMock;
 
     /**
@@ -122,7 +120,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
         ?array $expectedStructured = null,
     ): void {
         // Feature deprecations are suppressed in tests by default, so disable that to catch self-deprecations.
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false]);
 
         $this->mockThemeRepositorySearch($themeCollection);
 

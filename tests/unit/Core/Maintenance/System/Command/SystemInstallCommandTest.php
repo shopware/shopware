@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\SystemInstallCompletedEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
+use Shopware\Core\Test\TestEnvironment;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -35,8 +35,6 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(SystemInstallCommand::class)]
 class SystemInstallCommandTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     protected function tearDown(): void
     {
         $fs = new Filesystem();
@@ -121,7 +119,7 @@ class SystemInstallCommandTest extends TestCase
 
     public function testSkipWebInstallerWithFalsyEnvironmentVariable(): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
+        TestEnvironment::set(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
 
         $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
 
@@ -137,7 +135,7 @@ class SystemInstallCommandTest extends TestCase
 
     public function testSkipWebInstallerWithTruthyEnvironmentVariable(): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+        TestEnvironment::set(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
 
         $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
 
@@ -166,7 +164,7 @@ class SystemInstallCommandTest extends TestCase
     {
         touch(__DIR__ . '/install.lock');
 
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+        TestEnvironment::set(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
 
         $command = $this->prepareCommandInstance();
 
@@ -254,7 +252,7 @@ class SystemInstallCommandTest extends TestCase
 
     public function testHtaccessSkippedWithWebInstallerSkip(): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+        TestEnvironment::set(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
         $this->createHtaccessDist('Test .htaccess content');
 
         $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
@@ -272,7 +270,7 @@ class SystemInstallCommandTest extends TestCase
 
     public function testHtaccessCreatedWithWebInstallerNotSkipped(): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
+        TestEnvironment::set(['SHOPWARE_SKIP_WEBINSTALLER' => '0']);
         $this->createHtaccessDist('Test .htaccess content');
 
         $command = $this->prepareCommandInstanceWithDefaultInstallCommands(['assets:install']);
@@ -394,7 +392,7 @@ class SystemInstallCommandTest extends TestCase
 
     public function testDispatchesSystemInstallCompletedEventWhenWebInstallerIsSkipped(): void
     {
-        $this->setEnvVars(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
+        TestEnvironment::set(['SHOPWARE_SKIP_WEBINSTALLER' => '1']);
 
         $dispatcher = new EventDispatcher();
         $dispatched = false;

@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Feature\Triggerer;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\TestEnvironment;
 
 /**
  * @internal
@@ -23,8 +23,6 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 #[CoversClass(Feature::class)]
 class FeatureTest extends TestCase
 {
-    use EnvTestBehaviour;
-
     /**
      * @var array<string, mixed>
      */
@@ -65,7 +63,7 @@ class FeatureTest extends TestCase
 
     public function testFakeFeatureFlagsAreClean(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'FEATURE_ALL' => true,
             'FEATURE_NEXT_0000' => true,
             'V6_4_5_0' => true,
@@ -163,7 +161,7 @@ class FeatureTest extends TestCase
 
     public function testWithFeatureEnabledPreservesOtherEnvFlags(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'V6_7_0_0' => true,
             'FEATURE_NEXT_0000' => true,
         ]);
@@ -180,7 +178,7 @@ class FeatureTest extends TestCase
 
     public function testWithFeatureDisabledPreservesOtherEnvFlags(): void
     {
-        $this->setEnvVars([
+        TestEnvironment::set([
             'V6_7_0_0' => true,
             'V6_8_0_0' => true,
         ]);
@@ -211,7 +209,7 @@ class FeatureTest extends TestCase
             ->method('deprecation')
             ->with('', '', 'test');
         Feature::$triggerer = $deprecationTrigger;
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false]);
 
         Feature::resetRegisteredFeatures();
 
@@ -248,7 +246,7 @@ class FeatureTest extends TestCase
         $deprecationTrigger = $this->createMock(Triggerer::class);
         $deprecationTrigger->expects($this->never())->method('deprecation');
         Feature::$triggerer = $deprecationTrigger;
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false]);
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeature('v6.5.0.0', ['major' => true]);
@@ -263,7 +261,7 @@ class FeatureTest extends TestCase
             ->method('deprecation')
             ->with('', '', 'test');
         Feature::$triggerer = $deprecationTrigger;
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => false]);
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeature('v6.5.0.0', ['major' => true]);
@@ -279,7 +277,7 @@ class FeatureTest extends TestCase
             ->method('deprecation')
             ->with('', '', 'test');
         Feature::$triggerer = $deprecationTrigger;
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true]);
+        TestEnvironment::set(['TESTS_RUNNING' => false, 'V6_5_0_0' => true]);
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeature('v6.5.0.0', ['major' => true]);
@@ -292,7 +290,7 @@ class FeatureTest extends TestCase
         $deprecationTrigger = $this->createMock(Triggerer::class);
         $deprecationTrigger->expects($this->never())->method('deprecation');
         Feature::$triggerer = $deprecationTrigger;
-        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => true]);
+        TestEnvironment::set(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => true]);
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeature('v6.5.0.0', ['major' => true]);
@@ -368,7 +366,7 @@ class FeatureTest extends TestCase
     #[DataProvider('callSilentIfInactiveProvider')]
     public function testCallSilentIfInactive(string $majorVersion, string $deprecatedMessage, ?string $introducedIn): void
     {
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
+        TestEnvironment::set(['TESTS_RUNNING' => false]);
 
         $deprecationTrigger = $this->createMock(Triggerer::class);
         $deprecationTrigger->expects($this->once())

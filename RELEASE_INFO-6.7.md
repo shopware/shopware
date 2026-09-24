@@ -92,9 +92,9 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
 
-### Reorder posts only the order id
+### Reorder rebuilds its items from the order
 
-Reorder posts only the order id, so overrides of its hidden line item input blocks no longer apply.
+`frontend.checkout.line-item.order.add` rebuilds the reorder items from the order and ignores the posted `lineItems`, so overrides of the hidden input blocks no longer have an effect
 
 ## App system
 

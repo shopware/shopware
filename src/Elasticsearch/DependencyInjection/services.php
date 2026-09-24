@@ -396,6 +396,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'Shopware\Elasticsearch\Product\SearchConfigLoader',
         SearchConfigLoader::class,
     )->deprecate('shopware/elasticsearch', '6.7.2.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader instead.');
+    $containerConfigurator->parameters()->set('shopware.inactiveFeature.alias.Shopware\Elasticsearch\Product\SearchConfigLoader', 'v6.8.0.0');
 
     $services->set(AbstractFieldQueryBuilder::class, FieldQueryBuilder::class)
         ->args([

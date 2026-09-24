@@ -10,6 +10,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[Package('framework')]
 class FeatureFlagCompilerPass implements CompilerPassInterface
 {
+    private const INACTIVE_ALIAS_PARAMETER_PREFIX = 'shopware.inactiveFeature.alias.';
+
     public function process(ContainerBuilder $container): void
     {
         $featureFlags = $container->getParameter('shopware.feature.flags');
@@ -39,6 +41,23 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
                     break;
                 }
             }
+        }
+
+        foreach ($container->getParameterBag()->all() as $name => $flag) {
+            if (!str_starts_with($name, self::INACTIVE_ALIAS_PARAMETER_PREFIX)) {
+                continue;
+            }
+
+            $aliasId = substr($name, \strlen(self::INACTIVE_ALIAS_PARAMETER_PREFIX));
+            if (!\is_string($flag) || !$container->hasAlias($aliasId)) {
+                throw new \RuntimeException('Invalid inactive feature alias marker "' . $name . '"');
+            }
+
+            if (Feature::has($flag) && Feature::isActive($flag)) {
+                $container->removeAlias($aliasId);
+            }
+
+            $container->getParameterBag()->remove($name);
         }
     }
 }

@@ -175,4 +175,64 @@ class FeatureFlagsCompilerPassTest extends TestCase
 
         static::assertTrue($container->hasDefinition('deprecated_service'));
     }
+
+    public function testItRemovesInactiveFeatureAliasWhenFlagIsActive(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition('canonical_service', new Definition());
+        $container->setAlias('legacy_service', 'canonical_service');
+        $container->setParameter('shopware.inactiveFeature.alias.legacy_service', 'v6.8.0.0');
+        $container->setParameter('shopware.feature.flags', [
+            'v6.8.0.0' => ['major' => true, 'active' => true],
+        ]);
+
+        Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
+
+        static::assertFalse($container->hasAlias('legacy_service'));
+        static::assertTrue($container->hasDefinition('canonical_service'));
+        static::assertFalse($container->hasParameter('shopware.inactiveFeature.alias.legacy_service'));
+    }
+
+    public function testItKeepsInactiveFeatureAliasWhenFlagIsInactive(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition('canonical_service', new Definition());
+        $container->setAlias('legacy_service', 'canonical_service');
+        $container->setParameter('shopware.inactiveFeature.alias.legacy_service', 'v6.8.0.0');
+        $container->setParameter('shopware.feature.flags', [
+            'v6.8.0.0' => ['major' => true, 'active' => false],
+        ]);
+
+        Feature::withFeatureDisabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
+
+        static::assertTrue($container->hasAlias('legacy_service'));
+        static::assertFalse($container->hasParameter('shopware.inactiveFeature.alias.legacy_service'));
+    }
+
+    public function testItKeepsInactiveFeatureAliasForPendingMajor(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition('canonical_service', new Definition());
+        $container->setAlias('legacy_service', 'canonical_service');
+        $container->setParameter('shopware.inactiveFeature.alias.legacy_service', 'v6.9.0.0');
+        $container->setParameter('shopware.feature.flags', []);
+
+        Feature::fake([], fn () => $this->compilerPass->process($container));
+
+        static::assertTrue($container->hasAlias('legacy_service'));
+        static::assertFalse($container->hasParameter('shopware.inactiveFeature.alias.legacy_service'));
+    }
+
+    public function testItRejectsInactiveFeatureMarkerForMissingAlias(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('shopware.inactiveFeature.alias.missing_service', 'v6.8.0.0');
+        $container->setParameter('shopware.feature.flags', [
+            'v6.8.0.0' => ['major' => true, 'active' => true],
+        ]);
+
+        $this->expectExceptionObject(new \RuntimeException('Invalid inactive feature alias marker "shopware.inactiveFeature.alias.missing_service"'));
+
+        Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->compilerPass->process($container));
+    }
 }

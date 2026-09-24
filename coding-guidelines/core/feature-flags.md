@@ -60,6 +60,16 @@ $services->set(LegacyService::class)
 
 The compiler pass removes the service definition when the flag is active. `shopware.feature` has the inverse meaning: it removes the service while the flag is inactive. Changes to either flag require a rebuilt service container.
 
+Symfony service aliases cannot be tagged. To remove a deprecated alias with a feature flag, add a parameter next to its registration whose name is `shopware.inactiveFeature.alias.` followed by the alias ID:
+
+```php
+$services->alias(LegacyService::class, ReplacementService::class)
+    ->deprecate('shopware/core', '6.7.0.0', 'The "%alias_id%" service alias will be removed in v6.8.0.');
+$containerConfigurator->parameters()->set('shopware.inactiveFeature.alias.' . LegacyService::class, 'v6.8.0.0');
+```
+
+The compiler pass removes only that alias when the flag is active; the replacement service remains available.
+
 ### Using flags in methods
 When there is no option via the container you can use additional helper functions:
 ```php

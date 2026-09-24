@@ -291,6 +291,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'Shopware\Core\Framework\Plugin\Util\AssetService',
         AssetService::class,
     )->deprecate('shopware/core', '6.7.15.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\Adapter\Asset\AssetService instead.');
+    $containerConfigurator->parameters()->set('shopware.inactiveFeature.alias.Shopware\Core\Framework\Plugin\Util\AssetService', 'v6.8.0.0');
 
     // Requirement
     $services->set(RequirementsValidator::class)

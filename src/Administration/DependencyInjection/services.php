@@ -171,6 +171,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     )
         ->public()
         ->deprecate('shopware/administration', '6.7.15.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\Notification\Api\NotificationController instead.');
+    $containerConfigurator->parameters()->set('shopware.inactiveFeature.alias.Shopware\Administration\Controller\NotificationController', 'v6.8.0.0');
 
     $services->set(AdminSearcher::class)
         ->args([
@@ -218,6 +219,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'Shopware\Administration\Notification\NotificationDefinition',
         NotificationDefinition::class,
     )->deprecate('shopware/administration', '6.7.15.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\Notification\NotificationDefinition instead.');
+    $containerConfigurator->parameters()->set('shopware.inactiveFeature.alias.Shopware\Administration\Notification\NotificationDefinition', 'v6.8.0.0');
 
     $services->set(SalesChannelUserConfigSubscriber::class)
         ->args([

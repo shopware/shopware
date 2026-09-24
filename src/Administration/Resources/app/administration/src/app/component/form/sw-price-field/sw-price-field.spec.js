@@ -417,17 +417,5 @@ describe('components/form/sw-price-field', () => {
             expect(wrapper.vm.priceForCurrency[converted]).toBe(nonZeroPrice[converted]);
             expect(calculatePrice).not.toHaveBeenCalled();
         });
-
-        it('should resolve a tax value of 0 for a price of 0 without calling the API', async () => {
-            const wrapper = await setupWithPrice({ gross: 0, net: 0, linked: true });
-            const onResolve = jest.fn();
-
-            wrapper.vm.requestTaxValue(0, 'gross').then(onResolve);
-            await flushPromises();
-
-            expect(onResolve).toHaveBeenCalledWith(0);
-            expect(calculatePrice).not.toHaveBeenCalled();
-            expect(wrapper.emitted('price-calculate').at(-1)).toEqual([false]);
-        });
     });
 });

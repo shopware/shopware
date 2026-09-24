@@ -60,12 +60,6 @@ export default {
                 this.convertGrossToNet(this.price.gross);
             }
         },
-
-        'taxRate.taxRate': function taxRateWatcher() {
-            if (this.price.linked === true) {
-                this.convertGrossToNet(this.price.gross);
-            }
-        },
     },
 
     methods: {
@@ -143,13 +137,7 @@ export default {
             this.$emit('price-calculate', true);
 
             return new Promise((resolve) => {
-                if (
-                    !isNumericValue(value) ||
-                    this.price[outputType] === null ||
-                    this.price[outputType] === undefined ||
-                    !this.taxRate ||
-                    !outputType
-                ) {
+                if (!isNumericValue(value) || !this.taxRate || !outputType) {
                     return;
                 }
 

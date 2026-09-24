@@ -4,13 +4,9 @@ import './sw-price-field.scss';
 const { Application } = Shopware;
 const { debounce } = Shopware.Utils;
 
-function isEmptyValue(value) {
-    return value === null || value === undefined || value === '';
-}
-
 // A value ending with a decimal separator is still being typed by the user
 function isConvertibleValue(value) {
-    return !isEmptyValue(value) && !value.toString().endsWith('.');
+    return value !== null && value !== undefined && value !== '' && !value.toString().endsWith('.');
 }
 
 /**
@@ -376,16 +372,11 @@ export default {
         requestTaxValue(value, outputType) {
             this.$emit('price-calculate', true);
             return new Promise((resolve) => {
-                if (
-                    typeof value !== 'number' ||
-                    Number.isNaN(value) ||
-                    isEmptyValue(this.priceForCurrency[outputType]) ||
-                    !outputType
-                ) {
+                if (!value || typeof value !== 'number' || !this.priceForCurrency[outputType] || !outputType) {
                     return;
                 }
 
-                if (value === 0 || !this.taxRate.id) {
+                if (!this.taxRate.id) {
                     resolve(0);
                     this.$emit('price-calculate', false);
                     return;

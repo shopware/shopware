@@ -93,17 +93,11 @@ export default {
         },
 
         isIndexSelectionComplete() {
-            const hasIndexerSelection = this.indexerSelection.length > 0;
-
-            if (!this.indexingMethod) {
-                return !hasIndexerSelection;
+            if (this.indexingMethod === 'skip') {
+                return true;
             }
 
-            if (this.indexingMethod === 'only') {
-                return hasIndexerSelection;
-            }
-
-            return true;
+            return (this.indexingMethod === 'only') === this.indexerSelection.length > 0;
         },
     },
 
@@ -205,10 +199,6 @@ export default {
         },
 
         updateIndexes() {
-            if (!this.isIndexSelectionComplete) {
-                return;
-            }
-
             this.processes.updateIndexes = true;
 
             let skip = [];

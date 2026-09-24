@@ -174,7 +174,7 @@
                         {% block sw_settings_cache_content_indexes_row_skip_select %}
                         <sw-select-base
                             class="sw-settings-cache__indexers-select"
-                            :label="indexingMethod === 'skip' ? $t('sw-settings-cache.section.indexesSkipSelectLabel') : $t('sw-settings-cache.section.indexesOnlySelectLabel')"
+                            :label="indexingMethod === 'only' ? $t('sw-settings-cache.section.indexesOnlySelectLabel') : $t('sw-settings-cache.section.indexesSkipSelectLabel')"
                             :disabled="processes.updateIndexes"
                             @clear="clearIndexerSelection"
                         >
@@ -191,7 +191,7 @@
                                     v-if="indexerSelection.length === 0"
                                     class="sw-settings-cache__indexers-placeholder"
                                 >
-                                    {{ indexingMethod === 'skip' ? $t('sw-settings-cache.section.indexesSkipSelectPlaceholder') : $t('sw-settings-cache.section.indexesOnlySelectPlaceholder') }}
+                                    {{ indexingMethod === 'only' ? $t('sw-settings-cache.section.indexesOnlySelectPlaceholder') : $t('sw-settings-cache.section.indexesSkipSelectPlaceholder') }}
                                 </p>
                             </template>
 

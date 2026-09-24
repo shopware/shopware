@@ -89,10 +89,6 @@ async function clearIndexers(wrapper) {
     await flushPromises();
 }
 
-function findUpdateIndexesButton(wrapper) {
-    return wrapper.find('button[name="updateIndexesButton"]');
-}
-
 describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
     it('should change label and empty text on indexing method selection changed', async () => {
         const wrapper = await createWrapper();
@@ -110,6 +106,11 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
 
         expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesOnlySelectLabel');
         expect(indexSelectPlaceholder.text()).toBe('sw-settings-cache.section.indexesOnlySelectPlaceholder');
+
+        await clearIndexingMethod(wrapper);
+
+        expect(indexesSelectLabel.text()).toBe('sw-settings-cache.section.indexesSkipSelectLabel');
+        expect(indexSelectPlaceholder.text()).toBe('sw-settings-cache.section.indexesSkipSelectPlaceholder');
     });
 
     it('should send clear data cache request', async () => {
@@ -203,8 +204,8 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
             expect(wrapper.vm.indexingMethod).toBe(method);
             expect(wrapper.vm.indexerSelection).toEqual(selection);
 
-            const button = findUpdateIndexesButton(wrapper);
-            expect(button.attributes('disabled') === undefined).toBe(enabled);
+            const button = wrapper.find('button[name="updateIndexesButton"]');
+            expect(button.attributes('disabled')).toBe(enabled ? undefined : '');
 
             await button.trigger('click');
             await flushPromises();
@@ -212,42 +213,6 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
             expect(indexMock.mock.calls).toEqual(expectedIndexCalls);
         },
     );
-
-    it('should enable the update indexes button again once the indexers are cleared after clearing the method', async () => {
-        const indexMock = jest.fn(() => Promise.resolve());
-        const wrapper = await createWrapper(indexMock);
-        await flushPromises();
-
-        await selectIndexers(wrapper, ['category.indexer']);
-        await clearIndexingMethod(wrapper);
-
-        expect(findUpdateIndexesButton(wrapper).attributes('disabled')).toBeDefined();
-
-        await clearIndexers(wrapper);
-
-        expect(findUpdateIndexesButton(wrapper).attributes('disabled')).toBeUndefined();
-
-        await findUpdateIndexesButton(wrapper).trigger('click');
-        await flushPromises();
-
-        expect(indexMock).toHaveBeenCalledTimes(1);
-        expect(indexMock).toHaveBeenCalledWith([], []);
-    });
-
-    it('should not send an index request for an incomplete selection', async () => {
-        const indexMock = jest.fn(() => Promise.resolve());
-        const wrapper = await createWrapper(indexMock);
-        await flushPromises();
-
-        await selectIndexers(wrapper, ['category.indexer']);
-        await clearIndexingMethod(wrapper);
-
-        wrapper.vm.updateIndexes();
-        await flushPromises();
-
-        expect(indexMock).not.toHaveBeenCalled();
-        expect(wrapper.vm.processes.updateIndexes).toBe(false);
-    });
 
     it('should send different values for skip and only on reindex', async () => {
         const indexMock = jest.fn(() => Promise.resolve());

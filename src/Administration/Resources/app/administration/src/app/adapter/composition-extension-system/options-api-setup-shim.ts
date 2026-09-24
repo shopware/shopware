@@ -195,11 +195,23 @@ export function attachSetupOverrideShim(componentName: string, config: Component
         },
     };
 
-    const existingMixins = (config.mixins ?? []) as unknown[];
+    // Vue runs the created() hooks of `extends` before those of `mixins`, recursively. Component.build()
+    // nests the base config into `extends` for Component.extend() and for every legacy
+    // Component.override(), so only the innermost config's mixins run ahead of the base created() - the
+    // one that usually calls methods an override replaces, like createdComponent(). setup() stays on the
+    // outer config: Vue only ever reads it from there.
+    let innermostConfig = config;
+
+    while (innermostConfig.extends && typeof innermostConfig.extends !== 'string') {
+        innermostConfig = innermostConfig.extends;
+    }
+
+    const existingMixins = (innermostConfig.mixins ?? []) as unknown[];
 
     // Placed first: Vue caches the bucket a key resolves to on first access, so any created() hook that
     // touches an overridden key before this one would pin it to `data` and the override would be lost.
-    config.mixins = [
+    // A new array, because build() copies configs shallowly and the old one belongs to the registry.
+    innermostConfig.mixins = [
         shimMixin,
         ...existingMixins,
     ] as ComponentConfig['mixins'];

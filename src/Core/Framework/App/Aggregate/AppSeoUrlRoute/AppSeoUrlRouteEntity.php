@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-#[Entity(self::ENTITY_NAME, since: '6.7.15.0')]
+#[Entity(self::ENTITY_NAME, since: '6.7.16.0')]
 class AppSeoUrlRouteEntity extends EntityStruct
 {
     final public const ENTITY_NAME = 'app_seo_url_route';

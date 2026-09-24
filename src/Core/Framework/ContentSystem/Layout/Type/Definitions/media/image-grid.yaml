@@ -20,6 +20,26 @@ properties:
       component: "media-collection"
       panel: "general"
 
+  columns:
+    type: integer
+    title: "Columns"
+    description: "Amount of grid columns. The first image always spans all columns."
+    default: 2
+    enum: [2, 3, 4]
+    adminUI:
+      component: "select"
+      panel: "general"
+
+  featuredColumns:
+    type: integer
+    title: "Featured Image Columns"
+    description: "Amount of columns and rows the first image spans. A value equal to or above the column count spans the full width."
+    default: 4
+    enum: [1, 2, 3, 4]
+    adminUI:
+      component: "select"
+      panel: "general"
+
   showFullScreenGallery:
     type: boolean
     title: "Show Fullscreen Gallery"

@@ -46,6 +46,44 @@ class MediaImageGridComponentTest extends TestCase
         static::assertMatchesRegularExpression('/sw-media-image-grid__item is--featured">\s*<button[^>]*data-media-id="1"/', $html);
     }
 
+    public function testColumnsAreExposedAsCssVariable(): void
+    {
+        $html = $this->render([
+            'mediaItems' => $this->mediaCollection('first.jpg', 'second.jpg'),
+            'columns' => 3,
+        ]);
+
+        static::assertStringContainsString('--sw-media-image-grid-columns: 3;', $html);
+    }
+
+    public function testFeaturedItemSpansOnlyTheConfiguredColumnsWhenFewerThanTheGrid(): void
+    {
+        $html = $this->render([
+            'mediaItems' => $this->mediaCollection('first.jpg', 'second.jpg'),
+            'columns' => 3,
+            'featuredColumns' => 2,
+        ]);
+
+        static::assertStringContainsString('--sw-media-image-grid-featured-columns: 2;', $html);
+        static::assertSame(1, substr_count($html, 'is--featured-partial'));
+    }
+
+    /**
+     * A span wider than the grid would make CSS grid add implicit columns instead of spanning the row.
+     */
+    public function testFeaturedItemSpansTheFullWidthWhenItsColumnsReachTheGrid(): void
+    {
+        $html = $this->render([
+            'mediaItems' => $this->mediaCollection('first.jpg', 'second.jpg'),
+            'columns' => 2,
+            'featuredColumns' => 4,
+        ]);
+
+        static::assertStringNotContainsString('--sw-media-image-grid-featured-columns', $html);
+        static::assertStringNotContainsString('is--featured-partial', $html);
+        static::assertSame(1, substr_count($html, 'is--featured'));
+    }
+
     /**
      * The lightbox gallery scrolls to the item whose `data-media-id` triggered the modal, so every
      * tile must point at the one lightbox and carry its 1-based position.

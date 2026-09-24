@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Feature\Event\FeatureFlagToggledEvent;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -25,6 +26,36 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[CoversClass(FeatureFlagRegistry::class)]
 class FeatureFlagRegistryTest extends TestCase
 {
+    use EnvTestBehaviour;
+
+    public function testStoredSubFeatureOverrideSurvivesMajorAssociation(): void
+    {
+        $this->setEnvVars(['JSON_LD_DATA' => null, 'FEATURE_ALL' => null]);
+        Feature::resetRegisteredFeatures();
+
+        $storage = new ArrayKeyValueStorage();
+        $storage->set(FeatureFlagRegistry::STORAGE_KEY, [
+            'V6_8_0_0' => ['major' => true, 'active' => false],
+            'JSON_LD_DATA' => ['major' => true, 'active' => false],
+        ]);
+
+        $registry = new FeatureFlagRegistry(
+            $storage,
+            new EventDispatcher(),
+            [
+                'V6_8_0_0' => ['major' => true, 'default' => true],
+                'JSON_LD_DATA' => ['major' => 'v6.8.0.0', 'default' => false, 'toggleable' => true],
+            ],
+            true
+        );
+
+        $registry->register();
+
+        static::assertTrue(Feature::isActive('v6.8.0.0'));
+        static::assertFalse(Feature::isActive('JSON_LD_DATA'));
+        static::assertSame('v6.8.0.0', Feature::getRegisteredFeatures()['JSON_LD_DATA']['major'] ?? null);
+    }
+
     public function testDisableWithoutEnabledFeatureToggle(): void
     {
         $exception = FeatureException::featureCannotBeToggled('FEATURE_ABC');

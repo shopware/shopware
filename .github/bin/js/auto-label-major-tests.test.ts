@@ -45,7 +45,7 @@ const REGISTRY = `shopware:
               toggleable: false
             - name: WEBHOOKS_REWORK
               default: false
-              major: true
+              major: v6.8.0.0
               toggleable: true
             - name: TELEMETRY_METRICS
               default: false

@@ -24,7 +24,7 @@ inputs:
   major:
     default: ""
     required: false
-    description: "Simulate a major: the FEATURE_ALL value, either a single major (v6.8.0.0) or major for all of them"
+    description: "Simulate a major with its version flag (v6.8.0.0), or use major to enable all features"
   php-version:
     default: "8.4"
     required: false
@@ -103,9 +103,10 @@ runs:
 
     - name: Define environment
       shell: bash
+      env:
+        MAJOR_LANE: ${{ inputs.major }}
       run: |
-        # `true` is the legacy spelling of `major`.
-        echo "FEATURE_ALL=${{ inputs.major == 'true' && 'major' || inputs.major }}" >> $GITHUB_ENV
+        php .github/bin/major-lane-env.php "$MAJOR_LANE" >> "$GITHUB_ENV"
         echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
         echo "MAILER_DSN=smtp://localhost:1025" >> $GITHUB_ENV
         echo "MAILPIT_BASE_URL=http://localhost:8025" >> $GITHUB_ENV

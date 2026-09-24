@@ -35,7 +35,7 @@ class FeatureFlagLanesTest extends TestCase
                 toggleable: false
               - name: JSON_LD_DATA
                 default: false
-                major: true
+                major: v6.8.0.0
                 toggleable: true
                 description: "Replace inline microdata with JSON-LD: not named after a major."
               - name: TELEMETRY_METRICS
@@ -63,7 +63,7 @@ class FeatureFlagLanesTest extends TestCase
         $flags = shopware_read_feature_flags($this->registry(self::REGISTRY));
 
         static::assertSame(['v6.7.0.0', 'v6.8.0.0', 'v6.9.0.0', 'JSON_LD_DATA', 'TELEMETRY_METRICS'], array_keys($flags));
-        static::assertSame(['default' => 'false', 'major' => 'true', 'toggleable' => 'true'], $flags['JSON_LD_DATA']);
+        static::assertSame(['default' => 'false', 'major' => 'v6.8.0.0', 'toggleable' => 'true'], $flags['JSON_LD_DATA']);
     }
 
     public function testInFlightMajorsAreTheUnreleasedVersionedMajors(): void
@@ -82,12 +82,26 @@ class FeatureFlagLanesTest extends TestCase
         static::assertSame(['v6.9.0.0', 'v6.10.0.0'], shopware_in_flight_majors($this->registry($registry)));
     }
 
-    public function testLanesFallBackToAllMajorsWhenEveryMajorHasShipped(): void
+    public function testLanesFallBackToAllFeaturesWhenEveryMajorHasShipped(): void
     {
         $registry = str_replace('default: false', 'default: true', self::REGISTRY);
 
         static::assertSame([], shopware_in_flight_majors($this->registry($registry)));
         static::assertSame(['major'], shopware_major_lanes($this->registry($registry)));
+    }
+
+    public function testLaneEnvironmentEnablesOnlyTheSelectedVersionFlag(): void
+    {
+        static::assertSame('V6_8_0_0=1', shopware_major_lane_env('v6.8.0.0'));
+        static::assertSame('FEATURE_ALL=1', shopware_major_lane_env('major'));
+        static::assertSame('FEATURE_ALL=', shopware_major_lane_env(''));
+    }
+
+    public function testRejectsInvalidMajorLaneEnvironment(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('Invalid major lane "FEATURE_ALL=1".'));
+
+        shopware_major_lane_env('FEATURE_ALL=1');
     }
 
     public function testRejectsARegistryWithoutAnyFlag(): void
@@ -121,6 +135,15 @@ class FeatureFlagLanesTest extends TestCase
             static::assertArrayHasKey($lane, $flags, \sprintf('Lane "%s" is not a registered feature flag.', $lane));
             static::assertSame('true', $flags[$lane]['major'] ?? null);
             static::assertSame('false', $flags[$lane]['default'] ?? null);
+        }
+    }
+
+    public function testSixEightSubFeaturesUseTheVersionFlag(): void
+    {
+        $flags = shopware_read_feature_flags();
+
+        foreach (['JSON_LD_DATA', 'CACHE_REWORK', 'DEFERRED_CART_ERRORS'] as $name) {
+            static::assertSame('v6.8.0.0', $flags[$name]['major'] ?? null);
         }
     }
 

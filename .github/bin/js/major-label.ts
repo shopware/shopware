@@ -35,7 +35,7 @@ export const MAJOR_PATHS_PATH = '.github/major-paths.yml';
 
 export type FeatureFlag = {
     name: string;
-    major: boolean;
+    major: boolean | string;
     default: boolean;
 };
 
@@ -105,9 +105,9 @@ export function parseFeatureRegistry(registryYaml: string): FeatureFlag[] {
             continue;
         }
 
-        const major = line.match(/^\s*major:\s*(true|false)\b/);
+        const major = line.match(/^\s*major:\s*(true|false|v\d+\.\d+\.\d+\.\d+)\b/i);
         if (major) {
-            current.major = major[1] === 'true';
+            current.major = major[1] === 'true' ? true : major[1] === 'false' ? false : major[1];
             continue;
         }
 
@@ -122,7 +122,7 @@ export function parseFeatureRegistry(registryYaml: string): FeatureFlag[] {
 
 /** A flag already defaulting to true has flipped and is not pending. */
 export function pendingMajorFlags(flags: FeatureFlag[]): string[] {
-    return flags.filter((flag) => flag.major && !flag.default).map((flag) => flag.name);
+    return flags.filter((flag) => flag.major === true && !flag.default).map((flag) => flag.name);
 }
 
 /**
@@ -207,12 +207,11 @@ export function evaluateMajorLabels(options: {
 
     const version = escapeRegExp(targetMajor);
     const versionFlag = escapeRegExp(`v${targetMajor}.0.0`);
-    const unversionedFlags = isNextMajor
-        ? pendingMajorFlags(flags)
-              .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag))
-              .map(escapeRegExp)
-        : [];
-    const flagAlternatives = [versionFlag, ...unversionedFlags].join('|');
+    const relatedFlags = flags
+        .filter((flag) => flag.major === `v${targetMajor}.0.0` || (isNextMajor && flag.major === true && !flag.default))
+        .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag.name))
+        .map((flag) => escapeRegExp(flag.name));
+    const flagAlternatives = [versionFlag, ...relatedFlags].join('|');
     const pathMatchers = isNextMajor ? majorPaths.map(globToRegExp) : [];
 
     // `(?!\d)` keeps v6.8.0 from matching a v6.8.01 that a future scheme might introduce

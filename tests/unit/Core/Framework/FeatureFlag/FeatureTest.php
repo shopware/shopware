@@ -470,7 +470,7 @@ class FeatureTest extends TestCase
             true,
         ];
 
-        yield 'registered major inactive only with minor FEATURE_ALL env' => [
+        yield 'registered major active with FEATURE_ALL=1' => [
             [
                 'FEATURE_NEXT_101' => [
                     'major' => true,
@@ -480,10 +480,10 @@ class FeatureTest extends TestCase
                 'FEATURE_ALL' => '1',
             ],
             'FEATURE_NEXT_101',
-            false,
+            true,
         ];
 
-        yield 'registered active minor with major FEATURE_ALL' => [
+        yield 'registered active minor with FEATURE_ALL=major' => [
             [
                 'FEATURE_NEXT_101',
             ],
@@ -495,7 +495,7 @@ class FeatureTest extends TestCase
             true,
         ];
 
-        yield 'registered inactive major with major FEATURE_ALL' => [
+        yield 'explicitly inactive major with FEATURE_ALL=major' => [
             [
                 'FEATURE_NEXT_101',
             ],
@@ -507,7 +507,7 @@ class FeatureTest extends TestCase
             false,
         ];
 
-        yield 'registered major inactive only with major FEATURE_ALL env' => [
+        yield 'registered major active with FEATURE_ALL=major' => [
             [
                 'FEATURE_NEXT_101' => [
                     'major' => true,
@@ -542,49 +542,21 @@ class FeatureTest extends TestCase
             true,
         ];
 
-        yield 'registered major inactive with FEATURE_ALL=minor' => [
+        yield 'registered major active with FEATURE_ALL=minor' => [
             [
                 'FEATURE_NEXT_101' => [
                     'major' => true,
                 ],
             ],
             [
-                'FEATURE_NEXT_101' => '',
                 'FEATURE_ALL' => 'minor',
             ],
             'FEATURE_NEXT_101',
-            false,
-        ];
-
-        // The fixtures use majors of a version that is not registered for real: the unit suite puts
-        // every registered flag into $_SERVER, and a specific environment value wins over FEATURE_ALL.
-        yield 'major of the targeted major with FEATURE_ALL=v9.1.0.0' => [
-            [
-                'v9.1.0.0' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'v9.1.0.0',
-            ],
-            'v9.1.0.0',
             true,
         ];
 
-        yield 'major of an earlier major with FEATURE_ALL=v9.1.0.0' => [
-            [
-                'v9.0.0.0' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'v9.1.0.0',
-            ],
-            'v9.0.0.0',
-            true,
-        ];
-
-        yield 'major of a later major with FEATURE_ALL=v9.1.0.0' => [
+        // A version-shaped FEATURE_ALL value is now just another truthy value.
+        yield 'version-shaped FEATURE_ALL enables a later major' => [
             [
                 'v9.2.0.0' => [
                     'major' => true,
@@ -594,64 +566,10 @@ class FeatureTest extends TestCase
                 'FEATURE_ALL' => 'v9.1.0.0',
             ],
             'v9.2.0.0',
-            false,
-        ];
-
-        yield 'major of a later major with FEATURE_ALL=v9.2.0.0' => [
-            [
-                'v9.2.0.0' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'v9.2.0.0',
-            ],
-            'v9.2.0.0',
             true,
         ];
 
-        yield 'major declaring a later major via majorVersion with FEATURE_ALL=v9.1.0.0' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                    'majorVersion' => 'v9.2.0.0',
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'v9.1.0.0',
-            ],
-            'FEATURE_NEXT_101',
-            false,
-        ];
-
-        yield 'major declaring the targeted major via majorVersion with FEATURE_ALL=v9.1.0.0' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                    'majorVersion' => 'v9.1.0.0',
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'v9.1.0.0',
-            ],
-            'FEATURE_NEXT_101',
-            true,
-        ];
-
-        yield 'major without a target major with FEATURE_ALL=v9.1.0.0' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'v9.1.0.0',
-            ],
-            'FEATURE_NEXT_101',
-            true,
-        ];
-
-        yield 'minor with FEATURE_ALL=v9.1.0.0' => [
+        yield 'version-shaped FEATURE_ALL enables a non-major feature' => [
             [
                 'FEATURE_NEXT_101',
             ],
@@ -659,21 +577,102 @@ class FeatureTest extends TestCase
                 'FEATURE_ALL' => 'v9.1.0.0',
             ],
             'FEATURE_NEXT_101',
-            false,
+            true,
         ];
 
-        yield 'major with an env value overriding FEATURE_ALL=v9.1.0.0' => [
+        yield 'explicit setting overrides version-shaped FEATURE_ALL' => [
             [
                 'v9.2.0.0' => [
                     'major' => true,
                 ],
             ],
             [
-                'V9_2_0_0' => '1',
+                'V9_2_0_0' => 'false',
                 'FEATURE_ALL' => 'v9.1.0.0',
             ],
             'v9.2.0.0',
+            false,
+        ];
+
+        yield 'active parent enables a sub-feature' => [
+            [
+                'v9.1.0.0' => ['major' => true],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0'],
+            ],
+            [
+                'V9_1_0_0' => '1',
+            ],
+            'FEATURE_NEXT_101',
             true,
+        ];
+
+        yield 'inactive parent leaves a sub-feature at its default' => [
+            [
+                'v9.1.0.0' => ['major' => true],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0'],
+            ],
+            [],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'a non-major parent cannot activate a sub-feature' => [
+            [
+                'FEATURE_NEXT_101' => ['major' => 'FEATURE_NEXT_102'],
+                'FEATURE_NEXT_102' => ['default' => true],
+            ],
+            [],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'sub-feature can be explicitly disabled with its parent active' => [
+            [
+                'v9.1.0.0' => ['major' => true],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0'],
+            ],
+            [
+                'V9_1_0_0' => '1',
+                'FEATURE_NEXT_101' => 'false',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'sub-feature can be explicitly enabled with its parent inactive' => [
+            [
+                'v9.1.0.0' => ['major' => true],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0'],
+            ],
+            [
+                'V9_1_0_0' => 'false',
+                'FEATURE_NEXT_101' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            true,
+        ];
+
+        yield 'runtime override wins over active parent' => [
+            [
+                'v9.1.0.0' => ['major' => true],
+                'FEATURE_NEXT_101' => ['major' => 'v9.1.0.0', 'active' => false],
+            ],
+            [
+                'V9_1_0_0' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            false,
+        ];
+
+        yield 'runtime override wins over FEATURE_ALL' => [
+            [
+                'FEATURE_NEXT_101' => ['active' => false],
+            ],
+            [
+                'FEATURE_ALL' => '1',
+            ],
+            'FEATURE_NEXT_101',
+            false,
         ];
     }
 

@@ -53,9 +53,6 @@ jobs:
       matrix: ${{ fromJson(needs.major-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
-      # One lane per in-flight major (`v6.8.0.0`), so a major's release state is validated without
-      # the next major's changes active. `major` when no unreleased major is registered.
-      FEATURE_ALL: ${{ matrix.major }}
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
       REDIS_URL: redis://localhost:6379
       APP_URL: http://localhost:8000
@@ -91,6 +88,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Activate major lane
+        # FEATURE_ALL would activate future flags too.
+        env:
+          MAJOR_LANE: ${{ matrix.major }}
+        run: php .github/bin/major-lane-env.php "$MAJOR_LANE" >> "$GITHUB_ENV"
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
@@ -125,11 +127,16 @@ jobs:
     env:
       NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
-      # `composer admin:unit:major` pins FEATURE_ALL=major itself, so the lane is passed to the plain
-      # `admin:unit` script instead — see the FEATURE_ALL note on phpunit-major above.
-      FEATURE_ALL: ${{ matrix.major }}
-
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Activate major lane
+        # FEATURE_ALL would activate future flags too.
+        env:
+          MAJOR_LANE: ${{ matrix.major }}
+        run: php .github/bin/major-lane-env.php "$MAJOR_LANE" >> "$GITHUB_ENV"
+
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
         with:

@@ -1,7 +1,7 @@
 /**
  * Auto-apply the relevant major-test labels when a PR touches major feature flags.
  *
- * Detection is registry-driven: every flag registered with `major: true` in
+ * Detection is registry-driven: every flag registered with `major: true` or a versioned `major` in
  * `src/Core/Framework/Resources/config/packages/feature.yaml` counts, read from the
  * PR's own head so flags added by the PR itself are covered. Every consuming
  * construct (`Feature::isActive`, `skipTestIf(In)Active`, `withFeatureEnabled/Disabled`,
@@ -150,8 +150,8 @@ export function parseMajorFlags(registryYaml: string): string[] {
         const name = line.match(/^\s*-\s*name:\s*(\S+)/);
         if (name) {
             currentFlag = name[1];
-        } else if (currentFlag && /^\s*major:\s*(true|false)\b/.test(line)) {
-            if (line.includes('true')) {
+        } else if (currentFlag && /^\s*major:\s*(true|false|v\d+\.\d+\.\d+\.\d+)\b/i.test(line)) {
+            if (!/^\s*major:\s*false\b/.test(line)) {
                 majorFlags.push(currentFlag);
             }
             currentFlag = null;

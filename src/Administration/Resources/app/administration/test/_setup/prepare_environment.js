@@ -494,6 +494,22 @@ global.allowedErrors = [
         },
     },
     /*
+     * $tc, Shopware.Snippet.tc and the vue-i18n 8 argument order are deprecated for v6.9.0.
+     * Allow these warnings during the transition period, so extension test suites do not fail.
+     */
+    {
+        method: 'warn',
+        msgCheck: (msg0, msg1) => {
+            if (msg0 !== '[Deprecation]' || typeof msg1 !== 'string') {
+                return false;
+            }
+
+            return /\(\) is deprecated and will be removed in v6\.9\.0\. Replace|uses the vue-i18n 8 argument order/.test(
+                msg1,
+            );
+        },
+    },
+    /*
      * sw-entity-listing "items" prop deprecation - only deprecated for next major v6.8.0
      * Allow this warning during the transition period
      */

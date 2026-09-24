@@ -26,6 +26,14 @@ class DeprecatedServiceDefinitionFeatureTagRuleTest extends RuleTestCase
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
                 11,
             ],
+            [
+                'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
+                22,
+            ],
+            [
+                'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
+                25,
+            ],
         ]);
     }
 

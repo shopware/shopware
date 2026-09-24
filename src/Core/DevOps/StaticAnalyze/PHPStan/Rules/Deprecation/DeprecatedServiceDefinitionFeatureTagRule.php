@@ -79,15 +79,29 @@ class DeprecatedServiceDefinitionFeatureTagRule implements Rule
             }
         }
 
-        if ($deprecation === null) {
-            return [];
-        }
-
-        $description = $deprecation->getArgs()[2]->value ?? null;
+        $description = $deprecation?->getArgs()[2]->value ?? null;
         $flag = null;
 
         if ($description instanceof String_ && preg_match('/\bv(\d+\.\d+\.\d+(?:\.\d+)?)\b/', $description->value, $matches)) {
-            $flag = substr_count($matches[1], '.') === 2 ? 'v' . $matches[1] . '.0' : 'v' . $matches[1];
+            $flag = 'v' . $matches[1];
+        }
+
+        foreach ($node->getComments() as $comment) {
+            if ($comment->getEndLine() !== $node->getStartLine() - 1) {
+                continue;
+            }
+
+            if (preg_match('/@deprecated\s+tag:(v\d+\.\d+\.\d+(?:\.\d+)?)/', $comment->getText(), $matches)) {
+                $flag ??= $matches[1];
+            }
+        }
+
+        if ($deprecation === null && $flag === null) {
+            return [];
+        }
+
+        if ($flag !== null && substr_count($flag, '.') === 2) {
+            $flag .= '.0';
         }
 
         if ($flag !== null ? \in_array($flag, $tagFlags, true) : $tagFlags !== []) {

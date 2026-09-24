@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.27
+*  [#20705 - fix(storefront): use product ID for order Garan labels (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20705)
+*  [#20730 - fix: Ensure compatibility with Twig 3.29](https://github.com/shopware/shopware/issues/20730)
+*  [#20745 - fix(core): reset derived fields when cloning (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20745)
+*  [20528 - Restore product and promotion duplication](./changelog/release-6-6-10-27/2026-09-23-restore-product-and-promotion-duplication.md)
+*  [20599 - Use the linked product for order GARAN labels](./changelog/release-6-6-10-27/2026-09-23-use-product-id-for-order-garan-labels.md)
+
 ## 6.6.10.26
 *  [#20209 - fix(storefront): load snippets from all parent themes (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20209)
 *  [#20278 - fix(framework): stop crediting bots as external changelog contributors](https://github.com/shopware/shopware/issues/20278)

@@ -221,19 +221,24 @@ class SeoUrlPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $seoUrlPersister = $this->createSeoUrlPersister($connection);
 
+        $firstForeignKey = Uuid::randomHex();
+        $firstSalesChannelId = Uuid::randomHex();
+        $secondForeignKey = Uuid::randomHex();
+        $secondSalesChannelId = Uuid::randomHex();
+
         $seoUrls = [
             [
                 'languageId' => Uuid::randomHex(),
-                'foreignKey' => Uuid::randomHex(),
-                'salesChannelId' => Uuid::randomHex(),
+                'foreignKey' => $firstForeignKey,
+                'salesChannelId' => $firstSalesChannelId,
                 'routeName' => 'test-route',
                 'pathInfo' => 'path1',
                 'seoPathInfo' => 'path1',
             ],
             [
                 'languageId' => Uuid::randomHex(),
-                'foreignKey' => Uuid::randomHex(),
-                'salesChannelId' => Uuid::randomHex(),
+                'foreignKey' => $secondForeignKey,
+                'salesChannelId' => $secondSalesChannelId,
                 'routeName' => 'test-route',
                 'pathInfo' => 'path2',
                 'seoPathInfo' => 'path2',
@@ -244,28 +249,34 @@ class SeoUrlPersisterTest extends TestCase
         $id2 = Uuid::randomBytes();
         $expectedIds = [$id1, $id2];
 
-        $connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                [
-                    'id' => 'id1',
-                    'languageId' => Uuid::randomHex(),
-                    'salesChannelId' => Uuid::randomHex(),
-                    'foreignKey' => Uuid::randomHex(),
-                    'routeName' => 'test-route',
-                ],
-                [
-                    'id' => 'id2',
-                    'languageId' => Uuid::randomHex(),
-                    'salesChannelId' => Uuid::randomHex(),
-                    'foreignKey' => Uuid::randomHex(),
-                    'routeName' => 'test-route',
-                ],
-            ]);
-
+        // the canonical urls of every group are resolved by one query instead of one lookup per seo url
         $connection->expects($this->exactly(2))
-            ->method('fetchOne')
-            ->willReturnOnConsecutiveCalls($id1, $id2);
+            ->method('fetchAllAssociative')
+            ->willReturnOnConsecutiveCalls(
+                [
+                    [
+                        'id' => 'id1',
+                        'languageId' => Uuid::randomHex(),
+                        'salesChannelId' => $firstSalesChannelId,
+                        'foreignKey' => $firstForeignKey,
+                        'routeName' => 'test-route',
+                    ],
+                    [
+                        'id' => 'id2',
+                        'languageId' => Uuid::randomHex(),
+                        'salesChannelId' => $secondSalesChannelId,
+                        'foreignKey' => $secondForeignKey,
+                        'routeName' => 'test-route',
+                    ],
+                ],
+                [
+                    ['id' => $id1, 'foreign_key' => $firstForeignKey, 'sales_channel_id' => $firstSalesChannelId, 'route_name' => 'test-route', 'is_canonical' => null],
+                    ['id' => $id2, 'foreign_key' => $secondForeignKey, 'sales_channel_id' => $secondSalesChannelId, 'route_name' => 'test-route', 'is_canonical' => null],
+                ]
+            );
+
+        $connection->expects($this->never())
+            ->method('fetchOne');
 
         $connection->expects($this->once())
             ->method('executeStatement')

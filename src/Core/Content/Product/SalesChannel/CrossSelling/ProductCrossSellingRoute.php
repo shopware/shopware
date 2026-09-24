@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -43,6 +44,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
+    private const ID_PLACEHOLDER = '00000000000000000000000000000000';
+
     /**
      * @internal
      *
@@ -88,19 +91,41 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $elements = new CrossSellingElementCollection();
 
+        /** @var array<string, array{criteria: Criteria, ids: list<string>, elements: list<array{element: CrossSellingElement, ids: list<string>}>}> $grouped */
+        $grouped = [];
+
         foreach ($crossSellings as $crossSelling) {
             // CrossSellingElement is typed against ProductCollection, a field selection would load PartialEntity instances
             $clone = clone $criteria;
             $clone->resetFields();
 
             if ($this->useProductStream($crossSelling)) {
-                $element = $this->loadByStream($crossSelling, $rootProductId, $context, $clone);
-            } else {
-                $element = $this->loadByIds($crossSelling, $context, $clone);
+                $elements->add($this->loadByStream($crossSelling, $rootProductId, $context, $clone));
+
+                continue;
             }
 
+            $element = $this->createElement($crossSelling);
             $elements->add($element);
+
+            $ids = $this->assignedProductIds($crossSelling);
+
+            if ($ids === []) {
+                continue;
+            }
+
+            $prepared = $this->prepareIdsCriteria($crossSelling, $ids, $context, $clone);
+
+            // cross sellings that ask for the same thing apart from their ids are answered by one query; a subscriber
+            // that differentiates the criteria per cross selling keeps its own query
+            $hash = $this->hashWithoutIds($prepared);
+
+            $grouped[$hash]['criteria'] ??= $prepared;
+            $grouped[$hash]['ids'] = array_merge($grouped[$hash]['ids'] ?? [], $ids);
+            $grouped[$hash]['elements'][] = ['element' => $element, 'ids' => $ids];
         }
+
+        $this->fillProducts($grouped, $context);
 
         $this->eventDispatcher->dispatch(new ProductCrossSellingsLoadedEvent($elements, $context));
 
@@ -198,32 +223,42 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         return $element;
     }
 
-    private function loadByIds(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context, Criteria $criteria): CrossSellingElement
+    private function createElement(ProductCrossSellingEntity $crossSelling): CrossSellingElement
     {
         $element = new CrossSellingElement();
         $element->setCrossSelling($crossSelling);
         $element->setProducts(new ProductCollection());
         $element->setTotal(0);
 
-        if (!$crossSelling->getAssignedProducts()) {
-            return $element;
+        return $element;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function assignedProductIds(ProductCrossSellingEntity $crossSelling): array
+    {
+        $assigned = $crossSelling->getAssignedProducts();
+
+        if (!$assigned) {
+            return [];
         }
 
-        $crossSelling->getAssignedProducts()->sortByPosition();
+        $assigned->sortByPosition();
 
-        $ids = array_values($crossSelling->getAssignedProducts()->getProductIds());
+        return array_values($assigned->getProductIds());
+    }
 
-        $filter = new ProductAvailableFilter(
+    /**
+     * @param list<string> $ids
+     */
+    private function prepareIdsCriteria(ProductCrossSellingEntity $crossSelling, array $ids, SalesChannelContext $context, Criteria $criteria): Criteria
+    {
+        $criteria->setIds($ids);
+        $criteria->addFilter(new ProductAvailableFilter(
             $context->getSalesChannelId(),
             ProductVisibilityDefinition::VISIBILITY_ALL
-        );
-
-        if ($ids === []) {
-            return $element;
-        }
-
-        $criteria->setIds($ids);
-        $criteria->addFilter($filter);
+        ));
         $criteria->addAssociation('options.group');
 
         $criteria = $this->handleAvailableStock($criteria, $context);
@@ -235,15 +270,40 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         // a subscriber might have added a field selection
         $criteria->resetFields();
 
-        $products = $this->productRepository->search($criteria, $context)->getEntities();
+        return $criteria;
+    }
 
-        $ids = $criteria->getIds();
-        $products->sortByIdArray($ids);
+    /**
+     * The ids are what differs between cross sellings, so they are left out of the hash and merged instead.
+     */
+    private function hashWithoutIds(Criteria $criteria): string
+    {
+        $withoutIds = clone $criteria;
+        // the criteria rejects an empty id list, so every copy gets the same placeholder instead
+        $withoutIds->setIds([self::ID_PLACEHOLDER]);
 
-        $element->setProducts($products);
-        $element->setTotal(\count($products));
+        return Hasher::hash($withoutIds);
+    }
 
-        return $element;
+    /**
+     * @param array<string, array{criteria: Criteria, ids: list<string>, elements: list<array{element: CrossSellingElement, ids: list<string>}>}> $grouped
+     */
+    private function fillProducts(array $grouped, SalesChannelContext $context): void
+    {
+        foreach ($grouped as $group) {
+            $criteria = $group['criteria'];
+            $criteria->setIds(array_values(array_unique($group['ids'])));
+
+            $products = $this->productRepository->search($criteria, $context)->getEntities();
+
+            foreach ($group['elements'] as ['element' => $element, 'ids' => $ids]) {
+                $own = $products->getList($ids);
+                $own->sortByIdArray($ids);
+
+                $element->setProducts($own);
+                $element->setTotal($own->count());
+            }
+        }
     }
 
     /**

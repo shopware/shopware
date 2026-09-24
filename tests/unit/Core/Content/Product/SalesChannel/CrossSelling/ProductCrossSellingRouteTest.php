@@ -338,6 +338,63 @@ class ProductCrossSellingRouteTest extends TestCase
         static::assertSame(1, $element->getTotal());
     }
 
+    public function testSeveralIdCrossSellingsAreLoadedWithOneQuery(): void
+    {
+        $productId = Uuid::randomHex();
+        $firstProductId = Uuid::randomHex();
+        $secondProductId = Uuid::randomHex();
+
+        $crossSellings = new ProductCrossSellingCollection([
+            self::idCrossSelling($productId, $firstProductId),
+            self::idCrossSelling($productId, $secondProductId),
+        ]);
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_cross_selling',
+                $crossSellings->count(),
+                $crossSellings,
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static function (Criteria $criteria) use ($firstProductId, $secondProductId): EntitySearchResult {
+                static::assertSame([$firstProductId, $secondProductId], array_values($criteria->getIds()));
+
+                $products = new ProductCollection();
+                foreach ([$firstProductId, $secondProductId] as $id) {
+                    $product = new ProductEntity();
+                    $product->setUniqueIdentifier($id);
+                    $product->setId($id);
+                    $products->add($product);
+                }
+
+                return new EntitySearchResult('product', $products->count(), $products, null, $criteria, Context::createDefaultContext());
+            });
+
+        $elements = $this->createRoute(productRepository: $productRepository)
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())
+            ->getResult();
+
+        static::assertCount(2, $elements);
+
+        $first = $elements->first();
+        $last = $elements->last();
+        static::assertNotNull($first);
+        static::assertNotNull($last);
+
+        // each cross selling keeps only the products it is assigned, although both came from one query
+        static::assertSame([$firstProductId], array_values($first->getProducts()->getIds()));
+        static::assertSame(1, $first->getTotal());
+        static::assertSame([$secondProductId], array_values($last->getProducts()->getIds()));
+        static::assertSame(1, $last->getTotal());
+    }
+
     public function testLoadAlwaysAddsStreamTagForStreamCrossSelling(): void
     {
         $productId = Uuid::randomHex();
@@ -489,6 +546,25 @@ class ProductCrossSellingRouteTest extends TestCase
         );
 
         $route->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
+    }
+
+    private static function idCrossSelling(string $productId, string $assignedProductId): ProductCrossSellingEntity
+    {
+        $assignedProduct = new ProductCrossSellingAssignedProductsEntity();
+        $assignedProduct->setUniqueIdentifier(Uuid::randomHex());
+        $assignedProduct->setProductId($assignedProductId);
+        $assignedProduct->setPosition(1);
+
+        $crossSelling = new ProductCrossSellingEntity();
+        $crossSelling->setUniqueIdentifier(Uuid::randomHex());
+        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_LIST);
+        $crossSelling->setProductId($productId);
+        $crossSelling->setLimit(10);
+        $crossSelling->setSortBy('name');
+        $crossSelling->setSortDirection('ASC');
+        $crossSelling->setAssignedProducts(new ProductCrossSellingAssignedProductsCollection([$assignedProduct]));
+
+        return $crossSelling;
     }
 
     /**

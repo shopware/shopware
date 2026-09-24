@@ -41,6 +41,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [20104 - Size the GARAN label in the order confirmation mail](./changelog/release-6-6-10-26/2026-09-15-size-the-garan-label-in-the-order-confirmation-mail.md)
 *  [20105 - Enforce the GARAN duration range and surface unmet label prerequisites](./changelog/release-6-6-10-26/2026-09-15-enforce-the-garan-duration-range-and-surface-unmet-label-prerequisites.md)
 *  [20109 - Let variants inherit the GARAN label confirmation](./changelog/release-6-6-10-26/2026-09-15-let-variants-inherit-the-garan-label-confirmation.md)
+*  [20360 - Separate legal guarantee notice](./changelog/release-6-6-10-26/2026-09-23-separate-legal-guarantee-notice.md)
 *  [20492 - Encode mixed Struct custom fields](./changelog/release-6-6-10-26/2026-09-22-encode-mixed-struct-custom-fields.md)
 *  [6331 - Load snippets from every inherited theme](./changelog/release-6-6-10-26/2026-09-07-load-snippets-from-every-inherited-theme.md)
 *  [6409 - Separate Vimeo and YouTube cookie consent](./changelog/release-6-6-10-26/2025-10-21-separate-vimeo-youtube-cookies.md)

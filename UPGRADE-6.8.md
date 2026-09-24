@@ -2387,6 +2387,18 @@ To extend or replace a schema in a plugin or theme, use `sw_extends` on the rele
 
 The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.
 
+## Removed deprecated Storefront block shims
+
+The following deprecated blocks are no longer invoked during rendering. Move overrides to the replacement block:
+
+| Deprecated block | Replacement |
+|---|---|
+| `block_image_inner` in the YouTube and Vimeo CMS block templates | `block_youtube_video_inner` or `block_vimeo_video_inner` |
+| `component_product_box_image_link_inner` in `component/product/card/box-standard.html.twig` | `component_product_box_image_inner` |
+| `page_account_address_form_welcome` in the address-book create and edit templates | `page_account_address_form_welcome_headline` |
+
+`base_navigation_styling` and `layout_navigation_active_styling` are also no longer invoked. The navbar plugin now applies the active styling class; neither block needs a replacement.
+
 ## Deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets
 
 The snippets `listing.beforeListPrice` and `listing.afterListPrice` for injecting markup around the list price are deprecated; their output is removed in 6.8.0. Use one of the following replacements instead:

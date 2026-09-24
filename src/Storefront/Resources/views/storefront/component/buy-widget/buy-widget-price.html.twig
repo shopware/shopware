@@ -160,19 +160,21 @@
             {% endif %}
         {% endblock %}
 
-        {# @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig #}
-        {% block buy_widget_price_unit %}
+        {% if not feature('v6.8.0.0') %}
             {# @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig #}
-            {% block buy_widget_price_unit_label %}
-            {% endblock %}
+            {% block buy_widget_price_unit %}
+                {# @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig #}
+                {% block buy_widget_price_unit_label %}
+                {% endblock %}
 
-            {# @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig #}
-            {% block buy_widget_price_unit_content %}
-            {% endblock %}
+                {# @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig #}
+                {% block buy_widget_price_unit_content %}
+                {% endblock %}
 
-            {# @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig #}
-            {% block buy_widget_price_unit_reference_content %}
+                {# @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig #}
+                {% block buy_widget_price_unit_reference_content %}
+                {% endblock %}
             {% endblock %}
-        {% endblock %}
+        {% endif %}
     {% endif %}
 {% endblock %}

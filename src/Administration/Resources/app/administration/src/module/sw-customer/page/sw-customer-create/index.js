@@ -1,4 +1,5 @@
 import template from './sw-customer-create.html.twig';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 
 /**
  * @sw-package checkout
@@ -19,12 +20,14 @@ export default {
         'numberRangeService',
         'systemConfigApiService',
         'customerValidationService',
+        'companyAccountNameFieldsService',
     ],
 
     mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
+            companyNamesRequired: true,
             customer: null,
             address: null,
             customerNumberPreview: '',
@@ -41,7 +44,27 @@ export default {
         },
 
         validCompanyField() {
-            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ? this.address.company?.trim().length : true;
+            if (this.customer.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                return true;
+            }
+
+            return this.resolvedCompany !== '';
+        },
+
+        resolvedCompany() {
+            return this.customer.company?.trim() || this.address.company?.trim() || '';
+        },
+
+        contactPersonRequired() {
+            return this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS || this.companyNamesRequired;
+        },
+
+        validContactPersonFields() {
+            if (!this.contactPersonRequired) {
+                return true;
+            }
+
+            return Boolean(this.customer.firstName?.trim().length && this.customer.lastName?.trim().length);
         },
 
         languageRepository() {
@@ -82,6 +105,8 @@ export default {
 
     watch: {
         'customer.salesChannelId'(salesChannelId) {
+            this.loadCompanyNamesRequired();
+
             this.systemConfigApiService.getValues('core.systemWideLoginRegistration').then((response) => {
                 if (response['core.systemWideLoginRegistration.isCustomerBoundToSalesChannel']) {
                     this.customer.boundSalesChannelId = salesChannelId;
@@ -119,6 +144,20 @@ export default {
     },
 
     methods: {
+        async loadCompanyNamesRequired() {
+            const salesChannelId = this.customer?.salesChannelId;
+
+            this.companyNamesRequired = true;
+
+            const required = await this.companyAccountNameFieldsService.isContactPersonRequired(salesChannelId);
+
+            if (this.customer?.salesChannelId !== salesChannelId) {
+                return;
+            }
+
+            this.companyNamesRequired = required;
+        },
+
         async createdComponent() {
             const defaultSalutationId = await this.getDefaultSalutation();
 
@@ -141,6 +180,8 @@ export default {
             this.customer.salutationId = defaultSalutationId;
             this.customer.languageId = Shopware.Context.api.languageId;
             this.address.salutationId = defaultSalutationId;
+
+            await this.loadCompanyNamesRequired();
         },
 
         saveFinish() {
@@ -200,12 +241,29 @@ export default {
                 hasError = true;
             }
 
+            if (!this.validContactPersonFields) {
+                this.createErrorMessageForContactPerson();
+                hasError = true;
+            }
+
             if (hasError) {
                 this.createNotificationError({
                     message: this.$t('sw-customer.detail.messageSaveError'),
                 });
                 this.isLoading = false;
                 return false;
+            }
+
+            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS) {
+                this.customer.company = this.resolvedCompany;
+                this.address.company = this.resolvedCompany;
+            }
+
+            if (!this.contactPersonRequired) {
+                this.customer.firstName ??= '';
+                this.customer.lastName ??= '';
+                this.address.firstName ??= '';
+                this.address.lastName ??= '';
             }
 
             const languageId = await this.languageId;
@@ -238,13 +296,38 @@ export default {
             });
         },
 
+        createErrorMessageForContactPerson() {
+            this.isLoading = false;
+
+            [
+                'firstName',
+                'lastName',
+            ].forEach((field) => {
+                if (this.customer[field]?.trim().length) {
+                    return;
+                }
+
+                Shopware.Store.get('error').addApiError({
+                    expression: `customer.${this.customer.id}.${field}`,
+                    error: new ShopwareError({
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
+                    }),
+                });
+            });
+        },
+
         createErrorMessageForCompanyField() {
             this.isLoading = false;
-            Shopware.Store.get('error').addApiError({
-                expression: `customer_address.${this.address.id}.company`,
-                error: new Shopware.Classes.ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                }),
+            [
+                `customer.${this.customer.id}.company`,
+                `customer_address.${this.address.id}.company`,
+            ].forEach((expression) => {
+                Shopware.Store.get('error').addApiError({
+                    expression,
+                    error: new Shopware.Classes.ShopwareError({
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
+                    }),
+                });
             });
 
             this.createNotificationError({

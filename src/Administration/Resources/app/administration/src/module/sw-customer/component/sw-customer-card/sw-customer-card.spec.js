@@ -11,11 +11,12 @@ const customer = {
     vatIds: ['9f8f091c-db81-4ef3-862c-9c554a34cdc4'],
 };
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-customer-card', { sync: true }), {
         props: {
             customer: {},
             title: '',
+            ...props,
         },
         global: {
             provide: {
@@ -99,5 +100,76 @@ describe('module/sw-customer/page/sw-customer-card', () => {
         });
 
         expect(wrapper.find('[label="sw-customer.card.labelVatId"]').exists()).toBeFalsy();
+    });
+
+    it('should keep the raw name fields for the avatar initials', async () => {
+        const wrapper = await createWrapper({
+            customer: {
+                ...customer,
+                accountType: 'business',
+                firstName: 'Ada',
+                lastName: 'van Halen',
+                company: 'Acme GmbH',
+            },
+        });
+
+        expect(wrapper.vm.avatarName).toEqual({ firstName: 'Ada', lastName: 'van Halen' });
+    });
+
+    it('should split the resolved name for the avatar of a nameless company account', async () => {
+        const wrapper = await createWrapper({
+            customer: {
+                ...customer,
+                accountType: 'business',
+                firstName: '',
+                lastName: '',
+                company: 'Acme GmbH',
+                displayName: 'Acme GmbH',
+            },
+        });
+
+        expect(wrapper.vm.avatarName).toEqual({ firstName: 'Acme', lastName: 'GmbH' });
+    });
+
+    it('should keep the contact person in the card title', async () => {
+        const wrapper = await createWrapper({
+            customer: { ...customer, accountType: 'business', firstName: 'Ada', lastName: 'Lovelace', company: 'Acme GmbH' },
+        });
+
+        expect(wrapper.vm.fullName).toBe('Ada Lovelace - Acme GmbH');
+    });
+
+    it('should use the resolved name as the card title without a contact person', async () => {
+        const wrapper = await createWrapper({
+            customer: {
+                ...customer,
+                accountType: 'business',
+                firstName: '',
+                lastName: '',
+                company: 'Acme GmbH',
+                displayName: 'Acme GmbH',
+                salutation: { translated: { displayName: 'Mr' } },
+            },
+        });
+
+        expect(wrapper.vm.fullName).toBe('Acme GmbH');
+    });
+
+    it('should keep the contact person required for a private account', async () => {
+        const wrapper = await createWrapper({ customer: { accountType: 'private' }, companyNamesRequired: false });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
+    });
+
+    it('should make the contact person optional for a company account when the settings allow it', async () => {
+        const wrapper = await createWrapper({ customer: { accountType: 'business' }, companyNamesRequired: false });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(false);
+    });
+
+    it('should keep the contact person required for a company account by default', async () => {
+        const wrapper = await createWrapper({ customer: { accountType: 'business' } });
+
+        expect(wrapper.vm.contactPersonRequired).toBe(true);
     });
 });

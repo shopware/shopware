@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -148,7 +149,7 @@ class RegisterRouteTest extends TestCase
         $dispatcher = static::createStub(EventDispatcherInterface::class);
         $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) use ($definition) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
-                $definition->add('company', new NotBlank());
+                $definition->add('company', CompanyAccountNameFields::companyNotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
 
                 static::assertSame($event->getDefinition()->getProperties(), $definition->getProperties());
@@ -213,7 +214,7 @@ class RegisterRouteTest extends TestCase
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
-                $definition->add('company', new NotBlank());
+                $definition->add('company', CompanyAccountNameFields::companyNotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: null));
                 $definition->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE));
 
@@ -276,7 +277,7 @@ class RegisterRouteTest extends TestCase
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
-                $definition->add('company', new NotBlank());
+                $definition->add('company', CompanyAccountNameFields::companyNotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
                 $definition->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE));
 
@@ -725,6 +726,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -837,11 +839,83 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    #[TestDox('A lone shipping address becomes the billing address and has to carry the company')]
+    public function testShippingOnlyRegistrationOfACompanyAccountStillNeedsTheCompany(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.showNameFieldsForCompanyAccounts' => false,
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $customerEntity->setEmail('test@test.de');
+
+        $customerRepository = StaticEntityRepository::of(
+            CustomerCollection::class,
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition(),
+        );
+
+        $salutationId = Uuid::randomHex();
+
+        $data = [
+            'email' => 'test@test.de',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'salutationId' => $salutationId,
+            'storefrontUrl' => 'foo',
+            'shippingAddress' => [
+                'id' => Uuid::randomHex(),
+                'salutationId' => $salutationId,
+            ],
+        ];
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->with(static::anything(), static::callback(static function (DataValidationDefinition $definition) {
+                $subs = $definition->getSubDefinitions();
+
+                static::assertArrayNotHasKey('billingAddress', $subs);
+                static::assertArrayHasKey('shippingAddress', $subs);
+
+                $company = $subs['shippingAddress']->getProperties()['company'] ?? [];
+
+                static::assertNotEmpty($company);
+                static::assertContainsOnlyInstancesOf(NotBlank::class, $company);
+
+                return true;
+            }));
+
+        $definitionFactory = static::createStub(DataValidationFactoryInterface::class);
+        $definitionFactory
+            ->method('create')
+            ->willReturnCallback(static fn () => new DataValidationDefinition());
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            addressValidationFactory: $definitionFactory,
+            accountValidationFactory: $definitionFactory,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository,
+        );
+
+        $registerRoute->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
     }
 
     #[TestDox('Rejects registration when billing address is not an associative array')]
@@ -944,6 +1018,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(DoubleOptInService::class),
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new CompanyAccountNameFields($systemConfigService),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1533,6 +1608,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),
+            new CompanyAccountNameFields($systemConfigService),
         );
     }
 

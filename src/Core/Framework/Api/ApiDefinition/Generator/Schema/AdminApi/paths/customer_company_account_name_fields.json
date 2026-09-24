@@ -1,0 +1,48 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/_action/customer/company-account-name-fields": {
+            "get": {
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Check whether a company account needs a contact person",
+                "description": "Resolves the two login registration settings `core.loginRegistration.showNameFieldsForCompanyAccounts` and `core.loginRegistration.nameFieldsRequiredForCompanyAccounts` for a sales channel, or for the shop when no sales channel is given, and returns whether a commercial customer of it still needs a first and a last name.",
+                "operationId": "getCompanyAccountNameFieldsRequirement",
+                "parameters": [
+                    {
+                        "name": "salesChannelId",
+                        "in": "query",
+                        "description": "The sales channel whose settings are resolved. Without it the shop wide settings apply.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Whether a commercial customer of the sales channel needs a contact person.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "contactPersonRequired"
+                                    ],
+                                    "properties": {
+                                        "contactPersonRequired": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

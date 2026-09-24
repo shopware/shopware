@@ -96,6 +96,7 @@ export const string = {
     isUrl: stringUtils.isUrl,
     isValidIp: stringUtils.isValidIp,
     isValidCidr: stringUtils.isValidCidr,
+    avatarName: stringUtils.avatarName,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

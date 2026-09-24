@@ -21,6 +21,7 @@ export default {
         'systemConfigApiService',
         'customerValidationService',
         'feature',
+        'companyAccountNameFieldsService',
     ],
 
     emits: ['on-select-existing-customer', 'close'],
@@ -34,6 +35,7 @@ export default {
             customerNumberPreview: '',
             defaultSalutationId: null,
             activeTab: 'details',
+            companyNamesRequired: true,
         };
     },
 
@@ -136,10 +138,22 @@ export default {
             },
         },
 
+        contactPersonRequired() {
+            return this.customer?.accountType !== CUSTOMER.ACCOUNT_TYPE_BUSINESS || this.companyNamesRequired;
+        },
+
         validCompanyField() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS
                 ? this.customer?.company?.trim().length
                 : true;
+        },
+
+        validContactPersonFields() {
+            if (!this.contactPersonRequired) {
+                return true;
+            }
+
+            return Boolean(this.customer?.firstName?.trim().length && this.customer?.lastName?.trim().length);
         },
 
         languageRepository() {
@@ -198,6 +212,7 @@ export default {
 
     methods: {
         async createdComponent() {
+            this.loadCompanyNamesRequired();
             this.customer = this.customerRepository.create();
 
             this.defaultSalutationId = await this.getDefaultSalutationId();
@@ -225,6 +240,11 @@ export default {
 
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
+                hasError = true;
+            }
+
+            if (!this.validContactPersonFields) {
+                this.createErrorMessageForContactPerson();
                 hasError = true;
             }
 
@@ -256,7 +276,41 @@ export default {
             });
         },
 
+        allowBlankContactPerson() {
+            if (this.contactPersonRequired) {
+                return;
+            }
+
+            this.customer.firstName ??= '';
+            this.customer.lastName ??= '';
+
+            this.customer.addresses.forEach((address) => {
+                address.firstName ??= '';
+                address.lastName ??= '';
+
+                if (!address.company?.trim()) {
+                    address.company = this.customer.company;
+                }
+            });
+        },
+
+        async loadCompanyNamesRequired() {
+            const salesChannelId = this.customer?.salesChannelId;
+
+            this.companyNamesRequired = true;
+
+            const required = await this.companyAccountNameFieldsService.isContactPersonRequired(salesChannelId);
+
+            if (this.customer?.salesChannelId !== salesChannelId) {
+                return;
+            }
+
+            this.companyNamesRequired = required;
+        },
+
         async saveCustomer() {
+            this.allowBlankContactPerson();
+
             const languageId = await this.languageId;
 
             const context = { ...Shopware.Context.api, ...{ languageId } };
@@ -281,6 +335,7 @@ export default {
 
         onChangeSalesChannel(salesChannelId) {
             this.customer.salesChannelId = salesChannelId;
+            this.loadCompanyNamesRequired();
             this.numberRangeService.reserve('customer', salesChannelId, true).then((response) => {
                 this.customerNumberPreview = response.number;
                 this.customer.customerNumber = response.number;
@@ -306,7 +361,27 @@ export default {
 
             if (this.customer?.id) {
                 errorStore.removeApiError(`customer.${this.customer.id}.email`);
+                errorStore.removeApiError(`customer.${this.customer.id}.firstName`);
+                errorStore.removeApiError(`customer.${this.customer.id}.lastName`);
             }
+        },
+
+        createErrorMessageForContactPerson() {
+            [
+                'firstName',
+                'lastName',
+            ].forEach((field) => {
+                if (this.customer[field]?.trim().length) {
+                    return;
+                }
+
+                Shopware.Store.get('error').addApiError({
+                    expression: `customer.${this.customer.id}.${field}`,
+                    error: new Shopware.Classes.ShopwareError({
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
+                    }),
+                });
+            });
         },
 
         createErrorMessageForCompanyField() {

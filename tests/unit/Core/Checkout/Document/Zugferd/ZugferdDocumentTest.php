@@ -20,6 +20,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -29,6 +31,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
@@ -228,6 +231,54 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame('1002', $general->getElementsByTagName('ID')->item(0)?->nodeValue);
         static::assertSame(ZugferdInvoiceType::CORRECTION, $general->getElementsByTagName('TypeCode')->item(0)?->nodeValue);
         static::assertSame('20240103', \trim($general->getElementsByTagName('IssueDateTime')->item(0)->nodeValue ?? ''));
+    }
+
+    #[DataProvider('buyerNameProvider')]
+    public function testWithBuyerInformationBuildsTheBuyerName(string $firstName, string $lastName, ?string $company, string $expected): void
+    {
+        $customer = new OrderCustomerEntity();
+        $customer->setFirstName($firstName);
+        $customer->setLastName($lastName);
+        $customer->setCompany($company);
+        $customer->setCustomerNumber('10001');
+        $customer->setEmail('buyer@example.com');
+
+        $country = new CountryEntity();
+        $country->setIso('DE');
+
+        $address = new OrderAddressEntity();
+        $address->setStreet('Ebbinghoff 10');
+        $address->setZipcode('48624');
+        $address->setCity('Schöppingen');
+        $address->setCountry($country);
+
+        $document = new ZugferdDocumentMock(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), true);
+        $document->withBuyerInformation($customer, $address);
+
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_GROSS);
+        $order->setAmountTotal(0.0);
+        $order->setAmountNet(0.0);
+        $order->setItemRounding(new CashRoundingConfig(2, .01, false));
+        $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
+
+        $calculator = new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator());
+        $buyer = $document->getDomContent($order, $calculator)->getElementsByTagName('BuyerTradeParty')->item(0);
+
+        static::assertNotNull($buyer);
+        static::assertSame($expected, $buyer->getElementsByTagName('Name')->item(0)?->nodeValue);
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string|null, string}>
+     */
+    public static function buyerNameProvider(): iterable
+    {
+        yield 'person name without a company' => ['Ada', 'Lovelace', null, 'Ada Lovelace'];
+        yield 'the company is appended to a person name' => ['Ada', 'Lovelace', 'Acme GmbH', 'Ada Lovelace - Acme GmbH'];
+        yield 'a company already carried by the name is not repeated' => ['', 'Acme GmbH', 'Acme GmbH', 'Acme GmbH'];
+        yield 'no contact person falls back to the company' => ['', '', 'Acme GmbH', 'Acme GmbH'];
+        yield 'a blank company is ignored' => ['Ada', 'Lovelace', '   ', 'Ada Lovelace'];
     }
 
     public function testWithDocumentSupplyChainEvent(): void

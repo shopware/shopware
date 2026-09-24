@@ -37,15 +37,13 @@ export default {
     computed: {
         modalTitle() {
             return this.$t('sw-customer.imitateCustomerModal.modalTitle', {
-                firstname: this.customer.firstName,
-                lastname: this.customer.lastName,
+                name: this.customer.displayName,
             });
         },
 
         modalDescription() {
             return this.$t('sw-customer.imitateCustomerModal.modalDescription', {
-                firstname: this.customer.firstName,
-                lastname: this.customer.lastName,
+                name: this.customer.displayName,
             });
         },
 

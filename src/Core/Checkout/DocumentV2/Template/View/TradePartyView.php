@@ -37,11 +37,13 @@ final readonly class TradePartyView
         $billing = $order->getBillingAddress()
             ?? $order->getAddresses()?->get($order->getBillingAddressId());
 
-        $name = trim(($customer?->getFirstName() ?? '') . ' ' . ($customer?->getLastName() ?? ''));
-
-        if ($customer?->getCompany()) {
-            $name = trim($name . ' - ' . $customer->getCompany());
-        }
+        $personName = trim(($customer?->getFirstName() ?? '') . ' ' . ($customer?->getLastName() ?? ''));
+        $company = trim($customer?->getCompany() ?? '');
+        $name = match (true) {
+            $company === '' => $personName,
+            $personName === '' || $personName === $company => $company,
+            default => $personName . ' - ' . $company,
+        };
 
         if ($name === '') {
             throw DocumentV2Exception::invalidOrderData(

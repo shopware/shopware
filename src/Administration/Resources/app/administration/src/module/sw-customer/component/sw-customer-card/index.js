@@ -21,6 +21,12 @@ export default {
     mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     props: {
+        companyNamesRequired: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
         customer: {
             type: Object,
             required: true,
@@ -49,6 +55,10 @@ export default {
     },
 
     computed: {
+        avatarName() {
+            return Shopware.Utils.string.avatarName(this.customer);
+        },
+
         hasActionSlot() {
             return !!this.$slots.actions?.[0];
         },
@@ -69,15 +79,18 @@ export default {
         },
 
         fullName() {
-            const name = {
-                name: this.salutation(this.customer),
-                company: this.customer.company,
-            };
+            const hasContactPerson = `${this.customer.firstName ?? ''}${this.customer.lastName ?? ''}`.trim() !== '';
 
-            return Object.values(name)
-                .filter((item) => item !== null)
-                .join(' - ')
-                .trim();
+            if (!hasContactPerson) {
+                return this.customer.displayName || this.salutation(this.customer);
+            }
+
+            return [
+                this.salutation(this.customer),
+                (this.customer.company ?? '').trim(),
+            ]
+                .filter((part) => part !== '')
+                .join(' - ');
         },
 
         salutationCriteria() {
@@ -105,6 +118,10 @@ export default {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        contactPersonRequired() {
+            return !this.isBusinessAccountType || this.companyNamesRequired;
         },
 
         canUseCustomerImitation() {

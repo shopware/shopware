@@ -35,7 +35,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 /**
  * @internal
@@ -44,7 +43,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 class PromotionCalculatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use LineItemTestFixtureBehaviour;
     use PromotionTestFixtureBehaviour;
 
     private PromotionCalculator $promotionCalculator;

@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Integration\Traits\Promotion\PromotionLineItemTestFixtureBehaviour;
+use Shopware\Core\Test\Checkout\PromotionLineItemFixture;
 
 /**
  * @internal
@@ -20,8 +20,6 @@ use Shopware\Core\Test\Integration\Traits\Promotion\PromotionLineItemTestFixture
 #[CoversClass(DiscountPackageCollection::class)]
 class DiscountPackageCollectionTest extends TestCase
 {
-    use PromotionLineItemTestFixtureBehaviour;
-
     /**
      * This test verifies that we can add our elements
      * and that the count returns the correct value
@@ -46,8 +44,8 @@ class DiscountPackageCollectionTest extends TestCase
     #[Group('promotions')]
     public function testAffectedPricesFromAllPackages(): void
     {
-        $product1 = $this->createProductItem(29, 19);
-        $product2 = $this->createProductItem(14, 19);
+        $product1 = PromotionLineItemFixture::createProductItem(29, 19);
+        $product2 = PromotionLineItemFixture::createProductItem(14, 19);
 
         $package1 = new DiscountPackage(new LineItemQuantityCollection());
         $package1->setCartItems(new LineItemFlatCollection([$product1]));

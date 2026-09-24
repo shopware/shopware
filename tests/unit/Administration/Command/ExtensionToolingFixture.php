@@ -2,9 +2,9 @@
 
 namespace Shopware\Tests\Unit\Administration\Command;
 
+use PHPUnit\Framework\Assert;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -16,34 +16,26 @@ use Symfony\Component\HttpKernel\KernelInterface;
  * and exits with a chosen code, standing in for the real toolchain.
  */
 #[Package('framework')]
-trait ExtensionToolingCommandTestBehaviour
+final class ExtensionToolingFixture
 {
-    private function kernel(): KernelInterface
-    {
-        $kernel = static::createStub(KernelInterface::class);
-        $kernel->method('getProjectDir')->willReturn('/shop');
-
-        return $kernel;
-    }
-
-    private function createAdministrationRoot(bool $withToolingStub, int $stubExitCode = 0): string
+    public static function createAdministrationRoot(bool $withToolingStub, int $stubExitCode = 0): string
     {
         $root = sys_get_temp_dir() . '/' . uniqid('sw-admin-tooling-', true);
         (new Filesystem())->mkdir($root);
 
         if ($withToolingStub) {
-            $this->writeToolingStub($root, $stubExitCode);
+            self::writeToolingStub($root, $stubExitCode);
         }
 
         return $root;
     }
 
-    private function removeAdministrationRoot(string $root): void
+    public static function removeAdministrationRoot(string $root): void
     {
         (new Filesystem())->remove($root);
     }
 
-    private function writeToolingStub(string $root, int $exitCode = 0): void
+    public static function writeToolingStub(string $root, int $exitCode = 0): void
     {
         $filesystem = new Filesystem();
         $filesystem->mkdir($root . '/node_modules/.bin');
@@ -68,18 +60,18 @@ trait ExtensionToolingCommandTestBehaviour
      *
      * @return array{cwd: string, project_root: string|false, argv: list<string>}
      */
-    private function readToolingCapture(string $root): array
+    public static function readToolingCapture(string $root): array
     {
         $file = $root . '/.tooling-capture.json';
-        static::assertFileExists($file, 'the tooling stub was expected to run');
+        Assert::assertFileExists($file, 'the tooling stub was expected to run');
 
         $decoded = json_decode((string) file_get_contents($file), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertIsArray($decoded);
+        Assert::assertIsArray($decoded);
 
         $cwd = $decoded['cwd'] ?? null;
         $argv = $decoded['argv'] ?? null;
-        static::assertIsString($cwd);
-        static::assertIsArray($argv);
+        Assert::assertIsString($cwd);
+        Assert::assertIsArray($argv);
 
         /** @var string|false $projectRoot */
         $projectRoot = $decoded['project_root'] ?? false;

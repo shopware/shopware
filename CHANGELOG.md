@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.27
+*  [#20705 - fix(storefront): use product ID for order Garan labels (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20705)
+*  [#20730 - fix: Ensure compatibility with Twig 3.29](https://github.com/shopware/shopware/issues/20730)
+*  [#20745 - fix(core): reset derived fields when cloning (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20745)
+*  [20528 - Restore product and promotion duplication](./changelog/release-6-6-10-27/2026-09-23-restore-product-and-promotion-duplication.md)
+*  [20599 - Use the linked product for order GARAN labels](./changelog/release-6-6-10-27/2026-09-23-use-product-id-for-order-garan-labels.md)
+
 ## 6.6.10.26
 *  [#20209 - fix(storefront): load snippets from all parent themes (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20209)
 *  [#20278 - fix(framework): stop crediting bots as external changelog contributors](https://github.com/shopware/shopware/issues/20278)
@@ -41,6 +48,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [20104 - Size the GARAN label in the order confirmation mail](./changelog/release-6-6-10-26/2026-09-15-size-the-garan-label-in-the-order-confirmation-mail.md)
 *  [20105 - Enforce the GARAN duration range and surface unmet label prerequisites](./changelog/release-6-6-10-26/2026-09-15-enforce-the-garan-duration-range-and-surface-unmet-label-prerequisites.md)
 *  [20109 - Let variants inherit the GARAN label confirmation](./changelog/release-6-6-10-26/2026-09-15-let-variants-inherit-the-garan-label-confirmation.md)
+*  [20360 - Separate legal guarantee notice](./changelog/release-6-6-10-26/2026-09-23-separate-legal-guarantee-notice.md)
 *  [20492 - Encode mixed Struct custom fields](./changelog/release-6-6-10-26/2026-09-22-encode-mixed-struct-custom-fields.md)
 *  [6331 - Load snippets from every inherited theme](./changelog/release-6-6-10-26/2026-09-07-load-snippets-from-every-inherited-theme.md)
 *  [6409 - Separate Vimeo and YouTube cookie consent](./changelog/release-6-6-10-26/2025-10-21-separate-vimeo-youtube-cookies.md)

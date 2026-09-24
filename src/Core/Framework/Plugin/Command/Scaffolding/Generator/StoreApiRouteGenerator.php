@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
@@ -19,7 +19,9 @@ class StoreApiRouteGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-store-api-route';
+    private const OPTION_TITLE = 'Store API Route';
     private const OPTION_DESCRIPTION = 'Create an example store-api route';
+    private const OPTION_DESCRIPTION_LONG = 'A custom Store API route is an endpoint that exposes plugin-specific functionality or data through Shopware\'s Store API. Use one when a headless frontend or external client needs to access custom shop functionality via structured API requests.';
     private const CLI_QUESTION = 'Do you want to create an example store-api route?';
 
     private string $servicesPhpEntry = <<<'EOL'
@@ -41,7 +43,7 @@ EOL;
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
         InputInterface $input,
-        SymfonyStyle $io
+        OutputInterface $output
     ): void {
         $hasOption = $input->getOption(self::OPTION_NAME);
 
@@ -52,7 +54,7 @@ EOL;
             return;
         }
 
-        if ($this->shouldAskCliQuestion && $io->confirm(self::CLI_QUESTION)) {
+        if ($this->askCliQuestion($input, $output, self::CLI_QUESTION)) {
             $config->addOption(self::OPTION_NAME, true);
             $config->addOption(PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME, true);
         }

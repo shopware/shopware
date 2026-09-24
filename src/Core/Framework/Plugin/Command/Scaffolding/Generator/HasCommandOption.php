@@ -24,4 +24,14 @@ trait HasCommandOption
     {
         return self::OPTION_DESCRIPTION;
     }
+
+    public function getCommandOptionTitle(): string
+    {
+        return self::OPTION_TITLE;
+    }
+
+    public function getCommandOptionDescriptionLong(): string
+    {
+        return self::OPTION_DESCRIPTION_LONG;
+    }
 }

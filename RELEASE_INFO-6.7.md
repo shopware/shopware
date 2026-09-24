@@ -116,6 +116,24 @@ The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+### Google Analytics reports `select_item` and the list a product was presented in
+
+Following a product link in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Only a link counts as a selection: adding a product to the cart or to the wishlist from the same card is not reported, and neither is a click that lands on the card without following a link.
+
+`view_item_list` and `select_item` report which list a product was presented in as `item_list_id` and `item_list_name`, and the position of the product within that list as `index`. `view_item` repeats the list of the `select_item` that led to it on its item, where GA4 defines it for that event, so the detail page view is attributed to the list the customer came from. This also holds when a listing displays the parent of a variant product and the detail page resolves to a variant, which the buy widget identifies with `data-product-id` and `data-product-parent-id`. The attribution is stored for the session and consumed once, so opening a product directly is not attributed. A product opened in another tab is still reported as `select_item`, but its attribution is not kept in the original tab.
+
+The list identifiers are a stable contract that Google Tag Manager triggers and Google Analytics reports are built on:
+
+- A category listing reports the category id, or the CMS slot id when a listing has no category, and the category name.
+- Search results report `search` and `Search results`.
+- The wishlist reports `wishlist` and `Wishlist`.
+- A cross selling tab reports the id and the name of the cross selling group.
+
+Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes. The `index` counts across the pages of a paginated listing, which `.cms-listing-row` reports as `data-list-start` so that AJAX pagination updates it; a list without that attribute counts from zero.
+
+Saving the cookie preferences again while analytics or ads stay enabled no longer registers a second set of analytics events, which reported every following interaction twice.
+
+`view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.

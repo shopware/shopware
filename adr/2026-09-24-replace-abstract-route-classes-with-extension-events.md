@@ -54,6 +54,8 @@ Plugins subscribe to the following hooks:
 ## Consequences
 
 * Introduce events for all store-api routes step by step.
+  New routes must use extension events from the start without introducing an abstract route class.
+* Add a custom PHPStan rule to enforce the pattern for new routes, with explicit exceptions for existing routes during migration.
 * Keep abstract route classes and `getDecorated()` supported for now.
   Deprecate a route's abstract class and decorator-based extension path only when the route is being adjusted anyway **and** a breaking change is necessary.
   Follow the normal backward-compatibility process for deprecation and removal.
@@ -62,7 +64,9 @@ Plugins subscribe to the following hooks:
 * Both mechanisms coexist while the abstract contract remains supported.
   Plugin extensions should use events where available as soon as possible.
 * When adjusting a route, core decorators such as `ResolvedCriteriaProductSearchRoute` can become subscribers or be merged into the route body, subject to backward compatibility.
-* Migrated routes need tests for `.pre`, `.post`, and `.error`, including `stopPropagation()` and error fallback behavior.
+* Route tests must verify that the correct extension name and object, including its input parameters, are dispatched.
+* Update the developer guides for [adding Store API routes](https://developer.shopware.com/docs/guides/plugins/plugins/framework/store-api/add-store-api-route.html) and [overriding existing routes](https://developer.shopware.com/docs/guides/plugins/plugins/framework/store-api/override-existing-route.html), which currently teach the decorator pattern.
+  Document event-based extension and migration, retaining decoration guidance for routes that do not yet expose events.
 * Plugins migrating from decoration use listener priorities to control ordering.
 
 ## Considered alternatives

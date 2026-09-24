@@ -22,3 +22,50 @@ index 2378ef8..9c8ceea 100644
              yield Change::removed(Str\format('Class %s has been deleted', $oldSymbol->getName()));
  
              return;
+diff --git a/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php b/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php
+--- a/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php
++++ b/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php
+@@ -20,7 +20,16 @@ final class AncestorRemoved implements ClassBased
+ {
+     public function __invoke(ReflectionClass $fromClass, ReflectionClass $toClass): Changes
+     {
++        require_once dirname(__DIR__, 9) . '/vendor/autoload.php';
++        $classAliases = array_change_key_case(\Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases(), CASE_LOWER);
++
+         $removedAncestors = Vec\concat(
+-            Vec\values(Dict\diff($fromClass->getParentClassNames(), $toClass->getParentClassNames())),
+-            Vec\values(Dict\diff($fromClass->getInterfaceNames(), $toClass->getInterfaceNames())),
++            Vec\values(Dict\diff(
++                $this->canonicalize($fromClass->getParentClassNames(), $classAliases, $toClass->getName()),
++                $this->canonicalize($toClass->getParentClassNames(), $classAliases, $toClass->getName()),
++            )),
++            Vec\values(Dict\diff(
++                $this->canonicalize($fromClass->getInterfaceNames(), $classAliases, $toClass->getName()),
++                $this->canonicalize($toClass->getInterfaceNames(), $classAliases, $toClass->getName()),
++            )),
+         );
+@@ -37,4 +46,24 @@ final class AncestorRemoved implements ClassBased
+             ),
+         ));
+     }
++
++    /**
++     * @param list<class-string> $ancestors
++     * @param array<string, class-string> $classAliases
++     *
++     * @return array<string, string>
++     */
++    private function canonicalize(array $ancestors, array $classAliases, string $className): array
++    {
++        $canonicalAncestors = [];
++
++        foreach ($ancestors as $ancestor) {
++            $canonical = $classAliases[strtolower($ancestor)] ?? $ancestor;
++            if ($canonical !== $className) {
++                $canonicalAncestors[$canonical] = $canonical;
++            }
++        }
++
++        return $canonicalAncestors;
++    }
+ }

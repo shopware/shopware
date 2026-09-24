@@ -245,6 +245,7 @@
                         name="updateIndexesButton"
                         variant="primary"
                         :is-loading="processes.updateIndexes"
+                        :disabled="!isIndexSelectionComplete"
                         @click="updateIndexes"
                     >
                         {{ $t('sw-settings-cache.section.indexesButton') }}

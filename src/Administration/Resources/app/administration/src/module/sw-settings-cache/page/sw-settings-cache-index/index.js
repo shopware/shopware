@@ -91,6 +91,20 @@ export default {
         indexers() {
             return this.cacheInfo?.indexers ?? {};
         },
+
+        isIndexSelectionComplete() {
+            const hasIndexerSelection = this.indexerSelection.length > 0;
+
+            if (!this.indexingMethod) {
+                return !hasIndexerSelection;
+            }
+
+            if (this.indexingMethod === 'only') {
+                return hasIndexerSelection;
+            }
+
+            return true;
+        },
     },
 
     watch: {
@@ -191,6 +205,10 @@ export default {
         },
 
         updateIndexes() {
+            if (!this.isIndexSelectionComplete) {
+                return;
+            }
+
             this.processes.updateIndexes = true;
 
             let skip = [];
@@ -198,7 +216,7 @@ export default {
 
             if (this.indexingMethod === 'skip') {
                 skip = this.indexerSelection;
-            } else {
+            } else if (this.indexingMethod === 'only') {
                 this.createOnlySelection(only);
             }
 

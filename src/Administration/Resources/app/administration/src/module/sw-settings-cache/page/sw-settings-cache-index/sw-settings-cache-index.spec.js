@@ -11,6 +11,7 @@ const cacheInfo = {
         cacheAdapter: 'fooBar',
         indexers: {
             'category.indexer': ['category.tree'],
+            'product.indexer': ['product.stock'],
         },
     },
 };
@@ -68,6 +69,30 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
     });
 }
 
+async function clearIndexingMethod(wrapper) {
+    await wrapper.find('.sw-settings-cache__skip-indexers-select .mt-select__select-indicator-hitbox').trigger('click');
+    await flushPromises();
+}
+
+async function selectIndexers(wrapper, names) {
+    await wrapper.find('.sw-settings-cache__indexers-select .sw-select__selection').trigger('click');
+    await flushPromises();
+
+    for (const name of names) {
+        await wrapper.find(`.sw-settings-cache__indexers-list input[name="${name}"]`).setChecked(true);
+    }
+    await flushPromises();
+}
+
+async function clearIndexers(wrapper) {
+    await wrapper.find('.sw-settings-cache__indexers-select .sw-select__select-indicator-hitbox').trigger('click');
+    await flushPromises();
+}
+
+function findUpdateIndexesButton(wrapper) {
+    return wrapper.find('button[name="updateIndexesButton"]');
+}
+
 describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
     it('should change label and empty text on indexing method selection changed', async () => {
         const wrapper = await createWrapper();
@@ -101,15 +126,127 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         expect(mock).toHaveBeenCalledTimes(1);
     });
 
-    it('should clear the selected indexers', async () => {
+    it('should clear the selected indexers with the clear button', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.changeSelection(true, 'category.indexer');
+        await selectIndexers(wrapper, ['category.indexer']);
+        expect(wrapper.findAll('.sw-settings-cache__indexers-select .sw-label')).toHaveLength(1);
 
-        await wrapper.findComponent('.sw-settings-cache__indexers-select').vm.$emit('clear');
+        await clearIndexers(wrapper);
 
         expect(wrapper.vm.indexerSelection).toEqual([]);
+        expect(wrapper.findAll('.sw-settings-cache__indexers-select .sw-label')).toHaveLength(0);
+        expect(wrapper.find('.sw-settings-cache__indexers-placeholder').exists()).toBe(true);
+    });
+
+    it.each([
+        {
+            description: 'nothing is selected',
+            method: null,
+            selection: [],
+            enabled: true,
+            expectedIndexCalls: [[[], []]],
+        },
+        {
+            description: 'only the skip method is selected',
+            method: 'skip',
+            selection: [],
+            enabled: true,
+            expectedIndexCalls: [[[], []]],
+        },
+        {
+            description: 'only the only method is selected',
+            method: 'only',
+            selection: [],
+            enabled: false,
+            expectedIndexCalls: [],
+        },
+        {
+            description: 'only indexers are selected',
+            method: null,
+            selection: ['category.tree', 'product.indexer'],
+            enabled: false,
+            expectedIndexCalls: [],
+        },
+        {
+            description: 'the skip method and indexers are selected',
+            method: 'skip',
+            selection: ['category.tree', 'product.indexer'],
+            enabled: true,
+            expectedIndexCalls: [[['category.tree', 'product.indexer'], []]],
+        },
+        {
+            description: 'the only method and indexers are selected',
+            method: 'only',
+            selection: ['category.indexer', 'product.indexer'],
+            enabled: true,
+            expectedIndexCalls: [[[], ['category.indexer', 'product.indexer']]],
+        },
+    ])(
+        'should handle the update indexes button when $description',
+        async ({ method, selection, enabled, expectedIndexCalls }) => {
+            const indexMock = jest.fn(() => Promise.resolve());
+            const wrapper = await createWrapper(indexMock);
+            await flushPromises();
+
+            if (method === 'only') {
+                await selectMtSelectOptionByText(wrapper, 'sw-settings-cache.section.indexingModeOptionOnlyLabel');
+            }
+
+            await selectIndexers(wrapper, selection);
+
+            if (method === null) {
+                await clearIndexingMethod(wrapper);
+            }
+
+            expect(wrapper.vm.indexingMethod).toBe(method);
+            expect(wrapper.vm.indexerSelection).toEqual(selection);
+
+            const button = findUpdateIndexesButton(wrapper);
+            expect(button.attributes('disabled') === undefined).toBe(enabled);
+
+            await button.trigger('click');
+            await flushPromises();
+
+            expect(indexMock.mock.calls).toEqual(expectedIndexCalls);
+        },
+    );
+
+    it('should enable the update indexes button again once the indexers are cleared after clearing the method', async () => {
+        const indexMock = jest.fn(() => Promise.resolve());
+        const wrapper = await createWrapper(indexMock);
+        await flushPromises();
+
+        await selectIndexers(wrapper, ['category.indexer']);
+        await clearIndexingMethod(wrapper);
+
+        expect(findUpdateIndexesButton(wrapper).attributes('disabled')).toBeDefined();
+
+        await clearIndexers(wrapper);
+
+        expect(findUpdateIndexesButton(wrapper).attributes('disabled')).toBeUndefined();
+
+        await findUpdateIndexesButton(wrapper).trigger('click');
+        await flushPromises();
+
+        expect(indexMock).toHaveBeenCalledTimes(1);
+        expect(indexMock).toHaveBeenCalledWith([], []);
+    });
+
+    it('should not send an index request for an incomplete selection', async () => {
+        const indexMock = jest.fn(() => Promise.resolve());
+        const wrapper = await createWrapper(indexMock);
+        await flushPromises();
+
+        await selectIndexers(wrapper, ['category.indexer']);
+        await clearIndexingMethod(wrapper);
+
+        wrapper.vm.updateIndexes();
+        await flushPromises();
+
+        expect(indexMock).not.toHaveBeenCalled();
+        expect(wrapper.vm.processes.updateIndexes).toBe(false);
     });
 
     it('should send different values for skip and only on reindex', async () => {
@@ -135,6 +272,7 @@ describe('module/sw-settings-cache/page/sw-settings-cache-index', () => {
         await selectMtSelectOptionByText(wrapper, 'sw-settings-cache.section.indexingModeOptionOnlyLabel');
 
         wrapper.vm.changeSelection(true, 'category.indexer');
+        await flushPromises();
 
         await button.trigger('click');
         await flushPromises();

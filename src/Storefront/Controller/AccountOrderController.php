@@ -170,6 +170,7 @@ class AccountOrderController extends StorefrontController
             'Route "widgets.account.order.detail" is deprecated and will be removed in v6.8.0.0 without replacement.',
         );
 
+        // The loader service is removed only in v6.8.0.0 mode, which the deprecation check above rejects.
         \assert($this->orderDetailPageLoader !== null);
         $page = $this->orderDetailPageLoader->load($request, $context);
 

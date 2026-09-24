@@ -12,8 +12,10 @@ use PhpParser\Node\Stmt\Expression;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 
 /**
  * @implements Rule<Expression>
@@ -46,7 +48,7 @@ class DeprecatedServiceDefinitionFeatureTagRule implements Rule
             $call = $call->var;
         }
 
-        if (!$call instanceof Variable || $call->name !== 'services') {
+        if (!$call instanceof Variable || !(new ObjectType(ServicesConfigurator::class))->isSuperTypeOf($scope->getType($call))->yes()) {
             return [];
         }
 

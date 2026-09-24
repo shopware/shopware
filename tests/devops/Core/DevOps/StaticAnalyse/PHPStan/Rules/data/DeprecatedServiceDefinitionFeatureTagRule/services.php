@@ -2,6 +2,7 @@
 
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
@@ -56,4 +57,17 @@ return static function (ContainerConfigurator $container): void {
 
     // @deprecated tag:v6.8.0 Will be removed
     $services->alias((string) getenv('LEGACY_ALIAS'), 'current');
+
+    $service = $container->services();
+
+    // @deprecated tag:v6.8.0 Will be removed
+    $service->set('renamed-service');
+
+    // @deprecated tag:v6.8.0 Will be removed
+    $service->alias('renamed-alias', 'current');
+
+    $services = new ParameterBag();
+
+    // @deprecated tag:v6.8.0 This is not a service definition
+    $services->set('unrelated', 'value');
 };

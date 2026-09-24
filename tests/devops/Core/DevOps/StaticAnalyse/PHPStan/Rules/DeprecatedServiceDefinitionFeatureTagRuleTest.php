@@ -20,31 +20,39 @@ class DeprecatedServiceDefinitionFeatureTagRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/DeprecatedServiceDefinitionFeatureTagRule/services.php'], [
             [
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
-                9,
+                10,
             ],
             [
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
-                12,
+                13,
             ],
             [
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
-                23,
+                24,
             ],
             [
                 'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
-                26,
+                27,
             ],
             [
                 'Deprecated service alias "unlisted-alias" scheduled for "v6.8.0.0" must be listed in FeatureFlagCompilerPass::ALIASES_TO_REMOVE.',
-                45,
+                46,
             ],
             [
                 'Deprecated service alias "Shopware\Administration\Notification\NotificationDefinition" scheduled for "v6.9.0.0" must be listed in FeatureFlagCompilerPass::ALIASES_TO_REMOVE.',
-                48,
+                49,
             ],
             [
                 'Deprecated service aliases must have a constant ID to check the removal flag.',
-                58,
+                59,
+            ],
+            [
+                'Deprecated service definitions scheduled for "v6.8.0.0" must be tagged "shopware.inactiveFeature" with that flag.',
+                64,
+            ],
+            [
+                'Deprecated service alias "renamed-alias" scheduled for "v6.8.0.0" must be listed in FeatureFlagCompilerPass::ALIASES_TO_REMOVE.',
+                67,
             ],
         ]);
     }

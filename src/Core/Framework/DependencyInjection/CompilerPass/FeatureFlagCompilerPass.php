@@ -29,25 +29,35 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
 
         Feature::registerFeatures($featureFlags);
 
-        foreach (['shopware.feature' => false, 'shopware.inactiveFeature' => true] as $tagName => $removeWhenActive) {
-            foreach ($container->findTaggedServiceIds($tagName) as $serviceId => $tags) {
-                foreach ($tags as $tag) {
-                    if (!isset($tag['flag'])) {
-                        throw new \RuntimeException('"flag" is a required field for "' . $tagName . '" tags');
-                    }
-
-                    if ($tagName === 'shopware.inactiveFeature' && !Feature::has($tag['flag'])) {
-                        continue;
-                    }
-
-                    if (Feature::isActive($tag['flag']) !== $removeWhenActive) {
-                        continue;
-                    }
-
-                    $container->removeDefinition($serviceId);
-
-                    break;
+        foreach ($container->findTaggedServiceIds('shopware.feature') as $serviceId => $tags) {
+            foreach ($tags as $tag) {
+                if (!isset($tag['flag'])) {
+                    throw new \RuntimeException('"flag" is a required field for "shopware.feature" tags');
                 }
+
+                if (Feature::isActive($tag['flag'])) {
+                    continue;
+                }
+
+                $container->removeDefinition($serviceId);
+
+                break;
+            }
+        }
+
+        foreach ($container->findTaggedServiceIds('shopware.inactiveFeature') as $serviceId => $tags) {
+            foreach ($tags as $tag) {
+                if (!isset($tag['flag'])) {
+                    throw new \RuntimeException('"flag" is a required field for "shopware.inactiveFeature" tags');
+                }
+
+                if (!Feature::has($tag['flag']) || !Feature::isActive($tag['flag'])) {
+                    continue;
+                }
+
+                $container->removeDefinition($serviceId);
+
+                break;
             }
         }
 

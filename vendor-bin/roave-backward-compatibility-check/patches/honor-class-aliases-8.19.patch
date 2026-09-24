@@ -1,46 +1,14 @@
-diff --git a/bin/roave-backward-compatibility-check.php b/bin/roave-backward-compatibility-check.php
-index 44ef173..70d8811 100644
---- a/bin/roave-backward-compatibility-check.php
-+++ b/bin/roave-backward-compatibility-check.php
-@@ -60,6 +60,13 @@ use const E_DEPRECATED;
-         throw new RuntimeException('Could not find Composer autoload.php');
-     })();
- 
-+    require_once dirname(__DIR__, 6) . '/vendor/autoload.php';
-+
-+    $classAliases = [];
-+    foreach (\Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases() as $previousClassName => $currentClassName) {
-+        $classAliases[strtolower($previousClassName)] = $currentClassName;
-+    }
-+
-     $application = new Application('roave/backward-compatibility-check', Versions::getVersion('roave/backward-compatibility-check'));
-     $helperSet   = $application->getHelperSet();
-     $input       = new ArgvInput();
-@@ -324,6 +331,7 @@ use const E_DEPRECATED;
-                     ),
-                 )),
-             ))),
-+            $classAliases,
-         ),
-     );
- 
 diff --git a/src/CompareClasses.php b/src/CompareClasses.php
-index 2378ef8..a703fbb 100644
+index 2378ef8..9c8ceea 100644
 --- a/src/CompareClasses.php
 +++ b/src/CompareClasses.php
-@@ -20,6 +20,7 @@ final class CompareClasses implements CompareApi
-         private ClassBased $classBasedComparisons,
-         private InterfaceBased $interfaceBasedComparisons,
-         private TraitBased $traitBasedComparisons,
-+        private array $classAliases = [],
-     ) {
-     }
- 
-@@ -72,6 +73,16 @@ final class CompareClasses implements CompareApi
+@@ -72,6 +72,18 @@ final class CompareClasses implements CompareApi
          try {
              $newClass = $newSourcesWithDependencies->reflectClass($oldSymbol->getName());
          } catch (IdentifierNotFound) {
-+            $newClassName = $this->classAliases[strtolower($oldSymbol->getName())] ?? null;
++            require_once getcwd() . '/vendor/autoload.php';
++
++            $newClassName = \Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases()[strtolower($oldSymbol->getName())] ?? null;
 +            if ($newClassName !== null) {
 +                try {
 +                    $newSourcesWithDependencies->reflectClass($newClassName);

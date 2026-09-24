@@ -39,6 +39,7 @@ use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\CheckoutControllerStub;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,7 +53,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(CheckoutController::class)]
 class CheckoutControllerTest extends TestCase
 {
-    private CheckoutControllerTestClass $controller;
+    private CheckoutControllerStub $controller;
 
     private CartService&Stub $cartServiceMock;
 
@@ -322,7 +323,7 @@ class CheckoutControllerTest extends TestCase
 
         $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
 
-        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->recorder()->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('frontend.checkout.cart.page', $response->getTargetUrl());
@@ -494,7 +495,7 @@ class CheckoutControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('forward to frontend.checkout.confirm.page', $response->getContent());
-        static::assertSame(['danger' => ['error.CHECKOUT__UNKNOWN_PAYMENT_METHOD']], $controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__UNKNOWN_PAYMENT_METHOD']], $controller->recorder()->flashBag);
     }
 
     public function testOrderCartInvalidOrderException(): void
@@ -597,7 +598,7 @@ class CheckoutControllerTest extends TestCase
         $response = $this->controller->info($request, $context);
 
         static::assertSame('noindex', $response->headers->get('x-robots-tag'));
-        static::assertInstanceOf(OffcanvasCartPage::class, $this->controller->renderStorefrontParameters['page']);
+        static::assertInstanceOf(OffcanvasCartPage::class, $this->controller->recorder()->renderStorefrontParameters['page']);
     }
 
     public function testInfoEmptyCart(): void
@@ -685,8 +686,8 @@ class CheckoutControllerTest extends TestCase
         ?OrderService $orderService = null,
         ?PaymentProcessor $paymentProcessor = null,
         ?AbstractLogoutRoute $logoutRoute = null,
-    ): CheckoutControllerTestClass {
-        return new CheckoutControllerTestClass(
+    ): CheckoutControllerStub {
+        return new CheckoutControllerStub(
             $this->cartServiceMock,
             $this->cartPageLoaderMock,
             $this->confirmPageLoaderMock,
@@ -700,12 +701,4 @@ class CheckoutControllerTest extends TestCase
             static::createStub(FooterPageletLoaderInterface::class),
         );
     }
-}
-
-/**
- * @internal
- */
-class CheckoutControllerTestClass extends CheckoutController
-{
-    use StorefrontControllerMockTrait;
 }

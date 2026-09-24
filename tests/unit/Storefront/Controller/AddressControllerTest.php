@@ -28,6 +28,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
 use Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\AddressControllerStub;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +44,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 #[CoversClass(AddressController::class)]
 class AddressControllerTest extends TestCase
 {
-    private AddressControllerTestClass $controller;
+    private AddressControllerStub $controller;
 
     private Stub&AccountService $accountService;
 
@@ -79,7 +80,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(
             '@Storefront/storefront/page/account/addressbook/index.html.twig',
-            $this->controller->renderStorefrontView
+            $this->controller->recorder()->renderStorefrontView
         );
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
@@ -93,7 +94,7 @@ class AddressControllerTest extends TestCase
 
         $this->controller->accountCreateAddress(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer);
 
-        $renderParams = $this->controller->renderStorefrontParameters;
+        $renderParams = $this->controller->recorder()->renderStorefrontParameters;
 
         static::assertArrayHasKey('page', $renderParams);
         static::assertArrayHasKey('data', $renderParams);
@@ -107,7 +108,7 @@ class AddressControllerTest extends TestCase
         $request->query->set('redirectTo', 'foo');
 
         $response = $this->controller->accountEditAddress($request, Generator::generateSalesChannelContext(), $customer);
-        $renderParams = $this->controller->renderStorefrontParameters;
+        $renderParams = $this->controller->recorder()->renderStorefrontParameters;
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertArrayHasKey('page', $renderParams);
@@ -334,7 +335,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(
             ['danger' => ['account.addressDefaultNotChanged']],
-            $this->controller->flashBag
+            $this->controller->recorder()->flashBag
         );
     }
 
@@ -353,7 +354,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(
             ['danger' => ['account.addressDefaultNotChanged']],
-            $this->controller->flashBag
+            $this->controller->recorder()->flashBag
         );
     }
 
@@ -444,7 +445,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(
             ['success' => ['account.addressDeleted']],
-            $controller->flashBag
+            $controller->recorder()->flashBag
         );
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -471,7 +472,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(
             ['danger' => ['account.addressNotDeleted']],
-            $controller->flashBag
+            $controller->recorder()->flashBag
         );
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -490,7 +491,7 @@ class AddressControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame(
             '@Storefront/storefront/component/address/address-manager-modal.html.twig',
-            $this->controller->renderStorefrontView
+            $this->controller->recorder()->renderStorefrontView
         );
     }
 
@@ -539,7 +540,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(
             ['success' => ['account.addressSaved']],
-            $controller->flashBag
+            $controller->recorder()->flashBag
         );
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
@@ -580,7 +581,7 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(
             ['success' => ['account.addressSaved']],
-            $controller->flashBag
+            $controller->recorder()->flashBag
         );
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
@@ -629,7 +630,7 @@ class AddressControllerTest extends TestCase
         $response = $controller->addressManagerUpsert(new Request(), $dataBag, Generator::generateSalesChannelContext(), $customer, $addressId, 'shipping');
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertArrayHasKey('formViolations', $controller->renderStorefrontParameters);
+        static::assertArrayHasKey('formViolations', $controller->recorder()->renderStorefrontParameters);
     }
 
     public function testAddressManagerHandeltErrors(): void
@@ -676,11 +677,11 @@ class AddressControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        static::assertArrayHasKey('messages', $controller->renderStorefrontParameters);
+        static::assertArrayHasKey('messages', $controller->recorder()->renderStorefrontParameters);
 
         static::assertSame(
             ['type' => 'danger', 'text' => 'error.message-default'],
-            $controller->renderStorefrontParameters['messages']
+            $controller->recorder()->renderStorefrontParameters['messages']
         );
     }
 
@@ -691,8 +692,8 @@ class AddressControllerTest extends TestCase
         ?AbstractDeleteAddressRoute $deleteAddressRoute = null,
         ?AbstractContextSwitchRoute $contextSwitchRoute = null,
         ?SalesChannelContextService $salesChannelContextService = null,
-    ): AddressControllerTestClass {
-        $controller = new AddressControllerTestClass(
+    ): AddressControllerStub {
+        $controller = new AddressControllerStub(
             static::createStub(AddressListingPageLoader::class),
             static::createStub(AddressDetailPageLoader::class),
             $accountService ?? $this->accountService,
@@ -713,12 +714,4 @@ class AddressControllerTest extends TestCase
 
         return $controller;
     }
-}
-
-/**
- * @internal
- */
-class AddressControllerTestClass extends AddressController
-{
-    use StorefrontControllerMockTrait;
 }

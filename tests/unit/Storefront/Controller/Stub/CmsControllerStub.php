@@ -1,53 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Controller;
+namespace Shopware\Tests\Unit\Storefront\Controller\Stub;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Controller\CmsController;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Shopware\Tests\Unit\Storefront\Controller\StorefrontControllerRecorder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @internal
  */
-trait StorefrontControllerMockTrait
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
+class CmsControllerStub extends CmsController
 {
-    public string $renderStorefrontView;
+    private ?StorefrontControllerRecorder $recorder = null;
 
-    /**
-     * @var array<string, mixed>
-     */
-    public array $renderStorefrontParameters;
-
-    public Hook $calledHook;
-
-    public string $forwardToRoute;
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $forwardToRouteAttributes;
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $forwardToRouteParameters;
-
-    /**
-     * @var array<string, array<int, array{parameters: array<string, mixed>, status: int}>>
-     */
-    public array $redirected = [];
-
-    /**
-     * @var array<string, array<int, mixed>>
-     */
-    public array $flashBag = [];
+    public function recorder(): StorefrontControllerRecorder
+    {
+        return $this->recorder ??= new StorefrontControllerRecorder();
+    }
 
     public function reset(): void
     {
-        $this->flashBag = [];
-        $this->redirected = [];
+        $this->recorder()->reset();
     }
 
     /**
@@ -55,10 +36,7 @@ trait StorefrontControllerMockTrait
      */
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
-        $this->renderStorefrontView = $view;
-        $this->renderStorefrontParameters = $parameters;
-
-        return new Response();
+        return $this->recorder()->renderStorefront($view, $parameters);
     }
 
     /**
@@ -67,11 +45,7 @@ trait StorefrontControllerMockTrait
      */
     protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
     {
-        $this->forwardToRoute = $routeName;
-        $this->forwardToRouteAttributes = $attributes;
-        $this->forwardToRouteParameters = $routeParameters;
-
-        return new Response('forward to ' . $routeName);
+        return $this->recorder()->forwardToRoute($routeName, $attributes, $routeParameters);
     }
 
     /**
@@ -79,17 +53,12 @@ trait StorefrontControllerMockTrait
      */
     protected function redirectToRoute(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
     {
-        $this->redirected[$route][] = [
-            'parameters' => $parameters,
-            'status' => $status,
-        ];
-
-        return new RedirectResponse($route, $status);
+        return $this->recorder()->redirectToRoute($route, $parameters, $status);
     }
 
     protected function hook(Hook $hook): void
     {
-        $this->calledHook = $hook;
+        $this->recorder()->hook($hook);
     }
 
     /**
@@ -102,12 +71,11 @@ trait StorefrontControllerMockTrait
 
     protected function addFlash(string $type, mixed $message): void
     {
-        $this->flashBag[$type][] = $message;
+        $this->recorder()->addFlash($type, $message);
     }
 
     protected function addCartErrors(Cart $cart, ?\Closure $filter = null): void
     {
-        // nothing
     }
 
     /**
@@ -115,6 +83,6 @@ trait StorefrontControllerMockTrait
      */
     protected function generateUrl(string $route, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
-        return 'url:' . $route;
+        return $this->recorder()->generateUrl($route);
     }
 }

@@ -10,7 +10,6 @@ use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\Landing
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
@@ -52,10 +51,6 @@ class CacheInvalidationSubscriber
 
     public function __invoke(EntityWrittenContainerEvent $event): void
     {
-        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
-            return;
-        }
-
         $this->invalidateContentLayout($event);
         $this->invalidateEntityContentLayout($event, ProductContentLayoutDefinition::ENTITY_NAME, 'product_id', ProductDefinition::class);
         $this->invalidateEntityContentLayout($event, CategoryContentLayoutDefinition::ENTITY_NAME, 'category_id', CategoryDefinition::class);

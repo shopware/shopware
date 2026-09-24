@@ -1,7 +1,12 @@
 /**
  * @sw-package discovery
  */
+import { registerFilelessMediaType } from 'src/core/service/utils/media-type.utils';
+
 import { mount } from '@vue/test-utils';
+
+// The platform has no fileless media type of its own; extensions register theirs.
+registerFilelessMediaType('FILE_OPTIONAL');
 
 async function createWrapper(mediaServiceFunctions = {}, props = {}) {
     return mount(await wrapTestComponent('sw-media-media-item', { sync: true }), {
@@ -287,7 +292,7 @@ describe('components/media/sw-media-media-item', () => {
         expect(
             wrapper.vm.mediaItemName({
                 hasFile: false,
-                mediaType: { name: 'SPATIAL_SCENE' },
+                mediaType: { name: 'FILE_OPTIONAL' },
                 translated: { title: 'Living room' },
             }),
         ).toBe('Living room');

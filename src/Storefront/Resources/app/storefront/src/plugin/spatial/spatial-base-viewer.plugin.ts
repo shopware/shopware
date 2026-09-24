@@ -2,7 +2,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 // @ts-ignore
 import type NativeEventEmitter from 'src/helper/emitter.helper';
-import type { StateData } from '@shopware-ag/dive/state';
+import type { QuickView } from '@shopware-ag/dive/quickview';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 
 /**
@@ -22,19 +22,10 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
     public options!: {
         modelUrl: string;
-        /**
-         * Set instead of `modelUrl` when the media is a spatial scene. A scene has no file to load
-         * from, so its state is fetched for that media and handed to DIVE as a ready-made scene.
-         *
-         * The media carries the scene, so the media id is what identifies it here - it is available
-         * on every loaded media, which the scene entity behind it is not.
-         */
-        mediaId?: string;
         sliderPosition: number;
     };
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    protected dive: import('@shopware-ag/dive/quickview').QuickView | undefined;
+    protected dive: QuickView | undefined;
 
     /**
      * initialize plugin
@@ -56,16 +47,15 @@ export default class SpatialBaseViewerPlugin extends Plugin {
         this.canvas.tabIndex = 0;
 
         if (this.dive == undefined) {
-            if (this.options.mediaId) {
-                const sceneState = await this.loadSceneState(this.options.mediaId);
-                if (!sceneState) return;
+            const dive = await this.createQuickView(this.options.modelUrl);
 
-                this.dive = await window.DIVEQuickViewPlugin.QuickView(sceneState, { autoStart: false, canvas: this.canvas });
-            } else {
-                this.dive = await window.DIVEQuickViewPlugin.QuickView(this.options.modelUrl, { autoStart: false, canvas: this.canvas });
-            }
+            // Only an explicit null means "nothing to show"; an empty url is left to DIVE, as before.
+            if (dive === null) return;
 
-            // A scene has no single root model, so the animation controls only apply to a loaded model.
+            this.dive = dive;
+
+            // A viewer built from state has no single root model, so the animation controls only
+            // apply to one that was loaded from a file.
             const model = 'model' in this.dive ? this.dive.model : undefined;
 
             // @ts-ignore - animations is inherited from Object3D
@@ -154,27 +144,15 @@ export default class SpatialBaseViewerPlugin extends Plugin {
     }
 
     /**
-     * The storefront has no DAL access, so the scene state comes from a storefront route that
-     * serves it in DIVE's shape.
+     * Builds the viewer for this canvas, fetching whatever it needs on the way.
      *
-     * Returns null when the media carries no scene or the request fails. The caller then leaves the
-     * canvas empty rather than falling back to `modelUrl`, which for a scene is the still image
-     * standing in for it - not something DIVE can load.
+     * Here that is a model file, which DIVE downloads from the given url by itself. Spatial media
+     * that is described somewhere else rather than stored as a file overrides this: it fetches that
+     * description and builds the viewer from it, ignoring the url. Null leaves the canvas empty,
+     * for a source that could not be resolved at all.
      */
-    protected async loadSceneState(mediaId: string): Promise<StateData | null> {
-        try {
-            const response = await fetch(`/spatial-scene/media/${encodeURIComponent(mediaId)}/state`, {
-                headers: { Accept: 'application/json' },
-            });
-
-            if (!response.ok) {
-                return null;
-            }
-
-            return await response.json() as StateData;
-        } catch {
-            return null;
-        }
+    protected async createQuickView(modelUrl: string): Promise<QuickView | null> {
+        return window.DIVEQuickViewPlugin.QuickView(modelUrl, { autoStart: false, canvas: this.canvas });
     }
 
     /**

@@ -231,6 +231,34 @@ class EntityGeneratorTest extends TestCase
         }
     }
 
+    public function testGeneratesAttributeStyleEntity(): void
+    {
+        $stubs = new StubCollection();
+
+        (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
+            ->generateStubs(
+                self::getConfig([EntityGenerator::OPTION_NAME => ['Test']]),
+                $stubs,
+            );
+
+        static::assertFalse($stubs->has('src/Core/Content/Test/TestDefinition.php'));
+
+        $entity = $stubs->get('src/Core/Content/Test/TestEntity.php')?->getContent();
+        static::assertIsString($entity);
+        static::assertStringContainsString('use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;', $entity);
+        static::assertStringContainsString("#[Entity('test', collectionClass: TestCollection::class)]", $entity);
+        static::assertStringContainsString('#[PrimaryKey]', $entity);
+        static::assertStringContainsString('#[Field(type: FieldType::UUID, api: true)]', $entity);
+        static::assertStringContainsString('class TestEntity extends EntityStruct', $entity);
+        static::assertStringNotContainsString('extends EntityDefinition', $entity);
+
+        $services = $stubs->get('src/Resources/config/services.php')?->getContent();
+        static::assertIsString($services);
+        static::assertStringContainsString('MyNamespace\Core\Content\Test\TestEntity::class', $services);
+        static::assertStringContainsString("->tag('shopware.entity')", $services);
+        static::assertStringNotContainsString('shopware.entity.definition', $services);
+    }
+
     public function testDoesNotGenerateMigrationWhenEntityMigrationAlreadyExists(): void
     {
         $filesystem = new Filesystem();
@@ -255,7 +283,7 @@ class EntityGeneratorTest extends TestCase
                     $stubs,
                 );
 
-            static::assertCount(4, $stubs);
+            static::assertCount(3, $stubs);
             static::assertTrue($stubs->has('src/Core/Content/Test/TestEntity.php'));
             static::assertFalse($stubs->has('src/Migration/Migration' . $timestamp . 'CreateTestTable.php'));
         } finally {
@@ -293,7 +321,6 @@ class EntityGeneratorTest extends TestCase
                 'src/Resources/config/services.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTestTable.php',
                 'src/Core/Content/Test/TestEntity.php',
-                'src/Core/Content/Test/TestDefinition.php',
                 'src/Core/Content/Test/TestCollection.php',
             ],
         ];
@@ -305,10 +332,8 @@ class EntityGeneratorTest extends TestCase
                 'src/Migration/Migration' . $timeStamp . 'CreateTest1Table.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTest2Table.php',
                 'src/Core/Content/Test1/Test1Entity.php',
-                'src/Core/Content/Test1/Test1Definition.php',
                 'src/Core/Content/Test1/Test1Collection.php',
                 'src/Core/Content/Test2/Test2Entity.php',
-                'src/Core/Content/Test2/Test2Definition.php',
                 'src/Core/Content/Test2/Test2Collection.php',
             ],
         ];

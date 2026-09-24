@@ -74,7 +74,6 @@ export default {
                     active: false,
                     mainVariantId: null,
                     variantListingConfig: variantListingConfigOverwrite,
-                    childCount: this.product.childCount,
                 },
             };
 

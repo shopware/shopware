@@ -1,4 +1,9 @@
 {% block component_hidden_line_items_information %}
+    {# Analytics reports the unit price after the discount, so the promotion line items have to be allocated back to the products. #}
+    {# The account edit-order page inherits this block from the confirm page without a cart, and a #}
+    {# theme may include the component the same way, so the line items can be missing entirely. #}
+    {% set gaPrices = lineItems ? sw_analytics_line_item_prices(lineItems, context) : {} %}
+
     <div class="d-none hidden-line-items-information"
          data-currency="{{ context.currency.translated.shortName }}"
          data-shipping="{{ cart.shippingCosts.totalPrice }}"
@@ -6,7 +11,9 @@
     >
         {% for lineItem in lineItems %}
             {% if lineItem.good %}
-                {% set gaPrice = lineItem.price.unitPrice %}
+                {% set gaItem = gaPrices[lineItem.id] is defined ? gaPrices[lineItem.id] : { price: lineItem.price.unitPrice, discount: 0, total: lineItem.price.totalPrice } %}
+                {# kept for themes that override the block below and read it, now the unit price after the discount #}
+                {% set gaPrice = gaItem.price %}
 
                 {% block component_hidden_line_item_information %}
                     {% set categories = lineItem.payload.categoryNames is defined ? lineItem.payload.categoryNames|slice(0, 5) : [] %}
@@ -22,6 +29,8 @@
                           data-name="{{ lineItem.label }}"
                           data-quantity="{{ lineItem.quantity }}"
                           data-price="{{ gaPrice }}"
+                          data-discount="{{ gaItem.discount ?: '' }}"
+                          data-total="{{ gaItem.total }}"
                           data-brand="{{ lineItem.payload.manufacturerName|default('') }}"
                           data-variant="{{ variant }}"
                           {{ categoryAttributes|raw }}

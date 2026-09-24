@@ -103,7 +103,7 @@ The container `.hidden-line-items-information` no longer carries `data-value`. T
 
 Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
 
-`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
+`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped.
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 ### Checkout form data is kept in the session storage
@@ -116,6 +116,17 @@ The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+### Google Analytics reports prices after the promotion discount
+
+**Shops that use promotions will see lower revenue figures in Google Analytics. The previous figures were too high.**
+
+Promotion discounts live in their own line items, which are not products and were therefore never reported. The reported item price was the undiscounted unit price, and because the event value is the sum of the reported items, every ecommerce event overstated the value by the full discount. A cart with a 20 percent coupon reported 20 percent more revenue than the customer paid.
+
+Product items now report the unit price after the discount as `price`, and the discount per unit as the new `discount` property. Google Analytics treats both as independent metrics and does not subtract one from the other, so only `price` contributes to the value. `begin_checkout`, `view_cart`, `add_shipping_info`, `add_payment_info`, `purchase`, and `remove_from_cart` are affected.
+
+The discount of a promotion is allocated to the products it was calculated from, using the composition the promotion already stores on its line item. It is allocated on the line total and only then divided by the quantity, because a promotion does not have to discount every unit of a line item. Combinable promotions can discount a product by more than it costs, because they are only capped at the cart total; what exceeds the product is spread over the other products, so the reported value still matches what the customer paid. Shipping discounts are not allocated to products; they already reduce the reported `shipping`.
+
+Themes that override the block `component_hidden_line_item_information` and read `data-price` or the `gaPrice` variable will now read the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from, because the rounded unit price times the quantity can miss it by a cent. The template exposes the allocation through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.

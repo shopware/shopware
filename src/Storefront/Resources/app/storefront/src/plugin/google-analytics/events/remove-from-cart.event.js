@@ -48,7 +48,7 @@ export default class RemoveFromCart extends AnalyticsEvent
         const price = hiddenLineItem.getAttribute('data-price');
         const quantity = hiddenLineItem.getAttribute('data-quantity');
         const sku = hiddenLineItem.getAttribute('data-sku');
-        const value = (parseFloat(price) || 0) * (parseInt(quantity, 10) || 1);
+        const value = LineItemHelper.getLineTotal(hiddenLineItem);
 
         this.pushEvent('remove_from_cart', {
             'currency': additionalProperties.currency,
@@ -58,6 +58,7 @@ export default class RemoveFromCart extends AnalyticsEvent
                 'item_name': hiddenLineItem.getAttribute('data-name'),
                 'quantity': quantity,
                 'price': price,
+                'discount': hiddenLineItem.getAttribute('data-discount'),
                 'item_brand': hiddenLineItem.getAttribute('data-brand'),
                 'item_variant': hiddenLineItem.getAttribute('data-variant'),
                 ...categories,

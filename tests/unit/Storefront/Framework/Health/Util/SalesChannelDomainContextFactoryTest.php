@@ -6,7 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -18,6 +20,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomain;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -40,6 +43,8 @@ class SalesChannelDomainContextFactoryTest extends TestCase
     private array $contextOptions = [];
 
     private ?string $contextSalesChannelId = null;
+
+    private ?Cart $createdCart = null;
 
     protected function setUp(): void
     {
@@ -82,8 +87,8 @@ class SalesChannelDomainContextFactoryTest extends TestCase
             ->method('loadByCart')
             ->willReturnCallback(function (SalesChannelContext $context, Cart $cart, CartBehavior $behavior, bool $isNew): RuleLoaderResult {
                 static::assertSame($this->context, $context);
+                static::assertSame($this->createdCart, $cart, 'the cart has to be created through the CartFactory');
                 static::assertSame($this->contextToken, $cart->getToken());
-                static::assertCount(0, $cart->getLineItems());
                 static::assertTrue($isNew, 'a new cart has to be matched against all rules');
                 static::assertTrue($behavior->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE), 'the cart must not be stored');
 
@@ -111,6 +116,11 @@ class SalesChannelDomainContextFactoryTest extends TestCase
             }
         );
 
-        return new SalesChannelDomainContextFactory($contextFactory, $ruleLoader);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(CartCreatedEvent::class, function (CartCreatedEvent $event): void {
+            $this->createdCart = $event->getCart();
+        });
+
+        return new SalesChannelDomainContextFactory($contextFactory, $ruleLoader, new CartFactory($dispatcher));
     }
 }

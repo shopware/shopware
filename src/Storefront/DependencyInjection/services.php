@@ -5,6 +5,7 @@ namespace Shopware\Storefront\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
@@ -851,6 +852,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SalesChannelContextFactory::class),
             service(CartRuleLoader::class),
+            service(CartFactory::class),
         ]);
 
     $services->set(RobotsDirectiveParser::class)

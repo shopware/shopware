@@ -42,7 +42,7 @@
 
         {% block page_account_order_document_item_detail_date %}
             <div class="col-9 col-md-4 align-content-center document-item document-item-date">
-                <span class="document-item-date-label visually-hidden">{{ "account.documentItemColumnDate"|trans|sw_sanitize }}:</span>
+                <span class="document-item-date-label visually-hidden">{{ 'account.documentItemColumnDate'|trans|sw_sanitize }}:</span>
                 {{ document.createdAt|format_datetime('medium', 'short', locale=app.request.locale) }}
             </div>
         {% endblock %}

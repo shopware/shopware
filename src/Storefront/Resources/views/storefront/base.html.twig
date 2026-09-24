@@ -27,7 +27,6 @@
         {%- if controllerAction is not empty -%}is-act-{{ controllerAction|lower }} {% endif -%}
         {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'.': '-'}) }}{%- endif -%}
     {%- endblock %}">
-
     {% block base_body_skip_to_content %}
         {% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {
             skipToSearch: true,
@@ -113,7 +112,6 @@
         {% block base_esi_footer %}
             {{ render_esi(path('frontend.footer', { footerParameters: footerParameters }), { ignore_errors: false } ) }}
         {% endblock %}
-
     {% endblock %}
 
     {% block base_scroll_up %}
@@ -144,4 +142,5 @@
     {% endblock %}
     </body>
 {% endblock %}
+
 </html>

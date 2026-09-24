@@ -3,7 +3,6 @@ title: Replace abstract route classes with the extension event system
 date: 2026-09-24
 area: framework
 tags: [store-api, routing, extensions, decorator, plugin]
-status: proposed
 ---
 
 ## Context

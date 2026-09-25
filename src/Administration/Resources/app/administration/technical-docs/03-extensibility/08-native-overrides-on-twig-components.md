@@ -87,6 +87,8 @@ The adapter therefore **reserves the slot early and fills it late**:
 
 `previousState` is read-only. Writes (`previousState.x.value = …` or `previousState.x = …`) are reported with `console.error` and dropped. A value is changed by returning it from the override.
 
+The base component keeps writing its own state through `this.x = …`, and Vue sends that write to the setup state before `data`. For an overridden `data` key, the write is therefore sent back to `data`, so `previousState.x` stays live and an override deriving from it follows the base. This matches migrated components, whose script writes to its own local ref. The exception is a writable ref the override returns: the override owns that state, so writes from the base and from a `v-model` in the override template reach that ref.
+
 ---
 
 ## Limits

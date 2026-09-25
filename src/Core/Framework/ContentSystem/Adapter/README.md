@@ -4,7 +4,7 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 
 ## Guides
 
-- [docs/entity-rendering.md](docs/entity-rendering.md) - The main-section endpoints, the assignment record, and the sales channel fallback between assignments.
+- [docs/entity-rendering.md](docs/entity-rendering.md) - The main-section endpoints, the assignment record, the sales channel fallback between assignments, and the default layout.
 - [docs/automatic-data-loading.md](docs/automatic-data-loading.md) - The entity an entity-based render loads before the layout runs, and how a layout takes delivery of it.
 - [docs/placeholders.md](docs/placeholders.md) - The placeholders entity-based rendering provides, and passing more via the query string.
 - [docs/custom-sources.md](docs/custom-sources.md) - The plugin-facing guide to authoring and registering a specification source.
@@ -12,7 +12,7 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 
 ## Resolution Strategies
 
-**Entity-based** (Product, Category, Landing Page): Assignment tables with sales channel fallback. `EntityLayoutResolver` queries: sales channel specific → global.
+**Entity-based** (Product, Category, Landing Page): Assignment tables with sales channel fallback. `EntityLayoutResolver` queries: sales channel specific → global. When no assignment matches, products and categories fall back to the default layout from system config (see [docs/entity-rendering.md](docs/entity-rendering.md#default-layout)).
 
 **Domain-aware** (Header, Footer): Three-tier fallback via `DomainAwareLayoutResolver`: domain+channel → channel → global.
 

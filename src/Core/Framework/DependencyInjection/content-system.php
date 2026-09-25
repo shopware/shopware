@@ -117,6 +117,7 @@ use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoade
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator;
+use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutDefaultValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
@@ -125,6 +126,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -357,6 +359,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(EntityLayoutResolver::class),
             service(RootContextMapper::class),
+            service(SystemConfigService::class),
         ]);
 
     // Domain-Aware Layout Resolution (Header/Footer)
@@ -729,6 +732,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DefinitionInstanceRegistry::class),
             service(LayoutRootSourceReader::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    // Default-layout gate (system config change, content_layout delete)
+    $services->set(ContentLayoutDefaultValidator::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+            service(LayoutRootSourceReader::class),
+            service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
 

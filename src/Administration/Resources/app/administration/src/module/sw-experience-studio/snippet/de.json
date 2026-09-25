@@ -69,7 +69,24 @@
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
+        "assignments": "Zuweisungen",
         "save": "Layout speichern"
+      },
+      "assignmentModal": {
+        "title": "Layout-Zuweisungen",
+        "description": "Experience-Studio-Zuweisungen haben Vorrang vor Erlebniswelten-Layouts. Entitäten ohne Zuweisung verwenden das Standard-Layout ihres Typs oder, falls keines festgelegt ist, ihr Erlebniswelten-Layout.",
+        "defaultLabel": {
+          "product": "Standard-Layout für Produkte",
+          "category": "Standard-Layout für Kategorien"
+        },
+        "entitiesLabel": {
+          "product": "Produkte",
+          "category": "Kategorien"
+        },
+        "entitiesHelpText": "Eine Entität, die bereits einem anderen Layout zugewiesen ist, wird diesem Layout zugewiesen.",
+        "messageSaved": "Layout-Zuweisungen gespeichert.",
+        "messageLoadError": "Die Layout-Zuweisungen konnten nicht geladen werden.",
+        "messageSaveError": "Die Layout-Zuweisungen konnten nicht gespeichert werden."
       },
       "sidebarTree": {
         "title": "Struktur",

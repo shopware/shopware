@@ -5,7 +5,10 @@ namespace Shopware\Core\Content\Product\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\AbstractPriceSelector;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -41,7 +44,9 @@ class ProductFeatureBuilder
     public function __construct(
         private readonly EntityRepository $customFieldRepository,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly AbstractPriceSelector $priceSelector,
+        private readonly QuantityPriceCalculator $quantityPriceCalculator
     ) {
     }
 
@@ -380,7 +385,7 @@ class ProductFeatureBuilder
             throw CartException::wrongCartDataType($fieldKey, CustomFieldEntity::class);
         }
 
-        $display = $this->getDisplayValue($customField, $translation[$name], $data, $context);
+        $display = $this->getDisplayValue($customField, $translation[$name], $product->getTaxId(), $data, $context);
         if ($display === null && $this->needsDisplayValue($customField)) {
             return null;
         }
@@ -435,10 +440,10 @@ class ProductFeatureBuilder
      *
      * @return list<string>|float|null
      */
-    private function getDisplayValue(CustomFieldEntity $customField, mixed $content, CartDataCollection $data, SalesChannelContext $context): array|float|null
+    private function getDisplayValue(CustomFieldEntity $customField, mixed $content, ?string $taxId, CartDataCollection $data, SalesChannelContext $context): array|float|null
     {
         if ($customField->getType() === CustomFieldTypes::PRICE) {
-            return $this->getPriceValue($content, $context);
+            return $this->getPriceValue($content, $taxId, $context);
         }
 
         if ($this->getReferencedEntityName($customField) !== null) {
@@ -512,7 +517,7 @@ class ProductFeatureBuilder
         return $values;
     }
 
-    private function getPriceValue(mixed $content, SalesChannelContext $context): ?float
+    private function getPriceValue(mixed $content, ?string $taxId, SalesChannelContext $context): ?float
     {
         if (!\is_array($content)) {
             return null;
@@ -537,7 +542,18 @@ class ProductFeatureBuilder
             return null;
         }
 
-        $value = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? $price->getGross() : $price->getNet();
+        $taxRules = $taxId !== null ? $context->buildTaxRules($taxId) : new TaxRuleCollection();
+
+        $selected = $this->priceSelector->select($price, $taxRules, $context);
+
+        if ($selected->isCalculated()) {
+            $value = $selected->getValue();
+        } else {
+            $definition = new QuantityPriceDefinition($selected->getValue(), $taxRules);
+            $definition->setIsCalculated(false);
+
+            $value = $this->quantityPriceCalculator->calculate($definition, $context)->getUnitPrice();
+        }
 
         if ($price->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();

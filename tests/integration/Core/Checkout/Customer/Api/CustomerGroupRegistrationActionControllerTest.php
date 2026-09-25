@@ -234,6 +234,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $customerGroup = new CustomerGroupEntity();
         $customerGroup->setId(Uuid::randomHex());
         $customerGroup->setName(self::B2B_CUSTOMER_GROUP_NAME);
+        $customerGroup->setPriceBasis(CustomerGroupEntity::PRICE_BASIS_GROSS);
         $customerGroup->setRegistrationActive(true);
         $customerGroup->setRegistrationOnlyCompanyRegistration(true);
 

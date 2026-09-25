@@ -7,17 +7,33 @@
     },
     "list": {
       "columnName": "Name",
-      "columnDisplayGross": "Steuerdarstellung"
+      "columnDisplayGross": "Steuerdarstellung",
+      "columnPriceBasis": "Preisbasis",
+      "columnRegistrationActive": "Benutzerdefiniertes Registrierungsformular"
     },
     "detail": {
       "cardTitle": "Kundengruppe",
       "fieldNameLabel": "Name",
-      "fieldDisplayGrossLabel": "Steuerdarstellung",
       "fieldDisplayGrossValues": "Brutto | Netto",
       "placeholderName": "Einen Namen eingeben ...",
       "placeholderNewCustomerGroup": "Neue Kundengruppe",
       "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe.",
-      "registrationForm": "Benutzerdefiniertes Registrierungsformular"
+      "registrationFormTitle": "Registrierungsformular",
+      "registrationForm": "Benutzerdefiniertes Registrierungsformular",
+      "taxDisplay": {
+        "label": "Steuerdarstellung",
+        "grossLabel": "Brutto",
+        "grossDescription": "Preise werden inklusive Steuer angezeigt.",
+        "netLabel": "Netto",
+        "netDescription": "Preise werden exklusive Steuer angezeigt."
+      },
+      "priceBasis": {
+        "label": "Preisbasis",
+        "grossLabel": "Brutto bleibt konstant",
+        "grossDescription": "Bruttopreise bleiben gleich, wenn sich Steuersätze ändern. Bei Nettodarstellung werden Nettopreise aus dem Steuersatz des Kundenlandes abgeleitet. Bei steuerfreien Bestellungen wird immer der Nettopreis berechnet.",
+        "netLabel": "Netto bleibt konstant",
+        "netDescription": "Nettopreise bleiben gleich, wenn sich Steuersätze ändern. Bruttopreise werden aus dem Steuersatz des Kundenlandes abgeleitet und ergeben keine glatten Beträge (netto 10,00 € erscheint bei 19 % als 11,90 € und bei 20 % als 12,00 €)."
+      }
     },
     "registration": {
       "formTitle": "Registrierungsformular",

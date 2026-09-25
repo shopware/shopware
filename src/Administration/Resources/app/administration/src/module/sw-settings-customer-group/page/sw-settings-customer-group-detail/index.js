@@ -1,5 +1,6 @@
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
+import { getEffectivePriceBasis } from '../../helper/price-basis.helper';
 
 /**
  * @sw-package discovery
@@ -133,6 +134,58 @@ export default {
             criteria.addGroupField('salesChannelId');
 
             return criteria;
+        },
+
+        taxDisplayOptions() {
+            return [
+                {
+                    value: true,
+                    name: this.$t('sw-settings-customer-group.detail.taxDisplay.grossLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.taxDisplay.grossDescription'),
+                },
+                {
+                    value: false,
+                    name: this.$t('sw-settings-customer-group.detail.taxDisplay.netLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.taxDisplay.netDescription'),
+                },
+            ];
+        },
+
+        priceBasisOptions() {
+            return [
+                {
+                    value: 'gross',
+                    name: this.$t('sw-settings-customer-group.detail.priceBasis.grossLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.priceBasis.grossDescription'),
+                },
+                {
+                    value: 'net',
+                    name: this.$t('sw-settings-customer-group.detail.priceBasis.netLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.priceBasis.netDescription'),
+                },
+            ];
+        },
+
+        displayGross: {
+            get() {
+                return !!this.customerGroup?.displayGross;
+            },
+            set(value) {
+                const priceBasis = this.priceBasis;
+
+                this.customerGroup.displayGross = value;
+                this.customerGroup.priceBasis = priceBasis;
+            },
+        },
+
+        priceBasis: {
+            get() {
+                return getEffectivePriceBasis(this.customerGroup);
+            },
+            set(value) {
+                this.customerGroup.displayGross = this.displayGross;
+                this.customerGroup.priceBasis = value;
+            },
         },
 
         entityDescription() {

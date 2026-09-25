@@ -326,6 +326,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Customer group price fields are required
+
+`customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working unchanged; writing an explicit `null` for `priceBasis` is rejected. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string`: a `null` basis no longer exists, and the price basis no longer follows the display mode. Pass an explicit `'net'` or `'gross'` instead.
+
 ## `Feature` is final
 
 `Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.
@@ -1269,6 +1273,9 @@ The method must raise the stored increment state to at least the given value wit
 
 # Administration
 
+## Deprecated block `sw_settings_customer_group_detail_content_card_display_gross`
+
+The gross display toggle on the customer group detail page was replaced by two separate controls, one for the tax display and one for the price calculation basis. The old block `sw_settings_customer_group_detail_content_card_display_gross` in `sw-settings-customer-group-detail.html.twig` remains as an empty extension point and will be removed with 6.8. Extensions that customized the toggle have to extend the blocks of the new controls instead.
 ## Custom-field set loader computed properties removed
 
 The deprecated custom-field set loader computed properties were removed from these Administration components:

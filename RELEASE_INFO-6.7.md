@@ -45,6 +45,12 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### Rules with identical conditions are detected
+
+Rules now store a checksum of their conditions in the new read-only field `configHash`. Rules with the same checksum have identical conditions. Condition order, the key order inside condition values and the order of list values such as ids are ignored. Name, description, priority and assignments are not part of the comparison. Rules without actual conditions, e.g. only empty containers, have no checksum.
+
+The field is kept up to date by the `rule.indexer` and is available in the Admin API, for example to find the rules with identical conditions via a `terms` aggregation on `configHash`. Existing rules are indexed after the update.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses
@@ -57,6 +63,10 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
 ## Administration
+
+### Rule Builder shows rules with identical conditions
+
+The rule detail page shows an info banner listing the other rules with identical conditions. The rule list has a new "Potential duplicates" filter. Duplicates may be intended, so they are only shown as a hint.
 
 ### New extension points for the Shopping Experiences layout list
 

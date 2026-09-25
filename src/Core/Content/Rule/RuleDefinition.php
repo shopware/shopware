@@ -81,6 +81,7 @@ class RuleDefinition extends EntityDefinition
             (new BlobField('payload', 'payload'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new BoolField('invalid', 'invalid'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('When the boolean value is `true`, the rule is no more available for usage.'),
             (new ListField('areas', 'areas'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Internal field.'),
+            (new StringField('config_hash', 'configHash'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Checksum of the rule conditions. Rules with the same checksum have equivalent conditions. Empty when the rule has no actual conditions, e.g. only empty containers.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new JsonField('module_types', 'moduleTypes'))->setDescription('It can be used in cart or shipping pricing.'),
 

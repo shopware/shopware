@@ -1,0 +1,41 @@
+{% block sw_settings_rule_duplicate_hint %}
+<div
+    v-if="duplicates.length > 0"
+    class="sw-settings-rule-duplicate-hint"
+>
+    <mt-banner
+        variant="info"
+        :title="$t('sw-settings-rule.detail.duplicateHint.title')"
+    >
+        {% block sw_settings_rule_duplicate_hint_message %}
+        <p>{{ $t('sw-settings-rule.detail.duplicateHint.message') }}</p>
+        {% endblock %}
+
+        {% block sw_settings_rule_duplicate_hint_list %}
+        <ul class="sw-settings-rule-duplicate-hint__list">
+            <li
+                v-for="duplicate in duplicates"
+                :key="duplicate.id"
+            >
+                <mt-link
+                    as="a"
+                    :href="getRuleLink(duplicate)"
+                    target="_blank"
+                >
+                    {{ duplicate.name }}
+                </mt-link>
+            </li>
+        </ul>
+        {% endblock %}
+
+        {% block sw_settings_rule_duplicate_hint_more %}
+        <p
+            v-if="moreDuplicatesCount > 0"
+            class="sw-settings-rule-duplicate-hint__more"
+        >
+            {{ $tc('sw-settings-rule.detail.duplicateHint.more', moreDuplicatesCount, { count: moreDuplicatesCount }) }}
+        </p>
+        {% endblock %}
+    </mt-banner>
+</div>
+{% endblock %}

@@ -51,6 +51,8 @@ class RuleEntity extends Entity
 
     protected bool $invalid;
 
+    protected ?string $configHash = null;
+
     /**
      * @var string[]|null
      */
@@ -174,6 +176,16 @@ class RuleEntity extends Entity
     public function setInvalid(bool $invalid): void
     {
         $this->invalid = $invalid;
+    }
+
+    public function getConfigHash(): ?string
+    {
+        return $this->configHash;
+    }
+
+    public function setConfigHash(?string $configHash): void
+    {
+        $this->configHash = $configHash;
     }
 
     /**

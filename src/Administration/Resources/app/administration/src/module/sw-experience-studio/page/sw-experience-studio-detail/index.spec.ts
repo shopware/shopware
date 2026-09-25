@@ -238,6 +238,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             editorStore: {
                 pushToHistory,
             },
+            pruneStaleScrollNavigationAnchors: jest.fn(),
             requestDraftMutation: jest.fn().mockResolvedValue({
                 layout: [respondedElement],
                 resolutions: {},

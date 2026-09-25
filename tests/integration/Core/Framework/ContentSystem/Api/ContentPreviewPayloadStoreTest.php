@@ -45,6 +45,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
             'domainId' => null,
             'customerId' => null,
             'queryParameters' => [],
+            'settings' => [],
         ]);
         $cache->save($item);
 

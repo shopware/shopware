@@ -4,22 +4,39 @@
     <div class="sw-experience-studio-sidebar-tree__header">
         <h3>{{ $t('sw-experience-studio.detail.sidebarTree.title') }}</h3>
 
-        <button
-            v-tooltip="{
-                message: $t('sw-experience-studio.detail.sidebarTree.addElement'),
-                disabled: allowEdit
-            }"
-            class="sw-experience-studio-sidebar-tree__add-button"
-            type="button"
-            :disabled="!allowEdit || undefined"
-            :aria-label="$t('sw-experience-studio.detail.sidebarTree.addElement')"
-            @click="onAddRootElement($event)"
-        >
-            <mt-icon
-                name="regular-plus-xs"
-                size="12px"
-            />
-        </button>
+        <div class="sw-experience-studio-sidebar-tree__actions">
+            <button
+                v-tooltip="{
+                    message: $t('sw-experience-studio.detail.sidebarTree.pageSettings'),
+                }"
+                class="sw-experience-studio-sidebar-tree__settings-button"
+                type="button"
+                :aria-label="$t('sw-experience-studio.detail.sidebarTree.pageSettings')"
+                @click="onOpenPageSettings"
+            >
+                <mt-icon
+                    name="regular-cog-s"
+                    size="12px"
+                />
+            </button>
+
+            <button
+                v-tooltip="{
+                    message: $t('sw-experience-studio.detail.sidebarTree.addElement'),
+                    disabled: allowEdit
+                }"
+                class="sw-experience-studio-sidebar-tree__add-button"
+                type="button"
+                :disabled="!allowEdit || undefined"
+                :aria-label="$t('sw-experience-studio.detail.sidebarTree.addElement')"
+                @click="onAddRootElement($event)"
+            >
+                <mt-icon
+                    name="regular-plus-xs"
+                    size="12px"
+                />
+            </button>
+        </div>
     </div>
     {% endblock %}
 
@@ -34,6 +51,7 @@
                 v-for="(element, elementIndex) in layoutElements"
                 :key="element.id"
                 :element="element"
+                :anchors="anchors"
                 :selected-element-id="selectedElementId"
                 :allow-drag-and-drop="allowEdit"
                 :validate-move-target="validateMoveTarget"

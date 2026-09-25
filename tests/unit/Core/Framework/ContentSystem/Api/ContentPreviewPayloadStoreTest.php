@@ -35,6 +35,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
             domainId: 'domain-1',
             customerId: 'customer-1',
             queryParameters: ['preview' => '1'],
+            settings: ['scrollNavigation' => ['active' => true, 'position' => 'left']],
         );
 
         static::assertEquals($payload, $store->load($store->store($payload)));
@@ -217,6 +218,7 @@ class ContentPreviewPayloadStoreTest extends TestCase
             'domainId' => null,
             'customerId' => null,
             'queryParameters' => [],
+            'settings' => [],
             ...$overrides,
         ];
     }

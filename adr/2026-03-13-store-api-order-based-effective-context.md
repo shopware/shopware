@@ -35,6 +35,13 @@ This keeps the behavior local to the affected routes and avoids implicit magic f
 The route default indicates that the route may resolve an order-based effective request state from an `orderId`.
 One possible default name is `_allowOrderRestoration`.
 
+The `orderId` is read from the request the usual way, path attribute first, then query, then body.
+No dedicated header is introduced, headers are not part of the HTTP cache key.
+A route that wants an explicit `/{orderId}` URL can declare the placeholder, the resolver picks it up from the attributes like any other source.
+
+Responses built on an effective state are personal to the caller and the order.
+The resolver marks them as not cacheable, regardless of where the `orderId` came from.
+
 ### Dedicated order-aware request resolver
 
 A dedicated resolver/listener will run after the normal sales channel request context resolution.
@@ -56,6 +63,12 @@ The existing request attributes (`PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT`, `P
 The order-aware resolver stores the effective `Context`, `SalesChannelContext` and `Cart` under dedicated attributes, whose names come with the implementation.
 
 The semantic split is what matters: canonical attributes describe the actual incoming request, effective attributes describe the synthetic state used to evaluate the current route.
+
+This mirrors the storefront, where the order context is built next to the session context and used for a single call, while the page itself keeps running on the session context.
+
+The canonical attributes cannot simply be replaced, because the restored context carries its own token.
+Everything that reads the attributes, the context token on the response, the cache hash, subscribers working with the current context, would otherwise act on the synthetic state.
+Route handlers still receive the order-based objects, see below, only the attributes themselves stay the session state.
 
 ### Value resolvers inject the effective request state if it exists
 

@@ -148,30 +148,27 @@ class CacheHeadersServiceTest extends TestCase
         yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true, 'logged-in'];
     }
 
-    public function testStorefrontCacheHashDoesNotContainLanguageId(): void
+    public function testTheSameContextHashesTheSameInEveryScope(): void
     {
-        $event = $this->cacheHeadersService->applyCacheHash(
+        $storefront = $this->cacheHeadersService->applyCacheHash(
             new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]),
             $this->createCacheHashContext('language-a'),
             $this->createFilledCart(),
             new Response()
         );
 
-        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
-        static::assertNull($event->get(HttpCacheCookieEvent::LANGUAGE_ID));
-    }
-
-    public function testStoreApiCacheHashContainsLanguageId(): void
-    {
-        $event = $this->cacheHeadersService->applyCacheHash(
+        $storeApi = $this->cacheHeadersService->applyCacheHash(
             new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]]),
             $this->createCacheHashContext('language-a'),
             $this->createFilledCart(),
             new Response()
         );
 
-        static::assertInstanceOf(HttpCacheCookieEvent::class, $event);
-        static::assertSame('language-a', $event->get(HttpCacheCookieEvent::LANGUAGE_ID));
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $storefront);
+        static::assertInstanceOf(HttpCacheCookieEvent::class, $storeApi);
+        static::assertSame('language-a', $storefront->get(HttpCacheCookieEvent::LANGUAGE_ID));
+        static::assertSame('language-a', $storeApi->get(HttpCacheCookieEvent::LANGUAGE_ID));
+        static::assertSame($storefront->getHash(), $storeApi->getHash());
     }
 
     public function testStoreNonDefaultLanguageRequiresCacheHash(): void
@@ -226,6 +223,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testStorefrontNonDefaultLanguageDoesNotRequireCacheHash(): void
     {
         $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]);
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, 'language-a');
 
         $event = $this->cacheHeadersService->applyCacheHash(
             $request,
@@ -296,6 +294,7 @@ class CacheHeadersServiceTest extends TestCase
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign([
             'currencyId' => Defaults::CURRENCY,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'countryId' => 'country-default',
             'paymentMethodId' => 'payment-default',
             'shippingMethodId' => 'shipping-default',
@@ -314,7 +313,7 @@ class CacheHeadersServiceTest extends TestCase
         static::assertEmpty($cookies);
 
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
-        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn('foo');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
 
@@ -327,7 +326,7 @@ class CacheHeadersServiceTest extends TestCase
         $firstHash = $cookies[0]->getValue();
 
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
-        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn('bar');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
 
@@ -440,6 +439,7 @@ class CacheHeadersServiceTest extends TestCase
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign([
             'currencyId' => Defaults::CURRENCY,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'countryId' => 'country-default',
             'paymentMethodId' => 'payment-default',
             'shippingMethodId' => 'shipping-default',

@@ -4,12 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\Extension\CompatTwigExtension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
 use Twig\Loader\ArrayLoader;
+use Twig\Source;
 
 /**
  * @internal
@@ -53,13 +54,17 @@ class CompatTwigExtensionTest extends TestCase
      */
     public function testRemovedFunctionThrowsWhenCalled(): void
     {
-        $extension = new CompatTwigExtension();
-        $function = $extension->getFunctions()[0];
-        $callback = $function->getCallable();
-        static::assertIsCallable($callback);
+        $twig = new Environment(new ArrayLoader([
+            'template' => '{{ category_url() }}',
+        ]));
+        $twig->addExtension(new CompatTwigExtension());
 
-        static::expectExceptionObject(AdapterException::invalidArgument('Twig function "category_url" was removed with feature "v6.8.0.0".'));
+        static::expectExceptionObject(new RuntimeError(
+            'An exception has been thrown during the rendering of a template ("Twig function "category_url" was removed with feature "v6.8.0.0".")',
+            1,
+            new Source('{{ category_url() }}', 'template'),
+        ));
 
-        $callback();
+        $twig->render('template');
     }
 }

@@ -29,6 +29,17 @@ The service and alias list reflects the flag at compilation time. If the contain
 
 The feature-active container lets tests verify that deprecated service definitions and aliases are absent, that the replacement service graph still compiles, and that callers no longer require removed services through constructor arguments, decorators, service lookups, or tagged-service discovery. A tagged console command whose service is removed also disappears from Symfony's command map; invoking its old name fails with a command-not-found error even while the command class remains in the codebase.
 
-Routes have a separate lifecycle. Shopware imports controller routes from PHP attributes without checking whether the controller is registered as a service. Removing a controller service therefore leaves its route matchable. On a request, Symfony first looks for the controller in the container and then tries to instantiate the class itself: a controller with required constructor arguments fails during resolution instead of returning a 404, while one without required arguments may still execute. When a deprecated controller service is removed, its controller file must also be excluded from the broad attribute route import and loaded conditionally while the removal flag is inactive. Otherwise the route remains in the collection. Tests must check that the route is absent when the flag is active. A Symfony route condition can prevent a match, but the route remains in the collection and can still be used for URL generation. `Feature::triggerDeprecationOrThrow()` still throws when an active route calls it, but it does not remove the route from the collection.
+Routes have a separate lifecycle. Shopware imports controller routes from PHP attributes without checking whether the controller is registered as a service. Removing a controller service therefore leaves its route matchable. On a request, Symfony first looks for the controller in the container and then tries to instantiate the class itself: a controller with required constructor arguments fails during resolution instead of returning a 404, while one without required arguments may still execute. When a deprecated controller service is removed, its controller file must also be excluded from the broad attribute route import and loaded conditionally while the removal flag is inactive. For example, for a hypothetical `LegacyController` in `src/Core/Framework/Resources/config/routes.php`, with `Feature` imported:
+
+```php
+$legacyController = '../../Api/Controller/LegacyController.php';
+$routes->import('../../Api/Controller/**/*Controller.php', 'attribute', exclude: $legacyController);
+
+if (!Feature::isActive('v6.8.0.0')) {
+    $routes->import($legacyController, 'attribute');
+}
+```
+
+The route collection is cached, so a flag change requires rebuilding it. Tests must check that the route is absent when the flag is active. A Symfony route condition can prevent a match, but the route remains in the collection and can still be used for URL generation. `Feature::triggerDeprecationOrThrow()` still throws when an active route calls it, but it does not remove the route from the collection.
 
 Adding a deprecated service now requires a removal tag; adding a deprecated service alias requires an annotation and an entry in the removal list. Code that depends on a removed service must also account for its absence when the flag is active. The explicit alias list needs maintenance until those aliases are permanently removed in the major release.

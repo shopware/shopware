@@ -103,7 +103,8 @@
                             {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
                             {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
 
-                            <span class="list-price list-price-no-line-through">
+                            {# @deprecated tag:v6.8.0 - The conditional "list-price-no-line-through" class will be removed. #}
+                            <span class="list-price{% if beforeListPriceSnippetExists or afterListPriceSnippetExists %} list-price-no-line-through{% endif %}">
                                 {% block component_product_box_main_price_before %}
                                     {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
                                         position: 'before'

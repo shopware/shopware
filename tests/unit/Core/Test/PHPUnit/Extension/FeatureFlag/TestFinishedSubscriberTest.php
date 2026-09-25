@@ -3,12 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\FeatureFlag;
 
 use PHPUnit\Event\Code\Phpt;
-use PHPUnit\Event\Telemetry\Duration;
-use PHPUnit\Event\Telemetry\GarbageCollectorStatus;
-use PHPUnit\Event\Telemetry\HRTime;
-use PHPUnit\Event\Telemetry\Info;
-use PHPUnit\Event\Telemetry\MemoryUsage;
-use PHPUnit\Event\Telemetry\Snapshot;
 use PHPUnit\Event\Test\Finished;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +10,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\SavedConfig;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestFinishedSubscriber;
+use Shopware\Tests\Unit\Core\Test\PHPUnit\TelemetryInfoFactory;
 
 /**
  * @internal
@@ -74,12 +69,6 @@ class TestFinishedSubscriberTest extends TestCase
 
     private function buildEvent(): Finished
     {
-        $time = HRTime::fromSecondsAndNanoseconds(0, 0);
-        $duration = Duration::fromSecondsAndNanoseconds(0, 0);
-        $memory = MemoryUsage::fromBytes(0);
-        $gc = new GarbageCollectorStatus(0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, false, false, false, 0);
-        $snap = new Snapshot($time, $memory, $memory, $gc);
-
-        return new Finished(new Info($snap, $duration, $memory, $duration, $memory), new Phpt('fakeFile'), 0);
+        return new Finished(TelemetryInfoFactory::create(), new Phpt('fakeFile'), 0);
     }
 }

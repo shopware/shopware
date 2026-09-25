@@ -133,6 +133,9 @@ const config: Config = {
     ],
 
     setupFiles: [
+        // Ahead of every other setup file: `setup-shopware.js` loads the mixin registry, which imports
+        // `shopware:utils`, and a virtual module has to be registered before anything requires it.
+        resolve(join(__dirname, '/test/_helper_/virtual-shopware-modules/register-mocks.js')),
         resolve(join(__dirname, '/test/_setup/jsdom-polyfills.js')),
     ],
 

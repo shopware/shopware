@@ -97,4 +97,58 @@ describe('extension tooling shared type surface (e2e)', () => {
         },
         CHECK_TIMEOUT,
     );
+
+    it(
+        'type-checks an extension that imports the shopware:* modules',
+        async () => {
+            const projectRoot = createTempProject('sw-tooling-surface-virtual-');
+            const administrationRoot = createVendorAdmin(projectRoot, { entitySchema: 'real' });
+
+            try {
+                writeMinimalPlugin(projectRoot);
+                writeFile(path.join(projectRoot, 'custom/plugins/Plug/src/Resources/app/administration/src/main.ts'), [
+                    "import { createId } from 'shopware:utils';",
+                    "import debug, { warn } from 'shopware:utils/debug';",
+                    "import { Criteria } from 'shopware:data';",
+                    "import CriteriaClass from 'shopware:data/Criteria';",
+                    "import EventBus from 'shopware:utils/EventBus';",
+                    "import VueHelper from 'shopware:utils/VueHelper';",
+                    "import swFormFieldMixin from 'shopware:mixins/sw-form-field';",
+                    "import useNotificationStore from 'shopware:stores/notification';",
+                    '// @ts-expect-error Criteria is a default-only subpath.',
+                    "import { equals } from 'shopware:data/Criteria';",
+                    '// @ts-expect-error EventBus is a default-only subpath.',
+                    "import { on } from 'shopware:utils/EventBus';",
+                    '// @ts-expect-error VueHelper is a default-only subpath.',
+                    "import { getCompatChildren } from 'shopware:utils/VueHelper';",
+                    '// @ts-expect-error Mixins are default-only subpaths.',
+                    "import { props } from 'shopware:mixins/sw-form-field';",
+                    '',
+                    'void equals;',
+                    'void on;',
+                    'void getCompatChildren;',
+                    'void props;',
+                    '',
+                    'export const id: string = createId();',
+                    'export const criteria = new Criteria(1, 25);',
+                    'export const criteriaFromDefault = new CriteriaClass(1, 25);',
+                    'export const debugDefault = debug;',
+                    'export const eventBus = EventBus;',
+                    'export const vueHelper = VueHelper;',
+                    'export const mixins = [swFormFieldMixin];',
+                    'export const notifications = useNotificationStore();',
+                    "export const log = () => warn('Plug', id);",
+                ]);
+
+                const check = await checkExtensions({ projectRoot, administrationRoot, only: 'Plug' });
+
+                expect(check.results[0].typescript.output).toBe('');
+                expect(check.results[0].typescript.status).toBe('passed');
+                expect(check.exitCode).toBe(0);
+            } finally {
+                cleanupTempProject(projectRoot);
+            }
+        },
+        CHECK_TIMEOUT,
+    );
 });

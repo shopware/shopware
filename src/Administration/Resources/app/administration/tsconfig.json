@@ -45,6 +45,7 @@
     "./eslint-rules/**/*.ts",
     "./scripts/codemods/**/*.ts",
     "./scripts/extensionTooling/**/*.ts",
+    "./scripts/generate-shopware-modules/**/*.ts",
     "./test/**/*.d.ts",
     "./test/**/*.ts",
     "./twigVuePlugin/**/*.ts"

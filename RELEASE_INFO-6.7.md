@@ -47,7 +47,7 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 ### `AbstractProductStreamBuilder` can enrich the criteria of several streams at once
 
-`AbstractProductStreamBuilder::enrichCriterias()` takes the criteria of several product streams, keyed by stream id, so an implementation can load all of those streams with one query instead of one query per stream. A stream may carry more than one criteria, because the limit and the sorting of a criteria belong to the place it is used rather than to the stream.
+`AbstractProductStreamBuilder::enrichCriterias()` takes one criteria per product stream, keyed by stream id, so an implementation can load all of those streams with one query instead of one query per stream. Clone the enriched criteria when more than one place uses the same stream, because the limit and the sorting of a criteria belong to the place it is used rather than to the stream.
 
 The method is not abstract and its default implementation calls `enrichCriteria()` per criteria, so an existing implementation keeps working unchanged. `ProductStreamBuilder` overrides it and loads the streams together; the product cross selling route uses it, so a product with several product stream cross sellings no longer loads one stream per cross selling.
 

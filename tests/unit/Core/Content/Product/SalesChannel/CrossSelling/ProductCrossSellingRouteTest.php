@@ -70,12 +70,10 @@ class ProductCrossSellingRouteTest extends TestCase
         $this->cacheTagCollector = static::createStub(CacheTagCollector::class);
         $this->connection = static::createStub(Connection::class);
         $this->connection->method('fetchOne')->willReturn(false);
-        $this->productStreamBuilder = static::createStub(ProductStreamBuilder::class);
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
         $this->productStreamBuilder->method('enrichCriterias')->willReturnCallback(static function (array $criteriaByStreamId, mixed ...$_): void {
-            foreach ($criteriaByStreamId as $criterias) {
-                foreach ($criterias as $criteria) {
-                    $criteria->addFilter(new EqualsFilter('product.product_stream', 'stream-id'));
-                }
+            foreach ($criteriaByStreamId as $criteria) {
+                $criteria->addFilter(new EqualsFilter('product.product_stream', 'stream-id'));
             }
         });
         $this->productStreamBuilder->method('enrichCriteria')->willReturnCallback(static function (Criteria $criteria, mixed ...$_): void {
@@ -177,10 +175,8 @@ class ProductCrossSellingRouteTest extends TestCase
         $this->productStreamBuilder->method('enrichCriterias')->willReturnCallback(static function (array $criteriaByStreamId) use ($streamId): void {
             static::assertSame([$streamId], array_keys($criteriaByStreamId));
 
-            foreach ($criteriaByStreamId[$streamId] as $criteria) {
-                $criteria->addFilter(new EqualsFilter('product.product_stream', $streamId));
-                $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
-            }
+            $criteriaByStreamId[$streamId]->addFilter(new EqualsFilter('product.product_stream', $streamId));
+            $criteriaByStreamId[$streamId]->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
         });
 
         $listingLoader = $this->createMock(ProductListingLoader::class);
@@ -200,6 +196,48 @@ class ProductCrossSellingRouteTest extends TestCase
             });
 
         $this->createRoute(listingLoader: $listingLoader)->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
+    }
+
+    public function testCrossSellingsOfTheSameStreamEachGetTheEnrichedCriteria(): void
+    {
+        $productId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+
+        $crossSellings = new ProductCrossSellingCollection([
+            self::streamCrossSelling($productId, $streamId, 3),
+            self::streamCrossSelling($productId, $streamId, 7),
+        ]);
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult('product_cross_selling', 2, $crossSellings, null, new Criteria(), Context::createDefaultContext())
+        );
+
+        // the stream is enriched once, for one criteria
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriterias')
+            ->willReturnCallback(static function (array $criteriaByStreamId) use ($streamId): void {
+                static::assertSame([$streamId], array_keys($criteriaByStreamId));
+
+                $criteriaByStreamId[$streamId]->addFilter(new EqualsFilter('product.product_stream', $streamId));
+            });
+
+        $listingLoader = $this->createMock(ProductListingLoader::class);
+        $matcher = $this->exactly(2);
+        $listingLoader->expects($matcher)
+            ->method('load')
+            ->willReturnCallback(static function (Criteria $criteria) use ($matcher): EntitySearchResult {
+                // both cross sellings see the enriched filter, and each keeps its own limit
+                static::assertNotEmpty(array_filter(
+                    $criteria->getFilters(),
+                    static fn ($filter): bool => $filter instanceof EqualsFilter && $filter->getField() === 'product.product_stream'
+                ));
+                static::assertSame($matcher->numberOfInvocations() === 1 ? 3 : 7, $criteria->getLimit());
+
+                return new EntitySearchResult('product', 0, new ProductCollection(), null, $criteria, Context::createDefaultContext());
+            });
+
+        $this->createRoute(listingLoader: $listingLoader)
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
     }
 
     public function testLoadByStreamIgnoresPartialFieldSelection(): void
@@ -499,6 +537,20 @@ class ProductCrossSellingRouteTest extends TestCase
         );
 
         $route->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
+    }
+
+    private static function streamCrossSelling(string $productId, string $streamId, int $limit): ProductCrossSellingEntity
+    {
+        $crossSelling = new ProductCrossSellingEntity();
+        $crossSelling->setUniqueIdentifier(Uuid::randomHex());
+        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_STREAM);
+        $crossSelling->setProductStreamId($streamId);
+        $crossSelling->setProductId($productId);
+        $crossSelling->setLimit($limit);
+        $crossSelling->setSortBy('name');
+        $crossSelling->setSortDirection('ASC');
+
+        return $crossSelling;
     }
 
     /**

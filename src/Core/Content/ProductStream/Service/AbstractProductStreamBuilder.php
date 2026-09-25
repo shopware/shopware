@@ -15,18 +15,16 @@ abstract class AbstractProductStreamBuilder
     abstract public function enrichCriteria(Criteria $criteria, string $id, Context $context): void;
 
     /**
-     * Enriches the criteria of several product streams, so that an implementation can load the streams of all of them
-     * together instead of one stream per criteria. A stream can carry more than one criteria, because the limit and
-     * the sorting of a criteria belong to the place it is used, not to the stream.
+     * Enriches the criteria of several product streams, so that an implementation can load all of those streams
+     * together instead of one stream per criteria. Clone the enriched criteria if more than one place uses the same
+     * stream, so that each place can set its own limit and sorting.
      *
-     * @param array<string, list<Criteria>> $criteriaByStreamId
+     * @param array<string, Criteria> $criteriaByStreamId
      */
     public function enrichCriterias(array $criteriaByStreamId, Context $context): void
     {
-        foreach ($criteriaByStreamId as $streamId => $criterias) {
-            foreach ($criterias as $criteria) {
-                $this->enrichCriteria($criteria, $streamId, $context);
-            }
+        foreach ($criteriaByStreamId as $streamId => $criteria) {
+            $this->enrichCriteria($criteria, $streamId, $context);
         }
     }
 }

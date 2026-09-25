@@ -88,26 +88,26 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $elements = new CrossSellingElementCollection();
 
-        /** @var list<array{crossSelling: ProductCrossSellingEntity, criteria: Criteria}> $prepared */
+        /** @var list<array{crossSelling: ProductCrossSellingEntity, criteria: Criteria|null, streamId: string|null}> $prepared */
         $prepared = [];
-        /** @var array<string, list<Criteria>> $criteriaByStreamId */
+        /** @var array<string, Criteria> $criteriaByStreamId */
         $criteriaByStreamId = [];
 
         foreach ($crossSellings as $crossSelling) {
-            // CrossSellingElement is typed against ProductCollection, a field selection would load PartialEntity instances
-            $clone = clone $criteria;
-            $clone->resetFields();
+            $streamId = $this->productStreamBuilder instanceof AbstractProductStreamBuilder && $this->useProductStream($crossSelling)
+                ? $crossSelling->getProductStreamId()
+                : null;
 
-            $prepared[] = ['crossSelling' => $crossSelling, 'criteria' => $clone];
+            if (\is_string($streamId)) {
+                // one criteria per stream is enriched, and every cross selling of that stream clones it afterwards
+                $criteriaByStreamId[$streamId] ??= $this->cloneForElement($criteria);
 
-            if (!$this->useProductStream($crossSelling) || !$this->productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                $prepared[] = ['crossSelling' => $crossSelling, 'criteria' => null, 'streamId' => $streamId];
+
                 continue;
             }
 
-            $productStreamId = $crossSelling->getProductStreamId();
-            \assert(\is_string($productStreamId));
-
-            $criteriaByStreamId[$productStreamId][] = $clone;
+            $prepared[] = ['crossSelling' => $crossSelling, 'criteria' => $this->cloneForElement($criteria), 'streamId' => null];
         }
 
         // the streams of all cross sellings are loaded together, instead of one stream per cross selling
@@ -115,14 +115,20 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             $this->productStreamBuilder->enrichCriterias($criteriaByStreamId, $context->getContext());
         }
 
-        foreach ($prepared as ['crossSelling' => $crossSelling, 'criteria' => $clone]) {
-            if ($this->useProductStream($crossSelling)) {
-                $element = $this->loadByStream($crossSelling, $rootProductId, $context, $clone);
-            } else {
-                $element = $this->loadByIds($crossSelling, $context, $clone);
+        foreach ($prepared as ['crossSelling' => $crossSelling, 'criteria' => $clone, 'streamId' => $streamId]) {
+            if ($streamId !== null) {
+                // the enriched criteria is shared by every cross selling of the stream, so each one gets its own copy
+                // before it sets its limit and sorting
+                $elements->add($this->loadByStream($crossSelling, $rootProductId, $context, clone $criteriaByStreamId[$streamId]));
+
+                continue;
             }
 
-            $elements->add($element);
+            \assert($clone instanceof Criteria);
+
+            $elements->add($this->useProductStream($crossSelling)
+                ? $this->loadByStream($crossSelling, $rootProductId, $context, $clone)
+                : $this->loadByIds($crossSelling, $context, $clone));
         }
 
         $this->eventDispatcher->dispatch(new ProductCrossSellingsLoadedEvent($elements, $context));
@@ -178,6 +184,17 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     /**
      * @param string $rootProductId id of the currently viewed product, or of its parent if it is a variant
      */
+    /**
+     * CrossSellingElement is typed against ProductCollection, a field selection would load PartialEntity instances.
+     */
+    private function cloneForElement(Criteria $criteria): Criteria
+    {
+        $clone = clone $criteria;
+        $clone->resetFields();
+
+        return $clone;
+    }
+
     private function loadByStream(ProductCrossSellingEntity $crossSelling, string $rootProductId, SalesChannelContext $context, Criteria $criteria): CrossSellingElement
     {
         $productStreamId = $crossSelling->getProductStreamId();

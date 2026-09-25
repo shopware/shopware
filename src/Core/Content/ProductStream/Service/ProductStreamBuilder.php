@@ -43,16 +43,14 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
 
         $streams = $this->loadStreams(array_keys($criteriaByStreamId), $context);
 
-        foreach ($criteriaByStreamId as $streamId => $criterias) {
+        foreach ($criteriaByStreamId as $streamId => $criteria) {
             $stream = $streams->get($streamId);
 
             if (!$stream) {
                 throw ProductStreamException::productStreamNotFound($streamId);
             }
 
-            foreach ($criterias as $criteria) {
-                $this->applyStream($criteria, $stream, $streamId);
-            }
+            $this->applyStream($criteria, $stream, $streamId);
         }
     }
 

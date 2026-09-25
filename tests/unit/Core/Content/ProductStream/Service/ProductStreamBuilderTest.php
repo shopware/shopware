@@ -68,10 +68,7 @@ class ProductStreamBuilderTest extends TestCase
         $firstStreamId = Uuid::randomHex();
         $secondStreamId = Uuid::randomHex();
 
-        $streams = new ProductStreamCollection([
-            self::stream($firstStreamId),
-            self::stream($secondStreamId),
-        ]);
+        $streams = new ProductStreamCollection([self::stream($firstStreamId), self::stream($secondStreamId)]);
 
         // one queued result, so a second search would fail the test
         $repository = new StaticEntityRepository([$streams], new ProductStreamDefinition());
@@ -79,15 +76,10 @@ class ProductStreamBuilderTest extends TestCase
 
         $first = new Criteria();
         $second = new Criteria();
-        $third = new Criteria();
 
-        // the second stream carries two criteria, as two places can use the same stream with their own limit
-        $builder->enrichCriterias(
-            [$firstStreamId => [$first], $secondStreamId => [$second, $third]],
-            Context::createDefaultContext()
-        );
+        $builder->enrichCriterias([$firstStreamId => $first, $secondStreamId => $second], Context::createDefaultContext());
 
-        foreach ([$first, $second, $third] as $criteria) {
+        foreach ([$first, $second] as $criteria) {
             static::assertCount(1, $criteria->getFilters());
             static::assertTrue($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
         }
@@ -105,7 +97,7 @@ class ProductStreamBuilderTest extends TestCase
         // the same exception the single stream path throws for an unknown stream
         $this->expectException(EntityNotFoundException::class);
 
-        $builder->enrichCriterias([$streamId => [new Criteria()]], Context::createDefaultContext());
+        $builder->enrichCriterias([$streamId => new Criteria()], Context::createDefaultContext());
     }
 
     public function testEnrichCriteriaThrowsEmptyProductStreamExceptionForValidStreamWithoutFilters(): void

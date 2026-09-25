@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -25,6 +27,35 @@ class FeatureFlagsCompilerPassTest extends TestCase
     protected function setUp(): void
     {
         $this->compilerPass = new FeatureFlagCompilerPass();
+    }
+
+    public function testItRejectsFeatureFlagsParameterWithWrongType(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('shopware.feature.flags', 'invalid');
+
+        $this->expectExceptionObject(DependencyInjectionException::parameterHasWrongType('shopware.feature.flags', 'array', 'string'));
+        $this->compilerPass->process($container);
+    }
+
+    #[DataProvider('featureTagsRequiringFlag')]
+    public function testItRejectsFeatureTagWithoutFlag(string $tag): void
+    {
+        $container = new ContainerBuilder();
+        $container->setDefinition('feature_service', (new Definition())->addTag($tag));
+        $container->setParameter('shopware.feature.flags', []);
+
+        $this->expectExceptionObject(DependencyInjectionException::featureTagMissingFlag('feature_service', $tag));
+        $this->compilerPass->process($container);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function featureTagsRequiringFlag(): iterable
+    {
+        yield 'new service tag' => ['shopware.feature'];
+        yield 'deprecated service tag' => ['shopware.inactiveFeature'];
     }
 
     public function testItRemovesServiceIfInactive(): void

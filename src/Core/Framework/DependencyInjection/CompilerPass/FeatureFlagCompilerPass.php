@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -24,7 +25,7 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
     {
         $featureFlags = $container->getParameter('shopware.feature.flags');
         if (!\is_array($featureFlags)) {
-            throw new \RuntimeException('Container parameter "shopware.feature.flags" needs to be an array');
+            throw DependencyInjectionException::parameterHasWrongType('shopware.feature.flags', 'array', get_debug_type($featureFlags));
         }
 
         Feature::registerFeatures($featureFlags);
@@ -32,7 +33,7 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
         foreach ($container->findTaggedServiceIds('shopware.feature') as $serviceId => $tags) {
             foreach ($tags as $tag) {
                 if (!isset($tag['flag'])) {
-                    throw new \RuntimeException('"flag" is a required field for "shopware.feature" tags');
+                    throw DependencyInjectionException::featureTagMissingFlag($serviceId, 'shopware.feature');
                 }
 
                 if (Feature::isActive($tag['flag'])) {
@@ -48,7 +49,7 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
         foreach ($container->findTaggedServiceIds('shopware.inactiveFeature') as $serviceId => $tags) {
             foreach ($tags as $tag) {
                 if (!isset($tag['flag'])) {
-                    throw new \RuntimeException('"flag" is a required field for "shopware.inactiveFeature" tags');
+                    throw DependencyInjectionException::featureTagMissingFlag($serviceId, 'shopware.inactiveFeature');
                 }
 
                 if (!Feature::has($tag['flag']) || !Feature::isActive($tag['flag'])) {

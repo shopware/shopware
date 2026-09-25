@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;

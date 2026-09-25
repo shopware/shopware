@@ -1211,7 +1211,11 @@ class DefinitionValidator
             return [];
         }
 
-        $ref = $this->getShortClassName($association->getReferenceDefinition());
+        $reference = $association instanceof ManyToManyAssociationField
+            ? $association->getToManyReferenceDefinition()
+            : $association->getReferenceDefinition();
+
+        $ref = $this->getShortClassName($reference);
         $def = $this->getShortClassName($definition);
 
         $ref = str_replace($def, '', $ref);

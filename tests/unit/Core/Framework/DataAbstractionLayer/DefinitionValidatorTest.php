@@ -944,6 +944,12 @@ class ScorecardEntity extends Entity
     /**
      * @var array<string, CriterionEntity>|null
      */
+    #[ManyToMany(entity: 'criterion', mapping: 'scorecard_shared_criterion')]
+    public ?array $sharedCriteria = null;
+
+    /**
+     * @var array<string, CriterionEntity>|null
+     */
     #[ManyToMany(entity: 'criterion')]
     public ?array $criterionPool = null;
 }

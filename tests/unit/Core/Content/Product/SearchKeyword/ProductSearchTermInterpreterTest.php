@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $interpreter = new ProductSearchTermInterpreter(
             static::createStub(Connection::class),
-            new Tokenizer(3),
+            new Tokenizer(new HtmlSanitizer(cacheEnabled: false), 3),
             static::createStub(LoggerInterface::class),
             new TokenFilter(static::createStub(SearchConfigLoader::class)),
             static::createStub(KeywordLoader::class),
@@ -84,7 +85,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $interpreter = new ProductSearchTermInterpreter(
             static::createStub(Connection::class),
-            new Tokenizer(3),
+            new Tokenizer(new HtmlSanitizer(cacheEnabled: false), 3),
             static::createStub(LoggerInterface::class),
             new TokenFilter($configLoader),
             $keywordLoader,
@@ -113,7 +114,7 @@ class ProductSearchTermInterpreterTest extends TestCase
         $configLoader->method('load')->willReturn([['min_search_length' => 3, 'excluded_terms' => []]]);
         $interpreter = new ProductSearchTermInterpreter(
             static::createStub(Connection::class),
-            new Tokenizer(3),
+            new Tokenizer(new HtmlSanitizer(cacheEnabled: false), 3),
             static::createStub(LoggerInterface::class),
             new TokenFilter($configLoader),
             $keywordLoader,
@@ -156,7 +157,7 @@ class ProductSearchTermInterpreterTest extends TestCase
 
         $interpreter = new ProductSearchTermInterpreter(
             $connection,
-            new Tokenizer(3),
+            new Tokenizer(new HtmlSanitizer(cacheEnabled: false), 3),
             static::createStub(LoggerInterface::class),
             new TokenFilter($configLoader),
             $keywordLoader,

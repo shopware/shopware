@@ -2,6 +2,16 @@
 
 ## Core
 
+### `JsonField` supports typed properties with additional extension data
+
+`JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:
+
+```php
+new JsonField('config', 'config', [new IntField('position', 'position')], allowAdditionalProperties: true);
+```
+
+Mapped properties continue through their field serializers; additional properties are retained unchanged.
+
 ### Plain text fields are sanitized with HTMLPurifier
 
 `StringField` and `LongTextField` values without the `AllowHtml` flag are now sanitized with HTMLPurifier instead of PHP's `strip_tags()`. A `<` that does not start a tag is kept, so `I <3 Kisses` or `5 < 10` are stored as typed. The text inside removed `<script>` and `<style>` elements is dropped instead of being stored, and HTML entities such as `&lt;` stay verbatim. A `<` directly followed by a letter still starts a tag and is removed.
@@ -9,6 +19,10 @@
 A value consisting only of markup now sanitizes to an empty string; on a required field the write is rejected with a constraint violation.
 
 Extensions can apply the same behaviour with the new `Shopware\Core\Framework\Util\HtmlSanitizer::stripTags()`.
+
+### Search keeps the text behind a stray `<`
+
+The search tokenizer used `strip_tags()` as well, so a product named `I <3 Kisses` was indexed as `i` and was not found by searching for "kisses". Product names, search terms and every other tokenized field now keep everything a `<` cannot turn into a tag. Run `bin/console dal:refresh:index` to rebuild the search keywords of existing products.
 
 ### Dompdf page count placeholder replaced for core and fallback fonts
 
@@ -59,6 +73,12 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 ## API
 
+### HTML in customer name and address fields is rejected with a dedicated violation
+
+Registration and address routes now reject HTML in `firstName`, `lastName`, `title`, `company`, `department`, `street`, `additionalAddressLine1`, `additionalAddressLine2` and `city` with the violation code `VIOLATION::CONTAINS_HTML_ERROR` and a source pointer to the offending field. Previously such input was emptied while being sanitized and then surfaced as a generic error that the storefront could not attach to a field, so a first name like `<John` failed registration with "Something went wrong".
+
+Input that only looks like markup, for example `I <3 you` or `5 > 3`, still passes. The check is available as the reusable constraint `Shopware\Core\Framework\Validation\Constraint\NoHtml` for your own validation definitions.
+
 ### Store API OpenAPI schema matches the actual responses
 
 The Store API OpenAPI schema was corrected where it contradicted the real responses; the responses themselves are unchanged. If you generate types or validate responses from the schema, regenerate them. Notable changes:
@@ -69,6 +89,25 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
 ## Administration
+
+### Custom-field set loader computed properties deprecated
+
+The following Administration components now load custom-field sets through `customFieldDataProviderService`. This replaces their separate loaders with one shared implementation and gives each component cached results by entity, language, and requested limit. Their previous loader computed properties remain available in 6.7 but are deprecated for v6.8.0:
+
+| Component | Deprecated computed properties |
+|---|---|
+| `sw-category-detail` (categories and landing pages) | `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria` |
+| `sw-customer-detail-base` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-customer-detail-addresses` | `customFieldSetRepository` |
+| `sw-manufacturer-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-order-detail-details` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-sales-channel-detail` | `customFieldRepository` |
+| `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` |
+
+Extensions that load renderable custom-field sets should use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
+
+The `repositoryFactory` injection in `sw-customer-detail-base` remains available only for its deprecated `customFieldSetRepository` property and will be removed in 6.8.
 
 ### New extension points for the Shopping Experiences layout list
 
@@ -130,6 +169,7 @@ The `assetFilter` computed property is removed in v6.8.0 in these components; us
 - `sw-settings-listing-option-criteria-grid`
 - `sw-settings-product-feature-sets-values-card`
 - `sw-tax-rule-card`
+
 ### Main menu group "Catalogues" is now "Products"
 
 The first main menu group is labelled "Products", its product list entry is labelled "Overview", and the matching group in Settings > Users & permissions is labelled "Products" as well. Menu ids and privilege parent keys are unchanged: entries still hook into the `sw-catalogue` menu id, and privileges still use `parent: 'catalogues'`.

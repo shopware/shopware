@@ -7,8 +7,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -20,7 +24,9 @@ class EntityGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'entities';
+    private const OPTION_TITLE = 'Custom Entities';
     private const OPTION_DESCRIPTION = 'list of entities to generate (PascalCase, comma separated)';
+    private const OPTION_DESCRIPTION_LONG = 'Custom entities allow a plugin to store structured data in their own database tables using Shopware\'s Data Abstraction Layer. Use it when your plugin needs a dedicated custom entity with repositories, fields, and relationships for managing complex data.';
 
     private string $servicesPhpEntry = <<<'EOL'
 
@@ -36,7 +42,7 @@ EOL;
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
         InputInterface $input,
-        SymfonyStyle $io
+        OutputInterface $output
     ): void {
         $entities = $input->getOption(self::OPTION_NAME);
 
@@ -46,7 +52,7 @@ EOL;
             return;
         }
 
-        $entities = $this->askForEntities($io);
+        $entities = $this->askForEntities($input, $output);
 
         if ($entities === null || $entities === '') {
             return;
@@ -182,15 +188,30 @@ EOL;
         return (new CamelCaseToSnakeCaseNameConverter())->normalize($entityName);
     }
 
-    private function askForEntities(SymfonyStyle $io): ?string
+    private function askForEntities(InputInterface $input, OutputInterface $output): ?string
     {
-        $entitiesProvided = $io->confirm('Do you want to create entities?');
-
-        if ($entitiesProvided === false) {
-            return null;
+        if (!$output instanceof ConsoleOutputInterface) {
+            throw new \InvalidArgumentException('This command accepts only an instance of "ConsoleOutputInterface".');
         }
 
-        return $io->ask('Please provide a list of entities (PascalCase, comma separated)');
+        $tempSection = $output->section();
+        $helper = new QuestionHelper();
+
+        $tempSection->writeln(\sprintf('<options=bold>%s</>', self::OPTION_TITLE));
+        $tempSection->writeln(self::OPTION_DESCRIPTION_LONG);
+        $tempSection->writeln('');
+
+        $confirmation = new ConfirmationQuestion('<fg=green>Do you want to create entities? [Y/n]:</>', true, '/^(y|j)/i');
+
+        if (!$helper->ask($input, $tempSection, $confirmation)) {
+            $tempSection->clear();
+            return null;
+        }
+        
+        $entities = $helper->ask($input, $tempSection, new Question('<fg=green>Please provide a list of entities (PascalCase, comma separated):</>'));
+        $tempSection->clear();
+
+        return \is_string($entities) ? $entities : null;
     }
 
     private function processEntities(PluginScaffoldConfiguration $config, string $entities): void

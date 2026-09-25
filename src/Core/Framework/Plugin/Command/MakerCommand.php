@@ -98,7 +98,7 @@ class MakerCommand extends Command
                 $directory
             );
 
-            $this->generator->addScaffoldConfig($configuration, $input, $io);
+            $this->generator->addScaffoldConfig($configuration, $input, $output);
 
             $stubCollection = $this->scaffoldingCollector->collect($configuration, $this->generator);
 

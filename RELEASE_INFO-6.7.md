@@ -130,6 +130,10 @@ The group order in the permissions grid of Settings > Users & permissions follow
 
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
+### Mail template trigger event is preselected
+
+The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
+
 ## Storefront
 
 ### Checkout form data is kept in the session storage

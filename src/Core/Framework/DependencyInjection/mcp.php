@@ -102,8 +102,12 @@ return static function (ContainerConfigurator $container): void {
     // allowlist request handlers page with the same number.
     $container->parameters()->set('shopware.mcp.pagination_limit', 50);
 
+    // Not cache.system: it always uses Symfony's system adapter (APCu or the filesystem), which is local
+    // to one server, while cache.app follows framework.cache.app and is shared when that points to a
+    // shared store such as Redis. When the Admin server keeps its sessions in a cache pool,
+    // McpSessionRegistryCompilerPass points the registry at that pool instead.
     $services->set('shopware.mcp.session_registry_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
+        ->args([service('cache.app')]);
 
     $services->set(McpSessionRegistry::class)
         ->args([
@@ -210,10 +214,10 @@ return static function (ContainerConfigurator $container): void {
     // pointed at the store-api registry/params and an isolated session registry (own cache) so
     // enabling an admin toolset never notifies store-api sessions and vice versa.
     $services->set('mcp.store_api.session_registry_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
+        ->args([service('cache.app')]);
 
     // Distinct cache key from the Admin registry so the two endpoints' active-session populations
-    // stay isolated even though both wrap the cache.system pool.
+    // stay isolated even when both use the same pool.
     $services->set('mcp.store_api.session_registry', McpSessionRegistry::class)
         ->args([
             service('mcp.store_api.session_registry_cache'),

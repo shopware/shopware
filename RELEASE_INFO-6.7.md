@@ -45,6 +45,10 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### MCP session registry follows the session store
+
+Each MCP server keeps a registry of its active sessions, which `tools/list_changed` broadcasts go to. It no longer uses `cache.system`, which is local to one server. When a server stores its sessions in a cache pool (`session: {store: cache, cache_pool: ...}`), the registry uses the same pool. Otherwise it uses `cache.app`. If you overrode `shopware.mcp.session_registry_cache` or `mcp.store_api.session_registry_cache` to share the registry, you can remove that override. In multi-server setups, also configure `framework.lock` with a shared store, so concurrent registry updates on different servers don't lose sessions.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses

@@ -148,6 +148,14 @@ multi-worker or multi-server deployments, configure a `session` store per server
 `packages/mcp.php` (`cache` or `framework`), or override the service with an implementation of
 `Mcp\Server\Session\SessionStoreInterface` backed by shared storage (e.g. Redis).
 
+Each server also keeps a registry of its active session ids, which `tools/list_changed`
+broadcasts (for example after an app install) are sent to. When a server uses the `cache` store,
+its registry uses the same cache pool automatically (`McpSessionRegistryCompilerPass`), so the
+registry is shared wherever the sessions are. Otherwise it uses `cache.app`. The registry updates
+its list under a lock from `lock.factory`, which uses local files by default: in multi-server
+setups, point `framework.lock` to a shared store (for example Redis), or concurrent requests on
+different servers can lose session ids.
+
 ## Built-in Capabilities
 
 | Name | Type | Description |

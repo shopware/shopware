@@ -24,4 +24,25 @@ class RedisInvalidatorStorageTest extends TestCase
         static::assertSame(['bar', 'foo'], $storage->loadAndDelete());
         static::assertSame([], $storage->loadAndDelete());
     }
+
+    public function testStoreIgnoresTagKeys(): void
+    {
+        $storage = new RedisInvalidatorStorage(new RedisStub());
+
+        $storage->store([
+            'abcdef0123456789abcdef0123456789' => 'cms-page-example',
+            'fedcba9876543210fedcba9876543210' => 'product-example',
+        ]);
+
+        static::assertSame(['cms-page-example', 'product-example'], $storage->loadAndDelete());
+    }
+
+    public function testStoreWithoutTags(): void
+    {
+        $storage = new RedisInvalidatorStorage(new RedisStub());
+
+        $storage->store([]);
+
+        static::assertSame([], $storage->loadAndDelete());
+    }
 }

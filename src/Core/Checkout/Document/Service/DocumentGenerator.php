@@ -170,6 +170,16 @@ class DocumentGenerator
 
         $success = $rendered->getSuccess();
 
+        // the numbers of every rendered document are checked with one query instead of one query per document
+        $numbers = [];
+        foreach ($success as $document) {
+            if ($document instanceof RenderedDocument) {
+                $numbers[] = $document->getNumber();
+            }
+        }
+
+        $takenNumbers = $this->fetchDocumentIdsByNumber($documentType, $numbers);
+
         foreach ($operations as $orderId => $operation) {
             try {
                 $document = $success[$orderId] ?? null;
@@ -178,7 +188,7 @@ class DocumentGenerator
                     continue;
                 }
 
-                $this->checkDocumentNumberAlreadyExits($documentType, $document->getNumber(), $operation->getDocumentId());
+                $this->assertDocumentNumberIsFree($takenNumbers, $document->getNumber(), $operation->getDocumentId());
 
                 $deepLinkCode = Random::getAlphanumericString(32);
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
@@ -301,40 +311,46 @@ class DocumentGenerator
         return $id ?: null;
     }
 
-    private function checkDocumentNumberAlreadyExits(
-        string $documentTypeName,
-        string $documentNumber,
-        ?string $documentId = null
-    ): void {
-        $sql = '
-            SELECT COUNT(id)
-            FROM document
-            WHERE
-                document_type_id IN (
-                    SELECT id
-                    FROM document_type
-                    WHERE technical_name = :documentTypeName
-                )
-                AND document_number = :documentNumber
-                AND id ' . ($documentId !== null ? '!= :documentId' : 'IS NOT NULL') . '
-            LIMIT 1
-        ';
-
-        $params = [
-            'documentTypeName' => $documentTypeName,
-            'documentNumber' => $documentNumber,
-        ];
-
-        if ($documentId !== null) {
-            $params['documentId'] = Uuid::fromHexToBytes($documentId);
+    /**
+     * @param list<string> $documentNumbers
+     *
+     * @return array<string, list<string>> document number to the ids of the documents already holding it
+     */
+    private function fetchDocumentIdsByNumber(string $documentTypeName, array $documentNumbers): array
+    {
+        if ($documentNumbers === []) {
+            return [];
         }
 
-        $statement = $this->connection->executeQuery($sql, $params);
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT `document`.`document_number` AS number, LOWER(HEX(`document`.`id`)) AS id
+             FROM `document`
+             WHERE `document`.`document_type_id` IN (
+                 SELECT `id` FROM `document_type` WHERE `technical_name` = :documentTypeName
+             )
+             AND `document`.`document_number` IN (:documentNumbers)',
+            ['documentTypeName' => $documentTypeName, 'documentNumbers' => $documentNumbers],
+            ['documentNumbers' => ArrayParameterType::STRING]
+        );
 
-        $result = (bool) $statement->fetchOne();
+        $taken = [];
+        foreach ($rows as $row) {
+            $taken[(string) $row['number']][] = (string) $row['id'];
+        }
 
-        if ($result) {
-            throw DocumentException::documentNumberAlreadyExistsException($documentNumber);
+        return $taken;
+    }
+
+    /**
+     * @param array<string, list<string>> $takenNumbers
+     */
+    private function assertDocumentNumberIsFree(array $takenNumbers, string $documentNumber, ?string $documentId = null): void
+    {
+        foreach ($takenNumbers[$documentNumber] ?? [] as $id) {
+            // the document that is being replaced may keep its own number
+            if ($documentId === null || $id !== $documentId) {
+                throw DocumentException::documentNumberAlreadyExistsException($documentNumber);
+            }
         }
     }
 

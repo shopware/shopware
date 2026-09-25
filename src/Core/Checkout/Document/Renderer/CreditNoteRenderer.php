@@ -117,6 +117,18 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $this->eventDispatcher->dispatch(new CreditNoteOrdersEvent($orders, $context, $operations));
 
+        // the credit line items of every referenced invoice are read with one query each, instead of two queries per order
+        $referencedInvoiceIds = [];
+        foreach ($operations as $operation) {
+            if ($referencedInvoiceId = $operation->getReferencedDocumentId()) {
+                $referencedInvoiceIds[] = $referencedInvoiceId;
+            }
+        }
+        $referencedInvoiceIds = array_values(array_unique($referencedInvoiceIds));
+
+        $creditIdsOnInvoice = $this->getCreditIdsOnInvoiceDocuments($referencedInvoiceIds);
+        $previouslyCreditedIds = $this->getPreviouslyCreditedIdsForInvoices($referencedInvoiceIds);
+
         foreach ($orders as $order) {
             $orderId = $order->getId();
 
@@ -142,8 +154,8 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 }
 
                 $referencedInvoiceId = $operation->getReferencedDocumentId();
-                $invoiceCreditIds = $this->getCreditIdsOnInvoiceDocument($referencedInvoiceId);
-                $creditNoteItemIds = $this->getPreviouslyCreditedIdsForInvoice($referencedInvoiceId);
+                $invoiceCreditIds = $referencedInvoiceId === null ? [] : ($creditIdsOnInvoice[$referencedInvoiceId] ?? []);
+                $creditNoteItemIds = $referencedInvoiceId === null ? [] : ($previouslyCreditedIds[$referencedInvoiceId] ?? []);
 
                 $creditItems = $liveCreditItems->filter(
                     static fn (OrderLineItemEntity $item) => !\in_array($item->getId(), $invoiceCreditIds, true)
@@ -339,76 +351,89 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
     /**
      * @return list<string> IDs of already invoiced credit items
      */
-    private function getCreditIdsOnInvoiceDocument(?string $referencedInvoiceId): array
+    /**
+     * @param list<string> $referencedInvoiceIds
+     *
+     * @return array<string, list<string>> invoice id to the credit line items that already sit on that invoice
+     */
+    private function getCreditIdsOnInvoiceDocuments(array $referencedInvoiceIds): array
     {
-        if ($referencedInvoiceId === null) {
+        if ($referencedInvoiceIds === []) {
             return [];
         }
 
         $sql = '
             SELECT
+                LOWER(HEX(d.id)) AS invoice_id,
                 oli.id AS id
             FROM
                 document AS d
                 INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
             WHERE
-                d.id = :referencedInvoiceId
+                d.id IN (:referencedInvoiceIds)
                 AND oli.type = :creditType
                 AND d.order_version_id != :liveVersionId;
         ';
 
-        /**
-         * Documents with order_version_id = LIVE_VERSION are intentionally excluded here,
-         * because under certain (rare) circumstances, the order_version_id of the invoice document
-         * can be LIVE_VERSION instead of an actual snapshot unique version ID.
-         *
-         * This makes it possible to still generate credit notes for invoice documents that have
-         * been created with a LIVE_VERSION order_version_id.
-         *
-         * It also comes with a drawback: if the invoice already contained a credit item,
-         * the new credit note will include it again. Unfortunately, this is the best we can do
-         * to still support these special cases and is still better than failing the credit note generation,
-         * which might be needed years later for a business case.
-         */
-        $binaryIds = $this->connection->fetchFirstColumn($sql, [
-            'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
-            'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
-            'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-        ]);
-
-        return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
+        return $this->groupLineItemsByInvoice($sql, $referencedInvoiceIds, true);
     }
 
     /**
      * @return list<string> IDs of already credited items on previous credit notes for the referenced invoice
      */
-    private function getPreviouslyCreditedIdsForInvoice(?string $referencedInvoiceId): array
+    /**
+     * @param list<string> $referencedInvoiceIds
+     *
+     * @return array<string, list<string>> invoice id to the credit line items credited by its credit notes
+     */
+    private function getPreviouslyCreditedIdsForInvoices(array $referencedInvoiceIds): array
     {
-        if ($referencedInvoiceId === null) {
+        if ($referencedInvoiceIds === []) {
             return [];
         }
 
         $sql = '
             SELECT
+                LOWER(HEX(d.referenced_document_id)) AS invoice_id,
                 oli.id AS id
             FROM
                 document AS d
                 INNER JOIN document_type AS dt ON dt.id = d.document_type_id
                 INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
             WHERE
-                d.referenced_document_id = :referencedInvoiceId
+                d.referenced_document_id IN (:referencedInvoiceIds)
                 AND dt.technical_name IN (:creditTechnicalName)
                 AND oli.type = :creditType;
         ';
 
-        $binaryIds = $this->connection->fetchFirstColumn($sql, [
-            'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
-            'creditTechnicalName' => [self::TYPE, ZugferdCreditNoteRenderer::TYPE, ZugferdEmbeddedCreditNoteRenderer::TYPE],
-            'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
-        ], [
-            'creditTechnicalName' => ArrayParameterType::STRING,
-        ]);
+        return $this->groupLineItemsByInvoice($sql, $referencedInvoiceIds, false);
+    }
 
-        return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);
+    /**
+     * @param list<string> $referencedInvoiceIds
+     *
+     * @return array<string, list<string>>
+     */
+    private function groupLineItemsByInvoice(string $sql, array $referencedInvoiceIds, bool $liveVersionOnly): array
+    {
+        $params = [
+            'referencedInvoiceIds' => Uuid::fromHexToBytesList($referencedInvoiceIds),
+            'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
+        ];
+        $types = ['referencedInvoiceIds' => ArrayParameterType::BINARY];
+
+        if ($liveVersionOnly) {
+            $params['liveVersionId'] = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        } else {
+            $params['creditTechnicalName'] = [self::TYPE, ZugferdCreditNoteRenderer::TYPE, ZugferdEmbeddedCreditNoteRenderer::TYPE];
+            $types['creditTechnicalName'] = ArrayParameterType::STRING;
+        }
+
+        $grouped = [];
+        foreach ($this->connection->fetchAllAssociative($sql, $params, $types) as $row) {
+            $grouped[(string) $row['invoice_id']][] = Uuid::fromBytesToHex($row['id']);
+        }
+
+        return $grouped;
     }
 }

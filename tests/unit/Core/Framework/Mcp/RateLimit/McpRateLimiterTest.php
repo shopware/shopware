@@ -130,4 +130,244 @@ class McpRateLimiterTest extends TestCase
 
         $this->mcpRateLimiter->enforceForStoreApi(new Request());
     }
+
+    public function testEnforceForAdminApiUsesSeparateKeyForInitializedNotification(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, 'initialized-127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForAdminApi($this->jsonRpcRequest('notifications/initialized', id: null));
+    }
+
+    public function testEnforceForStoreApiUsesSeparatePerIpKeyForInitializedNotification(): void
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
+        $salesChannelContext->method('getToken')->willReturn('context-token');
+
+        $request = $this->jsonRpcRequest('notifications/initialized', id: null);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_STORE_API, 'initialized-127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForStoreApi($request);
+    }
+
+    public function testEnforceForStoreApiTranslatesInitializedNotificationThrottle(): void
+    {
+        $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
+
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_STORE_API, 'initialized-127.0.0.1')
+            ->willThrowException($rateLimitException);
+
+        $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
+
+        $this->mcpRateLimiter->enforceForStoreApi($this->jsonRpcRequest('notifications/initialized', id: null));
+    }
+
+    public function testEnforceForAdminApiStillLimitsInitialize(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForAdminApi($this->jsonRpcRequest('initialize'));
+    }
+
+    public function testEnforceForStoreApiStillLimitsInitialize(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_STORE_API, '127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForStoreApi($this->jsonRpcRequest('initialize'));
+    }
+
+    public function testEnforceForAdminApiUsesSeparateKeyForInitializedOnlyBatch(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, 'initialized-127.0.0.1');
+
+        $request = Request::create('/api/_mcp', 'POST', content: json_encode([
+            ['jsonrpc' => '2.0', 'method' => 'notifications/initialized', 'params' => []],
+            ['jsonrpc' => '2.0', 'method' => 'notifications/initialized', 'params' => []],
+        ], \JSON_THROW_ON_ERROR));
+
+        $this->mcpRateLimiter->enforceForAdminApi($request);
+    }
+
+    public function testEnforceForAdminApiStillLimitsInitializeOnlyBatch(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $request = Request::create('/api/_mcp', 'POST', content: json_encode([
+            ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => []],
+            ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'initialize', 'params' => []],
+        ], \JSON_THROW_ON_ERROR));
+
+        $this->mcpRateLimiter->enforceForAdminApi($request);
+    }
+
+    public function testEnforceForAdminApiStillLimitsBatchContainingInitializeAndInitialized(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $request = Request::create('/api/_mcp', 'POST', content: json_encode([
+            ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => []],
+            ['jsonrpc' => '2.0', 'method' => 'notifications/initialized', 'params' => []],
+        ], \JSON_THROW_ON_ERROR));
+
+        $this->mcpRateLimiter->enforceForAdminApi($request);
+    }
+
+    public function testEnforceForAdminApiStillLimitsMixedBatchWithInitialized(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $request = Request::create('/api/_mcp', 'POST', content: json_encode([
+            ['jsonrpc' => '2.0', 'method' => 'notifications/initialized', 'params' => []],
+            ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'tools/list', 'params' => []],
+        ], \JSON_THROW_ON_ERROR));
+
+        $this->mcpRateLimiter->enforceForAdminApi($request);
+    }
+
+    public function testEnforceForAdminApiStillLimitsToolsList(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForAdminApi($this->jsonRpcRequest('tools/list', id: 2));
+    }
+
+    public function testEnforceForAdminApiStillLimitsInvalidJson(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $request = Request::create('/api/_mcp', 'POST', content: '{not-json');
+
+        $this->mcpRateLimiter->enforceForAdminApi($request);
+    }
+
+    public function testEnforceForAdminApiStillLimitsGetRequests(): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForAdminApi(Request::create('/api/_mcp', 'GET'));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function limitedPostBodyProvider(): iterable
+    {
+        yield 'empty body' => [''];
+        yield 'malformed JSON mentioning initialized' => ['{"jsonrpc":"2.0","method":"notifications/initialized"'];
+        yield 'JSON string scalar' => ['"notifications/initialized"'];
+        yield 'batch with scalar entry' => ['["notifications/initialized"]'];
+        yield 'object without method' => ['{"jsonrpc":"2.0","initialized":true}'];
+        yield 'method with wrong type' => ['{"jsonrpc":"2.0","method":["notifications/initialized"]}'];
+        yield 'oversized body' => ['{"jsonrpc":"2.0","method":"notifications/initialized","params":{"padding":"' . str_repeat('x', 4096) . '"}}'];
+    }
+
+    #[DataProvider('limitedPostBodyProvider')]
+    public function testEnforceForAdminApiStillLimitsNonInitializedPostBodies(string $content): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, '127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForAdminApi(Request::create('/api/_mcp', 'POST', content: $content));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function escapedInitializedBodyProvider(): iterable
+    {
+        yield 'escaped slash' => ['{"jsonrpc":"2.0","method":"notifications\/initialized"}'];
+        yield 'unicode escape' => ['{"jsonrpc":"2.0","method":"notifications/\u0069nitialized"}'];
+    }
+
+    #[DataProvider('escapedInitializedBodyProvider')]
+    public function testEnforceForAdminApiRecognisesEscapedInitializedNotification(string $content): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_ADMIN_API, 'initialized-127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForAdminApi(Request::create('/api/_mcp', 'POST', content: $content));
+    }
+
+    /**
+     * Reproduces #18906: after time_backoff accepts one post-wait request,
+     * initialize consumes that slot; the mandatory notifications/initialized
+     * follow-up uses its own key so the handshake can finish. tools/list
+     * is back on the endpoint key.
+     */
+    public function testPostBackoffHandshakeSequenceKeepsInitializedOffTheInitializeKey(): void
+    {
+        $accepted = [];
+        $this->rateLimiter->expects($this->exactly(3))
+            ->method('ensureAccepted')
+            ->willReturnCallback(static function (string $route, string $key) use (&$accepted): void {
+                $accepted[] = [$route, $key];
+            });
+
+        $tokenRequest = static function (string $method, ?int $id = null): Request {
+            $payload = ['jsonrpc' => '2.0', 'method' => $method, 'params' => []];
+            if ($id !== null) {
+                $payload['id'] = $id;
+            }
+
+            $request = Request::create('/api/_mcp', 'POST', content: json_encode($payload, \JSON_THROW_ON_ERROR));
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'token-after-backoff');
+
+            return $request;
+        };
+
+        // After backoff elapsed: initialize consumes the one accepted slot.
+        $this->mcpRateLimiter->enforceForAdminApi($tokenRequest('initialize', 1));
+        // Immediate notifications/initialized draws from its own key instead.
+        $this->mcpRateLimiter->enforceForAdminApi($tokenRequest('notifications/initialized'));
+        // First real protocol work still draws from the shared bucket.
+        $this->mcpRateLimiter->enforceForAdminApi($tokenRequest('tools/list', 2));
+
+        static::assertSame([
+            [RateLimiter::MCP_ADMIN_API, 'token-after-backoff'],
+            [RateLimiter::MCP_ADMIN_API, 'initialized-token-after-backoff'],
+            [RateLimiter::MCP_ADMIN_API, 'token-after-backoff'],
+        ], $accepted);
+    }
+
+    private function jsonRpcRequest(string $method, ?int $id = 1): Request
+    {
+        $payload = [
+            'jsonrpc' => '2.0',
+            'method' => $method,
+            'params' => [],
+        ];
+        if ($id !== null) {
+            $payload['id'] = $id;
+        }
+
+        return Request::create('/api/_mcp', 'POST', content: json_encode($payload, \JSON_THROW_ON_ERROR));
+    }
 }

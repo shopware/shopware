@@ -17,10 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -100,7 +100,42 @@ class DocumentConfigLoaderTest extends TestCase
     }
 
     #[DataProvider('logoUrlProvider')]
-    public function testLoadNormalizesLogoUrl(?string $logoUrl, bool $mediaUrlPathEncoding, ?string $expectedLogoUrl): void
+    public function testLoadNormalizesLogoUrl(?string $logoUrl, ?string $expectedLogoUrl): void
+    {
+        $this->assertLoadNormalizesLogoUrl($logoUrl, $expectedLogoUrl);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
+    public function testLoadEncodesLegacyLogoUrl(): void
+    {
+        $this->assertLoadNormalizesLogoUrl('https://example.com/media/my logo_test.webp', 'https://example.com/media/my%20logo_test.webp');
+    }
+
+    /**
+     * @return iterable<string, array{logoUrl: string|null, expectedLogoUrl: string|null}>
+     */
+    public static function logoUrlProvider(): iterable
+    {
+        yield 'keeps logo url untouched' => [
+            'logoUrl' => 'https://example.com/media/my logo_test.webp',
+            'expectedLogoUrl' => 'https://example.com/media/my logo_test.webp',
+        ];
+
+        yield 'empty logo url is kept' => [
+            'logoUrl' => '',
+            'expectedLogoUrl' => '',
+        ];
+
+        yield 'missing logo is ignored' => [
+            'logoUrl' => null,
+            'expectedLogoUrl' => null,
+        ];
+    }
+
+    private function assertLoadNormalizesLogoUrl(?string $logoUrl, ?string $expectedLogoUrl): void
     {
         $document = new DocumentBaseConfigEntity();
         $document->setId($this->ids->get('document'));
@@ -129,55 +164,17 @@ class DocumentConfigLoaderTest extends TestCase
             new DocumentBaseConfigDefinition(),
         );
 
-        $check = function () use ($configRepository, $context, $expectedLogoUrl): void {
-            $countryRepository = new StaticEntityRepository([], new CountryDefinition());
+        $countryRepository = new StaticEntityRepository([], new CountryDefinition());
 
-            $loader = new DocumentConfigLoader(
-                $configRepository,
-                $countryRepository,
-            );
+        $loader = new DocumentConfigLoader(
+            $configRepository,
+            $countryRepository,
+        );
 
-            $config = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
-            $cachedConfig = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
+        $config = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
+        $cachedConfig = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
 
-            static::assertSame($expectedLogoUrl, $config->getLogo()?->getUrl());
-            static::assertSame($expectedLogoUrl, $cachedConfig->getLogo()?->getUrl());
-        };
-
-        if ($mediaUrlPathEncoding) {
-            Feature::withFeatureEnabled('MEDIA_URL_PATH_ENCODING', $check);
-        } else {
-            Feature::withFeatureDisabled('MEDIA_URL_PATH_ENCODING', $check);
-        }
-    }
-
-    /**
-     * @return iterable<string, array{logoUrl: string|null, mediaUrlPathEncoding: bool, expectedLogoUrl: string|null}>
-     */
-    public static function logoUrlProvider(): iterable
-    {
-        yield 'encodes raw logo url' => [
-            'logoUrl' => 'https://example.com/media/my logo_test.webp',
-            'mediaUrlPathEncoding' => false,
-            'expectedLogoUrl' => 'https://example.com/media/my%20logo_test.webp',
-        ];
-
-        yield 'keeps logo url untouched' => [
-            'logoUrl' => 'https://example.com/media/my logo_test.webp',
-            'mediaUrlPathEncoding' => true,
-            'expectedLogoUrl' => 'https://example.com/media/my logo_test.webp',
-        ];
-
-        yield 'empty logo url is kept' => [
-            'logoUrl' => '',
-            'mediaUrlPathEncoding' => false,
-            'expectedLogoUrl' => '',
-        ];
-
-        yield 'missing logo is ignored' => [
-            'logoUrl' => null,
-            'mediaUrlPathEncoding' => false,
-            'expectedLogoUrl' => null,
-        ];
+        static::assertSame($expectedLogoUrl, $config->getLogo()?->getUrl());
+        static::assertSame($expectedLogoUrl, $cachedConfig->getLogo()?->getUrl());
     }
 }

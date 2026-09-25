@@ -266,7 +266,6 @@ class ProductExportRendererTest extends TestCase
         $renderer->renderBody($productExport, $this->context, []);
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
     public function testRenderBodyKeepsUrlLikeDescriptionsUnchanged(): void
     {
         $renderer = $this->createRenderer();
@@ -285,7 +284,10 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('https://foo.com/barbaz is the address where you can find more about this product' . \PHP_EOL, $rendered);
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
     public function testRenderBodyEncodesUrlsInNestedStructsWithoutMutatingThem(): void
     {
         $renderer = $this->createRenderer();
@@ -309,7 +311,10 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('https://example.com/media/My Image, Front.jpg', $coverMedia->getUrl());
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
     public function testRenderBodyEncodesNestedThumbnailUrlsWithoutMutatingThem(): void
     {
         $renderer = $this->createRenderer();
@@ -328,7 +333,10 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('https://example.com/thumbnail/My Image.jpg', $thumbnail->getUrl());
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
     public function testRenderBodyKeepsUnchangedStructsByIdentity(): void
     {
         $productExport = new ProductExportEntity();
@@ -365,8 +373,7 @@ class ProductExportRendererTest extends TestCase
         ]));
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
-    public function testRenderBodyDoesNotDoubleEncodeMediaUrls(): void
+    public function testRenderBodyKeepsEncodedMediaUrls(): void
     {
         $renderer = $this->createRenderer();
         $productExport = new ProductExportEntity();
@@ -384,7 +391,6 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('https://example.com/media/My%20Image,%20Front.jpg?foo=hello%20world', $media->getUrl());
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
     public function testRenderBodyKeepsNonUrlAndUnparsableUrlValues(): void
     {
         $renderer = $this->createRenderer();
@@ -400,7 +406,6 @@ class ProductExportRendererTest extends TestCase
         static::assertSame('Product feed https://' . \PHP_EOL, $rendered);
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
     public function testRenderBodyKeepsInvalidMediaUrlsUnchanged(): void
     {
         $renderer = $this->createRenderer();

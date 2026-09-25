@@ -19,8 +19,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -30,6 +30,10 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(PercentagePriceCalculator::class)]
 class PercentagePriceCalculatorTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the PROPORTIONAL_CART_TAXES flag
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testProportionalTaxesCanBeEnabledBeforeTheMajor(): void
     {
         $quantityCalculator = $this->createMock(QuantityPriceCalculator::class);
@@ -39,14 +43,15 @@ class PercentagePriceCalculatorTest extends TestCase
             new CalculatedPrice(100, 100, new CalculatedTaxCollection([new CalculatedTax(10, 10, 100)]), new TaxRuleCollection([new TaxRule(10)])),
         ]);
 
-        $result = Feature::withFeatureDisabled('v6.8.0.0', static fn (): CalculatedPrice => Feature::withFeatureEnabled(
-            'PROPORTIONAL_CART_TAXES',
-            static fn (): CalculatedPrice => $calculator->calculate(-10, $prices, Generator::generateSalesChannelContext())
-        ));
+        $result = $calculator->calculate(-10, $prices, Generator::generateSalesChannelContext());
 
         static::assertSame(-1.0, $result->getCalculatedTaxes()->getAmount());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the PROPORTIONAL_CART_TAXES flag
+     */
+    #[DisabledFeatures(['PROPORTIONAL_CART_TAXES'])]
     public function testProportionalTaxesCanBeDisabledWithTheMajor(): void
     {
         $legacyPrice = new CalculatedPrice(-10, -10, new CalculatedTaxCollection(), new TaxRuleCollection());
@@ -57,10 +62,7 @@ class PercentagePriceCalculatorTest extends TestCase
             new CalculatedPrice(100, 100, new CalculatedTaxCollection([new CalculatedTax(10, 10, 100)]), new TaxRuleCollection([new TaxRule(10)])),
         ]);
 
-        $result = Feature::withFeatureEnabled('v6.8.0.0', static fn (): CalculatedPrice => Feature::withFeatureDisabled(
-            'PROPORTIONAL_CART_TAXES',
-            static fn (): CalculatedPrice => $calculator->calculate(-10, $prices, Generator::generateSalesChannelContext())
-        ));
+        $result = $calculator->calculate(-10, $prices, Generator::generateSalesChannelContext());
 
         static::assertSame($legacyPrice, $result);
     }

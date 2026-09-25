@@ -82,6 +82,9 @@ class MediaUrlGeneratorTest extends TestCase
         static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
     #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
     public function testWithInactiveMediaUrlPathEncoding(): void
     {
@@ -95,6 +98,10 @@ class MediaUrlGeneratorTest extends TestCase
         static::assertSame(['http://localhost:8000/media/foo/3a/test file.jpg'], $url);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testMediaUrlEncodingCanBeEnabledWithoutTheMajorFlag(): void
     {
         $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
@@ -102,14 +109,15 @@ class MediaUrlGeneratorTest extends TestCase
             new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
         );
 
-        $url = Feature::withFeatureDisabled('v6.8.0.0', static fn (): array => Feature::withFeatureEnabled(
-            'MEDIA_URL_PATH_ENCODING',
-            static fn (): array => $generator->generate([$params])
-        ));
+        $url = $generator->generate([$params]);
 
         static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
     public function testMediaUrlEncodingCanBeDisabledWithTheMajorFlag(): void
     {
         $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
@@ -117,10 +125,7 @@ class MediaUrlGeneratorTest extends TestCase
             new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
         );
 
-        $url = Feature::withFeatureEnabled('v6.8.0.0', static fn (): array => Feature::withFeatureDisabled(
-            'MEDIA_URL_PATH_ENCODING',
-            static fn (): array => $generator->generate([$params])
-        ));
+        $url = $generator->generate([$params]);
 
         static::assertSame(['http://localhost:8000/media/foo/3a/test file.jpg'], $url);
     }

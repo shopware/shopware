@@ -9,9 +9,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 use Twig\TwigFilter;
 
@@ -87,7 +87,11 @@ class UrlEncodingTwigFilterTest extends TestCase
         static::assertStringContainsString('spaces', $result);
     }
 
-    public function testMediaUrlFilterUsesTheSubfeatureIndependentlyOfTheMajor(): void
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testMediaUrlFilterUsesTheSubfeatureBeforeTheMajor(): void
     {
         $media = new MediaEntity();
         $media->setUrl('https://example.com/media/file with spaces.jpg');
@@ -95,17 +99,22 @@ class UrlEncodingTwigFilterTest extends TestCase
         $media->setFileExtension('jpg');
         $media->setMimeType('image/jpeg');
 
-        $earlyOptIn = Feature::withFeatureDisabled('v6.8.0.0', fn (): ?string => Feature::withFeatureEnabled(
-            'MEDIA_URL_PATH_ENCODING',
-            fn (): ?string => $this->filter->encodeMediaUrl($media)
-        ));
-        $majorOptOut = Feature::withFeatureEnabled('v6.8.0.0', fn (): ?string => Feature::withFeatureDisabled(
-            'MEDIA_URL_PATH_ENCODING',
-            fn (): ?string => $this->filter->encodeMediaUrl($media)
-        ));
+        static::assertSame('https://example.com/media/file with spaces.jpg', $this->filter->encodeMediaUrl($media));
+    }
 
-        static::assertSame('https://example.com/media/file with spaces.jpg', $earlyOptIn);
-        static::assertSame('https://example.com/media/file%20with%20spaces.jpg', $majorOptOut);
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
+    public function testMediaUrlFilterUsesLegacyEncodingWithTheMajor(): void
+    {
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/file with spaces.jpg');
+        $media->setFileName('file with spaces.jpg');
+        $media->setFileExtension('jpg');
+        $media->setMimeType('image/jpeg');
+
+        static::assertSame('https://example.com/media/file%20with%20spaces.jpg', $this->filter->encodeMediaUrl($media));
     }
 
     public function testEncodeMediaUrlWithComplexMediaEntity(): void

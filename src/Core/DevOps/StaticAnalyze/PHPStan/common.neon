@@ -73,6 +73,10 @@ parameters:
         createMockWithoutExpectationsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
             - 'Shopware\Tests\DevOps\'
+        # narrows NoKernelInUnitTestsRule to the suites that must not boot the kernel; the migration suite
+        # runs against a database on purpose
+        kernelInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -85,4 +89,5 @@ parametersSchema:
         allowedStorefrontRouteNamespaces: list(string),
         allowedUnitTestClassNamespaces: list(string),
         createMockWithoutExpectationsEnabledNamespaces: list(string),
+        kernelInUnitTestsEnabledNamespaces: list(string),
 ])

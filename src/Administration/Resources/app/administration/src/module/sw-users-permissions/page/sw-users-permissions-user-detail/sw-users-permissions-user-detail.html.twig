@@ -318,6 +318,7 @@
 
                         <mt-empty-state
                             v-if="integrations.length === 0 && !isLoading"
+                            centered
                             :icon="$route.meta.$module.icon"
                             :headline="$t('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
                             :description="$t('sw-users-permissions.users.user-detail.noAccessKeysSubline')"

@@ -1,0 +1,26 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "RevocationRequestRouteResponse": {
+                "type": "object",
+                "required": [
+                    "individualSuccessMessage",
+                    "apiAlias"
+                ],
+                "properties": {
+                    "individualSuccessMessage": {
+                        "description": "Confirmation text of the form element the submission was resolved to, or of the category that overrides it. Empty when neither is configured.",
+                        "type": "string"
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "array_struct"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,86 +1,104 @@
 ---
-title: MCP tool result envelope: transitional path to spec shapes
+title: MCP tool results move from the Shopware envelope to the MCP result format
 date: 2026-09-24
 area: framework
-tags: [framework, mcp, ai, tool-result, structuredContent, bc]
+tags: [framework, mcp, ai, tool-result, bc]
 ---
 
 ## Context
 
-Epic [#19965](https://github.com/shopware/shopware/issues/19965). Today Shopware MCP tools largely return a JSON **string** shaped like `{"success": true, "data": …, "_meta": …}` via `McpToolResponse::success()` / `::error()`. `McpToolResponseRule` (PHPStan) only requires that `#[McpTool]` classes **extend** `McpToolResponse`; it does **not** validate `__invoke()` return shapes or force `success()` / `error()`. The MCP result model is `content[]`, optional `structuredContent`, and `isError`; JSON-RPC errors are reserved for transport failures.
+### What MCP defines for a tool result
 
-`src/Core/Framework/Mcp/docs/spec-coverage.md` already flags the envelope as undecided (transitional vs long-term) and asks for a consistent business-error mapping. `mcp/sdk` 0.8 makes migration tractable: `ToolReference::extractStructuredContent()` gates on negotiated revision; on 2026-07-28, `outputSchema` / `structuredContent` follow SEP-2106 (any JSON Schema 2020-12 / any JSON value).
+When a client calls a tool, the MCP specification expects a result with these parts:
 
-This is the **widest blast radius** item in the epic: core tools, plugins (e.g. SwagMcpMerchantTools), apps, agentic-commerce parallels, and [shopware-mcp-evals](https://github.com/shopware/shopware-mcp-evals) all parse `success` / `data`. [#19966](https://github.com/shopware/shopware/issues/19966) needs allowed return shapes named once so ResourceLink typing is not rewritten twice. Sync tool [#20520](https://github.com/shopware/shopware/issues/20520) stays parked until this contract is clear.
+- `content`: a list of content blocks the model reads. A block can be text, an image, an embedded resource, or a `resource_link`, which points to a resource the client can fetch later.
+- `structuredContent` (optional): the machine-readable result as JSON. A tool can describe its shape with an `outputSchema`, and clients can validate against it.
+- `isError` (optional): `true` when the tool ran but failed, for example because of a validation or permission problem. The model sees the error and can react to it.
 
-**Locked 2026-09-24** for [#19967](https://github.com/shopware/shopware/issues/19967): transitional dual-support → deprecate → remove toward **spec shapes**; drop string `{"success":…}` by **experimental → 6.8.0**. A broader MCP PHPStan guidance pack (Admin ACL ≠ Store auth, reserved groups) is a **follow-on**, not part of merging this ADR.
+JSON-RPC errors are separate from all of this. They are meant for protocol problems (unknown tool, invalid parameters, server failure), not for normal business errors.
+
+### What Shopware returns today
+
+Almost all Shopware tools return a JSON string inside a single text block. `McpToolResponse::success()` and `::error()` build it:
+
+```json
+{"success": true, "data": {"...": "..."}, "_meta": {"responseSize": 24000}}
+{"success": false, "error": "Missing privilege: product:read"}
+```
+
+This worked while the ecosystem was young, but it has clear downsides:
+
+- A failed call (`"success": false`) is sent as a normal, successful MCP result. Clients that look at `isError` treat it as a success.
+- Clients and models have to parse a JSON string out of a text block instead of reading `structuredContent`. Typed clients can't validate anything, because there is no `outputSchema`.
+- The pointer to large results (see the ADR "MCP behaviour on the stateless 2026-07-28 protocol era") travels as a Shopware-specific `_meta.resourceUri` field that models have to be taught, while MCP has `resource_link` for exactly this.
+
+### Who depends on the envelope
+
+Changing it affects more code than any other part of the MCP work:
+
+- Core tools and every plugin or bundle tool that extends `McpToolResponse`.
+- App tools. Their webhook or app-script responses follow the same `{success, data}` convention.
+- Clients, agent prompts and our evaluation suite (`shopware-mcp-evals`), which read `success` and `data`.
+
+A PHPStan rule, `McpToolResponseRule`, already exists. It only checks that every `#[McpTool]` class extends `McpToolResponse`. It doesn't look at what a tool returns.
+
+The SDK (`mcp/sdk` 0.8) can return content blocks, `structuredContent` and `isError` directly. It also handles one difference between the protocol eras: on the handshake era `structuredContent` must be a JSON object, on the modern era it can be any JSON value.
+
+### Options
+
+1. **Keep the envelope permanently.** No migration, but Shopware stays incompatible with what clients expect, and every new feature (large-result pointers, Sync tool) would extend a format nobody else uses.
+2. **Switch now.** Clean, but every client, prompt, app and eval that reads `success` would break at once.
+3. **Switch in phases.** Support both formats for a while, deprecate the old one, then remove it.
 
 ## Decision
 
-### Path
+We choose option 3. The Shopware envelope is transitional. It is removed no later than the release in which MCP stops being experimental (6.8.0).
 
-The Shopware string envelope is **transitional**, not long-term product contract.
+### Phase 1: both formats
 
-1. **Dual-support**: helpers accept / emit both legacy string envelope and native MCP returns during the window.
-2. **Deprecate**: UPGRADE / RELEASE_INFO + PHPStan deprecation signal for the string envelope.
-3. **Remove**: drop string `{"success":…}` emission and tighten/remove the **return-shape / deprecation** PHPStan rule that flagged legacy string returns **no later than experimental → 6.8.0**.
+`McpToolResponse` fills the MCP fields and keeps the old string for existing readers:
 
-Reject indefinite Shopware-only envelope. Reject a hard cut in this iteration while early-adopter parsers still assume `success`.
+- `structuredContent` contains what `data` contains today.
+- A failed call sets `isError: true`.
+- The text block still contains the legacy JSON string, so clients and apps that read `success` keep working.
 
-### Allowed return shapes (named for #19966)
+New tools use the new helpers from the start. Existing tools are migrated one by one, together with matching updates in the evaluation suite.
 
-A tool `call` / invoke path may return:
+### Phase 2: deprecate
 
-| Shape | Use |
+Release notes and upgrade notes announce the removal. A new PHPStan rule reports tools that still build the legacy string themselves. It starts as a warning.
+
+### Phase 3: remove
+
+By 6.8.0 the legacy string is gone. The text block then only contains a short readable summary or the plain result, without the `success` wrapper. The new PHPStan rule becomes an error, then it is removed once nothing can produce the old format anymore.
+
+### How the old format maps to the new one
+
+| Today | After the migration |
 |---|---|
-| **Legacy JSON string** `{"success":…}` | Transitional only; dual-read until removed by 6.8.0 |
-| **`Content` blocks** (incl. text / resource) | Preferred wire shape; **ResourceLink** is a Content return for large-result offload |
-| **`structuredContent`** (+ `content[]` as required by revision) | Machine-readable success payload (maps from today’s `data`) |
-| **`isError: true`** with error content / structured payload | Business / domain failure (maps from today’s `success: false` envelope) |
-| **JSON-RPC error** | Transport / protocol / unexpected server failure only, not ordinary business validation |
+| `success: true` with `data` | `structuredContent` = `data`, plus a text block for the model. `isError` is not set. |
+| `success: false` with `error` | `isError: true`, with the message in the text block (and optionally a structured error object). Not a JSON-RPC error. |
+| `_meta.resourceUri` for large results | A `resource_link` content block. |
+| Other `_meta` fields (for example `responseSize`) | MCP `_meta`, following the rules of the negotiated protocol version. |
+| Exceptions and protocol failures | JSON-RPC errors, as today. |
 
-Do not invent a parallel Shopware envelope for ResourceLink or Sync.
+### Output schemas
 
-### Mapping (legacy → spec)
+Tools may declare an `outputSchema` for their `structuredContent`. We add them first to tools with a stable, documented result. It isn't mandatory for every tool in the first step. Tools must not send shapes that only the modern era allows (for example a top-level array) to handshake clients. The SDK helps with that, and it is covered by tests on both eras.
 
-| Legacy | Spec |
-|---|---|
-| `success: true` + `data` | `structuredContent` = `data` (and/or text Content summarizing for models); `isError` absent/false |
-| `success: false` + error fields | `isError: true`; encode message/details in content / structured error object, **not** a JSON-RPC error |
-| `_meta` (incl. offload hints) | Prefer ResourceLink Content for offload; remaining meta follows MCP `_meta` rules for the negotiated revision. Do not teach a long-lived prose `_meta.resourceUri` convention |
-| Thrown / transport failure | JSON-RPC error |
+### Static analysis
 
-### `outputSchema`
+- `McpToolResponseRule` stays as it is: every `#[McpTool]` class extends `McpToolResponse`.
+- A second, separate rule checks return values and drives the deprecation in phases 2 and 3. We don't make the existing rule do both, so each rule has one clear job.
 
-- Tools **may** declare `outputSchema` describing `structuredContent`.
-- Prefer schemas for tools with stable, documented payloads; not mandatory for every tool in the first dual-support PR.
-- Handshake vs modern: respect SDK gating (`requiresObjectStructuredContent()`); do not emit modern-only shapes on handshake without dual-era tests.
-
-### PHPStan enforcement
-
-Today's `McpToolResponseRule` (`src/Core/DevOps/StaticAnalyze/PHPStan/Rules/McpToolResponseRule.php`) **only** checks that a `#[McpTool]` class extends `McpToolResponse`. It is **not** a return-shape validator.
-
-Intended enforcement (split, do not overload the inheritance rule):
-
-1. **Keep**: `McpToolResponseRule` as the **inheritance** rule (`#[McpTool]` → extend `McpToolResponse`). Remains valid through dual-support; revisit only if tools may stop extending the helper class.
-2. **Add**: a **new** return-shape / envelope-deprecation PHPStan rule (sibling of `McpToolResponseRule`) that:
-   - During dual-support: allows the listed returns in this ADR;
-   - Toward **6.8.0**: warns (then errors) on legacy string `{"success":…}` / obsolete helper-only paths so authors migrate to the allowed shapes above.
-
-**Follow-on (not this ADR merge):** MCP PHPStan **guidance pack**: the new envelope-deprecation rule above, plus **Admin ACL required** (audited exceptions), **Store tools ≠ Admin ACL**, and reserved-group warn ([#20725](https://github.com/shopware/shopware/issues/20725)). Track under [#19965](https://github.com/shopware/shopware/issues/19965); do not implement the pack in the ADR merge itself.
-
-### Sequencing
-
-| Phase | Work |
-|---|---|
-| Now | This ADR; unblock ResourceLink typing (#19966) and dual-era honesty |
-| Wave 3 | Helper dual-support → tool-by-tool migration → paired [shopware-mcp-evals](https://github.com/shopware/shopware-mcp-evals) dual-read |
-| By 6.8.0 | Remove string envelope; tighten/remove the return-shape PHPStan rule; keep inheritance rule unless helpers go away; UPGRADE final remove notes |
-| After this ADR / with envelope migration | PHPStan guidance pack (follow-on) |
+Other MCP checks we want in PHPStan are tracked separately and aren't part of this decision: Admin tools must declare ACL privileges, Store tools follow Store API authentication instead of Admin ACL, and extensions must not register tools in reserved groups such as `discovery`.
 
 ## Consequences
 
-- **Clients/agents:** Dual-read `success` **and** `content` / `structuredContent` / `isError` until 6.8.0; then drop string-envelope parsers.
-- **Plugins/apps/evals:** External BC. Paired Shopware + evals PRs for contract moves; RELEASE_INFO + UPGRADE required for deprecate and remove.
-- **Eng:** One helper migration path; ResourceLink lands as Content; Sync (#20520) reuses this contract.
-- **PHPStan:** Keep inheritance rule; **add** return-shape / deprecation sibling as part of the contract; broader guidance pack (Admin ≠ Store, reserved groups) tracks under the epic as follow-on.
+**For MCP clients and agents.** Until 6.8.0 they can read either format. After that they read `content`, `structuredContent` and `isError` like with any other MCP server. Failures are reported through `isError`, so clients can finally tell them apart from successes.
+
+**For extension developers.** Plugin and bundle tools that use the `McpToolResponse` helpers get the new format automatically. Tools that build the JSON string by hand get a PHPStan warning and must move to the helpers before 6.8.0. App tools keep their response format during phase 1. Their migration follows the same phases and is announced in the release and upgrade notes.
+
+**For Shopware development.** The large-result pointer and the planned Sync tool build on the new format directly, instead of first extending the envelope. Every step that changes what clients see comes with a matching change in the evaluation suite and with release notes.
+
+Related issues: epic #19965, #19967 (this decision), #19966 (large-result pointer), #20520 (Sync tool).

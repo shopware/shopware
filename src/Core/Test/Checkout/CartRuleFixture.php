@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper;
+namespace Shopware\Core\Test\Checkout;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
@@ -15,12 +15,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * Builds the line items and carts the cart rule tests match against. Every method returns a fresh object,
+ * there is no shared state, so it is a plain static helper instead of a trait mixed into each test class.
+ *
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-trait CartRuleHelperTrait
+final class CartRuleFixture
 {
-    protected static function createLineItem(
+    public static function createLineItem(
         string $type = LineItem::PRODUCT_LINE_ITEM_TYPE,
         int $quantity = 1,
         ?string $referenceId = null
@@ -28,7 +31,7 @@ trait CartRuleHelperTrait
         return new LineItem(Uuid::randomHex(), $type, $referenceId, $quantity);
     }
 
-    protected static function createLineItemWithDeliveryInfo(
+    public static function createLineItemWithDeliveryInfo(
         bool $freeDelivery,
         int $quantity = 1,
         ?float $weight = 50.0,
@@ -56,12 +59,12 @@ trait CartRuleHelperTrait
         );
     }
 
-    protected static function createContainerLineItem(LineItemCollection $childLineItemCollection): LineItem
+    public static function createContainerLineItem(LineItemCollection $childLineItemCollection): LineItem
     {
         return self::createLineItem('container-type')->setChildren($childLineItemCollection);
     }
 
-    protected static function createLineItemWithPrice(string $type, float $price, ?ListPrice $listPrice = null): LineItem
+    public static function createLineItemWithPrice(string $type, float $price, ?ListPrice $listPrice = null): LineItem
     {
         return self::createLineItem($type)->setPrice(
             new CalculatedPrice(
@@ -76,7 +79,7 @@ trait CartRuleHelperTrait
         );
     }
 
-    protected static function createCart(LineItemCollection $lineItemCollection): Cart
+    public static function createCart(LineItemCollection $lineItemCollection): Cart
     {
         $cart = new Cart(Uuid::randomHex());
         $cart->addLineItems($lineItemCollection);

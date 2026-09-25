@@ -111,23 +111,17 @@
     {% endblock %}
 
     {% block sw_settings_listing_option_criteria_card_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-else
         class="sw-settings-listing-option-criteria-grid__criteria-empty-state"
-        title=""
-        :subline="$t('sw-settings-listing.base.criteria.emptyStateSubline')"
-    >
-
-        {% block sw_settings_listing_option_criteria_card_empty_state_icon %}
-        <template #icon>
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                alt=""
-            >
-        </template>
-        {% endblock %}
-
-    </sw-empty-state>
+        centered
+        icon="regular-products"
+        :headline="$t('sw-settings-listing.base.criteria.emptyStateSubline')"
+        description=""
+    />
     {% endblock %}
+
+    {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}
+    {% block sw_settings_listing_option_criteria_card_empty_state_icon %}{% endblock %}
 </mt-card>
 {% endblock %}

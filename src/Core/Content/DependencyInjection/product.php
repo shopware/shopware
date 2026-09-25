@@ -76,6 +76,8 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
 use Shopware\Core\Content\Product\Garan\GaranLabelDurationFormatter;
+use Shopware\Core\Content\Product\Garan\GaranLabelInlineImage;
+use Shopware\Core\Content\Product\Garan\GaranLabelMailSubscriber;
 use Shopware\Core\Content\Product\Garan\GaranLabelProductValidator;
 use Shopware\Core\Content\Product\Garan\GaranLabelRenderer;
 use Shopware\Core\Content\Product\Garan\GaranLabelResolver;
@@ -308,8 +310,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GaranLabelDurationFormatter::class),
             service('product.repository'),
             service(GaranLabelResolver::class),
+            service(GaranLabelInlineImage::class),
         ])
         ->tag('twig.extension');
+
+    $services->set(GaranLabelInlineImage::class);
+
+    $services->set(GaranLabelMailSubscriber::class)
+        ->args([
+            service(GaranLabelInlineImage::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(GaranLabelProductValidator::class)
         ->tag('kernel.event_subscriber');

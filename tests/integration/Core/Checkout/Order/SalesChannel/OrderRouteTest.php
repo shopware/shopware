@@ -571,6 +571,7 @@ class OrderRouteTest extends TestCase
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
+        $transactionId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
         $order = [
@@ -587,9 +588,10 @@ class OrderRouteTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'primaryOrderTransactionId' => $transactionId,
                 'transactions' => [
                     [
-                        'id' => Uuid::randomHex(),
+                        'id' => $transactionId,
                         'paymentMethodId' => $this->defaultPaymentMethodId,
                         'amount' => [
                             'unitPrice' => 10.0,

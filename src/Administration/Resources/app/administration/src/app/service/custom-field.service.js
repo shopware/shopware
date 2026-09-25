@@ -2,6 +2,7 @@ const { remove } = Shopware.Utils.array;
 const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 const DEFAULT_TTL = 5 * 60 * 1000;
+const DEFAULT_LIMIT = 25;
 
 /**
  * @sw-package framework
@@ -163,23 +164,28 @@ export default function createCustomFieldService() {
         });
     }
 
-    function getCustomFieldSets(entityName, forceReload = false) {
+    function getCustomFieldSets(entityName, forceReload = false, limit = DEFAULT_LIMIT) {
         const customFieldSetRepository = Service('repositoryFactory').create('custom_field_set');
         const cacheService = Service('cacheService');
 
         return cacheService.query({
-            key: ['custom-field-sets', entityName, Shopware.Context.api.languageId ?? 'default'],
+            key: [
+                'custom-field-sets',
+                entityName,
+                Shopware.Context.api.languageId ?? 'default',
+                limit,
+            ],
             ttl: DEFAULT_TTL,
             forceReload,
             fn: () =>
                 customFieldSetRepository
-                    .search(customFieldSetCriteria(entityName), Shopware.Context.api)
+                    .search(customFieldSetCriteria(entityName, limit), Shopware.Context.api)
                     .then((sets) => sets.filter((set) => set.customFields.length > 0)),
         });
     }
 
-    function customFieldSetCriteria(entityName) {
-        const criteria = new Criteria(1, 25);
+    function customFieldSetCriteria(entityName, limit) {
+        const criteria = new Criteria(1, limit);
 
         criteria.addFilter(Criteria.equals('relations.entityName', entityName));
         criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition'));

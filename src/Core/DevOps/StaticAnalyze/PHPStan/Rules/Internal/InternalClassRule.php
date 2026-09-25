@@ -60,6 +60,10 @@ class InternalClassRule implements Rule
      * The content-system module's public extension surface: every class a plugin must reach to use it.
      * These carry no `@internal`; every other class in the module still must. Held as plain strings so
      * this rule takes on no dependency on the module's namespace.
+     *
+     * The test is whether a plugin imports the class, not whether its data reaches a client. A response
+     * body's shape is a wire contract and needs no PHP one beside it, so the classes the encoders serialize
+     * stay internal; a class named in a signature a plugin can reach does not.
      */
     private const CONTENT_SYSTEM_PUBLIC_SURFACE = [
         'Shopware\\Core\\Framework\\ContentSystem\\Event\\ContentTreePreparationEvent',
@@ -88,6 +92,13 @@ class InternalClassRule implements Rule
         'Shopware\\Core\\Framework\\ContentSystem\\Cache\\RenderingCacheContext',
         'Shopware\\Core\\Framework\\ContentSystem\\LayoutReference',
         'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Entity\\ContentLayoutEntity',
+        'Shopware\\Core\\Framework\\ContentSystem\\Layout\\Entity\\ContentLayoutCollection',
+        'Shopware\\Core\\Framework\\ContentSystem\\Output\\Struct\\ContentPage',
+        'Shopware\\Core\\Framework\\ContentSystem\\Adapter\\Entity\\AbstractContentLayoutAssignmentEntity',
+        'Shopware\\Storefront\\ContentSystem\\HeaderContentLayout\\HeaderContentLayoutEntity',
+        'Shopware\\Storefront\\ContentSystem\\HeaderContentLayout\\HeaderContentLayoutCollection',
+        'Shopware\\Storefront\\ContentSystem\\FooterContentLayout\\FooterContentLayoutEntity',
+        'Shopware\\Storefront\\ContentSystem\\FooterContentLayout\\FooterContentLayoutCollection',
         'Shopware\\Core\\Framework\\ContentSystem\\RenderableLayout',
         'Shopware\\Core\\Framework\\ContentSystem\\ResolvedContentLayout',
         'Shopware\\Core\\Framework\\ContentSystem\\ContentSection',

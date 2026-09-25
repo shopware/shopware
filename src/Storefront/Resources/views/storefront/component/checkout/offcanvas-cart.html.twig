@@ -18,7 +18,7 @@
     {% block component_offcanvas_cart %}
         {% set isCartNotEmpty = (page.cart.lineItems|length > 0) %}
 
-        <div class="offcanvas-cart">
+        <div class="offcanvas-cart"{% if not isCartNotEmpty %} data-checkout-customer-storage-reset="true"{% endif %}>
             {% block component_offcanvas_cart_header %}
                 <div class="row align-items-center offcanvas-cart-header">
 

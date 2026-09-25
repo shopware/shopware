@@ -109,6 +109,27 @@ jobs:
           cargo +stable install --locked --git https://github.com/keulinho/ludtwig.git --rev 6a5d668db02930c7e29816aa0c5363538fcf9b66 --root "$RUNNER_TEMP/ludtwig" ludtwig
           echo "$RUNNER_TEMP/ludtwig/bin" >> "$GITHUB_PATH"
 
+      - name: Test Twig expression tag names
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/dynamic-tag-names.html.twig" <<'TWIG'
+          <{{ tag }}>content</{{ tag }}>
+          <{{ tag|default('div') }}>content</{{ tag|default('div') }}>
+          <{{ openingTag }}>content</{{ closingTag }}>
+          TWIG
+          if ludtwig "$RUNNER_TEMP/dynamic-tag-names.html.twig" > "$RUNNER_TEMP/dynamic-tag-names.log" 2>&1; then
+            echo 'Expected ludtwig to report unsupported Twig expression tag names'
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/dynamic-tag-names.log"
+          grep -Fq 'Files scanned: 1, Errors: 3,' "$RUNNER_TEMP/dynamic-tag-names.log"
+          test "$(grep -Fc 'expected html, text or twig element but found </' "$RUNNER_TEMP/dynamic-tag-names.log")" -eq 3
+          # The existing footer selects concrete tags in Twig branches and has no parser errors.
+          set +e
+          ludtwig src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig > "$RUNNER_TEMP/dynamic-footer.log" 2>&1
+          set -e
+          grep -F 'Files scanned: 1, Errors: 0,' "$RUNNER_TEMP/dynamic-footer.log"
+
       - name: Run ludtwig linter
         id: ludtwigStep
         run: |

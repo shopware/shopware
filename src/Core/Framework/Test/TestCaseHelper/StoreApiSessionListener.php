@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseHelper;
 
 use PHPUnit\Framework\Assert;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -15,8 +16,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Ensures that Store API integration requests do not initialize Symfony's lazy session factory.
  *
  * Symfony's AbstractSessionListener attaches the factory during kernel.request at priority 128. Storefront requests
- * deliberately initialize and start it later in StorefrontSubscriber::startSession() at priority 40, while Store API
- * requests must leave the factory uninitialized.
+ * deliberately initialize and start it later in SessionContextTokenSubscriber::startSession() at priority 40, while
+ * Store API requests must leave the factory uninitialized - unless they declare `sw-context-source: session`.
  *
  * @internal
  *
@@ -50,6 +51,11 @@ class StoreApiSessionListener implements EventSubscriberInterface
         $routeScopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if (!\is_array($routeScopes) || !\in_array(StoreApiRouteScope::ID, $routeScopes, true)) {
+            return;
+        }
+
+        // declaring the session as context source resumes one on purpose
+        if ($request->headers->get(PlatformRequest::HEADER_CONTEXT_SOURCE) === SessionContextTokenAccessor::CONTEXT_SOURCE_SESSION) {
             return;
         }
 

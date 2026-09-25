@@ -248,6 +248,10 @@ Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to pre
 
 </details>
 
+## Storefront session continues on the token returned by the logout route
+
+After a customer logs out, the storefront session now holds the context token that `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute` created and returned in its response body, instead of a separately generated one. Both are fresh anonymous tokens, so no action is required unless an extension relied on the session token differing from the one the logout response returned.
+
 # API
 
 <details>

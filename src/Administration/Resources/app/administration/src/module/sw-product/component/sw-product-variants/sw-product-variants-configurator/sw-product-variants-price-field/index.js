@@ -8,6 +8,10 @@ import './sw-product-variants-price-field.scss';
 const { Application } = Shopware;
 const utils = Shopware.Utils;
 
+function isNumericValue(value) {
+    return typeof value === 'number' && !Number.isNaN(value);
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -53,13 +57,7 @@ export default {
     watch: {
         'price.linked': function priceLinkedWatcher(value) {
             if (value === true) {
-                this.price.net = this.convertGrossToNet(this.price.gross);
-            }
-        },
-
-        'taxRate.taxRate': function taxRateWatcher() {
-            if (this.price.linked === true) {
-                this.price.net = this.convertGrossToNet(this.price.gross);
+                this.convertGrossToNet(this.price.gross);
             }
         },
     },
@@ -76,7 +74,7 @@ export default {
         },
 
         onPriceGrossChange(value) {
-            if (!value || typeof value !== 'number') {
+            if (!isNumericValue(value)) {
                 return;
             }
 
@@ -94,7 +92,7 @@ export default {
         }, 500),
 
         onPriceNetChange(value) {
-            if (!value || typeof value !== 'number') {
+            if (!isNumericValue(value)) {
                 return;
             }
 
@@ -112,7 +110,7 @@ export default {
         }, 500),
 
         convertNetToGross(value) {
-            if (!value || typeof value !== 'number') {
+            if (!isNumericValue(value)) {
                 return false;
             }
             this.$emit('price-calculate', true);
@@ -124,7 +122,7 @@ export default {
         },
 
         convertGrossToNet(value) {
-            if (!value || typeof value !== 'number') {
+            if (!isNumericValue(value)) {
                 return false;
             }
             this.$emit('price-calculate', true);
@@ -139,7 +137,13 @@ export default {
             this.$emit('price-calculate', true);
 
             return new Promise((resolve) => {
-                if (!value || typeof value !== 'number' || !this.price[outputType] || !this.taxRate || !outputType) {
+                if (!isNumericValue(value) || !this.taxRate || !outputType) {
+                    return;
+                }
+
+                if (value === 0) {
+                    resolve(0);
+                    this.$emit('price-calculate', false);
                     return;
                 }
 

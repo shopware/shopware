@@ -326,10 +326,6 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## Feature flag configuration
-
-Remove boolean `major: true` or `major: false` entries from custom feature configuration. The `major` field now accepts only the name of a parent major version flag, for example `major: v6.8.0.0`, for sub-features that become part of that release.
-
 ## `Feature` is final
 
 `Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.

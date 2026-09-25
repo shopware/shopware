@@ -177,11 +177,14 @@ class CategoryBreadcrumbBuilderTest extends TestCase
             ->willReturnCallback(static function (Criteria $criteria) use ($categoryEntity, $context): EntitySearchResult {
                 $sortings = $criteria->getSorting();
 
-                static::assertCount(2, $sortings);
+                static::assertCount(3, $sortings);
                 static::assertSame('visible', $sortings[0]->getField());
                 static::assertSame(FieldSorting::DESCENDING, $sortings[0]->getDirection());
                 static::assertSame('level', $sortings[1]->getField());
                 static::assertSame(FieldSorting::DESCENDING, $sortings[1]->getDirection());
+                // without this tiebreaker the winner among equally deep categories is whatever the database returns
+                static::assertSame('autoIncrement', $sortings[2]->getField());
+                static::assertSame(FieldSorting::ASCENDING, $sortings[2]->getDirection());
 
                 static::assertContains('active', $criteria->getFilterFields());
                 static::assertNotContains('visible', $criteria->getFilterFields());
@@ -280,6 +283,49 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertCount(1, $firstBreadcrumb->seoUrls);
     }
 
+    public function testConvertCategoriesToBreadcrumbUrlsKeepsSlotConfigOutOfThePayload(): void
+    {
+        $categoryEntity = $this->createNewCategoryEntity(
+            '019192b9cd82711482744d7b456b6c01',
+            'Home 2',
+            [
+                'name' => 'Home sweet home 2',
+                'breadcrumb' => ['019192b9cd82711482744d7b456b6c01' => 'Home 2'],
+                // not `ApiAware` on the category definition
+                'slotConfig' => ['content' => ['field' => ['value' => 'secret']]],
+                'customFields' => ['note' => 'value', 'internal_note' => 'secret'],
+                'metaTitle' => 'Meta title',
+                'linkNewTab' => true,
+            ]
+        );
+
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
+            $this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]),
+            $this->getProductRepositoryMock([], []),
+            $this->getConnectionMock(['internal_note']),
+            $this->entityRouteResolver,
+        );
+
+        $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c01', $this->salesChannelContext->getContext());
+        static::assertNotNull($category);
+
+        $breadcrumb = $categoryBreadcrumbBuilder->getCategoryBreadcrumbUrls(
+            $category,
+            $this->salesChannelContext->getContext(),
+            $this->salesChannelContext->getSalesChannel()
+        )->first();
+
+        static::assertNotNull($breadcrumb);
+        static::assertArrayNotHasKey('slotConfig', $breadcrumb->translated);
+        static::assertArrayNotHasKey('name', $breadcrumb->translated);
+        static::assertArrayNotHasKey('breadcrumb', $breadcrumb->translated);
+        static::assertSame('Meta title', $breadcrumb->translated['metaTitle']);
+        static::assertTrue($breadcrumb->translated['linkNewTab']);
+
+        // `customFields` is `ApiAware`, so it stays part of the payload, minus the entries blocked for `category`
+        static::assertSame(['note' => 'value'], $breadcrumb->translated['customFields']);
+    }
+
     public function testConvertCategoriesToBreadcrumbUrlsWithSeoUrlsOnlyPathInfo(): void
     {
         $categoryEntityOne = $this->createNewCategoryEntity(
@@ -351,7 +397,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock([]),
+            $this->getConnectionMock([], []),
             $this->entityRouteResolver,
         );
 
@@ -422,9 +468,10 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
+     * @param list<string> $blockedCustomFields
      * @param array<int, array{categoryId: string, pathInfo: string, seoPathInfo: string}> $seoUrls
      */
-    private function getConnectionMock(array $seoUrls = [
+    private function getConnectionMock(array $blockedCustomFields = [], array $seoUrls = [
         [
             'categoryId' => '019192b9cd82711482744d7b456b6c01',
             'pathInfo' => 'pathInfo/1',
@@ -443,6 +490,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     ]): Connection
     {
         $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn($blockedCustomFields);
         $queryBuilder = static::createStub(QueryBuilder::class);
         $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn($seoUrls);

@@ -4,6 +4,9 @@ namespace Shopware\Tests\Unit\Storefront\Page\Product;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
@@ -37,8 +40,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Page\Product\ProductPage;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -194,6 +199,116 @@ class ProductPageLoaderTest extends TestCase
         }
     }
 
+    public function testItTakesTheBreadcrumbFromTheRoute(): void
+    {
+        $request = new Request([], [], ['productId' => Uuid::randomHex()]);
+        $breadcrumb = new BreadcrumbCollection([new Breadcrumb('Home', Uuid::randomHex())]);
+
+        // the route already resolved it, and that is also what registers the path cache tags on this page
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($this->never())->method('getCategoryBreadcrumbUrls');
+
+        $page = Feature::fake(['BREADCRUMB_REWORK'], fn (): ProductPage => $this->loadWithBreadcrumbSettings($request, routeBreadcrumb: $breadcrumb, breadcrumbBuilder: $breadcrumbBuilder));
+
+        static::assertSame($breadcrumb, $page->getBreadcrumb());
+    }
+
+    public function testItFallsBackToTheBuilderWhenTheRouteLeftTheBreadcrumbUnset(): void
+    {
+        // a decorated AbstractProductDetailRoute may return a product that does not carry it
+        $request = new Request([], [], ['productId' => Uuid::randomHex()]);
+        $breadcrumb = new BreadcrumbCollection([new Breadcrumb('Home', Uuid::randomHex())]);
+
+        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $breadcrumbBuilder->expects($this->once())
+            ->method('getCategoryBreadcrumbUrls')
+            ->willReturn($breadcrumb);
+
+        $page = Feature::fake(['BREADCRUMB_REWORK'], fn (): ProductPage => $this->loadWithBreadcrumbSettings($request, breadcrumbBuilder: $breadcrumbBuilder));
+
+        static::assertSame($breadcrumb, $page->getBreadcrumb());
+    }
+
+    public function testItIgnoresTheReferrerCategoryWhenTheSettingIsDisabled(): void
+    {
+        // a link that still carries the parameter must not resurrect referrer breadcrumbs
+        $request = new Request(
+            [ProductDetailRoute::REFERRER_CATEGORY_ID => Uuid::randomHex()],
+            [],
+            ['productId' => Uuid::randomHex()]
+        );
+
+        $this->loadWithBreadcrumbSettings($request, buildBreadcrumbByReferrerCategory: false);
+
+        static::assertTrue($request->attributes->has(ProductDetailRoute::REFERRER_CATEGORY_ID));
+        static::assertNull($request->attributes->get(ProductDetailRoute::REFERRER_CATEGORY_ID));
+    }
+
+    public function testItLetsTheReferrerCategoryThroughWhenTheSettingIsEnabled(): void
+    {
+        $referrerCategoryId = Uuid::randomHex();
+        $request = new Request(
+            [ProductDetailRoute::REFERRER_CATEGORY_ID => $referrerCategoryId],
+            [],
+            ['productId' => Uuid::randomHex()]
+        );
+
+        $this->loadWithBreadcrumbSettings($request, buildBreadcrumbByReferrerCategory: true);
+
+        // no attribute is set, so the route reads the parameter the client sent
+        static::assertFalse($request->attributes->has(ProductDetailRoute::REFERRER_CATEGORY_ID));
+        static::assertSame($referrerCategoryId, $request->query->get(ProductDetailRoute::REFERRER_CATEGORY_ID));
+    }
+
+    #[DisabledFeatures(['BREADCRUMB_REWORK', 'v6.8.0.0'])]
+    public function testItSkipsTheRouteBreadcrumbWhileTheReworkIsInactive(): void
+    {
+        $request = new Request([], [], ['productId' => Uuid::randomHex()]);
+
+        // the storefront cannot use it yet, so the route must not spend queries on it
+        $this->loadWithBreadcrumbSettings($request);
+
+        static::assertTrue($request->attributes->get(ProductDetailRoute::SKIP_BREADCRUMB));
+    }
+
+    private function loadWithBreadcrumbSettings(
+        Request $request,
+        bool $buildBreadcrumbByReferrerCategory = false,
+        ?BreadcrumbCollection $routeBreadcrumb = null,
+        ?CategoryBreadcrumbBuilder $breadcrumbBuilder = null
+    ): ProductPage {
+        $salesChannelContext = $this->getSalesChannelContext();
+
+        $seoCategory = new CategoryEntity();
+        $seoCategory->setId(Uuid::randomHex());
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($request->attributes->getString('productId'));
+        $product->setUniqueIdentifier('product');
+        $product->setSeoCategory($seoCategory);
+        $product->setSeoBreadcrumb($routeBreadcrumb);
+
+        $productDetailRoute = static::createStub(ProductDetailRoute::class);
+        $productDetailRoute->method('load')->willReturn(new ProductDetailRouteResponse($product, null));
+
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('getBool')->willReturnMap([
+            ['core.listing.buildBreadcrumbByReferrerCategory', $salesChannelContext->getSalesChannelId(), $buildBreadcrumbByReferrerCategory],
+            ['core.listing.showReview', $salesChannelContext->getSalesChannelId(), false],
+        ]);
+
+        $productPageLoader = new ProductPageLoader(
+            static::createStub(GenericPageLoader::class),
+            static::createStub(EventDispatcherInterface::class),
+            $productDetailRoute,
+            static::createStub(EntityRepository::class),
+            $systemConfigService,
+            $breadcrumbBuilder ?? static::createStub(CategoryBreadcrumbBuilder::class),
+        );
+
+        return $productPageLoader->load($request, $salesChannelContext);
+    }
+
     /**
      * @param array<string, array<string, array<string, array<string, array<string, string>>>>> $reviews
      * @param EntityRepository<ProductReviewCollection>|null $reviewRepository
@@ -257,7 +372,7 @@ class ProductPageLoaderTest extends TestCase
             $productDetailRouteMock,
             $reviewRepository,
             $systemConfigService,
-            static::createStub(CategoryBreadcrumbBuilder::class)
+            static::createStub(CategoryBreadcrumbBuilder::class),
         );
     }
 

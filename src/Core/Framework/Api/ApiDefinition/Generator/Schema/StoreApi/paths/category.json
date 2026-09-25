@@ -145,6 +145,15 @@
                         }
                     },
                     {
+                        "name": "skipBreadcrumb",
+                        "in": "query",
+                        "description": "Instructs Shopware to skip loading the breadcrumb of the category",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
                         "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
@@ -217,6 +226,15 @@
                         "description": "Resolves only the given slot identifiers. The identifiers have to be seperated by a '|' character",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipBreadcrumb",
+                        "in": "query",
+                        "description": "Instructs Shopware to skip loading the breadcrumb of the category",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
                         }
                     },
                     {

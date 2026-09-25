@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
@@ -29,6 +31,12 @@ class CategoryRoute extends AbstractCategoryRoute
     final public const HOME = 'home';
 
     /**
+     * Opt out of loading the breadcrumb. Clients pass it as the `skipBreadcrumb` query or body parameter; internal
+     * callers set it as a request attribute, which takes precedence and cannot be provided by a client.
+     */
+    final public const SKIP_BREADCRUMB = 'skipBreadcrumb';
+
+    /**
      * @internal
      *
      * @param SalesChannelRepository<CategoryCollection> $categoryRepository
@@ -39,6 +47,7 @@ class CategoryRoute extends AbstractCategoryRoute
         private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
         private readonly CategoryDefinition $categoryDefinition,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
     ) {
     }
 
@@ -76,11 +85,16 @@ class CategoryRoute extends AbstractCategoryRoute
         $categoryHasContentlessPageType = \in_array($category->getType(), [CategoryDefinition::TYPE_FOLDER, CategoryDefinition::TYPE_LINK], true);
         if ($categoryHasContentlessPageType && $context->getSalesChannel()->getNavigationCategoryId() !== $navigationId) {
             if ($category->getType() === CategoryDefinition::TYPE_LINK) {
+                $this->addBreadcrumb($request, $category, $context);
+
                 return new CategoryRouteResponse($category);
             }
 
+            // a folder category always results in a 404, so the breadcrumb would be built and thrown away
             throw CategoryException::categoryNotFound($navigationId);
         }
+
+        $this->addBreadcrumb($request, $category, $context);
 
         $pageId = $category->getCmsPageId();
         $salesChannel = $context->getSalesChannel();
@@ -117,7 +131,7 @@ class CategoryRoute extends AbstractCategoryRoute
         return new CategoryRouteResponse($category);
     }
 
-    private function loadCategory(string $categoryId, SalesChannelContext $context): CategoryEntity
+    private function loadCategory(string $categoryId, SalesChannelContext $context): SalesChannelCategoryEntity
     {
         $criteria = new Criteria([$categoryId]);
         $criteria->setTitle('category::data');
@@ -126,11 +140,47 @@ class CategoryRoute extends AbstractCategoryRoute
         $criteria->addAssociation('translations');
 
         $category = $this->categoryRepository->search($criteria, $context)->getEntities()->get($categoryId);
-        if (!$category instanceof CategoryEntity) {
+        if (!$category instanceof SalesChannelCategoryEntity) {
             throw CategoryException::categoryNotFound($categoryId);
         }
 
         return $category;
+    }
+
+    private function addBreadcrumb(Request $request, SalesChannelCategoryEntity $category, SalesChannelContext $context): void
+    {
+        if ($this->skipBreadcrumb($request)) {
+            return;
+        }
+
+        $breadcrumb = $this->breadcrumbBuilder->getCategoryBreadcrumbUrls(
+            $category,
+            $context->getContext(),
+            $context->getSalesChannel()
+        );
+
+        $category->setSeoBreadcrumb($breadcrumb);
+
+        // the breadcrumb reflects every category on the path, so all of them have to invalidate the cached response
+        $tags = $breadcrumb->map(static fn (Breadcrumb $item) => self::buildName($item->categoryId));
+
+        if ($tags !== []) {
+            $this->cacheTagCollector->addTag(...$tags);
+        }
+    }
+
+    /**
+     * Internal callers opt out via a request attribute, which a client cannot set. Only when no attribute is present
+     * the client provided parameter is honoured, and it is read leniently so a malformed value cannot turn a
+     * storefront page into a 400.
+     */
+    private function skipBreadcrumb(Request $request): bool
+    {
+        if ($request->attributes->has(self::SKIP_BREADCRUMB)) {
+            return $request->attributes->getBoolean(self::SKIP_BREADCRUMB);
+        }
+
+        return filter_var(RequestParamHelper::get($request, self::SKIP_BREADCRUMB, false), \FILTER_VALIDATE_BOOL);
     }
 
     private function createCriteria(string $pageId, Request $request): Criteria

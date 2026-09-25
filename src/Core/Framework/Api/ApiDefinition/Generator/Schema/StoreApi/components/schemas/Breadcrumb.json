@@ -24,9 +24,6 @@
                             "customFields": {
                                 "type": "object"
                             },
-                            "slotConfig": {
-                                "type": "object"
-                            },
                             "linkType": {
                                 "$ref": "#/components/schemas/Category/properties/linkType"
                             },
@@ -57,9 +54,32 @@
                         "type": "string"
                     },
                     "seoUrls": {
+                        "description": "Reduced seo url rows of this category; not a full SeoUrl entity.",
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/SeoUrl"
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "categoryId": {
+                                    "description": "Only present for the parent categories of the breadcrumb.",
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "pathInfo": {
+                                    "type": "string"
+                                },
+                                "seoPathInfo": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "pathInfo",
+                                "seoPathInfo"
+                            ]
                         }
                     },
                     "apiAlias": {

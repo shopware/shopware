@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -138,6 +139,10 @@ class FlowDispatcherTest extends TestCase
         $flowDispatcher->dispatch($event);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the FLOW_EXECUTION_AFTER_BUSINESS_PROCESS flag
+     */
+    #[DisabledFeatures(['FLOW_EXECUTION_AFTER_BUSINESS_PROCESS'])]
     public function testExplicitFlowOptOutUsesImmediateExecutionWithMajorActive(): void
     {
         $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
@@ -153,10 +158,7 @@ class FlowDispatcherTest extends TestCase
         $flowLoader->method('load')->willReturn([]);
         $this->container->set(FlowLoader::class, $flowLoader);
 
-        Feature::withFeatureEnabled('v6.8.0.0', fn () => Feature::withFeatureDisabled(
-            'FLOW_EXECUTION_AFTER_BUSINESS_PROCESS',
-            fn () => $this->flowDispatcher->dispatch($event)
-        ));
+        $this->flowDispatcher->dispatch($event);
     }
 
     /**

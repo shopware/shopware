@@ -14,11 +14,11 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -67,12 +67,9 @@ class MonetarySummationViewTest extends TestCase
         static::assertSame(0.0, $sum->duePayable);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testFromOrderUsesLastTransactionForPaidAmountWhenV68IsInactive(): void
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('v6.7 fallback branch is only exercised when v6.8.0.0 is inactive.');
-        }
-
         $order = $this->createOrder(amountTotal: 100.0, amountNet: 100.0, currency: 'EUR');
         $order->setTransactions(new OrderTransactionCollection([$this->createTransactionWithState('paid')]));
 

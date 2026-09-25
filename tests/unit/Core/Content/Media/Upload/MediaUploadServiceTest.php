@@ -21,9 +21,9 @@ use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -587,10 +587,9 @@ class MediaUploadServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Remove this test when validateExternalUrl() is removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedValidateExternalUrlThrowsForInvalidFormat(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $this->expectExceptionObject(MediaException::invalidUrl('not-a-valid-url'));
 
         MediaUploadService::validateExternalUrl('not-a-valid-url');

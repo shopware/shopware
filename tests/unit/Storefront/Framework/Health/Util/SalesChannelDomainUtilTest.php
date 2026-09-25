@@ -168,6 +168,27 @@ class SalesChannelDomainUtilTest extends TestCase
         static::assertSame(Response::HTTP_LOOP_DETECTED, $result->responseCode);
     }
 
+    public function testHandleRequestRecordsAnExceptionAsFailedResult(): void
+    {
+        $this->kernel->method('handle')->willThrowException(new \RuntimeException('Could not find product'));
+
+        $result = $this->getUtil()->handleRequest(Request::create('http://localhost/product/123'));
+
+        static::assertSame('http://localhost/product/123', $result->storefrontUrl);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $result->responseCode);
+        static::assertSame('Could not find product', $result->errorMessage);
+    }
+
+    public function testCreateExceptionResult(): void
+    {
+        $result = $this->getUtil()->createExceptionResult('http://localhost', new \RuntimeException('Currency not found'));
+
+        static::assertSame('http://localhost', $result->storefrontUrl);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $result->responseCode);
+        static::assertSame(0.0, $result->responseTime);
+        static::assertSame('Currency not found', $result->errorMessage);
+    }
+
     private function getUtil(?RouterInterface $router = null): SalesChannelDomainUtil
     {
         return new SalesChannelDomainUtil(

@@ -5,7 +5,9 @@ namespace Shopware\Storefront\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
@@ -108,6 +110,7 @@ use Shopware\Storefront\Framework\Store\ThemeExtensionRemovalValidator;
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
+use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainContextFactory;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
@@ -830,8 +833,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ProductDetailReadinessCheck::class)
         ->args([
             service(SalesChannelDomainUtil::class),
-            service(Connection::class),
             service(SalesChannelDomainProvider::class),
+            service('sales_channel.product.repository'),
+            service(SalesChannelDomainContextFactory::class),
+            service(ProductCloseoutFilterFactory::class),
+            service(SystemConfigService::class),
         ])
         ->tag('shopware.system_check');
 
@@ -840,12 +846,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelDomainUtil::class),
             service(Connection::class),
             service(SalesChannelDomainProvider::class),
+            service('sales_channel.category.repository'),
+            service(SalesChannelDomainContextFactory::class),
         ])
         ->tag('shopware.system_check');
 
     $services->set(SalesChannelDomainProvider::class)
         ->args([
             service(Connection::class),
+        ]);
+
+    $services->set(SalesChannelDomainContextFactory::class)
+        ->args([
+            service(SalesChannelContextFactory::class),
+            service(CartRuleLoader::class),
+            service(CartFactory::class),
         ]);
 
     $services->set(RobotsDirectiveParser::class)

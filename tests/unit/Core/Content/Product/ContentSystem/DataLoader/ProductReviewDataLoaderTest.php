@@ -58,11 +58,12 @@ class ProductReviewDataLoaderTest extends TestCase
     }
 
     #[TestDox('returns the review result as data and marks it cache-aware with no tags')]
-    public function testLoadReturnsCachedExternallyResultWithReviewData(): void
+    public function testLoadReturnsCachedExternallyResultForGuests(): void
     {
         $productId = Uuid::randomHex();
 
-        $context = Generator::generateSalesChannelContext();
+        // No customer: the result carries nothing customer-specific, so it stays cacheable.
+        $context = Generator::generateSalesChannelContext(overrides: ['customer' => null]);
         $request = new Request();
 
         $reviewResult = static::createStub(ProductReviewResult::class);
@@ -85,6 +86,38 @@ class ProductReviewDataLoaderTest extends TestCase
         static::assertSame($reviewResult, $result->data);
         static::assertTrue($result->isCacheAware());
         static::assertSame([], $result->getCacheTags());
+    }
+
+    #[TestDox('returns an uncacheable result when a customer is logged in, so a personalized review is never served from a shared cache bucket')]
+    public function testLoadReturnsUncacheableResultForLoggedInCustomers(): void
+    {
+        $productId = Uuid::randomHex();
+
+        // A logged-in customer: the result includes their own (pending) review, and the HTTP cache hash does
+        // not vary per customer, so the response must not be cached.
+        $context = Generator::generateSalesChannelContext();
+        static::assertNotNull($context->getCustomer());
+        $request = new Request();
+
+        $reviewResult = static::createStub(ProductReviewResult::class);
+
+        $productReviewLoader = $this->createMock(AbstractProductReviewLoader::class);
+        $productReviewLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($request, $context, $productId)
+            ->willReturn($reviewResult);
+
+        $loader = new ProductReviewDataLoader($productReviewLoader);
+        $result = $loader->load(
+            new LoaderInputs(['property' => $productId]),
+            self::requirement(),
+            $context,
+            $request,
+        );
+
+        static::assertSame($reviewResult, $result->data);
+        static::assertFalse($result->isCacheAware());
     }
 
     #[TestDox('lowercases productId before passing it to the review loader')]

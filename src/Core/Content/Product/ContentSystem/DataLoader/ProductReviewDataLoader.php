@@ -78,6 +78,10 @@ class ProductReviewDataLoader extends AbstractContentDataLoader
             return ContentDataLoaderResult::notFound();
         }
 
+        if ($context->getCustomer() !== null) {
+            return ContentDataLoaderResult::uncacheable($result);
+        }
+
         return ContentDataLoaderResult::cachedExternally($result);
     }
 }

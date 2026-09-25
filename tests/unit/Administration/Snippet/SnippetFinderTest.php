@@ -47,8 +47,6 @@ use Symfony\Component\Filesystem\Path;
 #[CoversClass(SnippetFinder::class)]
 class SnippetFinderTest extends TestCase
 {
-    use SnippetFileTrait;
-
     private Filesystem $filesystem;
 
     /**
@@ -321,7 +319,7 @@ class SnippetFinderTest extends TestCase
         );
         $loader = $this->getTranslationLoader($config);
 
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $snippetFinder = $this->getSnippetFinder(
             connection: $this->getConnectionMock([]),
@@ -345,7 +343,7 @@ class SnippetFinderTest extends TestCase
             ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $pluginPath = __DIR__ . '/_fixtures/activePlugin';
         $snippetFinder = $this->getSnippetFinder(
@@ -375,7 +373,7 @@ class SnippetFinderTest extends TestCase
             ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $invalidFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
         $this->filesystem->write($invalidFilePath, '{');
@@ -415,7 +413,7 @@ class SnippetFinderTest extends TestCase
             ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $emptyFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
         $this->filesystem->write($emptyFilePath, '');
@@ -452,7 +450,7 @@ class SnippetFinderTest extends TestCase
             ['de-DE'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $invalidFilePath = Path::join($loader->getLocalePath('es-ES'), 'Platform', 'administration.json');
         $this->filesystem->write($invalidFilePath, '{');
@@ -480,7 +478,7 @@ class SnippetFinderTest extends TestCase
             ['es-ES'],
         );
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $pluginPath = __DIR__ . '/_fixtures/activePlugin';
         $snippetFinder = $this->getSnippetFinder(

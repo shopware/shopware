@@ -55,7 +55,6 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Test\Controller\AuthTestSubscriber;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,7 +69,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 class AuthControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use LineItemTestFixtureBehaviour;
     use StorefrontControllerTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;

@@ -36,7 +36,7 @@ use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Tests\Unit\Administration\Snippet\SnippetFileTrait;
+use Shopware\Tests\Unit\Administration\Snippet\SnippetFixture;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippetSet;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Tests\Unit\Core\System\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
@@ -51,8 +51,6 @@ use Symfony\Component\Filesystem\Path;
 #[CoversClass(SnippetFileLoader::class)]
 class SnippetFileLoaderTest extends TestCase
 {
-    use SnippetFileTrait;
-
     private TranslationConfig $config;
 
     private Filesystem $filesystem;
@@ -360,7 +358,7 @@ class SnippetFileLoaderTest extends TestCase
     public function testLoadInstalledCoreAndPluginSnippets(): void
     {
         $loader = $this->getTranslationLoader();
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $path = __DIR__ . '/_fixtures/activePlugin';
 
@@ -528,7 +526,7 @@ class SnippetFileLoaderTest extends TestCase
     public function testLoadSkipsExcludedLocales(): void
     {
         $loader = $this->getTranslationLoader();
-        $this->createSnippetFixtures($this->filesystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->filesystem, $loader);
 
         $path = __DIR__ . '/_fixtures/activePlugin';
 

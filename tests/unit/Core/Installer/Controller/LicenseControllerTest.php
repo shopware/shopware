@@ -21,8 +21,6 @@ use Twig\Environment;
 #[CoversClass(LicenseController::class)]
 class LicenseControllerTest extends TestCase
 {
-    use InstallerControllerTestTrait;
-
     public function testLicenseRouteRendersLicenseOnGet(): void
     {
         $request = new Request();
@@ -38,7 +36,7 @@ class LicenseControllerTest extends TestCase
         $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/license.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'licenseAgreement' => 'licenseText',
                     'error' => null,
                 ]),
@@ -46,7 +44,7 @@ class LicenseControllerTest extends TestCase
             ->willReturn('license');
 
         $controller = new LicenseController($licenseFetcher);
-        $controller->setContainer($this->getInstallerContainer($twig));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig));
 
         $response = $controller->license($request);
         static::assertSame('license', $response->getContent());
@@ -67,7 +65,7 @@ class LicenseControllerTest extends TestCase
         $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/license.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'licenseAgreement' => null,
                     'error' => 'license can not be fetched.',
                 ])
@@ -75,7 +73,7 @@ class LicenseControllerTest extends TestCase
             ->willReturn('license');
 
         $controller = new LicenseController($licenseFetcher);
-        $controller->setContainer($this->getInstallerContainer($twig));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig));
 
         $response = $controller->license($request);
         static::assertSame('license', $response->getContent());
@@ -96,7 +94,7 @@ class LicenseControllerTest extends TestCase
         $twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/license.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'licenseAgreement' => 'licenseText',
                     'error' => null,
                 ])
@@ -104,7 +102,7 @@ class LicenseControllerTest extends TestCase
             ->willReturn('license');
 
         $controller = new LicenseController($licenseFetcher);
-        $controller->setContainer($this->getInstallerContainer($twig));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig));
 
         $response = $controller->license($request);
         static::assertSame('license', $response->getContent());
@@ -128,7 +126,7 @@ class LicenseControllerTest extends TestCase
             ->willReturn('/installer/database-configuration');
 
         $controller = new LicenseController($licenseFetcher);
-        $controller->setContainer($this->getInstallerContainer($twig, ['router' => $router]));
+        $controller->setContainer(InstallerControllerFixture::getInstallerContainer($twig, ['router' => $router]));
 
         $response = $controller->license($request);
         static::assertInstanceOf(RedirectResponse::class, $response);

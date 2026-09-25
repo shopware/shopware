@@ -15,16 +15,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 
 /**
- * A unit test never boots the kernel. The behaviours under `Shopware\Core\Framework\Test\TestCaseBase` and
- * the DAL field test behaviour reach for the container or the database, and a unit test composing one of them
- * only passes because the unit CI job happens to provide a database. Fixture traits that need the container
- * compose these behaviours themselves and are caught through the composition.
- * Such a test belongs in `tests/integration`, or it builds its subject from the constructor and test doubles.
- *
- * The check follows trait composition, so a test-local trait that composes `KernelTestBehaviour` is reported
- * as well. Direct calls into `KernelLifecycleManager`, wherever they sit in the class, its traits or its
- * parents, are the job of {@see NoKernelLifecycleManagerInUnitTestsRule}. Enforcement is narrowed to the unit
- * namespaces ({@see Configuration}); the migration suite runs against a database on purpose.
+ * A unit test never boots the kernel. This rule reports a unit test composing a kernel-booting behaviour,
+ * following trait composition so a fixture trait cannot hide one. Direct `KernelLifecycleManager` calls are
+ * the job of {@see NoKernelLifecycleManagerInUnitTestsRule}. Enforcement is limited to the unit namespaces
+ * ({@see Configuration}); the migration suite runs against a database on purpose.
  *
  * @implements Rule<InClassNode>
  *

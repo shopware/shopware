@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Deprecation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\ClassAliasMap;
 use Shopware\Core\Framework\Deprecation\ClassAliasRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Process\Process;
@@ -23,6 +24,21 @@ class ClassAliasRegistryTest extends TestCase
             static::assertTrue(class_exists($previousClassName, autoload: false));
             static::assertTrue($currentClassName === (new \ReflectionClass($previousClassName))->getName());
         }
+    }
+
+    public function testPackageAliasesAreRegisteredAndExposedToTooling(): void
+    {
+        $previousClassName = 'Shopware\\Tests\\Unit\\Core\\Framework\\Deprecation\\LegacyPackageAlias';
+
+        ClassAliasRegistry::registerAliases([
+            $previousClassName => self::class,
+        ]);
+
+        static::assertTrue(class_exists($previousClassName, autoload: false));
+        // @phpstan-ignore argument.type (The alias is registered immediately above.)
+        static::assertSame(self::class, (new \ReflectionClass($previousClassName))->getName());
+        static::assertSame(self::class, ClassAliasRegistry::aliases()[$previousClassName]);
+        static::assertSame(self::class, (new ClassAliasMap())->canonicalClassName($previousClassName));
     }
 
     public function testAliasRegistrationFailsForConflictingClass(): void

@@ -20,9 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Version;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
@@ -485,6 +488,49 @@ class DefinitionValidatorTest extends TestCase
         );
     }
 
+    /**
+     * @param class-string<Entity> $entityClass
+     * @param list<string> $expectedViolations
+     */
+    #[DataProvider('foreignKeyNextToManyToManyProvider')]
+    public function testManyToManyDoesNotRequireAVersionReferenceOnTheDefinition(string $entityClass, array $expectedViolations): void
+    {
+        $metas = [];
+        foreach ((new AttributeEntityCompiler())->compile($entityClass) as $meta) {
+            $metas[$meta['type']] = $meta;
+        }
+        static::assertArrayHasKey('entity', $metas);
+        static::assertArrayHasKey('mapping', $metas);
+
+        $violations = $this->createValidatorWithTable(
+            new AttributeEntityDefinition($metas['entity']),
+            ['id'],
+            $this->attributeEntityDefinition(TrackEntity::class),
+            new AttributeMappingDefinition($metas['mapping']),
+        )->validate();
+
+        static::assertSame(
+            $expectedViolations,
+            array_values(array_filter(
+                $violations[$entityClass] ?? [],
+                static fn (string $violation): bool => str_contains($violation, 'Missing version reference')
+            ))
+        );
+    }
+
+    /**
+     * @return \Generator<string, array{class-string<Entity>, list<string>}>
+     */
+    public static function foreignKeyNextToManyToManyProvider(): \Generator
+    {
+        yield 'version reference present, nothing to report' => [PlaylistEntity::class, []];
+
+        yield 'version reference missing, reported once for the many-to-one' => [
+            AlbumEntity::class,
+            ['Missing version reference for foreign key column track.id for definition association album.leadSingle'],
+        ];
+    }
+
     public function testAttributeEntitiesKeepTheirOwnViolations(): void
     {
         $violations = $this->createAttributeEntityValidator(
@@ -789,6 +835,69 @@ class ValidatedManyToManyEntity extends Entity
      */
     #[ManyToMany(entity: 'currency')]
     public ?array $currencies = null;
+}
+
+/**
+ * @internal
+ */
+#[EntityAttribute('track')]
+class TrackEntity extends Entity
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID)]
+    public string $id;
+
+    #[Version]
+    public ?string $versionId = null;
+}
+
+/**
+ * @internal
+ */
+#[EntityAttribute('playlist')]
+class PlaylistEntity extends Entity
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID)]
+    public string $id;
+
+    #[ForeignKey(entity: 'track')]
+    public ?string $coverTrackId = null;
+
+    #[ReferenceVersion(entity: 'track')]
+    public ?string $coverTrackVersionId = null;
+
+    #[ManyToOne(entity: 'track')]
+    public ?TrackEntity $coverTrack = null;
+
+    /**
+     * @var array<string, TrackEntity>|null
+     */
+    #[ManyToMany(entity: 'track')]
+    public ?array $tracks = null;
+}
+
+/**
+ * @internal
+ */
+#[EntityAttribute('album')]
+class AlbumEntity extends Entity
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID)]
+    public string $id;
+
+    #[ForeignKey(entity: 'track')]
+    public ?string $leadSingleId = null;
+
+    #[ManyToOne(entity: 'track')]
+    public ?TrackEntity $leadSingle = null;
+
+    /**
+     * @var array<string, TrackEntity>|null
+     */
+    #[ManyToMany(entity: 'track')]
+    public ?array $tracks = null;
 }
 
 /**

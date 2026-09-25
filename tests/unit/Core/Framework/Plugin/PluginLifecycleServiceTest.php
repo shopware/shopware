@@ -843,8 +843,11 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->expectException(PluginNotActivatedException::class);
 
-        $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
-        static::assertCount(0, $this->eventDispatcher->getEvents());
+        try {
+            $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
+        } finally {
+            static::assertCount(0, $this->eventDispatcher->getEvents());
+        }
     }
 
     public function testDeactivatePluginDependants(): void

@@ -30,7 +30,7 @@ class ResponseHeaderListener implements EventSubscriberInterface
     public function onResponse(ResponseEvent $event): void
     {
         $headers = self::HEADERS;
-        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('CACHE_REWORK')) {
             $headers[] = PlatformRequest::HEADER_CONTEXT_TOKEN;
         }
 

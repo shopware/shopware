@@ -1,5 +1,7 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type { ContentLayoutEntity } from '../../util/content-layout-repository.util';
+import type { AccessibilityViolation } from '../../util/accessibility.types';
+import type { AccessibilityFixOperation } from '../../util/accessibility-fix.types';
 
 import template from './sw-experience-studio-sidebar-tree.html.twig';
 import './sw-experience-studio-sidebar-tree.scss';
@@ -48,6 +50,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        accessibilityViolations: {
+            type: Array as PropType<AccessibilityViolation[]>,
+            required: false,
+            default: () => [],
+        },
     },
 
     emits: [
@@ -56,6 +63,7 @@ export default Shopware.Component.wrapComponentConfig({
         'duplicate-element',
         'delete-element',
         'move-element',
+        'accessibility-fix-apply',
     ],
 
     computed: {
@@ -99,6 +107,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         onMoveElement(payload: MoveElementPayload): void {
             this.$emit('move-element', payload);
+        },
+
+        onAccessibilityFixApply(operations: AccessibilityFixOperation[]): void {
+            this.$emit('accessibility-fix-apply', operations);
         },
 
         validateMoveDrop(

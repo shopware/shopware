@@ -69,6 +69,16 @@
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
+        "accessibility": "Accessibility",
+        "accessibilityModal": {
+          "title": "Accessibility",
+          "scanning": "Scanning the preview for accessibility issues...",
+          "error": "The preview could not be scanned for accessibility issues.",
+          "noIssues": "No accessibility issues were found.",
+          "issuesFound": "{count} accessibility issues found.",
+          "affectedNodes": "{count} affected nodes.",
+          "learnMore": "Learn more"
+        },
         "save": "Save layout"
       },
       "sidebarTree": {
@@ -78,6 +88,12 @@
         "addElementNoTypeAvailable": "No registered element type is available for insertion.",
         "addElementNotAllowed": "This element cannot be inserted into the selected slot.",
         "configureElement": "Configure element",
+        "accessibility": "Accessibility issues",
+        "accessibilityFix": "Suggest a fix",
+        "accessibilityFixApply": "Apply fix",
+        "accessibilityFixProposal": "Suggested accessibility fix",
+        "accessibilityFixError": "The accessibility fix could not be generated.",
+        "accessibilityFixStale": "The component changed while the proposal was being generated. Please request a new fix.",
         "duplicateElement": "Duplicate element",
         "deleteElement": "Delete element"
       },

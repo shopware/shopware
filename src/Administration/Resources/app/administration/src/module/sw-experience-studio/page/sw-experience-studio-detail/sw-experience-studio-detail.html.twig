@@ -30,6 +30,7 @@
                     :preview-sales-channel-id="previewSalesChannelId"
                     :preview-entity-type="previewEntityType"
                     :preview-entity-id="previewEntityId"
+                    :preview-refresh-sequence="previewRefreshSequence"
                     :can-undo="canUndo"
                     :can-redo="canRedo"
                     @back="onClickBack"
@@ -39,6 +40,7 @@
                     @save="onSave"
                     @undo="onUndo"
                     @redo="onRedo"
+                    @accessibility-scan-results="onAccessibilityScanResults"
                 />
             {% endblock %}
 
@@ -50,11 +52,13 @@
                         :layout="layout"
                         :selected-element-id="selectedElementId"
                         :validate-move-target="validateMoveTarget"
+                        :accessibility-violations="accessibilityViolations"
                         @select-element="onSelectElement"
                         @add-element="onAddElement"
                         @duplicate-element="onDuplicateElement"
                         @delete-element="onDeleteElement"
                         @move-element="onMoveElement"
+                        @accessibility-fix-apply="onAccessibilityFixApply"
                     />
                 {% endblock %}
 
@@ -72,6 +76,7 @@
                         @inline-edit-change="onInlineEditChange"
                         @inline-edit-commit="onInlineEditCommit"
                         @inline-edit-cancel="onInlineEditCancel"
+                        @preview-frame-load="onPreviewFrameLoad"
                     />
                 {% endblock %}
 

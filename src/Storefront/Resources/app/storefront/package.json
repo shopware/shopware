@@ -38,6 +38,7 @@
     "@shopware-ag/dive": "2.3.4",
     "@swc/core": "1.10.14",
     "autoprefixer": "10.4.13",
+    "axe-core": "4.10.3",
     "bootstrap": "5.3.8",
     "copy-webpack-plugin": "14.0.0",
     "core-js": "3.40.0",

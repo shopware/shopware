@@ -124,6 +124,27 @@
         </div>
         {% endblock %}
 
+        {% block sw_experience_studio_toolbar_accessibility %}
+        <mt-button
+            class="sw-experience-studio-toolbar__accessibility-action"
+            square
+            variant="secondary"
+            size="small"
+            :aria-label="$t('sw-experience-studio.detail.toolbar.accessibility')"
+            @click="onOpenAccessibilityModal"
+        >
+            <mt-icon name="regular-universal-access" />
+            <mt-badge
+                v-if="accessibilityScanCompleted"
+                variant="critical"
+                size="s"
+                class="sw-experience-studio-toolbar__accessibility-badge"
+            >
+                {{ accessibilityViolations.length }}
+            </mt-badge>
+        </mt-button>
+        {% endblock %}
+
         <mt-button
             variant="primary"
             :disabled="!allowSave || isLoading || undefined"
@@ -133,6 +154,69 @@
             {{ $t('sw-experience-studio.detail.toolbar.save') }}
         </mt-button>
     </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_toolbar_accessibility_modal %}
+    <sw-modal
+        v-if="showAccessibilityModal"
+        class="sw-experience-studio-toolbar__accessibility-modal"
+        :title="$t('sw-experience-studio.detail.toolbar.accessibilityModal.title')"
+        @modal-close="onCloseAccessibilityModal"
+    >
+        <p v-if="isAccessibilityScanLoading">
+            {{ $t('sw-experience-studio.detail.toolbar.accessibilityModal.scanning') }}
+        </p>
+
+        <p v-else-if="accessibilityScanError">
+            {{ $t(accessibilityScanError) }}
+        </p>
+
+        <template v-else>
+            <p v-if="accessibilityViolations.length === 0">
+                {{ $t('sw-experience-studio.detail.toolbar.accessibilityModal.noIssues') }}
+            </p>
+
+            <template v-else>
+                <p>
+                    {{ $t('sw-experience-studio.detail.toolbar.accessibilityModal.issuesFound', {
+                        count: accessibilityViolations.length,
+                    }) }}
+                </p>
+
+                <ul class="sw-experience-studio-toolbar__accessibility-violations">
+                    <li
+                        v-for="violation in accessibilityViolations"
+                        class="sw-experience-studio-toolbar__accessibility-violation"
+                        :data-impact="violation.impact || 'unknown'"
+                        :key="violation.id"
+                    >
+                        <div class="sw-experience-studio-toolbar__accessibility-violation-header">
+                            <strong>{{ violation.help }}</strong>
+                            <span class="sw-experience-studio-toolbar__accessibility-impact">
+                                {{ violation.impact || 'unknown' }}
+                            </span>
+                        </div>
+                        <p class="sw-experience-studio-toolbar__accessibility-violation-description">
+                            {{ violation.description }}
+                        </p>
+                        <p class="sw-experience-studio-toolbar__accessibility-violation-meta">
+                            {{ $t('sw-experience-studio.detail.toolbar.accessibilityModal.affectedNodes', {
+                                count: violation.nodes.length,
+                            }) }}
+                        </p>
+                        <a
+                            class="sw-experience-studio-toolbar__accessibility-violation-link"
+                            :href="violation.helpUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {{ $t('sw-experience-studio.detail.toolbar.accessibilityModal.learnMore') }}
+                        </a>
+                    </li>
+                </ul>
+            </template>
+        </template>
+    </sw-modal>
     {% endblock %}
 </div>
 {% endblock %}

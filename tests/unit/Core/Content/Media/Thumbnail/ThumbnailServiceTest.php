@@ -737,8 +737,8 @@ class ThumbnailServiceTest extends TestCase
         $processor = $this->createMock(ThumbnailProcessorInterface::class);
         $processor->expects($this->once())->method('createImageFromString')->willReturn($image);
         $processor->expects($this->once())->method('rotate')->with($image, $angle)->willReturn($image);
-        $processor->method('getWidth')->with($image)->willReturn(1530);
-        $processor->method('getHeight')->with($image)->willReturn(1021);
+        $processor->expects($this->once())->method('getWidth')->with($image)->willReturn(1530);
+        $processor->expects($this->once())->method('getHeight')->with($image)->willReturn(1021);
         $processor->method('createNewImage')->willReturn($image);
         $processor->method('convertImage')->willReturn('thumbnail');
 

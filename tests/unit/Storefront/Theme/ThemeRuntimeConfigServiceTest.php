@@ -183,6 +183,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->willReturn($technicalName);
 
         $storage
+            ->expects($this->once())
             ->method('getOwnThemeTechnicalName')
             ->with($themeId)
             ->willReturn($technicalName);
@@ -235,11 +236,11 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->willReturn(new StorefrontPluginConfigurationCollection([$themeConfig]));
 
         $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
-        $storage->method('getById')->with($copyId)->willReturn(null);
+        $storage->expects($this->exactly(2))->method('getById')->with($copyId)->willReturn(null);
         // getThemeTechnicalName() inherits the parent's name; getOwnThemeTechnicalName() is NULL for the copy.
-        $storage->method('getThemeTechnicalName')->with($copyId)->willReturn($parentTechnicalName);
-        $storage->method('getOwnThemeTechnicalName')->with($copyId)->willReturn(null);
-        $storage->method('getCopiesIds')->with($copyId)->willReturn([]);
+        $storage->expects($this->once())->method('getThemeTechnicalName')->with($copyId)->willReturn($parentTechnicalName);
+        $storage->expects($this->once())->method('getOwnThemeTechnicalName')->with($copyId)->willReturn(null);
+        $storage->expects($this->once())->method('getCopiesIds')->with($copyId)->willReturn([]);
 
         $this->mergedConfigBuilder->method('getPlainThemeConfiguration')->willReturn(['key' => 'value']);
         $this->themeFileResolver->method('resolveScriptFiles')->willReturn(new FileCollection());
@@ -306,7 +307,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         $storage = $this->createMock(ThemeRuntimeConfigStorage::class);
         // No existing config stored — getById called to check for preserved importMap.
         $storage->method('getById')->willReturn(null);
-        $storage->method('getOwnThemeTechnicalName')->with($themeId)->willReturn($technicalName);
+        $storage->expects($this->once())->method('getOwnThemeTechnicalName')->with($themeId)->willReturn($technicalName);
 
         $storage
             ->expects($this->once())

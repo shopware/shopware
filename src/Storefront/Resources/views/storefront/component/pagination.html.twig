@@ -3,7 +3,7 @@
 {% block component_pagination_nav %}
     {% set currentPage = currentPage ?? entities.page %}
 
-    {% set totalPages = totalPages ?? (entities.total / (entities.limit ?: 1))|round(0, 'ceil') %}
+    {% set totalPages = totalPages ?? (entities.total / (entities.limit ?: 1))|round(0, 'ceil')|int %}
 
     {% if totalPages > 0 and currentPage > totalPages %}
         {% set currentPage = totalPages %}

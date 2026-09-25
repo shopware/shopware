@@ -1,5 +1,6 @@
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
+import { getEffectivePriceBasis } from '../../helper/price-basis.helper';
 
 /**
  * @sw-package discovery
@@ -179,11 +180,7 @@ export default {
 
         priceBasis: {
             get() {
-                if (this.customerGroup?.priceBasis) {
-                    return this.customerGroup.priceBasis;
-                }
-
-                return this.customerGroup?.displayGross ? 'gross' : 'net';
+                return getEffectivePriceBasis(this.customerGroup);
             },
             set(value) {
                 this.customerGroup.displayGross = this.displayGross;

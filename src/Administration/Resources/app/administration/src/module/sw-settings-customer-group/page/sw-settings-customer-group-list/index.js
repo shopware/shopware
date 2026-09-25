@@ -1,4 +1,5 @@
 import template from './sw-settings-customer-group-list.html.twig';
+import { getEffectivePriceBasis } from '../../helper/price-basis.helper';
 
 /**
  * @sw-package discovery
@@ -103,6 +104,7 @@ export default {
                 {
                     property: 'priceBasis',
                     label: 'sw-settings-customer-group.list.columnPriceBasis',
+                    sortable: false,
                 },
                 {
                     property: 'registrationActive',
@@ -113,7 +115,7 @@ export default {
         },
 
         getPriceBasisLabel(customerGroup) {
-            const priceBasis = customerGroup.priceBasis || (customerGroup.displayGross ? 'gross' : 'net');
+            const priceBasis = getEffectivePriceBasis(customerGroup);
 
             return priceBasis === 'gross'
                 ? this.$t('sw-settings-customer-group.detail.priceBasis.grossLabel')

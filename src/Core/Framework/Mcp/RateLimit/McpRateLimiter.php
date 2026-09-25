@@ -17,10 +17,28 @@ use Symfony\Component\HttpFoundation\Request;
  * shared, while the rate-limit key and the configured limits differ per API:
  * the Admin API keys on the OAuth access token, the Store API on the
  * sales-channel context plus a stable per-IP backstop.
+ *
+ * Only the handshake-era follow-up {@see self::INITIALIZED_NOTIFICATION_METHOD}
+ * is exempt from the limiter. The MCP Streamable HTTP handshake requires
+ * `initialize` then `notifications/initialized` back-to-back; Shopware's
+ * `time_backoff` policy accepts only one request after a wait, so once
+ * `initialize` has consumed that slot the mandatory follow-up would otherwise
+ * get HTTP 429 (see #18906). `initialize` itself stays rate-limited, because an
+ * unlimited initialize path would allow endless session creation. Tool calls
+ * and every other method stay limited. The 2026-07-28 modern era has no such
+ * pair, so the exemption is handshake-only.
  */
 #[Package('framework')]
 class McpRateLimiter
 {
+    /**
+     * Handshake-era JSON-RPC notification that completes session setup after
+     * `initialize`. Kept as a single-method allowlist so `initialize` and every
+     * other protocol method (including tool abuse paths) still draw from the
+     * shared bucket.
+     */
+    private const INITIALIZED_NOTIFICATION_METHOD = 'notifications/initialized';
+
     /**
      * @internal
      */
@@ -30,6 +48,10 @@ class McpRateLimiter
 
     public function enforceForAdminApi(Request $request): void
     {
+        if ($this->isInitializedNotificationOnlyRequest($request)) {
+            return;
+        }
+
         $key = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)
             ?: $request->getClientIp()
             ?: 'unknown';
@@ -39,6 +61,10 @@ class McpRateLimiter
 
     public function enforceForStoreApi(Request $request): void
     {
+        if ($this->isInitializedNotificationOnlyRequest($request)) {
+            return;
+        }
+
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         // Per-context bucket: the primary limit, applied only when a sales-channel context is
@@ -52,6 +78,45 @@ class McpRateLimiter
         // by rotating the context token. Route + key form independent buckets, so this reuses the
         // mcp_store_api limits without a separate configuration.
         $this->enforce(RateLimiter::MCP_STORE_API, $request->getClientIp() ?: 'unknown');
+    }
+
+    /**
+     * True when every JSON-RPC message in the POST body is `notifications/initialized`.
+     * Non-POST, unparseable, empty, `initialize` (alone or in a batch), or mixed batches
+     * still go through the limiter. `initialize` always counts.
+     */
+    private function isInitializedNotificationOnlyRequest(Request $request): bool
+    {
+        if ($request->getMethod() !== Request::METHOD_POST) {
+            return false;
+        }
+
+        $content = $request->getContent();
+
+        // Cheap substring pre-check so ordinary (possibly large) tool calls are not JSON-decoded
+        // twice; McpServerController decodes the body again. Also matches `notifications\/initialized`.
+        if (!str_contains($content, 'initialized')) {
+            return false;
+        }
+
+        try {
+            $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return false;
+        }
+
+        if (!\is_array($decoded) || $decoded === []) {
+            return false;
+        }
+
+        $messages = array_is_list($decoded) ? $decoded : [$decoded];
+        foreach ($messages as $message) {
+            if (!\is_array($message) || ($message['method'] ?? null) !== self::INITIALIZED_NOTIFICATION_METHOD) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function enforce(string $route, string $key): void

@@ -86,12 +86,14 @@ class RequestTransformer implements RequestTransformerInterface
      * @internal
      *
      * @param array<string> $registeredApiPrefixes
+     * @param array<string> $apiContextRoutePrefixes
      */
     public function __construct(
         private readonly RequestTransformerInterface $decorated,
         private readonly AbstractSeoResolver $resolver,
         private readonly array $registeredApiPrefixes,
-        private readonly AbstractDomainLoader $domainLoader
+        private readonly AbstractDomainLoader $domainLoader,
+        private readonly array $apiContextRoutePrefixes = [],
     ) {
     }
 
@@ -128,6 +130,11 @@ class RequestTransformer implements RequestTransformerInterface
                 '',
                 $salesChannel->url
             );
+        }
+
+        // Admin and Admin API routes can't be served with a sales channel context, e.g. shopware.de/de/admin
+        if ($this->isApiContextRouteBelowBaseUrl($request->getPathInfo(), $baseUrl)) {
+            return $request;
         }
 
         $resolved = $this->resolveSeoUrl(
@@ -273,6 +280,24 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         return true;
+    }
+
+    private function isApiContextRouteBelowBaseUrl(string $pathInfo, string $baseUrl): bool
+    {
+        $baseUrl = rtrim($baseUrl, '/');
+        if ($baseUrl === '' || !str_starts_with($pathInfo, $baseUrl . '/')) {
+            return false;
+        }
+
+        $pathInfo = '/' . trim(mb_substr($pathInfo, mb_strlen($baseUrl)), '/') . '/';
+
+        foreach ($this->apiContextRoutePrefixes as $prefix) {
+            if (str_starts_with($pathInfo, '/' . $prefix . '/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function findSalesChannel(Request $request): ?DomainStruct

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ResponseHeaderListener;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -62,15 +61,16 @@ class ResponseHeaderListenerTest extends TestCase
         static::assertSame('context-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the CACHE_REWORK flag
+     */
+    #[DisabledFeatures(['CACHE_REWORK'])]
     public function testExplicitCacheReworkOptOutWinsWithMajorActive(): void
     {
         $request = new Request();
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, 'context-token');
 
-        $response = Feature::withFeatureEnabled('v6.8.0.0', fn (): Response => Feature::withFeatureDisabled(
-            'CACHE_REWORK',
-            fn (): Response => $this->handleResponse($request)
-        ));
+        $response = $this->handleResponse($request);
 
         static::assertSame('context-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }

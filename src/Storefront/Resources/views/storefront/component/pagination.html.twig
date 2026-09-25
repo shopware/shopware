@@ -3,7 +3,15 @@
 {% block component_pagination_nav %}
     {% set currentPage = currentPage ?? entities.page %}
 
-    {% set totalPages = totalPages ?? (entities.total / (entities.limit ?: 1))|round(0, 'ceil') %}
+    {% set totalPages = totalPages ?? (entities.total / (entities.limit ?: 1))|round(0, 'ceil')|int %}
+
+    {% if totalPages > 0 and currentPage > totalPages %}
+        {% set currentPage = totalPages %}
+    {% endif %}
+
+    {% if currentPage < 1 %}
+        {% set currentPage = 1 %}
+    {% endif %}
 
     {% set paginationSuffix = '' %}
     {% if paginationLocation %}
@@ -68,22 +76,24 @@
                         {% set end = totalPages %}
                     {% endif %}
 
-                    {% for page in start..end %}
+                    {% if start <= end %}
+                        {% for page in start..end %}
 
-                        {% set isActive = (currentPage == page) %}
+                            {% set isActive = (currentPage == page) %}
 
-                        {% block component_pagination_item %}
-                            <li class="page-item{% if isActive %} active{% endif %}"{% if isActive %} aria-current="page"{% endif %}>
-                                    {% block component_pagination_item_link_element %}
-                                        <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ page ~ searchQuery : '#' }}" class="page-link" data-page="{{ page }}" data-focus-id="{{ page }}">
-                                            {% block component_pagination_item_link_text %}
-                                                <span class="visually-hidden">{{ 'general.pagination.page'|trans|sw_sanitize }}</span> {{ page }}
-                                            {% endblock %}
-                                        </a>
-                                    {% endblock %}
-                            </li>
-                        {% endblock %}
-                    {% endfor %}
+                            {% block component_pagination_item %}
+                                <li class="page-item{% if isActive %} active{% endif %}"{% if isActive %} aria-current="page"{% endif %}>
+                                        {% block component_pagination_item_link_element %}
+                                            <a href="{{ href ? '?' ~ pageParameter ~ '=' ~ page ~ searchQuery : '#' }}" class="page-link" data-page="{{ page }}" data-focus-id="{{ page }}">
+                                                {% block component_pagination_item_link_text %}
+                                                    <span class="visually-hidden">{{ 'general.pagination.page'|trans|sw_sanitize }}</span> {{ page }}
+                                                {% endblock %}
+                                            </a>
+                                        {% endblock %}
+                                </li>
+                            {% endblock %}
+                        {% endfor %}
+                    {% endif %}
                 {% endblock %}
 
                 {% block component_pagination_next %}

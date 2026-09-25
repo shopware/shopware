@@ -1660,6 +1660,12 @@ Assign the relevant app privilege to users or integrations that need to use an a
 
 ## Hosting & Configuration
 
+### ProxySQL connection multiplexing can be enabled
+
+Shopware no longer relies on MySQL user-defined session variables when loading limited many-to-many associations, which allows ProxySQL to multiplex these requests. ProxySQL operators can also set `SQL_SET_DEFAULT_SESSION_VARIABLES=0` to skip Shopware's connection initialization commands, which otherwise make connections session-specific and prevent multiplexing.
+
+When disabling the initialization commands, ensure the database or proxy configuration provides the required session defaults, in particular UTC as the session time zone, a sufficient `group_concat_max_len` of 320000 or higher, and an SQL mode without `ONLY_FULL_GROUP_BY`. The variable defaults to enabled, so existing installations are unaffected.
+
 ### Local translation files and optional automatic updates
 
 The translation system can store downloaded translation files locally instead of on the configured private filesystem. Set `shopware.translation.use_local_filesystem` to `true` and include `var/translation` in the deployed release. Run `translation:download` during the build to populate that directory without creating language or snippet-set records.

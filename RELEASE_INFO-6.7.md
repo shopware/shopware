@@ -58,6 +58,22 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ## Administration
 
+### Native setup components support defineModel()
+
+`defineModel()` was rejected at build time inside a Shopware `<script setup>` block, so a base component had to declare the prop and the `update:` emit of a `v-model` binding by hand. It is now supported in base components and behaves as in any Vue component — the prop, the emit, the modifiers object and `{ default }` are all Vue's own:
+
+```vue
+<script setup lang="ts">
+const modelValue = defineModel<string>();
+
+swDefinePublic({ modelValue });
+</script>
+```
+
+The binding is ordinary base state: private unless listed in `swDefinePublic({ ... })`, and a write to it still emits, from the template, from a parent holding a template ref, and through an override that replaced it.
+
+`defineModel()` stays rejected in an override component, which declares neither props nor emits. Base components can use Vue's conventional binding names, including `const title = defineModel('title')` and `[modelValue, modelModifiers] = defineModel()`.
+
 ### New extension points for the Shopping Experiences layout list
 
 The "Set as default" context menu item in `sw-cms-list` is now wrapped in its own Twig block, in both the grid and the list view:

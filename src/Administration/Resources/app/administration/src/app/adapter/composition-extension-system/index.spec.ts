@@ -2777,6 +2777,65 @@ describe('src/app/adapter/composition-extension-system', () => {
             );
         });
 
+        it('keeps the returned-prop guard for every binding modelBindings does not name', async () => {
+            const originalComponent = defineComponent({
+                template: `
+                    <div class="model">Model: {{ modelValue }}</div>
+                    <div class="multiplied">Multiplied: {{ multipliedCount }}</div>
+                `,
+                props: {
+                    modelValue: {
+                        type: String,
+                        default: 'model',
+                    },
+                    multiplier: {
+                        type: Number,
+                        default: 1,
+                    },
+                },
+                setup: (props, context) =>
+                    createExtendableSetup(
+                        {
+                            props,
+                            context,
+                            name: 'originalComponent',
+                            // Only the model binding is a deliberate prop/state pair.
+                            modelBindings: ['modelValue'],
+                        },
+                        () => {
+                            const modelValue = ref('from setup');
+
+                            return {
+                                public: {
+                                    modelValue,
+                                    multipliedCount: computed(() => props.multiplier * 2),
+                                    // Not a model binding, so this is still rejected and dropped
+                                    multiplier: props.multiplier,
+                                },
+                            };
+                        },
+                    ),
+            });
+
+            const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const wrapper = mount(originalComponent, {
+                props: {
+                    multiplier: 2,
+                },
+            });
+
+            await flushPromises();
+
+            expect(consoleError).toHaveBeenCalledWith(
+                '[originalComponent] The original setup function for the originalComponent component returned a prop. This is not allowed. Props are only available for overrides with the second argument.',
+            );
+            expect(consoleError).toHaveBeenCalledTimes(1);
+
+            // The model binding survived the guard and shadows the prop of the same name.
+            expect(wrapper.find('.model').text()).toBe('Model: from setup');
+        });
+
         it('should console an error when the override function returns a prop', async () => {
             const originalComponent = defineComponent({
                 template: `

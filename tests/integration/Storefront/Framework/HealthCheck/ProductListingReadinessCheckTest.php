@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -99,6 +101,36 @@ class ProductListingReadinessCheckTest extends TestCase
 
         $check = $this->createCheck();
         $result = $check->run();
+
+        static::assertTrue($result->healthy);
+        static::assertSame(Status::SKIPPED, $result->status);
+    }
+
+    /**
+     * Dynamic Access does not filter the category criteria, it deactivates restricted categories after they are
+     * loaded (`sales_channel.category.loaded`). The storefront refuses to render them, so the check must not
+     * probe them either.
+     */
+    public function testCheckIsHealthyWhenAllListingCategoriesAreDeactivatedOnLoad(): void
+    {
+        $categoryIds = array_merge(
+            $this->createMainNavigationWithSalesChannelAssignment($this->ids->get('sales-channel-1'), true),
+            $this->createMainNavigationWithSalesChannelAssignment($this->ids->get('sales-channel-2'), false),
+        );
+
+        $this->addEventListener(
+            static::getContainer()->get('event_dispatcher'),
+            'sales_channel.category.loaded',
+            static function (SalesChannelEntityLoadedEvent $event) use ($categoryIds): void {
+                foreach ($event->getEntities() as $category) {
+                    if ($category instanceof CategoryEntity && \in_array($category->getId(), $categoryIds, true)) {
+                        $category->setActive(false);
+                    }
+                }
+            }
+        );
+
+        $result = $this->createCheck()->run();
 
         static::assertTrue($result->healthy);
         static::assertSame(Status::SKIPPED, $result->status);

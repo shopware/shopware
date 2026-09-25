@@ -33,10 +33,11 @@ class SalesChannelDomainContextFactory
      * sales channel defaults, because all of them feed the criteria processing. The rule IDs are detected the
      * same way SalesChannelContextService::get() detects them for a visitor without a cart: by calculating a
      * new cart. It is created through the CartFactory like the request's cart, so extensions seeding a new cart
-     * via the CartCreatedEvent affect the matching rules here as well. The cart only lives in memory: persistence is skipped explicitly, because a cart processor
-     * adding a line item or an error would otherwise store a cart under a token nobody uses again. Unlike
-     * SalesChannelContextService::get() this does not touch the current request, its session or the cart
-     * service, which matters when the check runs inside an Admin API request.
+     * via the CartCreatedEvent affect the matching rules here as well. The cart only lives in memory:
+     * persistence is skipped explicitly, because a cart processor adding a line item or an error would
+     * otherwise store a cart under a token nobody uses again. Unlike SalesChannelContextService::get() this
+     * does not touch the current request, its session or the cart service, which matters when the check runs
+     * inside an Admin API request.
      */
     public function create(SalesChannelDomain $domain): SalesChannelContext
     {

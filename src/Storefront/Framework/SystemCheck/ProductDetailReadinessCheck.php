@@ -76,7 +76,15 @@ class ProductDetailReadinessCheck extends BaseCheck
         $extra = [];
         $requestStatus = [];
         foreach ($domains as $salesChannelId => $domain) {
-            $productId = $this->fetchVisibleProductId($domain);
+            try {
+                $productId = $this->fetchVisibleProductId($domain);
+            } catch (\Exception $e) {
+                // e.g. no context for a domain whose currency is no longer assigned, the other sales channels are still probed
+                $requestStatus[Status::FAILURE->name] = Status::FAILURE;
+                $extra[] = $this->util->createExceptionResult($domain->url, $e)->getVars();
+
+                continue;
+            }
 
             if ($productId === null) {
                 continue;
@@ -111,16 +119,13 @@ class ProductDetailReadinessCheck extends BaseCheck
     }
 
     /**
-     * @description The product is resolved through the sales channel repository on purpose, so the same criteria
-     * processing the storefront applies is used: SalesChannelProductDefinition::processCriteria() adds the
-     * ProductAvailableFilter that ProductDetailRoute uses, and extensions restricting product visibility by rules
-     * (for example via the sales_channel.product.process.criteria event) are taken into account as well.
-     * Otherwise the check could pick a product the storefront refuses to render for an anonymous visitor,
-     * which would report an intentional restriction as an unhealthy product detail page.
-     *
-     * The context is the one an anonymous visitor gets on the probed domain, including the rules matching for
-     * them, see SalesChannelDomainContextFactory. A restriction is otherwise evaluated against a different
-     * context than the request that follows.
+     * @description The product is resolved through the sales channel repository with the context of
+     * SalesChannelDomainContextFactory on purpose, so the same criteria processing the storefront applies is
+     * used: SalesChannelProductDefinition::processCriteria() adds the ProductAvailableFilter that
+     * ProductDetailRoute uses, and extensions restricting product visibility by rules (for example via the
+     * sales_channel.product.process.criteria event) are taken into account as well. Otherwise the check could
+     * pick a product the storefront refuses to render for an anonymous visitor, which would report an
+     * intentional restriction as an unhealthy product detail page.
      */
     private function fetchVisibleProductId(SalesChannelDomain $domain): ?string
     {
@@ -128,10 +133,7 @@ class ProductDetailReadinessCheck extends BaseCheck
 
         $criteria = new Criteria();
         $criteria->setTitle('product-detail-readiness-check');
-        // Mirrors ProductDetailRoute::addCloseoutFilter(): only closeout products out of stock are
-        // unrenderable, and only while the setting hides them. Filtering on `available` instead would
-        // also drop a non-closeout product with no stock, whose detail page renders fine, and would
-        // keep dropping closeout products after an admin turned the setting off.
+        // Mirrors ProductDetailRoute::addCloseoutFilter()
         if ($this->systemConfigService->getBool('core.listing.hideCloseoutProductsWhenOutOfStock', $domain->salesChannelId)) {
             $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
         }

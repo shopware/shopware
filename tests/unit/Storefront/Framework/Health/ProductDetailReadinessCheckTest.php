@@ -54,6 +54,11 @@ class ProductDetailReadinessCheckTest extends TestCase
 
     private bool $hideCloseoutProducts = true;
 
+    /**
+     * @var list<string>
+     */
+    private array $domainsWithoutContext = [];
+
     private int $handledRequests = 0;
 
     protected function setUp(): void
@@ -195,6 +200,27 @@ class ProductDetailReadinessCheckTest extends TestCase
     }
 
     /**
+     * A domain whose context cannot be created, e.g. because its currency is no longer assigned to the sales
+     * channel, is that sales channel's failure. The other sales channels are still probed and reported.
+     */
+    public function testADomainWithoutContextFailsOnItsOwn(): void
+    {
+        $this->initDomainMocks();
+        $this->initHandleRequest(Response::HTTP_OK);
+        $this->domainsWithoutContext = [$this->ids->get('domain-sales-channel-1')];
+
+        $result = $this->createCheck([[$this->ids->get('product-2')], []])->run();
+
+        static::assertSame(Status::ERROR, $result->status);
+        static::assertFalse($result->healthy);
+        static::assertCount(2, $result->extra);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $result->extra[0]['responseCode']);
+        static::assertSame('no context for this domain', $result->extra[0]['errorMessage']);
+        static::assertSame(Response::HTTP_OK, $result->extra[1]['responseCode']);
+        static::assertSame(1, $this->handledRequests);
+    }
+
+    /**
      * @return iterable<string, array{bool, bool}>
      */
     public static function closeoutConfigProvider(): iterable
@@ -303,6 +329,10 @@ class ProductDetailReadinessCheckTest extends TestCase
                 return $callback();
             });
 
+        $this->util->method('createExceptionResult')->willReturnCallback(
+            static fn (string $url, \Exception $e): StorefrontHealthCheckResult => StorefrontHealthCheckResult::create($url, Response::HTTP_BAD_REQUEST, 0.0, $e->getMessage())
+        );
+
         $this->util->method('generateDomainUrl')->willReturnCallback(static function ($domain, $routeName) {
             return $domain . $routeName;
         });
@@ -328,6 +358,10 @@ class ProductDetailReadinessCheckTest extends TestCase
         $this->contextFactory = static::createStub(SalesChannelDomainContextFactory::class);
         $this->contextFactory->method('create')->willReturnCallback(
             function (SalesChannelDomain $domain): SalesChannelContext {
+                if (\in_array($domain->id, $this->domainsWithoutContext, true)) {
+                    throw new \RuntimeException('no context for this domain');
+                }
+
                 $this->contextDomains[] = $domain;
 
                 return Generator::generateSalesChannelContext();

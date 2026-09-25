@@ -80,7 +80,15 @@ class ProductListingReadinessCheck extends BaseCheck
         $extra = [];
         $requestStatus = [];
         foreach ($domains as $salesChannelId => $domain) {
-            $navigationId = $this->resolveVisibleNavigationId($domain, $navigationIds[$salesChannelId] ?? []);
+            try {
+                $navigationId = $this->resolveVisibleNavigationId($domain, $navigationIds[$salesChannelId] ?? []);
+            } catch (\Exception $e) {
+                // e.g. no context for a domain whose currency is no longer assigned, the other sales channels are still probed
+                $requestStatus[Status::FAILURE->name] = Status::FAILURE;
+                $extra[] = $this->util->createExceptionResult($domain->url, $e)->getVars();
+
+                continue;
+            }
 
             if ($navigationId === null) {
                 continue;
@@ -115,14 +123,13 @@ class ProductListingReadinessCheck extends BaseCheck
     }
 
     /**
-     * @description The category is resolved through the sales channel repository on purpose, so extensions that
-     * restrict category visibility by rules (for example via the sales_channel.category.process.criteria event)
-     * are taken into account. Otherwise the check could pick a category the storefront refuses to render for an
-     * anonymous visitor, which would report an intentional restriction as an unhealthy product listing page.
-     *
-     * The context is the one an anonymous visitor gets on the probed domain, including the rules matching for
-     * them, see SalesChannelDomainContextFactory. A restriction is otherwise evaluated against a different
-     * context than the request that follows.
+     * @description The categories are loaded through the sales channel repository with the context of
+     * SalesChannelDomainContextFactory, so extensions restricting category visibility are taken into account,
+     * whether they filter the criteria (sales_channel.category.process.criteria) or deactivate loaded categories
+     * (sales_channel.category.loaded), as Dynamic Access does. The latter is only dispatched when entities are
+     * read, so the IDs alone are not enough. Otherwise the check could pick a category the storefront refuses to
+     * render for an anonymous visitor, which would report an intentional restriction as an unhealthy product
+     * listing page.
      *
      * @param list<string> $candidateIds
      */
@@ -138,11 +145,12 @@ class ProductListingReadinessCheck extends BaseCheck
         $criteria->setTitle('product-listing-readiness-check');
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $visibleIds = $this->categoryRepository->searchIds($criteria, $context)->getIds();
+        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         // keep the order of the candidates, so child listing pages are preferred over the navigation category
         foreach ($candidateIds as $candidateId) {
-            if (\in_array($candidateId, $visibleIds, true)) {
+            // the same check NavigationPageLoader::load() applies before rendering the listing page
+            if ($categories->get($candidateId)?->getActive()) {
                 return $candidateId;
             }
         }
@@ -180,7 +188,7 @@ class ProductListingReadinessCheck extends BaseCheck
                 AND `category_child`.`version_id` = `cms_page_child`.`version_id`
                 AND `cms_page_child`.`type` = 'product_list'
             WHERE `category_root`.`active` = 1
-                AND `sales_channel`.`id` IN (:childSalesChannelIds)
+                AND `sales_channel`.`id` IN (:salesChannelIds)
             UNION ALL
             SELECT LOWER(HEX(`sales_channel`.`id`)) AS `sales_channel_id`,
                    LOWER(HEX(`category_root`.`id`)) AS `category_id`,
@@ -194,20 +202,14 @@ class ProductListingReadinessCheck extends BaseCheck
                 AND `category_root`.`version_id` = `cms_page_root`.`version_id`
                 AND `cms_page_root`.`type` = 'product_list'
             WHERE `category_root`.`active` = 1
-                AND `sales_channel`.`id` IN (:rootSalesChannelIds)
+                AND `sales_channel`.`id` IN (:salesChannelIds)
             ORDER BY `sales_channel_id`, `is_navigation_category`, `category_id`
         SQL;
 
         $result = $this->connection->fetchAllAssociative(
             $sql,
-            [
-                'childSalesChannelIds' => Uuid::fromHexToBytesList($salesChannelIds),
-                'rootSalesChannelIds' => Uuid::fromHexToBytesList($salesChannelIds),
-            ],
-            [
-                'childSalesChannelIds' => ArrayParameterType::BINARY,
-                'rootSalesChannelIds' => ArrayParameterType::BINARY,
-            ]
+            ['salesChannelIds' => Uuid::fromHexToBytesList($salesChannelIds)],
+            ['salesChannelIds' => ArrayParameterType::BINARY]
         );
 
         $navigationIds = [];

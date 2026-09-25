@@ -22,8 +22,7 @@ class SalesChannelDomainProvider extends AbstractSalesChannelDomainProvider
     {
         // One domain per sales channel, and always the same one: the language and currency below have
         // to describe the domain whose URL is probed, and a check that silently rotates between
-        // domains would report a different page from run to run. `MIN(id)` picks it deterministically,
-        // which `GROUP BY sales_channel.id` alone does not.
+        // domains would report a different page from run to run. `MIN(id)` picks it deterministically.
         $sql = <<<'SQL'
             SELECT LOWER(HEX(`sales_channel_domain`.`id`)) AS `id`,
                    LOWER(HEX(`sales_channel_domain`.`sales_channel_id`)) AS `sales_channel_id`,

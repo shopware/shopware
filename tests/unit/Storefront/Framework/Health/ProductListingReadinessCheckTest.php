@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
@@ -49,6 +50,11 @@ class ProductListingReadinessCheckTest extends TestCase
     private array $requestedNavigationIds = [];
 
     private int $handledRequests = 0;
+
+    /**
+     * @var list<string>
+     */
+    private array $domainsWithoutContext = [];
 
     /**
      * @var list<SalesChannelDomain>
@@ -161,11 +167,54 @@ class ProductListingReadinessCheckTest extends TestCase
             ['sales_channel_id' => $this->ids->get('sales-channel-1'), 'category_id' => $this->ids->get('visible-category'), 'is_navigation_category' => 0],
         ]);
 
-        $check = $this->createCheck([[$this->ids->get('visible-category')]]);
+        $check = $this->createCheck([$this->categories(['visible-category' => true])]);
         $result = $check->run();
 
         static::assertSame('OK', $result->status->name);
         static::assertSame([$this->ids->get('visible-category')], $this->requestedNavigationIds);
+    }
+
+    /**
+     * Dynamic Access does not filter the criteria for categories, it deactivates restricted categories in a
+     * `sales_channel.category.loaded` listener. The storefront refuses to render an inactive category, so the
+     * check has to fall back to the next candidate instead of probing it.
+     */
+    public function testCategoryDeactivatedOnLoadFallsBackToTheNextCandidate(): void
+    {
+        $this->initHandleRequest(Response::HTTP_OK);
+        $this->initDomainMocks();
+
+        $this->connection->method('fetchAllAssociative')->willReturn([
+            ['sales_channel_id' => $this->ids->get('sales-channel-1'), 'category_id' => $this->ids->get('restricted-category'), 'is_navigation_category' => 0],
+            ['sales_channel_id' => $this->ids->get('sales-channel-1'), 'category_id' => $this->ids->get('visible-category'), 'is_navigation_category' => 0],
+        ]);
+
+        $check = $this->createCheck([$this->categories(['restricted-category' => false, 'visible-category' => true])]);
+        $result = $check->run();
+
+        static::assertSame('OK', $result->status->name);
+        static::assertSame([$this->ids->get('visible-category')], $this->requestedNavigationIds);
+    }
+
+    /**
+     * A domain whose context cannot be created, e.g. because its currency is no longer assigned to the sales
+     * channel, is that sales channel's failure. The other sales channels are still probed and reported.
+     */
+    public function testADomainWithoutContextFailsOnItsOwn(): void
+    {
+        $this->initDataMocks();
+        $this->initHandleRequest(Response::HTTP_OK);
+        $this->domainsWithoutContext = [$this->ids->get('domain-sales-channel-1')];
+
+        $result = $this->createCheck([$this->categories(['category-2' => true])])->run();
+
+        static::assertSame(Status::ERROR, $result->status);
+        static::assertFalse($result->healthy);
+        static::assertCount(2, $result->extra);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $result->extra[0]['responseCode']);
+        static::assertSame('no context for this domain', $result->extra[0]['errorMessage']);
+        static::assertSame(Response::HTTP_OK, $result->extra[1]['responseCode']);
+        static::assertSame([$this->ids->get('category-2')], $this->requestedNavigationIds);
     }
 
     public function testCategoriesAreResolvedByTheCandidatesOfTheSalesChannel(): void
@@ -210,7 +259,7 @@ class ProductListingReadinessCheckTest extends TestCase
     }
 
     /**
-     * @param array<callable(Criteria, SalesChannelContext): list<string>|list<string>> $searchResults
+     * @param array<callable(Criteria, SalesChannelContext): (CategoryCollection|array{})|CategoryCollection|array{}> $searchResults
      */
     private function createCheck(array $searchResults = []): ProductListingReadinessCheck
     {
@@ -227,14 +276,30 @@ class ProductListingReadinessCheckTest extends TestCase
     }
 
     /**
-     * @return list<list<string>>
+     * @return list<CategoryCollection>
      */
     private function visibleCategoryResults(): array
     {
         return [
-            [$this->ids->get('category-1')],
-            [$this->ids->get('category-2')],
+            $this->categories(['category-1' => true]),
+            $this->categories(['category-2' => true]),
         ];
+    }
+
+    /**
+     * @param array<string, bool> $activeByKey
+     */
+    private function categories(array $activeByKey): CategoryCollection
+    {
+        $categories = new CategoryCollection();
+        foreach ($activeByKey as $key => $active) {
+            $category = new CategoryEntity();
+            $category->setId($this->ids->get($key));
+            $category->setActive($active);
+            $categories->add($category);
+        }
+
+        return $categories;
     }
 
     private function initUtilMock(): void
@@ -249,6 +314,10 @@ class ProductListingReadinessCheckTest extends TestCase
             ->willReturnCallback(static function (callable $callback): mixed {
                 return $callback();
             });
+
+        $this->util->method('createExceptionResult')->willReturnCallback(
+            static fn (string $url, \Exception $e): StorefrontHealthCheckResult => StorefrontHealthCheckResult::create($url, Response::HTTP_BAD_REQUEST, 0.0, $e->getMessage())
+        );
 
         $this->util->method('generateDomainUrl')->willReturnCallback(
             function (string $domain, string $routeName, array $parameters = []): string {
@@ -279,6 +348,10 @@ class ProductListingReadinessCheckTest extends TestCase
         $this->contextFactory = static::createStub(SalesChannelDomainContextFactory::class);
         $this->contextFactory->method('create')->willReturnCallback(
             function (SalesChannelDomain $domain): SalesChannelContext {
+                if (\in_array($domain->id, $this->domainsWithoutContext, true)) {
+                    throw new \RuntimeException('no context for this domain');
+                }
+
                 $this->contextDomains[] = $domain;
 
                 return Generator::generateSalesChannelContext();

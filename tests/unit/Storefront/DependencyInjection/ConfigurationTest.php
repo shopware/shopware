@@ -64,6 +64,22 @@ class ConfigurationTest extends TestCase
         static::assertSame(['storage'], $config['security']['clear_site_data_on_logout']);
     }
 
+    public function testDeviceBoundSessionsAreDisabledByDefault(): void
+    {
+        $config = $this->process([]);
+
+        static::assertSame(['enabled' => false, 'cookie_lifetime' => 600], $config['security']['device_bound_sessions']);
+    }
+
+    public function testDeviceBoundCookieLifetimeBelowOneMinuteIsRejected(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->process([
+            ['security' => ['device_bound_sessions' => ['enabled' => true, 'cookie_lifetime' => 59]]],
+        ]);
+    }
+
     /**
      * @param list<array<string, mixed>> $configs
      *

@@ -807,6 +807,7 @@
     "groupRequiredCookieHash": "Cookie-Configuration-Hash",
     "groupRequiredAccepted": "Cookie preferences",
     "groupRequiredCaptcha": "CAPTCHA integration",
+    "groupRequiredDeviceBoundSession": "Device bound session",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",
     "groupStatisticalGoogleAnalytics": "Google Analytics",

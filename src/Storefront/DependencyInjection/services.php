@@ -79,6 +79,11 @@ use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
+use Shopware\Storefront\Framework\DeviceBoundSession\DeviceBoundSessionCookieCollectListener;
+use Shopware\Storefront\Framework\DeviceBoundSession\DeviceBoundSessionProofVerifier;
+use Shopware\Storefront\Framework\DeviceBoundSession\DeviceBoundSessionService;
+use Shopware\Storefront\Framework\DeviceBoundSession\DeviceBoundSessionStorage;
+use Shopware\Storefront\Framework\DeviceBoundSession\DeviceBoundSessionSubscriber;
 use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
@@ -752,6 +757,39 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('storefront.security.clear_site_data_on_logout'),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(DeviceBoundSessionStorage::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
+    $services->set(DeviceBoundSessionProofVerifier::class);
+
+    $services->set(DeviceBoundSessionService::class)
+        ->args([
+            service(DeviceBoundSessionStorage::class),
+            service(DeviceBoundSessionProofVerifier::class),
+            service(ClockInterface::class),
+            param('kernel.secret'),
+            param('storefront.security.device_bound_sessions.cookie_lifetime'),
+            param('shopware.api.store.context_lifetime'),
+        ]);
+
+    $services->set(DeviceBoundSessionSubscriber::class)
+        ->args([
+            param('storefront.security.device_bound_sessions.enabled'),
+            service(DeviceBoundSessionService::class),
+            service(StorefrontSubscriber::class),
+            service('router'),
+            service('request_stack'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(DeviceBoundSessionCookieCollectListener::class)
+        ->args([
+            param('storefront.security.device_bound_sessions.enabled'),
+        ])
+        ->tag('kernel.event_listener');
 
     $services->set(CartMergedSubscriber::class)
         ->args([

@@ -77,6 +77,7 @@ use Shopware\Storefront\Controller\ContextController;
 use Shopware\Storefront\Controller\ContextGatewayController;
 use Shopware\Storefront\Controller\CookieController;
 use Shopware\Storefront\Controller\CountryStateController;
+use Shopware\Storefront\Controller\DeviceBoundSessionController;
 use Shopware\Storefront\Controller\DocumentController;
 use Shopware\Storefront\Controller\DownloadController;
 use Shopware\Storefront\Controller\ErrorController;
@@ -96,6 +97,7 @@ use Shopware\Storefront\Controller\VerificationHashController;
 use Shopware\Storefront\Controller\WellKnownController;
 use Shopware\Storefront\Controller\WishlistController;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
+use Shopware\Storefront\Framework\DeviceBoundSession\DeviceBoundSessionService;
 use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
@@ -405,6 +407,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(DownloadRoute::class),
+        ])
+        ->call('setContainer', [service('service_container')]);
+
+    $services->set(DeviceBoundSessionController::class)
+        ->public()
+        ->args([
+            param('storefront.security.device_bound_sessions.enabled'),
+            service(DeviceBoundSessionService::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

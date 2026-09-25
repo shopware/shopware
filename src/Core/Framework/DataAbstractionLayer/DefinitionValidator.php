@@ -115,6 +115,7 @@ class DefinitionValidator
         'payment_token',
         'refresh_token',
         'oauth_auth_code',
+        'device_bound_session',
         'usage_data_entity_deletion',
         'one_time_tasks',
         'invalidation_tags',

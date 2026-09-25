@@ -78,6 +78,29 @@ Together, these two changes remove the need to override the surrounding blocks, 
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+### Optional device bound sessions for logged-in customers
+
+The storefront can bind the session of a logged-in customer to their device with [Device Bound Session Credentials (DBSC)](https://w3c.github.io/webappsec-dbsc/), so a stolen session cookie cannot be used on another device. Disabled by default:
+
+```yaml
+# config/packages/storefront.yaml
+storefront:
+    security:
+        device_bound_sessions:
+            enabled: true
+            cookie_lifetime: 600 # seconds, minimum 60
+```
+
+Browsers that support DBSC (currently Chrome on Windows and macOS) register a key held by the device after login. The storefront then issues a short-lived `sw-dbsc-*` cookie, which the browser renews via `POST /device-bound-session/refresh` by proving possession of the key. A request that presents the session cookie of a bound session without a valid device bound cookie logs the session out. Other browsers are not affected.
+
+While enabled, the cookie consent manager lists the `sw-dbsc-*` cookie as technically required, which changes the cookie configuration hash and asks visitors to review their cookie preferences once.
+
+When enabling it:
+
+* Make sure reverse proxies and CDNs pass the `Secure-Session-Registration`, `Secure-Session-Challenge`, `Secure-Session-Response` and `Sec-Secure-Session-Id` headers through, and never cache `/device-bound-session/*`.
+* Registration is only offered on uncached storefront responses, for example the account pages.
+* Custom storefront routes that customers call without the browser, for example from a native app sharing the session cookie, stop working for bound sessions.
+
 # 6.7.15.0
 
 ## Features

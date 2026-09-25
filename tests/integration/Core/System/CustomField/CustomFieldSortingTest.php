@@ -56,4 +56,27 @@ class CustomFieldSortingTest extends TestCase
         static::assertArrayHasKey('extensionConfiguration', $config);
         static::assertSame(['enabled' => true], $config['extensionConfiguration']);
     }
+
+    public function testPreservesNumberBoundTypes(): void
+    {
+        $id = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $this->repository->create([
+            [
+                'id' => $id,
+                'name' => 'number_bounds_test',
+                'type' => 'float',
+                'config' => [
+                    'min' => 1,
+                    'max' => 2.5,
+                    'step' => 1,
+                ],
+            ],
+        ], $context);
+
+        $customField = $this->repository->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(CustomFieldEntity::class, $customField);
+        static::assertSame(['min' => 1, 'max' => 2.5, 'step' => 1], $customField->getConfig());
+    }
 }

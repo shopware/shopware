@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -71,10 +70,7 @@ class CustomFieldDefinition extends EntityDefinition
                 new IntField('customFieldPosition', 'customFieldPosition'),
                 new StringField('dateType', 'dateType'),
                 new StringField('entity', 'entity'),
-                new FloatField('max', 'max'),
-                new FloatField('min', 'min'),
                 new StringField('numberType', 'numberType'),
-                new FloatField('step', 'step'),
                 new StringField('type', 'type'),
                 new StringField('validation', 'validation'),
             ], [], allowAdditionalProperties: true))->setDescription('Specifies detailed information about the component.'),

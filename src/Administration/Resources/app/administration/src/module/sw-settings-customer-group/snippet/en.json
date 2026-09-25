@@ -14,7 +14,6 @@
     "detail": {
       "cardTitle": "Customer group",
       "fieldNameLabel": "Name",
-      "fieldDisplayGrossLabel": "Tax display",
       "fieldDisplayGrossValues": "Gross | Net",
       "placeholderName": "Enter a name...",
       "placeholderNewCustomerGroup": "New customer group",
@@ -31,9 +30,9 @@
       "priceBasis": {
         "label": "Price basis",
         "grossLabel": "Gross stays constant",
-        "grossDescription": "Gross prices stay the same when tax rates change. Tax-free orders are always charged the net price.",
+        "grossDescription": "Gross prices stay the same when tax rates change. With net display, net prices are derived from the tax rate of the customer's country. Tax-free orders are always charged the net price.",
         "netLabel": "Net stays constant",
-        "netDescription": "Net prices stay the same when tax rates change."
+        "netDescription": "Net prices stay the same when tax rates change. Gross prices are derived from the tax rate of the customer's country and do not land on rounded amounts (net 10.00 € shows as 11.90 € at 19 % and 12.00 € at 20 %)."
       }
     },
     "registration": {

@@ -59,6 +59,7 @@ export default {
             triggerEvent: null,
             triggerEvents: [],
             triggerEventsPromise: Promise.resolve(),
+            isTriggerEventSelectedByUser: false,
         };
     },
 
@@ -300,7 +301,7 @@ export default {
         },
 
         async preselectTriggerEvent(mailTemplateTypeId) {
-            if (this.triggerEvent || !this.acl.can('flow:read')) {
+            if (this.isTriggerEventSelectedByUser || !this.acl.can('flow:read')) {
                 return;
             }
 
@@ -309,17 +310,17 @@ export default {
 
             const { data: mailTemplateIds } = await this.mailTemplateRepository.searchIds(mailTemplateCriteria);
 
-            if (!mailTemplateIds.length) {
-                return;
-            }
-
             const flowCriteria = new Criteria(1, null);
             flowCriteria.addFilter(Criteria.equals('active', true));
             flowCriteria.addFilter(Criteria.equalsAny('sequences.config.mailTemplateId', mailTemplateIds));
 
-            const flows = await this.flowRepository.search(flowCriteria);
+            const flows = mailTemplateIds.length ? await this.flowRepository.search(flowCriteria) : [];
 
             await this.triggerEventsPromise;
+
+            if (this.isTriggerEventSelectedByUser || this.selectedType?.id !== mailTemplateTypeId) {
+                return;
+            }
 
             const eventNames = new Set(
                 flows
@@ -327,9 +328,7 @@ export default {
                     .filter((eventName) => this.triggerEvents.some((event) => event.name === eventName)),
             );
 
-            if (eventNames.size === 1 && !this.triggerEvent) {
-                this.onTriggerEventChange([...eventNames][0]);
-            }
+            this.setTriggerEvent(eventNames.size === 1 ? [...eventNames][0] : null);
         },
 
         getTriggerEventNameTranslated(eventName) {
@@ -521,6 +520,11 @@ export default {
         },
 
         onTriggerEventChange(eventName) {
+            this.isTriggerEventSelectedByUser = true;
+            this.setTriggerEvent(eventName);
+        },
+
+        setTriggerEvent(eventName) {
             this.triggerEvent = this.triggerEvents.find((event) => event.name === eventName);
             this.availableVariables = {};
             this.mailPreview = null;

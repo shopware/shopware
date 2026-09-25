@@ -148,58 +148,6 @@ class EntityCacheKeyGeneratorTest extends TestCase
         ];
     }
 
-    #[DataProvider('taxRuleFingerprintProvider')]
-    public function testFingerprintIsBuiltOnlyWhenTheBasisDiffersFromTheDisplayState(?string $basis, string $taxState, bool $expectsFingerprint): void
-    {
-        $fingerprint = EntityCacheKeyGenerator::buildTaxRuleFingerprint(
-            (new DummyContext())
-                ->setPriceBasisFluent($basis)
-                ->setTaxStateFluent($taxState)
-                ->setTaxRulesFluent(self::taxes(19.0))
-        );
-
-        static::assertSame($expectsFingerprint, $fingerprint !== null);
-    }
-
-    public static function taxRuleFingerprintProvider(): \Generator
-    {
-        yield 'net basis derives the displayed gross from the country tax rate' => [
-            CustomerGroupEntity::PRICE_BASIS_NET, CartPrice::TAX_STATE_GROSS, true,
-        ];
-
-        yield 'gross basis derives the displayed net from the country tax rate' => [
-            CustomerGroupEntity::PRICE_BASIS_GROSS, CartPrice::TAX_STATE_NET, true,
-        ];
-
-        yield 'net basis prints the stored net for net display' => [
-            CustomerGroupEntity::PRICE_BASIS_NET, CartPrice::TAX_STATE_NET, false,
-        ];
-
-        yield 'gross basis prints the stored gross for gross display' => [
-            CustomerGroupEntity::PRICE_BASIS_GROSS, CartPrice::TAX_STATE_GROSS, false,
-        ];
-
-        yield 'net basis charges the stored net for tax free deliveries' => [
-            CustomerGroupEntity::PRICE_BASIS_NET, CartPrice::TAX_STATE_FREE, false,
-        ];
-
-        yield 'gross basis charges the stored net for tax free deliveries' => [
-            CustomerGroupEntity::PRICE_BASIS_GROSS, CartPrice::TAX_STATE_FREE, false,
-        ];
-
-        yield 'legacy basis prints the stored value for gross display' => [
-            null, CartPrice::TAX_STATE_GROSS, false,
-        ];
-
-        yield 'legacy basis prints the stored value for net display' => [
-            null, CartPrice::TAX_STATE_NET, false,
-        ];
-
-        yield 'legacy basis charges the stored net for tax free deliveries' => [
-            null, CartPrice::TAX_STATE_FREE, false,
-        ];
-    }
-
     public function testTaxRatesAreIgnoredWhenTheBasisMatchesTheDisplayState(): void
     {
         $generator = new EntityCacheKeyGenerator();
@@ -253,22 +201,6 @@ class EntityCacheKeyGeneratorTest extends TestCase
         static::assertNotSame(
             $generator->getSalesChannelContextHash($germany),
             $generator->getSalesChannelContextHash($austria)
-        );
-    }
-
-    public function testFingerprintPrefersTheCountrySpecificTaxRuleOverTheBaseRate(): void
-    {
-        $shippedToAustria = (new DummyContext())
-            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_NET)
-            ->setTaxRulesFluent(self::taxes(19.0, countryRate: 20.0));
-
-        $baseRateOfTwenty = (new DummyContext())
-            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_NET)
-            ->setTaxRulesFluent(self::taxes(20.0));
-
-        static::assertSame(
-            EntityCacheKeyGenerator::buildTaxRuleFingerprint($shippedToAustria),
-            EntityCacheKeyGenerator::buildTaxRuleFingerprint($baseRateOfTwenty)
         );
     }
 

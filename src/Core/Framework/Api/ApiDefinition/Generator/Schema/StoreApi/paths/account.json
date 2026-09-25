@@ -1148,11 +1148,11 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer first name. Required unless a `billingAddress` is sent, whose first name is used instead. When both are sent, this value also replaces the first name of the billing address.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer last name. Required unless a `billingAddress` is sent, whose last name is used instead. When both are sent, this value also replaces the last name of the billing address.",
                                         "type": "string"
                                     },
                                     "acceptedDataProtection": {
@@ -1218,9 +1218,7 @@
                                     }
                                 },
                                 "required": [
-                                    "email",
-                                    "firstName",
-                                    "lastName"
+                                    "email"
                                 ],
                                 "allOf": [
                                     {
@@ -1237,11 +1235,19 @@
                                             },
                                             {
                                                 "required": [
-                                                    "shippingAddress"
+                                                    "shippingAddress",
+                                                    "firstName",
+                                                    "lastName"
                                                 ],
                                                 "properties": {
                                                     "shippingAddress": {
                                                         "$ref": "#/components/schemas/CustomerAddressBody"
+                                                    },
+                                                    "firstName": {
+                                                        "type": "string"
+                                                    },
+                                                    "lastName": {
+                                                        "type": "string"
                                                     }
                                                 }
                                             }

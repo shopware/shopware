@@ -24,7 +24,10 @@
                                     "salutationId",
                                     "email",
                                     "subject",
-                                    "comment"
+                                    "comment",
+                                    "firstName",
+                                    "lastName",
+                                    "phone"
                                 ],
                                 "properties": {
                                     "salutationId": {
@@ -33,11 +36,11 @@
                                         "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "firstName": {
-                                        "description": "Firstname. This field may be required depending on the system settings.",
+                                        "description": "First name. Required on a default installation, can be turned off with the `core.basicInformation.firstNameFieldRequired` setting.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Lastname. This field may be required depending on the system settings.",
+                                        "description": "Last name. Required on a default installation, can be turned off with the `core.basicInformation.lastNameFieldRequired` setting.",
                                         "type": "string"
                                     },
                                     "email": {
@@ -45,7 +48,7 @@
                                         "type": "string"
                                     },
                                     "phone": {
-                                        "description": "Phone. This field may be required depending on the system settings.",
+                                        "description": "Phone. Required on a default installation, can be turned off with the `core.basicInformation.phoneNumberFieldRequired` setting.",
                                         "type": "string"
                                     },
                                     "subject": {

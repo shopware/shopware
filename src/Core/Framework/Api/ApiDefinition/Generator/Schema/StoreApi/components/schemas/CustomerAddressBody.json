@@ -10,6 +10,7 @@
                     "countryId",
                     "firstName",
                     "lastName",
+                    "zipcode",
                     "city",
                     "street"
                 ],
@@ -29,7 +30,7 @@
                     "firstName": { "type": "string" },
                     "lastName": { "type": "string" },
                     "zipcode": {
-                        "description": "Postal code. Required whenever the country referenced by `countryId` has `postalCodeRequired` enabled, which is the case for every country on a default installation.",
+                        "description": "Postal code. Every country on a default installation has `postalCodeRequired` enabled. For a country without it, an empty value is accepted.",
                         "type": "string",
                         "maxLength": 50
                     },

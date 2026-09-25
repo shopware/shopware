@@ -289,7 +289,7 @@ jobs:
         working-directory: old-shopware
         run: |
           sed -i -e "s/shopware.store.frw: '1'/shopware.store.frw: '0'"/ config/services.yaml
-          bin/console system:install --basic-setup --drop-database --create-database
+          bin/console system:install --basic-setup --skip-first-run-wizard --drop-database --create-database
 
       - name: Download latest WebInstaller
         run: |

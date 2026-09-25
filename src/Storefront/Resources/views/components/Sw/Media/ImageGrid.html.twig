@@ -1,0 +1,99 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{#
+    @prop mediaItems - Array of Shopware\Core\Content\Media
+    @prop columns - Number - Amount of grid columns
+    @prop featuredColumns - Number|null - Columns and rows the first image spans, spans the full width when null or not less than columns
+    @prop thumbnailSize - Number - The size of the lightbox thumbnail in pixels
+    @prop thumbnailNavigationPosition - String 'left' | 'bottom' - Position of the lightbox thumbnail navigation
+    @prop useSchemaMarkup - Boolean - Use itemprop schema markup for SEO
+    @prop showFullScreenGallery - Boolean - Open the full screen gallery when clicking an item
+#}
+
+{% props
+    mediaItems = null,
+    columns = 2,
+    featuredColumns = null,
+    thumbnailSize = 70,
+    thumbnailNavigationPosition = 'left',
+    useSchemaMarkup = false,
+    showFullScreenGallery = true,
+%}
+
+{% set lightboxId = 'sw-media-image-grid-lightbox-' ~ random() %}
+{% set itemTag = showFullScreenGallery ? 'button' : 'div' %}
+{% set itemSizes = '(max-width: 1360px) ' ~ (96 / columns)|round ~ 'vw, ' ~ (1360 / columns)|round ~ 'px' %}
+{% set featuredSpansAllColumns = featuredColumns is null or featuredColumns >= columns %}
+{% set featuredSizes = featuredSpansAllColumns
+    ? null
+    : '(max-width: 1360px) ' ~ (96 * featuredColumns / columns)|round ~ 'vw, ' ~ (1360 * featuredColumns / columns)|round ~ 'px'
+%}
+
+{% set mediaImageGridCVA = cva({
+    base: 'sw-media-image-grid',
+}) %}
+
+{% set gridStyle = "--sw-media-image-grid-columns: #{columns};" %}
+{% if not featuredSpansAllColumns %}
+    {% set gridStyle = gridStyle ~ " --sw-media-image-grid-featured-columns: #{featuredColumns};" %}
+{% endif %}
+
+{% set defaultAttributes = {
+    class: mediaImageGridCVA.apply({}),
+    'aria-label': 'component.cms.mediaImageGrid.ariaLabel'|trans({'%total%': mediaItems|length})|striptags,
+    style: gridStyle,
+} %}
+
+{% if mediaItems is not null and mediaItems|length > 0 %}
+    <section {{ attributes.defaults(defaultAttributes) }}>
+        <ul class="sw-media-image-grid__items list-unstyled">
+            {% for mediaItem in mediaItems %}
+                {% set itemLabel = 'component.cms.mediaGallery.openLightboxAriaLabel'|trans({'%index%': loop.index})|striptags %}
+                {% if mediaItem.translated.alt %}
+                    {% set itemLabel = itemLabel ~ ', ' ~ mediaItem.translated.alt|striptags %}
+                {% endif %}
+
+                <li class="sw-media-image-grid__item{% if loop.first %} is--featured{% if not featuredSpansAllColumns %} is--featured-partial{% endif %}{% endif %}">
+                    <{{ itemTag }}
+                        class="sw-media-image-grid__trigger"
+                        data-media-id="{{ loop.index }}"
+                        {% if showFullScreenGallery %}
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{ lightboxId }}"
+                            aria-label="{{ itemLabel }}"
+                            aria-haspopup="dialog"
+                            aria-controls="{{ lightboxId }}"
+                        {% endif %}
+                    >
+                        <twig:Sw:Media
+                            :media="mediaItem"
+                            :title="null"
+                            class="sw-media-image-grid__media"
+                            :previewMode="showFullScreenGallery"
+                            :sizes="loop.first ? featuredSizes : itemSizes"
+                            :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
+                        />
+                    </{{ itemTag }}>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    {% if showFullScreenGallery %}
+        <twig:Sw:Media:GalleryLightbox
+            class="sw-media-image-grid__lightbox"
+            id="{{ lightboxId }}"
+            :mediaItems="mediaItems"
+            :thumbnailSize="thumbnailSize"
+            :thumbnailNavigationPosition="thumbnailNavigationPosition"
+        />
+    {% endif %}
+{% else %}
+    {# Render a null media to display a placeholder #}
+    <twig:Sw:Media:Image
+        :media="null"
+    />
+{% endif %}

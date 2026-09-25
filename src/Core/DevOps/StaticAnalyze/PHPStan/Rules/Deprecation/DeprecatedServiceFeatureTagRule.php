@@ -115,7 +115,7 @@ class DeprecatedServiceFeatureTagRule implements Rule
             }
 
             $errors[] = RuleErrorBuilder::message(\sprintf(
-                'Removed Twig extension "%s" declares function "%s", which must be listed under "%s" in CompatTwigExtension::FUNCTIONS_BY_FEATURE.',
+                'Deprecated Twig extension "%s" declares function "%s", which must be listed under "%s" in CompatTwigExtension::FUNCTIONS_BY_FEATURE.',
                 $class->getName(),
                 $name->value,
                 $flag

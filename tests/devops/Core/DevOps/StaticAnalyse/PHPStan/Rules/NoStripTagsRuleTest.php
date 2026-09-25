@@ -33,7 +33,6 @@ class NoStripTagsRuleTest extends RuleTestCase
     public function testAllowlistedClassesAreNotReported(): void
     {
         $this->analyse([
-            __DIR__ . '/../../../../../../../src/Core/Framework/DataAbstractionLayer/Search/Term/Tokenizer.php',
             __DIR__ . '/../../../../../../../src/Elasticsearch/Framework/ElasticsearchIndexingUtils.php',
         ], []);
     }

@@ -62,7 +62,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
             }
         }
 
-        if (Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
             $this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($productId));
         }
 

@@ -163,7 +163,7 @@ class HttpCacheKeyGenerator
         }
 
         /** @deprecated tag:v6.8.0 - Currency cookie will be removed */
-        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             if ($currencyCookie = $this->getCookieValue($request, $response, self::CURRENCY_COOKIE)) {
                 $event->add(
                     self::CURRENCY_COOKIE,

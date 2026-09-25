@@ -54,16 +54,16 @@ class CacheResponseSubscriberTest extends TestCase
             'frontend.account.register.page',
             'frontend.account.customer-group-registration.page',
         ];
-        $httpCacheEnabled = Feature::isActive('PERFORMANCE_TWEAKS');
+        $httpCacheEnabled = Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS');
         if ($httpCacheEnabled && \in_array($routeName, $httpCacheableRoutes, true)) {
-            // With PERFORMANCE_TWEAKS (on by default under v6.8.0.0) these routes drop their _noStore attribute and opt
+            // With v6.8.0.0 or PERFORMANCE_TWEAKS these routes drop their _noStore attribute and opt
             // into http caching (see AuthController::loginPage and RegisterController), so no-store must be absent
             static::assertFalse($response->headers->hasCacheControlDirective('no-store'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
 
             return;
         }
 
-        // see noCache() in CacheResponseSubscriber, no-store is only enforced when CACHE_REWORK is active
+        // see noCache() in CacheResponseSubscriber, no-store is only enforced when CACHE_REWORK and v6.8.0.0 are active
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
         static::assertTrue($response->headers->hasCacheControlDirective('private'), 'Failed asserting route: ' . $routeName . ' with status code: ' . $response->getStatusCode());
         static::assertFalse($response->isCacheable());

@@ -115,7 +115,7 @@ class CacheStore implements StoreInterface
             }
         }
 
-        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $isValid = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
                 return $this->stateValidator->isValid($request, $response);
             });
@@ -144,7 +144,7 @@ class CacheStore implements StoreInterface
             return $key->key;
         }
 
-        if (!Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
             $isValid = Feature::silent('v6.8.0.0', function () use ($request, $response): bool {
                 return $this->stateValidator->isValid($request, $response);
             });

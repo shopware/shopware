@@ -111,7 +111,7 @@ class SystemConfigController extends AbstractController
 
         // Keep omitted ?silent aligned with the feature-flagged SystemConfigService default during the 6.7/6.8 transition.
         // @deprecated tag:v6.8.0 - remove the legacy branch and keep the feature-active path.
-        if (Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
             $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent', true));
         } elseif ($request->query->has('silent')) {
             $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent'));
@@ -143,7 +143,7 @@ class SystemConfigController extends AbstractController
 
             // Keep omitted ?silent aligned with the feature-flagged SystemConfigService default during the 6.7/6.8 transition.
             // @deprecated tag:v6.8.0 - remove the legacy branch and keep the feature-active path.
-            if (Feature::isActive('CACHE_REWORK')) {
+            if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
                 $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent', true));
             } elseif ($request->query->has('silent')) {
                 $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent'));

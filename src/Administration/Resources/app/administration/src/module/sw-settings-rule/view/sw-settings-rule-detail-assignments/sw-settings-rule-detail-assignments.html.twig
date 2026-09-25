@@ -131,8 +131,10 @@
                 v-else
                 class="sw-settings-rule-detail-assignments__entity-empty-state"
                 :class="`sw-settings-rule-detail-assignments__entity-empty-state-${entity.id}`"
+                centered
                 :icon="$route?.meta?.$module?.icon"
                 :headline="$t('sw-settings-rule.detail.hasNoAssociations')"
+                description=""
             />
             {% endblock %}
             {% endblock %}

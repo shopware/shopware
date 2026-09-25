@@ -10,7 +10,7 @@
     "list": {
       "contextMenuEdit": "Integration bearbeiten",
       "contextMenuEditMcp": "MCP-Allowlist bearbeiten",
-      "messageEmpty": "Noch keine Integrationen vorhanden",
+      "messageEmpty": "Noch keine Integrationen",
       "sublineEmpty": "Verwaltung von Integrationen.",
       "permissions": "Rollen",
       "writeAccess": "Schreiben",

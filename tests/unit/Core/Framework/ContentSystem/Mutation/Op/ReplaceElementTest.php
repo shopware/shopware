@@ -407,6 +407,66 @@ class ReplaceElementTest extends TestCase
         static::assertSame(['headline'], $replace->droppedWiring());
     }
 
+    #[TestDox('carries a null stored under a key the new type declares as a primitive')]
+    public function testReplaceCarriesANullUnderADeclaredPrimitive(): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('headline', null)->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertTrue($result->roots[0]->property('headline')?->isNull());
+        static::assertSame([], $this->rawDrops($replace->droppedProperties()));
+    }
+
+    #[TestDox('carries a value matching one member of an all-primitive union')]
+    public function testReplaceCarriesAValueMatchingAnAllPrimitiveUnion(): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', 42)->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame(42, $result->roots[0]->property('flexible')?->jsonSerialize());
+        static::assertSame([], $this->rawDrops($replace->droppedProperties()));
+    }
+
+    #[TestDox('drops a value matching no member of an all-primitive union')]
+    public function testReplaceDropsAValueMatchingNoUnionMember(): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('flexible', true)->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertNull($result->roots[0]->property('flexible'));
+        static::assertSame(['flexible' => true], $this->rawDrops($replace->droppedProperties()));
+    }
+
+    #[TestDox('drops a value under a key the new type declares as a bare object')]
+    public function testReplaceDropsAValueUnderAnObjectKey(): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('payload', ['a' => 1])->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertNull($result->roots[0]->property('payload'));
+        static::assertSame(['payload' => ['a' => 1]], $this->rawDrops($replace->droppedProperties()));
+    }
+
+    #[TestDox('drops a value under a key the new type declares as a reference, which nothing can vouch for')]
+    public function testReplaceDropsAValueUnderAReferenceKey(): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('product', 'some-id')->build()]);
+
+        $replace = new ReplaceElement($this->registry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertNull($result->roots[0]->property('product'));
+        static::assertSame(['product' => 'some-id'], $this->rawDrops($replace->droppedProperties()));
+    }
+
     #[TestDox('drops a stored value whose storage key comes from a binding config with an invalid non-string property')]
     public function testReplaceDropsStoredValueForInvalidStorageKeyPropertyConfig(): void
     {
@@ -517,6 +577,8 @@ class ReplaceElementTest extends TestCase
                 'count' => $this->primitive('integer'),
                 'ratio' => $this->primitive('number'),
                 'featured' => $this->primitive('boolean'),
+                'flexible' => $this->union(['string', 'integer']),
+                'payload' => $this->primitive('object'),
                 'product' => $this->reference(),
             ],
             [new SlotSpecification('content', null, [], '')],
@@ -548,6 +610,14 @@ class ReplaceElementTest extends TestCase
     private function primitive(string $type): PropertySpecification
     {
         return new PropertySpecification('prop', new PropertyType($type, false, null, null), false, '', '', null);
+    }
+
+    /**
+     * @param list<string> $types
+     */
+    private function union(array $types): PropertySpecification
+    {
+        return new PropertySpecification('prop', new PropertyType($types, false, null, null), false, '', '', null);
     }
 
     private function reference(): PropertySpecification

@@ -186,10 +186,9 @@ class LayoutDiagnostics
     /**
      * A stored property value that disagrees with the primitive type its component declares for that key,
      * reported per key so a client can name and correct the one that broke. It is the diagnosis counterpart of
-     * the write-path {@see PropertyTypeConformance} rule and applies the same boundary: only a key declared with
-     * one of {@see PropertyType::PRIMITIVE_TYPES}, or a union whose members are all primitive, is judged, and a
-     * stored null is admissible under every one of them (whether a key may be null is the required-input rule's
-     * business). Like {@see ViolationCode::UnknownStyleOption} it never fires on a DAL write: the constraint pass
+     * the write-path {@see PropertyTypeConformance} rule and applies the same boundary, which both take from
+     * {@see PropertyType::enforceableTypes()} and {@see PropertyType::admits()}. Like
+     * {@see ViolationCode::UnknownStyleOption} it never fires on a DAL write: the constraint pass
      * refuses the tree inside `encode()`, before the gate that reaches this class.
      *
      * @return list<Violation>
@@ -206,19 +205,14 @@ class LayoutDiagnostics
         foreach ($element->properties() as $key => $value) {
             $specification = $declared[$key] ?? null;
 
-            if ($specification === null || $value->isNull()) {
+            if ($specification === null) {
                 continue;
             }
 
-            $types = $this->enforceablePrimitiveTypes($specification->type());
-
-            if ($types === null) {
-                continue;
-            }
-
+            $types = $specification->type()->enforceableTypes();
             $raw = $value->jsonSerialize();
 
-            if ($this->matchesAnyPrimitiveType($raw, $types)) {
+            if ($types === null || $specification->type()->admits($raw)) {
                 continue;
             }
 
@@ -231,57 +225,6 @@ class LayoutDiagnostics
         }
 
         return $violations;
-    }
-
-    /**
-     * The primitive types a stored value must satisfy at least one of, or `null` when the declaration constrains
-     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
-     * either. A union's declared type is an array, for which {@see PropertyType::isPrimitive()} always answers
-     * false, so the members are tested against {@see PropertyType::PRIMITIVE_TYPES} directly.
-     *
-     * @return list<string>|null
-     */
-    private function enforceablePrimitiveTypes(PropertyType $type): ?array
-    {
-        $declared = $type->type();
-
-        if (\is_string($declared)) {
-            return \in_array($declared, PropertyType::PRIMITIVE_TYPES, true) ? [$declared] : null;
-        }
-
-        if ($declared === []) {
-            return null;
-        }
-
-        foreach ($declared as $member) {
-            if (!\in_array($member, PropertyType::PRIMITIVE_TYPES, true)) {
-                return null;
-            }
-        }
-
-        return $declared;
-    }
-
-    /**
-     * @param list<string> $types
-     */
-    private function matchesAnyPrimitiveType(mixed $value, array $types): bool
-    {
-        foreach ($types as $type) {
-            $matches = match ($type) {
-                'string' => \is_string($value),
-                'integer' => \is_int($value),
-                'number' => \is_int($value) || \is_float($value),
-                'boolean' => \is_bool($value),
-                default => false,
-            };
-
-            if ($matches) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

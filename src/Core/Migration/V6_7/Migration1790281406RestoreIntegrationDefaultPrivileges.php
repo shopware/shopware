@@ -36,23 +36,37 @@ class Migration1790281406RestoreIntegrationDefaultPrivileges extends MigrationSt
                AND NOT EXISTS (SELECT 1 FROM app a WHERE a.acl_role_id = r.id)'
         );
 
-        foreach ($roles as $roleId => $privileges) {
-            /** @var list<string> $current */
-            $current = json_decode((string) $privileges, true, flags: \JSON_THROW_ON_ERROR) ?: [];
-            $missing = array_values(array_diff(self::RESTORED_PRIVILEGES, $current));
+        $connection->transactional(static function (Connection $connection) use ($roles): void {
+            foreach ($roles as $roleId => $privileges) {
+                try {
+                    $current = json_decode((string) $privileges, true, flags: \JSON_THROW_ON_ERROR);
+                } catch (\JsonException) {
+                    continue;
+                }
 
-            if ($missing === []) {
-                continue;
+                if (!\is_array($current) || !array_is_list($current)) {
+                    continue;
+                }
+
+                if (array_filter($current, static fn (mixed $privilege): bool => !\is_string($privilege)) !== []) {
+                    continue;
+                }
+
+                $new = array_values(array_unique([...$current, ...self::RESTORED_PRIVILEGES]));
+
+                if ($new === $current) {
+                    continue;
+                }
+
+                $connection->update(
+                    'acl_role',
+                    [
+                        'privileges' => json_encode($new, \JSON_THROW_ON_ERROR),
+                        'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ],
+                    ['id' => Uuid::fromHexToBytes((string) $roleId)],
+                );
             }
-
-            $connection->update(
-                'acl_role',
-                [
-                    'privileges' => json_encode([...$current, ...$missing], \JSON_THROW_ON_ERROR),
-                    'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ],
-                ['id' => Uuid::fromHexToBytes($roleId)],
-            );
-        }
+        });
     }
 }

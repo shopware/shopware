@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -117,16 +118,44 @@ class Migration1790281406RestoreIntegrationDefaultPrivilegesTest extends TestCas
         );
     }
 
+    #[DataProvider('nonListPrivilegesProvider')]
+    public function testRoleWithNonListPrivilegesIsNotChanged(string $privilegesJson): void
+    {
+        $roleId = $this->createRoleWithRawPrivileges($privilegesJson);
+        $this->assignToIntegration($roleId);
+
+        (new Migration1790281406RestoreIntegrationDefaultPrivileges())->update($this->connection);
+
+        static::assertJsonStringEqualsJsonString(
+            $privilegesJson,
+            (string) $this->connection->fetchOne('SELECT privileges FROM acl_role WHERE id = :id', ['id' => $roleId]),
+        );
+    }
+
+    public static function nonListPrivilegesProvider(): \Generator
+    {
+        yield 'JSON object instead of a list is skipped' => ['{"customer:read": true}'];
+        yield 'JSON null is skipped' => ['null'];
+        yield 'JSON string is skipped' => ['"customer:read"'];
+        yield 'list with nested array entry is skipped' => ['[["customer:read"]]'];
+        yield 'list with integer entry is skipped' => ['["customer:read", 1]'];
+    }
+
     /**
      * @param list<string> $privileges
      */
     private function createRole(array $privileges): string
     {
+        return $this->createRoleWithRawPrivileges(json_encode($privileges, \JSON_THROW_ON_ERROR));
+    }
+
+    private function createRoleWithRawPrivileges(string $privilegesJson): string
+    {
         $roleId = Uuid::randomBytes();
         $this->connection->insert('acl_role', [
             'id' => $roleId,
             'name' => 'test-role-' . Uuid::randomHex(),
-            'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),
+            'privileges' => $privilegesJson,
             'created_at' => '2020-01-01 00:00:00',
         ]);
 

@@ -14,6 +14,8 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleCondition;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleConditions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup\Setup;
+use Shopware\Core\Framework\App\Manifest\Xml\Storefront\EntitySeoUrl;
+use Shopware\Core\Framework\App\Manifest\Xml\Storefront\SeoUrl;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\TaxProvider;
@@ -39,6 +41,8 @@ class ManifestFixture extends Manifest
     private ?Tax $tax = null;
 
     private ?Webhooks $webhooks = null;
+
+    private ?Storefront $storefront = null;
 
     private function __construct()
     {
@@ -102,6 +106,26 @@ class ManifestFixture extends Manifest
         ]);
 
         $this->ruleConditions = RuleConditions::fromArray(['ruleConditions' => $ruleConditions]);
+
+        return $this;
+    }
+
+    public function withSeoUrl(SeoUrl $seoUrl): self
+    {
+        $this->storefront = Storefront::fromArray([
+            'seoUrls' => [...$this->storefront?->getSeoUrls() ?? [], $seoUrl],
+            'entitySeoUrls' => $this->storefront?->getEntitySeoUrls() ?? [],
+        ]);
+
+        return $this;
+    }
+
+    public function withEntitySeoUrl(EntitySeoUrl $entitySeoUrl): self
+    {
+        $this->storefront = Storefront::fromArray([
+            'seoUrls' => $this->storefront?->getSeoUrls() ?? [],
+            'entitySeoUrls' => [...$this->storefront?->getEntitySeoUrls() ?? [], $entitySeoUrl],
+        ]);
 
         return $this;
     }
@@ -203,7 +227,7 @@ class ManifestFixture extends Manifest
 
     public function getStorefront(): ?Storefront
     {
-        return null;
+        return $this->storefront;
     }
 
     public function getTax(): ?Tax

@@ -130,6 +130,186 @@ class ManifestTest extends TestCase
         static::assertSame('~6.5.0', $manifest->getMetadata()->getCompatibility()->getPrettyString());
     }
 
+    public function testGetStorefront(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
+
+        $storefront = $manifest->getStorefront();
+        static::assertNotNull($storefront);
+        static::assertSame(100, $storefront->getTemplateLoadPriority());
+
+        $seoUrls = $storefront->getSeoUrls();
+        static::assertCount(1, $seoUrls);
+        static::assertSame('imprint', $seoUrls[0]->getName());
+        static::assertSame('imprint', $seoUrls[0]->getHook());
+        static::assertSame(['en-GB' => 'imprint', 'de-DE' => 'impressum'], $seoUrls[0]->getPath());
+
+        $entitySeoUrls = $storefront->getEntitySeoUrls();
+        static::assertCount(1, $entitySeoUrls);
+        static::assertSame('blog-detail', $entitySeoUrls[0]->getName());
+        static::assertSame('blog-post', $entitySeoUrls[0]->getHook());
+        static::assertSame('ce_blog', $entitySeoUrls[0]->getEntity());
+        static::assertSame('blog/{{ ceBlog.translated.title }}', $entitySeoUrls[0]->getDefaultTemplate());
+    }
+
+    public function testCreateFromXmlAcceptsStorefrontSeoUrls(): void
+    {
+        $manifest = Manifest::createFromXml($this->manifestWithStorefront(<<<'XML'
+            <template-load-priority>100</template-load-priority>
+            <seo-url name="imprint" hook="legal-notice">
+                <path>imprint</path>
+                <path lang="de-DE">impressum</path>
+            </seo-url>
+            <entity-seo-url name="blog-detail" entity="ce_blog" hook="blog-post">
+                <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+            </entity-seo-url>
+            <seo-url name="blog">
+                <path>blog</path>
+            </seo-url>
+            XML));
+
+        $storefront = $manifest->getStorefront();
+        static::assertNotNull($storefront);
+        static::assertCount(2, $storefront->getSeoUrls());
+        static::assertCount(1, $storefront->getEntitySeoUrls());
+    }
+
+    #[DataProvider('invalidStorefrontSeoUrlProvider')]
+    public function testCreateFromXmlRejectsInvalidStorefrontSeoUrls(string $storefront, string $error): void
+    {
+        $this->expectExceptionObject(AppXmlParsingException::cannotParseContent($error));
+
+        Manifest::createFromXml($this->manifestWithStorefront($storefront));
+    }
+
+    /**
+     * @return iterable<string, array{storefront: string, error: string}>
+     */
+    public static function invalidStorefrontSeoUrlProvider(): iterable
+    {
+        yield 'a seo-url and an entity-seo-url must not share a name' => [
+            'storefront' => <<<'XML'
+                <seo-url name="blog">
+                    <path>blog</path>
+                </seo-url>
+                <entity-seo-url name="blog" entity="ce_blog">
+                    <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+                </entity-seo-url>
+                XML,
+            'error' => '[ERROR 1877] Element \'entity-seo-url\': Duplicate key-sequence [\'blog\'] in unique identity-constraint \'uniqueSeoUrlName\'.',
+        ];
+
+        yield 'two seo-urls must not share a name' => [
+            'storefront' => <<<'XML'
+                <seo-url name="imprint">
+                    <path>imprint</path>
+                </seo-url>
+                <seo-url name="imprint">
+                    <path>legal-notice</path>
+                </seo-url>
+                XML,
+            'error' => '[ERROR 1877] Element \'seo-url\': Duplicate key-sequence [\'imprint\'] in unique identity-constraint \'uniqueSeoUrlName\'.',
+        ];
+
+        yield 'two entity-seo-urls must not share a name' => [
+            'storefront' => <<<'XML'
+                <entity-seo-url name="blog-detail" entity="ce_blog">
+                    <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+                </entity-seo-url>
+                <entity-seo-url name="blog-detail" entity="ce_author">
+                    <default-template>author/{{ ceAuthor.name }}</default-template>
+                </entity-seo-url>
+                XML,
+            'error' => '[ERROR 1877] Element \'entity-seo-url\': Duplicate key-sequence [\'blog-detail\'] in unique identity-constraint \'uniqueSeoUrlName\'.',
+        ];
+
+        yield 'a seo-url needs at least one path' => [
+            'storefront' => '<seo-url name="imprint"/>',
+            'error' => '[ERROR 1871] Element \'seo-url\': Missing child element(s). Expected is ( path ).',
+        ];
+
+        yield 'a seo-url must not declare an entity' => [
+            'storefront' => <<<'XML'
+                <seo-url name="imprint" entity="ce_blog">
+                    <path>imprint</path>
+                </seo-url>
+                XML,
+            'error' => '[ERROR 1866] Element \'seo-url\', attribute \'entity\': The attribute \'entity\' is not allowed.',
+        ];
+
+        yield 'a seo-url must not declare a default template' => [
+            'storefront' => <<<'XML'
+                <seo-url name="imprint">
+                    <path>imprint</path>
+                    <default-template>imprint</default-template>
+                </seo-url>
+                XML,
+            'error' => '[ERROR 1871] Element \'default-template\': This element is not expected. Expected is ( path ).',
+        ];
+
+        yield 'a seo-url does not accept a label' => [
+            'storefront' => <<<'XML'
+                <seo-url name="imprint">
+                    <label>Imprint</label>
+                    <path>imprint</path>
+                </seo-url>
+                XML,
+            'error' => '[ERROR 1871] Element \'label\': This element is not expected. Expected is ( path ).',
+        ];
+
+        yield 'a whitespace-only path is blank' => [
+            'storefront' => <<<'XML'
+                <seo-url name="imprint">
+                    <path>   </path>
+                </seo-url>
+                XML,
+            'error' => '[ERROR 1831] Element \'path\': [facet \'minLength\'] The value has a length of \'0\'; this underruns the allowed minimum length of \'1\'.',
+        ];
+
+        yield 'an entity-seo-url needs an entity' => [
+            'storefront' => <<<'XML'
+                <entity-seo-url name="blog-detail">
+                    <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+                </entity-seo-url>
+                XML,
+            'error' => '[ERROR 1868] Element \'entity-seo-url\': The attribute \'entity\' is required but missing.',
+        ];
+
+        yield 'an entity-seo-url needs a default template' => [
+            'storefront' => '<entity-seo-url name="blog-detail" entity="ce_blog"/>',
+            'error' => '[ERROR 1871] Element \'entity-seo-url\': Missing child element(s). Expected is ( default-template ).',
+        ];
+
+        yield 'an entity-seo-url accepts only one default template' => [
+            'storefront' => <<<'XML'
+                <entity-seo-url name="blog-detail" entity="ce_blog">
+                    <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+                    <default-template>posts/{{ ceBlog.translated.title }}</default-template>
+                </entity-seo-url>
+                XML,
+            'error' => '[ERROR 1871] Element \'default-template\': This element is not expected.',
+        ];
+
+        yield 'an entity-seo-url must not declare a path' => [
+            'storefront' => <<<'XML'
+                <entity-seo-url name="blog-detail" entity="ce_blog">
+                    <path>blog</path>
+                    <default-template>blog/{{ ceBlog.translated.title }}</default-template>
+                </entity-seo-url>
+                XML,
+            'error' => '[ERROR 1871] Element \'path\': This element is not expected. Expected is ( default-template ).',
+        ];
+
+        yield 'a whitespace-only default template is blank' => [
+            'storefront' => <<<'XML'
+                <entity-seo-url name="blog-detail" entity="ce_blog">
+                    <default-template>   </default-template>
+                </entity-seo-url>
+                XML,
+            'error' => '[ERROR 1831] Element \'default-template\': [facet \'minLength\'] The value has a length of \'0\'; this underruns the allowed minimum length of \'1\'.',
+        ];
+    }
+
     public function testGetShippingMethods(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
@@ -212,5 +392,26 @@ class ManifestTest extends TestCase
         $manifest = Manifest::createFromXml($manifestXml);
 
         static::assertFalse($manifest->validatesPermissions());
+    }
+
+    private function manifestWithStorefront(string $storefront): string
+    {
+        return <<<XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+                <meta>
+                    <name>SwagSeoUrlApp</name>
+                    <label>Swag SEO URL App</label>
+                    <author>shopware AG</author>
+                    <copyright>(c) by shopware AG</copyright>
+                    <version>1.0.0</version>
+                    <license>MIT</license>
+                </meta>
+                <storefront>
+                    {$storefront}
+                </storefront>
+            </manifest>
+            XML;
     }
 }

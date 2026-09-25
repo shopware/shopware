@@ -37,6 +37,61 @@ class SeoUrlRouteConfigTest extends TestCase
         );
     }
 
+    public function testTargetRouteNameFallsBackToRouteName(): void
+    {
+        $config = new SeoUrlRouteConfig(
+            static::createStub(EntityDefinition::class),
+            'foo_bar',
+            '{{ foo.bar }}'
+        );
+
+        static::assertSame('foo_bar', $config->getTargetRouteName());
+    }
+
+    public function testTargetRouteNameIsSeparateFromTheRegistryRouteName(): void
+    {
+        $config = new SeoUrlRouteConfig(
+            definition: static::createStub(EntityDefinition::class),
+            routeName: 'storefront.app.MyApp.blog-detail',
+            template: '{{ ceBlog.translated.title }}',
+            primaryKeyParameterKey: 'id',
+            targetRouteName: 'frontend.script_endpoint',
+        );
+
+        static::assertSame('storefront.app.MyApp.blog-detail', $config->getRouteName());
+        static::assertSame('frontend.script_endpoint', $config->getTargetRouteName());
+    }
+
+    public function testPrimaryKeyParameterIsMergedIntoTheStaticRouteParameters(): void
+    {
+        $config = new SeoUrlRouteConfig(
+            definition: static::createStub(EntityDefinition::class),
+            routeName: 'storefront.app.MyApp.blog-detail',
+            template: '{{ ceBlog.translated.title }}',
+            primaryKeyParameterKey: 'id',
+            targetRouteName: 'frontend.script_endpoint',
+            routeParameters: ['hook' => 'blog-detail'],
+        );
+
+        static::assertSame(
+            ['hook' => 'blog-detail', 'id' => 'foo-value'],
+            $config->getPrimaryKeyParameter('foo-value')
+        );
+    }
+
+    public function testPrimaryKeyParameterOverridesASameNamedRouteParameter(): void
+    {
+        $config = new SeoUrlRouteConfig(
+            definition: static::createStub(EntityDefinition::class),
+            routeName: 'storefront.app.MyApp.blog-detail',
+            template: '{{ ceBlog.translated.title }}',
+            primaryKeyParameterKey: 'id',
+            routeParameters: ['id' => 'from-route-parameters'],
+        );
+
+        static::assertSame(['id' => 'foo-value'], $config->getPrimaryKeyParameter('foo-value'));
+    }
+
     public function testGetPrimaryKeyParameterThrowsWhenNoKeyConfigured(): void
     {
         $defintion = static::createStub(EntityDefinition::class);

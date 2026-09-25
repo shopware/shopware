@@ -406,15 +406,6 @@ shopware:
                       interval: '60 seconds'
                     - limit: 600
                       interval: '10 minutes'
-            mcp_initialized_notification:
-                # Handshake-era `notifications/initialized` follow-up on both MCP endpoints. Kept out
-                # of the time_backoff buckets above, which accept only one request after a wait and
-                # would otherwise reject the follow-up once `initialize` has used that slot. Every
-                # handshake needs exactly one, so this stays small.
-                enabled: true
-                policy: 'sliding_window'
-                limit: 30
-                interval: '60 seconds'
             app_shop_verify:
                 enabled: true
                 policy: 'sliding_window'

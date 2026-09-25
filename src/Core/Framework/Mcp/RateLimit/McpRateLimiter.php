@@ -19,14 +19,14 @@ use Symfony\Component\HttpFoundation\Request;
  * sales-channel context plus a stable per-IP backstop.
  *
  * The handshake-era follow-up {@see self::INITIALIZED_NOTIFICATION_METHOD} draws
- * from its own bucket ({@see RateLimiter::MCP_INITIALIZED_NOTIFICATION}). The MCP
- * Streamable HTTP handshake requires `initialize` then `notifications/initialized`
- * back-to-back; Shopware's `time_backoff` policy accepts only one request after a
- * wait, so once `initialize` has consumed that slot the mandatory follow-up would
- * otherwise get HTTP 429 (see #18906). The separate bucket is a plain sliding
- * window, so the follow-up is still bounded and cannot become an unlimited path
- * through the endpoint. `initialize`, tool calls and every other method stay on
- * the endpoint bucket. The 2026-07-28 modern era has no such pair.
+ * from its own key on the same route. The MCP Streamable HTTP handshake requires
+ * `initialize` then `notifications/initialized` back-to-back; Shopware's
+ * `time_backoff` policy accepts only one request after a wait, so once
+ * `initialize` has consumed that slot the mandatory follow-up would otherwise get
+ * HTTP 429 (see #18906). Route + key form independent buckets, so the follow-up
+ * keeps the endpoint's limits without sharing the `initialize` counter and without
+ * a separate configuration. `initialize`, tool calls and every other method stay
+ * on the endpoint key. The 2026-07-28 modern era has no such pair.
  */
 #[Package('framework')]
 class McpRateLimiter
@@ -35,9 +35,11 @@ class McpRateLimiter
      * Handshake-era JSON-RPC notification that completes session setup after
      * `initialize`. Kept as a single-method allowlist so `initialize` and every
      * other protocol method (including tool abuse paths) still draw from the
-     * endpoint bucket.
+     * endpoint key.
      */
     private const INITIALIZED_NOTIFICATION_METHOD = 'notifications/initialized';
+
+    private const INITIALIZED_NOTIFICATION_KEY_PREFIX = 'initialized-';
 
     /**
      * A `notifications/initialized` message is well below 100 bytes, so larger bodies
@@ -60,7 +62,7 @@ class McpRateLimiter
             ?: 'unknown';
 
         if ($this->isInitializedNotificationOnlyRequest($request)) {
-            $this->enforce(RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'admin-' . $key);
+            $this->enforce(RateLimiter::MCP_ADMIN_API, self::INITIALIZED_NOTIFICATION_KEY_PREFIX . $key);
 
             return;
         }
@@ -72,7 +74,7 @@ class McpRateLimiter
     {
         // Keyed per IP only: the context token is cheap to rotate, the IP is not.
         if ($this->isInitializedNotificationOnlyRequest($request)) {
-            $this->enforce(RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'store-' . ($request->getClientIp() ?: 'unknown'));
+            $this->enforce(RateLimiter::MCP_STORE_API, self::INITIALIZED_NOTIFICATION_KEY_PREFIX . ($request->getClientIp() ?: 'unknown'));
 
             return;
         }

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { Plugin } from 'vite';
+import type { Logger, Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -58,6 +58,21 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
     return transformModule.transformShopwareSetupSfc;
 }
 
+/** Renders a transform diagnostic as `file:line:column` plus its message, so editors can jump to it. */
+function formatTransformError(error: unknown, fileName: string, source: string): string {
+    // Duck-typed: the lazily required transform module may throw from another realm, where `instanceof` fails.
+    const { message: rawMessage, index } = (error ?? {}) as { message?: unknown; index?: unknown };
+    const message = typeof rawMessage === 'string' ? rawMessage : String(error);
+
+    if (typeof index !== 'number') {
+        return `[shopware-setup] ${fileName}\n${message}`;
+    }
+
+    const lines = source.slice(0, index).split('\n');
+
+    return `[shopware-setup] ${fileName}:${lines.length}:${lines[lines.length - 1].length + 1}\n${message}`;
+}
+
 /**
  * @private
  *
@@ -70,10 +85,10 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     // One instance per extension, so this catches collisions within a build, not across extensions.
     const baseComponentFiles = new Map<string, string>();
     const virtualSourcemap = createVirtualSetupSourcemapContext(options.administrationRoot);
-    // resolveId has to run the transform to detect a setup SFC at all, so its result is stashed here for
-    // the matching load(). Keyed by source content: Vite's import-analysis re-resolves watched files after
-    // every transform and re-stashes, so an entry can predate the user's next edit - reusing it unverified
-    // would serve every edit one save late.
+    // resolveId has to run the transform to detect a setup SFC at all, and hotUpdate runs it for its
+    // diagnostics, so the result is stashed here for the matching load(). Keyed by source content: Vite's
+    // import-analysis re-resolves watched files after every transform and re-stashes, so an entry can
+    // predate the user's next edit - reusing it unverified would serve every edit one save late.
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
@@ -107,6 +122,23 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
         return transformShopwareSetupSfc(code, fileName);
+    }
+
+    /**
+     * Transforms a saved file so a failure reaches the watcher output.
+     *
+     * A successful result is stashed for the `load` the hot update triggers, so a save is transformed once.
+     */
+    async function transformChangedFile(fileName: string, source: string, logger: Logger): Promise<void> {
+        try {
+            const result = await transformSource(source, fileName);
+
+            if (result) {
+                resolvedTransforms.set(fileName, { source, result });
+            }
+        } catch (error) {
+            logger.error(formatTransformError(error, fileName, source));
+        }
     }
 
     function assertUniqueBaseComponent(result: ShopwareSetupTransformResult, fileName: string): void {
@@ -260,10 +292,20 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          * from `getModulesByFile(<changed file>)` - `addWatchFile` alone does not link file and module,
          * so without this hook an edit invalidated nothing until the dev server was restarted.
          * Returning the virtual module makes Vite invalidate it and push the update to the client.
+         *
+         * It is also where a transform failure gets reported. Otherwise the transform runs only once a
+         * client requests the module (`resolveId`/`load`), so saving a file that does not compile printed
+         * nothing at all (issue #19562). Logging rather than throwing: a hook that throws sends its error
+         * to the connected client's overlay, not to the terminal, and it would skip the invalidation below.
          */
-        hotUpdate({ file, modules }) {
+        async hotUpdate({ type, file, modules, read }) {
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
+            }
+
+            // Vite runs this hook once per environment (client and ssr); report only once.
+            if (type !== 'delete' && this.environment.name === 'client') {
+                await transformChangedFile(file, await read(), this.environment.logger);
             }
 
             const virtualModule = this.environment.moduleGraph.getModuleById(virtualSourcemap.toVirtualFileName(file));

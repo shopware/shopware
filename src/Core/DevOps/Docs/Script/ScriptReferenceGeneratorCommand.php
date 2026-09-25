@@ -35,7 +35,7 @@ class ScriptReferenceGeneratorCommand extends Command
 
         foreach ($this->generators as $generator) {
             foreach ($generator->generate() as $file => $content) {
-                file_put_contents($file, $content);
+                file_put_contents($file, rtrim($content) . "\n");
             }
         }
 

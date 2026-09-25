@@ -12,6 +12,7 @@ nav:
 
 The `request` service allows you to access the current request in the script
 Examples:
+
 ```twig
 {% block response %}
  {% if services.request.method != "POST" %}
@@ -31,91 +32,95 @@ Examples:
 
 * The method `cookies` returns all request cookies as an array.
 
-    
 * **Returns** `array`
 
     request cookies
+
 ### headers()
 
 * The method `headers` returns all request headers as an array.
 
     It is possible to access only the following headers: content-type, content-length, accept, accept-language, user-agent, referer
+
 * **Returns** `array`
 
     request headers
+
 ### ip()
 
 * The ip method returns the real client ip address
 
-    
 * **Returns** `string` | `null`
 
     request client ip address
+
 ### method()
 
 * The method returns the request method in upper case
 
-    
 * **Returns** `string`
 
     request method in upper case
+
 ### pathInfo()
 
 * The method `pathInfo` returns the request path info. The path info can be also an internal link when a seo url is used.
 
-    
 * **Returns** `string`
 
     request path info
+
 ### query()
 
 * The method `query` returns all query parameters as an array
 
-    
 * **Returns** `array`
 
     request query parameters
+
 ### request()
 
 * The method `request` returns all post parameters as an array.
 
     On `application/json` requests this contains also the json body parsed as an array.
+
 * **Returns** `array`
 
     request post parameters
+
 ### scheme()
 
 * The scheme method returns the request scheme
 
-    
 * **Returns** `string`
 
     request scheme
+
 ### uri()
 
 * The method `uri` returns the request uri with the resolved url
 
-    
 * **Returns** `string`
 
     request uri
+
 _________
+
 ## [services.acl (`Shopware\Core\Framework\Script\Api\AclFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Api/AclFacade.php) {#aclfacade}
 
 The `acl` service allows you to check if your app has been granted the specified privilege.
-
 
 ### can()
 
 * The `can()` method allows you to check if your app has been granted the specified privilege.
 
-    
 * **Returns** `bool`
 
     Returns `true` if the privilege has been granted, `false` otherwise.
 * **Arguments:**
     * *`string`* **privilege**: The privilege you wish to check
 * **Examples:**
+
     * Check for the `product:read` permission and query a product if the permission is granted.
 
         ```twig
@@ -129,12 +134,15 @@ The `acl` service allows you to check if your app has been granted the specified
 		    {% do page.addExtension('myProduct', product) %}
 		{% endif %}
         ```
+
 _________
+
 ## [`Shopware\Core\Framework\Script\Facade\ArrayFacade`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Script/Facade/ArrayFacade.php) {#arrayfacade}
 
 The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
 An array facade can also be accessed like a "normal" array inside twig.
 Examples:
+
 ```twig
 {% do array.push('test') %}
 
@@ -151,26 +159,25 @@ Examples:
 
 * `all()` function returns all elements of this array.
 
-    
 * **Returns** `array`
 
     Returns all elements of this array.
+
 ### count()
 
 * `count()` returns the count of elements inside this array.
 
-    
 * **Returns** `int`
 
     Returns the count of elements.
+
 ### merge()
 
 * `merge()` recursively merges the array with the given array.
-
-    
 * **Arguments:**
     * *`array&lt;string|int,mixed&gt;|\ArrayFacade`* **array**: The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
 * **Examples:**
+
     * Merge two arrays.
 
         ```twig
@@ -178,35 +185,32 @@ Examples:
 		
 		{% do product.payload.merge(my_array) %}
         ```
+
 ### push()
 
 * `push()` adds a new value to the end of the array.
-
-    
 * **Arguments:**
     * *`mixed`* **value**: The value that should be added.
+
 ### remove()
 
 * `remove()` removes the given value from the array. It does nothing if the provided value does not exist in the array.
-
-    
 * **Arguments:**
     * *`mixed`* **value**: The value that should be removed.
+
 ### removeBy()
 
 * `removeBy()` removes the value at the given index from the array.
-
-    
 * **Arguments:**
     * *`string|int`* **index**: The index that should be removed.
+
 ### replace()
 
 * `replace()` recursively replaces elements from the given array into this array.
-
-    
 * **Arguments:**
     * *`array&lt;string|int,mixed&gt;|\ArrayFacade`* **array**: The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
 * **Examples:**
+
     * Replace elements in the product payload array.
 
         ```twig
@@ -214,20 +218,19 @@ Examples:
 		
 		{% do product.payload.replace(second) %}
         ```
+
 ### reset()
 
 * `reset()` removes all entries from the array.
 
-    
 ### set()
 
 * `set()` adds a new element to the array using the given key.
-
-    
 * **Arguments:**
     * *`string|int`* **key**: The array key.
     * *`mixed`* **value**: The value that should be added.
 * **Examples:**
+
     * Add a new element with key `test` and value 1.
 
         ```twig
@@ -235,48 +238,49 @@ Examples:
 		
 		{% do product.payload.set('test', 1) %}
         ```
+
 _________
+
 ## [services.config (`Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade`)](https://github.com/shopware/shopware/blob/trunk/src/Core/System/SystemConfig/Facade/SystemConfigFacade.php) {#systemconfigfacade}
 
 The `config` service allows you to access the shop's and your app's configuration values.
-
 
 ### app()
 
 * The `app()` method allows you to access the config values your app's configuration.
 
     Notice that your app does not need any additional privileges to use this method, as you can only access your own app's configuration.
-* **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
 
-    
+* **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
 * **Arguments:**
     * *`string`* **key**: The name of the configuration value specified in the config.xml e.g. `exampleTextField`.
     * *`string` | `null`* **salesChannelId**: The SalesChannelId if you need the config value for a specific SalesChannel, if you don&#039;t provide a SalesChannelId, the one of the current Context is used as default.
 
         Default: `null`
 * **Examples:**
+
     * Read your app's config value.
 
         ```twig
         {% set appConfig = services.config.app('app_config') %}
         ```
+
 ### get()
 
 * The `get()` method allows you to access all config values of the store.
 
     Notice that your app needs the `system_config:read` privilege to use this method.
-* **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
 
-    
+* **Returns** `array&lt;string,mixed&gt;|bool|float|int|string|null`
 * **Arguments:**
     * *`string`* **key**: The key of the configuration value e.g. `core.listing.defaultSorting`.
     * *`string` | `null`* **salesChannelId**: The SalesChannelId if you need the config value for a specific SalesChannel, if you don&#039;t provide a SalesChannelId, the one of the current Context is used as default.
 
         Default: `null`
 * **Examples:**
+
     * Read an arbitrary system_config value.
 
         ```twig
         {% set systemConfig = services.config.get('core.listing.productsPerPage') %}
         ```
-_________

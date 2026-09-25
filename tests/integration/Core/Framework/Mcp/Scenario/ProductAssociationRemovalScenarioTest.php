@@ -52,6 +52,18 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
         static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
     }
 
+    public function testSchemaNamesTheMappingEntityOfManyToManyAssociations(): void
+    {
+        $data = $this->decodeToolOutput(($this->entitySchemaTool)('product'));
+        $associations = array_column($data['data']['associations'], null, 'name');
+
+        static::assertSame('category', $associations['categories']['entity']);
+        static::assertSame('product_category', $associations['categories']['mappingEntity']);
+        static::assertSame('property_group_option', $associations['properties']['entity']);
+        static::assertSame('product_property', $associations['properties']['mappingEntity']);
+        static::assertArrayNotHasKey('mappingEntity', $associations['manufacturer']);
+    }
+
     public function testRemovesCategoryFromProductWithoutDeletingTheCategory(): void
     {
         $ids = json_encode([[

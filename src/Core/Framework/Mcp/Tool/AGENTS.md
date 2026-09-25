@@ -209,6 +209,14 @@ All entity read tools use `JsonEntityEncoder` for serialization (not the Store A
 - `OrderStateTool` (`shopware-order-state`) -- change the state of an order, its transactions, and/or deliveries in one call
 - `MediaUploadTool` (`shopware-media-upload`) -- upload media from URL, optionally assign to product as cover image
 
+### Removing many-to-many links
+
+A many-to-many link (a product's categories, properties, tags, ...) is a row of a mapping entity such as `product_category`. MCP follows the Admin API sync endpoint here: `shopware-entity-upsert` adds links, and `shopware-entity-delete` on the mapping entity with composite key objects removes them (`[{"productId": "...", "categoryId": "..."}]`). `shopware-entity-schema` names the `mappingEntity` of every many-to-many association so the model can find it.
+
+We deliberately don't add a dedicated "unlink" tool for now. The planned Sync tool (#20520) removes links the same way, so one model covers delete, sync and the Admin API. A new tool would also stay invisible to existing integrations until operators add it to their allowlist. Revisit this if evaluations show that models don't find the delete path, and build such a tool on the same key handling.
+
+Don't add a "remove" flag to upsert payloads: the DAL writes every field sent on an associated record to that record.
+
 ## Merchant workflow tools (plugin)
 Higher-level workflow tools for merchant operations live in the `SwagMcpMerchantAssistant` plugin (`custom/plugins/SwagMcpMerchantAssistant`), not in core. This separation keeps core tools focused on platform primitives while allowing merchant-specific tools to evolve independently.
 

@@ -66,7 +66,7 @@ Tools describe their result, not the wire format. The result object has to outli
 
 | Part | Meaning | Why it is separate |
 |---|---|---|
-| Data | The machine-readable result: any JSON-serializable value, not only an object | The modern era already allows any JSON value; the handshake era needs an object, and the mapper wraps when needed |
+| Data | The machine-readable result: any JSON-serializable value, not only an object | The stateless era (2026-07-28) already allows any JSON value; the handshake era needs an object, and the mapper wraps when needed |
 | Summary | A short text for the model or a human ("3 products updated") | Some formats want prose next to the data, others don't. If a tool gives none, the mapper derives the text from the data |
 | Error | A failure with a stable code (for example `missing_privilege`, `validation_failed`, `not_found`), a message and optional details, such as the missing privileges or the invalid fields | Formats differ in how they carry errors (`isError`, error objects, status codes). A stable code can be mapped to all of them. A message alone can't |
 | Content parts | Additional typed parts: text, image or other binary data with a MIME type, a link to a resource, an embedded resource | These map one to one to MCP content blocks today and to comparable concepts elsewhere (attachments, artifacts) |
@@ -87,7 +87,7 @@ Tools describe their result, not the wire format. The result object has to outli
 
 One mapper in core converts every tool result before the SDK sends it. It is the only place that knows the wire format.
 
-- **One renderer per output format.** The mapper picks a renderer for each request: the legacy envelope, the handshake era, the 2026-07-28 era, and later formats as they appear. The choice depends on the phase, the `v6.8.0.0` feature flag and the negotiated protocol version. Supporting a new format means adding a renderer, not touching tools.
+- **One renderer per output format.** The mapper picks a renderer for each request: the legacy envelope, the handshake era, the stateless era, and later formats as they appear. The choice depends on the phase, the `v6.8.0.0` feature flag and the negotiated protocol version. Supporting a new format means adding a renderer, not touching tools.
 - **Every renderer handles every part.** A renderer maps each part type to the closest concept of its format. Where a format has no equivalent (for example images in a text-only format), the renderer falls back to a documented text form, never to silently dropping the part.
 - **Size limits per format.** The renderer applies the size limit of its format to the complete rendered result, including the text copy the MCP spec asks for. Anything too large is stored and sent as a link.
 - **Legacy input.** The mapper also accepts the legacy JSON string, so tools that still return a string and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result.

@@ -156,7 +156,8 @@ class RobotsPageLoader
 
     /**
      * Selects domains matching the given hostname exactly, preferring HTTPS over HTTP
-     * when the same host has both.
+     * when the same host has both. Falls back to domains whose host merely contains
+     * the hostname when no domain matches exactly.
      *
      * @param non-empty-string $hostname
      *
@@ -166,30 +167,31 @@ class RobotsPageLoader
      */
     private function selectDomainsByHostname(SalesChannelDomainCollection $domains, string $hostname): array
     {
-        $selectedDomains = [];
         \assert($hostname !== '');
 
-        // `$hostname` comes straight from the `Host` header (HTTP_HOST), which includes
-        // a non-default port (e.g. `localhost:8000`) — but parse_url()'s PHP_URL_HOST
-        // component never does, even when the stored domain URL has one. Comparing the
-        // two directly would reject every domain whenever the request carries a port,
-        // so parse the incoming host the same way before comparing.
-        $requestHost = parse_url('http://' . $hostname, \PHP_URL_HOST) ?: $hostname;
+        // HTTP_HOST may carry a port, which parse_url()'s PHP_URL_HOST never includes
+        $requestHost = strtolower(parse_url('http://' . $hostname, \PHP_URL_HOST) ?: $hostname);
+
+        $exactMatches = [];
+        $partialMatches = [];
 
         foreach ($domains as $domain) {
-            $domainUrl = $domain->getUrl();
+            $domainHost = strtolower((string) parse_url($domain->getUrl(), \PHP_URL_HOST));
 
-            // `getDomains()` fetches by a substring `ContainsFilter`, so a domain whose
-            // host merely contains `$hostname` (e.g. `tuev-thueringen.de` inside
-            // `www.tuev-thueringen.de`) can end up here even though it belongs to a
-            // different sales channel. Comparing the parsed host exactly, rather than
-            // splitting on the raw substring, rejects those false matches while still
-            // keeping the same host's different path-based domain variants (e.g. `/en`,
-            // `/de`) as distinct entries below.
-            if (parse_url($domainUrl, \PHP_URL_HOST) !== $requestHost) {
-                continue;
+            if ($domainHost === $requestHost) {
+                $exactMatches[] = $domain;
+            } elseif (str_contains($domainHost, $requestHost)) {
+                $partialMatches[] = $domain;
             }
+        }
 
+        // `getDomains()` uses a substring filter, so a host like `www.example.com` shows up for
+        // `example.com` as well. Only use those when nothing matches exactly: crawlers always
+        // fetch robots.txt on the bare host (see FriendsOfShopware/FroshRobotsTxt#3).
+        $selectedDomains = [];
+
+        foreach ($exactMatches ?: $partialMatches as $domain) {
+            $domainUrl = $domain->getUrl();
             $domainPath = (string) (parse_url($domainUrl, \PHP_URL_PATH) ?? '');
 
             $existingDomain = $selectedDomains[$domainPath] ?? null;

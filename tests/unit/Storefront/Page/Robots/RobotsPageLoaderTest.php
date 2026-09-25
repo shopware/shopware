@@ -350,6 +350,59 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('/matching-sales-channel/', $domainRule->getDirectives()[0]->value);
     }
 
+    public function testLoadMatchesHostIgnoringPortAndCase(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'Example.COM:8000']);
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains([
+            $this->createDomain('https://www.example.com', 'test-sales-channel-id-1'),
+            $this->createDomain('https://EXAMPLE.com:8000', 'test-sales-channel-id-2'),
+        ], [
+            'core.basicInformation.robotsRules' => [
+                'Disallow: /www-sales-channel/',
+                'Disallow: /matching-sales-channel/',
+            ],
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        static::assertEquals(['https://EXAMPLE.com:8000/sitemap.xml'], $page->getSitemaps());
+
+        $domainRule = $page->getDomainRules()->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
+        static::assertCount(1, $domainRule->getDirectives());
+        static::assertSame('/matching-sales-channel/', $domainRule->getDirectives()[0]->value);
+    }
+
+    public function testLoadFallsBackToContainingHostWhenNoDomainMatchesExactly(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains([
+            $this->createDomain('https://www.example.com'),
+            $this->createDifferentOrgDomain('test-sales-channel-id-2'),
+        ], [
+            'core.basicInformation.robotsRules' => [
+                'Disallow: /www-sales-channel/',
+                'Disallow: /different-sales-channel/',
+            ],
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        static::assertEquals(['https://www.example.com/sitemap.xml'], $page->getSitemaps());
+
+        $domainRule = $page->getDomainRules()->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
+        static::assertCount(1, $domainRule->getDirectives());
+        static::assertSame('/www-sales-channel/', $domainRule->getDirectives()[0]->value);
+        static::assertSame('', $domainRule->getBasePath());
+    }
+
     public function testLoadWithGlobalUserAgentBlocks(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com']);

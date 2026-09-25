@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -108,17 +106,8 @@ class MigrationCollectionLoader
             throw MigrationException::invalidVersionSelectionMode($mode);
         }
 
-        [$currentMajor, $safeMajorVersion, $currentMinor] = explode('.', $currentVersion);
+        [, $safeMajorVersion, $currentMinor] = explode('.', $currentVersion);
         $safeMajorVersion = (int) $safeMajorVersion;
-
-        $featureAll = (string) EnvironmentHelper::getVariable('FEATURE_ALL', '');
-        $nextMajor = Feature::normalizeName(\sprintf('v%s.%d.0.0', $currentMajor, $safeMajorVersion + 1));
-        $nextMajorConfig = Feature::getRegisteredFeatures()[$nextMajor] ?? null;
-        $simulateMajor = ($featureAll !== '' && $featureAll !== '0' && $featureAll !== 'false')
-            || ($nextMajorConfig !== null && !($nextMajorConfig['default'] ?? false) && Feature::isActive($nextMajor));
-        if ($simulateMajor) {
-            ++$safeMajorVersion;
-        }
 
         if ($mode === self::VERSION_SELECTION_SAFE) {
             return $safeMajorVersion - self::BEFORE_PREVIOUS_MAJOR_VERSION_SUBTRAHEND;

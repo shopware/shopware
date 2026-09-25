@@ -26,6 +26,6 @@ The precedence for a sub-feature is: its explicit environment value or stored/ru
 
 ## Consequences for workflows
 
-- Major CI enables the version flag directly, for example `V6_8_0_0=1`. The integration, acceptance, and migration lanes no longer need a special `FEATURE_ALL=major` mode or a generated version-lane matrix to activate the associated sub-features.
+- Major CI enables the version flag directly, for example `V6_8_0_0=1`. The integration, acceptance, and migration lanes no longer need a special `FEATURE_ALL=major` mode or a generated version-lane matrix to activate the associated sub-features. The migration lane separately sets the Composer root version to 6.8 because migration namespace selection depends only on that version, not on feature flags.
 - An all-features run remains distinct and can use `FEATURE_ALL=1` to cover flags outside the upcoming major. This avoids losing coverage for features that are released during a major cycle or stay behind a flag for longer.
 - When the next major changes, the explicit version flag in the few major workflow settings must be updated. The feature configuration remains the source of truth for which sub-features belong to that major. The unit test bootstrap already enables all registered flags independently of `FEATURE_ALL`, so unit tests that need an older state must disable the relevant major flag explicitly.

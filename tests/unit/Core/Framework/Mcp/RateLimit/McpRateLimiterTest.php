@@ -131,16 +131,41 @@ class McpRateLimiterTest extends TestCase
         $this->mcpRateLimiter->enforceForStoreApi(new Request());
     }
 
-    public function testEnforceForAdminApiSkipsInitializedNotification(): void
+    public function testEnforceForAdminApiRoutesInitializedNotificationToItsOwnBucket(): void
     {
-        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'admin-127.0.0.1');
 
         $this->mcpRateLimiter->enforceForAdminApi($this->jsonRpcRequest('notifications/initialized', id: null));
     }
 
-    public function testEnforceForStoreApiSkipsInitializedNotification(): void
+    public function testEnforceForStoreApiRoutesInitializedNotificationToItsOwnPerIpBucket(): void
     {
-        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
+        $salesChannelContext->method('getToken')->willReturn('context-token');
+
+        $request = $this->jsonRpcRequest('notifications/initialized', id: null);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'store-127.0.0.1');
+
+        $this->mcpRateLimiter->enforceForStoreApi($request);
+    }
+
+    public function testEnforceForStoreApiTranslatesInitializedNotificationThrottle(): void
+    {
+        $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
+
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_INITIALIZED_NOTIFICATION, static::anything())
+            ->willThrowException($rateLimitException);
+
+        $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 
         $this->mcpRateLimiter->enforceForStoreApi($this->jsonRpcRequest('notifications/initialized', id: null));
     }
@@ -163,9 +188,11 @@ class McpRateLimiterTest extends TestCase
         $this->mcpRateLimiter->enforceForStoreApi($this->jsonRpcRequest('initialize'));
     }
 
-    public function testEnforceForAdminApiSkipsInitializedOnlyBatch(): void
+    public function testEnforceForAdminApiRoutesInitializedOnlyBatchToItsOwnBucket(): void
     {
-        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'admin-127.0.0.1');
 
         $request = Request::create('/api/_mcp', 'POST', content: json_encode([
             ['jsonrpc' => '2.0', 'method' => 'notifications/initialized', 'params' => []],
@@ -257,6 +284,7 @@ class McpRateLimiterTest extends TestCase
         yield 'batch with scalar entry' => ['["notifications/initialized"]'];
         yield 'object without method' => ['{"jsonrpc":"2.0","initialized":true}'];
         yield 'method with wrong type' => ['{"jsonrpc":"2.0","method":["notifications/initialized"]}'];
+        yield 'oversized body' => ['{"jsonrpc":"2.0","method":"notifications/initialized","params":{"padding":"' . str_repeat('x', 4096) . '"}}'];
     }
 
     #[DataProvider('limitedPostBodyProvider')]
@@ -269,24 +297,35 @@ class McpRateLimiterTest extends TestCase
         $this->mcpRateLimiter->enforceForAdminApi(Request::create('/api/_mcp', 'POST', content: $content));
     }
 
-    public function testEnforceForAdminApiSkipsInitializedNotificationWithEscapedSlash(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function escapedInitializedBodyProvider(): iterable
     {
-        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        yield 'escaped slash' => ['{"jsonrpc":"2.0","method":"notifications\/initialized"}'];
+        yield 'unicode escape' => ['{"jsonrpc":"2.0","method":"notifications/\u0069nitialized"}'];
+    }
 
-        $request = Request::create('/api/_mcp', 'POST', content: '{"jsonrpc":"2.0","method":"notifications\/initialized"}');
+    #[DataProvider('escapedInitializedBodyProvider')]
+    public function testEnforceForAdminApiRecognisesEscapedInitializedNotification(string $content): void
+    {
+        $this->rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'admin-127.0.0.1');
 
-        $this->mcpRateLimiter->enforceForAdminApi($request);
+        $this->mcpRateLimiter->enforceForAdminApi(Request::create('/api/_mcp', 'POST', content: $content));
     }
 
     /**
      * Reproduces #18906: after time_backoff accepts one post-wait request,
      * initialize consumes that slot; the mandatory notifications/initialized
-     * follow-up is exempt so the handshake can finish. tools/list still counts.
+     * follow-up uses its own bucket so the handshake can finish. tools/list
+     * is back on the endpoint bucket.
      */
-    public function testPostBackoffHandshakeSequenceCountsInitializeButExemptsInitialized(): void
+    public function testPostBackoffHandshakeSequenceKeepsInitializedOffTheEndpointBucket(): void
     {
         $accepted = [];
-        $this->rateLimiter->expects($this->exactly(2))
+        $this->rateLimiter->expects($this->exactly(3))
             ->method('ensureAccepted')
             ->willReturnCallback(static function (string $route, string $key) use (&$accepted): void {
                 $accepted[] = [$route, $key];
@@ -306,13 +345,14 @@ class McpRateLimiterTest extends TestCase
 
         // After backoff elapsed: initialize consumes the one accepted slot.
         $this->mcpRateLimiter->enforceForAdminApi($tokenRequest('initialize', 1));
-        // Immediate notifications/initialized must not be throttled (exempt).
+        // Immediate notifications/initialized draws from its own bucket instead.
         $this->mcpRateLimiter->enforceForAdminApi($tokenRequest('notifications/initialized'));
         // First real protocol work still draws from the shared bucket.
         $this->mcpRateLimiter->enforceForAdminApi($tokenRequest('tools/list', 2));
 
         static::assertSame([
             [RateLimiter::MCP_ADMIN_API, 'token-after-backoff'],
+            [RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'admin-token-after-backoff'],
             [RateLimiter::MCP_ADMIN_API, 'token-after-backoff'],
         ], $accepted);
     }

@@ -39,6 +39,8 @@ class RateLimiter
 
     final public const MCP_STORE_API = 'mcp_store_api';
 
+    final public const MCP_INITIALIZED_NOTIFICATION = 'mcp_initialized_notification';
+
     final public const APP_SHOP_VERIFY = 'app_shop_verify';
 
     final public const IMPORT_EXPORT_FILE_DOWNLOAD = 'import_export_file_download';

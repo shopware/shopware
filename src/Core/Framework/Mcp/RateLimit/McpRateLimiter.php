@@ -18,15 +18,15 @@ use Symfony\Component\HttpFoundation\Request;
  * the Admin API keys on the OAuth access token, the Store API on the
  * sales-channel context plus a stable per-IP backstop.
  *
- * Only the handshake-era follow-up {@see self::INITIALIZED_NOTIFICATION_METHOD}
- * is exempt from the limiter. The MCP Streamable HTTP handshake requires
- * `initialize` then `notifications/initialized` back-to-back; Shopware's
- * `time_backoff` policy accepts only one request after a wait, so once
- * `initialize` has consumed that slot the mandatory follow-up would otherwise
- * get HTTP 429 (see #18906). `initialize` itself stays rate-limited, because an
- * unlimited initialize path would allow endless session creation. Tool calls
- * and every other method stay limited. The 2026-07-28 modern era has no such
- * pair, so the exemption is handshake-only.
+ * The handshake-era follow-up {@see self::INITIALIZED_NOTIFICATION_METHOD} draws
+ * from its own bucket ({@see RateLimiter::MCP_INITIALIZED_NOTIFICATION}). The MCP
+ * Streamable HTTP handshake requires `initialize` then `notifications/initialized`
+ * back-to-back; Shopware's `time_backoff` policy accepts only one request after a
+ * wait, so once `initialize` has consumed that slot the mandatory follow-up would
+ * otherwise get HTTP 429 (see #18906). The separate bucket is a plain sliding
+ * window, so the follow-up is still bounded and cannot become an unlimited path
+ * through the endpoint. `initialize`, tool calls and every other method stay on
+ * the endpoint bucket. The 2026-07-28 modern era has no such pair.
  */
 #[Package('framework')]
 class McpRateLimiter
@@ -35,9 +35,16 @@ class McpRateLimiter
      * Handshake-era JSON-RPC notification that completes session setup after
      * `initialize`. Kept as a single-method allowlist so `initialize` and every
      * other protocol method (including tool abuse paths) still draw from the
-     * shared bucket.
+     * endpoint bucket.
      */
     private const INITIALIZED_NOTIFICATION_METHOD = 'notifications/initialized';
+
+    /**
+     * A `notifications/initialized` message is well below 100 bytes, so larger bodies
+     * are never decoded here. Ordinary (possibly large) tool calls are therefore not
+     * JSON-decoded twice; McpServerController decodes the body again.
+     */
+    private const MAX_INITIALIZED_NOTIFICATION_BODY_BYTES = 4096;
 
     /**
      * @internal
@@ -48,20 +55,25 @@ class McpRateLimiter
 
     public function enforceForAdminApi(Request $request): void
     {
-        if ($this->isInitializedNotificationOnlyRequest($request)) {
-            return;
-        }
-
         $key = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)
             ?: $request->getClientIp()
             ?: 'unknown';
+
+        if ($this->isInitializedNotificationOnlyRequest($request)) {
+            $this->enforce(RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'admin-' . $key);
+
+            return;
+        }
 
         $this->enforce(RateLimiter::MCP_ADMIN_API, $key);
     }
 
     public function enforceForStoreApi(Request $request): void
     {
+        // Keyed per IP only: the context token is cheap to rotate, the IP is not.
         if ($this->isInitializedNotificationOnlyRequest($request)) {
+            $this->enforce(RateLimiter::MCP_INITIALIZED_NOTIFICATION, 'store-' . ($request->getClientIp() ?: 'unknown'));
+
             return;
         }
 
@@ -82,8 +94,8 @@ class McpRateLimiter
 
     /**
      * True when every JSON-RPC message in the POST body is `notifications/initialized`.
-     * Non-POST, unparseable, empty, `initialize` (alone or in a batch), or mixed batches
-     * still go through the limiter. `initialize` always counts.
+     * Non-POST, unparseable, empty or oversized bodies, `initialize` (alone or in a batch),
+     * and mixed batches stay on the endpoint bucket.
      */
     private function isInitializedNotificationOnlyRequest(Request $request): bool
     {
@@ -92,10 +104,7 @@ class McpRateLimiter
         }
 
         $content = $request->getContent();
-
-        // Cheap substring pre-check so ordinary (possibly large) tool calls are not JSON-decoded
-        // twice; McpServerController decodes the body again. Also matches `notifications\/initialized`.
-        if (!str_contains($content, 'initialized')) {
+        if ($content === '' || \strlen($content) > self::MAX_INITIALIZED_NOTIFICATION_BODY_BYTES) {
             return false;
         }
 

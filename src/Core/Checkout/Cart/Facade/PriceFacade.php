@@ -215,6 +215,10 @@ class PriceFacade
         $this->overwrite($definition);
     }
 
+    /**
+     * Returns the unit value authoritative for the customer group's price basis, run through the
+     * quantity price calculator first when that value still needs to be derived.
+     */
     protected function getPriceForTaxState(PriceCollection $price, SalesChannelContext $context): float
     {
         $selected = $this->priceStubs->select($this->getCurrencyPrice($price), $this->price->getTaxRules(), $context);

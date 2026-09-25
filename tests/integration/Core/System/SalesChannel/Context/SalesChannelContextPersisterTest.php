@@ -464,7 +464,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $persister = new SalesChannelContextPersister(
             $this->connection,
-            $this->createMock(EventDispatcher::class),
+            static::createStub(EventDispatcher::class),
             static::getContainer()->get(CartPersister::class),
             new NativeClock(),
             $lifeTimeInterval,

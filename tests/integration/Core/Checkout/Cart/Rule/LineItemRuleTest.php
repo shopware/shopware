@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -31,7 +31,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('fundamentals@after-sales')]
 class LineItemRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -178,8 +177,8 @@ class LineItemRuleTest extends TestCase
     {
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
-                $this->createLineItem(),
-                $this->createMock(SalesChannelContext::class)
+                CartRuleFixture::createLineItem(),
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -190,8 +189,8 @@ class LineItemRuleTest extends TestCase
     {
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
-                $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
-                $this->createMock(SalesChannelContext::class)
+                CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -202,8 +201,8 @@ class LineItemRuleTest extends TestCase
     {
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
-                $this->createLineItem()->setPayloadValue('parentId', 'A'),
-                $this->createMock(SalesChannelContext::class)
+                CartRuleFixture::createLineItem()->setPayloadValue('parentId', 'A'),
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -214,8 +213,8 @@ class LineItemRuleTest extends TestCase
     {
         $matches = $this->getLineItemRule()->match(
             new LineItemScope(
-                $this->createLineItem()->setPayloadValue('parentId', 'C'),
-                $this->createMock(SalesChannelContext::class)
+                CartRuleFixture::createLineItem()->setPayloadValue('parentId', 'C'),
+                static::createStub(SalesChannelContext::class)
             )
         );
 
@@ -227,13 +226,13 @@ class LineItemRuleTest extends TestCase
         $rule = $this->getLineItemRule();
 
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
         ]);
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
@@ -244,14 +243,14 @@ class LineItemRuleTest extends TestCase
         $rule = $this->getLineItemRule();
 
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'A'),
         ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);

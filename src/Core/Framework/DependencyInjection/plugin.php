@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Composer\Autoload\ClassLoader;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationDefinition;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
-use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\Command\BundleDumpCommand;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginActivateCommand;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginDeactivateCommand;
@@ -47,7 +47,6 @@ use Shopware\Core\Framework\Plugin\ExtensionExtractor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Plugin\NullBundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
@@ -57,7 +56,6 @@ use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Subscriber\PluginAclPrivilegesSubscriber;
 use Shopware\Core\Framework\Plugin\Subscriber\PluginLoadedSubscriber;
 use Shopware\Core\Framework\Plugin\Telemetry\PluginTelemetrySubscriber;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
@@ -104,13 +102,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
-    $services->set(BundleConfigStyleFileResolver::class, NullBundleConfigStyleFileResolver::class);
-
     $services->set(BundleConfigGenerator::class)
         ->args([
             service('kernel'),
             service(ActiveAppsLoader::class),
-            service(BundleConfigStyleFileResolver::class),
+            tagged_iterator('shopware.bundle_config.style_file_resolver'),
         ]);
 
     $services->set(PluginDefinition::class)
@@ -286,6 +282,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('parameter_bag'),
             service('event_dispatcher'),
         ]);
+
+    $services->alias(
+        'Shopware\Core\Framework\Plugin\Util\AssetService',
+        AssetService::class,
+    )->deprecate('shopware/core', '6.7.15.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.8.0. Use Shopware\Core\Framework\Adapter\Asset\AssetService instead.');
 
     // Requirement
     $services->set(RequirementsValidator::class)

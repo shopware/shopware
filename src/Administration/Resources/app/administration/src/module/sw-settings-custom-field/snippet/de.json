@@ -17,7 +17,7 @@
         "buttonAdd": "Set anlegen",
         "columnName": "Label",
         "messageDeleteSuccess": "Das Set \"{name}\" wurde erfolgreich gelöscht.",
-        "messageEmpty": "Noch keine Zusatzfelder.",
+        "messageEmpty": "Noch keine Zusatzfelder",
         "helpTextGlobalSet": "Dieses Set ist global und kann nicht verändert werden."
       },
       "detail": {
@@ -29,7 +29,7 @@
         "placeholderName": "Namen eingeben ...",
         "labelCheckboxTranslated": "In allen Administrationssprachen pflegen",
         "messageSaveSuccess": "Das Set \"{name}\" wurde erfolgreich gespeichert.",
-        "messageCustomFieldsEmpty": "Noch keine Zusatzfelder.",
+        "messageCustomFieldsEmpty": "Noch keine Zusatzfelder",
         "addCustomField": "Neues Zusatzfeld",
         "labelEntities": "Verwenden für",
         "placeholderEntities": "Verwendung hinzufügen ...",

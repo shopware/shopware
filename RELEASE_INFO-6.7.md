@@ -45,6 +45,10 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### The MCP `discovery` tool group is reserved for the core discovery tools
+
+A fresh MCP session advertises the tools in the `discovery` group on every connection. That group is now limited to `shopware-tool-search`, `shopware-toolsets-list` and `shopware-toolset-enable`. A plugin or bundle tool that declares `#[McpToolGroup('discovery')]` is moved to the `other` toolset: it stays callable and can be enabled, but is no longer on the default surface. `bin/console debug:mcp` lists such tools, and the new PHPStan rule `shopware.mcpReservedToolGroup` reports them. To show your tools on the first `tools/list`, give them a group of their own and select it at connect time with `?toolsets=<group>`.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses

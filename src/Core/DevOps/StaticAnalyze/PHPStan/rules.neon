@@ -1,5 +1,6 @@
 rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolResponseRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpReservedToolGroupRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ScheduledTaskTooLowIntervalRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleAreasFlagNotAllowedRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RuleConditionHasRuleConfigRule

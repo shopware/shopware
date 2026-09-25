@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Lock\LockFactory;
@@ -26,7 +27,7 @@ class CartLockerTest extends TestCase
     protected function setUp(): void
     {
         $this->lockFactory = new LockFactory(new InMemoryStore());
-        $this->locker = new CartLocker($this->lockFactory);
+        $this->locker = new CartLocker(new LockManager($this->lockFactory));
     }
 
     public function testLockedExecutesClosure(): void

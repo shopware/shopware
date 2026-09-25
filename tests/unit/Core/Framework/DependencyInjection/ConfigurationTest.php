@@ -56,13 +56,13 @@ class ConfigurationTest extends TestCase
         $config = (new Processor())->processConfiguration(new Configuration(), [[
             'feature' => [
                 'flags' => [
-                    ['name' => 'v6.8.0.0', 'major' => true],
+                    ['name' => 'v6.8.0.0'],
                     ['name' => 'JSON_LD_DATA', 'major' => 'v6.8.0.0'],
                 ],
             ],
         ]]);
 
-        static::assertTrue($config['feature']['flags']['v6.8.0.0']['major']);
+        static::assertFalse($config['feature']['flags']['v6.8.0.0']['major']);
         static::assertSame('v6.8.0.0', $config['feature']['flags']['JSON_LD_DATA']['major']);
     }
 

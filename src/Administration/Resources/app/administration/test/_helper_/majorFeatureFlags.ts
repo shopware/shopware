@@ -21,6 +21,10 @@ function normalizeName(name: string): string {
     return name.toUpperCase().replace(/[.:-]/g, '_');
 }
 
+function isMajorVersionFlag(name: string): boolean {
+    return /^V\d+_\d+_0_0$/.test(normalizeName(name));
+}
+
 function isTrue(value: string | undefined): boolean {
     return Boolean(value) && value !== '0' && value !== 'false';
 }
@@ -37,7 +41,7 @@ export default function getMajorFeatureFlags(
     const flags = config.shopware?.feature?.flags ?? [];
 
     const hasMajorLane = flags.some(
-        (flag) => /^v\d+\.\d+\.\d+\.\d+$/i.test(flag.name) && isTrue(environment[normalizeName(flag.name)]),
+        (flag) => isMajorVersionFlag(flag.name) && isTrue(environment[normalizeName(flag.name)]),
     );
 
     const active = (flag: FeatureFlag): boolean => {
@@ -53,7 +57,7 @@ export default function getMajorFeatureFlags(
         if (typeof flag.major === 'string') {
             const parentName = normalizeName(flag.major);
             const parent = flags.find(({ name }) => normalizeName(name) === parentName);
-            return parent?.major === true && active(parent);
+            return parent !== undefined && isMajorVersionFlag(parent.name) && active(parent);
         }
 
         return flag.default === true;
@@ -67,5 +71,7 @@ export default function getMajorFeatureFlags(
         return flags.filter((flag) => isTrue(environment[normalizeName(flag.name)])).map(({ name }) => normalizeName(name));
     }
 
-    return flags.filter((flag) => flag.major && active(flag)).map(({ name }) => normalizeName(name));
+    return flags
+        .filter((flag) => (flag.default || isMajorVersionFlag(flag.name) || typeof flag.major === 'string') && active(flag))
+        .map(({ name }) => normalizeName(name));
 }

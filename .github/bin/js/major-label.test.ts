@@ -19,11 +19,9 @@ const REGISTRY = `shopware:
     flags:
       - name: v6.7.0.0
         default: true
-        major: true
         toggleable: false
       - name: v6.8.0.0
         default: false
-        major: true
         toggleable: false
       - name: WEBHOOKS_REWORK
         default: false
@@ -33,6 +31,9 @@ const REGISTRY = `shopware:
         default: false
         major: false
         toggleable: true
+      - name: LEGACY_MAJOR_MARKER
+        default: false
+        major: true
 `;
 
 const FLAGS = parseFeatureRegistry(REGISTRY);
@@ -68,10 +69,11 @@ const evaluate = (path: string, hunk: string) =>
 
 test('parseFeatureRegistry reads name, major and default per flag', () => {
     assert.deepEqual(FLAGS, [
-        { name: 'v6.7.0.0', major: true, default: true },
-        { name: 'v6.8.0.0', major: true, default: false },
+        { name: 'v6.7.0.0', major: false, default: true },
+        { name: 'v6.8.0.0', major: false, default: false },
         { name: 'WEBHOOKS_REWORK', major: 'v6.8.0.0', default: false },
         { name: 'TELEMETRY_METRICS', major: false, default: false },
+        { name: 'LEGACY_MAJOR_MARKER', major: true, default: false },
     ]);
 });
 
@@ -89,10 +91,8 @@ test('resolveInFlightMajors returns every unreleased major, oldest first', () =>
         flags:
           - name: v6.9.0.0
             default: false
-            major: true
           - name: v6.8.0.0
             default: false
-            major: true
 `);
     assert.deepEqual(resolveInFlightMajors(flags), ['6.8', '6.9']);
 });
@@ -103,7 +103,6 @@ test('resolveInFlightMajors is empty once every major flag has flipped', () => {
         flags:
           - name: v6.8.0.0
             default: true
-            major: true
 `);
     assert.deepEqual(resolveInFlightMajors(flags), []);
 });
@@ -293,7 +292,7 @@ test('regex metacharacters in a version or flag name are matched literally', () 
         flags:
           - name: FLAG(A|B)
             default: false
-            major: true
+            major: v6.8.0.0
 `);
     // A partial escape would compile `6.8` into a dot wildcard and `FLAG(A|B)` into a group.
     const evaluated = evaluateMajorLabels({
@@ -370,16 +369,13 @@ const TWO_MAJORS = parseFeatureRegistry(`shopware:
     flags:
       - name: v6.7.0.0
         default: true
-        major: true
       - name: v6.8.0.0
         default: false
-        major: true
       - name: v6.9.0.0
         default: false
-        major: true
       - name: WEBHOOKS_REWORK
         default: false
-        major: true
+        major: v6.8.0.0
 `);
 
 const labelsFor = (path: string, hunk: string) =>
@@ -439,7 +435,6 @@ test('labelsForDiff emits nothing when no major is in flight', () => {
         flags:
           - name: v6.8.0.0
             default: true
-            major: true
 `);
     assert.deepEqual(
         labelsForDiff({ diff: diffFor('UPGRADE-6.8.md', '+## Anything'), flags: shipped, majorPaths: PATHS }),

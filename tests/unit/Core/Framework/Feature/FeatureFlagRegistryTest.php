@@ -30,21 +30,23 @@ class FeatureFlagRegistryTest extends TestCase
 
     public function testStoredSubFeatureOverrideSurvivesMajorAssociation(): void
     {
-        $this->setEnvVars(['JSON_LD_DATA' => null, 'FEATURE_ALL' => null]);
+        $this->setEnvVars(['JSON_LD_DATA' => null, 'ACCESSIBILITY_TWEAKS' => null, 'FEATURE_ALL' => null]);
         Feature::resetRegisteredFeatures();
 
         $storage = new ArrayKeyValueStorage();
         $storage->set(FeatureFlagRegistry::STORAGE_KEY, [
             'V6_8_0_0' => ['major' => true, 'active' => false],
             'JSON_LD_DATA' => ['major' => true, 'active' => false],
+            'ACCESSIBILITY_TWEAKS' => ['major' => true, 'active' => false],
         ]);
 
         $registry = new FeatureFlagRegistry(
             $storage,
             new EventDispatcher(),
             [
-                'V6_8_0_0' => ['major' => true, 'default' => true],
+                'V6_8_0_0' => ['default' => true],
                 'JSON_LD_DATA' => ['major' => 'v6.8.0.0', 'default' => false, 'toggleable' => true],
+                'ACCESSIBILITY_TWEAKS' => ['major' => false, 'default' => true, 'toggleable' => true],
             ],
             true
         );
@@ -53,6 +55,7 @@ class FeatureFlagRegistryTest extends TestCase
 
         static::assertTrue(Feature::isActive('v6.8.0.0'));
         static::assertFalse(Feature::isActive('JSON_LD_DATA'));
+        static::assertFalse(Feature::isActive('ACCESSIBILITY_TWEAKS'));
         static::assertSame('v6.8.0.0', Feature::getRegisteredFeatures()['JSON_LD_DATA']['major'] ?? null);
     }
 

@@ -12,11 +12,11 @@
  * off, so the milestone label — which records the version that ships a change — cannot
  * carry this. These labels are the orthogonal axis and must never be milestone labels.
  *
- * In-flight majors are `major: true` flags named after their version and still
- * `default: false`. Registering the next major flag adds its labels with nothing
+ * In-flight majors are version-shaped flags still set to `default: false`.
+ * Registering the next major flag adds its labels with nothing
  * to maintain here; the test workflows opt into their target version explicitly.
  *
- * Signals that name no version — the unversioned major flags, an edit to the registry, a
+ * Signals that name no version — an edit to the registry, a
  * path in `major-paths.yml` — belong to the nearest major, because that is the one that
  * flips them.
  *
@@ -120,12 +120,12 @@ export function parseFeatureRegistry(registryYaml: string): FeatureFlag[] {
 
 /** A flag already defaulting to true has flipped and is not pending. */
 export function pendingMajorFlags(flags: FeatureFlag[]): string[] {
-    return flags.filter((flag) => flag.major === true && !flag.default).map((flag) => flag.name);
+    return flags.filter((flag) => /^v\d+\.\d+\.0\.0$/i.test(flag.name) && !flag.default).map((flag) => flag.name);
 }
 
 /**
  * The majors that have not shipped, oldest first — `['6.8', '6.9']`.
- * Recognises standalone version flags by name and `major: true`.
+ * Recognises standalone version flags by name.
  */
 export function resolveInFlightMajors(flags: FeatureFlag[]): string[] {
     return pendingMajorFlags(flags)
@@ -206,7 +206,7 @@ export function evaluateMajorLabels(options: {
     const version = escapeRegExp(targetMajor);
     const versionFlag = escapeRegExp(`v${targetMajor}.0.0`);
     const relatedFlags = flags
-        .filter((flag) => flag.major === `v${targetMajor}.0.0` || (isNextMajor && flag.major === true && !flag.default))
+        .filter((flag) => flag.major === `v${targetMajor}.0.0`)
         .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag.name))
         .map((flag) => escapeRegExp(flag.name));
     const flagAlternatives = [versionFlag, ...relatedFlags].join('|');

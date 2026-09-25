@@ -15,8 +15,9 @@ Any truthy `FEATURE_ALL` value enables every registered feature. To activate onl
 sub-features, set the version flag directly, for example `V6_8_0_0=1`. Explicit environment values
 and persisted toggles for individual features win over both `FEATURE_ALL` and the parent major.
 
-Use `major: true` for a standalone version flag and `major: v6.8.0.0` for a sub-feature that becomes
-active with that version flag:
+Standalone major flags are identified by their version-shaped name (for example `v6.8.0.0`);
+they do not need `major: true`. Use `major: v6.8.0.0` for a sub-feature that becomes active with
+that version flag:
 
 ```yaml
       - name: JSON_LD_DATA

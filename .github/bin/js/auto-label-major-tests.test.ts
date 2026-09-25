@@ -41,7 +41,6 @@ const REGISTRY = `shopware:
         flags:
             - name: v6.8.0.0
               default: false
-              major: true
               toggleable: false
             - name: WEBHOOKS_REWORK
               default: false
@@ -51,6 +50,9 @@ const REGISTRY = `shopware:
               default: false
               major: false
               toggleable: true
+            - name: LEGACY_MAJOR_MARKER
+              default: false
+              major: true
 `;
 
 test('parseMajorFlags returns only major flags', () => {

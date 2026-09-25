@@ -8,10 +8,10 @@ const config = {
     shopware: {
         feature: {
             flags: [
-                { name: 'v6.7.0.0', major: true, default: true },
-                { name: 'v6.8.0.0', major: true },
-                { name: 'v6.9.0.0', major: true },
-                { name: 'major-feature:next', major: true },
+                { name: 'v6.7.0.0', default: true },
+                { name: 'v6.8.0.0' },
+                { name: 'v6.9.0.0' },
+                { name: 'ACCESSIBILITY_TWEAKS', default: true },
                 { name: 'NEXT_MAJOR_FEATURE', major: 'v6.9.0.0' },
                 { name: 'JSON_LD_DATA', major: 'v6.8.0.0' },
                 { name: 'MINOR_FEATURE', major: false },
@@ -27,7 +27,7 @@ describe('majorFeatureFlags', () => {
             'V6_7_0_0',
             'V6_8_0_0',
             'V6_9_0_0',
-            'MAJOR_FEATURE_NEXT',
+            'ACCESSIBILITY_TWEAKS',
             'NEXT_MAJOR_FEATURE',
             'JSON_LD_DATA',
             'MINOR_FEATURE',
@@ -43,6 +43,7 @@ describe('majorFeatureFlags', () => {
         expect(getMajorFeatureFlags(config, { V6_8_0_0: '1' })).toEqual([
             'V6_7_0_0',
             'V6_8_0_0',
+            'ACCESSIBILITY_TWEAKS',
             'JSON_LD_DATA',
         ]);
     });
@@ -51,6 +52,7 @@ describe('majorFeatureFlags', () => {
         expect(getMajorFeatureFlags(config, { V6_9_0_0: '1' })).toEqual([
             'V6_7_0_0',
             'V6_9_0_0',
+            'ACCESSIBILITY_TWEAKS',
             'NEXT_MAJOR_FEATURE',
         ]);
     });
@@ -59,7 +61,14 @@ describe('majorFeatureFlags', () => {
         expect(getMajorFeatureFlags(config, { V6_8_0_0: '1', JSON_LD_DATA: 'false' })).toEqual([
             'V6_7_0_0',
             'V6_8_0_0',
+            'ACCESSIBILITY_TWEAKS',
         ]);
+    });
+
+    it('honors an explicit opt-out for a default-true flag in the major lane', () => {
+        expect(getMajorFeatureFlags(config, { V6_8_0_0: '1', ACCESSIBILITY_TWEAKS: '0' })).not.toContain(
+            'ACCESSIBILITY_TWEAKS',
+        );
     });
 
     it('enables an explicitly selected feature outside a major run', () => {

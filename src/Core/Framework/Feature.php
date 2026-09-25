@@ -60,6 +60,14 @@ class Feature
     }
 
     /**
+     * @internal
+     */
+    public static function isMajorVersionFlag(string $name): bool
+    {
+        return (bool) \preg_match('/^V\d+_\d+_0_0$/', self::normalizeName($name));
+    }
+
+    /**
      * @template TReturn of mixed
      *
      * @param array<string> $features
@@ -165,7 +173,8 @@ class Feature
 
         $major = self::$registeredFeatures[$feature]['major'] ?? false;
         if (\is_string($major)
-            && (self::$registeredFeatures[self::normalizeName($major)]['major'] ?? false) === true
+            && self::isMajorVersionFlag($major)
+            && isset(self::$registeredFeatures[self::normalizeName($major)])
             && self::isActive($major)
         ) {
             return true;

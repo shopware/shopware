@@ -328,7 +328,7 @@ Previously, these routes could return unrelated records or fail because the unde
 
 ## Feature flag grouping
 
-`FEATURE_ALL` now enables every registered feature for any truthy value, including the previous `major`, `minor`, and version-shaped values. Set `V6_8_0_0=1` to opt in to the 6.8 behavior without activating unrelated or later features. Features declaring `major: v6.8.0.0`, including `JSON_LD_DATA` and `CACHE_REWORK`, are then active unless their own flag is explicitly disabled.
+`FEATURE_ALL` now enables every registered feature for any truthy value, including the previous `major`, `minor`, and version-shaped values. Set `V6_8_0_0=1` to opt in to the 6.8 behavior without activating unrelated or later features. The version-shaped name identifies the standalone major flag; `major: true` is no longer needed. Features declaring `major: v6.8.0.0`, including `JSON_LD_DATA` and `CACHE_REWORK`, are then active unless their own flag is explicitly disabled.
 
 ## `Feature` is final
 

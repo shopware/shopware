@@ -4,7 +4,7 @@
 
 ### Feature flags can belong to a major version
 
-Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
+Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names and no longer need `major: true`. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
 
 ### Dompdf page count placeholder replaced for core and fallback fonts
 

@@ -50,10 +50,11 @@ class FeatureFlagRegistry
                 $stored = \json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
             }
 
-            // Standalone major flags are never persisted, but sub-feature toggles must survive
-            // even when an older stored copy still says `major: true`.
+            // Version flags are never persisted. Keep filtering old unversioned `major: true`
+            // entries, but let static metadata override a stale stored marker for sub-features.
             $stored = array_filter($stored, static function (array $flag, string $name) use ($static): bool {
-                return ($static[$name]['major'] ?? $flag['major'] ?? false) !== true;
+                return !Feature::isMajorVersionFlag($name)
+                    && ($static[$name]['major'] ?? $flag['major'] ?? false) !== true;
             }, \ARRAY_FILTER_USE_BOTH);
 
             foreach ($stored as $name => $flag) {

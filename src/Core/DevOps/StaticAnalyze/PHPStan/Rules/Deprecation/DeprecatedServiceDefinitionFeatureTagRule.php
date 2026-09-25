@@ -18,6 +18,11 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 
 /**
+ * Checks deprecations declared in PHP service configuration, where the class may not be deprecated.
+ * Reads ServicesConfigurator set()/alias() chains, adjacent deprecation comments, and deprecate()
+ * calls. Deprecated set() registrations need a matching shopware.inactiveFeature tag; annotated
+ * aliases need a removal-map entry because Symfony aliases cannot be tagged.
+ *
  * @implements Rule<Expression>
  *
  * @internal

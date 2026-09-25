@@ -11,6 +11,10 @@ use PHPStan\Symfony\ServiceMap;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Ensures services using deprecated classes are removed with their announced feature flag.
+ * Compares the class's deprecation tag version with the shopware.inactiveFeature tag on each
+ * matching service in PHPStan's compiled service map.
+ *
  * @implements Rule<InClassNode>
  *
  * @internal

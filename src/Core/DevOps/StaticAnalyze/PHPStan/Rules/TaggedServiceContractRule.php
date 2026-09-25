@@ -20,6 +20,10 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
 /**
+ * Keeps tagged service implementations and their consumers aligned with declared tag contracts.
+ * Checks service classes through PHPStan's service map and tagged iterator/locator constructor
+ * arguments through the compiled container XML and constructor attributes.
+ *
  * @implements Rule<InClassNode>
  *
  * @internal

@@ -5,6 +5,10 @@ area: administration
 tags: [administration, axios, compatibility, extensions]
 ---
 
+> **Status:** Superseded on 2026-09-08
+> This ADR has been replaced by [2026-09-08-administration-single-axios-transport.md](../2026-09-08-administration-single-axios-transport.md).
+> The new ADR keeps the facade and ends the second transport: axios 1.x becomes the only transport with Shopware 6.8.
+
 ## Context
 
 The Administration HTTP client has historically exposed Axios behavior to extensions. Replacing Axios 0.x with Axios 1.x directly would therefore affect interceptor and default configuration, request cancellation, TypeScript types, and test mocks across the extension ecosystem.
@@ -27,4 +31,4 @@ The facade also provides a stable boundary for future HTTP-library upgrades. Ver
 
 Maintaining two transports and transitional Axios compatibility adds temporary complexity. Code that directly depends on Axios-specific behavior must still migrate before the legacy transport and compatibility surface can be removed.
 
-See the [Axios migration guide](../src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md) for the supported migration path.
+See the [Axios migration guide](../../src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md) for the supported migration path.

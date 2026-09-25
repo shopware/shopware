@@ -99,7 +99,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(TaskRegistry::class),
         ])
-        ->tag('messenger.message_handler');
+        ->tag('messenger.message_handler')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(PluginLifecycleSubscriber::class)
         ->args([

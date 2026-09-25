@@ -2,6 +2,11 @@
 
 ## Core
 
+### Feature flags can remove legacy service definitions
+
+Extensions can tag a PHP service definition with `shopware.inactiveFeature` and a `flag` attribute, for example `v6.8.0.0`. The service remains registered while the flag is inactive and is absent from the rebuilt container once the flag is active. Use this for services that are removed with a major version; `shopware.feature` continues to register services only while their flag is active.
+
+Deprecated service aliases with an announced removal version are removed when that major flag becomes active. Their target services remain available.
 ### `JsonField` supports typed properties with additional extension data
 
 `JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:

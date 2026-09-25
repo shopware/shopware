@@ -86,13 +86,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(DocumentTypeNameSyncSubscriber::class)
         ->args([
             service(Connection::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(DocumentMetaProvider::class)
         ->args([

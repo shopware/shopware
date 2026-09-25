@@ -324,7 +324,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SearchKeywordReplacement::class . '.inner'),
             service(ElasticsearchHelper::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ProductSearchBuilder::class)
         ->decorate(ProductSearchBuilderInterface::class, null, -50000)
@@ -391,6 +392,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElasticsearchTokenizer::class),
         ]);
 
+    // @deprecated tag:v6.8.0 Will be removed
     $services->alias(
         'Shopware\Elasticsearch\Product\SearchConfigLoader',
         SearchConfigLoader::class,
@@ -799,7 +801,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AbstractKeyValueStorage::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(AdminElasticsearchEntitySearcher::class)
         ->decorate(EntitySearcherInterface::class, null, 500)

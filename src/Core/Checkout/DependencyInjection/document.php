@@ -67,10 +67,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.entity.hookable');
 
     $services->set(DocumentTypeDefinition::class)
-        ->tag('shopware.entity.definition');
+        ->tag('shopware.entity.definition')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(DocumentTypeTranslationDefinition::class)
-        ->tag('shopware.entity.definition');
+        ->tag('shopware.entity.definition')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(DocumentBaseConfigDefinition::class)
         ->tag('shopware.entity.definition');

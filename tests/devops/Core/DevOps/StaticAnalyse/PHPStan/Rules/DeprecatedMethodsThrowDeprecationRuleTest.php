@@ -63,6 +63,21 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         ]);
     }
 
+    #[RunInSeparateProcess]
+    public function testInactiveFeatureServicesStillNeedClassDeprecationTriggers(): void
+    {
+        $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/TaggedDeprecatedClass.php'], [
+            [
+                'Class "Shopware\\Core\\DevOps\\MyFakeNamespace\\TaggedDeprecatedClass" is marked as deprecated, but method "frameworkInvokedMethod" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
+                10,
+            ],
+            [
+                'Class "Shopware\\Core\\DevOps\\MyFakeNamespace\\TaggedDeprecatedClass" is marked as deprecated, but method "explicitlyDeprecatedMethod" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
+                17,
+            ],
+        ]);
+    }
+
     protected function getRule(): Rule
     {
         /** @phpstan-ignore phpstanApi.constructor */

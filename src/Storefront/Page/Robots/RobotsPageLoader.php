@@ -155,30 +155,52 @@ class RobotsPageLoader
     }
 
     /**
-     * Selects domains by hostname, preferring HTTPS over HTTP for the same hostname.
+     * Selects domains matching the given hostname exactly, preferring HTTPS over HTTP
+     * when the same host has both. Falls back to domains whose host merely contains
+     * the hostname when no domain matches exactly.
      *
      * @param non-empty-string $hostname
      *
-     * @return array<string, SalesChannelDomainEntity> Array keyed by domain hostname with selected domain entities
+     * @return array<string, SalesChannelDomainEntity> Array keyed by the domain's URL path
+     *                                                 (e.g. `/en`, `''` for the root) with
+     *                                                 selected domain entities
      */
     private function selectDomainsByHostname(SalesChannelDomainCollection $domains, string $hostname): array
     {
-        $selectedDomains = [];
         \assert($hostname !== '');
 
+        // HTTP_HOST may carry a port, which parse_url()'s PHP_URL_HOST never includes
+        $requestHost = strtolower(parse_url('http://' . $hostname, \PHP_URL_HOST) ?: $hostname);
+
+        $exactMatches = [];
+        $partialMatches = [];
+
         foreach ($domains as $domain) {
+            $domainHost = strtolower((string) parse_url($domain->getUrl(), \PHP_URL_HOST));
+
+            if ($domainHost === $requestHost) {
+                $exactMatches[] = $domain;
+            } elseif (str_contains($domainHost, $requestHost)) {
+                $partialMatches[] = $domain;
+            }
+        }
+
+        // `getDomains()` uses a substring filter, so a host like `www.example.com` shows up for
+        // `example.com` as well. Only use those when nothing matches exactly: crawlers always
+        // fetch robots.txt on the bare host (see FriendsOfShopware/FroshRobotsTxt#3).
+        $selectedDomains = [];
+
+        foreach ($exactMatches ?: $partialMatches as $domain) {
             $domainUrl = $domain->getUrl();
+            $domainPath = (string) (parse_url($domainUrl, \PHP_URL_PATH) ?? '');
 
-            $domainPath = explode($hostname, $domainUrl, 2);
-            $domainHostname = trim($domainPath[1] ?? '');
-
-            $existingDomain = $selectedDomains[$domainHostname] ?? null;
+            $existingDomain = $selectedDomains[$domainPath] ?? null;
             $isHttps = str_starts_with($domainUrl, 'https://');
 
             if ($existingDomain === null) {
-                $selectedDomains[$domainHostname] = $domain;
+                $selectedDomains[$domainPath] = $domain;
             } elseif ($isHttps && !str_starts_with($existingDomain->getUrl(), 'https://')) {
-                $selectedDomains[$domainHostname] = $domain;
+                $selectedDomains[$domainPath] = $domain;
             }
         }
 

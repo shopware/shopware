@@ -223,6 +223,7 @@ class CacheHeadersServiceTest extends TestCase
     public function testStorefrontNonDefaultLanguageDoesNotRequireCacheHash(): void
     {
         $request = new Request(attributes: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]]);
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, 'language-a');
 
         $event = $this->cacheHeadersService->applyCacheHash(
             $request,
@@ -293,6 +294,7 @@ class CacheHeadersServiceTest extends TestCase
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign([
             'currencyId' => Defaults::CURRENCY,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'countryId' => 'country-default',
             'paymentMethodId' => 'payment-default',
             'shippingMethodId' => 'shipping-default',
@@ -311,7 +313,7 @@ class CacheHeadersServiceTest extends TestCase
         static::assertEmpty($cookies);
 
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
-        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn('foo');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
 
@@ -324,7 +326,7 @@ class CacheHeadersServiceTest extends TestCase
         $firstHash = $cookies[0]->getValue();
 
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
-        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY]));
+        $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign(['currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM]));
         $salesChannelContextMock->method('getCurrencyId')->willReturn('bar');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContextMock);
 
@@ -437,6 +439,7 @@ class CacheHeadersServiceTest extends TestCase
         $salesChannelContextMock = static::createStub(SalesChannelContext::class);
         $salesChannelContextMock->method('getSalesChannel')->willReturn((new SalesChannelEntity())->assign([
             'currencyId' => Defaults::CURRENCY,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'countryId' => 'country-default',
             'paymentMethodId' => 'payment-default',
             'shippingMethodId' => 'shipping-default',

@@ -24,6 +24,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
@@ -85,6 +86,29 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->assertReviewCount(1);
 
         $this->assertReviewContent($expectedContent);
+    }
+
+    public function testCreateRejectsContentThatIsEmptyAfterSanitizing(): void
+    {
+        $this->login($this->browser);
+
+        $this->assertReviewCount(0);
+
+        $this->browser->request('POST', $this->getUrl(), [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => '<script>alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")</script>',
+        ]);
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $errors = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
+
+        static::assertSame(NotBlank::IS_BLANK_ERROR, $errors[0]['code']);
+        static::assertStringEndsWith('/content', $errors[0]['source']['pointer']);
+
+        $this->assertReviewCount(0);
     }
 
     public function testUpdate(): void
@@ -213,21 +237,17 @@ class ProductReviewSaveRouteTest extends TestCase
             '<a href="https://localhost">Lorem ipsum dolor sit amet, consetetur sadipscing elitr</a>',
             'Lorem ipsum dolor sit amet, consetetur sadipscing elitr',
         ];
-        yield 'script' => [
-            '<script>alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")</script>',
-            'alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")',
-        ];
         yield 'javascript' => [
             '<script>alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
         yield 'javascript with attributes' => [
             '<script type="text/javascript">alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
         yield 'javascript with attributes and spaces' => [
             '<script type = "text/javascript">alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
     }
 

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -30,8 +30,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('rules')]
 class LineItemInProductStreamRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemInProductStreamRule $rule;
 
     protected function setUp(): void
@@ -111,7 +109,7 @@ class LineItemInProductStreamRuleTest extends TestCase
             $this->createLineItemWithProductStreams($lineItemCategoryIds),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -141,8 +139,8 @@ class LineItemInProductStreamRuleTest extends TestCase
             $this->createLineItemWithProductStreams(['1']),
             $this->createLineItemWithProductStreams($lineItemCategoryIds),
         ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection)->setPayloadValue('streamIds', ['1']);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection)->setPayloadValue('streamIds', ['1']);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -209,12 +207,12 @@ class LineItemInProductStreamRuleTest extends TestCase
     {
         $rule = new LineItemInProductStreamRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -235,6 +233,6 @@ class LineItemInProductStreamRuleTest extends TestCase
      */
     private function createLineItemWithProductStreams(array $streamIds): LineItem
     {
-        return $this->createLineItem()->setPayloadValue('streamIds', $streamIds);
+        return CartRuleFixture::createLineItem()->setPayloadValue('streamIds', $streamIds);
     }
 }

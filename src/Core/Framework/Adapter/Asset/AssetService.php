@@ -121,9 +121,9 @@ class AssetService
      * @throws FilesystemException
      * @throws UnableToDeleteDirectory
      */
-    public function removeAssetsOfBundle(string $bundleName): void
+    public function removeAssetsOfBundle(string $bundleName, bool $deleteFiles = true): void
     {
-        $this->removeAssets($bundleName);
+        $this->removeAssets($bundleName, $deleteFiles);
 
         $bundle = null;
         try {
@@ -134,7 +134,7 @@ class AssetService
 
         if ($bundle instanceof Plugin) {
             foreach ($this->getAdditionalBundles($bundle) as $additionalBundle) {
-                $this->removeAssets($additionalBundle->getName());
+                $this->removeAssets($additionalBundle->getName(), $deleteFiles);
             }
         }
     }
@@ -144,11 +144,11 @@ class AssetService
      * @throws FilesystemException
      * @throws UnableToDeleteDirectory
      */
-    public function removeAssets(string $name): void
+    public function removeAssets(string $name, bool $deleteFiles = true): void
     {
-        $targetDirectory = $this->getTargetDirectory($name);
-
-        $this->assetFilesystem->deleteDirectory($targetDirectory);
+        if ($deleteFiles) {
+            $this->assetFilesystem->deleteDirectory($this->getTargetDirectory($name));
+        }
 
         $manifest = $this->getManifest();
 
@@ -182,16 +182,23 @@ class AssetService
 
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 
-        if ($manifest === [] || !isset($manifest[$bundleOrAppName])) {
-            // if there is no manifest file or no entry for the current bundle, we need to remove all assets and start fresh
-            $this->assetFilesystem->deleteDirectory($targetDirectory);
+        $remoteBundleManifest = $manifest[$bundleOrAppName] ?? null;
+
+        if ($remoteBundleManifest === null) {
+            // Delayed directory deletes can remove files uploaded under the same keys afterwards.
+            // Unknown hashes force an overwrite while sync() deletes only obsolete files.
+            $remoteBundleManifest = [];
+            foreach ($this->assetFilesystem->listContents($targetDirectory, true) as $item) {
+                if ($item->isFile()) {
+                    $remoteBundleManifest[substr($item->path(), \strlen($targetDirectory) + 1)] = '';
+                }
+            }
         }
 
         if (!$this->assetFilesystem->directoryExists($targetDirectory)) {
             $this->assetFilesystem->createDirectory($targetDirectory);
         }
 
-        $remoteBundleManifest = $manifest[$bundleOrAppName] ?? [];
         $localBundleManifest = $this->buildBundleManifest(
             $this->getBundleFiles($originDirectory)
         );

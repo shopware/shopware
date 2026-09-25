@@ -2,6 +2,12 @@
 
 ## Core
 
+### Asset installation on S3-compatible storage
+
+Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.
+
+Deactivating a plugin now removes its asset manifest entry but retains its public files until uninstall. This avoids a pending directory deletion removing files uploaded after reactivation. Uninstall still removes the plugin's public files.
+
 ### Dompdf page count placeholder replaced for core and fallback fonts
 
 In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.

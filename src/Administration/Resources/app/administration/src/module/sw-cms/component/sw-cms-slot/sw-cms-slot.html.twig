@@ -74,7 +74,7 @@
                 role="button"
                 tabindex="0"
                 @click="onSettingsButtonClick"
-                @keydown.enter="onSelectElement(element.name)"
+                @keydown.enter="onSettingsButtonClick"
             >
                 <mt-icon
                     name="regular-cog"
@@ -90,7 +90,7 @@
                 role="button"
                 tabindex="0"
                 @click="onElementButtonClick"
-                @keydown.enter="onSelectElement(element.name)"
+                @keydown.enter="onElementButtonClick"
             >
                 <mt-icon
                     name="regular-repeat"

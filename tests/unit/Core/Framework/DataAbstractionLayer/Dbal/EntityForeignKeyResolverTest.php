@@ -20,6 +20,15 @@ use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefin
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -161,6 +170,50 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertStringNotContainsString('as _fileExtension', $queries);
     }
 
+    #[TestDox('A cascade delete that cycles back into an already resolved entity stops instead of recursing forever')]
+    public function testCascadeCycleBetweenTwoEntitiesTerminates(): void
+    {
+        $parentId = Uuid::randomHex();
+        $childId = Uuid::randomHex();
+
+        $queries = 0;
+
+        $this->connection->method('getDatabasePlatform')->willReturn(new MariaDBPlatform());
+        $this->connection->method('executeQuery')->willReturnCallback(
+            function (string $query) use ($parentId, $childId, &$queries): Result {
+                if (++$queries > 10) {
+                    static::fail('The cascade resolution did not terminate, it is walking the cycle endlessly.');
+                }
+
+                $result = static::createStub(Result::class);
+                $result->method('fetchAllAssociative')->willReturn(
+                    str_contains($query, '`cascade_parent.children`')
+                        ? [['id' => $childId]]
+                        : [['id' => $parentId]]
+                );
+
+                return $result;
+            }
+        );
+
+        $parentDefinition = new CascadeCycleParentDefinition();
+
+        new StaticDefinitionInstanceRegistry(
+            [$parentDefinition, new CascadeCycleChildDefinition()],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+
+        $affected = $this->resolver->getAffectedDeletes(
+            $parentDefinition,
+            [['id' => $parentId]],
+            Context::createDefaultContext()
+        );
+
+        // the child cascades away with its parent, the parent must not be cascaded away by its own child
+        static::assertSame(['cascade_child' => [$childId]], $affected);
+    }
+
     private function buildRegistry(): MediaDefinition
     {
         $rootDef = new MediaDefinition();
@@ -181,5 +234,44 @@ class EntityForeignKeyResolverTest extends TestCase
         );
 
         return $rootDef;
+    }
+}
+
+/**
+ * @internal
+ */
+class CascadeCycleParentDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'cascade_parent';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new OneToManyAssociationField('children', CascadeCycleChildDefinition::class, 'parent_id'))->addFlags(new CascadeDelete()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CascadeCycleChildDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'cascade_child';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('parent_id', 'parentId', CascadeCycleParentDefinition::class),
+            (new ManyToOneAssociationField('parent', 'parent_id', CascadeCycleParentDefinition::class, 'id'))->addFlags(new CascadeDelete()),
+        ]);
     }
 }

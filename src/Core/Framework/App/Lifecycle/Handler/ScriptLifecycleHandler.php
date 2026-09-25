@@ -89,14 +89,26 @@ class ScriptLifecycleHandler extends AbstractLifecycleHandler
 
         $appIds = $this->appRepository->searchIds($criteria, $context)->getIds();
 
-        foreach ($appIds as $appId) {
-            $this->updateScripts($appId, $context);
+        if ($appIds === []) {
+            return;
+        }
+
+        // the scripts of every app are loaded together instead of one app per iteration
+        $criteria = new Criteria($appIds);
+        $criteria->addAssociation('scripts');
+
+        foreach ($this->appRepository->search($criteria, $context)->getEntities() as $app) {
+            $this->updateScriptsOfApp($app, $context);
         }
     }
 
     private function updateScripts(string $appId, Context $context): void
     {
-        $app = $this->getAppWithExistingScripts($appId, $context);
+        $this->updateScriptsOfApp($this->getAppWithExistingScripts($appId, $context), $context);
+    }
+
+    private function updateScriptsOfApp(AppEntity $app, Context $context): void
+    {
         $existingScripts = $app->getScripts();
         \assert($existingScripts !== null);
 
@@ -118,7 +130,7 @@ class ScriptLifecycleHandler extends AbstractLifecycleHandler
                 }
                 $payload['id'] = $existing->getId();
             } else {
-                $payload['appId'] = $appId;
+                $payload['appId'] = $app->getId();
                 $payload['active'] = $app->isActive();
                 $payload['name'] = $scriptPath;
                 $payload['hook'] = explode('/', $scriptPath)[0];

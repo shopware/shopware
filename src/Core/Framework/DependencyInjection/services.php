@@ -666,16 +666,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(CompatTwigExtension::class)
-        ->args([
-            [
-                'v6.8.0.0' => [
-                    'category_url',
-                    'category_linknewtab',
-                    'sw_breadcrumb_full',
-                    'sw_breadcrumb_full_by_id',
-                ],
-            ],
-        ])
         ->tag('twig.extension');
 
     $services->set(SecurityExtension::class)

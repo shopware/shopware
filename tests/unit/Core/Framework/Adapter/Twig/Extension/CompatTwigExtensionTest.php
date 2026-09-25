@@ -18,21 +18,22 @@ use Twig\Loader\ArrayLoader;
 #[CoversClass(CompatTwigExtension::class)]
 class CompatTwigExtensionTest extends TestCase
 {
-    #[DisabledFeatures(['v6.9.0.0'])]
-    public function testRegistersOnlyFunctionsForActiveFeatures(): void
+    public function testRegistersFunctionsForActiveMajorFlag(): void
     {
-        $extension = new CompatTwigExtension([
-            'v6.8.0.0' => ['sw_breadcrumb_full'],
-            'v6.9.0.0' => ['future_function'],
-        ]);
+        $extension = new CompatTwigExtension();
 
-        static::assertSame(['sw_breadcrumb_full'], array_map(static fn ($function) => $function->getName(), $extension->getFunctions()));
+        static::assertSame([
+            'category_url',
+            'category_linknewtab',
+            'sw_breadcrumb_full',
+            'sw_breadcrumb_full_by_id',
+        ], array_map(static fn ($function) => $function->getName(), $extension->getFunctions()));
     }
 
-    #[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]
-    public function testRegistersNoFunctionsForInactiveFeatures(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRegistersNoFunctionsForInactiveMajorFlag(): void
     {
-        $extension = new CompatTwigExtension(['v6.8.0.0' => ['sw_breadcrumb_full']]);
+        $extension = new CompatTwigExtension();
 
         static::assertSame([], $extension->getFunctions());
     }
@@ -42,7 +43,7 @@ class CompatTwigExtensionTest extends TestCase
         $twig = new Environment(new ArrayLoader([
             'template' => '{% if false %}{{ sw_breadcrumb_full(null, null) }}{% endif %}ok',
         ]));
-        $twig->addExtension(new CompatTwigExtension(['v6.8.0.0' => ['sw_breadcrumb_full']]));
+        $twig->addExtension(new CompatTwigExtension());
 
         static::assertSame('ok', $twig->render('template'));
     }
@@ -52,12 +53,12 @@ class CompatTwigExtensionTest extends TestCase
      */
     public function testRemovedFunctionThrowsWhenCalled(): void
     {
-        $extension = new CompatTwigExtension(['v6.8.0.0' => ['sw_breadcrumb_full']]);
+        $extension = new CompatTwigExtension();
         $function = $extension->getFunctions()[0];
         $callback = $function->getCallable();
         static::assertIsCallable($callback);
 
-        static::expectExceptionObject(AdapterException::invalidArgument('Twig function "sw_breadcrumb_full" was removed with feature "v6.8.0.0".'));
+        static::expectExceptionObject(AdapterException::invalidArgument('Twig function "category_url" was removed with feature "v6.8.0.0".'));
 
         $callback();
     }

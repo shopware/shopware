@@ -9,17 +9,28 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
+ * Twig parses calls in inactive template branches before evaluating feature flags.
+ * Keep removed function names registered in major mode so those templates compile.
+ *
+ * This currently covers functions only. Removing extensions that provide filters,
+ * tests, operators, or token parsers may require matching compatibility definitions.
+ *
  * @internal
  */
 #[Package('framework')]
 class CompatTwigExtension extends AbstractExtension
 {
     /**
-     * @param array<string, list<string>> $functionsByFeature
+     * @var array<string, list<string>>
      */
-    public function __construct(private readonly array $functionsByFeature)
-    {
-    }
+    private const FUNCTIONS_BY_FEATURE = [
+        'v6.8.0.0' => [
+            'category_url',
+            'category_linknewtab',
+            'sw_breadcrumb_full',
+            'sw_breadcrumb_full_by_id',
+        ],
+    ];
 
     /**
      * @return list<TwigFunction>
@@ -28,7 +39,7 @@ class CompatTwigExtension extends AbstractExtension
     {
         $functions = [];
 
-        foreach ($this->functionsByFeature as $flag => $names) {
+        foreach (self::FUNCTIONS_BY_FEATURE as $flag => $names) {
             if (!Feature::isActive($flag)) {
                 continue;
             }

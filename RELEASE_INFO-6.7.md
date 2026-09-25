@@ -132,6 +132,10 @@ The order is the `parentOrder` computed of `sw-users-permissions-permissions-gri
 
 ## Storefront
 
+### Display the complete legal guarantee notice at checkout
+
+Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.
+
 ### Checkout form data is kept in the session storage
 
 The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.

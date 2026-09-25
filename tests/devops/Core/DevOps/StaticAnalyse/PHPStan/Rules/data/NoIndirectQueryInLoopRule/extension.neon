@@ -1,0 +1,11 @@
+services:
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\LoopContextVisitor
+        tags:
+            - phpstan.parser.richParserNodeVisitor
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\QueryCallDetector
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\QueryInLoopCollector
+        tags:
+            - phpstan.collector

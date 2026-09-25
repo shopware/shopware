@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -111,7 +112,7 @@ class FlowDispatcherTest extends TestCase
         $flowFactory = $this->createMock(FlowFactory::class);
         $this->container->set(FlowFactory::class, $flowFactory);
 
-        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
             $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
             $flowFactory->expects($this->once())
                 ->method('createBuffered')
@@ -139,6 +140,28 @@ class FlowDispatcherTest extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Remove with the FLOW_EXECUTION_AFTER_BUSINESS_PROCESS flag
+     */
+    #[DisabledFeatures(['FLOW_EXECUTION_AFTER_BUSINESS_PROCESS'])]
+    public function testExplicitFlowOptOutUsesImmediateExecutionWithMajorActive(): void
+    {
+        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
+        $this->dispatcher->method('dispatch')->willReturn($event);
+
+        $flow = new StorableFlow($event->getName(), $event->getContext(), [], []);
+        $flowFactory = $this->createMock(FlowFactory::class);
+        $flowFactory->expects($this->once())->method('create')->willReturn($flow);
+        $flowFactory->expects($this->never())->method('createBuffered');
+        $this->container->set(FlowFactory::class, $flowFactory);
+
+        $flowLoader = static::createStub(FlowLoader::class);
+        $flowLoader->method('load')->willReturn([]);
+        $this->container->set(FlowLoader::class, $flowLoader);
+
+        $this->flowDispatcher->dispatch($event);
+    }
+
+    /**
      * @param array<string, mixed> $flows
      */
     #[DataProvider('flowsData')]
@@ -154,7 +177,7 @@ class FlowDispatcherTest extends TestCase
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
         $flowDispatcher = new FlowDispatcher($dispatcher, $this->container);
 
-        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
             $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
             $flowFactory = $this->createMock(FlowFactory::class);
             $flowFactory->expects($this->once())

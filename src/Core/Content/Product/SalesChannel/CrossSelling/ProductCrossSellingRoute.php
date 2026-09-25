@@ -106,7 +106,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $tags = [self::buildName($productId)];
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $tags = array_merge($tags, $this->getCrossSellingTags($elements));
         }
 

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\Flow\Dispatching\BufferedFlowQueue;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -35,7 +36,7 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
 
     public function testRegistersBufferedFlowExecutionTriggers(): void
     {
-        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
             static::assertSame(
                 [
                     'kernel.terminate' => 'triggerBufferedFlowExecution',
@@ -47,6 +48,15 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
         } else {
             static::assertEmpty($this->bufferedFlowExecutionTriggersListener::getSubscribedEvents());
         }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the FLOW_EXECUTION_AFTER_BUSINESS_PROCESS flag
+     */
+    #[DisabledFeatures(['FLOW_EXECUTION_AFTER_BUSINESS_PROCESS'])]
+    public function testExplicitFlowOptOutWinsWithMajorActive(): void
+    {
+        static::assertSame([], BufferedFlowExecutionTriggersListener::getSubscribedEvents());
     }
 
     public function testDoesNotLoadServicesIfNoFlowsAreQueued(): void

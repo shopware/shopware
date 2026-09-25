@@ -71,6 +71,10 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
 
+### Duplicate document number errors name the document type
+
+When a document cannot be generated because its number is already taken, the error now names the document type, for example `Document number 1000 has already been allocated for document type "invoice".`, and carries `number` and `documentType` as parameters. The order document card in the Administration names the document type as well. `DocumentException::documentNumberAlreadyExistsException()` is deprecated for v6.8.0, use `DocumentException::documentNumberAlreadyExistsExceptionForType()` instead.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
@@ -87,6 +91,12 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `OrderLineItem.payload` can be an empty array; its `options` are `{ group, option }` pairs, its dates use the storage format `Y-m-d H:i:s.v`, and its ID lists can be `null`. `PropertyGroupOption` no longer declares `option` or requires `group`.
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
+
+### Check a number range pattern for collisions
+
+The new route `GET /api/_action/number-range/pattern-collisions?typeId=…&pattern=…&numberRangeId=…` returns the other number ranges of the same document type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`. Such ranges, for example two `document_invoice` ranges assigned to different sales channels, generate the same document numbers and document generation fails once they meet. `numberRangeId` is optional and excludes the number range being edited. Non-document number range types never collide and return an empty list. The route requires the `number_range:read` privilege.
+
+The number range detail and create pages in the Administration use it to show a warning while a colliding pattern is configured. Saving is not blocked.
 
 ## Administration
 

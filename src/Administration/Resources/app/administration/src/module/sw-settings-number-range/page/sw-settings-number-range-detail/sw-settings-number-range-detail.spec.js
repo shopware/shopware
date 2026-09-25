@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(patternCollisions = () => Promise.resolve({ collisions: [] })) {
     return mount(
         await wrapTestComponent('sw-settings-number-range-detail', {
             sync: true,
@@ -22,6 +22,7 @@ async function createWrapper() {
                     numberRangeService: {
                         previewPattern: () => Promise.resolve({ number: 1337 }),
                         previewPatternByNumberRangeId: () => Promise.resolve({ number: 1337 }),
+                        patternCollisions,
                     },
                     repositoryFactory: {
                         create: () => ({
@@ -66,6 +67,9 @@ async function createWrapper() {
                     },
                     'mt-card': {
                         template: '<div class="mt-card"><slot /></div>',
+                    },
+                    'mt-banner': {
+                        template: '<div class="mt-banner"><slot /></div>',
                     },
                     'mt-number-field': true,
                     'sw-text-field': {
@@ -243,5 +247,136 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
         const numberRangeType = wrapper.findComponent('#numberRangeTypes');
         expect(numberRangeType.props('disabled')).toBe(true);
+    });
+
+    it('should warn when the pattern is already used by another number range of the same document type', async () => {
+        const wrapper = await createWrapper(() =>
+            Promise.resolve({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] }),
+        );
+        await flushPromises();
+
+        await wrapper.setData({
+            isLoading: false,
+            numberRange: {
+                id: 'id',
+                typeId: 'type-id',
+                pattern: 'INV{n}',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.collidingNumberRangeNames).toEqual(['Invoices (Shop B)']);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(true);
+    });
+
+    it('should not warn when no other number range uses the pattern', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            isLoading: false,
+            numberRange: {
+                id: 'id',
+                typeId: 'type-id',
+                pattern: 'INV{n}',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
+    });
+
+    it('should ask the pattern collisions route with the type, the pattern and its own id', async () => {
+        const patternCollisions = jest.fn(() => Promise.resolve({ collisions: [] }));
+        const wrapper = await createWrapper(patternCollisions);
+        await flushPromises();
+
+        patternCollisions.mockClear();
+
+        await wrapper.setData({
+            isLoading: false,
+            numberRange: {
+                id: 'id',
+                typeId: 'type-id',
+                pattern: 'INV{n}',
+            },
+        });
+        await flushPromises();
+
+        expect(patternCollisions).toHaveBeenCalledTimes(1);
+        expect(patternCollisions).toHaveBeenCalledWith('type-id', 'INV{n}', 'id');
+    });
+
+    it('should drop the collision warning when the pattern no longer collides', async () => {
+        const patternCollisions = jest
+            .fn()
+            .mockResolvedValueOnce({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] })
+            .mockResolvedValue({ collisions: [] });
+
+        const wrapper = await createWrapper(patternCollisions);
+        await flushPromises();
+
+        await wrapper.setData({
+            isLoading: false,
+            numberRange: {
+                id: 'id',
+                typeId: 'type-id',
+                pattern: 'INV{n}',
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(true);
+
+        await wrapper.setData({ numberRange: { id: 'id', typeId: 'type-id', pattern: 'INV-B-{n}' } });
+        await flushPromises();
+
+        expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
+    });
+
+    it('should ignore a collision response for a pattern that has been edited since', async () => {
+        let resolveStale;
+        const patternCollisions = jest
+            .fn()
+            .mockReturnValueOnce(
+                new Promise((resolve) => {
+                    resolveStale = resolve;
+                }),
+            )
+            .mockResolvedValue({ collisions: [] });
+
+        const wrapper = await createWrapper(patternCollisions);
+        await flushPromises();
+
+        await wrapper.setData({ isLoading: false, numberRange: { id: 'id', typeId: 'type-id', pattern: 'INV{n}' } });
+        await flushPromises();
+        await wrapper.setData({ numberRange: { id: 'id', typeId: 'type-id', pattern: 'INV-B-{n}' } });
+        await flushPromises();
+
+        expect(patternCollisions).toHaveBeenCalledTimes(2);
+
+        resolveStale({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] });
+        await flushPromises();
+
+        expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
+    });
+
+    it('should not look for collisions while the type or the pattern is still unset', async () => {
+        const patternCollisions = jest.fn(() => Promise.resolve({ collisions: [] }));
+        const wrapper = await createWrapper(patternCollisions);
+        await flushPromises();
+
+        patternCollisions.mockClear();
+
+        await wrapper.setData({
+            isLoading: false,
+            numberRange: { id: 'id', typeId: 'type-id', pattern: '' },
+        });
+        await flushPromises();
+
+        expect(patternCollisions).not.toHaveBeenCalled();
+        expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
     });
 });

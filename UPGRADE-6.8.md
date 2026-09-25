@@ -1266,6 +1266,18 @@ If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueG
 
 The method must raise the stored increment state to at least the given value without lowering an existing higher state.
 
+## Removed `DocumentException::documentNumberAlreadyExistsException()`
+
+`Shopware\Core\Checkout\Document\DocumentException::documentNumberAlreadyExistsException()` was removed. Use `documentNumberAlreadyExistsExceptionForType()`, which also names the document type:
+
+```php
+// Before
+throw DocumentException::documentNumberAlreadyExistsException($number);
+
+// After
+throw DocumentException::documentNumberAlreadyExistsExceptionForType($number, $documentType);
+```
+
 
 # Administration
 

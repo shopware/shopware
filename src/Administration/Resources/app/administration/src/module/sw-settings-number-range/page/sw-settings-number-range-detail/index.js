@@ -43,6 +43,7 @@ export default {
             isLoading: false,
             isSaveSuccessful: false,
             customFieldSets: null,
+            collidingNumberRangeNames: [],
         };
     },
 
@@ -173,6 +174,18 @@ export default {
             return !!this.numberRange.id && this.numberRange.isLoading !== true;
         },
 
+        hasPatternCollision() {
+            return this.collidingNumberRangeNames.length > 0;
+        },
+
+        patternCollisionParameters() {
+            return {
+                typeId: this.numberRange.typeId,
+                pattern: this.numberRange.pattern,
+                numberRangeId: this.numberRange.id,
+            };
+        },
+
         ...mapPropertyErrors('numberRange', ['name', 'typeId']),
 
         stateInput: {
@@ -202,6 +215,9 @@ export default {
         },
         'numberRange.start'() {
             this.getPreview();
+        },
+        patternCollisionParameters() {
+            this.checkPatternCollision();
         },
     },
 
@@ -270,6 +286,26 @@ export default {
                 .previewPatternByNumberRangeId(this.numberRange.id, this.numberRange.pattern, this.numberRange.start)
                 .then((response) => {
                     this.preview = response.number;
+                });
+        },
+
+        checkPatternCollision() {
+            this.collidingNumberRangeNames = [];
+
+            const parameters = this.patternCollisionParameters;
+            if (!parameters.typeId || !parameters.pattern) {
+                return Promise.resolve();
+            }
+
+            return this.numberRangeService
+                .patternCollisions(parameters.typeId, parameters.pattern, parameters.numberRangeId)
+                .then(({ collisions }) => {
+                    // a response for a pattern that has been edited since must not overwrite the current state
+                    if (parameters !== this.patternCollisionParameters) {
+                        return;
+                    }
+
+                    this.collidingNumberRangeNames = collisions.map((collision) => collision.name);
                 });
         },
 

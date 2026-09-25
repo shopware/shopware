@@ -71,16 +71,16 @@ class LineItemActualStockRule extends Rule
      */
     private function matchStock(LineItem $lineItem): bool
     {
+        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
+            return false;
+        }
+
         if ($this->stock === null) {
             if (!Feature::isActive('v6.8.0.0')) {
                 // @phpstan-ignore-next-line
                 throw new UnsupportedValueException(\gettype($this->stock), self::class);
             }
             throw CartException::unsupportedValue(\gettype($this->stock), self::class);
-        }
-
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
         }
 
         $actualStock = $lineItem->getPayloadValue('stock');

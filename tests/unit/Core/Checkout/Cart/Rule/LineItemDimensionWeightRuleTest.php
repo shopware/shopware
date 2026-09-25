@@ -469,15 +469,15 @@ class LineItemDimensionWeightRuleTest extends TestCase
         static::assertSame($expected, $rule->match($scope));
     }
 
-    /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
+    #[DataProvider('nonProductLineItemTypeProvider')]
+    public function testNonProductLineItemWithWeightMatchesEqualRule(string $type): void
     {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+        $rule = new LineItemDimensionWeightRule(Rule::OPERATOR_EQ, 5.0);
+
+        $lineItem = self::createLineItem($type)->setDeliveryInformation($this->createLineItemWithWeight(5.0)->getDeliveryInformation());
+        $scope = new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), static::createStub(SalesChannelContext::class));
+
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithWeight(?float $weight): LineItem

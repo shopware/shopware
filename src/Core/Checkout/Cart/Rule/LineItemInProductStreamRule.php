@@ -80,7 +80,7 @@ class LineItemInProductStreamRule extends Rule
      */
     private function matchesOneOfProductStream(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
             return false;
         }
 

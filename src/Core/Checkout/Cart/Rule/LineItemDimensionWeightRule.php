@@ -76,7 +76,7 @@ class LineItemDimensionWeightRule extends Rule
      */
     private function matchWeightDimension(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
             return false;
         }
 

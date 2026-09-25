@@ -84,7 +84,7 @@ class LineItemCreationDateRule extends Rule
      */
     private function matchesCreationDate(LineItem $lineItem, string|array $ruleValue): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
             return false;
         }
 

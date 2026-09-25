@@ -1,5 +1,22 @@
 # 6.7.16.0 (upcoming)
 
+## Critical Fixes
+
+### Line item conditions evaluate custom, credit and extension line items again
+
+These line item conditions again evaluate custom and credit line items added in the Administration and goods line items that extensions add to the cart, including any product data those line items carry, such as a manufacturer, a weight or a list price:
+
+* Item in stock, Item marked as "new", Item is promoted, Item with clearance sale
+* Item in category, Item in dynamic product group, Item with manufacturer, Item with tag, Item with tax rate
+* Item with creation date, Item with release date, Item with custom field
+* Item with height, Item with length, Item with volume, Item with weight, Item with width
+* Item with list price, Item with price/list price ratio, Item with purchase price
+* Item with property value, Item with variant value, Item with variant or property value
+
+Line items of the types `container`, `customized-products-option` and `option-values` stay excluded from these conditions.
+
+With the match mode "All", a negated condition such as "Item with tag / All / Are none of" no longer hides shipping methods or blocks promotions for carts with custom line items. With the match mode "At least one", a negated condition such as "Item with tag / At least one / Is none of" matches again for any cart that contains a custom or credit line item, or an extension line item without the data the condition reads.
+
 ## Core
 
 ### Dompdf page count placeholder replaced for core and fallback fonts

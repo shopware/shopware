@@ -157,7 +157,7 @@
     } %}
 
     {% if page.product.translated.description %}
-        {% set productData = productData|merge({description: page.product.translated.description|striptags}) %}
+        {% set productData = productData|merge({description: page.product.translated.description|sw_plain_text}) %}
     {% endif %}
 
     {% if imageUrls|length > 0 %}

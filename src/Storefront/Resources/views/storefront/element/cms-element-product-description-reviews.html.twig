@@ -35,14 +35,15 @@
                                                     {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
                                                 </span>
                                                 {% if product.translated.description|length > 0 %}
+                                                    {% set previewText = product.translated.description|sw_plain_text %}
                                                     <span class="product-detail-tab-preview">
-                                                        {{ product.translated.description|striptags|u.truncate(125, '…')|raw }}
+                                                        {{ previewText|u.truncate(125, '…')|raw }}
 
                                                         {# truncate always cuts down the length to 125 characters.
                                                                So it will only shorten the string if it exceeds 125 chars.
                                                                Therefor, only show the button when the length of the text is
                                                                greater or equal then 126 characters. #}
-                                                        {% if product.translated.description|length >= 126 %}
+                                                        {% if previewText|length >= 126 %}
                                                             <span class="product-detail-tab-preview-more">{{ "detail.tabsPreviewMore"|trans|sw_sanitize }}</span>
                                                         {% endif %}
                                                         </span>

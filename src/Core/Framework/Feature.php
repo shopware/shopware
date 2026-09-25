@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
- * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: bool|string, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
+ * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: string, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
  */
 #[Package('framework')]
 #[BecomesFinal(version: 'v6.8.0')]
@@ -171,7 +171,7 @@ class Feature
             return true;
         }
 
-        $major = self::$registeredFeatures[$feature]['major'] ?? false;
+        $major = self::$registeredFeatures[$feature]['major'] ?? null;
         if (\is_string($major)
             && self::isMajorVersionFlag($major)
             && isset(self::$registeredFeatures[self::normalizeName($major)])
@@ -404,7 +404,6 @@ class Feature
         );
 
         // set defaults
-        $metaData['major'] ??= false;
         $metaData['default'] = (bool) ($metaData['default'] ?? false);
         $metaData['description'] = (string) ($metaData['description'] ?? '');
 

@@ -661,7 +661,7 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
-                        ->scalarNode('major')->defaultValue(false)->end()
+                        ->stringNode('major')->cannotBeEmpty()->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()

@@ -182,7 +182,6 @@ class FeatureTest extends TestCase
     {
         $features = [
             'FEATURE_NEXT_101' => [
-                'major' => true,
                 'default' => true,
                 'description' => 'test',
             ],
@@ -294,43 +293,6 @@ class FeatureTest extends TestCase
             ],
             'FEATURE_NEXT_101',
             true,
-        ];
-
-        yield 'registered major active feature' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_NEXT_101' => '1',
-            ],
-            'FEATURE_NEXT_101',
-            true,
-        ];
-
-        yield 'registered major inactive feature' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_NEXT_101' => '',
-            ],
-            'FEATURE_NEXT_101',
-            false,
-        ];
-
-        yield 'registered major inactive feature without env' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [],
-            'FEATURE_NEXT_101',
-            false,
         ];
 
         yield 'registered active feature with default false' => [
@@ -472,19 +434,6 @@ class FeatureTest extends TestCase
             true,
         ];
 
-        yield 'registered major active with FEATURE_ALL=1' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => '1',
-            ],
-            'FEATURE_NEXT_101',
-            true,
-        ];
-
         yield 'registered active minor with FEATURE_ALL=major' => [
             [
                 'FEATURE_NEXT_101',
@@ -509,19 +458,6 @@ class FeatureTest extends TestCase
             false,
         ];
 
-        yield 'registered major active with FEATURE_ALL=major' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'major',
-            ],
-            'FEATURE_NEXT_101',
-            true,
-        ];
-
         yield 'unregistered inactive only with major FEATURE_ALL env' => [
             [
                 'FEATURE_NEXT_102',
@@ -544,25 +480,10 @@ class FeatureTest extends TestCase
             true,
         ];
 
-        yield 'registered major active with FEATURE_ALL=minor' => [
-            [
-                'FEATURE_NEXT_101' => [
-                    'major' => true,
-                ],
-            ],
-            [
-                'FEATURE_ALL' => 'minor',
-            ],
-            'FEATURE_NEXT_101',
-            true,
-        ];
-
         // A version-shaped FEATURE_ALL value is now just another truthy value.
         yield 'version-shaped FEATURE_ALL enables a later major' => [
             [
-                'v9.2.0.0' => [
-                    'major' => true,
-                ],
+                'v9.2.0.0' => [],
             ],
             [
                 'FEATURE_ALL' => 'v9.1.0.0',
@@ -584,9 +505,7 @@ class FeatureTest extends TestCase
 
         yield 'explicit setting overrides version-shaped FEATURE_ALL' => [
             [
-                'v9.2.0.0' => [
-                    'major' => true,
-                ],
+                'v9.2.0.0' => [],
             ],
             [
                 'V9_2_0_0' => 'false',
@@ -622,16 +541,6 @@ class FeatureTest extends TestCase
             [
                 'FEATURE_NEXT_101' => ['major' => 'FEATURE_NEXT_102'],
                 'FEATURE_NEXT_102' => ['default' => true],
-            ],
-            [],
-            'FEATURE_NEXT_101',
-            false,
-        ];
-
-        yield 'an unversioned major marker cannot activate a sub-feature' => [
-            [
-                'FEATURE_NEXT_101' => ['major' => 'FEATURE_NEXT_102'],
-                'FEATURE_NEXT_102' => ['major' => true, 'default' => true],
             ],
             [],
             'FEATURE_NEXT_101',

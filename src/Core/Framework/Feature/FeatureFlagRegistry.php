@@ -51,13 +51,17 @@ class FeatureFlagRegistry
             }
 
             // Version flags are never persisted. Keep filtering old unversioned `major: true`
-            // entries, but let static metadata override a stale stored marker for sub-features.
+            // entries unless a current static flag supersedes their stale metadata.
             $stored = array_filter($stored, static function (array $flag, string $name) use ($static): bool {
                 return !Feature::isMajorVersionFlag($name)
-                    && ($static[$name]['major'] ?? $flag['major'] ?? false) !== true;
+                    && (isset($static[$name]) || ($flag['major'] ?? null) !== true);
             }, \ARRAY_FILTER_USE_BOTH);
 
             foreach ($stored as $name => $flag) {
+                if (!\is_string($flag['major'] ?? null)) {
+                    unset($stored[$name]['major']);
+                }
+
                 if (!isset($static[$name])) {
                     continue;
                 }

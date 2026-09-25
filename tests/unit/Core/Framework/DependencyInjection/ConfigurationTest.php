@@ -12,6 +12,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\StringNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
@@ -62,8 +63,31 @@ class ConfigurationTest extends TestCase
             ],
         ]]);
 
-        static::assertFalse($config['feature']['flags']['v6.8.0.0']['major']);
+        static::assertArrayNotHasKey('major', $config['feature']['flags']['v6.8.0.0']);
         static::assertSame('v6.8.0.0', $config['feature']['flags']['JSON_LD_DATA']['major']);
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function invalidMajorDataProvider(): iterable
+    {
+        yield 'true is not a parent version' => [true];
+        yield 'false is not a parent version' => [false];
+    }
+
+    #[DataProvider('invalidMajorDataProvider')]
+    public function testFeatureRejectsBooleanMajor(bool $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'FEATURE_NEXT_123', 'major' => $major],
+                ],
+            ],
+        ]]);
     }
 
     public function testCdnPathCacheBusterDefaultsToTrue(): void
@@ -254,7 +278,7 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('major', $nodes);
         $node = $nodes['major'];
-        static::assertInstanceOf(ScalarNodeDefinition::class, $node);
+        static::assertInstanceOf(StringNodeDefinition::class, $node);
 
         static::assertArrayHasKey('toggleable', $nodes);
         $node = $nodes['toggleable'];

@@ -5,7 +5,7 @@
 
 type FeatureFlag = {
     name: string;
-    major?: boolean | string;
+    major?: string;
     default?: boolean;
 };
 

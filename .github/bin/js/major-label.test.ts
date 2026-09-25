@@ -29,11 +29,7 @@ const REGISTRY = `shopware:
         toggleable: true
       - name: TELEMETRY_METRICS
         default: false
-        major: false
         toggleable: true
-      - name: LEGACY_MAJOR_MARKER
-        default: false
-        major: true
 `;
 
 const FLAGS = parseFeatureRegistry(REGISTRY);
@@ -69,11 +65,10 @@ const evaluate = (path: string, hunk: string) =>
 
 test('parseFeatureRegistry reads name, major and default per flag', () => {
     assert.deepEqual(FLAGS, [
-        { name: 'v6.7.0.0', major: false, default: true },
-        { name: 'v6.8.0.0', major: false, default: false },
+        { name: 'v6.7.0.0', default: true },
+        { name: 'v6.8.0.0', default: false },
         { name: 'WEBHOOKS_REWORK', major: 'v6.8.0.0', default: false },
-        { name: 'TELEMETRY_METRICS', major: false, default: false },
-        { name: 'LEGACY_MAJOR_MARKER', major: true, default: false },
+        { name: 'TELEMETRY_METRICS', default: false },
     ]);
 });
 

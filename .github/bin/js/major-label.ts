@@ -33,7 +33,7 @@ export const MAJOR_PATHS_PATH = '.github/major-paths.yml';
 
 export type FeatureFlag = {
     name: string;
-    major: boolean | string;
+    major?: string;
     default: boolean;
 };
 
@@ -94,7 +94,7 @@ export function parseFeatureRegistry(registryYaml: string): FeatureFlag[] {
     for (const line of registryYaml.split('\n')) {
         const name = line.match(/^\s*-\s*name:\s*(\S+)/);
         if (name) {
-            flags.push({ name: name[1], major: false, default: false });
+            flags.push({ name: name[1], default: false });
             continue;
         }
 
@@ -103,9 +103,9 @@ export function parseFeatureRegistry(registryYaml: string): FeatureFlag[] {
             continue;
         }
 
-        const major = line.match(/^\s*major:\s*(true|false|v\d+\.\d+\.\d+\.\d+)\b/i);
+        const major = line.match(/^\s*major:\s*(v\d+\.\d+\.0\.0)\b/i);
         if (major) {
-            current.major = major[1] === 'true' ? true : major[1] === 'false' ? false : major[1];
+            current.major = major[1];
             continue;
         }
 

@@ -52,7 +52,7 @@ class MigrationCollectionLoaderTest extends TestCase
 
     public function testGetLastSafeMajorVersionWithDirectMajorFlag(): void
     {
-        Feature::registerFeature('v6.8.0.0', ['major' => true, 'default' => false]);
+        Feature::registerFeature('v6.8.0.0', ['default' => false]);
         $this->setEnvVars(['V6_8_0_0' => '1']);
 
         static::assertSame(8, $this->createLoader()->getLastSafeMajorVersion('6.7.2'));

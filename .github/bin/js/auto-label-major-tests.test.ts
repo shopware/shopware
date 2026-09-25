@@ -48,11 +48,7 @@ const REGISTRY = `shopware:
               toggleable: true
             - name: TELEMETRY_METRICS
               default: false
-              major: false
               toggleable: true
-            - name: LEGACY_MAJOR_MARKER
-              default: false
-              major: true
 `;
 
 test('parseMajorFlags returns only major flags', () => {

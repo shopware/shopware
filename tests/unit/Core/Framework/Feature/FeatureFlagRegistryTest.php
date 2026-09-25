@@ -46,7 +46,7 @@ class FeatureFlagRegistryTest extends TestCase
             [
                 'V6_8_0_0' => ['default' => true],
                 'JSON_LD_DATA' => ['major' => 'v6.8.0.0', 'default' => false, 'toggleable' => true],
-                'ACCESSIBILITY_TWEAKS' => ['major' => false, 'default' => true, 'toggleable' => true],
+                'ACCESSIBILITY_TWEAKS' => ['default' => true, 'toggleable' => true],
             ],
             true
         );
@@ -68,7 +68,6 @@ class FeatureFlagRegistryTest extends TestCase
             'FEATURE_ABC' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => false,
             ],
         ]);
 
@@ -91,7 +90,6 @@ class FeatureFlagRegistryTest extends TestCase
             'FEATURE_ABC' => [
                 'active' => false,
                 'toggleable' => true,
-                'major' => false,
             ],
         ]);
 
@@ -114,12 +112,10 @@ class FeatureFlagRegistryTest extends TestCase
             'FEATURE_ABC' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => true,
             ],
         ]);
 
@@ -140,12 +136,10 @@ class FeatureFlagRegistryTest extends TestCase
             'FEATURE_ABC' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => true,
             ],
         ]);
         static::assertTrue(Feature::isActive('FEATURE_MAJOR'));
@@ -227,11 +221,9 @@ class FeatureFlagRegistryTest extends TestCase
         Feature::registerFeatures([
             'FEATURE_ABC' => [
                 'active' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => true,
-                'major' => true,
             ],
         ]);
 
@@ -251,11 +243,9 @@ class FeatureFlagRegistryTest extends TestCase
         Feature::registerFeatures([
             'FEATURE_ABC' => [
                 'active' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => false,
-                'major' => true,
                 'toggleable' => true,
             ],
         ]);
@@ -278,11 +268,9 @@ class FeatureFlagRegistryTest extends TestCase
         Feature::registerFeatures([
             'FEATURE_ABC' => [
                 'active' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => false,
-                'major' => true,
                 'toggleable' => false,
             ],
         ]);
@@ -308,12 +296,10 @@ class FeatureFlagRegistryTest extends TestCase
             'FEATURE_ABC' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => true,
             ],
         ]);
 
@@ -333,7 +319,6 @@ class FeatureFlagRegistryTest extends TestCase
         static::assertEquals([
             'FEATURE_ABC' => [
                 'active' => false,
-                'major' => false,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -341,7 +326,6 @@ class FeatureFlagRegistryTest extends TestCase
             ],
             'FEATURE_MAJOR' => [
                 'active' => true,
-                'major' => true,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -357,12 +341,10 @@ class FeatureFlagRegistryTest extends TestCase
             'FEATURE_ABC' => [
                 'active' => false,
                 'toggleable' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => true,
             ],
         ]);
 
@@ -382,7 +364,6 @@ class FeatureFlagRegistryTest extends TestCase
         static::assertEquals([
             'FEATURE_ABC' => [
                 'active' => true,
-                'major' => false,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -390,7 +371,6 @@ class FeatureFlagRegistryTest extends TestCase
             ],
             'FEATURE_MAJOR' => [
                 'active' => true,
-                'major' => true,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -406,12 +386,10 @@ class FeatureFlagRegistryTest extends TestCase
             'FEATURE_ABC' => [
                 'active' => false,
                 'toggleable' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => false,
                 'toggleable' => true,
-                'major' => true,
             ],
         ]);
 
@@ -448,7 +426,6 @@ class FeatureFlagRegistryTest extends TestCase
         static::assertEquals([
             'FEATURE_ABC' => [
                 'active' => true,
-                'major' => false,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -456,7 +433,6 @@ class FeatureFlagRegistryTest extends TestCase
             ],
             'FEATURE_MAJOR' => [
                 'active' => false,
-                'major' => true,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -471,12 +447,10 @@ class FeatureFlagRegistryTest extends TestCase
             'FEATURE_ABC' => [
                 'active' => true,
                 'toggleable' => true,
-                'major' => false,
             ],
             'FEATURE_MAJOR' => [
                 'active' => false,
                 'toggleable' => true,
-                'major' => true,
             ],
         ]);
 
@@ -513,7 +487,6 @@ class FeatureFlagRegistryTest extends TestCase
         static::assertEquals([
             'FEATURE_ABC' => [
                 'active' => false,
-                'major' => false,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -521,7 +494,6 @@ class FeatureFlagRegistryTest extends TestCase
             ],
             'FEATURE_MAJOR' => [
                 'active' => false,
-                'major' => true,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -541,7 +513,6 @@ class FeatureFlagRegistryTest extends TestCase
             [
                 'FEATURE_STORED' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -555,7 +526,6 @@ class FeatureFlagRegistryTest extends TestCase
         static::assertSame([
             'FEATURE_STORED' => [
                 'active' => true,
-                'major' => false,
                 'default' => false,
                 'toggleable' => true,
                 'description' => '',
@@ -565,7 +535,7 @@ class FeatureFlagRegistryTest extends TestCase
 
     /**
      * @param array<string, FeatureFlagConfig> $staticFeatureFlags
-     * @param array<string, FeatureFlagConfig>|string $stored
+     * @param array<string, array<string, mixed>>|string $stored
      * @param array<string, FeatureFlagConfig> $expected
      */
     #[DataProvider('registerDataProvider')]
@@ -587,7 +557,7 @@ class FeatureFlagRegistryTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{enabled: bool, staticFeatureFlags: array<string, FeatureFlagConfig>, stored: array<string, FeatureFlagConfig>|string, expected: array<string, FeatureFlagConfig>}>
+     * @return iterable<array-key, array{enabled: bool, staticFeatureFlags: array<string, FeatureFlagConfig>, stored: array<string, array<string, mixed>>|string, expected: array<string, FeatureFlagConfig>}>
      */
     public static function registerDataProvider(): iterable
     {
@@ -603,7 +573,6 @@ class FeatureFlagRegistryTest extends TestCase
             'staticFeatureFlags' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -614,7 +583,6 @@ class FeatureFlagRegistryTest extends TestCase
             'expected' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -638,7 +606,6 @@ class FeatureFlagRegistryTest extends TestCase
             'expected' => [
                 'FEATURE_STORED' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -652,7 +619,6 @@ class FeatureFlagRegistryTest extends TestCase
             'stored' => [
                 'FEATURE_STORED' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -667,7 +633,6 @@ class FeatureFlagRegistryTest extends TestCase
             'stored' => \json_encode([
                 'FEATURE_STORED' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -676,7 +641,6 @@ class FeatureFlagRegistryTest extends TestCase
             'expected' => [
                 'FEATURE_STORED' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -689,7 +653,6 @@ class FeatureFlagRegistryTest extends TestCase
             'staticFeatureFlags' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -699,7 +662,6 @@ class FeatureFlagRegistryTest extends TestCase
             'stored' => [
                 'FEATURE_STORED' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -708,7 +670,6 @@ class FeatureFlagRegistryTest extends TestCase
             'expected' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -716,7 +677,6 @@ class FeatureFlagRegistryTest extends TestCase
                 ],
                 'FEATURE_STORED' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -729,7 +689,6 @@ class FeatureFlagRegistryTest extends TestCase
             'staticFeatureFlags' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -739,7 +698,6 @@ class FeatureFlagRegistryTest extends TestCase
             'stored' => [
                 'FEATURE_STORED' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -748,7 +706,6 @@ class FeatureFlagRegistryTest extends TestCase
             'expected' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -762,7 +719,6 @@ class FeatureFlagRegistryTest extends TestCase
             'staticFeatureFlags' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -781,7 +737,6 @@ class FeatureFlagRegistryTest extends TestCase
             'expected' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -795,7 +750,6 @@ class FeatureFlagRegistryTest extends TestCase
             'staticFeatureFlags' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',
@@ -821,7 +775,6 @@ class FeatureFlagRegistryTest extends TestCase
             'expected' => [
                 'FEATURE_STATIC' => [
                     'active' => true,
-                    'major' => false,
                     'default' => false,
                     'toggleable' => true,
                     'description' => '',

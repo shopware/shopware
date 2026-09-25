@@ -22,7 +22,6 @@ shopware:
         description: "Accessibility tweaks (highly recommended)\nAccessibility improvements can alter the HTML and CSS structure of the template.\nThe accessibility improvements will be standard as of v6.7.0"
       - name: TELEMETRY_METRICS
         default: false
-        major: false
         toggleable: true
         description: "Experimental! Enable OpenTelemetry metrics"
       - name: FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
@@ -42,17 +41,14 @@ shopware:
         description: "Experimental! Contains Performance Tweaks for future changes"
       - name: TWIG_COMPILE_TIME_OPTIMIZATION
         default: false
-        major: false
         toggleable: true
         description: "Experimental! Optimize static Twig feature flag calls at compile time"
       - name: ENABLE_OPENSEARCH_FOR_ADMIN_API
         default: false
-        major: false
         toggleable: true
         description: "Experimental! Route supported Admin API entity searches through OpenSearch"
       - name: CACHE_CONTEXT_HASH_RULES_OPTIMIZATION
         default: false
-        major: false
         toggleable: true
         description: "Deprecated! Not used anymore, use the `CACHE_REWORK` feature flag instead."
       - name: CACHE_REWORK
@@ -82,7 +78,6 @@ shopware:
         description: "Automatic promotions cannot be removed anymore and are therefore no longer tracked as blocked after removal."
       - name: METEOR_TEXT_EDITOR
         default: false
-        major: false
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
       - name: JSON_LD_DATA
@@ -102,6 +97,5 @@ shopware:
         description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."
       - name: ADMIN_EXTENSION_TOOLING
         default: false
-        major: false
         toggleable: true
         description: "Experimental! Run the Administration extension tooling (admin:setup-extension-tooling) automatically during composer setup."

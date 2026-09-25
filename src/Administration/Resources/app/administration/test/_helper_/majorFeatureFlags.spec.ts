@@ -14,7 +14,7 @@ const config = {
                 { name: 'ACCESSIBILITY_TWEAKS', default: true },
                 { name: 'NEXT_MAJOR_FEATURE', major: 'v6.9.0.0' },
                 { name: 'JSON_LD_DATA', major: 'v6.8.0.0' },
-                { name: 'MINOR_FEATURE', major: false },
+                { name: 'MINOR_FEATURE' },
                 { name: 'INVALID_CHILD', major: 'MINOR_FEATURE' },
             ],
         },

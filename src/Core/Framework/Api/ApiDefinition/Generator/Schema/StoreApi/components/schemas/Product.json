@@ -366,6 +366,12 @@
                                         "properties": {
                                             "price": {
                                                 "type": "number"
+                                            },
+                                            "discount": {
+                                                "type": "number"
+                                            },
+                                            "percentage": {
+                                                "type": "number"
                                             }
                                         },
                                         "required": [

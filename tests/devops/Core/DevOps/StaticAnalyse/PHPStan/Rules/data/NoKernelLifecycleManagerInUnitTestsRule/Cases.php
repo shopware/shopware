@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoKernelLifecycleManagerInUnitTestsRule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 
 /**
@@ -34,8 +35,12 @@ class InheritedCases extends BaseCases
  */
 class HarmlessCases extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testOne(): void
     {
+        KernelLifecycleManager::ensureKernelShutdown();
+
         static::assertTrue(true);
     }
 }

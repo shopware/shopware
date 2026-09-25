@@ -18,7 +18,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
  * The call-site half of {@see NoKernelInUnitTestsRule}: a unit test never reaches `KernelLifecycleManager`.
  * Checking the static call itself, in the scope PHPStan analyses it in, covers a call placed in the test
  * class, in a trait the test class composes and in a parent test class alike, which a walk over the class
- * body alone would miss.
+ * body alone would miss. Shutting a kernel down is exempt: it never boots one, and `EnvTestBehaviour` does
+ * it after every test to drop a kernel that cached the environment.
  *
  * @implements Rule<StaticCall>
  *
@@ -28,6 +29,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 class NoKernelLifecycleManagerInUnitTestsRule implements Rule
 {
     public const ERROR_LIFECYCLE_MANAGER = 'Unit test calls KernelLifecycleManager::%s(), which boots the kernel and needs a database; it only passes because the unit CI job provides one. Move the test to tests/integration, or build the subject with its constructor and test doubles.';
+    /**
+     * Tears down a booted kernel and is a no-op without one; the only lifecycle call that never boots.
+     */
+    private const SHUTDOWN_METHOD = 'ensureKernelShutdown';
 
     /**
      * @var list<string>
@@ -55,7 +60,7 @@ class NoKernelLifecycleManagerInUnitTestsRule implements Rule
             return [];
         }
 
-        if ($scope->resolveName($node->class) !== KernelLifecycleManager::class) {
+        if ($scope->resolveName($node->class) !== KernelLifecycleManager::class || $node->name->name === self::SHUTDOWN_METHOD) {
             return [];
         }
 

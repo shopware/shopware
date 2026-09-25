@@ -149,9 +149,11 @@ multi-worker or multi-server deployments, configure a `session` store per server
 `Mcp\Server\Session\SessionStoreInterface` backed by shared storage (e.g. Redis).
 
 Each server also keeps a registry of its active session ids, which `tools/list_changed`
-broadcasts (for example after an app install) are sent to. When a server uses the `cache` store,
-its registry uses the same cache pool automatically (`McpSessionRegistryCompilerPass`), so the
-registry is shared wherever the sessions are. Otherwise it uses `cache.app`. The registry updates
+broadcasts (for example after an app install) are sent to. The registry is always exactly as
+shared as the sessions (`McpSessionRegistryCompilerPass`): with the `cache` store it uses the same
+cache pool, and with the file store it is a file cache next to the session directory
+(`<directory>-registry`). It must not be shared more widely than the sessions, because the
+notifier drops ids whose session it cannot find. The registry updates
 its list under a lock from `lock.factory`, which uses local files by default: in multi-server
 setups, point `framework.lock` to a shared store (for example Redis), or concurrent requests on
 different servers can lose session ids.

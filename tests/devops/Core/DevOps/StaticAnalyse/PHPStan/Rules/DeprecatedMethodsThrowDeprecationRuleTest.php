@@ -5,7 +5,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern;
 use Shopware\Core\Framework\Log\Package;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
 {
-    #[RunInSeparateProcess]
     public function testDeprecatedMethodsReportMissingDeprecationTrigger(): void
     {
         $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedMethods.php'], [
@@ -37,7 +35,6 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         ]);
     }
 
-    #[RunInSeparateProcess]
     public function testDeprecatedClassesReportMissingDeprecationTriggerInPublicMethods(): void
     {
         $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedClass.php'], [
@@ -48,7 +45,6 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         ]);
     }
 
-    #[RunInSeparateProcess]
     public function testDeprecatedServiceDecoratorsMustDelegateToTheInnerServiceWhenTheFeatureFlagIsActive(): void
     {
         $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedDecorator.php'], [

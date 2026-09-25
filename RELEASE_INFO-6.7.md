@@ -618,6 +618,10 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
+### Mail template trigger event is preselected
+
+The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
+
 ## Storefront
 
 ### Static theme compilation without a database

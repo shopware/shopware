@@ -15,13 +15,31 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity as EntityAttribute;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Translations;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\_fixtures\CascadingManyToOneEntity;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionStub;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithNonStorageAwarePrimaryKeyStub;
 
@@ -386,6 +404,124 @@ class DefinitionValidatorTest extends TestCase
         static::assertStringContainsString('fk_child_parent_id', reset($ownerFkViolations));
     }
 
+    public function testCascadeDeleteOnAnAttributeEntityManyToOneIsReportedUnderTheEntity(): void
+    {
+        $violations = $this->createValidatorWithTable($this->attributeEntityDefinition(CascadingManyToOneEntity::class), ['id'])->validate();
+
+        static::assertArrayNotHasKey(AttributeEntityDefinition::class, $violations);
+        static::assertArrayHasKey(CascadingManyToOneEntity::class, $violations);
+        static::assertContains(
+            'Remove cascade delete in definition ' . CascadingManyToOneEntity::class . ' association: currency. Many to one association should not have a cascade delete',
+            $violations[CascadingManyToOneEntity::class]
+        );
+    }
+
+    public function testMessagesNameAttributeEntitiesByTheirEntityClass(): void
+    {
+        $violations = $this->createValidatorWithTable(
+            $this->attributeEntityDefinition(CascadingManyToOneEntity::class),
+            ['id'],
+            new CurrencyDefinition(),
+        )->validate();
+
+        static::assertContains(
+            'Missing reverse one-to-many association for ' . CascadingManyToOneEntity::class . ' <-> ' . CurrencyDefinition::class . ' (currency)',
+            $violations[CascadingManyToOneEntity::class]
+        );
+        static::assertStringNotContainsString(AttributeEntityDefinition::class, implode("\n", array_merge(...array_values($violations))));
+    }
+
+    public function testMappingViolationsNameTheMappingByItsEntityName(): void
+    {
+        $metas = [];
+        foreach ((new AttributeEntityCompiler())->compile(ValidatedManyToManyEntity::class) as $meta) {
+            $metas[$meta['type']] = $meta;
+        }
+        static::assertArrayHasKey('entity', $metas);
+        static::assertArrayHasKey('mapping', $metas);
+
+        $violations = $this->createValidatorWithTable(
+            new AttributeEntityDefinition($metas['entity']),
+            ['id'],
+            new CurrencyDefinition(),
+            new AttributeMappingDefinition(['fields' => []] + $metas['mapping']),
+        )->validate();
+
+        static::assertContains(
+            'Missing field currency_id in definition currency_validated_many_to_many',
+            $violations['currency_validated_many_to_many'] ?? []
+        );
+        static::assertStringNotContainsString(AttributeMappingDefinition::class, implode("\n", array_merge(...array_values($violations))));
+    }
+
+    public function testChecksAcrossTheValidatorNameTheAttributeEntity(): void
+    {
+        $metas = [];
+        foreach ((new AttributeEntityCompiler())->compile(FlawedAttributeEntity::class) as $meta) {
+            $metas[$meta['type']] = $meta;
+        }
+        static::assertArrayHasKey('entity', $metas);
+        static::assertArrayHasKey('mapping', $metas);
+        $untranslated = array_map(static fn (array $field): array => ['translated' => false] + $field, $metas['entity']['fields']);
+
+        $violations = $this->createValidatorWithTable(
+            new AttributeEntityDefinition($metas['entity']),
+            ['id'],
+            new CurrencyDefinition(),
+            new AttributeMappingDefinition($metas['mapping']),
+            new AttributeTranslationDefinition(['fields' => $untranslated] + $metas['entity']),
+        )->validate();
+
+        $entity = FlawedAttributeEntity::class;
+        static::assertArrayHasKey($entity, $violations);
+        static::assertContains('Missing reverse one-to-one association for ' . $entity . ' <-> ' . CurrencyDefinition::class . ' (currency)', $violations[$entity]);
+        static::assertContains('Setter "setCurrencyList" of Entity "' . $entity . '" is nullable, but shouldn\'t allow null as it is a toMany association.', $violations[$entity]);
+        static::assertContains('Association flawed_attribute_entity.currencyList does not end with a \'s\'.', $violations[$entity]);
+        static::assertContains('Field readonlyProperty in entity struct should not be readonly in ' . $entity . ', as it needs to be writable by the DAL, see https://developer.shopware.com/docs/guides/plugins/plugins/framework/data-handling/add-custom-complex-data.html#entity-class', $violations[$entity]);
+        static::assertContains('Field readonlyProperty in entity struct is missing in ' . $entity, $violations[$entity]);
+        static::assertContains(
+            'Field `name` defined in `' . $entity . '`, but missing in `flawed_attribute_entity_translation`',
+            (array) ($violations['flawed_attribute_entity_translation'] ?? [])
+        );
+    }
+
+    public function testAttributeEntitiesKeepTheirOwnViolations(): void
+    {
+        $violations = $this->createAttributeEntityValidator(
+            false,
+            $this->attributeEntityDefinition(CascadingManyToOneEntity::class),
+            $this->attributeEntityDefinition(AttributeEntityAgg::class),
+        )->validate();
+
+        static::assertSame(
+            ['Table "cascading_many_to_one" referenced by definition but not found in schema'],
+            $violations[CascadingManyToOneEntity::class]
+        );
+        static::assertSame(
+            ['Table "attribute_entity_agg" referenced by definition but not found in schema'],
+            $violations[AttributeEntityAgg::class]
+        );
+    }
+
+    public function testAttributeEntityNeedsNoAccessorsOrEntityNameConstant(): void
+    {
+        $violations = $this->createValidatorWithTable($this->attributeEntityDefinition(CascadingManyToOneEntity::class), ['id'])->validate();
+
+        static::assertArrayHasKey(CascadingManyToOneEntity::class, $violations);
+        static::assertSame([], array_values(array_filter(
+            $violations[CascadingManyToOneEntity::class],
+            static fn (string $violation): bool => str_contains($violation, 'getter') || str_contains($violation, 'setter') || str_contains($violation, 'ENTITY_NAME')
+        )));
+    }
+
+    public function testAttributeEntitiesInTestNamespacesAreSkipped(): void
+    {
+        $violations = $this->createAttributeEntityValidator(true, $this->attributeEntityDefinition(CascadingManyToOneEntity::class))->validate();
+
+        static::assertArrayNotHasKey(CascadingManyToOneEntity::class, $violations);
+        static::assertArrayNotHasKey(AttributeEntityDefinition::class, $violations);
+    }
+
     /**
      * A column that no field maps to is reported as a violation, unless the `<entity>.<column>` key is
      * ignored. The reported violations are therefore the observable behaviour of the ignore lists.
@@ -436,6 +572,7 @@ class DefinitionValidatorTest extends TestCase
         $definition->compile($registry);
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getByClassOrEntityName')->willReturn($definition);
 
         // No shouldSkipDefinition override needed: the skip regex only matches backslash
         // namespaces, never the file-path-based name of an anonymous definition class.
@@ -450,7 +587,7 @@ class DefinitionValidatorTest extends TestCase
     /**
      * @param list<string> $dbPrimaryKeys
      */
-    private function createValidatorWithTable(EntityDefinition $definition, array $dbPrimaryKeys): DefinitionValidator
+    private function createValidatorWithTable(EntityDefinition $definition, array $dbPrimaryKeys, EntityDefinition ...$references): DefinitionValidator
     {
         $pkConstraint = null;
         if ($dbPrimaryKeys !== []) {
@@ -490,8 +627,61 @@ class DefinitionValidatorTest extends TestCase
 
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $definition->compile($registry);
+        $byEntityName = [$definition->getEntityName() => $definition];
+        foreach ($references as $reference) {
+            $reference->compile($registry);
+            $byEntityName[$reference->getEntityName()] = $reference;
+        }
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getByClassOrEntityName')->willReturnCallback(
+            static fn (string $key): EntityDefinition => $byEntityName[$key] ?? $references[0] ?? $definition
+        );
+
+        // @phpstan-ignore class.extendsFinalByPhpDoc
+        return new class($registry, $connection) extends DefinitionValidator {
+            protected function shouldSkipDefinition(string $definitionClass): bool
+            {
+                return false;
+            }
+        };
+    }
+
+    /**
+     * @param class-string<Entity> $entityClass
+     */
+    private function attributeEntityDefinition(string $entityClass): AttributeEntityDefinition
+    {
+        foreach ((new AttributeEntityCompiler())->compile($entityClass) as $meta) {
+            if ($meta['type'] === 'entity') {
+                return new AttributeEntityDefinition($meta);
+            }
+        }
+
+        static::fail('No entity definition compiled for ' . $entityClass);
+    }
+
+    private function createAttributeEntityValidator(bool $skipTestDefinitions, AttributeEntityDefinition ...$definitions): DefinitionValidator
+    {
+        $schema = static::createStub(Schema::class);
+        $schema->method('hasTable')->willReturn(false);
+        $schema->method('getTables')->willReturn([]);
+
+        $schemaManager = static::createStub(AbstractSchemaManager::class);
+        $schemaManager->method('introspectSchema')->willReturn($schema);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        foreach ($definitions as $definition) {
+            $definition->compile($registry);
+        }
+        $registry->method('getDefinitions')->willReturn($definitions);
+
+        if ($skipTestDefinitions) {
+            return new DefinitionValidator($registry, $connection);
+        }
 
         // @phpstan-ignore class.extendsFinalByPhpDoc
         return new class($registry, $connection) extends DefinitionValidator {
@@ -518,6 +708,7 @@ class DefinitionValidatorTest extends TestCase
         $definition->compile($registry);
         $registry->method('getDefinitions')->willReturn([$definition]);
         $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getByClassOrEntityName')->willReturn($definition);
 
         // @phpstan-ignore class.extendsFinalByPhpDoc
         return new class($registry, $connection) extends DefinitionValidator {
@@ -580,5 +771,69 @@ class DefinitionValidatorTest extends TestCase
             $registryViolations,
             static fn (string $violation): bool => str_contains($violation, 'not a complete PRIMARY or UNIQUE key')
         ));
+    }
+}
+
+/**
+ * @internal
+ */
+#[EntityAttribute('validated_many_to_many')]
+class ValidatedManyToManyEntity extends Entity
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID)]
+    public string $id;
+
+    /**
+     * @var array<string, CurrencyEntity>|null
+     */
+    #[ManyToMany(entity: 'currency')]
+    public ?array $currencies = null;
+}
+
+/**
+ * @internal
+ */
+#[EntityAttribute('flawed_attribute_entity')]
+class FlawedAttributeEntity extends Entity
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID)]
+    public string $id;
+
+    #[Field(type: FieldType::STRING, translated: true)]
+    public ?string $name = null;
+
+    /**
+     * @var array<string, ArrayEntity>|null
+     */
+    #[Translations]
+    public ?array $translations = null;
+
+    #[ForeignKey(entity: 'currency')]
+    public ?string $currencyId = null;
+
+    #[OneToOne(entity: 'currency')]
+    public ?CurrencyEntity $currency = null;
+
+    /**
+     * @var array<string, CurrencyEntity>|null
+     */
+    #[ManyToMany(entity: 'currency')]
+    public ?array $currencyList = null;
+
+    public readonly string $readonlyProperty;
+
+    public function __construct()
+    {
+        $this->readonlyProperty = 'not a field';
+    }
+
+    /**
+     * @param array<string, CurrencyEntity>|null $currencyList
+     */
+    public function setCurrencyList(?array $currencyList): void
+    {
+        $this->currencyList = $currencyList;
     }
 }

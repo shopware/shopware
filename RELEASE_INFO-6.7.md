@@ -8,6 +8,14 @@ Extensions can tag a PHP service definition with `shopware.inactiveFeature` and 
 
 Deprecated service aliases with an announced removal version are removed when that major flag becomes active. Their target services remain available.
 
+### Plain text fields are sanitized with HTMLPurifier
+
+`StringField` and `LongTextField` values without the `AllowHtml` flag are now sanitized with HTMLPurifier instead of PHP's `strip_tags()`. A `<` that does not start a tag is kept, so `I <3 Kisses` or `5 < 10` are stored as typed. The text inside removed `<script>` and `<style>` elements is dropped instead of being stored, and HTML entities such as `&lt;` stay verbatim. A `<` directly followed by a letter still starts a tag and is removed.
+
+A value consisting only of markup now sanitizes to an empty string; on a required field the write is rejected with a constraint violation.
+
+Extensions can apply the same behaviour with the new `Shopware\Core\Framework\Util\HtmlSanitizer::stripTags()`.
+
 ### Dompdf page count placeholder replaced for core and fallback fonts
 
 In PDF document generation, Dompdf falls back to standard 14 built-in AFM fonts (such as `Helvetica`) when external web fonts are unavailable behind a firewall, or when documents are styled with core PDF fonts. Dompdf encodes those fonts using single-byte strings instead of UTF-16BE. `PdfRenderer` now replaces both encodings in the CPDF stream, ensuring `DOMPDF_PAGE_COUNT_PLACEHOLDER` is reliably replaced with the actual total page count regardless of active font encoding or network availability.
@@ -50,6 +58,10 @@ This will allow async payment methods to leave the order transaction in "unconfi
 ### Promotion redemptions are recounted faster
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
+
+### `dal:validate` checks attribute entities
+
+`bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
 
 ## API
 

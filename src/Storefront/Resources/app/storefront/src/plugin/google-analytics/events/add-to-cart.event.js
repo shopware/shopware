@@ -47,15 +47,23 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
 
         // Get product data - uses detail page meta tags or falls back to product card data
         const productData = ProductPageHelper.getProductData(productId, formElement);
+        const quantity = formData.get(`lineItems[${productId}][quantity]`);
+        // the meta price is the cheapest tier, so a graduated price is resolved from the quantity
+        const price = ProductPageHelper.getGraduatedPrice(formElement, quantity)
+            ?? productData.value
+            ?? ProductPageHelper.getValue();
+        const value = price === undefined ? undefined : Number(price) * (Number(quantity) || 1);
 
-        gtag('event', 'add_to_cart', {
+        this.pushEvent('add_to_cart', {
             'currency': productData.currency || ProductPageHelper.getCurrency(),
-            'value': productData.value,
+            'value': value,
             'items': [{
-                'id': productData.id ?? productId,
-                'name': formData.get('product-name') || productData.name,
-                'quantity': formData.get(`lineItems[${productId}][quantity]`),
-                'brand': formData.get('brand-name') || productData.brand,
+                'item_id': productData.id ?? productId,
+                'item_name': formData.get('product-name') || productData.name,
+                'quantity': quantity,
+                'price': price,
+                'item_brand': formData.get('brand-name') || productData.brand,
+                'item_variant': productData.variant,
                 ...ProductPageHelper.getCategories(),
             }],
         });

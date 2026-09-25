@@ -22,18 +22,23 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
+use Shopware\Core\Content\Product\Cart\ProductGatewayInterface;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\State;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
 
 /**
@@ -435,5 +440,90 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame(0.5, $refPriceDef->getPurchaseUnit());
         static::assertSame(1.0, $refPriceDef->getReferenceUnit());
         static::assertSame('kg', $refPriceDef->getUnitName());
+    }
+
+    public function testPersistedLineItemWithoutTheAnalyticsPayloadIsEnrichedOnce(): void
+    {
+        [$processor, $cart, $lineItem, $context] = $this->createPersistedCartScenario(expectedGatewayCalls: 2, manufacturerName: 'Acme');
+
+        // a cart persisted before the payload keys existed: complete otherwise, product unchanged
+        $lineItem->removePayloadValue('manufacturerName');
+        $lineItem->removePayloadValue('categoryNames');
+        $lineItem->markUnmodified();
+
+        $processor->collect(new CartDataCollection(), $cart, $context, new CartBehavior());
+
+        static::assertSame('Acme', $lineItem->getPayloadValue('manufacturerName'));
+        static::assertSame([], $lineItem->getPayloadValue('categoryNames'));
+    }
+
+    public function testCompleteLineItemWithoutManufacturerIsNotReloaded(): void
+    {
+        // `manufacturerName` is null here, which must still count as present
+        [$processor, $cart, $lineItem, $context] = $this->createPersistedCartScenario(expectedGatewayCalls: 1);
+
+        static::assertNull($lineItem->getPayloadValue('manufacturerName'));
+        $lineItem->markUnmodified();
+
+        $processor->collect(new CartDataCollection(), $cart, $context, new CartBehavior());
+    }
+
+    /**
+     * Collects a cart once, the way a cart is enriched before it is persisted, so the line item
+     * carries a data timestamp and context hash that match an unchanged product.
+     *
+     * @return array{ProductCartProcessor, Cart, LineItem, SalesChannelContext}
+     */
+    private function createPersistedCartScenario(int $expectedGatewayCalls, ?string $manufacturerName = null): array
+    {
+        $id = Uuid::randomHex();
+        $updatedAt = new \DateTimeImmutable('2026-01-01 00:00:00.000');
+
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => $id,
+            'calculatedPrice' => new EmptyPrice(),
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'translated' => ['name' => 'A'],
+            'stock' => 1,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
+            'createdAt' => $updatedAt,
+        ]);
+
+        if ($manufacturerName !== null) {
+            $product->setManufacturer((new ProductManufacturerEntity())->assign(['translated' => ['name' => $manufacturerName]]));
+        }
+
+        $gateway = $this->createMock(ProductGatewayInterface::class);
+        $gateway->expects($this->exactly($expectedGatewayCalls))
+            ->method('get')
+            ->willReturn(new ProductCollection([$product]));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')
+            ->willReturn([$id => $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+
+        $generator = static::createStub(EntityCacheKeyGenerator::class);
+        $generator->method('getSalesChannelContextHash')->willReturn('context-hash');
+
+        $processor = new ProductCartProcessor(
+            $gateway,
+            static::createStub(QuantityPriceCalculator::class),
+            static::createStub(ProductFeatureBuilder::class),
+            static::createStub(ProductPriceCalculator::class),
+            $generator,
+            $connection
+        );
+
+        $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id);
+        $cart = new Cart('test');
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $context = Generator::generateSalesChannelContext();
+
+        $processor->collect(new CartDataCollection(), $cart, $context, new CartBehavior());
+
+        return [$processor, $cart, $lineItem, $context];
     }
 }

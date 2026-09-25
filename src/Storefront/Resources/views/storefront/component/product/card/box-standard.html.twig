@@ -9,6 +9,7 @@
         {% set cover = product.cover.media %}
         {% set variation = product.variation %}
         {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
+        {% set variant = displayParent ? '' : product.variation|map(variation => variation.option)|join(', ') %}
         {% set headlineLevel = element.config.boxHeadlineLevel.value %}
         {% set headlineClasses = "product-name-headline mb-0" %}
 
@@ -20,7 +21,7 @@
             {% set routeArguments = routeArguments|merge({ referrerCategoryId: referrerCategoryId }) %}
         {% endif %}
 
-        <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name, brand, price, sku}|json_encode }}">
+        <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name, brand, price, sku, variant}|json_encode }}">
             {% block component_product_box_content %}
                 <div class="card-body">
                     {% block component_product_box_badges %}

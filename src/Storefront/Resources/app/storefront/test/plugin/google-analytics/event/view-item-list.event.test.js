@@ -16,12 +16,12 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
     });
 
     test('event is supported when listing wrapper is in the HTML', () => {
-        document.body.innerHTML = `<div class="cms-element-product-listing-wrapper"></div>`;
+        document.body.innerHTML = '<div class="cms-element-product-listing-wrapper"></div>';
         expect(new ViewItemListEvent().supports()).toBe(true);
     });
 
     test('event is not supported when listing wrapper is missing', () => {
-        document.body.innerHTML = `<div class="other-content"></div>`;
+        document.body.innerHTML = '<div class="other-content"></div>';
         expect(new ViewItemListEvent().supports()).toBe(false);
     });
 
@@ -41,10 +41,30 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', {
             'currency': 'EUR',
-            'value': '2499.98',
+            'value': 2499.98,
             'items': [
-                { id: 'product-1', name: 'Laptop', price: 999.99, item_category: 'Electronics', item_category2: 'Computers' },
-                { id: 'product-2', name: 'Desktop', price: 1499.99, item_category: 'Electronics', item_category2: 'Computers' },
+                { item_id: 'product-1', item_name: 'Laptop', price: 999.99, item_category: 'Electronics', item_category2: 'Computers' },
+                { item_id: 'product-2', item_name: 'Desktop', price: 1499.99, item_category: 'Electronics', item_category2: 'Computers' },
+            ],
+        });
+    });
+
+    test('reports the variant options of variant products', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='{ "id": "1", "name": "Shirt", "price": 20, "sku": "SW10000.1", "variant": "Red, L" }'></div>
+                <div class="product-box" data-product-information='{ "id": "2", "name": "Mug", "price": 5, "sku": "SW10001", "variant": "" }'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', {
+            'currency': 'EUR',
+            'value': 25,
+            'items': [
+                { item_id: 'SW10000.1', item_name: 'Shirt', price: 20, item_variant: 'Red, L' },
+                { item_id: 'SW10001', item_name: 'Mug', price: 5 },
             ],
         });
     });
@@ -87,7 +107,7 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
         // Verify it subscribed to the Listing plugin's afterRenderResponse event
         expect(mockEmitter.subscribe).toHaveBeenCalledWith(
             'Listing/afterRenderResponse',
-            expect.any(Function)
+            expect.any(Function),
         );
 
         // Simulate a listing change (pagination/filter)
@@ -103,5 +123,55 @@ describe('plugin/google-analytics/events/view-item-list.event', () => {
 
         expect(event.getPluginName()).toBe('Listing');
         expect(event.getEvents()).toHaveProperty('Listing/afterRenderResponse');
+    });
+
+    test('reports only documented item properties, whatever else the product box carries', () => {
+        const information = {
+            id: 'product-123',
+            sku: 'SW10000',
+            name: 'Test Product',
+            brand: 'Test Brand',
+            variant: 'Red, L',
+            price: '19.99',
+            // a theme or a later feature can add keys the GA4 item schema does not define
+            internalNote: 'not an item property',
+        };
+
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='${JSON.stringify(information)}'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'items': [{
+                'item_id': 'SW10000',
+                'item_name': 'Test Product',
+                'item_brand': 'Test Brand',
+                'item_variant': 'Red, L',
+                'price': 19.99,
+            }],
+        }));
+    });
+
+    test('skips a product box with an unreadable product information attribute', () => {
+        document.body.innerHTML = `
+            <div class="cms-element-product-listing-wrapper">
+                <div class="product-box" data-product-information='{"broken'></div>
+                <div class="product-box" data-product-information='{"sku":"SW10000","name":"Test Product","price":"19.99"}'></div>
+            </div>
+        `;
+
+        new ViewItemListEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item_list', expect.objectContaining({
+            'items': [{
+                'item_id': 'SW10000',
+                'item_name': 'Test Product',
+                'price': 19.99,
+            }],
+        }));
     });
 });

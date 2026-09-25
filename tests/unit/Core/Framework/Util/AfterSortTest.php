@@ -4,12 +4,11 @@ namespace Shopware\Tests\Unit\Core\Framework\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\Util\Stub\AfterSortCollection;
+use Shopware\Tests\Unit\Core\Framework\Util\Stub\TestEntity;
 
 /**
  * @internal
@@ -187,57 +186,5 @@ class AfterSortTest extends TestCase
         $actualNames = array_values(array_map(static fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements()));
 
         static::assertSame($expectedNames, $actualNames);
-    }
-}
-
-/**
- * @internal
- *
- * @extends EntityCollection<TestEntity>
- */
-class AfterSortCollection extends EntityCollection
-{
-    public function sortByAfter(): self
-    {
-        $this->elements = AfterSort::sort($this->elements);
-
-        return $this;
-    }
-
-    protected function getExpectedClass(): string
-    {
-        return TestEntity::class;
-    }
-}
-
-/**
- * @internal
- */
-class TestEntity extends Entity
-{
-    use EntityIdTrait;
-
-    protected ?string $afterId = null;
-
-    protected string $name;
-
-    public function getAfterId(): ?string
-    {
-        return $this->afterId;
-    }
-
-    public function setAfterId(string $afterId): void
-    {
-        $this->afterId = $afterId;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 }

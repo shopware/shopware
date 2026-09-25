@@ -26,6 +26,9 @@ class DeprecatedServiceFeatureTagRuleTest extends RuleTestCase
             $directory . '/DeprecatedClass.php',
             $directory . '/DeprecatedDecorator.php',
             $directory . '/TaggedDeprecatedClass.php',
+            $directory . '/DeprecatedTwigExtension.php',
+            $directory . '/WrongVersionTwigExtension.php',
+            $directory . '/CoveredTwigExtension.php',
         ], [
             [
                 'Service "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedClass" uses deprecated class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedClass" and must be tagged "shopware.inactiveFeature" for "v6.8.0.0".',
@@ -34,6 +37,14 @@ class DeprecatedServiceFeatureTagRuleTest extends RuleTestCase
             [
                 'Service "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" uses deprecated class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" and must be tagged "shopware.inactiveFeature" for "v6.8.0.0".',
                 10,
+            ],
+            [
+                'Removed Twig extension "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedTwigExtension" declares function "missing_function", which must be listed under "v6.8.0.0" in CompatTwigExtension::FUNCTIONS_BY_FEATURE.',
+                17,
+            ],
+            [
+                'Removed Twig extension "Shopware\\Core\\DevOps\\MyFakeNamespace\\WrongVersionTwigExtension" declares function "category_url", which must be listed under "v6.9.0.0" in CompatTwigExtension::FUNCTIONS_BY_FEATURE.',
+                15,
             ],
         ]);
     }

@@ -23,7 +23,7 @@ class CompatTwigExtension extends AbstractExtension
     /**
      * @var array<string, list<string>>
      */
-    private const FUNCTIONS_BY_FEATURE = [
+    public const FUNCTIONS_BY_FEATURE = [
         'v6.8.0.0' => [
             'category_url',
             'category_linknewtab',

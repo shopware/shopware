@@ -474,6 +474,34 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         },
     );
 
+    it('should open the element settings modal when pressing Enter on the settings action', async () => {
+        const wrapper = await createWrapper({
+            element: {
+                type: 'with_config_and_unlocked',
+                locked: false,
+            },
+            active: true,
+        });
+
+        await wrapper.find('.sw-cms-slot__settings-action').trigger('keydown.enter');
+
+        expect(wrapper.vm.showElementSettings).toBe(true);
+    });
+
+    it('should open the element selection modal when pressing Enter on the swap action', async () => {
+        const wrapper = await createWrapper({
+            element: {
+                type: 'with_config_and_unlocked',
+                locked: false,
+            },
+            active: true,
+        });
+
+        await wrapper.find('.sw-cms-slot__element-action').trigger('keydown.enter');
+
+        expect(wrapper.vm.showElementSelection).toBe(true);
+    });
+
     it('should close the settings modal and call handleUpdateContent if the methods exists and showElementSettings is true', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

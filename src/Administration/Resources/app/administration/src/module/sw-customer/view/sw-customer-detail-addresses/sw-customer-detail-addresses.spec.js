@@ -92,6 +92,7 @@ async function createWrapper() {
                 },
 
                 provide: {
+                    customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                     repositoryFactory: {
                         create: () => {
                             return {

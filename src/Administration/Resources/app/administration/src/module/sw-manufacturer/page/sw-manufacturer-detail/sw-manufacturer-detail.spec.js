@@ -88,6 +88,9 @@ async function createWrapper(privileges = []) {
                 mediaDefaultFolderService: {
                     getDefaultFolderId: () => Promise.resolve('mediaDefaultFolderId'),
                 },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => customFieldSetRepositoryMock.search(),
+                },
                 repositoryFactory: {
                     create: (repositoryName) => {
                         switch (repositoryName) {

@@ -18,6 +18,7 @@
 
             {% block sw_experience_studio_assignment_modal_default %}
             <mt-switch
+                v-if="acl.can('system.system_config')"
                 class="sw-experience-studio-assignment-modal__default"
                 :label="$t(`sw-experience-studio.detail.assignmentModal.defaultLabel.${assignmentType.entity}`)"
                 :model-value="isDefault"
@@ -46,7 +47,7 @@
             <div class="sw-experience-studio-assignment-modal__footer">
                 <mt-button
                     variant="secondary"
-                    @click="$emit('close')"
+                    @click="onCancel"
                 >
                     {{ $t('global.default.cancel') }}
                 </mt-button>

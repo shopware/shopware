@@ -117,5 +117,9 @@ export default Shopware.Component.wrapComponentConfig({
         onRedo(): void {
             this.$emit('redo');
         },
+
+        onOpenAssignments(): void {
+            this.$emit('open-assignments');
+        },
     },
 });

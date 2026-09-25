@@ -7,12 +7,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutDefaultValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -36,6 +38,7 @@ class ContentLayoutDefaultValidatorTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->ids = new IdsCollection();
     }
 
@@ -75,8 +78,29 @@ class ContentLayoutDefaultValidatorTest extends TestCase
         $reader = static::createMock(LayoutRootSourceReader::class);
         $reader->expects($this->never())->method('read');
 
-        (new ContentLayoutDefaultValidator($reader, static::createStub(Connection::class)))->validateDefaultChange(
+        (new ContentLayoutDefaultValidator($this->createDefinitionRegistry(), $reader, static::createStub(Connection::class)))->validateDefaultChange(
             new BeforeSystemConfigChangedEvent(ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, null, null)
+        );
+    }
+
+    #[TestDox('accepts an empty string as unsetting the default layout')]
+    public function testAcceptsEmptyStringAsUnsettingTheDefaultLayout(): void
+    {
+        $reader = static::createMock(LayoutRootSourceReader::class);
+        $reader->expects($this->never())->method('read');
+
+        (new ContentLayoutDefaultValidator($this->createDefinitionRegistry(), $reader, static::createStub(Connection::class)))->validateDefaultChange(
+            new BeforeSystemConfigChangedEvent(ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, '', null)
+        );
+    }
+
+    #[TestDox('rejects a default layout value that is not a string')]
+    public function testRejectsNonStringDefaultLayoutValue(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::contentLayoutNotFound('{"id":"layout"}'));
+
+        $this->createValidator(rootSource: 'product')->validateDefaultChange(
+            new BeforeSystemConfigChangedEvent(ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, ['id' => 'layout'], null)
         );
     }
 
@@ -86,7 +110,7 @@ class ContentLayoutDefaultValidatorTest extends TestCase
         $reader = static::createMock(LayoutRootSourceReader::class);
         $reader->expects($this->never())->method('read');
 
-        (new ContentLayoutDefaultValidator($reader, static::createStub(Connection::class)))->validateDefaultChange(
+        (new ContentLayoutDefaultValidator($this->createDefinitionRegistry(), $reader, static::createStub(Connection::class)))->validateDefaultChange(
             new BeforeSystemConfigChangedEvent('core.cms.default_product_cms_page', 'not-a-layout', null)
         );
     }
@@ -125,7 +149,20 @@ class ContentLayoutDefaultValidatorTest extends TestCase
             $configuredDefaults,
         ));
 
-        return new ContentLayoutDefaultValidator($reader, $connection);
+        return new ContentLayoutDefaultValidator($this->createDefinitionRegistry(), $reader, $connection);
+    }
+
+    private function createDefinitionRegistry(): DefinitionInstanceRegistry
+    {
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([
+            new ProductContentLayoutDefinition(),
+            new CategoryContentLayoutDefinition(),
+            new LandingPageContentLayoutDefinition(),
+            new ContentLayoutDefinition(),
+        ]);
+
+        return $registry;
     }
 
     private function deleteEvent(string $layoutId): EntityDeleteEvent

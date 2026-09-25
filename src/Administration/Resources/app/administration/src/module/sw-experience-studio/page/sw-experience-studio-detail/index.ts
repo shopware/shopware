@@ -386,6 +386,14 @@ export default Shopware.Component.wrapComponentConfig({
             this.currentViewport = viewport;
         },
 
+        onOpenAssignmentModal(): void {
+            this.isAssignmentModalOpen = true;
+        },
+
+        onCloseAssignmentModal(): void {
+            this.isAssignmentModalOpen = false;
+        },
+
         async loadDefaultPreviewSalesChannel(): Promise<void> {
             if (this.previewSalesChannelId) {
                 return;

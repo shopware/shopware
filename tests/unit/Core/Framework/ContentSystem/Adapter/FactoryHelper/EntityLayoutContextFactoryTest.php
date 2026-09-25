@@ -82,7 +82,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     public function testResolveLayoutIdPrefersExplicitAssignmentOverDefault(): void
     {
         $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-        $definition->method('getDefaultContentLayoutConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
         $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('default-layout'));
 
         $this->layoutResolver->method('findLayoutId')
@@ -102,7 +102,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     public function testResolveLayoutIdFallsBackToDefaultLayout(): void
     {
         $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
-        $definition->method('getDefaultContentLayoutConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
         $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('default-layout'));
 
         $this->layoutResolver->method('findLayoutId')
@@ -116,6 +116,51 @@ class EntityLayoutContextFactoryTest extends TestCase
         );
 
         static::assertSame($this->ids->get('default-layout'), $result);
+    }
+
+    #[TestDox('prefers the sales channel default layout over the global default layout')]
+    public function testResolveLayoutIdPrefersSalesChannelDefaultLayout(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('global-default-layout'));
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('channel-default-layout'), $context->getSalesChannelId());
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn(null);
+
+        $result = $this->factory->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            $context,
+            $this->createRepository(),
+            $definition,
+        );
+
+        static::assertSame($this->ids->get('channel-default-layout'), $result);
+    }
+
+    #[TestDox('throws when the default layout key is configured but empty')]
+    public function testResolveLayoutIdThrowsWhenDefaultLayoutIsEmpty(): void
+    {
+        $entityId = $this->ids->get('entity');
+        $context = Generator::generateSalesChannelContext();
+
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, '');
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn(null);
+
+        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
+            'product',
+            $entityId,
+            $context->getSalesChannel()->getId()
+        ));
+
+        $this->factory->resolveLayoutId('/product/' . $entityId, $context, $this->createRepository(), $definition);
     }
 
     #[TestDox('resolves specification data without requiring a layout assignment')]

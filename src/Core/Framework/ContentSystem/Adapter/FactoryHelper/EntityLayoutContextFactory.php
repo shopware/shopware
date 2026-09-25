@@ -136,7 +136,7 @@ class EntityLayoutContextFactory
 
     private function findDefaultLayoutId(AbstractContentLayoutAssignableDefinition $definition, SalesChannelContext $context): ?string
     {
-        $configKey = $definition->getDefaultContentLayoutConfigKey();
+        $configKey = $definition->getContentLayoutDefaultConfigKey();
 
         if ($configKey === null) {
             return null;

@@ -52,9 +52,6 @@ type AssignmentRepository = {
 };
 
 /**
- * Manages the global Experience Studio assignments of one layout: the entities it is explicitly assigned to and
- * whether it is the default layout of its type. Sales-channel scoped assignments are left untouched.
- *
  * @private
  * @sw-package discovery
  */
@@ -64,6 +61,7 @@ export default Shopware.Component.wrapComponentConfig({
     inject: [
         'repositoryFactory',
         'systemConfigApiService',
+        'acl',
     ],
 
     mixins: [
@@ -124,7 +122,6 @@ export default Shopware.Component.wrapComponentConfig({
         entityCriteria(): CriteriaType {
             const criteria = new Criteria(1, 25);
 
-            // The Storefront resolves a variant through its parent product and redirects link categories.
             if (this.assignmentType?.entity === 'product') {
                 criteria.addFilter(Criteria.equals('parentId', null));
             }
@@ -156,12 +153,15 @@ export default Shopware.Component.wrapComponentConfig({
                 const criteria = new Criteria(1, null);
                 criteria.addFilter(Criteria.equals('contentLayoutId', this.layoutId));
                 criteria.addFilter(Criteria.equals('salesChannelId', null));
+                criteria.setTotalCountMode(0);
 
                 const assignments = await repository.search(criteria, Shopware.Context.api);
-                const config = (await this.systemConfigApiService.getValues(DEFAULT_LAYOUT_CONFIG_DOMAIN)) as Record<
-                    string,
-                    unknown
-                >;
+                const config = this.acl.can('system.system_config')
+                    ? ((await this.systemConfigApiService.getValues(DEFAULT_LAYOUT_CONFIG_DOMAIN)) as Record<
+                          string,
+                          unknown
+                      >)
+                    : {};
 
                 this.assignmentIdsByEntityId = Object.fromEntries(
                     assignments.map((assignment) => [
@@ -174,7 +174,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.isDefault = this.wasDefault;
             } catch {
                 this.createNotificationError({
-                    message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    message: this.$t('sw-experience-studio.detail.assignmentModal.messageLoadError'),
                 });
                 this.$emit('close');
             } finally {
@@ -192,8 +192,12 @@ export default Shopware.Component.wrapComponentConfig({
 
         onModalRootChange(isOpen: boolean): void {
             if (!isOpen) {
-                this.$emit('close');
+                this.onCancel();
             }
+        },
+
+        onCancel(): void {
+            this.$emit('close');
         },
 
         async onSave(): Promise<void> {
@@ -208,12 +212,12 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.saveDefault();
 
                 this.createNotificationSuccess({
-                    message: this.$t('global.default.success'),
+                    message: this.$t('sw-experience-studio.detail.assignmentModal.messageSaved'),
                 });
                 this.$emit('close');
             } catch {
                 this.createNotificationError({
-                    message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                    message: this.$t('sw-experience-studio.detail.assignmentModal.messageSaveError'),
                 });
 
                 await this.loadAssignments();
@@ -243,10 +247,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            // An entity holds one global assignment, so an entity assigned to another layout is moved to this one.
-            const criteria = new Criteria(1, null);
+            const criteria = new Criteria(1, addedEntityIds.length);
             criteria.addFilter(Criteria.equalsAny(assignmentType.entityIdField, addedEntityIds));
             criteria.addFilter(Criteria.equals('salesChannelId', null));
+            criteria.setTotalCountMode(0);
 
             const assignments = await repository.search(criteria, Shopware.Context.api);
             const reassignedEntityIds = assignments.map((assignment) => assignment[assignmentType.entityIdField]);
@@ -270,7 +274,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async saveDefault(): Promise<void> {
-            if (!this.assignmentType || this.isDefault === this.wasDefault) {
+            if (!this.assignmentType || !this.acl.can('system.system_config') || this.isDefault === this.wasDefault) {
                 return;
             }
 

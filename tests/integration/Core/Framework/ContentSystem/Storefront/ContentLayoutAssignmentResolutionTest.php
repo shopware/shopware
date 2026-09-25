@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -155,24 +154,6 @@ class ContentLayoutAssignmentResolutionTest extends TestCase
         $this->systemConfigService->set(CategoryContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, $this->ids->get('category-layout'));
 
         $this->assertRendersLegacyCmsLayout($this->requestProduct());
-    }
-
-    #[TestDox('rejects a product layout as the default category layout')]
-    public function testRejectsProductLayoutAsDefaultCategoryLayout(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::rootSourceAssignmentMismatch('product', 'category'));
-
-        $this->systemConfigService->set(CategoryContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, $this->ids->get('product-layout'));
-    }
-
-    #[TestDox('blocks deleting the layout that is the default product layout')]
-    public function testBlocksDeletingTheDefaultLayout(): void
-    {
-        $this->systemConfigService->set(ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT, $this->ids->get('product-layout'));
-
-        $this->expectExceptionObject(ContentSystemException::defaultContentLayoutDeletion([$this->ids->get('product-layout')]));
-
-        $this->repository('content_layout.repository')->delete([['id' => $this->ids->get('product-layout')]], Context::createDefaultContext());
     }
 
     private function assertRendersContentLayout(string $html, string $layoutKey): void

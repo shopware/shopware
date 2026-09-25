@@ -15,7 +15,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'category:read',
                 'product_content_layout:read',
                 'category_content_layout:read',
-                'system_config:read',
+                'landing_page_content_layout:read',
             ],
             dependencies: [],
         },
@@ -28,7 +28,6 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'category_content_layout:create',
                 'category_content_layout:update',
                 'category_content_layout:delete',
-                'system_config:update',
             ],
             dependencies: [
                 'experience_studio.viewer',

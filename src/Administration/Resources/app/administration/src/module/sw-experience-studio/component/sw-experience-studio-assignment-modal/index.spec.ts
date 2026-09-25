@@ -70,6 +70,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
             layoutId: 'layout-1',
             assignmentType: categoryAssignmentType,
             assignmentRepository: { search },
+            acl: { can: () => true },
             systemConfigApiService: {
                 getValues: jest.fn().mockResolvedValue({
                     'core.content_system.default_category_content_layout': 'layout-1',
@@ -103,6 +104,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
             layoutId: 'layout-1',
             assignmentType: categoryAssignmentType,
             assignmentRepository: { search: jest.fn().mockRejectedValue(new Error('failed')) },
+            acl: { can: () => true },
             systemConfigApiService: { getValues: jest.fn().mockResolvedValue({}) },
             isLoading: false,
             createNotificationError,
@@ -113,7 +115,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         await methods.loadAssignments.call(vm);
 
         expect(createNotificationError).toHaveBeenCalledWith({
-            message: 'global.notification.notificationLoadingDataErrorMessage',
+            message: 'sw-experience-studio.detail.assignmentModal.messageLoadError',
         });
         expect(emit).toHaveBeenCalledWith('close');
         expect(vm.isLoading).toBe(false);
@@ -180,6 +182,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         const vm = {
             layoutId: 'layout-1',
             assignmentType: categoryAssignmentType,
+            acl: { can: () => true },
             systemConfigApiService: { saveValues },
             isDefault: true,
             wasDefault: false,
@@ -197,6 +200,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         const vm = {
             layoutId: 'layout-1',
             assignmentType: categoryAssignmentType,
+            acl: { can: () => true },
             systemConfigApiService: { saveValues },
             isDefault: false,
             wasDefault: true,
@@ -214,6 +218,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         const vm = {
             layoutId: 'layout-1',
             assignmentType: categoryAssignmentType,
+            acl: { can: () => true },
             systemConfigApiService: { saveValues },
             isDefault: true,
             wasDefault: true,
@@ -222,6 +227,30 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         await methods.saveDefault.call(vm);
 
         expect(saveValues).not.toHaveBeenCalled();
+    });
+
+    it('skips the default without the system config permission', async () => {
+        const getValues = jest.fn();
+        const saveValues = jest.fn();
+        const loadVm = {
+            layoutId: 'layout-1',
+            assignmentType: categoryAssignmentType,
+            assignmentRepository: { search: jest.fn().mockResolvedValue(createCollection([])) },
+            acl: { can: () => false },
+            systemConfigApiService: { getValues, saveValues },
+            isLoading: false,
+            entityIds: [] as string[],
+            assignmentIdsByEntityId: {},
+            isDefault: false,
+            wasDefault: false,
+        };
+
+        await methods.loadAssignments.call(loadVm);
+        await methods.saveDefault.call({ ...loadVm, isDefault: true });
+
+        expect(getValues).not.toHaveBeenCalled();
+        expect(saveValues).not.toHaveBeenCalled();
+        expect(loadVm.isDefault).toBe(false);
     });
 
     it('does not save without edit permission', async () => {
@@ -254,7 +283,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         await methods.onSave.call(vm);
 
         expect(createNotificationError).toHaveBeenCalledWith({
-            message: 'global.notification.unspecifiedSaveErrorMessage',
+            message: 'sw-experience-studio.detail.assignmentModal.messageSaveError',
         });
         expect(vm.loadAssignments).toHaveBeenCalled();
         expect(emit).not.toHaveBeenCalled();

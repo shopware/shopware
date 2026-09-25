@@ -40,7 +40,7 @@
                     @save="onSave"
                     @undo="onUndo"
                     @redo="onRedo"
-                    @open-assignments="isAssignmentModalOpen = true"
+                    @open-assignments="onOpenAssignmentModal"
                 />
             {% endblock %}
 
@@ -115,7 +115,7 @@
                     :layout-id="layout.id"
                     :root-source="layoutRootSource"
                     :allow-edit="allowSave"
-                    @close="isAssignmentModalOpen = false"
+                    @close="onCloseAssignmentModal"
                 />
             {% endblock %}
             </template>

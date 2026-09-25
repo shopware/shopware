@@ -935,8 +935,8 @@ class ContentSystemException extends HttpException
         );
     }
 
-    // The client-facing 400 surfaced as the assignment write violation when an entity/section is bound to a layout
-    // whose immutable root source is a different page kind. Assignment is a tree-blind type-match against rootSource.
+    // The client-facing 400 when an entity/section, or a product/category default layout in system config, is bound to a
+    // layout whose immutable root source is a different page kind. Assignment is a tree-blind type-match against rootSource.
     public static function rootSourceAssignmentMismatch(string $rootSource, string $assignmentType): self
     {
         return new self(
@@ -955,7 +955,7 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DEFAULT_CONTENT_LAYOUT_DELETION,
-            'The content layouts with ids "{{ layoutIds }}" are assigned as a default and therefore can not be deleted.',
+            'The content layouts with ids "{{ layoutIds }}" are assigned as a default and therefore cannot be deleted.',
             ['layoutIds' => implode(', ', $layoutIds)]
         );
     }

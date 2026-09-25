@@ -130,7 +130,7 @@
             class="sw-experience-studio-toolbar__assignments"
             variant="secondary"
             :disabled="isLoading || undefined"
-            @click="$emit('open-assignments')"
+            @click="onOpenAssignments"
         >
             {{ $t('sw-experience-studio.detail.toolbar.assignments') }}
         </mt-button>

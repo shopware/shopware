@@ -730,8 +730,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    // Default-layout gate (system config change, content_layout delete)
     $services->set(ContentLayoutDefaultValidator::class)
         ->args([
+            service(DefinitionInstanceRegistry::class),
             service(LayoutRootSourceReader::class),
             service(Connection::class),
         ])

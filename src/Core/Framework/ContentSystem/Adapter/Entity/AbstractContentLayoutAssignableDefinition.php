@@ -112,7 +112,7 @@ abstract class AbstractContentLayoutAssignableDefinition extends EntityDefinitio
      * Returns the system config key holding the default layout used when an entity of this type has no explicit
      * assignment, or null when this type has no default.
      */
-    public function getDefaultContentLayoutConfigKey(): ?string
+    public function getContentLayoutDefaultConfigKey(): ?string
     {
         return null;
     }

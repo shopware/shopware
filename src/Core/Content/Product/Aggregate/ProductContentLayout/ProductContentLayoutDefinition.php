@@ -49,7 +49,7 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
         return [EntityCacheKeyGenerator::buildProductTag($entityId)];
     }
 
-    public function getDefaultContentLayoutConfigKey(): string
+    public function getContentLayoutDefaultConfigKey(): string
     {
         return self::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT;
     }

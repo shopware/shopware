@@ -63,4 +63,87 @@ describe('src/app/component/base/sw-tabs', () => {
 
         warnSpy.mockRestore();
     });
+
+    it('should not read the slotted items on the deprecated branch', async () => {
+        // The default slot must not be invoked from `mounted`, which Vue reports as a console.warn and
+        // the test setup escalates to a failure.
+        const wrapper = await createWrapper({
+            global: {
+                stubs: {
+                    'sw-tabs-deprecated': true,
+                    'mt-tabs': true,
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        props: ['name'],
+                        template: '<div class="sw-tabs-item"><slot /></div>',
+                    },
+                },
+            },
+            slots: {
+                default: '<sw-tabs-item name="en-GB">Label en-GB</sw-tabs-item>',
+            },
+        });
+
+        expect(wrapper.html()).toContain('sw-tabs-deprecated');
+        expect(wrapper.vm.activeItem).toBeNull();
+    });
+
+    it.each([
+        [
+            'plain text',
+            'Label {{ locale }}',
+            'Label en-GB',
+            'Label de-DE',
+        ],
+        [
+            'an element',
+            '<span>Label {{ locale }}</span>',
+            'en-GB',
+            'de-DE',
+        ],
+        [
+            'nothing',
+            '',
+            'en-GB',
+            'de-DE',
+        ],
+    ])('should resolve the labels of v-for tab items whose slot holds %s', async (_, slotContent, first, second) => {
+        const wrapper = await createWrapper({
+            props: {
+                useMeteorComponent: true,
+            },
+            global: {
+                stubs: {
+                    'sw-tabs-deprecated': true,
+                    'mt-tabs': true,
+                    // Keep the real component name so the fragment branch recognizes the items.
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        props: [
+                            'name',
+                            'title',
+                            'route',
+                        ],
+                        template: '<div class="sw-tabs-item"><slot /></div>',
+                    },
+                },
+            },
+            slots: {
+                default: `
+                    <sw-tabs-item
+                        v-for="locale in ['en-GB', 'de-DE']"
+                        :key="locale"
+                        :name="locale"
+                    >${slotContent}</sw-tabs-item>
+                `,
+            },
+        });
+
+        // Only plain slot text yields a label of its own; anything else falls back to the name, so the
+        // tab never renders unlabeled.
+        expect(wrapper.vm.itemsBackwardCompatible).toEqual([
+            expect.objectContaining({ name: 'en-GB', label: first }),
+            expect.objectContaining({ name: 'de-DE', label: second }),
+        ]);
+    });
 });

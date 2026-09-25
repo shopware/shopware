@@ -66,7 +66,9 @@ class ContentPreviewPageBuilder
 
         $stored = $this->decoder->decode($payload->layout);
 
-        $violations = $this->layoutValidator->check($stored);
+        // The specification's root source is what names the mapping catalogue the draft's inline tokens are judged
+        // against, so the check runs after resolution rather than straight off the decoded tree.
+        $violations = $this->layoutValidator->check($stored, $specification->rootSource);
         if ($violations->count() > 0) {
             throw ContentSystemException::elementTypesInvalid($violations);
         }

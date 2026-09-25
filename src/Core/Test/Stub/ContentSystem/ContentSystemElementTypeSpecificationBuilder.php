@@ -30,9 +30,9 @@ class ContentSystemElementTypeSpecificationBuilder
         return new self($name, $label ?? $name);
     }
 
-    public function primitive(string $key, string $type, bool $required = false, string|int|float|bool|null $default = null, bool $mappable = false): self
+    public function primitive(string $key, string $type, bool $required = false, string|int|float|bool|null $default = null, bool $mappable = false, bool $inlineMappable = false): self
     {
-        $this->properties[$key] = new PropertySpecification('prop', new PropertyType($type, false, null, $default), $required, '', '', null, $mappable);
+        $this->properties[$key] = new PropertySpecification('prop', new PropertyType($type, false, null, $default), $required, '', '', null, $mappable, $inlineMappable);
 
         return $this;
     }

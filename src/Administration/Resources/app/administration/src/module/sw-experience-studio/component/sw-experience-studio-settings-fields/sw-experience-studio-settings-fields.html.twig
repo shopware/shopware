@@ -283,8 +283,18 @@
                     </template>
 
                     <template v-else>
+                        <sw-experience-studio-inline-text-field
+                            v-if="isInlineMappableField(field)"
+                            :label="field.property.title"
+                            :help-text="getPropertyHelpText(field.property)"
+                            :value="String(getPropertyValue(field.key, field.property) ?? '')"
+                            :candidates="inlineMappingCandidates"
+                            :disabled="!allowEdit"
+                            @update:value="onUpdateField(field.key, $event)"
+                        />
+
                         <mt-switch
-                            v-if="getControlType(field.property) === 'switch'"
+                            v-else-if="getControlType(field.property) === 'switch'"
                             v-bind="getControlProps(field.property)"
                             :label="field.property.title"
                             :help-text="getPropertyHelpText(field.property)"
@@ -412,24 +422,6 @@
                             :disabled="!allowEdit || undefined"
                             @update:value="onUpdateField(field.key, $event)"
                         />
-
-                        <div
-                            v-else-if="isInlineTextProperty(field.key, field.property)"
-                            class="sw-experience-studio-settings-fields__inline-text-hint"
-                        >
-                            <div class="sw-experience-studio-settings-fields__inline-text-title">
-                                {{ field.property.title }}
-                            </div>
-                            <div class="sw-experience-studio-settings-fields__inline-text-description">
-                                {{ $t('sw-experience-studio.detail.elementSettings.inlineTextHint') }}
-                            </div>
-                            <div
-                                v-if="isInlineEditingActive"
-                                class="sw-experience-studio-settings-fields__inline-text-state"
-                            >
-                                {{ $t('sw-experience-studio.detail.elementSettings.inlineTextEditingActive') }}
-                            </div>
-                        </div>
 
                         <mt-text-editor
                             v-else-if="getControlType(field.property) === 'richtext'"

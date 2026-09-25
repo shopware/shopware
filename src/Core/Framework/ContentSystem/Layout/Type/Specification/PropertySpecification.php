@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  *     properties: array<string, array<string, mixed>>|null,
  *     required: bool,
  *     mappable: bool,
+ *     inlineMappable: bool,
  *     title: string,
  *     description: string,
  *     adminUI: array<string, mixed>|null
@@ -33,6 +34,7 @@ final readonly class PropertySpecification
         private string $description,
         private ?array $adminUI,
         private bool $mappable = false,
+        private bool $inlineMappable = false,
     ) {
     }
 
@@ -62,6 +64,18 @@ final readonly class PropertySpecification
     }
 
     /**
+     * Whether an author may embed `{{map:path}}` tokens inside this property's text, mixing static prose with
+     * values read from the layout's root entity. Orthogonal to {@see mappable()} in concept but mutually
+     * exclusive with it in practice: one property must not offer two mapping mechanisms at once, so
+     * {@see \Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\InlineMappableTypeValidator} rejects a
+     * declaration carrying both.
+     */
+    public function inlineMappable(): bool
+    {
+        return $this->inlineMappable;
+    }
+
+    /**
      * @return PropertySchema
      */
     public function toSchema(): array
@@ -70,6 +84,7 @@ final readonly class PropertySpecification
             ...$this->type->toSchema(),
             'required' => $this->required,
             'mappable' => $this->mappable,
+            'inlineMappable' => $this->inlineMappable,
             'title' => $this->title,
             'description' => $this->description,
             'adminUI' => $this->adminUI,

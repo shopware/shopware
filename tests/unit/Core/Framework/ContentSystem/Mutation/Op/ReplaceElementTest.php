@@ -30,6 +30,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpeci
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
@@ -480,6 +481,7 @@ class ReplaceElementTest extends TestCase
             new MappingTypeCompatibility(),
             new MappingConsumers(),
             new ContentSystemPropertyProjectionRegistry([]),
+            new InlineMappingTokenParser(),
         );
         $old = StoredElementBuilder::create('Sw:Old', 'el')
             ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.name')

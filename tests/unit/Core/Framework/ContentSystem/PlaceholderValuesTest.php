@@ -62,6 +62,38 @@ class PlaceholderValuesTest extends TestCase
     }
 
     /**
+     * A placeholder key is not purely server-derived: `Adapter/FactoryHelper/EntityLayoutResolver` and the
+     * header/footer sources merge every scalar QUERY PARAMETER into this map, and `Layout/Scaffolding/StoredTreePreparer`
+     * substitutes `{{<key>}}` before inline mapping expansion runs. Without this filter, a request carrying
+     * `?map:product.name=…` would pre-empt the inline mapping token `{{map:product.name}}` with attacker-chosen text
+     * on every element holding one.
+     */
+    #[TestDox('drops keys using the reserved inline mapping prefix, keeping the two namespaces disjoint')]
+    public function testFromDropsReservedMappingPrefixKeys(): void
+    {
+        $placeholderValues = PlaceholderValues::from([
+            'productId' => 'abc',
+            'map:product.name' => 'injected',
+            'mapper' => 'kept, because only the exact prefix is reserved',
+        ]);
+
+        static::assertSame(
+            ['productId' => 'abc', 'mapper' => 'kept, because only the exact prefix is reserved'],
+            $placeholderValues->all()
+        );
+    }
+
+    /**
+     * Dropped rather than rejected, and that distinction is the security-relevant one: throwing would let any visitor
+     * take a page down with a crafted query string.
+     */
+    #[TestDox('does not throw for a reserved key, because the key source is client-controlled')]
+    public function testFromDoesNotThrowForAReservedKey(): void
+    {
+        static::assertSame([], PlaceholderValues::from(['map:product.name' => 'injected'])->all());
+    }
+
+    /**
      * @return \Generator<string, array{array<string, string|int|bool|float>}>
      */
     public static function createsInstanceWithScalarValuesProvider(): \Generator

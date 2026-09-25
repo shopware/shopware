@@ -29,6 +29,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyleNorma
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
@@ -335,6 +336,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 new MappingTypeCompatibility(),
                 new MappingConsumers(),
                 new ContentSystemPropertyProjectionRegistry([]),
+                new InlineMappingTokenParser(),
             ),
         );
     }

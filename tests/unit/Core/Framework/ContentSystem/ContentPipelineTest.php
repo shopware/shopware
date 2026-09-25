@@ -33,8 +33,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\Index\LoaderValueIdentityFactory;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
@@ -1458,6 +1462,28 @@ class ContentPipelineTest extends TestCase
                 new MappingTypeCompatibility()
             ),
             new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
+            $this->inlineMappingExpander(),
+        );
+    }
+
+    /**
+     * No fixture here declares an inlineMappable property, so expansion is a pass-through. It is wired with a real
+     * expander over an EMPTY catalogue rather than a mock, so that a token in a fixture would be left verbatim —
+     * which is the documented behaviour — instead of quietly satisfying a mock expectation.
+     */
+    private function inlineMappingExpander(): InlineMappingExpander
+    {
+        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([]);
+
+        return new InlineMappingExpander(
+            $this->typeRegistry(),
+            new InlineMappingTokenParser(),
+            new InlineMappingInterpolator(
+                $candidates,
+                new ContentSystemPropertyProjectionRegistry([]),
+                new ContextPathResolver(),
+            ),
         );
     }
 

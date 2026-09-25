@@ -66,12 +66,7 @@
                         :sales-channel-id="previewSalesChannelId"
                         :entity-type="previewEntityType"
                         :entity-id="previewEntityId"
-                        :suspend-auto-reload="isInlineEditing"
                         @select-element="onSelectElement"
-                        @inline-edit-start="onInlineEditStart"
-                        @inline-edit-change="onInlineEditChange"
-                        @inline-edit-commit="onInlineEditCommit"
-                        @inline-edit-cancel="onInlineEditCancel"
                     />
                 {% endblock %}
 
@@ -88,7 +83,6 @@
                         :type-load-error="elementTypeStore.loadError"
                         :style-option-load-error="styleOptionStore.loadError"
                         :allow-edit="allowSave"
-                        :is-inline-editing-active="isInlineEditing"
                         :mapping-candidates="mappingCandidates"
                         :violations="selectedElementViolations"
                         @update-properties="onElementSettingsChange"

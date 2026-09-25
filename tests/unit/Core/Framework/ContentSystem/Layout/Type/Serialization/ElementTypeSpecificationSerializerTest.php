@@ -193,6 +193,36 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         );
     }
 
+    /**
+     * The inline flag follows `mappable` through the same round trip, so an app can declare a property whose text
+     * accepts `{{map:path}}` tokens.
+     */
+    #[TestDox('round-trips the inlineMappable opt-in and omits it when false')]
+    public function testRoundTripsTheInlineMappableOptIn(): void
+    {
+        $data = [
+            'meta' => $this->buildMinimalMeta(),
+            'properties' => [
+                'text' => ['type' => 'string', 'inlineMappable' => true],
+                'height' => ['type' => 'string'],
+            ],
+        ];
+
+        $dto = $this->serializer->denormalize($data);
+
+        static::assertTrue($dto->properties['text']->inlineMappable);
+        static::assertFalse($dto->properties['height']->inlineMappable);
+
+        $normalized = $this->serializer->normalize($dto);
+
+        static::assertTrue($normalized['properties']['text']['inlineMappable']);
+        static::assertArrayNotHasKey(
+            'inlineMappable',
+            $normalized['properties']['height'],
+            'An absent opt-in must stay absent, like every other falsy property flag.'
+        );
+    }
+
     #[TestDox('denormalizes and normalizes nested object property schemas')]
     public function testRoundTripsNestedObjectPropertySchema(): void
     {

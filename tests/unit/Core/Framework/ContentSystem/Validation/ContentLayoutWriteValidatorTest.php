@@ -16,6 +16,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
@@ -325,6 +326,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
             new MappingTypeCompatibility(),
             new MappingConsumers(),
             new ContentSystemPropertyProjectionRegistry([]),
+            new InlineMappingTokenParser(),
         ));
     }
 

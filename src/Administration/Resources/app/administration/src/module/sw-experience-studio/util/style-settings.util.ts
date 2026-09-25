@@ -145,8 +145,10 @@ export function styleOptionToElementProperty(
         enum: option.enum,
         default: option.default,
         required: false,
-        // A style option is presentation, not content: there is nothing on the layout's entity to map it to.
+        // A style option is presentation, not content: there is nothing on the layout's entity to map it to, inline
+        // or otherwise.
         mappable: false,
+        inlineMappable: false,
         title: typeof adminUI.label === 'string' && adminUI.label.length > 0 ? adminUI.label : key,
         description: typeof adminUI.description === 'string' ? adminUI.description : '',
         adminUI: {

@@ -81,6 +81,7 @@ class ContentPipeline
             $cacheContext,
             $specification->dataRequirements,
             $this->virtualRootOf($preparation->prePruneForest),
+            $specification->rootSource,
         );
 
         $renderedTree = $this->unwrapVirtualRoot($lowered->tree, $scaffolding);

@@ -39,6 +39,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
@@ -1229,6 +1230,7 @@ class LayoutDiagnosticsTest extends TestCase
             new MappingTypeCompatibility(),
             new MappingConsumers(),
             new ContentSystemPropertyProjectionRegistry([]),
+            new InlineMappingTokenParser(),
         );
     }
 

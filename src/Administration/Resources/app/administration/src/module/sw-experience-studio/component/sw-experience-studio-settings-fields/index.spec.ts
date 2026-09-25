@@ -632,6 +632,48 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
             expect(candidates).toEqual([]);
         });
 
+        it('routes an inlineMappable property to the inline text field, not the whole-field chip', () => {
+            const inlineTextField = {
+                key: 'text',
+                property: {
+                    type: 'string',
+                    contextTypes: ['single'],
+                    mappable: false,
+                    inlineMappable: true,
+                    title: 'Text',
+                    adminUI: { component: 'text-editor' },
+                },
+            };
+
+            expect(methods.isInlineMappableField.call({}, inlineTextField)).toBe(true);
+            expect(methods.isInlineMappableField.call({}, mappableTextField)).toBe(false);
+            expect(methods.isInlineMappableField.call({}, staticTextField)).toBe(false);
+
+            // Nothing may be mapped onto it as a whole, so the map action never appears alongside the editor.
+            expect(
+                methods.canMapField.call(
+                    {
+                        mappingCandidates: [categoryNameCandidate],
+                        mappings: {},
+                        getMappingCandidatesForField: methods.getMappingCandidatesForField,
+                        isFieldMapped: methods.isFieldMapped,
+                    },
+                    inlineTextField,
+                ),
+            ).toBe(false);
+        });
+
+        it('offers only stringifiable candidates for inline mapping, regardless of property', () => {
+            const candidates = computed.inlineMappingCandidates.call({
+                mappingCandidates: [
+                    categoryNameCandidate,
+                    mediaCandidate,
+                ],
+            }) as Array<{ path: string }>;
+
+            expect(candidates.map((candidate) => candidate.path)).toEqual(['category.name']);
+        });
+
         it('hides the map action once the property is mapped', () => {
             const context = {
                 mappingCandidates: [categoryNameCandidate],

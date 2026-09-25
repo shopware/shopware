@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\InlineMappableType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\StructuredPropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedDefault;
@@ -17,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Package('framework')]
 #[StructuredPropertyType]
 #[TranslatableType]
+#[InlineMappableType]
 #[TypedEnum]
 #[TypedDefault]
 final readonly class PropertySpecificationDto
@@ -44,6 +46,7 @@ final readonly class PropertySpecificationDto
         #[Assert\Valid]
         public ?array $properties = null,
         public bool $mappable = false,
+        public bool $inlineMappable = false,
     ) {
     }
 
@@ -73,6 +76,7 @@ final readonly class PropertySpecificationDto
             $this->description,
             $this->adminUI,
             $this->mappable,
+            $this->inlineMappable,
         );
     }
 }

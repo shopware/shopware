@@ -193,10 +193,9 @@
         "boxSpacingLeft": "Links",
         "boxSpacingLinkSides": "Alle Seiten gemeinsam bearbeiten",
         "boxSpacingUnlinkSides": "Seiten einzeln bearbeiten",
-        "inlineTextHint": "Bearbeite den Text direkt in der Vorschau. Doppelklick zum Bearbeiten.",
-        "inlineTextEditingActive": "Inline-Bearbeitung ist aktuell in der Vorschau aktiv.",
         "mapping": {
           "mapAction": "Dynamische Daten",
+          "insertAction": "Dynamische Daten einfügen",
           "unmapAction": "Dynamische Daten entfernen",
           "modalTitle": "Dynamische Daten auswählen",
           "modalIntro": "Wähle die Daten, die „{property}“ beim Anzeigen der Seite füllen.",

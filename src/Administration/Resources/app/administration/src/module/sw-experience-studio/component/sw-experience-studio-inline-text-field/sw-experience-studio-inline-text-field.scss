@@ -1,0 +1,31 @@
+.sw-experience-studio-inline-text-field {
+    display: grid;
+    gap: 4px;
+
+    &__help-text {
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+    }
+}
+
+/**
+ * Not nested under the field, on purpose. The chip is drawn inside the tiptap document, which lives in the editor's
+ * own DOM — and when the field is expanded that DOM sits inside `sw-modal`, which renders outside this component's
+ * subtree. Scoping the rule to the field would leave the chip unstyled in exactly the view built for editing it.
+ */
+.sw-experience-studio-mapping-token {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 6px;
+    border: 1px solid var(--color-border-brand-selected);
+    border-radius: var(--border-radius-default);
+    background: var(--color-background-brand-default);
+    color: var(--color-text-brand-default);
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+
+    &.ProseMirror-selectednode {
+        border-color: var(--color-border-brand-selected);
+        box-shadow: 0 0 0 2px var(--color-border-brand-selected);
+    }
+}

@@ -14,7 +14,9 @@ import {
 import { normalizeBoxSpacingCSSValue } from '../../util/box-spacing.util';
 import {
     getCandidatesForProperty,
+    getInlineMappingCandidates,
     getMappingCandidateTranslation,
+    isInlineMappableProperty,
     isMappableProperty,
 } from '../../util/element-mapping.util';
 import { isViewportSpecificBreakpointMap } from '../../util/style-settings.util';
@@ -93,16 +95,6 @@ export default Shopware.Component.wrapComponentConfig({
             type: Object,
             required: false,
             default: null,
-        },
-        isInlineEditingActive: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-        showInlineTextHints: {
-            type: Boolean,
-            required: false,
-            default: false,
         },
         showPanels: {
             type: Boolean,
@@ -205,6 +197,14 @@ export default Shopware.Component.wrapComponentConfig({
 
             return field === null ? [] : this.getMappingCandidatesForField(field);
         },
+
+        /**
+         * Computed once for the panel rather than per field: inline mapping fills text rather than a typed slot, so
+         * unlike `getMappingCandidatesForField` the narrowing does not depend on which property is being edited.
+         */
+        inlineMappingCandidates(): ContentSystemMappingCandidate[] {
+            return getInlineMappingCandidates(this.mappingCandidates);
+        },
     },
 
     methods: {
@@ -247,6 +247,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         isFieldMapped(field: SettingsFieldDefinition): boolean {
             return typeof this.mappings[field.key] === 'string';
+        },
+
+        isInlineMappableField(field: SettingsFieldDefinition): boolean {
+            return isInlineMappableProperty(field.property);
         },
 
         getFieldMappingPath(field: SettingsFieldDefinition): string | null {
@@ -341,22 +345,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return this.getControlType(field.property) === 'responsive-number';
-        },
-
-        isInlineTextProperty(key: string, property: ContentSystemElementTypeProperty): boolean {
-            const selectedElementType = this.selectedElementType as ContentSystemElementTypeSpecification | null;
-
-            if (!this.showInlineTextHints || !selectedElementType || key !== 'text') {
-                return false;
-            }
-
-            const matchesTextType = selectedElementType.name.endsWith(':text');
-            const matchesTextProperty = Boolean(
-                selectedElementType.properties.text &&
-                    this.getControlType(selectedElementType.properties.text) === 'richtext',
-            );
-
-            return (matchesTextType || matchesTextProperty) && this.getControlType(property) === 'richtext';
         },
 
         getPropertyValue(key: string, property: ContentSystemElementTypeProperty): PrimitiveValue {

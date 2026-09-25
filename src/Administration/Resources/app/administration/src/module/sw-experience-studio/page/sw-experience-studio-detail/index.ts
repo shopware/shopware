@@ -32,7 +32,6 @@ import {
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
 } from 'src/module/sw-experience-studio/util/content-element.util';
-import { findPropertyMapping } from 'src/module/sw-experience-studio/util/element-mapping.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
@@ -89,13 +88,6 @@ type LayoutPreviewContext = {
     salesChannelId: string | null;
 };
 
-type InlineEditSession = {
-    elementId: string;
-    originalValue: string;
-    draftValue: string;
-    isEditing: boolean;
-} | null;
-
 type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'insert-preset' | 'map-property' | 'unmap-property';
 
 type ContentSystemLayoutDraftMutationService = {
@@ -143,7 +135,6 @@ export default Shopware.Component.wrapComponentConfig({
         pendingAddElementPayload: AddElementPayload | null;
         pickerTop: number;
         pickerLeft: number;
-        inlineEditSession: InlineEditSession;
         mutationRequestSequence: number;
         latestMutationRequestId: number;
         diagnostics: ContentSystemViolation[];
@@ -169,7 +160,6 @@ export default Shopware.Component.wrapComponentConfig({
             pendingAddElementPayload: null,
             pickerTop: 0,
             pickerLeft: 0,
-            inlineEditSession: null,
             mutationRequestSequence: 0,
             latestMutationRequestId: 0,
             diagnostics: [],
@@ -346,10 +336,6 @@ export default Shopware.Component.wrapComponentConfig({
                 ...elementItems,
                 ...presetItems,
             ];
-        },
-
-        isInlineEditing(): boolean {
-            return this.inlineEditSession?.isEditing ?? false;
         },
 
         selectedElementViolations(): ContentSystemViolation[] {
@@ -655,62 +641,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         onSelectElement(elementId: string | null): void {
             this.selectedElementId = elementId;
-        },
-
-        onInlineEditStart(payload: { elementId: string }): void {
-            const element = this.findElementById(payload.elementId);
-
-            if (!this.isTextElement(element) || findPropertyMapping(element, 'text') !== null) {
-                return;
-            }
-
-            const currentValue = this.getElementTextValue(element);
-            this.selectedElementId = payload.elementId;
-            this.inlineEditSession = {
-                elementId: payload.elementId,
-                originalValue: currentValue,
-                draftValue: currentValue,
-                isEditing: true,
-            };
-        },
-
-        onInlineEditChange(payload: { elementId: string; value: string }): void {
-            if (!this.inlineEditSession || this.inlineEditSession.elementId !== payload.elementId) {
-                return;
-            }
-
-            const normalizedValue = payload.value.trim();
-
-            this.inlineEditSession = {
-                ...this.inlineEditSession,
-                draftValue: normalizedValue,
-            };
-        },
-
-        onInlineEditCommit(payload: { elementId: string; value: string }): void {
-            if (!this.inlineEditSession || this.inlineEditSession.elementId !== payload.elementId) {
-                return;
-            }
-
-            const normalizedValue = payload.value.trim();
-            const session = this.inlineEditSession;
-            this.clearInlineEditSession();
-
-            if (normalizedValue === session.originalValue) {
-                return;
-            }
-
-            this.applyLayoutMutation((layout) => {
-                return updateElementPropertiesInLayout(layout, payload.elementId, { text: normalizedValue }) ? {} : false;
-            });
-        },
-
-        onInlineEditCancel(payload: { elementId: string }): void {
-            if (!this.inlineEditSession || this.inlineEditSession.elementId !== payload.elementId) {
-                return;
-            }
-
-            this.clearInlineEditSession();
         },
 
         onAddElement(payload: AddElementPayload): void {
@@ -1294,50 +1224,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return false;
-        },
-
-        clearInlineEditSession(): void {
-            this.inlineEditSession = null;
-        },
-
-        findElementById(elementId: string): ContentElementNode | null {
-            if (!this.layout) {
-                return null;
-            }
-
-            const location = findElementLocation(this.layout.layout, elementId);
-
-            if (!location) {
-                return null;
-            }
-
-            return location.elements[location.index] ?? null;
-        },
-
-        isTextElement(element: ContentElementNode | null): boolean {
-            if (!element) {
-                return false;
-            }
-
-            const typeSpecification = this.elementTypeStore.getByName(element.component);
-
-            if (!typeSpecification) {
-                return false;
-            }
-
-            if (typeSpecification.name.endsWith(':text')) {
-                return true;
-            }
-
-            return typeSpecification.properties.text?.adminUI?.component === 'text-editor';
-        },
-
-        getElementTextValue(element: ContentElementNode | null): string {
-            if (!element) {
-                return '';
-            }
-
-            return typeof element.properties?.text === 'string' ? element.properties.text : '';
         },
 
         onUndo(): void {

@@ -116,6 +116,15 @@ Shopware.Component.register(
  * @sw-package discovery
  */
 Shopware.Component.register(
+    'sw-experience-studio-inline-text-field',
+    () => import('./component/sw-experience-studio-inline-text-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
     'sw-experience-studio-create-wizard',
     () => import('./component/sw-experience-studio-create-wizard'),
 );

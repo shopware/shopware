@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\RenderingMode;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -51,6 +52,7 @@ final readonly class ElementLowering
         private ElementDataResolver $dataResolver,
         private ContextDeliveryResolver $deliveryResolver,
         private RenderedTreeFactory $treeFactory,
+        private InlineMappingExpander $inlineMappingExpander,
     ) {
     }
 
@@ -65,6 +67,8 @@ final readonly class ElementLowering
      * @param list<StoredElement> $forest roots in order
      * @param list<DataRequirement> $pageDataRequirements the rendering specification's page-level requirements
      * @param StoredElement|null $virtualRoot the wrapper the preparation minted, or null when it did not wrap
+     * @param string|null $rootSource the specification's root source, naming the mapping catalogue inline tokens
+     *                                resolve against; null means the layout has none and nothing is expanded
      *
      * @throws ContentSystemException when a required consumer's path cannot be resolved
      */
@@ -76,6 +80,7 @@ final readonly class ElementLowering
         RenderingCacheContext $cacheContext,
         array $pageDataRequirements,
         ?StoredElement $virtualRoot,
+        ?string $rootSource = null,
     ): LoweringResult {
         if ($mode === RenderingMode::SKELETON) {
             return $this->treeFactory->create($forest, new ContextDeliveryIndex(), [], $mode);
@@ -100,13 +105,23 @@ final readonly class ElementLowering
             $loaderValues[$virtualRoot->id] = $ambient;
         }
 
+        $plainAmbient = array_map(static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value, $ambient);
+
         // Context distribution is about dataflow, not about where a value came from, so it sees the plain
         // values: a provider hands a child what it renders, and the identity beside it means nothing there.
         $deliveries = $this->deliveryResolver->resolve(
             $forest,
             $this->plainValues($loaderValues),
-            array_map(static fn (ResolvedLoaderValue $resolved): mixed => $resolved->value, $ambient),
+            $plainAmbient,
         );
+
+        // Inline mapping expansion sits between delivery and the mint, and that is the only window it fits in: it
+        // needs the ambient values, which the page-level resolution above produces, and it must finish before the
+        // mint reads a property, because what it rewrites is an authored property's text. Delivery is unaffected
+        // either way — it reads context wiring and loader values, never an authored string — so the deliveries
+        // computed from the pre-expansion forest stay valid against the expanded one: expansion changes property
+        // VALUES and no element id, and the delivery index is keyed by id.
+        $forest = $this->inlineMappingExpander->expand($forest, $plainAmbient, $rootSource);
 
         return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
     }

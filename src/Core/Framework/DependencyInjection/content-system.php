@@ -86,6 +86,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
@@ -340,6 +343,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElementDataResolver::class),
             service(ContextDeliveryResolver::class),
             service(RenderedTreeFactory::class),
+            service(InlineMappingExpander::class),
         ]);
 
     $services->set(WiringPlanner::class)
@@ -748,6 +752,25 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('content_system.property_projection'),
         ]);
 
+    // Inline mapping: the `{{map:path}}` tokens an author embeds in an inlineMappable string property. The parser
+    // is the single source of truth for the syntax and is shared by the render path and the write gate, so the
+    // text one admits and the other resolves cannot drift.
+    $services->set(InlineMappingTokenParser::class);
+
+    $services->set(InlineMappingInterpolator::class)
+        ->args([
+            service(ContentSystemMappingCandidateRegistry::class),
+            service(ContentSystemPropertyProjectionRegistry::class),
+            service(ContextPathResolver::class),
+        ]);
+
+    $services->set(InlineMappingExpander::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(InlineMappingTokenParser::class),
+            service(InlineMappingInterpolator::class),
+        ]);
+
     // The mapping admissibility rules themselves, shared by the two surfaces that report them: the write
     // gate below (per-rule error codes) and LayoutDiagnostics above (one invalid_mapping violation)
     $services->set(StoredMappingInspector::class)
@@ -757,6 +780,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MappingTypeCompatibility::class),
             service(MappingConsumers::class),
             service(ContentSystemPropertyProjectionRegistry::class),
+            service(InlineMappingTokenParser::class),
         ]);
 
     $services->set(StoredMappingValidator::class)
@@ -798,6 +822,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(DraftLayoutChecker::class)
         ->args([
             service(LayoutDiagnostics::class),
+            service(StoredMappingInspector::class),
         ]);
 
     // Resolve-and-diagnose Action (Admin API)

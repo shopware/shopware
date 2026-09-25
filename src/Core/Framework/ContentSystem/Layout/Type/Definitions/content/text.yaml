@@ -8,12 +8,16 @@ meta:
     hints:
       - "Supports HTML content (sanitized at render time)."
       - "Can be rendered inline."
+      - "Text may embed {{map:path}} tokens that resolve against the layout's root entity."
 
 properties:
   text:
     type: string
     translatable: true
-    mappable: true
+    # Inline rather than whole-field mapping, and the two are mutually exclusive by declaration. Inline subsumes
+    # whole-field here: a text holding nothing but one token is the whole-field case, and anything else — prose
+    # around a value, two values in one sentence — is only expressible inline.
+    inlineMappable: true
     title: "Text"
     description: "HTML text content."
     default: "<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>"

@@ -41,6 +41,39 @@ export function isMappableProperty(property: ContentSystemElementTypeProperty): 
 }
 
 /**
+ * Whether the author may put `{{map:path}}` tokens in this property's text.
+ *
+ * The server enforces that `mappable` and `inlineMappable` are never both set on one property, so the two callers
+ * never have to agree on a tie-break.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function isInlineMappableProperty(property: ContentSystemElementTypeProperty): boolean {
+    return property.inlineMappable === true;
+}
+
+/**
+ * Narrows the catalogue to the candidates that have a text form.
+ *
+ * This mirrors `InlineMappingInterpolator::STRINGIFIABLE_TYPES`, which is `PropertyType::PRIMITIVE_TYPES`. An entity
+ * or a collection cannot be written into a sentence, and the server refuses such a token outright rather than
+ * rendering something apologetic, so offering one here would only lead the author into a validation error.
+ *
+ * Unlike `getCandidatesForProperty` there is no `contextTypes` filter, because the property being filled is the text
+ * itself rather than a typed slot: `valueType` already carries the answer, and it is the effective type after any
+ * projection, so a candidate whose projection formats an entity as a string is correctly offered.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function getInlineMappingCandidates(
+    candidates: ContentSystemMappingCandidate[],
+): ContentSystemMappingCandidate[] {
+    return candidates.filter((candidate) => isPrimitive(candidate.valueType));
+}
+
+/**
  * Resolves literal translations carried by dynamic catalogue entries such as custom fields.
  *
  * @private

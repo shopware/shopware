@@ -134,6 +134,7 @@ class ElementTypeSpecificationSerializer
             adminUI: $propertyData['adminUI'] ?? null,
             properties: $this->denormalizeProperties($propertyData['properties'] ?? null),
             mappable: $propertyData['mappable'] ?? false,
+            inlineMappable: $propertyData['inlineMappable'] ?? false,
         );
     }
 
@@ -200,6 +201,10 @@ class ElementTypeSpecificationSerializer
 
             if ($prop->mappable) {
                 $propData['mappable'] = true;
+            }
+
+            if ($prop->inlineMappable) {
+                $propData['inlineMappable'] = true;
             }
 
             if ($prop->title !== '') {

@@ -37,6 +37,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContent
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
@@ -264,6 +265,7 @@ class LayoutMutationControllerTest extends TestCase
                 $compatibility,
                 new MappingConsumers(),
                 new ContentSystemPropertyProjectionRegistry([]),
+                new InlineMappingTokenParser(),
             ),
         );
     }

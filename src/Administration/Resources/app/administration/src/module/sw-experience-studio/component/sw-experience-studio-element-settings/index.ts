@@ -73,11 +73,6 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-        isInlineEditingActive: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
         mappingCandidates: {
             type: Array as PropType<ContentSystemMappingCandidate[]>,
             required: false,

@@ -4,8 +4,10 @@ import type { ContentSystemMappingCandidate } from 'src/core/service/api/content
 import {
     findPropertyMapping,
     getCandidatesForProperty,
+    getInlineMappingCandidates,
     getMappingCandidateTranslation,
     groupCandidates,
+    isInlineMappableProperty,
     isMappableProperty,
 } from './element-mapping.util';
 
@@ -33,6 +35,7 @@ function property(overrides: Partial<ContentSystemElementTypeProperty> = {}): Co
         default: null,
         required: false,
         mappable: false,
+        inlineMappable: false,
         title: 'Text',
         description: '',
         adminUI: null,
@@ -58,6 +61,53 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
         it('admits only a property that opts in', () => {
             expect(isMappableProperty(property({ mappable: true }))).toBe(true);
             expect(isMappableProperty(property({ mappable: false }))).toBe(false);
+        });
+    });
+
+    describe('isInlineMappableProperty', () => {
+        it('admits only a property that opts in', () => {
+            expect(isInlineMappableProperty(property({ inlineMappable: true }))).toBe(true);
+            expect(isInlineMappableProperty(property({ inlineMappable: false }))).toBe(false);
+        });
+    });
+
+    describe('getInlineMappingCandidates', () => {
+        it('keeps only the candidates that have a text form', () => {
+            const candidates = [
+                candidate({ path: 'product.name', valueType: 'string' }),
+                candidate({ path: 'product.stock', valueType: 'integer' }),
+                candidate({ path: 'product.price', valueType: 'number' }),
+                candidate({ path: 'product.active', valueType: 'boolean' }),
+                candidate({ path: 'product.cover', valueType: 'Shopware\\Core\\Content\\Media\\MediaEntity' }),
+                candidate({ path: 'product.media', valueType: 'Shopware\\Core\\Content\\Media\\MediaCollection' }),
+            ];
+
+            expect(getInlineMappingCandidates(candidates).map((entry) => entry.path)).toEqual([
+                'product.name',
+                'product.stock',
+                'product.price',
+                'product.active',
+            ]);
+        });
+
+        /**
+         * `valueType` is the effective type after any projection, so a projection that formats an entity as text is
+         * offered on its result rather than on the entity it reads.
+         */
+        it('offers a projected candidate on its projected type', () => {
+            const projected = candidate({
+                path: 'product.releaseDate',
+                valueType: 'string',
+                projection: 'product.release_date.formatted',
+            });
+
+            expect(getInlineMappingCandidates([projected])).toEqual([projected]);
+        });
+
+        it('offers a collection-scoped candidate whose value is a string', () => {
+            const candidates = [candidate({ path: 'product.tagNames', valueType: 'string', contextType: 'collection' })];
+
+            expect(getInlineMappingCandidates(candidates).map((entry) => entry.path)).toEqual(['product.tagNames']);
         });
     });
 

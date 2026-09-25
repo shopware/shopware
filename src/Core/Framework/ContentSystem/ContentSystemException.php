@@ -97,6 +97,10 @@ class ContentSystemException extends HttpException
     public const INVALID_MAPPING_CANDIDATE_PATH = 'CONTENT_SYSTEM__INVALID_MAPPING_CANDIDATE_PATH';
     public const UNKNOWN_PROPERTY_PROJECTION = 'CONTENT_SYSTEM__UNKNOWN_PROPERTY_PROJECTION';
     public const MAPPING_PROJECTION_MISMATCH = 'CONTENT_SYSTEM__MAPPING_PROJECTION_MISMATCH';
+    public const PROPERTY_NOT_INLINE_MAPPABLE = 'CONTENT_SYSTEM__PROPERTY_NOT_INLINE_MAPPABLE';
+    public const UNKNOWN_INLINE_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_INLINE_MAPPING_PATH';
+    public const INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE = 'CONTENT_SYSTEM__INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE';
+    public const INLINE_MAPPING_TOKEN_IN_MARKUP = 'CONTENT_SYSTEM__INLINE_MAPPING_TOKEN_IN_MARKUP';
     public const PROJECTION_ON_NON_MAPPING_CONSUMER = 'CONTENT_SYSTEM__PROJECTION_ON_NON_MAPPING_CONSUMER';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
@@ -1002,6 +1006,60 @@ class ContentSystemException extends HttpException
             self::MAPPING_PROJECTION_MISMATCH,
             'Mapping path "{{ path }}" must be used with projection "{{ expected }}", got "{{ projection }}".',
             ['path' => $path, 'projection' => $projection ?? 'none', 'expected' => $expected ?? 'none']
+        );
+    }
+
+    // The four client-facing 400s of the INLINE mapping gate. An inline mapping is a `{{map:path}}` token inside an
+    // `inlineMappable` string property, carrying no `acceptsContext` entry of its own, so none of the four above
+    // can see one. All four are reported through the same `Mapping/MappingProblem` channel and are likewise absent
+    // from CLIENT_DEFECT_CODES: they are judged by the gate, never thrown per element by the diagnostics kernel.
+
+    // A token in a property whose type did not opt in with `inlineMappable: true`. The `map:` prefix is what makes
+    // this an error rather than a guess: nobody writes `{{map:…}}` as prose, so the intent is unambiguous.
+    public static function propertyNotInlineMappable(string $component, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROPERTY_NOT_INLINE_MAPPABLE,
+            'Property "{{ propertyKey }}" of element type "{{ component }}" does not support inline mapping. Declare "inlineMappable: true" on it to allow inline mapping tokens in its text.',
+            ['component' => $component, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    // The token's path is not in the mapping catalogue of the layout's root source. The render path leaves such a
+    // token verbatim rather than resolving it, so this is the only place the author learns it is broken.
+    public static function unknownInlineMappingPath(string $path, string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_INLINE_MAPPING_PATH,
+            'Inline mapping path "{{ path }}" is not offered for root source "{{ rootSource }}".',
+            ['path' => $path, 'rootSource' => $rootSource]
+        );
+    }
+
+    // The catalogue offers the path, but interpolation has to write the value into a string, and this candidate
+    // yields something with no faithful text form — an entity or a collection.
+    public static function inlineMappingValueNotStringifiable(string $path, string $valueType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE,
+            'Inline mapping path "{{ path }}" yields "{{ valueType }}", which has no text representation. Inline mapping supports string, integer, number and boolean values.',
+            ['path' => $path, 'valueType' => $valueType]
+        );
+    }
+
+    // A token inside an HTML tag rather than in text content. Escaping makes a value safe in text context only;
+    // in attribute context an escaped value can still terminate a quoted attribute, and supporting that properly
+    // would mean HTML-aware interpolation rather than string substitution.
+    public static function inlineMappingTokenInMarkup(string $path, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_TOKEN_IN_MARKUP,
+            'Inline mapping token "{{ path }}" in property "{{ propertyKey }}" sits inside an HTML tag. Tokens are only supported in text content, not in tags or attributes.',
+            ['path' => $path, 'propertyKey' => $propertyKey]
         );
     }
 

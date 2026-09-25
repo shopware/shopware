@@ -12,8 +12,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
@@ -246,6 +248,127 @@ class StoredMappingInspectorTest extends TestCase
         static::assertSame(self::CATEGORY_NAME_PATH, $problems[0]->sourcePath);
     }
 
+    #[TestDox('admits an inline token naming a catalogued string path in an inlineMappable property')]
+    public function testAdmitsAnInlineTokenFromACataloguedPath(): void
+    {
+        $element = $this->elementWithText('Buy the {{map:category.name}} today');
+
+        static::assertSame([], $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category'));
+    }
+
+    #[TestDox('rejects an inline token in a property that did not declare inlineMappable')]
+    public function testRejectsAnInlineTokenInAPropertyThatDidNotOptIn(): void
+    {
+        $element = $this->elementWithText('Buy the {{map:category.name}} today');
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: false))->inspect([$element], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertSame(ContentSystemException::PROPERTY_NOT_INLINE_MAPPABLE, $problems[0]->exception->getErrorCode());
+    }
+
+    #[TestDox('rejects an inline token naming a path the catalogue does not offer')]
+    public function testRejectsAnInlineTokenWithAnUncataloguedPath(): void
+    {
+        $element = $this->elementWithText('A note: {{map:category.internalNote}}');
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertSame(ContentSystemException::UNKNOWN_INLINE_MAPPING_PATH, $problems[0]->exception->getErrorCode());
+        static::assertSame('category.internalNote', $problems[0]->sourcePath);
+    }
+
+    #[TestDox('rejects an inline token whose catalogued value has no text form')]
+    public function testRejectsAnInlineTokenWhoseValueIsNotStringifiable(): void
+    {
+        $element = $this->elementWithText('Look: {{map:category.media}}');
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertSame(
+            ContentSystemException::INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE,
+            $problems[0]->exception->getErrorCode()
+        );
+    }
+
+    /**
+     * Escaping makes a value safe in text context only, so a token in attribute position is refused outright
+     * rather than escaped and hoped for.
+     */
+    #[TestDox('rejects an inline token sitting inside an HTML tag rather than in text content')]
+    public function testRejectsAnInlineTokenInsideMarkup(): void
+    {
+        $element = $this->elementWithText('<a href="/p/{{map:category.name}}">link</a>');
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertSame(ContentSystemException::INLINE_MAPPING_TOKEN_IN_MARKUP, $problems[0]->exception->getErrorCode());
+    }
+
+    #[TestDox('reports every bad token in one property rather than stopping at the first')]
+    public function testReportsEveryBadTokenInOneProperty(): void
+    {
+        $element = $this->elementWithText('{{map:category.internalNote}} and {{map:category.otherNote}}');
+
+        $problems = $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category');
+
+        static::assertCount(2, $problems);
+        static::assertSame(
+            ['category.internalNote', 'category.otherNote'],
+            array_map(static fn ($problem): string => $problem->sourcePath, $problems)
+        );
+    }
+
+    /**
+     * The gate's shape rule has to match what the render path expands, and the expander takes top-level string
+     * properties only. A token inside a list would never be resolved, so reporting it would be a false alarm.
+     */
+    #[TestDox('ignores a token nested inside a container property, which the render path never expands')]
+    public function testIgnoresATokenInsideAContainerProperty(): void
+    {
+        $element = new StoredElement(
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+            properties: ['text' => StoredValue::ofList([StoredValue::ofString('{{map:category.internalNote}}')])],
+        );
+
+        static::assertSame([], $this->inspector($this->textElementType(inlineMappable: true))->inspect([$element], 'category'));
+    }
+
+    #[TestDox('inspectInline reports the inline rules without the whole-field ones')]
+    public function testInspectInlineReportsOnlyTheInlineRules(): void
+    {
+        $inlineOffender = $this->elementWithText('{{map:category.internalNote}}');
+        $wholeFieldOffender = $this->elementMapping('category.internalNote', onto: 'text', id: 'element-2');
+
+        $inspector = $this->inspector($this->textElementType(inlineMappable: true));
+        $problems = $inspector->inspectInline([$inlineOffender, $wholeFieldOffender], 'category');
+
+        static::assertCount(1, $problems);
+        static::assertSame('element-1', $problems[0]->elementId);
+        static::assertSame(ContentSystemException::UNKNOWN_INLINE_MAPPING_PATH, $problems[0]->exception->getErrorCode());
+    }
+
+    #[TestDox('leaves an ordinary placeholder alone, because only the map: prefix marks a mapping')]
+    public function testIgnoresAPlaceholderWithoutTheMapPrefix(): void
+    {
+        $element = $this->elementWithText('Hello {{productId}} and {{category.name}}');
+
+        static::assertSame([], $this->inspector($this->textElementType(inlineMappable: false))->inspect([$element], 'category'));
+    }
+
+    private function elementWithText(string $text, string $id = 'element-1'): StoredElement
+    {
+        return new StoredElement(
+            id: $id,
+            component: 'Sw:Content:Text',
+            properties: ['text' => StoredValue::ofString($text)],
+        );
+    }
+
     private function elementMapping(
         string $path,
         string $onto,
@@ -268,10 +391,10 @@ class StoredMappingInspectorTest extends TestCase
         );
     }
 
-    private function textElementType(bool $mappable): ContentSystemElementTypeSpecification
+    private function textElementType(bool $mappable = false, bool $inlineMappable = false): ContentSystemElementTypeSpecification
     {
         return ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
-            ->primitive('text', 'string', mappable: $mappable)
+            ->primitive('text', 'string', mappable: $mappable, inlineMappable: $inlineMappable)
             ->build();
     }
 
@@ -320,6 +443,7 @@ class StoredMappingInspectorTest extends TestCase
             new MappingTypeCompatibility(),
             new MappingConsumers(),
             new ContentSystemPropertyProjectionRegistry($projections ?? [new StubUppercaseProjection()]),
+            new InlineMappingTokenParser(),
         );
     }
 }

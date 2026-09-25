@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
@@ -117,6 +118,7 @@ class StoredMappingValidatorTest extends TestCase
             new MappingTypeCompatibility(),
             new MappingConsumers(),
             new ContentSystemPropertyProjectionRegistry([]),
+            new InlineMappingTokenParser(),
         ));
     }
 }

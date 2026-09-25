@@ -233,6 +233,48 @@ class PromotionDeliveryCalculatorTest extends TestCase
     }
 
     /**
+     * A valid delivery promotion keeps its exclusions even when its own discount does not reduce shipping costs.
+     */
+    public function testValidDeliveryPromotionWithZeroDiscountExcludesLowerPriorityPromotion(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition): CalculatedPrice {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $zeroDiscountItem = $this->getDiscountItem('zero-discount-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('exclusions', ['excluded-promotion'])
+            ->setPayloadValue('priority', 2)
+            ->setPriceDefinition(new AbsolutePriceDefinition(0));
+        $excludedDiscountItem = $this->getDiscountItem('excluded-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('priority', 1);
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$excludedDiscountItem, $zeroDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice());
+        static::assertTrue($cart->getErrors()->has('promotion-not-eligible'));
+    }
+
+    /**
      * Test that fixed delivery discounts don't bypass exclusion checks
      * This test reproduces the bug where a fixed delivery discount is applied
      * even when excluded by a higher priority cart discount

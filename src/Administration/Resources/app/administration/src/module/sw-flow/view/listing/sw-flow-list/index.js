@@ -16,17 +16,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
     emits: ['on-update-total'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing')],
 
     props: {
         searchTerm: {
@@ -109,6 +103,7 @@ export default {
             return this.$t('global.default.edit');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

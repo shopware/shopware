@@ -132,7 +132,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$'"
+                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -187,6 +187,15 @@
                             "schema": {
                                 "allOf": [
                                     {
+                                        "properties": {
+                                            "slots": {
+                                                "description": "Resolves only the given slot identifiers. The identifiers have to be separated by a `|` character.",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
                                         "$ref": "#/components/schemas/NoneFieldsCriteria"
                                     }
                                 ]
@@ -239,7 +248,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$'"
+                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -267,6 +276,15 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "slots",
+                        "in": "query",
+                        "description": "Resolves only the given slot identifiers. The identifiers have to be separated by a `|` character.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -337,11 +355,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -440,11 +454,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -591,8 +601,7 @@
                             "schema": {
                                 "required": [
                                     "title",
-                                    "content",
-                                    "points"
+                                    "content"
                                 ],
                                 "properties": {
                                     "name": {
@@ -612,7 +621,7 @@
                                         "type": "string"
                                     },
                                     "points": {
-                                        "description": "The review rating for the product.",
+                                        "description": "The review rating for the product. When it is omitted, the review is saved without a rating.",
                                         "type": "number",
                                         "format": "double"
                                     }
@@ -623,7 +632,7 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "204": {
                         "description": "Success response indicating the review was saved successfully."
                     },
                     "400": {

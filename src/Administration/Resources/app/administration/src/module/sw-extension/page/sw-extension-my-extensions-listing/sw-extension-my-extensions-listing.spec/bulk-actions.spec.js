@@ -309,15 +309,10 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 },
                 {
                     permissions: {
-                        product: [
-                            { entity: 'product', operation: 'read' },
-                        ],
+                        product: [{ entity: 'product', operation: 'read' }],
                         order: [{ entity: 'order', operation: 'read' }],
                     },
-                    domains: [
-                        'a.example.com',
-                        'b.example.com',
-                    ],
+                    domains: ['a.example.com', 'b.example.com'],
                 },
             ]);
 
@@ -328,10 +323,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 ],
                 order: [{ entity: 'order', operation: 'read' }],
             });
-            expect(result.domains).toEqual([
-                'a.example.com',
-                'b.example.com',
-            ]);
+            expect(result.domains).toEqual(['a.example.com', 'b.example.com']);
         });
 
         it('should treat a missing permissions/domains field as empty', async () => {

@@ -334,6 +334,9 @@ class StateMachineRegistryTest extends TestCase
             ->method('upsert')
             ->with([['id' => $transition->getEntityId(), 'stateId' => $coreDestination->getId()]], $context);
 
+        $fixture->historyRepository->expects($this->once())
+            ->method('create');
+
         $stateMachineStates = $fixture->registry->transition($transition, $context);
 
         static::assertSame($coreDestination, $stateMachineStates->get('toPlace'));

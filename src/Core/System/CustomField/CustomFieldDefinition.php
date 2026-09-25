@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -63,7 +64,16 @@ class CustomFieldDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of a custom field.'),
             (new StringField('name', 'name'))->addFlags(new Required(), new Immutable())->setDescription('Unique name of a custom field.'),
             (new StringField('type', 'type'))->addFlags(new Required(), new Immutable())->setDescription('Custom field type can be selection, media , etc'),
-            (new JsonField('config', 'config', [], []))->setDescription('Specifies detailed information about the component.'),
+            (new JsonField('config', 'config', [
+                new StringField('componentName', 'componentName'),
+                new StringField('customFieldType', 'customFieldType'),
+                new IntField('customFieldPosition', 'customFieldPosition'),
+                new StringField('dateType', 'dateType'),
+                new StringField('entity', 'entity'),
+                new StringField('numberType', 'numberType'),
+                new StringField('type', 'type'),
+                new StringField('validation', 'validation'),
+            ], [], allowAdditionalProperties: true))->setDescription('Specifies detailed information about the component.'),
             (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the custom field is enabled for use.'),
             (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->setDescription('Unique identity of customFieldSet.'),
             (new BoolField('allow_customer_write', 'allowCustomerWrite'))->setDescription('When boolean value is `true`, then customers have permission to write data in the custom field.'),

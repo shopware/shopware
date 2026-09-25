@@ -107,7 +107,7 @@ class CheckoutControllerTest extends TestCase
     {
         return [
             ["  Hello, \nthis is a customer comment!  ", "Hello, \nthis is a customer comment!"],
-            ['<script>alert("hello")</script>', 'alert("hello")'],
+            ['<script>alert("hello")</script>', ''],
             ['<h1>Hello</h1><br><br>This is a Test! ', 'HelloThis is a Test!'],
             ['  ', null],
             ['', null],

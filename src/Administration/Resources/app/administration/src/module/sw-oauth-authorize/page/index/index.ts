@@ -20,10 +20,7 @@ const REQUIRED_PARAMS = [
     'code_challenge_method',
 ] as const;
 
-const OPTIONAL_PARAMS = [
-    'state',
-    'scope',
-] as const;
+const OPTIONAL_PARAMS = ['state', 'scope'] as const;
 
 /**
  * @sw-package framework
@@ -32,10 +29,7 @@ const OPTIONAL_PARAMS = [
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'oauthAuthorizeApiService',
-        'systemConfigApiService',
-    ],
+    inject: ['oauthAuthorizeApiService', 'systemConfigApiService'],
 
     data(): {
         isLoading: boolean;
@@ -123,10 +117,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            await Promise.all([
-                this.loadInfo(),
-                this.loadShopName(),
-            ]);
+            await Promise.all([this.loadInfo(), this.loadShopName()]);
 
             this.isLoading = false;
         },

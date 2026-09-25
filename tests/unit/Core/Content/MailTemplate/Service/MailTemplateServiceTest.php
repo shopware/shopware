@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
@@ -18,12 +19,15 @@ use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -46,6 +50,10 @@ class MailTemplateServiceTest extends TestCase
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private AbstractTranslator&Stub $translator;
+
+    private LanguageLocaleCodeProvider&Stub $languageLocaleProvider;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -55,6 +63,8 @@ class MailTemplateServiceTest extends TestCase
         $this->mailDataSimulator = $this->createMock(MailDataSimulator::class);
         $this->mailTemplateContentBuilder = new MailTemplateContentBuilder();
         $this->eventDispatcher = new EventDispatcher();
+        $this->translator = static::createStub(AbstractTranslator::class);
+        $this->languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
     }
 
     public function testLoadTemplate(): void
@@ -583,12 +593,156 @@ class MailTemplateServiceTest extends TestCase
         ];
     }
 
+    public function testPreviewRendersWithSalesChannelInjectedIntoTranslator(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $calls = [];
+
+        $this->mailDataProvider->expects($this->once())->method('getTemplateData')->willReturn([]);
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
+
+        $this->languageLocaleProvider->method('getLocaleForLanguageId')->willReturn('de-DE');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())
+            ->method('injectSettings')
+            ->with('sales-channel-id', Defaults::LANGUAGE_SYSTEM, 'de-DE', $context)
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'inject';
+            });
+
+        $translator->expects($this->once())
+            ->method('resetInjection')
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'reset';
+            });
+
+        $this->templateRenderer->expects($this->exactly(4))
+            ->method('render')
+            ->willReturnCallback(static function () use (&$calls): string {
+                $calls[] = 'render';
+
+                return 'rendered';
+            });
+
+        $this->createService(translator: $translator)->preview(
+            new PreviewRequest($this->createMailTemplate(), salesChannel: $salesChannel),
+            $context,
+        );
+
+        static::assertSame(['inject', 'render', 'render', 'render', 'render', 'reset'], $calls);
+    }
+
+    public function testPreviewDoesNotInjectTranslatorWithoutSalesChannel(): void
+    {
+        $this->mailDataProvider->expects($this->once())->method('getTemplateData')->willReturn([]);
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
+        $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('rendered');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->never())->method('injectSettings');
+        $translator->expects($this->never())->method('resetInjection');
+
+        $this->createService(translator: $translator)->preview(new PreviewRequest($this->createMailTemplate()), Context::createDefaultContext());
+    }
+
+    public function testSimulateRendersWithSalesChannelInjectedIntoTranslator(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $calls = [];
+
+        $this->mailDataSimulator->expects($this->once())->method('getTemplateData')->willReturn([]);
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
+
+        $this->languageLocaleProvider->method('getLocaleForLanguageId')->willReturn('de-DE');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())
+            ->method('injectSettings')
+            ->with('sales-channel-id', Defaults::LANGUAGE_SYSTEM, 'de-DE', $context)
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'inject';
+            });
+
+        $translator->expects($this->once())
+            ->method('resetInjection')
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'reset';
+            });
+
+        $this->templateRenderer->expects($this->once())
+            ->method('render')
+            ->willReturnCallback(static function () use (&$calls): string {
+                $calls[] = 'render';
+
+                return 'rendered';
+            });
+
+        $this->createService(translator: $translator)->simulate(
+            new SimulateRequest(templateParts: ['subject' => 'subject'], eventName: 'checkout.order.placed', salesChannel: $salesChannel),
+            $context,
+        );
+
+        static::assertSame(['inject', 'render', 'reset'], $calls);
+    }
+
+    public function testPreviewResetsTranslatorWhenInjectingTheSettingsFails(): void
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $exception = new \RuntimeException('Snippet set could not be resolved');
+
+        $this->mailDataProvider->expects($this->once())->method('getTemplateData')->willReturn([]);
+        $this->mailDataSimulator->expects($this->never())->method('getTemplateData');
+        $this->templateRenderer->expects($this->never())->method('enableTestMode');
+        $this->templateRenderer->expects($this->never())->method('render');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())->method('injectSettings')->willThrowException($exception);
+        $translator->expects($this->once())->method('resetInjection');
+
+        $this->expectExceptionObject($exception);
+
+        $this->createService(translator: $translator)->preview(
+            new PreviewRequest($this->createMailTemplate(), salesChannel: $salesChannel),
+            Context::createDefaultContext(),
+        );
+    }
+
+    public function testSimulateResetsTranslatorWhenInjectingTheSettingsFails(): void
+    {
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $exception = new \RuntimeException('Snippet set could not be resolved');
+
+        $this->mailDataSimulator->expects($this->once())->method('getTemplateData')->willReturn([]);
+        $this->mailDataProvider->expects($this->never())->method('getTemplateData');
+        $this->templateRenderer->expects($this->never())->method('enableTestMode');
+        $this->templateRenderer->expects($this->never())->method('render');
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator->expects($this->once())->method('injectSettings')->willThrowException($exception);
+        $translator->expects($this->once())->method('resetInjection');
+
+        $this->expectExceptionObject($exception);
+
+        $this->createService(translator: $translator)->simulate(
+            new SimulateRequest(templateParts: ['subject' => 'subject'], eventName: 'checkout.order.placed', salesChannel: $salesChannel, strictRendering: false),
+            Context::createDefaultContext(),
+        );
+    }
+
     /**
      * @param StaticEntityRepository<MailTemplateCollection>|null $mailTemplateRepository
      */
     private function createService(
         ?StaticEntityRepository $mailTemplateRepository = null,
-        ?EventDispatcherInterface $eventDispatcher = null
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?AbstractTranslator $translator = null,
     ): MailTemplateService {
         /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository ??= new StaticEntityRepository([]);
@@ -600,6 +754,8 @@ class MailTemplateServiceTest extends TestCase
             $this->mailDataSimulator,
             $this->mailTemplateContentBuilder,
             $eventDispatcher ?? $this->eventDispatcher,
+            $translator ?? $this->translator,
+            $this->languageLocaleProvider,
         );
     }
 

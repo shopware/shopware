@@ -30,11 +30,7 @@ export default {
         };
     },
 
-    emits: [
-        'create-before',
-        'create-after',
-        'condition-delete',
-    ],
+    emits: ['create-before', 'create-after', 'condition-delete'],
 
     props: {
         condition: {
@@ -77,21 +73,12 @@ export default {
                 return {};
             }
 
-            return Object.entries(valueErrors).reduce(
-                (
-                    acc,
-                    [
-                        key,
-                        node,
-                    ],
-                ) => {
-                    if (node instanceof ShopwareError) {
-                        acc[key] = node;
-                    }
-                    return acc;
-                },
-                {},
-            );
+            return Object.entries(valueErrors).reduce((acc, [key, node]) => {
+                if (node instanceof ShopwareError) {
+                    acc[key] = node;
+                }
+                return acc;
+            }, {});
         },
 
         typeError() {

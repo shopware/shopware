@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -34,7 +34,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('rules')]
 class PromotionValueRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -283,21 +282,21 @@ class PromotionValueRuleTest extends TestCase
 
     public function testFilter(): void
     {
-        $item = $this->createLineItemWithPrice(LineItem::PROMOTION_LINE_ITEM_TYPE, -40)->setPayloadValue('promotionCodeType', 'fixed');
-        $item2 = $this->createLineItemWithPrice(LineItem::PROMOTION_LINE_ITEM_TYPE, -100)->setPayloadValue('promotionCodeType', 'global');
+        $item = CartRuleFixture::createLineItemWithPrice(LineItem::PROMOTION_LINE_ITEM_TYPE, -40)->setPayloadValue('promotionCodeType', 'fixed');
+        $item2 = CartRuleFixture::createLineItemWithPrice(LineItem::PROMOTION_LINE_ITEM_TYPE, -100)->setPayloadValue('promotionCodeType', 'global');
 
-        $cart = $this->createCart(new LineItemCollection([$item, $item2]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$item, $item2]));
 
         $this->assertRuleMatches($cart);
     }
 
     public function testFilterNested(): void
     {
-        $item = $this->createLineItemWithPrice(LineItem::PROMOTION_LINE_ITEM_TYPE, -40)->setPayloadValue('promotionCodeType', 'fixed');
-        $item2 = $this->createLineItemWithPrice(LineItem::PROMOTION_LINE_ITEM_TYPE, -100)->setPayloadValue('promotionCodeType', 'global');
+        $item = CartRuleFixture::createLineItemWithPrice(LineItem::PROMOTION_LINE_ITEM_TYPE, -40)->setPayloadValue('promotionCodeType', 'fixed');
+        $item2 = CartRuleFixture::createLineItemWithPrice(LineItem::PROMOTION_LINE_ITEM_TYPE, -100)->setPayloadValue('promotionCodeType', 'global');
 
-        $containerLineItem = $this->createContainerLineItem(new LineItemCollection([$item, $item2]));
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem(new LineItemCollection([$item, $item2]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $this->assertRuleMatches($cart);
     }
@@ -313,7 +312,7 @@ class PromotionValueRuleTest extends TestCase
             'operator' => Rule::OPERATOR_EQ,
         ]);
 
-        $mock = $this->createMock(SalesChannelContext::class);
+        $mock = static::createStub(SalesChannelContext::class);
         $scope = new CartRuleScope($cart, $mock);
 
         static::assertTrue($rule->match($scope));

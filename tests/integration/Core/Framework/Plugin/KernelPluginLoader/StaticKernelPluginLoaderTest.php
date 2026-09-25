@@ -329,7 +329,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
     public function testExpectExceptionExternalPath(): void
     {
-        $classLoader = $this->createMock(ClassLoader::class);
+        $classLoader = static::createStub(ClassLoader::class);
 
         $plugin = $this->getInstalledInactivePlugin();
         $plugin->setPath('/custom/plugins/TestPlugin');

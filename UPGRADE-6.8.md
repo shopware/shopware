@@ -30,6 +30,18 @@ GROUP BY t.state_machine_id, t.from_state_id, t.action_name
 HAVING COUNT(*) > 1;
 ```
 
+## Password recovery and mail events can no longer be received by webhooks
+
+`user.recovery.request`, `customer.recovery.request`, `mail.before.send` and `mail.after.create.message` were removed from the events an app may subscribe to with a webhook. They have not been delivered since 6.7; a manifest with a `<webhook>` for any of them is now rejected on install and update with a `WebhookNotPermittedError`.
+
+Remove the webhook from your manifest. The events remain available in Flow Builder.
+
+Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
+
+## `EventDataCollection` is final
+
+`\Shopware\Core\Framework\Event\EventData\EventDataCollection` is now `final` and `add()` takes `array $options = []` as third parameter.
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
@@ -317,6 +329,9 @@ Previously, these routes could return unrelated records or fail because the unde
 ## Customer group price fields are required
 
 `customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working unchanged; writing an explicit `null` for `priceBasis` is rejected. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string` — a `null` basis no longer exists, the price basis no longer follows the display mode. Pass an explicit `'net'` or `'gross'` instead.
+## `Feature` is final
+
+`Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.
 
 ## `AbstractCartPersister::exists()` is abstract
 
@@ -1260,6 +1275,24 @@ The method must raise the stored increment state to at least the given value wit
 ## Deprecated block `sw_settings_customer_group_detail_content_card_display_gross`
 
 The gross display toggle on the customer group detail page was replaced by two separate controls, one for the tax display and one for the price calculation basis. The old block `sw_settings_customer_group_detail_content_card_display_gross` in `sw-settings-customer-group-detail.html.twig` remains as an empty extension point and will be removed with 6.8. Extensions that customized the toggle have to extend the blocks of the new controls instead.
+## Custom-field set loader computed properties removed
+
+The deprecated custom-field set loader computed properties were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-category-detail` (categories and landing pages) | `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria` |
+| `sw-customer-detail-base` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-customer-detail-addresses` | `customFieldSetRepository` |
+| `sw-manufacturer-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-order-detail-details` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-sales-channel-detail` | `customFieldRepository` |
+| `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` |
+
+These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
+
+`sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
@@ -1577,6 +1610,20 @@ Before:
 After:
 ```html
 <mt-empty-state title="short title" description="longer description"/>
+```
+
+## Removed empty state Twig block anchors
+
+The empty Twig anchors left behind when Administration empty states moved to `mt-empty-state` were removed: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. The product detail anchors went the same way: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`, `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited` and `sw_product_detail_cross_selling_empty_state_content_empty`. Override the surrounding `*_empty_state` block and pass the icon through the `icon` prop of `mt-empty-state` instead.
+
+## Removed the `assetFilter` computed of the empty state components
+
+The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card` and `sw-tax-rule-card`.
+
+An override that read it resolves the filter directly instead:
+
+```js
+Shopware.Filter.getByName('asset');
 ```
 
 ## `sw-tabs` automatic wrapper switch deferred
@@ -2098,6 +2145,16 @@ The old classes are removed:
 
 `\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
 The HTTP route is still the same. The old class has been removed.
+
+## Removed Elasticsearch search configuration loader alias
+
+`Shopware\Elasticsearch\Product\SearchConfigLoader` was removed.
+Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
+
+## Removed asset service alias
+
+`Shopware\Core\Framework\Plugin\Util\AssetService` was removed.
+The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now internal and must not be used as an extension dependency.
 
 ## Removal of snippets
 

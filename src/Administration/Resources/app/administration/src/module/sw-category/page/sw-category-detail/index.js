@@ -19,12 +19,10 @@ export default {
         'repositoryFactory',
         'seoUrlService',
         'systemConfigApiService',
+        'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -135,10 +133,12 @@ export default {
             return this.category ? this.category.cmsPageId : null;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -147,6 +147,7 @@ export default {
             return criteria;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetLandingPageCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -299,10 +300,7 @@ export default {
             return;
         }
 
-        const keysToDelete = [
-            'id',
-            'versionId',
-        ];
+        const keysToDelete = ['id', 'versionId'];
         const changedKeys = Object.keys(changes).filter((key) => !keysToDelete.includes(key));
         const hasDeletions = deletionQueue.length > 0;
 
@@ -472,9 +470,7 @@ export default {
                     return;
                 }
 
-                Shopware.Store.get('shopwareApps').selectedIds = [
-                    this.landingPageId,
-                ];
+                Shopware.Store.get('shopwareApps').selectedIds = [this.landingPageId];
                 await Shopware.Store.get('swCategoryDetail').loadActiveLandingPage({
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -507,9 +503,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('shopwareApps').selectedIds = [
-                this.categoryId,
-            ];
+            Shopware.Store.get('shopwareApps').selectedIds = [this.categoryId];
             Shopware.Store.get('swCategoryDetail')
                 .loadActiveCategory({
                     repository: this.categoryRepository,
@@ -531,8 +525,8 @@ export default {
         loadCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository
-                .search(this.customFieldSetCriteria)
+            return this.customFieldDataProviderService
+                .getCustomFieldSets('category', false, null)
                 .then((customFieldSet) => {
                     Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
                 })
@@ -544,8 +538,8 @@ export default {
         loadLandingPageCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository
-                .search(this.customFieldSetLandingPageCriteria)
+            return this.customFieldDataProviderService
+                .getCustomFieldSets('landing_page', false, null)
                 .then((customFieldSet) => {
                     Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
                 })

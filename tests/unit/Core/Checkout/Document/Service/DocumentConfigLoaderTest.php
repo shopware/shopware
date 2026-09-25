@@ -99,11 +99,8 @@ class DocumentConfigLoaderTest extends TestCase
         static::assertSame($this->ids->get('document-sales-channel'), $salesChannel->getUniqueIdentifier());
     }
 
-    /**
-     * @param list<string> $activeFeatures
-     */
     #[DataProvider('logoUrlProvider')]
-    public function testLoadNormalizesLogoUrl(?string $logoUrl, array $activeFeatures, ?string $expectedLogoUrl): void
+    public function testLoadNormalizesLogoUrl(?string $logoUrl, bool $mediaUrlPathEncoding, ?string $expectedLogoUrl): void
     {
         $document = new DocumentBaseConfigEntity();
         $document->setId($this->ids->get('document'));
@@ -132,7 +129,7 @@ class DocumentConfigLoaderTest extends TestCase
             new DocumentBaseConfigDefinition(),
         );
 
-        Feature::fake($activeFeatures, function () use ($configRepository, $context, $expectedLogoUrl): void {
+        $check = function () use ($configRepository, $context, $expectedLogoUrl): void {
             $countryRepository = new StaticEntityRepository([], new CountryDefinition());
 
             $loader = new DocumentConfigLoader(
@@ -145,35 +142,41 @@ class DocumentConfigLoaderTest extends TestCase
 
             static::assertSame($expectedLogoUrl, $config->getLogo()?->getUrl());
             static::assertSame($expectedLogoUrl, $cachedConfig->getLogo()?->getUrl());
-        });
+        };
+
+        if ($mediaUrlPathEncoding) {
+            Feature::withFeatureEnabled('MEDIA_URL_PATH_ENCODING', $check);
+        } else {
+            Feature::withFeatureDisabled('MEDIA_URL_PATH_ENCODING', $check);
+        }
     }
 
     /**
-     * @return iterable<string, array{logoUrl: string|null, activeFeatures: list<string>, expectedLogoUrl: string|null}>
+     * @return iterable<string, array{logoUrl: string|null, mediaUrlPathEncoding: bool, expectedLogoUrl: string|null}>
      */
     public static function logoUrlProvider(): iterable
     {
         yield 'encodes raw logo url' => [
             'logoUrl' => 'https://example.com/media/my logo_test.webp',
-            'activeFeatures' => [],
+            'mediaUrlPathEncoding' => false,
             'expectedLogoUrl' => 'https://example.com/media/my%20logo_test.webp',
         ];
 
         yield 'keeps logo url untouched' => [
             'logoUrl' => 'https://example.com/media/my logo_test.webp',
-            'activeFeatures' => ['v6.8.0.0'],
+            'mediaUrlPathEncoding' => true,
             'expectedLogoUrl' => 'https://example.com/media/my logo_test.webp',
         ];
 
         yield 'empty logo url is kept' => [
             'logoUrl' => '',
-            'activeFeatures' => [],
+            'mediaUrlPathEncoding' => false,
             'expectedLogoUrl' => '',
         ];
 
         yield 'missing logo is ignored' => [
             'logoUrl' => null,
-            'activeFeatures' => [],
+            'mediaUrlPathEncoding' => false,
             'expectedLogoUrl' => null,
         ];
     }

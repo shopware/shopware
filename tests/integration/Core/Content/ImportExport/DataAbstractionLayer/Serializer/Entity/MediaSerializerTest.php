@@ -152,7 +152,7 @@ class MediaSerializerTest extends TestCase
 
     public function testUrlWithWhitespaces(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('MEDIA_URL_PATH_ENCODING', $this);
         $context = Context::createDefaultContext();
         $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
         $mediaDefinition = static::getContainer()->get(MediaDefinition::class);

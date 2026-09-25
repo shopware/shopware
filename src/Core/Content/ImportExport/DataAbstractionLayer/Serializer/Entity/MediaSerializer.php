@@ -66,7 +66,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
             return $deserialized;
         }
 
-        if (!Feature::isActive('v6.8.0.0')) {
+        if (!Feature::isActive('MEDIA_URL_PATH_ENCODING')) {
             $url = UrlEncoder::encodeUrl($url);
         }
 

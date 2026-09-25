@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -81,16 +82,45 @@ class MediaUrlGeneratorTest extends TestCase
         static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
     }
 
-    public function testWithInactive68Major(): void
+    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
+    public function testWithInactiveMediaUrlPathEncoding(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
         $generator = new MediaUrlGenerator(
             new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
         );
 
         $url = $generator->generate([$params]);
+
+        static::assertSame(['http://localhost:8000/media/foo/3a/test file.jpg'], $url);
+    }
+
+    public function testMediaUrlEncodingCanBeEnabledWithoutTheMajorFlag(): void
+    {
+        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
+        );
+
+        $url = Feature::withFeatureDisabled('v6.8.0.0', static fn (): array => Feature::withFeatureEnabled(
+            'MEDIA_URL_PATH_ENCODING',
+            static fn (): array => $generator->generate([$params])
+        ));
+
+        static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
+    }
+
+    public function testMediaUrlEncodingCanBeDisabledWithTheMajorFlag(): void
+    {
+        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
+        );
+
+        $url = Feature::withFeatureEnabled('v6.8.0.0', static fn (): array => Feature::withFeatureDisabled(
+            'MEDIA_URL_PATH_ENCODING',
+            static fn (): array => $generator->generate([$params])
+        ));
 
         static::assertSame(['http://localhost:8000/media/foo/3a/test file.jpg'], $url);
     }

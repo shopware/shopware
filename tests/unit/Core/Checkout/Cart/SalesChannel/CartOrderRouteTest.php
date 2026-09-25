@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -30,6 +31,7 @@ use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -76,6 +78,61 @@ class CartOrderRouteTest extends TestCase
         $this->cartLocker->method('locked')->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
 
         $this->context = Generator::generateSalesChannelContext();
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function cartDeletionTimingProvider(): iterable
+    {
+        yield 'early deletion can be enabled before 6.8' => [true];
+        yield 'early deletion can be disabled while 6.8 is active' => [false];
+    }
+
+    #[DataProvider('cartDeletionTimingProvider')]
+    public function testCartDeletionTimingFollowsSubfeature(bool $earlyDeletion): void
+    {
+        $cart = new Cart('token');
+        $cart->setPrice(new CartPrice(15, 20, 1, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE));
+        $cart->add(new LineItem('id', 'type'));
+
+        $this->cartCalculator->method('calculate')->willReturn(new Cart('calculated'));
+        $this->orderPersister->method('persist')->willReturn('order-id');
+
+        $order = new OrderEntity();
+        $order->setId('order-id');
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new OrderCollection([$order]));
+        $this->orderRepository->method('search')->willReturn($searchResult);
+
+        $deleted = false;
+        $persister = $this->createMock(AbstractCartPersister::class);
+        $persister->expects($this->once())->method('delete')->willReturnCallback(static function () use (&$deleted): void {
+            $deleted = true;
+        });
+
+        $criteriaEventSeen = false;
+        $dispatcher = static::createStub(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(static function (object $event) use (&$criteriaEventSeen, &$deleted, $earlyDeletion): object {
+            if ($event instanceof CheckoutOrderPlacedCriteriaEvent) {
+                $criteriaEventSeen = true;
+                static::assertSame($earlyDeletion, $deleted);
+            }
+
+            return $event;
+        });
+
+        $route = $this->buildRoute(cartPersister: $persister, eventDispatcher: $dispatcher);
+        $placeOrder = fn () => $route->order($cart, $this->context, new RequestDataBag());
+
+        if ($earlyDeletion) {
+            Feature::withFeatureDisabled('v6.8.0.0', static fn () => Feature::withFeatureEnabled('DELETE_CART_AFTER_ORDER_CREATION', $placeOrder));
+        } else {
+            Feature::withFeatureEnabled('v6.8.0.0', static fn () => Feature::withFeatureDisabled('DELETE_CART_AFTER_ORDER_CREATION', $placeOrder));
+        }
+
+        static::assertTrue($criteriaEventSeen);
+        static::assertTrue($deleted);
     }
 
     public function testOrderResponseWithoutHash(): void

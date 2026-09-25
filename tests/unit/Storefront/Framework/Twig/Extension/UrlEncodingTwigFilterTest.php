@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
@@ -84,6 +85,27 @@ class UrlEncodingTwigFilterTest extends TestCase
         static::assertStringContainsString('example.com', $result);
         static::assertStringContainsString('file', $result);
         static::assertStringContainsString('spaces', $result);
+    }
+
+    public function testMediaUrlFilterUsesTheSubfeatureIndependentlyOfTheMajor(): void
+    {
+        $media = new MediaEntity();
+        $media->setUrl('https://example.com/media/file with spaces.jpg');
+        $media->setFileName('file with spaces.jpg');
+        $media->setFileExtension('jpg');
+        $media->setMimeType('image/jpeg');
+
+        $earlyOptIn = Feature::withFeatureDisabled('v6.8.0.0', fn (): ?string => Feature::withFeatureEnabled(
+            'MEDIA_URL_PATH_ENCODING',
+            fn (): ?string => $this->filter->encodeMediaUrl($media)
+        ));
+        $majorOptOut = Feature::withFeatureEnabled('v6.8.0.0', fn (): ?string => Feature::withFeatureDisabled(
+            'MEDIA_URL_PATH_ENCODING',
+            fn (): ?string => $this->filter->encodeMediaUrl($media)
+        ));
+
+        static::assertSame('https://example.com/media/file with spaces.jpg', $earlyOptIn);
+        static::assertSame('https://example.com/media/file%20with%20spaces.jpg', $majorOptOut);
     }
 
     public function testEncodeMediaUrlWithComplexMediaEntity(): void

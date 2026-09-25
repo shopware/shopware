@@ -32,11 +32,27 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
 
     public function enrichCriteria(Criteria $criteria, string $id, Context $context): void
     {
-        $stream = $this->loadStream($id, $context);
-        $criteria->addFilter(...$this->parseFilters($stream, $id));
+        $this->applyStream($criteria, $this->loadStream($id, $context), $id);
+    }
 
-        if (!$stream->isDisplayAsGroup()) {
-            $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+    public function enrichCriterias(array $criteriaByStreamId, Context $context): void
+    {
+        if ($criteriaByStreamId === []) {
+            return;
+        }
+
+        $streams = $this->loadStreams(array_keys($criteriaByStreamId), $context);
+
+        foreach ($criteriaByStreamId as $streamId => $criterias) {
+            $stream = $streams->get($streamId);
+
+            if (!$stream) {
+                throw ProductStreamException::productStreamNotFound($streamId);
+            }
+
+            foreach ($criterias as $criteria) {
+                $this->applyStream($criteria, $stream, $streamId);
+            }
         }
     }
 
@@ -51,6 +67,24 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
         );
 
         return $this->parseFilters($this->loadStream($id, $context), $id);
+    }
+
+    private function applyStream(Criteria $criteria, ProductStreamEntity $stream, string $id): void
+    {
+        $criteria->addFilter(...$this->parseFilters($stream, $id));
+
+        // the grouping state belongs to the criteria, so it is set for every criteria of the stream
+        if (!$stream->isDisplayAsGroup()) {
+            $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+        }
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    private function loadStreams(array $ids, Context $context): ProductStreamCollection
+    {
+        return $this->repository->search(new Criteria($ids), $context)->getEntities();
     }
 
     private function loadStream(string $id, Context $context): ProductStreamEntity

@@ -71,6 +71,13 @@ class ProductCrossSellingRouteTest extends TestCase
         $this->connection = static::createStub(Connection::class);
         $this->connection->method('fetchOne')->willReturn(false);
         $this->productStreamBuilder = static::createStub(ProductStreamBuilder::class);
+        $this->productStreamBuilder->method('enrichCriterias')->willReturnCallback(static function (array $criteriaByStreamId, mixed ...$_): void {
+            foreach ($criteriaByStreamId as $criterias) {
+                foreach ($criterias as $criteria) {
+                    $criteria->addFilter(new EqualsFilter('product.product_stream', 'stream-id'));
+                }
+            }
+        });
         $this->productStreamBuilder->method('enrichCriteria')->willReturnCallback(static function (Criteria $criteria, mixed ...$_): void {
             $criteria->addFilter(new EqualsFilter('product.product_stream', 'stream'));
         });
@@ -167,10 +174,13 @@ class ProductCrossSellingRouteTest extends TestCase
             )
         );
 
-        $this->productStreamBuilder->method('enrichCriteria')->willReturnCallback(static function (Criteria $criteria, string $id, mixed ...$_) use ($streamId): void {
-            static::assertSame($streamId, $id);
-            $criteria->addFilter(new EqualsFilter('product.product_stream', $streamId));
-            $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+        $this->productStreamBuilder->method('enrichCriterias')->willReturnCallback(static function (array $criteriaByStreamId) use ($streamId): void {
+            static::assertSame([$streamId], array_keys($criteriaByStreamId));
+
+            foreach ($criteriaByStreamId[$streamId] as $criteria) {
+                $criteria->addFilter(new EqualsFilter('product.product_stream', $streamId));
+                $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
+            }
         });
 
         $listingLoader = $this->createMock(ProductListingLoader::class);

@@ -88,11 +88,34 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $elements = new CrossSellingElementCollection();
 
+        /** @var list<array{crossSelling: ProductCrossSellingEntity, criteria: Criteria}> $prepared */
+        $prepared = [];
+        /** @var array<string, list<Criteria>> $criteriaByStreamId */
+        $criteriaByStreamId = [];
+
         foreach ($crossSellings as $crossSelling) {
             // CrossSellingElement is typed against ProductCollection, a field selection would load PartialEntity instances
             $clone = clone $criteria;
             $clone->resetFields();
 
+            $prepared[] = ['crossSelling' => $crossSelling, 'criteria' => $clone];
+
+            if (!$this->useProductStream($crossSelling) || !$this->productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                continue;
+            }
+
+            $productStreamId = $crossSelling->getProductStreamId();
+            \assert(\is_string($productStreamId));
+
+            $criteriaByStreamId[$productStreamId][] = $clone;
+        }
+
+        // the streams of all cross sellings are loaded together, instead of one stream per cross selling
+        if ($criteriaByStreamId !== [] && $this->productStreamBuilder instanceof AbstractProductStreamBuilder) {
+            $this->productStreamBuilder->enrichCriterias($criteriaByStreamId, $context->getContext());
+        }
+
+        foreach ($prepared as ['crossSelling' => $crossSelling, 'criteria' => $clone]) {
             if ($this->useProductStream($crossSelling)) {
                 $element = $this->loadByStream($crossSelling, $rootProductId, $context, $clone);
             } else {
@@ -165,11 +188,11 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         );
 
         $productStreamBuilder = $this->productStreamBuilder;
-        if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
-            $productStreamBuilder->enrichCriteria($criteria, $productStreamId, $context->getContext());
-        } else {
+        if (!$productStreamBuilder instanceof AbstractProductStreamBuilder) {
             $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $context->getContext()));
         }
+        // the criteria of an AbstractProductStreamBuilder was already enriched by load(), together with the criteria
+        // of every other cross selling
 
         $criteria
             ->addFilter($this->createProductExclusionFilter($rootProductId))

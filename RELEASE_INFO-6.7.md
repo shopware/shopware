@@ -45,6 +45,12 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### `AbstractProductStreamBuilder` can enrich the criteria of several streams at once
+
+`AbstractProductStreamBuilder::enrichCriterias()` takes the criteria of several product streams, keyed by stream id, so an implementation can load all of those streams with one query instead of one query per stream. A stream may carry more than one criteria, because the limit and the sorting of a criteria belong to the place it is used rather than to the stream.
+
+The method is not abstract and its default implementation calls `enrichCriteria()` per criteria, so an existing implementation keeps working unchanged. `ProductStreamBuilder` overrides it and loads the streams together; the product cross selling route uses it, so a product with several product stream cross sellings no longer loads one stream per cross selling.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses

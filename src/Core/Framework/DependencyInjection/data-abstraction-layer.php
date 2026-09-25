@@ -730,7 +730,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.field_serializer');
 
     $services->set(PHPUnserializeFieldSerializer::class)
-        ->tag('shopware.field_serializer');
+        ->tag('shopware.field_serializer')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(PriceFieldSerializer::class)
         ->args([

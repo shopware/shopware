@@ -45,6 +45,10 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### MCP handshake completes after a rate-limit backoff
+
+`notifications/initialized`, the message that completes the MCP handshake after `initialize`, now has its own rate limit on both MCP endpoints, so clients can connect again after a rate-limit backoff. The new route `mcp_initialized_notification` is configured under `shopware.api.rate_limiter` (default: 30 per minute per access token or client IP). All other MCP requests still count against `mcp_admin_api` and `mcp_store_api`.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses

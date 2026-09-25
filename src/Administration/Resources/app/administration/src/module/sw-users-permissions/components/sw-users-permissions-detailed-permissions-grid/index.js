@@ -40,12 +40,7 @@ export default {
         },
 
         allGeneralSelectedPrivileges() {
-            return [
-                ...new Set([
-                    ...this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges),
-                    ...this.privileges.getDefaultUserPrivileges(),
-                ]),
-            ];
+            return this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges);
         },
 
         permissionTypes() {

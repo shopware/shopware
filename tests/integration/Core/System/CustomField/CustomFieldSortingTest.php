@@ -75,8 +75,12 @@ class CustomFieldSortingTest extends TestCase
             ],
         ], $context);
 
-        $customField = $this->repository->search(new Criteria([$id]), $context)->first();
+        $customField = $this->repository->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertInstanceOf(CustomFieldEntity::class, $customField);
-        static::assertSame(['min' => 1, 'max' => 2.5, 'step' => 1], $customField->getConfig());
+        $config = $customField->getConfig();
+        static::assertIsArray($config);
+        static::assertSame(1, $config['min']);
+        static::assertSame(2.5, $config['max']);
+        static::assertSame(1, $config['step']);
     }
 }

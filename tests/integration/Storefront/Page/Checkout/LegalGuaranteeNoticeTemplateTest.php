@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
+namespace Shopware\Tests\Integration\Storefront\Page\Checkout;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +24,7 @@ use Twig\Environment;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 class LegalGuaranteeNoticeTemplateTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

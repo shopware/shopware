@@ -51,6 +51,7 @@ Three mechanisms decide how much runs:
   upcoming major flag is set directly in `integration-major.yml`, `acceptance.yml`,
   and the migration suite in `php.yml`; update those three workflow settings when
   the target major changes. `FEATURE_ALL` is not used for major CI.
+  The migration suite also sets the matching Composer root version; feature flags do not select migration namespaces.
 - **`markdown-only-changes`** — a first job in each heavy workflow that
   short-circuits docs-only PRs.
 

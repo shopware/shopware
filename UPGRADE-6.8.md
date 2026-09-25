@@ -326,9 +326,9 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## Feature flag grouping
+## Feature flag configuration
 
-`FEATURE_ALL` now enables every registered feature for any truthy value, including the previous `major`, `minor`, and version-shaped values. Set `V6_8_0_0=1` to opt in to the 6.8 behavior without activating unrelated or later features. The version-shaped name identifies the standalone major flag. Remove boolean `major: true` or `major: false` entries from custom feature configuration; use `major: v6.8.0.0` only for sub-features that should inherit the 6.8 flag. Features declaring that parent, including `JSON_LD_DATA` and `CACHE_REWORK`, are then active unless their own flag is explicitly disabled.
+Remove boolean `major: true` or `major: false` entries from custom feature configuration. The `major` field now accepts only the name of a parent major version flag, for example `major: v6.8.0.0`, for sub-features that become part of that release.
 
 ## `Feature` is final
 

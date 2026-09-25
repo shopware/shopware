@@ -107,10 +107,11 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator = $this->validator($gate, $registry);
 
         $command = $this->layoutCreate(['layout' => [], 'root_source' => 'bogus']);
-        $context = $this->contextWithMemoFor([$command]);
+        $write = $this->writeWithMemoFor([$command]);
+        $context = $write->getContext();
         $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
 
-        $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]);
+        $event = new PreWriteValidationEvent($write, [$command]);
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
@@ -123,11 +124,48 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator = $this->validator();
 
         $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
-        $context = $this->contextWithMemoFor([$command]);
+        $write = $this->writeWithMemoFor([$command]);
+
+        $validator->preValidate(new PreWriteValidationEvent($write, [$command]));
+
+        static::assertTrue($this->memoOf($write->getContext())->isEmpty());
+    }
+
+    #[TestDox('refuses to gate a layout command against a memo an earlier write opened')]
+    public function testForeignOwnedMemoIsNotConsumed(): void
+    {
+        $validator = $this->validator();
+
+        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
+        $earlierWrite = $this->writeWithMemoFor([$command]);
+        $memo = $this->memoOf($earlierWrite->getContext());
+
+        $currentWrite = WriteContext::createFromContext($earlierWrite->getContext());
+
+        $this->expectExceptionObject(
+            ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, '/insert')
+        );
+
+        try {
+            $validator->preValidate(new PreWriteValidationEvent($currentWrite, [$command]));
+        } finally {
+            static::assertFalse($memo->isEmpty(), 'The earlier write\'s entry must survive untouched.');
+        }
+    }
+
+    #[TestDox('leaves a memo an earlier write opened alone on the skip path')]
+    public function testForeignOwnedMemoIsNotDrainedUnderTheSkipState(): void
+    {
+        $validator = $this->validator();
+
+        $command = $this->layoutCreate(['layout' => [], 'root_source' => 'none']);
+        $earlierWrite = $this->writeWithMemoFor([$command]);
+        $context = $earlierWrite->getContext();
+        $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
 
         $validator->preValidate(new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]));
 
-        static::assertTrue($this->memoOf($context)->isEmpty());
+        static::assertFalse($this->memoOf($context)->isEmpty());
     }
 
     #[TestDox('leaves the memo untouched for a command that writes neither the layout nor the root source')]
@@ -139,12 +177,12 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $validator = $this->validator($gate);
 
         $command = $this->layoutUpdate(['name' => 'renamed']);
-        $context = Context::createDefaultContext();
-        $memo = new LayoutWriteContext();
+        $write = WriteContext::createFromContext(Context::createDefaultContext());
+        $memo = new LayoutWriteContext($write);
         $memo->remember($command->getEntityName(), $command->getDecodedPrimaryKey()['id'], $this->tree());
-        $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
+        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
 
-        $validator->preValidate(new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]));
+        $validator->preValidate(new PreWriteValidationEvent($write, [$command]));
 
         static::assertFalse($memo->isEmpty());
     }
@@ -160,10 +198,10 @@ class ContentLayoutWriteValidatorTest extends TestCase
 
         // No memo entry exists for this command; the gate must not look for one, or it would fail hard.
         $command = $this->layoutCreate(['root_source' => 'product']);
-        $context = Context::createDefaultContext();
-        $context->addExtension(LayoutWriteContext::EXTENSION_NAME, new LayoutWriteContext());
+        $write = WriteContext::createFromContext(Context::createDefaultContext());
+        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, new LayoutWriteContext($write));
 
-        $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), [$command]);
+        $event = new PreWriteValidationEvent($write, [$command]);
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
@@ -320,22 +358,20 @@ class ContentLayoutWriteValidatorTest extends TestCase
      */
     private function event(array $commands): PreWriteValidationEvent
     {
-        return new PreWriteValidationEvent(
-            WriteContext::createFromContext($this->contextWithMemoFor($commands)),
-            $commands
-        );
+        return new PreWriteValidationEvent($this->writeWithMemoFor($commands), $commands);
     }
 
     /**
-     * A context carrying what the layout field serializer would have left on it: one memoized tree per command
-     * that writes the layout column.
+     * A write carrying what the layout field serializer would have left on its Context: one memoized tree per
+     * command that writes the layout column. The memo is owned by the returned WriteContext, so the event must
+     * be built from this instance and not from a second one over the same Context.
      *
      * @param list<WriteCommand> $commands
      */
-    private function contextWithMemoFor(array $commands): Context
+    private function writeWithMemoFor(array $commands): WriteContext
     {
-        $context = Context::createDefaultContext();
-        $memo = new LayoutWriteContext();
+        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
+        $memo = new LayoutWriteContext($writeContext);
 
         foreach ($commands as $command) {
             if (!$command->hasField(ContentLayoutDefinition::LAYOUT_FIELD)) {
@@ -345,9 +381,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
             $memo->remember($command->getEntityName(), $command->getDecodedPrimaryKey()['id'], $this->tree());
         }
 
-        $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
+        $writeContext->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
 
-        return $context;
+        return $writeContext;
     }
 
     private function memoOf(Context $context): LayoutWriteContext

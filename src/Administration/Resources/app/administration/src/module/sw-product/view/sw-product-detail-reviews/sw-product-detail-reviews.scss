@@ -11,5 +11,9 @@
         .mt-card__content {
             padding: 0;
         }
+
+        .mt-card__content > .mt-empty-state {
+            margin-block: var(--scale-size-24);
+        }
     }
 }

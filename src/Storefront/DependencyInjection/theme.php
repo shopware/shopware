@@ -13,7 +13,6 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\Notification\NotificationService;
-use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -107,10 +106,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
-    $services->set(BundleConfigStyleFileResolver::class, StorefrontBundleConfigStyleFileResolver::class)
+    $services->set(StorefrontBundleConfigStyleFileResolver::class)
         ->args([
             service(StorefrontPluginRegistry::class),
-        ]);
+        ])
+        ->tag('shopware.bundle_config.style_file_resolver');
 
     $services->set(ScssPhpCompiler::class);
 

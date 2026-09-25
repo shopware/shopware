@@ -36,6 +36,11 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Order transaction state machine gained a transition
+
+The order transaction state machine now allows transitions from the state "unconfirmed" to "in_progress".
+This will allow async payment methods to leave the order transaction in "unconfirmed" after the pay step and transition to "in_progress" in the finalize step.
+
 ### Promotion redemptions are recounted faster
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
@@ -76,6 +81,43 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
+### Admin list and card empty states use `mt-empty-state`
+
+The prominent empty states of the Administration render `mt-empty-state` instead of `sw-empty-state`, plain text or illustration markup. List pages whose empty state means "nothing exists yet" offer their create action in its `button` slot, and the customer group, flow and rule lists hide their listing while the empty state shows, so blocks nested inside those listings no longer render.
+
+The Twig blocks that wrapped the former icon, image or label are now empty anchors, deprecated for removal in v6.8.0; pass a custom icon through the `icon` prop by overriding the surrounding `*_empty_state` block instead. `sw_promotion_v2_individual_codes_behavior_empty_state_actions` fills the `button` slot now, so overrides must switch from `<template #actions>` to `<template #button>`, and the former icon and label classes of these empty states no longer exist. The `assetFilter` computed of these components is deprecated for removal in v6.8.0; use `Shopware.Filter.getByName('asset')` instead.
+
+#### Deprecated Twig blocks and computed properties
+
+These Twig blocks are empty extension anchors now and are removed in v6.8.0:
+
+- `sw-flow-list`: `sw_flow_list_empty_state_icon`
+- `sw-mail-header-footer-list`: `sw_mail_header_footer_list_grid_empty_state_icon`
+- `sw-mail-template-list`: `sw_mail_template_list_grid_empty_state_icon`
+- `sw-order-create-address-modal`: `sw_order_create_address_modal_empty_state_content`
+- `sw-order-customer-grid`: `sw_order_customer_grid_empty_state_icon`
+- `sw-product-detail-context-prices`: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`
+- `sw-product-detail-cross-selling`: `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited`, `sw_product_detail_cross_selling_empty_state_content_empty`
+- `sw-promotion-v2-individual-codes-behavior`: `sw_promotion_v2_individual_codes_behavior_empty_state_icon`
+- `sw-sales-channel-products-assignment-dynamic-product-groups`: `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`
+- `sw-settings-listing`: `sw_settings_listing_content_card_view_options_card_empty_state_icon`
+- `sw-settings-listing-option-criteria-grid`: `sw_settings_listing_option_criteria_card_empty_state_icon`
+- `sw-settings-product-feature-sets-values-card`: `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`
+- `sw-tax-rule-card`: `sw_tax_rule_card_empty_state_image`, `sw_tax_rule_card_empty_state_label`
+
+The `assetFilter` computed property is removed in v6.8.0 in these components; use `Shopware.Filter.getByName('asset')` instead:
+
+- `sw-cms-layout-assignment-modal`
+- `sw-flow-list`
+- `sw-mail-header-footer-list`
+- `sw-mail-template-list`
+- `sw-order-customer-grid`
+- `sw-promotion-v2-individual-codes-behavior`
+- `sw-sales-channel-products-assignment-dynamic-product-groups`
+- `sw-settings-listing`
+- `sw-settings-listing-option-criteria-grid`
+- `sw-settings-product-feature-sets-values-card`
+- `sw-tax-rule-card`
 ### Main menu group "Catalogues" is now "Products"
 
 The first main menu group is labelled "Products", its product list entry is labelled "Overview", and the matching group in Settings > Users & permissions is labelled "Products" as well. Menu ids and privilege parent keys are unchanged: entries still hook into the `sw-catalogue` menu id, and privileges still use `parent: 'catalogues'`.

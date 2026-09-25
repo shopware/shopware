@@ -46,9 +46,10 @@
 
         <mt-empty-state
             v-else
-            :centered="true"
+            centered
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-media.sidebar.labelNoMediaSelected')"
+            description=""
         />
     </div>
     {% endblock %}

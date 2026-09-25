@@ -161,7 +161,7 @@
             "propertyLabel": "Eigenschaften",
             "mappingDescription": "Verwenden Sie die folgende Tabelle, um die CSV-Spaltennamen den Datenbankeinträgen zuzuordnen. Leere Pflichtfelder führen beim Import zu einem Fehler, es sei denn, es wurde ein Standardwert festgelegt.",
             "mappingAutomatedDescription": "Shopware hat {automatedCount} Datenbankeinträge automatisch der Datenbank zugewiesen. Bitte weise die noch fehlenden Einträge selber dem richtigen Datenbankeintrag zu. Wenn kein Standardwert festgelegt wurde, erzeugen Pflichtfelder Fehler beim Import. Die Standardwerte werden verwendet, um leere Datenbankeinträge zu füllen.",
-            "mappingEmptyState": "Noch keine benutzerdefinierten Zuweisungen.",
+            "mappingEmptyState": "Noch keine benutzerdefinierten Zuweisungen",
             "advancedDescription": "Bezeichner sind dazu da, aktualisierbare Entitäten eindeutig zu bestimmen und müssen daher eindeutig sein.",
             "configuratorSettingLabel": "Varianten-Konfiguration",
             "productCrossSellingLabel": "Cross Selling",

@@ -60,29 +60,45 @@ We choose option 4, and use it to run the phased move from option 3 in one place
 
 ### The internal result object
 
-Tools describe their result, not the wire format. A result object holds:
+Tools describe their result, not the wire format. The result object has to outlive more than one output format: the legacy envelope, both MCP protocol eras, and whatever MCP or other agent protocols define next. It is therefore designed around what a result means, not around how MCP spells it today.
 
-- the result data (what `data` holds today),
-- whether the call failed, and the error message and optional error details,
-- metadata such as `responseSize`,
-- links to large results that were stored instead of being sent inline.
+**What it holds.** Every part is optional except that a result is either a success or a failure.
 
-`McpToolResponse::success()` and `::error()` return this object instead of a JSON string. Tools that use these helpers, which is almost all core and plugin tools, don't have to change. Tools declare `outputSchema` against the result data, not against a wire format.
+| Part | Meaning | Why it is separate |
+|---|---|---|
+| Data | The machine-readable result: any JSON-serializable value, not only an object | The modern era already allows any JSON value; the handshake era needs an object, and the mapper wraps when needed |
+| Summary | A short text for the model or a human ("3 products updated") | Some formats want prose next to the data, others don't. If a tool gives none, the mapper derives the text from the data |
+| Error | A failure with a stable code (for example `missing_privilege`, `validation_failed`, `not_found`), a message and optional details, such as the missing privileges or the invalid fields | Formats differ in how they carry errors (`isError`, error objects, status codes). A stable code can be mapped to all of them. A message alone can't |
+| Content parts | Additional typed parts: text, image or other binary data with a MIME type, a link to a resource, an embedded resource | These map one to one to MCP content blocks today and to comparable concepts elsewhere (attachments, artifacts) |
+| Links to stored results | A reference to a result that is too large to send inline, with size and MIME type | Whether data goes inline or behind a link is decided by the mapper, based on the size limit of the target format, not by the tool |
+| Metadata | Well-known typed fields (pagination, `dryRun`, response size, the echoed query) plus a namespaced area for extension-specific values | The mapper decides where and under which names metadata goes, for example MCP `_meta` with its key rules. Extensions can add values without inventing top-level fields |
+
+**Design rules.**
+
+- **Meaning, not wire names.** No part is named after an MCP field. `isError`, `structuredContent`, `_meta` and `resource_link` exist only inside the mapper.
+- **Closed set of part types.** Only core defines part types. An extension can't add a new kind of part, so every renderer can always map every result completely. New part types are added to core together with support in every renderer.
+- **Grow by adding, never by changing.** New optional parts or fields may be added. Existing ones keep their meaning. This keeps plugins that build results today valid for later formats.
+- **Immutable and complete.** The object is a value object built by the `McpToolResponse` helpers (or a builder for richer results). The mapper only reads it, and nothing downstream depends on a tool having produced JSON.
+- **No transport concerns.** Size limits, offloading, pagination cursors of the protocol, and synchronous versus task-based delivery are not part of the object. They belong to the renderer and the protocol layer.
+
+`McpToolResponse::success()` and `::error()` return this object instead of a JSON string. Tools that use these helpers, which is almost all core and plugin tools, don't have to change. `::error()` accepts an optional error code, and the existing helpers such as `missingPrivilegesError()` set one. Tools declare `outputSchema` against the result data, not against a wire format.
 
 ### The output mapper
 
-One mapper in core converts every tool result into a `CallToolResult` before the SDK sends it. It is the only place that knows the wire format:
+One mapper in core converts every tool result before the SDK sends it. It is the only place that knows the wire format.
 
-- It fills `structuredContent`, `isError` and the text block, and turns stored large results into `resource_link` blocks.
-- It respects the differences between protocol eras, for example that `structuredContent` must be an object on the handshake era.
-- It accepts the legacy JSON string, so tools that still return a string and app tools keep working.
-- It applies the size limit to the complete result, including both copies of the data. A result that is too large is stored and sent as a `resource_link`.
+- **One renderer per output format.** The mapper picks a renderer for each request: the legacy envelope, the handshake era, the 2026-07-28 era, and later formats as they appear. The choice depends on the phase, the `v6.8.0.0` feature flag and the negotiated protocol version. Supporting a new format means adding a renderer, not touching tools.
+- **Every renderer handles every part.** A renderer maps each part type to the closest concept of its format. Where a format has no equivalent (for example images in a text-only format), the renderer falls back to a documented text form, never to silently dropping the part.
+- **Size limits per format.** The renderer applies the size limit of its format to the complete rendered result, including the text copy the MCP spec asks for. Anything too large is stored and sent as a link.
+- **Legacy input.** The mapper also accepts the legacy JSON string, so tools that still return a string and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result.
 
-Changes to the output format, including later MCP revisions, are made in the mapper. Extensions don't have to follow them.
+For MCP today, the renderers fill `structuredContent`, `isError` and the text block, turn links to stored results into `resource_link` blocks, and respect era differences, for example that `structuredContent` must be an object on the handshake era.
+
+**Checking that the format holds up.** A test matrix renders a fixed set of sample results (success with data, failure with an error code, mixed content parts, a large result with a link, metadata from an extension) through every renderer. As a design check, the result parts also have to map onto the result shapes of at least one other agent protocol, for example the artifacts of the Agent2Agent protocol, before the object is finalized. If a sample can't be represented, the object is extended before any renderer is written against it.
 
 ### Phases
 
-The phases are modes of the mapper, not a tool-by-tool migration.
+The phases are renderers of the mapper, selected per request, not a tool-by-tool migration.
 
 1. **Both formats (default until 6.8.0).** `structuredContent` contains the result data, a failed call sets `isError: true`, and the text block still contains the legacy `{"success": …}` string, so existing readers keep working. App tools keep their `{success, data}` responses and the mapper translates them.
 2. **Deprecation.** Release notes and upgrade notes announce the removal of the legacy string. A PHPStan rule reports tools that build JSON strings by hand instead of returning the result object.
@@ -115,7 +131,7 @@ Other MCP checks we want in PHPStan are tracked separately and aren't part of th
 
 **For MCP clients and agents.** Until 6.8.0 they can read either format. After that they read `content`, `structuredContent` and `isError` like with any other MCP server. Failures are reported through `isError`, so clients can tell them apart from successes. The `v6.8.0.0` feature flag gives them the final format early.
 
-**For extension developers.** Plugin and bundle tools that use the `McpToolResponse` helpers get every format change automatically, now and for future MCP revisions. Tools that build the JSON string by hand keep working during phase 1, get a PHPStan warning, and must return the result object before 6.8.0. The return type of `__invoke()` becomes the result object. Declaring `string` keeps working until 6.8.0. App tools keep their response format. The mapper translates it, and any change to the app contract is announced separately in the release and upgrade notes.
+**For extension developers.** Plugin and bundle tools that use the `McpToolResponse` helpers get every format change automatically, now and for future MCP revisions. Extensions can attach their own metadata in a namespaced area, but can't invent new part types. Tools that build the JSON string by hand keep working during phase 1, get a PHPStan warning, and must return the result object before 6.8.0. The return type of `__invoke()` becomes the result object. Declaring `string` keeps working until 6.8.0. App tools keep their response format. The mapper translates it, and any change to the app contract is announced separately in the release and upgrade notes.
 
 **For Shopware development.** The mapper is the single place to test the output format on both protocol eras. The large-result pointer and the planned Sync tool build on the result object directly. Every step that changes what clients see comes with a matching change in the evaluation suite and with release notes.
 

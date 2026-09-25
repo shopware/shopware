@@ -106,7 +106,7 @@ jobs:
         run: |
           set -euo pipefail
           rustup toolchain install stable --profile minimal
-          cargo +stable install --locked --git https://github.com/keulinho/ludtwig.git --rev 6a5d668db02930c7e29816aa0c5363538fcf9b66 --root "$RUNNER_TEMP/ludtwig" ludtwig
+          cargo +stable install --locked --git https://github.com/keulinho/ludtwig.git --rev cbf99f1d44a23840c73c78d1fe65c00d2c3f8a68 --root "$RUNNER_TEMP/ludtwig" ludtwig
           echo "$RUNNER_TEMP/ludtwig/bin" >> "$GITHUB_PATH"
 
       - name: Test Twig expression tag names in Storefront templates
@@ -115,12 +115,17 @@ jobs:
           cd src/Storefront/Resources/views
           for template in storefront/element/cms-element-text.html.twig storefront/element/cms-element-product-name.html.twig; do
             log="$RUNNER_TEMP/${template##*/}.log"
-            if ludtwig "$template" > "$log" 2>&1; then
-              echo "Expected ludtwig to report unsupported Twig expression tag names in $template"
-              exit 1
-            fi
-            grep -F 'expected html, text or twig element but found </' "$log"
-            grep -E 'Files scanned: 1, Errors: [1-9][0-9]*,' "$log"
+            # Ludtwig returns 1 for lint findings, including helps; reject other failures and check its parser summary.
+            ludtwig "$template" > "$log" 2>&1 || test "$?" -eq 1
+            grep -F 'Files scanned: 1, Errors: 0,' "$log"
+          done
+          for template in storefront/element/cms-element-html.html.twig storefront/element/cms-element-sidebar-filter.html.twig; do
+            log="$RUNNER_TEMP/${template##*/}.log"
+            # These templates intentionally contain mismatched expressions; assert their diagnostics below.
+            ludtwig "$template" > "$log" 2>&1 || test "$?" -eq 1
+            grep -F 'Files scanned: 1, Errors: 1,' "$log"
+            grep -F 'different tag-name expressions' "$log"
+            grep -F 'opening <' "$log"
           done
 
       - name: Run ludtwig linter

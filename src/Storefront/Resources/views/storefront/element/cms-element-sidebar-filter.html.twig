@@ -1,4 +1,5 @@
 {% block element_sidebar_filter %}
+    {% set ludtwigDiagnosticTag = 'div' %}
     {# Use values from cms data if context is a cmsPage, otherwise `listing` and `sidebar` must be set manually #}
     {% if cmsPage is defined %}
         {% set config = element.fieldConfig.elements %}
@@ -8,7 +9,7 @@
     {% endif %}
 
     {% if listing.aggregations.elements|length > 0 %}
-        <div class="cms-element-sidebar-filter">
+        <{{ ludtwigDiagnosticTag }} class="cms-element-sidebar-filter">
             {% block element_product_listing_filter_button %}
                 <button
                     class="btn btn-outline-primary filter-panel-wrapper-toggle"
@@ -37,6 +38,6 @@
                     } %}
                 </div>
             {% endblock %}
-        </div>
+        </{{ ludtwigDiagnosticTag|default('div') }}>
     {% endif %}
 {% endblock %}

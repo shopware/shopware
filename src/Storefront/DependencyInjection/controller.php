@@ -39,6 +39,7 @@ use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Cms\SalesChannel\CmsRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
@@ -257,6 +258,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CookieController::class)
         ->args([
             service(CookieRoute::class),
+            service(CookieConsentLogRoute::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
+use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -548,6 +549,85 @@ class ProductCrossSellingRouteTest extends TestCase
         $route->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
     }
 
+    public function testIdsReplacedBySubscriberAreUsedForTheElement(): void
+    {
+        $productId = Uuid::randomHex();
+        $assignedProductId = Uuid::randomHex();
+        $replacementId = Uuid::randomHex();
+
+        $crossSellings = new ProductCrossSellingCollection([self::idCrossSelling($productId, $assignedProductId)]);
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult('product_cross_selling', 1, $crossSellings, null, new Criteria(), Context::createDefaultContext())
+        );
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            ProductCrossSellingIdsCriteriaEvent::class,
+            static function (ProductCrossSellingIdsCriteriaEvent $event) use ($replacementId): void {
+                $event->getCriteria()->setIds([$replacementId]);
+            }
+        );
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static function (Criteria $criteria) use ($replacementId): EntitySearchResult {
+                static::assertSame([$replacementId], array_values($criteria->getIds()));
+
+                return self::searchProducts($criteria, $replacementId);
+            });
+
+        $element = $this->createRoute(productRepository: $productRepository, eventDispatcher: $eventDispatcher)
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())
+            ->getResult()
+            ->first();
+
+        static::assertNotNull($element);
+        static::assertSame([$replacementId], array_values($element->getProducts()->getIds()));
+    }
+
+    public function testPaginatedCriteriaIsNotMergedAcrossCrossSellings(): void
+    {
+        $productId = Uuid::randomHex();
+        $firstProductId = Uuid::randomHex();
+        $secondProductId = Uuid::randomHex();
+
+        $crossSellings = new ProductCrossSellingCollection([
+            self::idCrossSelling($productId, $firstProductId),
+            self::idCrossSelling($productId, $secondProductId),
+        ]);
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult('product_cross_selling', 2, $crossSellings, null, new Criteria(), Context::createDefaultContext())
+        );
+
+        // a limit belongs to one cross selling, so the two must not share a query that would paginate their union
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $matcher = $this->exactly(2);
+        $productRepository->expects($matcher)
+            ->method('search')
+            ->willReturnCallback(static function (Criteria $criteria) use ($matcher, $firstProductId, $secondProductId): EntitySearchResult {
+                $expected = $matcher->numberOfInvocations() === 1 ? $firstProductId : $secondProductId;
+                static::assertSame([$expected], array_values($criteria->getIds()));
+                static::assertSame(1, $criteria->getLimit());
+
+                return self::searchProducts($criteria, $expected);
+            });
+
+        $elements = $this->createRoute(productRepository: $productRepository)
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), (new Criteria())->setLimit(1))
+            ->getResult();
+
+        static::assertCount(2, $elements);
+        $first = $elements->first();
+        $last = $elements->last();
+        static::assertNotNull($first);
+        static::assertNotNull($last);
+        static::assertSame([$firstProductId], array_values($first->getProducts()->getIds()));
+        static::assertSame([$secondProductId], array_values($last->getProducts()->getIds()));
+    }
+
     private static function idCrossSelling(string $productId, string $assignedProductId): ProductCrossSellingEntity
     {
         $assignedProduct = new ProductCrossSellingAssignedProductsEntity();
@@ -664,10 +744,11 @@ class ProductCrossSellingRouteTest extends TestCase
         ?ProductListingLoader $listingLoader = null,
         ?SalesChannelRepository $productRepository = null,
         ?Connection $connection = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
     ): ProductCrossSellingRoute {
         return new ProductCrossSellingRoute(
             $this->crossSellingRepository,
-            static::createStub(EventDispatcherInterface::class),
+            $eventDispatcher ?? static::createStub(EventDispatcherInterface::class),
             $this->productStreamBuilder,
             $productRepository ?? static::createStub(SalesChannelRepository::class),
             static::createStub(SystemConfigService::class),

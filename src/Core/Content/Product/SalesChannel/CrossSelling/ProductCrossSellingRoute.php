@@ -116,9 +116,20 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
             $prepared = $this->prepareIdsCriteria($crossSelling, $ids, $context, $clone);
 
+            // a subscriber may have replaced the ids, so what the criteria holds after the event is what this element
+            // asks for
+            $ids = array_values($prepared->getIds());
+
+            if ($ids === []) {
+                continue;
+            }
+
             // cross sellings that ask for the same thing apart from their ids are answered by one query; a subscriber
-            // that differentiates the criteria per cross selling keeps its own query
-            $hash = $this->hashWithoutIds($prepared);
+            // that differentiates the criteria per cross selling keeps its own query. A limit or an offset belongs to
+            // a single cross selling, so a paginated criteria is never merged with another one.
+            $hash = $prepared->getLimit() !== null || $prepared->getOffset() !== null
+                ? 'paginated-' . \count($grouped)
+                : $this->hashWithoutIds($prepared);
 
             $grouped[$hash]['criteria'] ??= $prepared;
             $grouped[$hash]['ids'] = array_merge($grouped[$hash]['ids'] ?? [], $ids);

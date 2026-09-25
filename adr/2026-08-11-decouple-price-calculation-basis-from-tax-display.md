@@ -61,9 +61,10 @@ Loose ends handled:
   when the basis flavor differs from the display flavor (`net` basis with gross display, `gross` basis
   with net display). A basis matching its display state and every tax-free context do not fragment the
   cache.
-- **Sorting and filtering** keep using the stored gross column (a per-country value cannot be indexed).
-  For linked prices that matches the derived value at the product's home tax rate; other countries drift
-  by the rate delta.
+- **Sorting and filtering** keep using the stored value of the display flavor, because `Context` only
+  knows the tax state, not the price basis. The same gap decides which variant or rule price becomes a
+  listing's cheapest price. With linked prices that matches the derived value at the product's home tax
+  rate; unlinked or stale values of the non-authoritative flavor drift.
 - **Admin**: the customer group detail page offers the tax display and the price basis as two independent
   controls. Both write explicit values, so the 6.8 shape is produced from the start and no mapping between
   the two fields is needed.
@@ -73,7 +74,9 @@ End state: `NULL` is transitional. With v6.8 a migration backfills the remaining
 the v6.8 flag both fields are already required on write, with entity defaults (gross display, gross basis)
 so a field-unaware writer gets an explicit pair instead of a silent `NULL`. Until then `NULL` keeps the old
 coupling alive for every writer that does not know the field: old core during blue-green, plugins, ERP
-syncs, API clients.
+syncs, API clients. With v6.8 the price basis also moves onto `Context` next to the tax state, so the DAL
+and Elasticsearch price accessors and the cheapest price resolution key on the authoritative stored column
+instead of the display flavor.
 
 ## Alternatives considered
 

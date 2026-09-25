@@ -328,7 +328,8 @@ Previously, these routes could return unrelated records or fail because the unde
 
 ## Customer group price fields are required
 
-`customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working unchanged; writing an explicit `null` for `priceBasis` is rejected. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string` — a `null` basis no longer exists, the price basis no longer follows the display mode. Pass an explicit `'net'` or `'gross'` instead.
+`customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working unchanged; writing an explicit `null` for `priceBasis` is rejected. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string`: a `null` basis no longer exists, and the price basis no longer follows the display mode. Pass an explicit `'net'` or `'gross'` instead.
+
 ## `Feature` is final
 
 `Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.

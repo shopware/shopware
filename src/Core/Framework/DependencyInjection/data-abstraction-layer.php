@@ -235,6 +235,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(Tokenizer::class)
         ->args([
+            service(HtmlSanitizer::class),
             param('shopware.dbal.token_minimum_length'),
             param('shopware.search.preserved_chars'),
         ]);

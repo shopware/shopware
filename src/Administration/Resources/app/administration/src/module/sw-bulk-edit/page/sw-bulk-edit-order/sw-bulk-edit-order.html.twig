@@ -134,6 +134,7 @@
         {% block sw_bulk_edit_order_empty_state %}
         <mt-empty-state
             v-if="selectedIds.length <= 0 && !isLoading"
+            centered
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-bulk-edit.order.messageEmptyTitle')"
             :description="$t('sw-bulk-edit.order.messageEmptySubline')"

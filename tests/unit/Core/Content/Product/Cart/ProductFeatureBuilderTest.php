@@ -8,11 +8,18 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Cart\ProductFeatureBuilder;
@@ -40,6 +47,9 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection as TaxRuleEntityCollection;
+use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Generator;
 
@@ -86,10 +96,18 @@ class ProductFeatureBuilderTest extends TestCase
         $this->definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
         $this->salesChannelContext = Generator::generateSalesChannelContext();
 
+        $taxCalculator = new TaxCalculator();
+        $cashRounding = new CashRounding();
+
         $this->productFeatureBuilder = new ProductFeatureBuilder(
             $this->customFieldRepository,
             $this->languageLocaleProvider,
-            $this->definitionRegistry
+            $this->definitionRegistry,
+            new PriceSelector($taxCalculator),
+            new QuantityPriceCalculator(
+                new GrossPriceCalculator($taxCalculator, $cashRounding),
+                new NetPriceCalculator($taxCalculator, $cashRounding)
+            ),
         );
     }
 
@@ -391,6 +409,40 @@ class ProductFeatureBuilderTest extends TestCase
         static::assertSame([], $features);
     }
 
+    public function testPriceCustomFieldWithNetBasisDerivesTheGrossFromTheStoredNet(): void
+    {
+        $taxId = Uuid::randomHex();
+
+        $tax = (new TaxEntity())->assign(['id' => $taxId, 'taxRate' => 19.0, 'name' => 'tax', 'position' => 1]);
+        $tax->setRules(new TaxRuleEntityCollection());
+
+        $context = Generator::generateSalesChannelContext(
+            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET]),
+            taxRules: new TaxCollection([$tax]),
+        );
+
+        $features = $this->buildCustomFieldFeatures(
+            ['de-DE' => 'Aufpreis'],
+            content: [['currencyId' => Defaults::CURRENCY, 'net' => 10.0, 'gross' => 999.0, 'linked' => true]],
+            type: CustomFieldTypes::PRICE,
+            context: $context,
+            taxId: $taxId,
+        );
+
+        static::assertSame(11.9, $features[0]['value']['display']);
+    }
+
+    public function testPriceCustomFieldWithNullBasisKeepsTheStoredGross(): void
+    {
+        $features = $this->buildCustomFieldFeatures(
+            ['de-DE' => 'Aufpreis'],
+            content: [['currencyId' => Defaults::CURRENCY, 'net' => 10.0, 'gross' => 11.9, 'linked' => true]],
+            type: CustomFieldTypes::PRICE
+        );
+
+        static::assertSame(11.9, $features[0]['value']['display']);
+    }
+
     /**
      * @return iterable<string, array{array<string, string>}>
      */
@@ -437,7 +489,8 @@ class ProductFeatureBuilderTest extends TestCase
         string $type = CustomFieldTypes::TEXT,
         array $config = [],
         array $referencedEntities = [],
-        ?SalesChannelContext $context = null
+        ?SalesChannelContext $context = null,
+        ?string $taxId = null
     ): array {
         $this->languageLocaleProvider->method('getLocaleForLanguageId')->willReturnMap([
             [self::CHILD_LANGUAGE_ID, 'de-AT'],
@@ -456,6 +509,7 @@ class ProductFeatureBuilderTest extends TestCase
         $product->setId($productId);
         $product->setTranslated(['customFields' => ['custom_material' => $content]]);
         $product->setFeatureSet($this->createCustomFieldFeatureSet());
+        $product->setTaxId($taxId);
 
         $customField = $this->createCustomField($labels, $type, $config);
 

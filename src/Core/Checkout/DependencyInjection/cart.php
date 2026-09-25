@@ -540,6 +540,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('custom_field.repository'),
             service(LanguageLocaleCodeProvider::class),
             service(DefinitionInstanceRegistry::class),
+            service(PriceSelector::class),
+            service(QuantityPriceCalculator::class),
         ]);
 
     $services->set(TransactionProcessor::class);

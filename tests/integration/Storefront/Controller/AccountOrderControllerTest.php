@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -567,6 +569,214 @@ class AccountOrderControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
     }
 
+    public function testOrderOverviewHidesLinksForUnavailableProducts(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        static::getContainer()->get(SystemConfigService::class)->set('core.cart.wishlistEnabled', true);
+
+        $availableProductId = $this->createProduct($context, 'Available product', $salesChannelId);
+        $deactivatedProductId = $this->createProduct($context, 'Deactivated product', $salesChannelId);
+        $deletedProductId = $this->createProduct($context, 'Deleted product', $salesChannelId);
+
+        $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $availableProductId => 'Available product',
+            $deactivatedProductId => 'Deactivated product',
+            $deletedProductId => 'Deleted product',
+        ]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $deactivatedProductId, 'active' => false],
+        ], $context);
+        static::getContainer()->get('product.repository')->delete([
+            ['id' => $deletedProductId],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('GET', '/account/order');
+
+        $response = $browser->getResponse();
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+
+        // only an available product gets a link, and only a link carries `title`
+        static::assertStringContainsString('title="Available product"', $content);
+        static::assertStringNotContainsString('title="Deactivated product"', $content);
+        static::assertStringNotContainsString('title="Deleted product"', $content);
+
+        static::assertStringContainsString('product-wishlist-' . $availableProductId, $content);
+        static::assertStringNotContainsString('product-wishlist-' . $deactivatedProductId, $content);
+        static::assertStringNotContainsString('product-wishlist-' . $deletedProductId, $content);
+    }
+
+    public function testAccountOverviewHidesLinksForUnavailableProducts(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $availableProductId = $this->createProduct($context, 'Available product', $salesChannelId);
+        $deactivatedProductId = $this->createProduct($context, 'Deactivated product', $salesChannelId);
+
+        $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $availableProductId => 'Available product',
+            $deactivatedProductId => 'Deactivated product',
+        ]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $deactivatedProductId, 'active' => false],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('GET', '/account');
+
+        $response = $browser->getResponse();
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+
+        // the overview renders the newest order through the same template
+        static::assertStringContainsString('title="Available product"', $content);
+        static::assertStringNotContainsString('title="Deactivated product"', $content);
+    }
+
+    public function testReorderPostsTheOrderIdAndIsHiddenWhenNoProductIsAvailable(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $availableProductId = $this->createProduct($context, 'Available product', $salesChannelId);
+        $reorderableOrderId = $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $availableProductId => 'Available product',
+        ]);
+
+        $unavailableProductId = $this->createProduct($context, 'Deactivated product', $salesChannelId);
+        $unavailableOrderId = $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $unavailableProductId => 'Deactivated product',
+        ]);
+
+        // an order that still has at least one buyable product keeps its reorder entry
+        $partlyAvailableProductId = $this->createProduct($context, 'Second product', $salesChannelId);
+        $partlyAvailableOrderId = $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $this->createProduct($context, 'Gone product', $salesChannelId) => 'Gone product',
+            $partlyAvailableProductId => 'Second product',
+        ]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $unavailableProductId, 'active' => false],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('GET', '/account/order');
+
+        $content = (string) $browser->getResponse()->getContent();
+
+        // the form posts the order id instead of every line item
+        static::assertStringContainsString('/checkout/line-item/order/' . $reorderableOrderId, $content);
+        // one unavailable product does not remove the entry
+        static::assertStringContainsString('/checkout/line-item/order/' . $partlyAvailableOrderId, $content);
+        // nothing buyable left, so no form at all
+        static::assertStringNotContainsString('/checkout/line-item/order/' . $unavailableOrderId, $content);
+    }
+
+    public function testReorderAddsTheOrderProductsToTheCartThroughTheStorefrontRoute(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $availableProductId = $this->createProduct($context, 'Available product', $salesChannelId);
+        $deactivatedProductId = $this->createProduct($context, 'Deactivated product', $salesChannelId);
+
+        $orderId = $this->createOrderWithProducts($context, $customer, $salesChannelId, [
+            $availableProductId => 'Available product',
+            $deactivatedProductId => 'Deactivated product',
+        ]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $deactivatedProductId, 'active' => false],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('POST', '/checkout/line-item/order/' . $orderId);
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $browser->request('GET', '/checkout/cart');
+        $cartContent = (string) $browser->getResponse()->getContent();
+
+        // the deactivated product was skipped by the cart pipeline
+        static::assertStringContainsString($availableProductId, $cartContent);
+        static::assertStringNotContainsString($deactivatedProductId, $cartContent);
+    }
+
+    public function testReorderOfAnotherCustomersOrderIsRejected(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $productId = $this->createProduct($context, 'Foreign product', $salesChannelId);
+
+        $foreignCustomer = $this->createCustomer($context, false, Uuid::randomHex() . '@example.com');
+
+        $foreignOrderId = $this->createOrderWithProducts($context, $foreignCustomer, $salesChannelId, [
+            $productId => 'Foreign product',
+        ]);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('POST', '/checkout/line-item/order/' . $foreignOrderId);
+
+        // not the logged-in customer's order, so nothing is added
+        $browser->request('GET', '/checkout/cart');
+        static::assertStringNotContainsString($productId, (string) $browser->getResponse()->getContent());
+    }
+
+    /**
+     * @param array<string, string> $products product id => label
+     */
+    private function createOrderWithProducts(Context $context, CustomerEntity $customer, string $salesChannelId, array $products): string
+    {
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['email'] = $customer->getEmail();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+        $orderData[0]['salesChannelId'] = $salesChannelId;
+        $orderData[0]['deepLinkCode'] = Uuid::randomHex();
+        $orderData[0]['deliveries'] = [];
+
+        $lineItems = [];
+        foreach ($products as $productId => $label) {
+            $lineItems[] = [
+                'id' => Uuid::randomHex(),
+                'identifier' => $productId,
+                'referencedId' => $productId,
+                'productId' => $productId,
+                'quantity' => 1,
+                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                'label' => $label,
+                'payload' => ['productNumber' => $productId],
+                'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection()),
+                'priority' => 100,
+                'good' => true,
+                'position' => 1,
+            ];
+        }
+
+        $orderData[0]['lineItems'] = $lineItems;
+
+        static::getContainer()->get('order.repository')->create([$orderData[0]], $context);
+
+        return $orderId;
+    }
+
     private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -584,7 +794,7 @@ class AccountOrderControllerTest extends TestCase
         return $browser;
     }
 
-    private function createCustomer(Context $context, bool $guest = false): CustomerEntity
+    private function createCustomer(Context $context, bool $guest = false, ?string $email = null): CustomerEntity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -606,12 +816,12 @@ class AccountOrderControllerTest extends TestCase
             'defaultBillingAddressId' => $addressId,
             'guest' => $guest,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => 'test@example.com',
+            'email' => $email ?? 'test@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $email === null ? '12345' : Uuid::randomHex(),
         ];
 
         /** @var EntityRepository<CustomerCollection> $repo */
@@ -626,7 +836,7 @@ class AccountOrderControllerTest extends TestCase
         return $customer;
     }
 
-    private function createProduct(Context $context): string
+    private function createProduct(Context $context, string $name = 'Test Product', ?string $salesChannelId = null): string
     {
         $productId = Uuid::randomHex();
 
@@ -635,13 +845,13 @@ class AccountOrderControllerTest extends TestCase
             'id' => $productId,
             'productNumber' => $productNumber,
             'stock' => 1,
-            'name' => 'Test Product',
+            'name' => $name,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10.99, 'net' => 11.99, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],
             'taxId' => $this->getValidTaxId(),
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => $salesChannelId ?? TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
         static::getContainer()->get('product.repository')->create([$data], $context);

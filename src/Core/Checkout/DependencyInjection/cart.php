@@ -73,6 +73,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderLineItemsAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
@@ -99,6 +100,7 @@ use Shopware\Core\Checkout\Gateway\Command\Handler\RemoveShippingMethodCommandHa
 use Shopware\Core\Checkout\Gateway\Command\Registry\CheckoutGatewayCommandRegistry;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderAddressService;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -274,6 +276,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LineItemFactoryRegistry::class),
             service('shopware.rate_limiter'),
             service(CartLocker::class),
+        ]);
+
+    $services->set(CartOrderLineItemsAddRoute::class)
+        ->public()
+        ->args([
+            service(OrderRoute::class),
+            service(CartItemAddRoute::class),
+            service('event_dispatcher'),
         ]);
 
     $services->set(CartOrderRoute::class)

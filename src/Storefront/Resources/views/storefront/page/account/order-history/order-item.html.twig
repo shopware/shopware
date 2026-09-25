@@ -96,54 +96,61 @@
                                     {% endif %}
 
                                     {% block page_account_order_item_context_menu_reorder %}
-                                        {% set action %}
-                                            {% block page_account_order_item_context_menu_reorder_form_action %}
-                                                {{ path('frontend.checkout.line-item.add') }}
+                                        {# reorderable as long as any product is still shown in this sales channel #}
+                                        {% set reorderable = order.lineItems is null or order.lineItems.firstWhere(item =>
+                                            item.type == PRODUCT_LINE_ITEM_TYPE and (item.extensions.productAvailability.visible ?? true)
+                                        ) is not null %}
+
+                                        {% if reorderable %}
+                                            {% set action %}
+                                                {% block page_account_order_item_context_menu_reorder_form_action %}
+                                                    {{ path('frontend.checkout.line-item.order.add', { orderId: order.id }) }}
+                                                {% endblock %}
+                                            {% endset %}
+
+                                            {% block page_account_order_item_context_menu_reorder_form %}
+                                                <form action="{{ action }}"
+                                                      id="orderDetailForm-{{ order.Id }}"
+                                                      method="post"
+                                                      class="order-table-header-context-menu-content-form"
+                                                      data-add-to-cart="true">
+                                                    {% block page_account_order_item_context_menu_reorder_form_redirect %}
+                                                        <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_context_menu_reorder_form_line_items_input %}
+                                                        {% for lineItem in order.lineItems %}
+                                                            {% block page_account_order_item_context_menu_reorder_form_line_item_input %}
+                                                                {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][id]"
+                                                                           value="{{ lineItem.identifier }}">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][referencedId]"
+                                                                           value="{{ lineItem.referencedId }}">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][type]"
+                                                                           value="{{ lineItem.type }}">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][stackable]"
+                                                                           value="1">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][removable]"
+                                                                           value="1">
+                                                                    <input type="hidden"
+                                                                           name="lineItems[{{ lineItem.identifier }}][quantity]"
+                                                                           value="{{ lineItem.quantity }}">
+                                                                {% endif %}
+                                                            {% endblock %}
+                                                        {% endfor %}
+                                                    {% endblock %}
+
+                                                    {% block page_account_order_item_context_menu_reorder_form_button %}
+                                                        <button class="dropdown-item order-table-header-context-menu-content-link" type="submit">{{ 'account.orderContextMenuReorder'|trans|sw_sanitize }}</button>
+                                                    {% endblock %}
+                                                </form>
                                             {% endblock %}
-                                        {% endset %}
-
-                                        {% block page_account_order_item_context_menu_reorder_form %}
-                                            <form action="{{ action }}"
-                                                  id="orderDetailForm-{{ order.Id }}"
-                                                  method="post"
-                                                  class="order-table-header-context-menu-content-form"
-                                                  data-add-to-cart="true">
-                                                {% block page_account_order_item_context_menu_reorder_form_redirect %}
-                                                    <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
-                                                {% endblock %}
-
-                                                {% block page_account_order_item_context_menu_reorder_form_line_items_input %}
-                                                    {% for lineItem in order.lineItems %}
-                                                        {% block page_account_order_item_context_menu_reorder_form_line_item_input %}
-                                                            {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
-                                                                <input type="hidden"
-                                                                       name="lineItems[{{ lineItem.identifier }}][id]"
-                                                                       value="{{ lineItem.identifier }}">
-                                                                <input type="hidden"
-                                                                       name="lineItems[{{ lineItem.identifier }}][referencedId]"
-                                                                       value="{{ lineItem.referencedId }}">
-                                                                <input type="hidden"
-                                                                       name="lineItems[{{ lineItem.identifier }}][type]"
-                                                                       value="{{ lineItem.type }}">
-                                                                <input type="hidden"
-                                                                       name="lineItems[{{ lineItem.identifier }}][stackable]"
-                                                                       value="1">
-                                                                <input type="hidden"
-                                                                       name="lineItems[{{ lineItem.identifier }}][removable]"
-                                                                       value="1">
-                                                                <input type="hidden"
-                                                                       name="lineItems[{{ lineItem.identifier }}][quantity]"
-                                                                       value="{{ lineItem.quantity }}">
-                                                            {% endif %}
-                                                        {% endblock %}
-                                                    {% endfor %}
-                                                {% endblock %}
-
-                                                {% block page_account_order_item_context_menu_reorder_form_button %}
-                                                    <button class="dropdown-item order-table-header-context-menu-content-link" type="submit">{{ 'account.orderContextMenuReorder'|trans|sw_sanitize }}</button>
-                                                {% endblock %}
-                                            </form>
-                                        {% endblock %}
+                                        {% endif %}
                                     {% endblock %}
 
                                     {% block page_account_order_item_context_menu_cancel_order %}

@@ -1439,6 +1439,7 @@
     "order_line_item.states",
     "order_line_item.createdAt",
     "order_line_item.updatedAt",
+    "order_line_item.productAvailability",
     "order_line_item_download.id",
     "order_line_item_download.versionId",
     "order_line_item_download.orderLineItemId",

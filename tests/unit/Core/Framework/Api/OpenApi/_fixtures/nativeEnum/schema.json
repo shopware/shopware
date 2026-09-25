@@ -1,0 +1,15 @@
+{
+    "components": {
+        "schemas": {
+            "NewsletterStatus": {
+                "x-dto-namespace": "App\\DTO",
+                "x-dto-package": "framework",
+                "type": "string",
+                "enum": [
+                    "notSet",
+                    "optIn"
+                ]
+            }
+        }
+    }
+}

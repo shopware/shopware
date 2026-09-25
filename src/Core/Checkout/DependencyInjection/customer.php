@@ -32,6 +32,7 @@ use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\Md5;
 use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\Sha256;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientV2Route;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
@@ -90,6 +91,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -561,6 +563,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('sales_channel.newsletter_recipient.repository'),
+        ]);
+
+    $services->set(AccountNewsletterRecipientV2Route::class)
+        ->public()
+        ->args([
+            service('sales_channel.newsletter_recipient.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ImitateCustomerRoute::class)

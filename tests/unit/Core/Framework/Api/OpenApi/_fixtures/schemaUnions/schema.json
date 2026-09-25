@@ -1,0 +1,127 @@
+{
+    "openapi": "3.1.0",
+    "info": {},
+    "paths": {
+        "/search": {
+            "post": {
+                "operationId": "search",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/Criteria"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Criteria": {
+                "type": "object",
+                "properties": {
+                    "filter": {
+                        "type": "array",
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/EqualsFilter"
+                                },
+                                {
+                                    "$ref": "#/components/schemas/RangeFilter"
+                                }
+                            ]
+                        }
+                    },
+                    "query": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/EqualsFilter"
+                            },
+                            {
+                                "$ref": "#/components/schemas/RangeFilter"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "aggregations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": [
+                                "#/components/schemas/Aggregation",
+                                "#/components/schemas/Aggregation"
+                            ]
+                        }
+                    }
+                }
+            },
+            "EqualsFilter": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RangeFilter": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Aggregation": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/AverageAggregation"
+                    },
+                    {
+                        "title": "NestedCountAggregation",
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/CountAggregation"
+                            },
+                            {
+                                "$ref": "#/components/schemas/SubAggregations"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "AverageAggregation": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CountAggregation": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SubAggregations": {
+                "x-dto-inline": true,
+                "type": "object",
+                "properties": {
+                    "aggregation": {
+                        "$ref": "#/components/schemas/AverageAggregation"
+                    }
+                }
+            }
+        }
+    }
+}

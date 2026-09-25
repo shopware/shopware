@@ -26,7 +26,32 @@ class TwigEnvironmentTest extends TestCase
             ->compileSource(new Source('{{ test.bla }}', 'bla'));
 
         static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute', $code);
-        static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'),', $code);
+        // Twig 3.29 fetches the escaper runtime per call, 3.30 keeps it in a template property: both shapes are rewritten
+        static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape(', $code);
+        static::assertStringNotContainsString('$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(', $code);
+        static::assertStringNotContainsString('$this->escaper->escape(', $code);
+    }
+
+    public function testRenderedTemplatesEscapeThroughTheCache(): void
+    {
+        CachedEscaperRuntime::resetEscapeCache();
+
+        try {
+            $twig = new TwigEnvironment(new ArrayLoader(['bla' => '{{ value|escape(\'counted\') }}']));
+            $callCount = 0;
+            $twig->getRuntime(EscaperRuntime::class)->setEscaper('counted', static function (string $string) use (&$callCount): string {
+                ++$callCount;
+
+                return 'escaped:' . $string;
+            });
+
+            static::assertSame('escaped:foo', $twig->render('bla', ['value' => 'foo']));
+            static::assertSame('escaped:foo', $twig->render('bla', ['value' => 'foo']));
+            // the second render is served from the escape cache, the escaper itself ran once
+            static::assertSame(1, $callCount);
+        } finally {
+            CachedEscaperRuntime::resetEscapeCache();
+        }
     }
 
     public function testResetClearsCachedEscaperRuntimeCache(): void

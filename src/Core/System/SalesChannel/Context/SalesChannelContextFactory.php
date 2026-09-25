@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -22,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\SalesChannel\BaseSalesChannelContext;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
@@ -45,7 +43,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      * @param EntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository
-     * @param EntityRepository<OrderAddressCollection> $orderAddressRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
@@ -57,7 +54,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $currencyCountryRepository,
         private readonly AbstractBaseSalesChannelContextFactory $baseSalesChannelContextFactory,
-        private readonly EntityRepository $orderAddressRepository,
     ) {
     }
 
@@ -88,13 +84,13 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $criteria->setTitle('context-factory::customer-group');
             $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->getEntities()->first() ?? $base->getCurrentCustomerGroup();
         } else {
-            $shippingLocation = $base->getShippingLocation();
+            // e.g. the order of a deleted customer still uses its own address instead of the sales channel country
+            $injectedAddress = $this->getInjectedAddress($options, SalesChannelContextService::SHIPPING_ADDRESS)
+                ?? $this->getInjectedAddress($options, SalesChannelContextService::BILLING_ADDRESS);
+            $shippingLocation = $injectedAddress !== null
+                ? ShippingLocation::createFromAddress($injectedAddress)
+                : $base->getShippingLocation();
             $customerGroup = $base->getCurrentCustomerGroup();
-        }
-
-        // requested shipping address wins over the order's address
-        if (!isset($options[SalesChannelContextService::SHIPPING_ADDRESS_ID]) && \is_string($options[SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID] ?? null)) {
-            $shippingLocation = $this->loadOrderShippingLocation($options[SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID], $base->getContext(), $customer) ?? $shippingLocation;
         }
 
         // loads tax rules based on active customer and delivery address
@@ -271,12 +267,17 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $addresses = $this->addressRepository->search($criteria, $context)->getEntities();
 
         // a default address id can point to a deleted row, and the setters are not nullable yet
-        $activeBillingAddress = $addresses->get($activeBillingAddressId) ?? $addresses->get($customer->getDefaultBillingAddressId());
+        // an existing requested address wins over an injected one, e.g. the order's address during recalculation
+        $activeBillingAddress = $addresses->get($options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? '')
+            ?? $this->getInjectedAddress($options, SalesChannelContextService::BILLING_ADDRESS)
+            ?? $addresses->get($customer->getDefaultBillingAddressId());
         if ($activeBillingAddress !== null) {
             $customer->setActiveBillingAddress($activeBillingAddress);
         }
 
-        $activeShippingAddress = $addresses->get($activeShippingAddressId) ?? $addresses->get($customer->getDefaultShippingAddressId());
+        $activeShippingAddress = $addresses->get($options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? '')
+            ?? $this->getInjectedAddress($options, SalesChannelContextService::SHIPPING_ADDRESS)
+            ?? $addresses->get($customer->getDefaultShippingAddressId());
         if ($activeShippingAddress !== null) {
             $customer->setActiveShippingAddress($activeShippingAddress);
         }
@@ -294,46 +295,14 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return $customer;
     }
 
-    private function loadOrderShippingLocation(string $orderAddressId, Context $context, ?CustomerEntity $customer): ?ShippingLocation
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function getInjectedAddress(array $options, string $option): ?CustomerAddressEntity
     {
-        $criteria = new Criteria([$orderAddressId]);
-        $criteria->setTitle('context-factory::order-shipping-address');
-        $criteria->addAssociation('country');
-        $criteria->addAssociation('countryState');
+        $address = $options[$option] ?? null;
 
-        $orderAddress = $this->orderAddressRepository->search($criteria, $context)->getEntities()->first();
-        if (!$orderAddress?->getCountry() instanceof CountryEntity) {
-            return null;
-        }
-
-        $address = new CustomerAddressEntity();
-        $address->assign([
-            'id' => $orderAddress->getId(),
-            'countryId' => $orderAddress->getCountryId(),
-            'countryStateId' => $orderAddress->getCountryStateId(),
-            'salutationId' => $orderAddress->getSalutationId(),
-            'firstName' => $orderAddress->getFirstName(),
-            'lastName' => $orderAddress->getLastName(),
-            'zipcode' => $orderAddress->getZipcode(),
-            'city' => $orderAddress->getCity(),
-            'company' => $orderAddress->getCompany(),
-            'department' => $orderAddress->getDepartment(),
-            'title' => $orderAddress->getTitle(),
-            'street' => $orderAddress->getStreet(),
-            'phoneNumber' => $orderAddress->getPhoneNumber(),
-            'additionalAddressLine1' => $orderAddress->getAdditionalAddressLine1(),
-            'additionalAddressLine2' => $orderAddress->getAdditionalAddressLine2(),
-            'country' => $orderAddress->getCountry(),
-            'countryState' => $orderAddress->getCountryState(),
-            'customFields' => $orderAddress->getCustomFields(),
-            'hash' => $orderAddress->getHash(),
-        ]);
-
-        if ($customer instanceof CustomerEntity) {
-            $address->setCustomerId($customer->getId());
-        }
-
-        return ShippingLocation::createFromAddress($address);
+        return $address instanceof CustomerAddressEntity ? $address : null;
     }
 
     /**

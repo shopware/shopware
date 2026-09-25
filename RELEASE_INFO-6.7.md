@@ -36,6 +36,12 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Order contexts keep the order's own addresses
+
+When the addresses of an order no longer match an address of its customer, for example because the customer edited them, `OrderConverter::assembleSalesChannelContext()` now uses the order's own billing and shipping address instead of the customer's default addresses. Recalculations, flows and payment handling of that order therefore use the tax state, tax rules, cash rounding and address rules of the address the order was placed with.
+
+The options passed to `AbstractSalesChannelContextFactory::create()` and returned by `BeforeSalesChannelContextAssembledEvent::getOptions()` can now contain `CustomerAddressEntity` objects under the internal keys `SalesChannelContextService::BILLING_ADDRESS` and `SalesChannelContextService::SHIPPING_ADDRESS`. Decorators and listeners that read these options should not assume that every value is a string or an array.
+
 ## API
 
 ### Store API OpenAPI schema matches the actual responses

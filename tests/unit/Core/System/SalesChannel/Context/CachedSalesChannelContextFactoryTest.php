@@ -39,6 +39,26 @@ class CachedSalesChannelContextFactoryTest extends TestCase
         static::assertSame($context, $factory->create('token', 'sales-channel-id', $options));
     }
 
+    public function testContextWithOrderShippingAddressIsNotCached(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $options = [SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID => 'order-address-id'];
+
+        $inner = $this->createMock(SalesChannelContextFactory::class);
+        $inner->expects($this->exactly(2))
+            ->method('create')
+            ->with('token', 'sales-channel-id', $options)
+            ->willReturn($context);
+
+        $factory = new CachedSalesChannelContextFactory(
+            $inner,
+            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter())),
+        );
+
+        $factory->create('token', 'sales-channel-id', $options);
+        $factory->create('token', 'sales-channel-id', $options);
+    }
+
     public function testFreshlyBuiltContextIsReturnedDirectly(): void
     {
         $context = Generator::generateSalesChannelContext();

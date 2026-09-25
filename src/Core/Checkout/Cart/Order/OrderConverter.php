@@ -375,6 +375,8 @@ class OrderConverter
 
         if ($shippingAddressId) {
             $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] = $shippingAddressId;
+        } elseif ($orderShippingAddress !== null) {
+            $options[SalesChannelContextService::SHIPPING_ORDER_ADDRESS_ID] = $orderShippingAddress->getId();
         }
 
         $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();

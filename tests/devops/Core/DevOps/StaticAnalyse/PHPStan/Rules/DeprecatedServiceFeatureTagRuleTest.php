@@ -33,7 +33,7 @@ class DeprecatedServiceFeatureTagRuleTest extends RuleTestCase
             ],
             [
                 'Service "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" uses deprecated class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" and must be tagged "shopware.inactiveFeature" for "v6.8.0.0".',
-                8,
+                10,
             ],
         ]);
     }

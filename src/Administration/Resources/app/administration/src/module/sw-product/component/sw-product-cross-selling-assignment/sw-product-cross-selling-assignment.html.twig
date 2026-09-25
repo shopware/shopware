@@ -88,8 +88,10 @@
         <mt-empty-state
             v-if="!total && !isLoadingGrid"
             class="sw-product-cross-selling-assignment__option-list-empty-state"
+            centered
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-product.crossselling.assignEmptyStateTitle')"
+            description=""
         />
         {% endblock %}
     </div>

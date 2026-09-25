@@ -13,8 +13,10 @@
  * (`#[ReturnTypeNarrowing(version: 'v6.8.0', ...)]`) alike — the three constructs
  * use three different version formats, so the shared digits are the one stable
  * signal. The imprecision is accepted: mentioning a version in changed code is a
- * good-enough reason to run the major matrix, and the known noise (e.g. changelog
- * release headings) is rare — see the discussion on the introducing PR.
+ * good-enough reason to run the major matrix. Markdown is not code: release notes,
+ * upgrade guides and ADRs quote flag names and versions all the time without changing
+ * major behaviour, so `.md` files never count, the same definition of docs-only the
+ * `markdown-only-changes` action uses.
  *
  * The PHP arm retains that repository-wide marker detection. The Administration
  * Jest arm uses the same markers only in Administration source and test files;
@@ -168,6 +170,13 @@ export function parseMajorFlags(registryYaml: string): string[] {
  */
 export const EXCLUDED_PATH_PREFIX = '.github/';
 
+/**
+ * Same definition as the `markdown-only-changes` action: a Markdown file, whatever its folder.
+ */
+export function isMarkdownFile(path: string): boolean {
+    return /\.md$/i.test(path);
+}
+
 export function splitDiffByFile(diff: string): DiffFileSection[] {
     return diff
         .split(/^diff --git /m)
@@ -180,7 +189,9 @@ export function splitDiffByFile(diff: string): DiffFileSection[] {
 }
 
 export function hasMajorMarkers(diff: string, majorFlags: string[]): boolean {
-    const files = splitDiffByFile(diff).filter(({ path }) => !path.startsWith(EXCLUDED_PATH_PREFIX));
+    const files = splitDiffByFile(diff).filter(
+        ({ path }) => !path.startsWith(EXCLUDED_PATH_PREFIX) && !isMarkdownFile(path),
+    );
 
     if (files.some(({ path }) => path === FEATURE_REGISTRY_PATH)) {
         return true;
@@ -211,7 +222,9 @@ export function hasMajorJsMarkers(diff: string, majorFlags: string[]): boolean {
     }
 
     const administrationFiles = files.filter(
-        ({ path }) => path.startsWith(ADMINISTRATION_SOURCE_PATH) || path.startsWith(ADMINISTRATION_TEST_PATH),
+        ({ path }) =>
+            (path.startsWith(ADMINISTRATION_SOURCE_PATH) || path.startsWith(ADMINISTRATION_TEST_PATH)) &&
+            !isMarkdownFile(path),
     );
     const changedLines = administrationFiles.flatMap(({ section }) =>
         section.split('\n').filter((line) => /^[+-][^+-]/.test(line)),

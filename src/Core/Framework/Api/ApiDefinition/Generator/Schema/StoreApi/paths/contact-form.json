@@ -21,22 +21,26 @@
                         "application/json": {
                             "schema": {
                                 "required": [
+                                    "salutationId",
                                     "email",
                                     "subject",
-                                    "comment"
+                                    "comment",
+                                    "firstName",
+                                    "lastName",
+                                    "phone"
                                 ],
                                 "properties": {
                                     "salutationId": {
-                                        "description": "Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values.",
+                                        "description": "Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values. This field is always required and cannot be disabled by a system setting.",
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "firstName": {
-                                        "description": "Firstname. This field may be required depending on the system settings.",
+                                        "description": "First name. Required on a default installation, can be turned off with the `core.basicInformation.firstNameFieldRequired` setting.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Lastname. This field may be required depending on the system settings.",
+                                        "description": "Last name. Required on a default installation, can be turned off with the `core.basicInformation.lastNameFieldRequired` setting.",
                                         "type": "string"
                                     },
                                     "email": {
@@ -44,7 +48,7 @@
                                         "type": "string"
                                     },
                                     "phone": {
-                                        "description": "Phone. This field may be required depending on the system settings.",
+                                        "description": "Phone. Required on a default installation, can be turned off with the `core.basicInformation.phoneNumberFieldRequired` setting.",
                                         "type": "string"
                                     },
                                     "subject": {
@@ -81,7 +85,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Message sent successful."
+                        "description": "Message sent successful.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactFormRouteResponse"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "$ref": "#/components/responses/400",

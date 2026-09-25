@@ -1,0 +1,12 @@
+{
+  "executor": "http",
+  "layer": "store-api",
+  "issue": 0,
+  "version": "e2e",
+  "confidence": 1,
+  "request": { "method": "GET", "path": "/store-api/context" },
+  "assertions": [
+    { "kind": "http_status", "op": "equals", "expect": 200, "role": "precondition", "label": "store-api context is reachable" },
+    { "field": ".token", "op": "present", "role": "assert", "label": "a healthy context returns a context token" }
+  ]
+}

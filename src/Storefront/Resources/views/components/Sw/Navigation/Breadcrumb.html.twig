@@ -1,0 +1,62 @@
+{# ludtwig-ignore-file #}
+{# @sw-package discovery #}
+{# @internal #}
+
+{#
+    Product detail page breadcrumb. Renders the product's category path — resolved by the breadcrumb data
+    loader into a BreadcrumbCollection — as a Bootstrap breadcrumb, marking the current (last) entry as the
+    active page.
+#}
+
+{% props
+    breadcrumb = null,
+    showHome = false,
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-breadcrumb',
+} %}
+
+{% block component_navigation_breadcrumb %}
+    {% set hasBreadcrumb = breadcrumb and breadcrumb|length > 0 %}
+
+    <nav {{ attributes.defaults(attributeDefaults) }} aria-label="breadcrumb">
+        {% if hasBreadcrumb %}
+            {% set activeId = breadcrumb|last.categoryId %}
+
+            {% block component_navigation_breadcrumb_list %}
+                <ol class="sw-breadcrumb__list breadcrumb">
+                    {% if showHome %}
+                        <li class="sw-breadcrumb__item breadcrumb-item">
+                            <a class="sw-breadcrumb__link" href="{{ path('frontend.home.page') }}">
+                                {{ 'general.homeLink'|trans|sw_sanitize }}
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for crumb in breadcrumb %}
+                        {% set isActive = crumb.categoryId is same as(activeId) %}
+
+                        {% block component_navigation_breadcrumb_item %}
+                            <li class="sw-breadcrumb__item breadcrumb-item{% if isActive %} active{% endif %}"{% if isActive %} aria-current="page"{% endif %}>
+                                {% if crumb.type == 'folder' %}
+                                    <span class="sw-breadcrumb__title">{{ crumb.name }}</span>
+                                {% else %}
+                                    <a class="sw-breadcrumb__link{% if isActive %} is--active{% endif %}"
+                                       href="{{ seoUrl('frontend.navigation.page', { navigationId: crumb.categoryId }) }}"
+                                       title="{{ crumb.name }}"
+                                       {% if crumb.shouldOpenInNewTab %}target="_blank"{% endif %}>
+                                        {{ crumb.name }}
+                                    </a>
+                                {% endif %}
+                            </li>
+                        {% endblock %}
+                    {% endfor %}
+                </ol>
+            {% endblock %}
+        {% else %}
+            <twig:Sw:Icon name="arrow-head-right" size="sm" />
+            {{ 'general.breadcrumbPlaceholder'|trans|sw_sanitize }}
+        {% endif %}
+    </nav>
+{% endblock %}

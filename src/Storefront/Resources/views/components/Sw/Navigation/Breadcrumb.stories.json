@@ -1,0 +1,33 @@
+{
+    "title": "Sw/Navigation/Breadcrumb",
+    "parameters": {
+        "server": {
+            "id": "Sw:Navigation:Breadcrumb"
+        },
+        "template": "<twig:Sw:Navigation:Breadcrumb :breadcrumb=\"breadcrumb\" :showHome=\"showHome\" />"
+    },
+    "argTypes": {
+        "breadcrumb": {
+            "control": "object",
+            "description": "The product's category path as a BreadcrumbCollection (resolved by the breadcrumb data loader).",
+            "required": true,
+            "type": "BreadcrumbCollection",
+            "table": {
+                "readonly": true
+            }
+        },
+        "showHome": {
+            "control": "boolean",
+            "description": "Prepend a link to the shop home page."
+        }
+    },
+    "stories": [
+        {
+            "name": "Breadcrumb",
+            "args": {
+                "breadcrumb": [],
+                "showHome": false
+            }
+        }
+    ]
+}

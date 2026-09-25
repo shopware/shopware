@@ -31,6 +31,8 @@ Omit `major` unless the flag is a sub-feature; in that case, set it to the paren
 features. Major CI sets the upcoming version flag directly (`V6_8_0_0=1`) in
 `integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
 Update these three workflow settings when the target major changes.
+The migration suite also sets its Composer root version to that major. Migration namespace
+selection follows the installed Composer version; the feature flag only controls flagged behavior.
 
 The unit suite is the exception: its bootstrap activates every registered flag regardless of
 `FEATURE_ALL`, so a unit test always sees the newest major and has to pin itself explicitly — see

@@ -325,6 +325,7 @@ jobs:
       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      COMPOSER_ROOT_VERSION: ${{ matrix.suite == 'migration' && '6.8.9999999-dev' || '6.7.9999999-dev' }}
       V6_8_0_0: ${{ matrix.suite == 'migration' && '1' || '' }}
 
     services:

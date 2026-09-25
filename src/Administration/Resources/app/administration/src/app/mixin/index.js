@@ -4,7 +4,8 @@
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default () => {
-    const context = import.meta.glob('./**/!(*.spec).{j,t}s', {
+    // `!(*.spec)` only filters filenames, so the second pattern is what keeps a split `<name>.spec/` out.
+    const context = import.meta.glob(['./**/!(*.spec).{j,t}s', '!./**/*.spec/**'], {
         eager: true,
     });
 

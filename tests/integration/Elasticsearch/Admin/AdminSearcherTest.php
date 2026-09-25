@@ -46,6 +46,13 @@ class AdminSearcherTest extends TestCase
         $this->clearElasticsearch();
     }
 
+    protected function tearDown(): void
+    {
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $this->clearElasticsearch();
+    }
+
     public function testNonNumericSearchStillWorks(): void
     {
         $ids = new IdsCollection();

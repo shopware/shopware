@@ -1,6 +1,10 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
+import type { AccessibilityViolation } from '../../util/accessibility.types';
+import type { AccessibilityFixProposal } from '../../util/accessibility-fix.types';
+import { requestAccessibilityFix } from '../../util/accessibility-fix.service';
+import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
 
 import template from './sw-experience-studio-sidebar-tree-node.html.twig';
 import './sw-experience-studio-sidebar-tree-node.scss';
@@ -69,6 +73,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        accessibilityViolations: {
+            type: Array as PropType<AccessibilityViolation[]>,
+            required: false,
+            default: () => [],
+        },
     },
 
     emits: [
@@ -77,13 +86,24 @@ export default Shopware.Component.wrapComponentConfig({
         'duplicate-element',
         'delete-element',
         'move-element',
+        'accessibility-fix-apply',
     ],
 
     data(): {
         isExpanded: boolean;
+        showAccessibilityModal: boolean;
+        isAccessibilityFixLoading: boolean;
+        accessibilityFixError: string | null;
+        accessibilityFixProposal: AccessibilityFixProposal | null;
+        accessibilityFixElementSnapshot: string | null;
     } {
         return {
             isExpanded: true,
+            showAccessibilityModal: false,
+            isAccessibilityFixLoading: false,
+            accessibilityFixError: null,
+            accessibilityFixProposal: null,
+            accessibilityFixElementSnapshot: null,
         };
     },
 
@@ -94,6 +114,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         elementTypeStore() {
             return Shopware.Store.get('experienceStudioElementType' as never) as ExperienceStudioElementTypeStore;
+        },
+
+        elementTypeSpecification(): ContentSystemElementTypeSpecification | null {
+            return this.elementTypeStore.getByName(this.contentElement.component);
         },
 
         label(): string {
@@ -128,6 +152,15 @@ export default Shopware.Component.wrapComponentConfig({
 
         isSelected(): boolean {
             return this.selectedElementId === this.contentElement.id;
+        },
+
+        elementAccessibilityViolations(): AccessibilityViolation[] {
+            return this.accessibilityViolations
+                .map((violation) => ({
+                    ...violation,
+                    nodes: violation.nodes.filter((node) => node.elementId === this.contentElement.id),
+                }))
+                .filter((violation) => violation.nodes.length > 0);
         },
 
         allowEdit(): boolean {
@@ -166,6 +199,79 @@ export default Shopware.Component.wrapComponentConfig({
 
         onDeleteElement(): void {
             this.$emit('delete-element', this.contentElement.id);
+        },
+
+        onOpenAccessibilityModal(): void {
+            this.showAccessibilityModal = true;
+        },
+
+        onCloseAccessibilityModal(): void {
+            this.showAccessibilityModal = false;
+            this.accessibilityFixProposal = null;
+            this.accessibilityFixElementSnapshot = null;
+            this.accessibilityFixError = null;
+        },
+
+        async onRequestAccessibilityFix(): Promise<void> {
+            this.isAccessibilityFixLoading = true;
+            this.accessibilityFixError = null;
+            this.accessibilityFixProposal = null;
+            this.accessibilityFixElementSnapshot = JSON.stringify(this.contentElement);
+
+            try {
+                this.accessibilityFixProposal = await requestAccessibilityFix(
+                    this.contentElement,
+                    this.elementAccessibilityViolations,
+                    this.elementTypeSpecification,
+                );
+            } catch {
+                this.accessibilityFixError = 'sw-experience-studio.detail.sidebarTree.accessibilityFixError';
+            } finally {
+                this.isAccessibilityFixLoading = false;
+            }
+        },
+
+        onApplyAccessibilityFix(): void {
+            if (!this.accessibilityFixProposal || this.accessibilityFixProposal.operations.length === 0) {
+                return;
+            }
+
+            if (this.accessibilityFixElementSnapshot !== JSON.stringify(this.contentElement)) {
+                this.accessibilityFixError = 'sw-experience-studio.detail.sidebarTree.accessibilityFixStale';
+
+                return;
+            }
+
+            this.$emit('accessibility-fix-apply', this.accessibilityFixProposal.operations);
+            this.showAccessibilityModal = false;
+            this.accessibilityFixProposal = null;
+            this.accessibilityFixElementSnapshot = null;
+        },
+
+        onCancelAccessibilityFix(): void {
+            this.accessibilityFixProposal = null;
+            this.accessibilityFixElementSnapshot = null;
+            this.accessibilityFixError = null;
+        },
+
+        getAccessibilityFixCurrentValue(operation: AccessibilityFixProposal['operations'][number]): unknown {
+            const source = operation.type.includes('property') ? this.contentElement.properties : this.contentElement.style;
+
+            return operation.path.split('.').reduce<unknown>((value, pathPart) => {
+                if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+                    return undefined;
+                }
+
+                return (value as Record<string, unknown>)[pathPart];
+            }, source);
+        },
+
+        formatAccessibilityFixValue(value: unknown): string {
+            if (value === undefined) {
+                return '—';
+            }
+
+            return JSON.stringify(value) ?? '—';
         },
 
         collectSubtreeIds(element: ContentElementNode): string[] {

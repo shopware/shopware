@@ -109,6 +109,11 @@ PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-sel
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
 PluginManager.register('CmsGdprVideoElement', () => import('src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin'), '[data-cms-gdpr-video-element]');
 PluginManager.register('AlertAria', AlertAriaPlugin, '[data-alert-aria]'); // Plugin not async to prevent unreliable load time for the screenreader.
+PluginManager.register(
+    'ContentSystemPreviewAccessibility',
+    () => import('src/plugin/content-system-preview-accessibility/content-system-preview-accessibility.plugin'),
+    'body.sw-experience-studio-preview',
+);
 
 /**
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES

@@ -69,6 +69,16 @@
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
+        "accessibility": "Barrierefreiheit",
+        "accessibilityModal": {
+          "title": "Barrierefreiheit",
+          "scanning": "Die Vorschau wird auf Probleme mit der Barrierefreiheit geprüft ...",
+          "error": "Die Vorschau konnte nicht auf Probleme mit der Barrierefreiheit geprüft werden.",
+          "noIssues": "Es wurden keine Probleme mit der Barrierefreiheit gefunden.",
+          "issuesFound": "{count} Probleme mit der Barrierefreiheit gefunden.",
+          "affectedNodes": "{count} betroffene Knoten.",
+          "learnMore": "Mehr erfahren"
+        },
         "save": "Layout speichern"
       },
       "sidebarTree": {
@@ -78,6 +88,12 @@
         "addElementNoTypeAvailable": "Es ist kein registrierter Elementtyp zum Einfügen verfügbar.",
         "addElementNotAllowed": "Dieses Element kann nicht in den ausgewählten Slot eingefügt werden.",
         "configureElement": "Element konfigurieren",
+        "accessibility": "Barrierefreiheitsprobleme",
+        "accessibilityFix": "Lösung vorschlagen",
+        "accessibilityFixApply": "Lösung anwenden",
+        "accessibilityFixProposal": "Vorgeschlagene Lösung für Barrierefreiheit",
+        "accessibilityFixError": "Die Lösung für die Barrierefreiheitsprobleme konnte nicht erstellt werden.",
+        "accessibilityFixStale": "Das Element wurde geändert, während der Vorschlag erstellt wurde. Bitte fordere eine neue Lösung an.",
         "duplicateElement": "Element duplizieren",
         "deleteElement": "Element löschen"
       },

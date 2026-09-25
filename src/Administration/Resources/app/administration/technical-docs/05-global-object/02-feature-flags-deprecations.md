@@ -149,20 +149,9 @@ This rule ensures proper handling of deprecated features and prevents inappropri
 
 ### Runtime Deprecation Warnings
 
-Deprecated functionality includes runtime warnings that can be controlled by feature flags:
+Deprecated developer-facing APIs report their usages at runtime. Keep these warnings actionable and quiet: log them only in development builds, deduplicate them per call site, and name the caller and the replacement. See `src/core/helper/i18n-legacy-syntax.helper.ts`, which reports the deprecated `$tc` and the vue-i18n 8 argument order.
 
-```typescript
-// Example from vue.adapter.ts
-this.app.config.globalProperties.$tc = function (...args) {
-    if (window._features_.V6_8_0_0) {
-        console.warn(
-            'Deprecation Warning',
-            'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
-        );
-    }
-    return i18n.global.t(...fixI18NParametersOrder(args));
-};
-```
+Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like `sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).
 
 ## Coding Guidelines
 

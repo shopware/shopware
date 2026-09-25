@@ -2106,11 +2106,6 @@ The following Twig blocks have been removed:
   - `sw_theme_manager_detail_content_sections`
   - `sw_theme_manager_detail_content_fields`
 
-## Removal of $tc function:
-
-* The `$tc` function will be completely removed
-* All translation calls should use `$t` instead
-
 ## Removed translation of import/export profile label
 
 The translation of the import/export profile label has been removed.

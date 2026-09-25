@@ -132,6 +132,19 @@ Shopware.Component.override('sw-cms-list', {
 
 Together, these two changes remove the need to override the surrounding blocks, so several extensions can add items to the layout context menus at the same time.
 
+### `$tc` stays available until 6.9 and reports its usages
+
+The removal of `$tc()` was moved from 6.8 to 6.9, so extensions using it keep working with 6.8. `$tc()`, the root instance `$tc()`, and `Shopware.Snippet.tc()` are deprecated in favor of `$t()` and `Shopware.Snippet.t()`.
+
+In development builds, the Administration now logs a deprecation warning once per component and snippet key that is translated with `$tc()`, naming the component and the replacement call.
+
+Calls in the vue-i18n 8 argument order `$t(key, plural, namedParameters)` lost their named parameters since the vue-i18n 10 update. They are now converted to `$t(key, namedParameters, plural)` and reported with a deprecation warning. The conversion will be removed in 6.9.
+
+The ESLint rule `sw-core-rules/no-tc-translation` in the Administration extension tooling reports and autofixes both patterns in JavaScript, TypeScript, Vue, and Twig templates. Calls whose named parameters are no object literal, e.g. `$t(key, 1, params)`, are reported without an autofix. Like the other deprecation rules of the extension tooling, it follows `internalApiSeverity`:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
 ### Admin list and card empty states use `mt-empty-state`
 
 The prominent empty states of the Administration render `mt-empty-state` instead of `sw-empty-state`, plain text or illustration markup. List pages whose empty state means "nothing exists yet" offer their create action in its `button` slot, and the customer group, flow and rule lists hide their listing while the empty state shows, so blocks nested inside those listings no longer render.

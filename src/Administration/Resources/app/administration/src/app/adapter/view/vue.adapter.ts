@@ -18,6 +18,7 @@ import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type { ComponentPublicInstance } from '@vue/runtime-core';
+import { createDeprecatedTc, createTranslate } from 'src/core/helper/i18n-legacy-syntax.helper';
 
 import MtAvatar from '@shopware-ag/meteor-component-library/dist/esm/MtAvatar';
 import MtBanner from '@shopware-ag/meteor-component-library/dist/esm/MtBanner';
@@ -161,37 +162,8 @@ export default class VueAdapter extends ViewAdapter {
             throw new Error('Vue app is not initialized yet');
         }
 
-        function fixI18NParametersOrder(args: Parameters<typeof i18n.global.t>): Parameters<typeof i18n.global.t> {
-            if (args.length === 3 && typeof args[1] === 'number' && typeof args[2] === 'object') {
-                console.warn(
-                    'the order of the parameters for $t has changed in the latest version.',
-                    'Please, check Vue I18n documentation for more details:',
-                    'https://vue-i18n.intlify.dev/guide/migration/breaking10#tc-key-key-resourcekeys-choice-number-named-record-string-unknown-translateresult',
-                );
-                // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
-                // third parameters in the latest version.
-                return [args[0], args[1], args[2]];
-            }
-            return args;
-        }
-
         this.app.config.compilerOptions.whitespace = 'preserve';
         this.app.config.performance = process.env.NODE_ENV !== 'production';
-        this.app.config.globalProperties.$t = function (...args: Parameters<typeof i18n.global.t>) {
-            return i18n.global.t(...fixI18NParametersOrder(args));
-        } as typeof i18n.global.t;
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed, use $t instead.
-         */
-        this.app.config.globalProperties.$tc = function (...args: Parameters<typeof i18n.global.t>) {
-            if (window._features_.V6_8_0_0) {
-                console.warn(
-                    'Deprecation Warning',
-                    'The $tc function is deprecated and will be removed in future versions. Please use $t instead.',
-                );
-            }
-            return i18n.global.t(...fixI18NParametersOrder(args));
-        } as typeof i18n.global.t;
 
         this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
             const warnArgs = [`[Vue warn]: ${msg}`, trace, instance];
@@ -284,6 +256,12 @@ export default class VueAdapter extends ViewAdapter {
         this.app.use(router);
         this.app.use(vuexRoot);
         this.app.use(i18n);
+        // Assigned after `app.use(i18n)`, because vue-i18n's global injection overwrites `$t`.
+        this.app.config.globalProperties.$t = createTranslate(i18n.global.t);
+        /**
+         * @deprecated tag:v6.9.0 - Will be removed, use $t instead.
+         */
+        this.app.config.globalProperties.$tc = createDeprecatedTc(i18n.global.t, '$tc', '$t');
 
         // This is a hack for providing the i18n scope to the components.
         Object.defineProperty(this.app.config.globalProperties, '$i18n', {
@@ -294,8 +272,8 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         // Add global properties to root view instance
-        this.app.$tc = i18n.global.t;
-        this.app.$t = i18n.global.t;
+        this.app.$tc = this.app.config.globalProperties.$tc;
+        this.app.$t = this.app.config.globalProperties.$t;
 
         this.initTitle(this.app);
 

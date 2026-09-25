@@ -29,6 +29,7 @@ final readonly class DocumentReader
         private MediaService $mediaService,
         private DocumentRendererRegistry $documentRendererRegistry,
         private DocumentFileResolver $documentFileResolver,
+        private DocumentMediaGuard $documentMediaGuard,
     ) {
     }
 
@@ -69,6 +70,8 @@ final readonly class DocumentReader
                 throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $resolvedFile->format);
             }
         }
+
+        $this->documentMediaGuard->assertIsDocumentMedia($resolvedFile->media, $context);
 
         $content = $context->scope(
             Context::SYSTEM_SCOPE,

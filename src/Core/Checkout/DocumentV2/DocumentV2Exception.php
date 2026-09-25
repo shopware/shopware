@@ -27,6 +27,10 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
 
+    public const MEDIA_NOT_FOUND = 'DOCUMENT_V2__MEDIA_NOT_FOUND';
+
+    public const DOCUMENT_MEDIA_NOT_ALLOWED = 'DOCUMENT_V2__DOCUMENT_MEDIA_NOT_ALLOWED';
+
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
 
     public const UNSUPPORTED_DOCUMENT_FORMAT = 'DOCUMENT_V2__UNSUPPORTED_DOCUMENT_FORMAT';
@@ -156,6 +160,26 @@ class DocumentV2Exception extends HttpException
             self::DOCUMENT_NOT_FOUND,
             'Document with id "{{ documentId }}" not found.',
             ['documentId' => $documentId],
+        );
+    }
+
+    public static function mediaNotFound(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_NOT_FOUND,
+            'Media with id "{{ mediaId }}" not found.',
+            ['mediaId' => $mediaId],
+        );
+    }
+
+    public static function documentMediaNotAllowed(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::DOCUMENT_MEDIA_NOT_ALLOWED,
+            'Media with id "{{ mediaId }}" is not a document media file.',
+            ['mediaId' => $mediaId],
         );
     }
 

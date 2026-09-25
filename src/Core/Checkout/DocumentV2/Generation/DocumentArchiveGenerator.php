@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentMediaGuard;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -29,6 +30,7 @@ final class DocumentArchiveGenerator
         private readonly Filesystem $filesystem,
         private readonly DocumentRendererRegistry $documentRendererRegistry,
         private readonly DocumentFileNameBuilder $fileNameBuilder,
+        private readonly DocumentMediaGuard $documentMediaGuard,
     ) {
     }
 
@@ -151,6 +153,8 @@ final class DocumentArchiveGenerator
 
     private function loadMediaContent(MediaEntity $media, Context $context): string
     {
+        $this->documentMediaGuard->assertIsDocumentMedia($media, $context);
+
         return $context->scope(
             Context::SYSTEM_SCOPE,
             fn (Context $scopedContext): string => $this->mediaService->loadFile($media->getId(), $scopedContext),

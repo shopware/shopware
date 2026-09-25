@@ -86,10 +86,12 @@ use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetEnableTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetsListTool;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\inline_service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
@@ -102,8 +104,12 @@ return static function (ContainerConfigurator $container): void {
     // allowlist request handlers page with the same number.
     $container->parameters()->set('shopware.mcp.pagination_limit', 50);
 
+    // The registry must be exactly as shared as the sessions: the notifier drops ids whose session it
+    // cannot find, so a shared registry next to node-local sessions would drop other nodes' sessions.
+    // By default the sessions are files in the kernel cache dir, so the registry lives next to them.
+    // McpSessionRegistryCompilerPass follows a changed session store (cache pool or other directory).
     $services->set('shopware.mcp.session_registry_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
+        ->args([inline_service(FilesystemAdapter::class)->args(['', 0, '%kernel.cache_dir%/mcp-sessions/admin-registry'])]);
 
     $services->set(McpSessionRegistry::class)
         ->args([
@@ -210,10 +216,10 @@ return static function (ContainerConfigurator $container): void {
     // pointed at the store-api registry/params and an isolated session registry (own cache) so
     // enabling an admin toolset never notifies store-api sessions and vice versa.
     $services->set('mcp.store_api.session_registry_cache', Psr16Cache::class)
-        ->args([service('cache.system')]);
+        ->args([inline_service(FilesystemAdapter::class)->args(['', 0, '%kernel.cache_dir%/mcp-sessions/store_api-registry'])]);
 
     // Distinct cache key from the Admin registry so the two endpoints' active-session populations
-    // stay isolated even though both wrap the cache.system pool.
+    // stay isolated even when both use the same pool.
     $services->set('mcp.store_api.session_registry', McpSessionRegistry::class)
         ->args([
             service('mcp.store_api.session_registry_cache'),

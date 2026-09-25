@@ -1,5 +1,11 @@
 # 6.7.16.0 (upcoming)
 
+## Storefront
+
+### Preserve theme assets on S3-compatible storage
+
+Theme compilation now preserves current images and fonts on storage providers that apply deletions asynchronously. Obsolete theme assets are removed only after the replacement files have been uploaded successfully.
+
 ## Core
 
 ### `JsonField` supports typed properties with additional extension data

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -159,6 +160,12 @@ class McpToolAnalysisCompilerPass implements CompilerPassInterface
             }
 
             $group = McpToolAttributeReader::resolveAttribute($class, McpToolGroup::class)?->group;
+
+            // The discovery group is reserved for the core meta-tools (see McpToolDiscoveryCompilerPass).
+            if ($group === McpToolsetRegistry::DISCOVERY_GROUP && !\in_array($tool->name, McpToolsetRegistry::DISCOVERY_META_TOOLS, true)) {
+                $group = McpToolsetRegistry::FALLBACK_GROUP;
+            }
+
             if ($group !== null && $group !== '') {
                 $groupMap[$tool->name] = $group;
             }

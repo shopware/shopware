@@ -355,4 +355,50 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
         expect(wrapper.vm).toBeTruthy();
     });
+
+    it('should delete the feature set whose delete action was clicked', async () => {
+        const wrapper = await createWrapper({}, ['product_feature_sets.deleter']);
+        await wrapper.setData({
+            productFeatureSets: new EntityCollection(
+                null,
+                'product_feature_set',
+                Shopware.Context.api,
+                {
+                    page: {},
+                },
+                [
+                    {
+                        id: 'firstFeatureSetId',
+                        name: 'First feature set',
+                        features: [],
+                    },
+                    {
+                        id: 'secondFeatureSetId',
+                        name: 'Second feature set',
+                        features: [],
+                    },
+                ],
+            ),
+        });
+        await flushPromises();
+
+        const deleteFunction = jest.fn(() => Promise.resolve());
+        wrapper.vm.productFeatureSetsRepository.delete = deleteFunction;
+
+        await wrapper.findAll('.sw-product-feature-sets-list__delete-action').at(0).trigger('click');
+        await flushPromises();
+
+        const deleteModals = wrapper.findAll('.sw-modal');
+        expect(deleteModals).toHaveLength(1);
+
+        const confirmButton = deleteModals
+            .at(0)
+            .findAll('button')
+            .find((button) => button.text() === 'global.default.delete');
+        await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(deleteFunction).toHaveBeenCalledTimes(1);
+        expect(deleteFunction).toHaveBeenCalledWith('firstFeatureSetId');
+    });
 });

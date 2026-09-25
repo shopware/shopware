@@ -33,7 +33,12 @@ const flowData = [
 let flowSearchMock;
 
 async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData, routeQuery = {}) {
-    flowSearchMock = jest.fn(() => Promise.resolve(customFlowData));
+    flowSearchMock = jest.fn(() => {
+        const result = [...customFlowData];
+        result.total = customFlowData.total ?? customFlowData.length;
+
+        return Promise.resolve(result);
+    });
 
     return mount(await wrapTestComponent('sw-flow-list', { sync: true }), {
         global: {
@@ -66,7 +71,6 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 `,
                 },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-empty-state': true,
                 'sw-search-bar': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
@@ -250,5 +254,42 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
         await flushPromises();
 
         expect(flowSearchMock).toHaveBeenLastCalledWith(expect.objectContaining({ term: 'Order' }));
+    });
+
+    it('should replace the listing with an empty state offering the create action when no flow exists', async () => {
+        const wrapper = await createWrapper(['flow.creator'], false, []);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-flow.list.emptyStateTitle');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.text()).toBe('sw-flow.list.buttonAddFlow');
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        const wrapper = await createWrapper(['flow.creator'], false, [], { term: 'Order' });
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+
+        // a search without hits is not a first-time state, so it drops the "add a flow" wording
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-empty-state.messageNoResultSubline');
+    });
+
+    it('should keep the listing when the page is out of range', async () => {
+        const outOfRangePage = [];
+        outOfRangePage.total = 50;
+
+        const wrapper = await createWrapper(['flow.creator'], false, outOfRangePage);
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
+        expect(wrapper.find('.sw-data-grid').exists()).toBe(true);
     });
 });

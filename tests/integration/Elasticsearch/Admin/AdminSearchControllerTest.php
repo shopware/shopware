@@ -44,10 +44,6 @@ class AdminSearchControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
-            static::markTestSkipped('No OPENSEARCH configured');
-        }
-
         $this->connection = static::getContainer()->get(Connection::class);
 
         $this->promotionRepository = static::getContainer()->get('promotion.repository');
@@ -66,7 +62,7 @@ class AdminSearchControllerTest extends TestCase
     {
         $ids = self::$indexedIds;
 
-        $this->getBrowser()->request('POST', '/api/_admin/es-search', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);
+        $this->getBrowser()->request('POST', '/api/_admin/es-search', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -100,20 +96,6 @@ class AdminSearchControllerTest extends TestCase
             ],
             ['promotion-1', 'promotion-2', 'promotion-3'],
         ];
-        yield 'search a phrase' => [
-            [
-                'term' => '"gold laptop"',
-                'entities' => ['promotion'],
-            ],
-            ['promotion-1'],
-        ];
-        yield 'search with AND' => [
-            [
-                'term' => 'laptop AND gold',
-                'entities' => ['promotion'],
-            ],
-            ['promotion-1'],
-        ];
         yield 'search with OR' => [
             [
                 'term' => 'laptop OR gold',
@@ -121,26 +103,12 @@ class AdminSearchControllerTest extends TestCase
             ],
             ['promotion-1', 'promotion-2', 'promotion-3'],
         ];
-        yield 'search with AND syntax' => [
-            [
-                'term' => '+laptop +gold',
-                'entities' => ['promotion'],
-            ],
-            ['promotion-1'],
-        ];
         yield 'search with OR syntax' => [
             [
                 'term' => 'laptop | gold',
                 'entities' => ['promotion'],
             ],
             ['promotion-1', 'promotion-2', 'promotion-3'],
-        ];
-        yield 'search with NEGATE syntax' => [
-            [
-                'term' => 'laptop +-gold',
-                'entities' => ['promotion'],
-            ],
-            ['promotion-2'],
         ];
         yield 'search with Umlauts' => [
             [

@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductContentLayout;
 
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfig;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -55,6 +57,11 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
                 'configuratorSettings',
                 ProductConfiguratorDataLoader::SOURCE,
                 new ProductConfiguratorLoaderConfig(productId: 'productId'),
+            ),
+            new DataRequirement(
+                'reviews',
+                ProductReviewDataLoader::SOURCE,
+                new ProductReviewLoaderConfig(property: 'productId')
             ),
         ];
     }

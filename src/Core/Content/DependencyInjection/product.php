@@ -917,7 +917,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductReviewDataLoader::class)
         ->args([
-            service(ProductReviewRoute::class),
+            service(ProductReviewLoader::class),
         ])
         ->tag('content_system.data_loader');
 

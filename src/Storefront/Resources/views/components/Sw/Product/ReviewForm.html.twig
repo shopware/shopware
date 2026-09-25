@@ -1,0 +1,141 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    reviews = null,
+    slots = [],
+%}
+
+{% set isLoggedIn = context.customer and not context.customer.guest %}
+{% set customerReview = reviews ? reviews.customerReview : null %}
+{% set maxPoints = reviews and reviews.matrix ? reviews.matrix.maxPoints : 5 %}
+{% set currentPoints = customerReview and customerReview.points ? customerReview.points : maxPoints %}
+
+{% set successMessage = customerReview
+    ? 'detail.reviewFormSuccessUpdateAlert'|trans
+    : 'detail.reviewFormSuccessAlert'|trans %}
+
+{% set attributeDefaults = {
+    class: 'sw-product-review-form',
+    'data-component': 'Sw:Product:ReviewForm',
+} %}
+
+<section {{ attributes.defaults(attributeDefaults) }}>
+    {% block content %}
+        {% if not isLoggedIn %}
+            {% block login %}
+                <div class="sw-product-review-form__login card login-card">
+                    <div class="card-body">
+                        <h3 class="card-title">{{ 'detail.reviewLoginHeader'|trans|sw_sanitize }}</h3>
+                        <p class="sw-product-review-form__login-description">
+                            {{ 'detail.reviewLoginDescription'|trans|sw_sanitize }}
+                            <a href="{{ path('frontend.account.login.page') }}"
+                               title="{{ 'detail.reviewRegisterLink'|trans|striptags }}">
+                                {{ 'detail.reviewRegisterLink'|trans|sw_sanitize }}
+                            </a>
+                        </p>
+                        <a href="{{ path('frontend.account.login.page') }}" class="btn btn-primary">
+                            {{ 'account.loginSubmit'|trans|sw_sanitize }}
+                        </a>
+                    </div>
+                </div>
+            {% endblock %}
+        {% elseif reviews %}
+            {% block feedback %}
+                <div class="sw-product-review-form__success alert alert-success d-none"
+                     role="alert" aria-live="polite" tabindex="-1" hidden>
+                    {{ successMessage|sw_sanitize }}
+                </div>
+
+                <div class="sw-product-review-form__error alert alert-danger d-none"
+                     role="alert" aria-live="assertive" hidden>
+                    {{ 'detail.reviewFormErrorAlert'|trans|sw_sanitize }}
+                </div>
+            {% endblock %}
+
+            {# The teaser stands in for the form once a review exists: shown from the start when the customer
+               already has one, and revealed by JS after a new review is submitted. #}
+            {% block teaser %}
+                <div class="sw-product-review-form__teaser js-review-form-teaser{% if not customerReview %} d-none{% endif %}">
+                    <p class="sw-product-review-form__teaser-title h4">
+                        {{ 'detail.reviewExistsTeaserTitle'|trans|sw_sanitize }}
+                    </p>
+                    <p class="sw-product-review-form__teaser-text">
+                        {{ 'detail.reviewExistsTeaserText'|trans|sw_sanitize }}
+                    </p>
+                    <button type="button" class="sw-product-review-form__teaser-btn js-review-form-toggle btn btn-primary">
+                        {{ 'detail.reviewExistsTeaserButton'|trans|sw_sanitize }}
+                    </button>
+                </div>
+            {% endblock %}
+
+            {% block form %}
+                {% set formClass = 'sw-product-review-form__form' ~ (customerReview ? ' d-none' : '') %}
+                <twig:Sw:Form
+                    action="{{ path('frontend.form.product.review.send', { productId: reviews.productId }) }}"
+                    :ajax="true"
+                    :class="formClass"
+                >
+                    <twig:block name="content">
+                    {# Always present (empty for a new review); the JS fills it after a submit so a follow-up edit targets the review. #}
+                    <twig:Sw:Form:Input type="hidden" name="id" :value="customerReview ? customerReview.id : null" />
+
+                    {% block rating %}
+                        <twig:Sw:Form:StarRating
+                            name="points"
+                            :label="'detail.reviewFormRatingLabel'|trans"
+                            :maxPoints="maxPoints"
+                            :value="currentPoints"
+                            validationRules="required"
+                            violationPath="/points"
+                        />
+                    {% endblock %}
+
+                    {% block title %}
+                        <twig:Sw:Form:Input
+                            name="title"
+                            :label="'detail.reviewFormTitleLabel'|trans"
+                            :value="customerReview ? customerReview.title : null"
+                            :description="'detail.reviewTitleMinLengthHint'|trans"
+                            validationRules="required,minLength"
+                            violationPath="/title"
+                            minlength="5"
+                            maxlength="255"
+                        />
+                    {% endblock %}
+
+                    {% block review_content %}
+                        <twig:Sw:Form:Textarea
+                            name="content"
+                            :label="'detail.reviewFormContentLabel'|trans"
+                            :value="customerReview ? customerReview.content : null"
+                            :description="'detail.reviewTextMinLengthHint'|trans"
+                            validationRules="required,minLength"
+                            violationPath="/content"
+                            minlength="40"
+                        />
+                    {% endblock %}
+
+                    {% block footer %}
+                        <div class="sw-product-review-form__footer">
+                            <p class="sw-product-review-form__required">
+                                {{ 'global.default.noteRequiredFields'|trans|sw_sanitize }}
+                            </p>
+                            <div class="sw-product-review-form__actions">
+                                {# Cancel returns to the teaser; hidden until a review exists (revealed by JS after a submit). #}
+                                <button type="button" class="sw-product-review-form__cancel js-review-form-cancel btn btn-outline-secondary{% if not customerReview %} d-none{% endif %}">
+                                    {{ 'global.default.cancel'|trans|sw_sanitize }}
+                                </button>
+                                <button type="submit" class="sw-product-review-form__submit btn btn-primary">
+                                    {{ 'detail.reviewFormSubmitText'|trans|sw_sanitize }}
+                                </button>
+                            </div>
+                        </div>
+                    {% endblock %}
+                    </twig:block>
+                </twig:Sw:Form>
+            {% endblock %}
+        {% endif %}
+    {% endblock %}
+</section>

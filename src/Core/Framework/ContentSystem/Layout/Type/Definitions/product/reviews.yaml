@@ -1,0 +1,24 @@
+meta:
+  label: "Product Reviews"
+  description: "Displays the product's rating summary and customer reviews with sorting, language filtering and pagination."
+  icon: "regular-star"
+  category: "content"
+  copilot:
+    summary: "Product review list with pagination."
+    hints:
+      - "Use on a product detail page; the reviews are loaded for the current product."
+      - "Renders the review list and pagination only."
+      - "The rating summary and the sort/filter controls are separate elements — Product Review Summary and Product Review Filters — placed anywhere on the page."
+
+properties:
+  reviews:
+    type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
+    required: false
+    title: "Reviews"
+    description: "Hydrated review result containing the review collection, rating matrix, per-language totals and the current customer's own review. Received as root-scoped context from the page, which loads it once, so a summary or filters element beside this one share the same load."
+
+slots:
+  - name: list
+    description: "The list of review items."
+  - name: pagination
+    description: "Pagination controls for the review list."

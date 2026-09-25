@@ -1,0 +1,64 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    reviews = null,
+%}
+
+{% set matrix = reviews ? reviews.matrix : null %}
+{% set totalReviewCount = matrix ? matrix.totalReviewCount : 0 %}
+{% set productReviewCount = reviews ? reviews.total : 0 %}
+{% set avgRating = totalReviewCount > 0 ? matrix.averageRating|round(2, 'common') : 0 %}
+{% set maxPoints = matrix ? matrix.maxPoints : 5 %}
+
+{% set attributeDefaults = {
+    class: 'sw-product-reviews__summary',
+} %}
+
+<aside {{ attributes.defaults(attributeDefaults) }}>
+    {% block title %}
+        <p class="sw-product-reviews__summary-title h5">
+            {{ 'detail.reviewTitle'|trans({ '%count%': productReviewCount, '%total%': totalReviewCount })|sw_sanitize }}
+        </p>
+    {% endblock %}
+
+    {% block rating %}
+        <div class="sw-product-reviews__summary-rating">
+            <twig:Sw:Rating:Stars
+                :stars="avgRating"
+                :maxStars="maxPoints"
+                :allowHalf="true"
+                size="sm"
+            />
+
+            {% if totalReviewCount > 0 %}
+                {# Redundant for screen readers — the alt text is already inside Sw:Rating:Stars. #}
+                <p class="sw-product-reviews__summary-rating-value h6" aria-hidden="true">
+                    {{ avgRating }} {{ 'detail.reviewAvgRate'|trans|sw_sanitize }} {{ maxPoints }} {{ 'detail.reviewAvgRateElements'|trans }}
+                </p>
+            {% endif %}
+        </div>
+    {% endblock %}
+
+    {% block breakdown %}
+        {% if totalReviewCount > 0 and matrix %}
+            <ul class="sw-product-reviews__breakdown">
+                {% for element in matrix.matrix %}
+                    <li class="sw-product-reviews__breakdown-row">
+                        <span class="sw-product-reviews__breakdown-label">
+                            <small>{{ "detail.review#{element.points}PointRatingText"|trans|sw_sanitize }} ({{ element.count }})</small>
+                        </span>
+                        <span class="sw-product-reviews__breakdown-bar progress" role="progressbar"
+                              aria-valuenow="{{ element.percent|round }}" aria-valuemin="0" aria-valuemax="100"
+                              aria-label="{{ "detail.review#{element.points}PointRatingText"|trans|striptags }}">
+                            <span class="sw-product-reviews__breakdown-fill progress-bar" style="width: {{ element.percent }}%;"></span>
+                        </span>
+                        <span class="sw-product-reviews__breakdown-percent"><small>{{ element.percent|round }}%</small></span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endblock %}
+
+</aside>

@@ -19,6 +19,8 @@ class NumberRangeException extends HttpException
     public const INCREMENT_STORAGE_NOT_FOUND = 'FRAMEWORK__INCREMENT_STORAGE_NOT_FOUND';
     public const NO_CONFIGURATION_FOR_ENTITY = 'FRAMEWORK__NO_NUMBER_RANGE_CONFIGURATION';
     public const NUMBER_RANGE_NOT_FOUND = 'FRAMEWORK__NUMBER_RANGE_NOT_FOUND';
+    public const MISSING_REQUEST_PARAMETER = 'FRAMEWORK__NUMBER_RANGE_MISSING_REQUEST_PARAMETER';
+    public const INVALID_REQUEST_PARAMETER = 'FRAMEWORK__NUMBER_RANGE_INVALID_REQUEST_PARAMETER';
 
     /**
      * @param array<string> $availableStorages
@@ -59,6 +61,26 @@ class NumberRangeException extends HttpException
             self::NUMBER_RANGE_NOT_FOUND,
             'Number range with id "{{ numberRangeId }}" was not found.',
             ['numberRangeId' => $numberRangeId]
+        );
+    }
+
+    public static function missingRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name]
+        );
+    }
+
+    public static function invalidRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_REQUEST_PARAMETER,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
         );
     }
 }

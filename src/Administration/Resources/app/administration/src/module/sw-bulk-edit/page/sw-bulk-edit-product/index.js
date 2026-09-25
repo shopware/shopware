@@ -579,6 +579,40 @@ export default {
             ];
         },
 
+        guaranteeFormFields() {
+            return [
+                {
+                    name: 'guaranteeMonths',
+                    type: 'int',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-number-field',
+                        numberType: 'int',
+                        min: 30,
+                        max: 600,
+                        step: 6,
+                        allowEmpty: true,
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.changeLabel'),
+                        helpText: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.helpText'),
+                        placeholder: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.placeholder'),
+                        disabled: this.bulkEditProduct?.guaranteeMonths?.isInherited,
+                    },
+                },
+                {
+                    name: 'guaranteeConfirmed',
+                    type: 'bool',
+                    canInherit: this.isChild,
+                    config: {
+                        type: 'switch',
+                        label: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.label'),
+                        helpText: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.helpText'),
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.changeLabel'),
+                        disabled: this.bulkEditProduct?.guaranteeConfirmed?.isInherited,
+                    },
+                },
+            ];
+        },
+
         seoFormFields() {
             return [
                 {
@@ -1032,6 +1066,7 @@ export default {
                 this.assignmentFormFields,
                 this.mediaFormFields,
                 this.labellingFormFields,
+                this.guaranteeFormFields,
                 this.seoFormFields,
                 this.measuresPackagingFields,
                 this.sellingPackagingFields,

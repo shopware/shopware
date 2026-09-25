@@ -626,6 +626,104 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value).toBe(2);
     });
 
+    it('should offer the GARAN fields in product bulk edit', async () => {
+        const productEntity = {
+            guaranteeMonths: 36,
+            guaranteeConfirmed: true,
+        };
+        const wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.labellingFormFields.map((field) => field.name)).toEqual(['releaseDate']);
+        expect(wrapper.vm.guaranteeFormFields.map((field) => field.name)).toEqual([
+            'guaranteeMonths',
+            'guaranteeConfirmed',
+        ]);
+
+        wrapper.vm.bulkEditProduct.guaranteeMonths.isChanged = true;
+        wrapper.vm.bulkEditProduct.guaranteeConfirmed.isChanged = true;
+        wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeMonths',
+            type: 'overwrite',
+            value: 36,
+        });
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeConfirmed',
+            type: 'overwrite',
+            value: true,
+        });
+    });
+
+    it('should preserve GARAN field inheritance for variants', async () => {
+        const wrapper = await createWrapper(
+            undefined,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'productId' },
+            },
+            {
+                productRepositoryMock: {
+                    create: jest.fn(() => ({
+                        isNew: () => true,
+                    })),
+                    get: jest.fn(() =>
+                        Promise.resolve({
+                            id: 'productId',
+                            guaranteeMonths: 36,
+                            guaranteeConfirmed: true,
+                            price: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 10,
+                                    net: 8.4,
+                                    linked: true,
+                                },
+                            ],
+                            purchasePrices: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 8,
+                                    net: 6.72,
+                                    linked: true,
+                                },
+                            ],
+                        }),
+                    ),
+                },
+            },
+        );
+
+        await flushPromises();
+
+        expect(wrapper.vm.guaranteeFormFields).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: 'guaranteeMonths', canInherit: true }),
+                expect.objectContaining({ name: 'guaranteeConfirmed', canInherit: true }),
+            ]),
+        );
+
+        wrapper.vm.bulkEditProduct.guaranteeMonths.isChanged = true;
+        wrapper.vm.bulkEditProduct.guaranteeConfirmed.isChanged = true;
+        wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeMonths',
+            type: 'overwrite',
+            value: null,
+        });
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeConfirmed',
+            type: 'overwrite',
+            value: null,
+        });
+    });
+
     it('should be null for the value and the type is overwrite data when minPurchase set to clear type', async () => {
         const productEntity = {
             minPurchase: 2,

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -121,8 +122,11 @@ class AssetService
      * @throws FilesystemException
      * @throws UnableToDeleteDirectory
      */
-    public function removeAssetsOfBundle(string $bundleName, bool $deleteFiles = true): void
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'deleteFiles', parameterType: 'bool', defaultValue: true)]
+    public function removeAssetsOfBundle(string $bundleName /* , bool $deleteFiles = true */): void
     {
+        $deleteFiles = \func_num_args() > 1 ? (bool) \func_get_arg(1) : true;
+
         $this->removeAssets($bundleName, $deleteFiles);
 
         $bundle = null;
@@ -144,8 +148,11 @@ class AssetService
      * @throws FilesystemException
      * @throws UnableToDeleteDirectory
      */
-    public function removeAssets(string $name, bool $deleteFiles = true): void
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'deleteFiles', parameterType: 'bool', defaultValue: true)]
+    public function removeAssets(string $name /* , bool $deleteFiles = true */): void
     {
+        $deleteFiles = \func_num_args() > 1 ? (bool) \func_get_arg(1) : true;
+
         if ($deleteFiles) {
             $this->assetFilesystem->deleteDirectory($this->getTargetDirectory($name));
         }

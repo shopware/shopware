@@ -825,6 +825,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginEntity->setInstalledAt(new \DateTime());
         $pluginEntity->setActive(true);
         $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
+        $this->pluginMock->expects($this->once())->method('deactivate');
 
         $assetService = $this->createMock(AssetService::class);
         $assetService->expects($this->once())

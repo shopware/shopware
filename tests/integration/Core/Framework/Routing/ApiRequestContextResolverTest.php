@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -243,6 +244,15 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
     }
 
+    #[DataProvider('indexingBehaviorProvider')]
+    public function testContextHonorsIndexingBehaviorHeader(?string $behavior, bool $usesQueueIndexing, bool $disablesIndexing): void
+    {
+        $context = $this->resolveContextWithIndexingBehavior($behavior);
+
+        static::assertSame($usesQueueIndexing, $context->hasState(EntityIndexerRegistry::USE_INDEXING_QUEUE));
+        static::assertSame($disablesIndexing, $context->hasState(EntityIndexerRegistry::DISABLE_INDEXING));
+    }
+
     public function testResolveAdminSourceAddsDefaultUserPrivileges(): void
     {
         $user = $this->createUser([], false);
@@ -305,6 +315,33 @@ class ApiRequestContextResolverTest extends TestCase
                 'product:delete' => false,
             ],
             [],
+            false,
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{0: ?string, 1: bool, 2: bool}>
+     */
+    public static function indexingBehaviorProvider(): iterable
+    {
+        yield 'queue indexing is enabled' => [
+            EntityIndexerRegistry::USE_INDEXING_QUEUE,
+            true,
+            false,
+        ];
+        yield 'indexing is disabled' => [
+            EntityIndexerRegistry::DISABLE_INDEXING,
+            false,
+            true,
+        ];
+        yield 'no header keeps synchronous indexing' => [
+            null,
+            false,
+            false,
+        ];
+        yield 'unsupported header is ignored' => [
+            'unsupported',
+            false,
             false,
         ];
     }
@@ -1100,5 +1137,25 @@ class ApiRequestContextResolverTest extends TestCase
         );
 
         return $accessKey;
+    }
+
+    private function resolveContextWithIndexingBehavior(?string $behavior = null): Context
+    {
+        $user = $this->createUser([], true);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+        if ($behavior !== null) {
+            $request->headers->set(PlatformRequest::HEADER_INDEXING_BEHAVIOR, $behavior);
+        }
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+
+        return $context;
     }
 }

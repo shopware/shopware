@@ -48,6 +48,10 @@ async function createWrapper(rule: RuleStub, search = jest.fn(() => Promise.reso
     return { wrapper, search };
 }
 
+async function setRule(wrapper: Awaited<ReturnType<typeof createWrapper>>['wrapper'], rule: RuleStub) {
+    await wrapper.setProps({ rule } as Record<string, unknown>);
+}
+
 describe('src/module/sw-settings-rule/component/sw-settings-rule-duplicate-hint', () => {
     it('does not search and shows nothing when the rule has no config hash', async () => {
         const { wrapper, search } = await createWrapper({ id: 'rule-a', name: 'Empty', configHash: null });
@@ -118,7 +122,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-duplicate-hint'
         const { wrapper, search } = await createWrapper({ id: 'rule-a', name: 'Big cart', configHash: 'hash' });
 
         search.mockImplementation(() => Promise.resolve([]));
-        await wrapper.setProps({ rule: { id: 'rule-a', name: 'Big cart', configHash: 'other-hash' } });
+        await setRule(wrapper, { id: 'rule-a', name: 'Big cart', configHash: 'other-hash' });
         await flushPromises();
 
         expect(search).toHaveBeenCalledTimes(2);
@@ -135,7 +139,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-duplicate-hint'
         );
         const { wrapper } = await createWrapper({ id: 'rule-a', name: 'Big cart', configHash: 'hash' }, search);
 
-        await wrapper.setProps({ rule: { id: 'rule-x', name: 'Logged in', configHash: 'other-hash' } });
+        await setRule(wrapper, { id: 'rule-x', name: 'Logged in', configHash: 'other-hash' });
         await flushPromises();
 
         pending[1]([{ id: 'rule-y', name: 'Logged in (copy)' }]);
@@ -149,7 +153,7 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-duplicate-hint'
     it('reloads the duplicates when switching to a rule with the same config hash', async () => {
         const { wrapper, search } = await createWrapper({ id: 'rule-a', name: 'Big cart', configHash: 'hash' });
 
-        await wrapper.setProps({ rule: { id: 'rule-b', name: 'Big cart (copy)', configHash: 'hash' } });
+        await setRule(wrapper, { id: 'rule-b', name: 'Big cart (copy)', configHash: 'hash' });
         await flushPromises();
 
         expect(search).toHaveBeenCalledTimes(2);

@@ -90,6 +90,7 @@
             id="vatId"
             v-model="customer.vatIds[0]"
             name="vatId"
+            :required="isVatIdRequired"
             :error="customerVatIdsError"
             :label="$t('sw-customer.addressForm.labelVatId')"
             :placeholder="$t('sw-customer.addressForm.placeholderVatId')"

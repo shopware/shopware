@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -32,7 +35,9 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -43,8 +48,13 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\ConstraintValidatorFactoryInterface;
+use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -364,12 +374,33 @@ class InvoiceDataProviderTest extends TestCase
         ];
     }
 
+    public function testAVatIdOfAnotherEuMemberStateStillCarriesTheIntraCommunityNote(): void
+    {
+        static::assertTrue($this->resolveIntraCommunityDelivery(['NL123456789B01']));
+    }
+
+    public function testADomesticDeliveryDropsTheIntraCommunityNote(): void
+    {
+        static::assertFalse($this->resolveIntraCommunityDelivery(['NL123456789B01'], 'DE'));
+    }
+
+    public function testAVatIdOfNoEuMemberStateDropsTheIntraCommunityNote(): void
+    {
+        static::assertFalse($this->resolveIntraCommunityDelivery(['CHE116281838']));
+    }
+
+    public function testASingleVatIdOfNoMemberStateDropsTheIntraCommunityNoteForTheWholeList(): void
+    {
+        static::assertFalse($this->resolveIntraCommunityDelivery(['NL123456789B01', 'INVALID']));
+    }
+
     /**
      * @param array<string, mixed> $config
      */
     private function createProvider(
         array $config = [],
-        ?ValidatorInterface $validator = null
+        ?ValidatorInterface $validator = null,
+        ?VatIdPatternProvider $vatIdPatternProvider = null
     ): InvoiceDataProvider {
         $companyCountry = new CountryEntity();
         $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
@@ -405,7 +436,104 @@ class InvoiceDataProviderTest extends TestCase
             $configLoader,
             $documentTypeRegistry,
             $validator ?? static::createStub(ValidatorInterface::class),
+            $vatIdPatternProvider ?? static::createStub(VatIdPatternProvider::class),
         );
+    }
+
+    /**
+     * @param list<string> $vatIds
+     */
+    private function resolveIntraCommunityDelivery(array $vatIds, ?string $deliveryCountryIso = null): bool
+    {
+        $order = self::createOrder(
+            accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            country: self::createCountry(companyTaxEnabled: true, isEu: true, iso: $deliveryCountryIso),
+            vatIds: $vatIds,
+        );
+
+        $vatIdPatternProvider = $this->createRealVatIdPatternProvider();
+
+        $provider = $this->createProvider(
+            ['displayAdditionalNoteDelivery' => true],
+            $this->createValidatorWithTheRealVatIdCheck($vatIdPatternProvider),
+            $vatIdPatternProvider
+        );
+
+        return $provider->provideRenderingData(
+            new ProviderInput($order, new DocumentGenerationRequest(
+                $order->getId(),
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF],
+                '12345',
+                documentDate: '2026-05-05T12:00:00+00:00',
+            )),
+            Context::createDefaultContext()
+        )->intraCommunityDelivery;
+    }
+
+    /**
+     * The delivery country is Belgium and the shop supplies from Germany, so a Dutch VAT ID is only
+     * accepted through the intra-community fallback.
+     */
+    private function createRealVatIdPatternProvider(): VatIdPatternProvider
+    {
+        $sellerCountryId = Uuid::randomHex();
+
+        $euCountries = new CountryCollection([
+            $this->createPatternCountry($sellerCountryId, 'DE', 'DE\\d{9}'),
+            $this->createPatternCountry(Uuid::randomHex(), 'NL', 'NL\\d{9}B\\d{2}'),
+        ]);
+
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            function (Criteria $criteria, Context $context) use ($euCountries): EntitySearchResult {
+                $countries = $criteria->getIds() === []
+                    ? $euCountries
+                    : new CountryCollection([$this->createPatternCountry((string) $criteria->getIds()[0], 'BE', 'BE\\d{10}')]);
+
+                return new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context);
+            }
+        );
+
+        $systemConfigService = static::createStub(SystemConfigService::class);
+        $systemConfigService->method('getString')->willReturn($sellerCountryId);
+
+        return new VatIdPatternProvider($repository, $systemConfigService);
+    }
+
+    private function createPatternCountry(string $id, string $iso, string $vatIdPattern): CountryEntity
+    {
+        $country = new CountryEntity();
+        $country->setId($id);
+        $country->setIso($iso);
+        $country->setVatIdPattern($vatIdPattern);
+        $country->setIsEu(true);
+        $country->setCheckVatIdPattern(true);
+
+        return $country;
+    }
+
+    private function createValidatorWithTheRealVatIdCheck(VatIdPatternProvider $vatIdPatternProvider): ValidatorInterface
+    {
+        $vatIdValidator = new CustomerVatIdentificationValidator($vatIdPatternProvider);
+
+        return Validation::createValidatorBuilder()
+            ->setConstraintValidatorFactory(new class($vatIdValidator) implements ConstraintValidatorFactoryInterface {
+                private readonly ConstraintValidatorFactory $fallback;
+
+                public function __construct(private readonly CustomerVatIdentificationValidator $vatIdValidator)
+                {
+                    $this->fallback = new ConstraintValidatorFactory();
+                }
+
+                public function getInstance(Constraint $constraint): ConstraintValidatorInterface
+                {
+                    return $constraint instanceof CustomerVatIdentification
+                        ? $this->vatIdValidator
+                        : $this->fallback->getInstance($constraint);
+                }
+            })
+            ->getValidator();
     }
 
     /**
@@ -541,9 +669,11 @@ class InvoiceDataProviderTest extends TestCase
         bool $companyTaxEnabled,
         bool $isEu,
         bool $checkVatIdPattern = true,
+        ?string $iso = null,
     ): CountryEntity {
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
+        $country->setIso($iso);
         $country->setIsEu($isEu);
         $country->setCheckVatIdPattern($checkVatIdPattern);
         $country->setCompanyTax(new TaxFreeConfig(enabled: $companyTaxEnabled));

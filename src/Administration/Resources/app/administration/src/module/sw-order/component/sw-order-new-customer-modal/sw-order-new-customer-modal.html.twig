@@ -31,6 +31,7 @@
             <sw-customer-base-form
                 :is-loading="isLoading"
                 :customer="customer"
+                :is-vat-id-required="isVatIdRequired"
                 @sales-channel-change="onChangeSalesChannel"
             />
             {% endblock %}
@@ -123,6 +124,7 @@
                     <sw-customer-base-form
                         :is-loading="isLoading"
                         :customer="customer"
+                        :is-vat-id-required="isVatIdRequired"
                         @sales-channel-change="onChangeSalesChannel"
                     />
                 {% endblock %}

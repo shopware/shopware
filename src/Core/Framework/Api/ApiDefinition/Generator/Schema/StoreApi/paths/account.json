@@ -119,54 +119,65 @@
                                     "birthdayYear": {
                                         "description": "Birthday year",
                                         "type": "integer"
+                                    },
+                                    "customFields": {
+                                        "description": "Custom fields of the customer. Only fields defined for the customer entity are stored.",
+                                        "type": "object"
                                     }
                                 },
-                                "anyOf": [
+                                "allOf": [
                                     {
-                                        "properties": {
-                                            "accountType": {
-                                                "description": "Type of the customer account. Default value is 'private'.",
-                                                "type": "string",
-                                                "enum": [
-                                                    "private"
+                                        "anyOf": [
+                                            {
+                                                "properties": {
+                                                    "accountType": {
+                                                        "description": "Type of the customer account. Default value is 'private'.",
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "private"
+                                                        ],
+                                                        "default": "private"
+                                                    },
+                                                    "company": {
+                                                        "description": "Not used for a private account, the value is cleared.",
+                                                        "type": "string"
+                                                    },
+                                                    "vatIds": {
+                                                        "description": "Not used for a private account, the value is cleared.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "required": [
+                                                    "accountType",
+                                                    "company"
                                                 ],
-                                                "default": "private"
-                                            },
-                                            "company": {
-                                                "type": "null"
-                                            },
-                                            "vatIds": {
-                                                "type": "null"
+                                                "properties": {
+                                                    "accountType": {
+                                                        "description": "Type of the customer account. Can be `private` or `business`.",
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "business"
+                                                        ]
+                                                    },
+                                                    "company": {
+                                                        "description": "Company of the customer. Required whenever `accountType` is `business`.",
+                                                        "type": "string"
+                                                    },
+                                                    "vatIds": {
+                                                        "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`, and only required when the country of the default billing address has `vatIdRequired` enabled.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
                                             }
-                                        }
-                                    },
-                                    {
-                                        "required": [
-                                            "accountType",
-                                            "company",
-                                            "vatIds"
-                                        ],
-                                        "properties": {
-                                            "accountType": {
-                                                "description": "Type of the customer account. Can be `private` or `business`.",
-                                                "type": "string",
-                                                "enum": [
-                                                    "business"
-                                                ]
-                                            },
-                                            "company": {
-                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
-                                                "type": "string"
-                                            },
-                                            "vatIds": {
-                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "minItems": 1
-                                            }
-                                        }
+                                        ]
                                     }
                                 ]
                             }
@@ -870,21 +881,42 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "username",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "username": {
-                                        "description": "Email",
-                                        "type": "string"
+                                "anyOf": [
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "email",
+                                            "password"
+                                        ],
+                                        "properties": {
+                                            "email": {
+                                                "description": "Email address of the customer. Takes precedence over `username` when both are sent.",
+                                                "type": "string"
+                                            },
+                                            "password": {
+                                                "description": "Password",
+                                                "type": "string"
+                                            }
+                                        }
                                     },
-                                    "password": {
-                                        "description": "Password",
-                                        "type": "string"
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "username",
+                                            "password"
+                                        ],
+                                        "properties": {
+                                            "username": {
+                                                "description": "Email address of the customer. Kept for backwards compatibility; `email` is the preferred field.",
+                                                "type": "string"
+                                            },
+                                            "password": {
+                                                "description": "Password",
+                                                "type": "string"
+                                            }
+                                        }
                                     }
-                                },
-                                "type": "object"
+                                ]
                             }
                         }
                     }
@@ -1116,19 +1148,19 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer first name. Required unless a `billingAddress` is sent, whose first name is used instead. When both are sent, this value also replaces the first name of the billing address.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer last name. Required unless a `billingAddress` is sent, whose last name is used instead. When both are sent, this value also replaces the last name of the billing address.",
                                         "type": "string"
                                     },
                                     "acceptedDataProtection": {
-                                        "description": "Flag indicating accepted data protection",
+                                        "description": "Flag indicating accepted data protection. Only required when the `core.loginRegistration.requireDataProtectionCheckbox` setting is enabled, which is off by default.",
                                         "type": "boolean"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront for that registration. Used in the double opt-in confirmation email. Only required and validated against the configured domains of the sales channel when double opt-in registration is enabled.",
+                                        "description": "URL of the storefront for that registration. Used in the double opt-in confirmation email. Only required when double opt-in is enabled, through `core.loginRegistration.doubleOptInRegistration` for customers or `core.loginRegistration.doubleOptInGuestOrder` for guests, both off by default. The value then has to match one of the domains configured for the sales channel.",
                                         "type": "string"
                                     },
                                     "requestedGroupId": {
@@ -1136,9 +1168,11 @@
                                         "type": "string"
                                     },
                                     "billingAddress": {
+                                        "description": "Billing address of the customer. Required unless a `shippingAddress` is sent, which is then used as the billing address as well.",
                                         "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "shippingAddress": {
+                                        "description": "Shipping address of the customer. When no `billingAddress` is sent, this address becomes the default billing address too.",
                                         "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "guest": {
@@ -1169,63 +1203,149 @@
                                     "campaignCode": {
                                         "description": "Field can be used to store a campaign tracking code",
                                         "type": "string"
+                                    },
+                                    "customFields": {
+                                        "description": "Custom fields of the customer. Only fields defined for the customer entity are stored.",
+                                        "type": "object"
+                                    },
+                                    "redirectTo": {
+                                        "description": "Route name the double opt-in confirmation link points to. Only used when double opt-in registration is enabled.",
+                                        "type": "string"
+                                    },
+                                    "redirectParameters": {
+                                        "description": "Additional parameters for the double opt-in confirmation link, as a JSON encoded string. Only used when double opt-in registration is enabled.",
+                                        "type": "string"
                                     }
                                 },
                                 "required": [
-                                    "email",
-                                    "password",
-                                    "firstName",
-                                    "lastName",
-                                    "acceptedDataProtection",
-                                    "storefrontUrl",
-                                    "billingAddress"
+                                    "email"
                                 ],
-                                "anyOf": [
+                                "allOf": [
                                     {
-                                        "properties": {
-                                            "accountType": {
-                                                "description": "Type of the customer account. Default value is 'private'.",
-                                                "type": "string",
-                                                "enum": [
-                                                    "private"
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "billingAddress"
                                                 ],
-                                                "default": "private"
+                                                "properties": {
+                                                    "billingAddress": {
+                                                        "$ref": "#/components/schemas/CustomerAddressBody"
+                                                    }
+                                                }
                                             },
-                                            "company": {
-                                                "type": "null"
-                                            },
-                                            "vatIds": {
-                                                "type": "null"
+                                            {
+                                                "required": [
+                                                    "shippingAddress",
+                                                    "firstName",
+                                                    "lastName"
+                                                ],
+                                                "properties": {
+                                                    "shippingAddress": {
+                                                        "$ref": "#/components/schemas/CustomerAddressBody"
+                                                    },
+                                                    "firstName": {
+                                                        "type": "string"
+                                                    },
+                                                    "lastName": {
+                                                        "type": "string"
+                                                    }
+                                                }
                                             }
-                                        }
+                                        ]
                                     },
                                     {
-                                        "required": [
-                                            "accountType",
-                                            "company",
-                                            "vatIds"
-                                        ],
-                                        "properties": {
-                                            "accountType": {
-                                                "description": "Type of the customer account. Can be `private` or `business`.",
-                                                "type": "string",
-                                                "enum": [
-                                                    "business"
-                                                ]
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "guest"
+                                                ],
+                                                "properties": {
+                                                    "guest": {
+                                                        "const": true
+                                                    }
+                                                }
                                             },
-                                            "company": {
-                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
-                                                "type": "string"
-                                            },
-                                            "vatIds": {
-                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "minItems": 1
+                                            {
+                                                "required": [
+                                                    "password"
+                                                ],
+                                                "properties": {
+                                                    "password": {
+                                                        "type": "string"
+                                                    }
+                                                }
                                             }
-                                        }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "properties": {
+                                                    "accountType": {
+                                                        "description": "Type of the customer account. Default value is 'private'.",
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "private"
+                                                        ],
+                                                        "default": "private"
+                                                    },
+                                                    "company": {
+                                                        "description": "Not used for a private account, the value is ignored.",
+                                                        "type": "string"
+                                                    },
+                                                    "vatIds": {
+                                                        "description": "Not used for a private account, the value is ignored.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "required": [
+                                                    "accountType"
+                                                ],
+                                                "properties": {
+                                                    "accountType": {
+                                                        "description": "Type of the customer account. Can be `private` or `business`.",
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "business"
+                                                        ]
+                                                    },
+                                                    "billingAddress": {
+                                                        "description": "For a business account the billing address has to carry the `company`, which becomes the company of the customer. Only enforced while the `core.loginRegistration.showAccountTypeSelection` setting is enabled.",
+                                                        "allOf": [
+                                                            {
+                                                                "$ref": "#/components/schemas/CustomerAddressBody"
+                                                            },
+                                                            {
+                                                                "required": [
+                                                                    "company"
+                                                                ],
+                                                                "properties": {
+                                                                    "company": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "company": {
+                                                        "description": "Not read during registration. The company of the customer is taken from `billingAddress`, falling back to `shippingAddress`.",
+                                                        "type": "string"
+                                                    },
+                                                    "vatIds": {
+                                                        "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`, and only required when the country of the sent address has `vatIdRequired` enabled.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
                                     }
                                 ],
                                 "type": "object"

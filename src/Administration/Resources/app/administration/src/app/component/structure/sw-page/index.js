@@ -3,6 +3,12 @@ import './sw-page.scss';
 
 const { dom } = Shopware.Utils;
 
+const lastVisitedPaths = new Map();
+
+function lastVisitedPathKey(routeName) {
+    return `${Shopware.Store.get('session').currentUser?.id ?? ''}:${String(routeName)}`;
+}
+
 /**
  * @sw-package framework
  *
@@ -95,9 +101,11 @@ export default {
                 return this.previousPath;
             }
 
-            return {
-                name: this.parentRoute,
-            };
+            return (
+                lastVisitedPaths.get(lastVisitedPathKey(this.parentRoute)) ?? {
+                    name: this.parentRoute,
+                }
+            );
         },
 
         pageColor() {
@@ -160,6 +168,19 @@ export default {
                 'border-bottom-color': this.pageColor,
                 'padding-right': this.pageOffset,
             };
+        },
+    },
+
+    watch: {
+        '$route.fullPath': {
+            handler(fullPath) {
+                const hasParams = Object.keys(this.$route.params ?? {}).length > 0;
+
+                if (this.$route.name && typeof fullPath === 'string' && !hasParams) {
+                    lastVisitedPaths.set(lastVisitedPathKey(this.$route.name), fullPath);
+                }
+            },
+            immediate: true,
         },
     },
 

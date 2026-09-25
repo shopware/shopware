@@ -121,4 +121,126 @@ describe('src/app/component/structure/sw-page', () => {
         expect(wrapper.find('.sw-page__top-bar-actions').exists()).toBe(true);
         expect(wrapper.find('.sw-page__smart-bar').exists()).toBe(true);
     });
+
+    it('should navigate back to the last visited parent listing with its query after a detour', async () => {
+        jest.restoreAllMocks();
+        router.addRoute({
+            name: 'sw.category.list',
+            path: '/sw/category/list',
+            component: {},
+        });
+        router.addRoute({
+            name: 'sw.category.detail',
+            path: '/sw/category/detail/:id',
+            component: {},
+        });
+        router.addRoute({
+            name: 'sw.category.bulk.edit',
+            path: '/sw/category/bulk/edit/:id',
+            component: {},
+        });
+
+        const listWrapper = await createWrapper({
+            name: 'sw.category.list',
+            path: '/sw/category/list',
+            fullPath: '/sw/category/list?term=softshell&page=2',
+            meta: {},
+        });
+        listWrapper.unmount();
+
+        await router.push({ name: 'sw.category.detail', params: { id: '1' } });
+        await router.push({ name: 'sw.category.bulk.edit', params: { id: '1' } });
+        await router.push({ name: 'sw.category.detail', params: { id: '1' } });
+
+        const wrapper = await createWrapper({
+            name: 'sw.category.detail',
+            path: '/sw/category/detail/:id',
+            fullPath: '/sw/category/detail/1',
+            meta: {
+                parentPath: 'sw.category.list',
+            },
+        });
+
+        expect(wrapper.vm.previousRoute).toBe('sw.category.bulk.edit');
+        expect(wrapper.vm.routerBack).toBe('/sw/category/list?term=softshell&page=2');
+    });
+
+    it('should not reuse a remembered parent route that has route params', async () => {
+        jest.restoreAllMocks();
+        router.addRoute({
+            name: 'sw.group.detail',
+            path: '/sw/group/detail/:id?',
+            component: {},
+        });
+        router.addRoute({
+            name: 'sw.group.option.detail',
+            path: '/sw/group/detail/:groupId/option/:optionId',
+            component: {},
+        });
+
+        const otherGroupWrapper = await createWrapper({
+            name: 'sw.group.detail',
+            path: '/sw/group/detail/:id?',
+            fullPath: '/sw/group/detail/other-group',
+            params: { id: 'other-group' },
+            meta: {},
+        });
+        otherGroupWrapper.unmount();
+
+        await router.push({ name: 'index' });
+        await router.push({ name: 'sw.group.option.detail', params: { groupId: 'group', optionId: 'option' } });
+
+        const wrapper = await createWrapper({
+            name: 'sw.group.option.detail',
+            path: '/sw/group/detail/:groupId/option/:optionId',
+            fullPath: '/sw/group/detail/group/option/option',
+            params: { groupId: 'group', optionId: 'option' },
+            meta: {
+                parentPath: 'sw.group.detail',
+            },
+        });
+
+        expect(wrapper.vm.routerBack).toEqual({ name: 'sw.group.detail' });
+    });
+
+    it('should not reuse the listing remembered for another administration user', async () => {
+        jest.restoreAllMocks();
+        router.addRoute({
+            name: 'sw.customer.list',
+            path: '/sw/customer/list',
+            component: {},
+        });
+        router.addRoute({
+            name: 'sw.customer.detail',
+            path: '/sw/customer/detail/:id',
+            component: {},
+        });
+
+        Shopware.Store.get('session').setCurrentUser({ id: 'first-user' });
+        const listWrapper = await createWrapper({
+            name: 'sw.customer.list',
+            path: '/sw/customer/list',
+            fullPath: '/sw/customer/list?term=secret',
+            meta: {},
+        });
+        listWrapper.unmount();
+
+        Shopware.Store.get('session').setCurrentUser({ id: 'second-user' });
+        await router.push({ name: 'index' });
+        await router.push({ name: 'sw.customer.detail', params: { id: '1' } });
+
+        const wrapper = await createWrapper({
+            name: 'sw.customer.detail',
+            path: '/sw/customer/detail/:id',
+            fullPath: '/sw/customer/detail/1',
+            params: { id: '1' },
+            meta: {
+                parentPath: 'sw.customer.list',
+            },
+        });
+
+        expect(wrapper.vm.routerBack).toEqual({ name: 'sw.customer.list' });
+
+        Shopware.Store.get('session').setCurrentUser(null);
+    });
 });

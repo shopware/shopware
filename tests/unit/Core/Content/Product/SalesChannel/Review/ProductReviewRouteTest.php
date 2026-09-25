@@ -14,8 +14,10 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -46,6 +48,12 @@ class ProductReviewRouteTest extends TestCase
         $this->config = new StaticSystemConfigService([
             'test' => [
                 'core.listing.showReview' => true,
+                'core.listing.reviewsPerPage' => 10,
+                'core.basicInformation.email' => 'noreply@example.com',
+            ],
+            'testReviewPerPageAboveMaxLimit' => [
+                'core.listing.showReview' => true,
+                'core.listing.reviewsPerPage' => 150,
                 'core.basicInformation.email' => 'noreply@example.com',
             ],
             'testReviewNotActive' => [
@@ -104,6 +112,148 @@ class ProductReviewRouteTest extends TestCase
             $salesChannelContext,
             new Criteria(),
         );
+    }
+
+    public function testLoadAppliesConfiguredReviewsPerPageWhenRequestHasNoLimit(): void
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('test');
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        // Simulates the criteria the RequestCriteriaBuilder produces without an explicit limit.
+        $criteria = new Criteria();
+        $criteria->setLimit(100);
+        $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+
+        $searchedCriteria = null;
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$searchedCriteria): EntitySearchResult {
+                $searchedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    'product_review',
+                    0,
+                    new ProductReviewCollection(),
+                    null,
+                    $criteria,
+                    Context::createDefaultContext()
+                );
+            });
+
+        $this->createRoute($repository)->load(Uuid::randomHex(), new Request(), $salesChannelContext, $criteria);
+
+        static::assertInstanceOf(Criteria::class, $searchedCriteria);
+        static::assertSame(10, $searchedCriteria->getLimit());
+        static::assertFalse($searchedCriteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST));
+    }
+
+    public function testLoadRecomputesOffsetForConfiguredReviewsPerPage(): void
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('test');
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        // Page 2 without an explicit limit: offset was derived from the max limit (100).
+        $criteria = new Criteria();
+        $criteria->setLimit(100);
+        $criteria->setOffset(100);
+        $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+
+        $searchedCriteria = null;
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$searchedCriteria): EntitySearchResult {
+                $searchedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    'product_review',
+                    0,
+                    new ProductReviewCollection(),
+                    null,
+                    $criteria,
+                    Context::createDefaultContext()
+                );
+            });
+
+        $this->createRoute($repository)->load(Uuid::randomHex(), new Request(), $salesChannelContext, $criteria);
+
+        static::assertInstanceOf(Criteria::class, $searchedCriteria);
+        static::assertSame(10, $searchedCriteria->getLimit());
+        static::assertSame(10, $searchedCriteria->getOffset());
+    }
+
+    public function testLoadKeepsExplicitRequestLimit(): void
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('test');
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        // Explicit limit in the request: no STATE_NO_EXPLICIT_LIMIT_IN_REQUEST state.
+        $criteria = new Criteria();
+        $criteria->setLimit(25);
+
+        $searchedCriteria = null;
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$searchedCriteria): EntitySearchResult {
+                $searchedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    'product_review',
+                    0,
+                    new ProductReviewCollection(),
+                    null,
+                    $criteria,
+                    Context::createDefaultContext()
+                );
+            });
+
+        $this->createRoute($repository)->load(Uuid::randomHex(), new Request(), $salesChannelContext, $criteria);
+
+        static::assertInstanceOf(Criteria::class, $searchedCriteria);
+        static::assertSame(25, $searchedCriteria->getLimit());
+    }
+
+    public function testLoadCapsConfiguredReviewsPerPageToStoreApiMaxLimit(): void
+    {
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('testReviewPerPageAboveMaxLimit');
+        $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->setLimit(100);
+        $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+
+        $searchedCriteria = null;
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(function (Criteria $criteria) use (&$searchedCriteria): EntitySearchResult {
+                $searchedCriteria = $criteria;
+
+                return new EntitySearchResult(
+                    'product_review',
+                    0,
+                    new ProductReviewCollection(),
+                    null,
+                    $criteria,
+                    Context::createDefaultContext()
+                );
+            });
+
+        $this->createRoute($repository)->load(Uuid::randomHex(), new Request(), $salesChannelContext, $criteria);
+
+        static::assertInstanceOf(Criteria::class, $searchedCriteria);
+        static::assertSame(100, $searchedCriteria->getLimit());
+        static::assertFalse($searchedCriteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST));
     }
 
     public function testLoadReviewDeactivated(): void

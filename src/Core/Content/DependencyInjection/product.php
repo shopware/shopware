@@ -765,6 +765,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('product_review.repository'),
             service(SystemConfigService::class),
             service(CacheTagCollector::class),
+            param('shopware.api.store.max_limit'),
         ]);
 
     $services->set(ProductConfiguratorLoader::class)

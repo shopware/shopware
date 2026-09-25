@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -24,6 +25,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductReviewRoute extends AbstractProductReviewRoute
 {
+    public const DEFAULT_MAX_LIMIT = 100;
+
     /**
      * @internal
      *
@@ -32,7 +35,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     public function __construct(
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly CacheTagCollector $cacheTagCollector
+        private readonly CacheTagCollector $cacheTagCollector,
+        private readonly int $maxLimit = self::DEFAULT_MAX_LIMIT
     ) {
     }
 
@@ -61,6 +65,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
 
         $this->cacheTagCollector->addTag(self::buildName($productId));
 
+        $this->applyConfiguredLimit($criteria, $salesChannelId);
+
         $active = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
         if ($customer = $context->getCustomer()) {
             $active->addQuery(new EqualsFilter('customerId', $customer->getId()));
@@ -80,5 +86,30 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         $result = $this->productReviewRepository->search($criteria, $context->getContext());
 
         return new ProductReviewRouteResponse($result);
+    }
+
+    private function applyConfiguredLimit(Criteria $criteria, string $salesChannelId): void
+    {
+        if (!$criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)) {
+            return;
+        }
+
+        $reviewsPerPage = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $salesChannelId);
+        $reviewsPerPage = min($reviewsPerPage, $this->maxLimit);
+        if ($reviewsPerPage <= 0) {
+            return;
+        }
+
+        // The offset was derived from the max limit while resolving the page, so
+        // recompute it for the configured page size to keep pagination consistent.
+        $currentLimit = $criteria->getLimit();
+        $currentOffset = $criteria->getOffset();
+        if ($currentLimit && $currentOffset) {
+            $page = intdiv($currentOffset, $currentLimit) + 1;
+            $criteria->setOffset($reviewsPerPage * ($page - 1));
+        }
+
+        $criteria->setLimit($reviewsPerPage);
+        $criteria->removeState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
     }
 }

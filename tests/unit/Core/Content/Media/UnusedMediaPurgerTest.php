@@ -898,6 +898,70 @@ class UnusedMediaPurgerTest extends TestCase
         );
     }
 
+    public function testDeleteNotUsedMediaAdvancesTheCursorOverCandidatesNotOverTheUnusedSubset(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([
+                new OneToManyAssociationField('productMedia', 'ProductMedia', 'media_id', 'id'),
+            ]),
+            'ProductMedia' => $this->getProductMediaDefinition(),
+        ]);
+
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+        $id4 = Uuid::randomHex();
+
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
+            [
+                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
+                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 4, new MediaCollection(), null, $criteria, $context), // purgable media count query
+
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
+                    // every candidate in this batch is referenced, so the batch yields nothing to delete
+                    return [];
+                },
+                static function (Criteria $criteria, Context $context) use ($id2, $id3, $id4) {
+                    $filters = $criteria->getFilters();
+
+                    self::assertCount(1, $filters);
+                    self::assertInstanceOf(RangeFilter::class, $filters[0]);
+                    self::assertSame('id', $filters[0]->getField());
+
+                    // the cursor has to carry the last *candidate* of the previous batch. Advancing it over
+                    // the unused subset instead would read `end([])`, which is false, and end the iteration
+                    // here with $id3 and $id4 never scanned
+                    self::assertSame(
+                        Uuid::fromHexToBytes($id2),
+                        $filters[0]->getParameter(RangeFilter::GT)
+                    );
+
+                    return [$id3, $id4];
+                },
+                static function (Criteria $criteria, Context $context) use ($id3, $id4) {
+                    self::assertSame([$id3, $id4], $criteria->getIds());
+
+                    return [$id3];
+                },
+                [],
+            ],
+            $mediaDefinition
+        );
+
+        $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
+        $purger->deleteNotUsedMedia();
+
+        static::assertSame([[['id' => $id3]]], $repo->deletes);
+    }
+
     public function testDeleteNotUsedMediaOnlyDeletesSingleResultSetIfLimitAndOffsetSupplied(): void
     {
         $this->configureRegistry([

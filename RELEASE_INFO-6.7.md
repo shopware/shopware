@@ -184,6 +184,10 @@ The order is the `parentOrder` computed of `sw-users-permissions-permissions-gri
 
 ## Storefront
 
+### English order button states the obligation to pay
+
+The default English label of the order button on the checkout confirmation page, snippet `checkout.confirmSubmit`, changed from "Submit order" to "Buy now". Article 8(2) of the Consumer Rights Directive requires the wording of the button itself to make the obligation to pay unambiguous. Shops that override the snippet keep their own label.
+
 ### Checkout form data is kept in the session storage
 
 The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.

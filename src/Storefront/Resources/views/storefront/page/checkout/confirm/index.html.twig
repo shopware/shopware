@@ -244,7 +244,7 @@
 
 {% set confirmOrderFormAction = path('frontend.checkout.finish.order') %}
 
-{% block page_checkout_aside_actions %}
+{% block page_checkout_aside_tos %}
     {% block page_checkout_confirm_tos_auto_confirmed %}
         {% if feature('v6.8.0.0') %}
             {% if config('core.cart.showTosCheckbox') %}
@@ -343,7 +343,9 @@
             {% endif %}
         {% endif %}
     {% endblock %}
+{% endblock %}
 
+{% block page_checkout_aside_actions %}
     {% block page_checkout_confirm_legal_guarantee_notice %}
         {% if showLegalGuaranteeNotice %}
             {% block page_checkout_confirm_legal_guarantee_notice_modal %}

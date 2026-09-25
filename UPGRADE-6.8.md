@@ -2433,11 +2433,15 @@ To target a single display only, override the local Twig blocks instead:
 - `block-price.html.twig`: `component_product_detail_block_list_price_before` / `component_product_detail_block_list_price_after`
 - `price-unit.html.twig`: `component_product_box_main_price_before` / `component_product_box_main_price_after`
 
-## TOS checkbox position update
-The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
+## TOS checkbox moved into the order summary column
 
-## Revocation checkbox position update
-The revocation checkbox for digital products was relotaced to the bottom of the order confirmation page. The checkbox is now below the TOS checkbox
+The terms of service block of the order confirmation page (cancellation notice, legal guarantee notice and the terms checkbox) was moved from the top of the page into the order summary column, above the summary, so the total price is directly followed by the order button. It renders in the new block `page_checkout_aside_tos` of `storefront/page/checkout/_page.html.twig`; the block `page_checkout_confirm_tos_auto_confirmed` now lives there instead of in `page_checkout_aside_actions`. Themes that override `page_checkout_aside_actions` on the confirmation page no longer affect the terms block; override `page_checkout_aside_tos` or the blocks inside it instead.
+
+The checkbox is hidden by default and replaced with a descriptive sentence. Its visibility is controlled by the configuration option `core.cart.showTosCheckbox`.
+
+## Revocation checkbox moved into the order summary column
+
+The revocation checkbox for digital products was moved to the same place, below the terms checkbox and above the order summary.
 
 ## Removal of hardcoded language flags
 

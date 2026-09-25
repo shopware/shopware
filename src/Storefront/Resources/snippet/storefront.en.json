@@ -500,7 +500,7 @@
     "confirmChooseShipping": "Choose shipping method",
     "confirmCurrentPaymentShipping": "Current selection:",
     "confirmSelectionNone": "None selected",
-    "confirmSubmit": "Submit order",
+    "confirmSubmit": "Buy now",
     "confirmDigitalContentHeader": "Digital content access",
     "confirmTermsHeader": "Terms and conditions and cancellation policy",
     "confirmRevocationNotice": "Please note our <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Cancellation policy\">cancellation policy</a>.",

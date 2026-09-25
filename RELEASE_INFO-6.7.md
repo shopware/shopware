@@ -182,6 +182,12 @@ The group order in the permissions grid of Settings > Users & permissions follow
 
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
+### Native-setup build errors point at the author's source
+
+Errors raised by the native-setup transform now carry the line and column of the offending code in the original `.vue` file and print a code frame, in Vite, Jest and the `valid-shopware-setup` ESLint rule alike. Syntax errors previously reported block-relative Babel coordinates, and marker or reserved-name errors pointed at the start of the file or block.
+
+The transform now also rejects `v-model` on a forwarded override binding inside `<sw-block extends>` content, the same way it rejects `count++` or `count = 1` there. Such a binding arrives read-only through the slot scope, so the write never took effect. Member writes such as `v-model="form.name"` remain allowed; mutate override state from a handler defined in the override setup instead.
+
 ## Storefront
 
 ### Checkout form data is kept in the session storage

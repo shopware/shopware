@@ -9,7 +9,7 @@
  * return only state that should be visible to templates or override callbacks.
  */
 
-import type { ImportDeclaration, Node as BabelNode, Statement, VariableDeclarator } from '@babel/types';
+import type { Identifier, ImportDeclaration, Node as BabelNode, Statement, VariableDeclarator } from '@babel/types';
 import { ShopwareSetupTransformError } from '../utils/transform-error';
 import { absoluteRange, unwrapTransparentMacroExpression } from './utils';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
@@ -37,7 +37,7 @@ type RuntimeBinding = {
  */
 type ImportedBinding = {
     name: string;
-    node: ImportDeclaration;
+    node: Identifier;
     importSource: string;
 };
 
@@ -52,7 +52,7 @@ function collectImportBindings(importNode: ImportDeclaration, into: ImportedBind
 
         into.push({
             name: specifier.local.name,
-            node: importNode,
+            node: specifier.local,
             importSource: String(importNode.source.value),
         });
     });

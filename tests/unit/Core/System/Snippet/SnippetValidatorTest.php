@@ -53,6 +53,120 @@ class SnippetValidatorTest extends TestCase
         static::assertCount(0, $invalidPluralization);
     }
 
+    public function testEmptyTranslationIsReportedAsMissingWhenTheOtherLocaleIsTranslated(): void
+    {
+        $snippetFileHandler = static::createStub(SnippetFileHandler::class);
+
+        $germanPath = 'storefront.de.json';
+        $englishPath = 'storefront.en.json';
+        $snippetFileHandler->method('findStorefrontSnippetFiles')
+            ->willReturn([$germanPath, $englishPath]);
+
+        $snippetFileHandler->method('openJsonFile')
+            ->willReturnCallback(static fn (string $path) => $path === $germanPath
+                ? ['columnOptional' => '']
+                : ['columnOptional' => 'Optional']);
+
+        $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
+        $missingSnippets = $snippetValidator->getValidation()->missingSnippets->getElements();
+
+        static::assertCount(1, $missingSnippets);
+        $missingSnippet = $missingSnippets[0];
+        static::assertSame('columnOptional', $missingSnippet->getKeyPath());
+        static::assertSame('de', $missingSnippet->getMissingForISO());
+        static::assertSame('en', $missingSnippet->getAvailableISO());
+        static::assertSame('Optional', $missingSnippet->getAvailableTranslation());
+        static::assertSame($englishPath, $missingSnippet->getFilePath());
+    }
+
+    public function testAllowListedEmptyTranslationIsNotReported(): void
+    {
+        $snippetFileHandler = static::createStub(SnippetFileHandler::class);
+
+        $germanPath = 'storefront.de.json';
+        $englishPath = 'storefront.en.json';
+        $configPath = '/project/' . SnippetFileHandler::VALIDATION_CONFIG;
+        $snippetFileHandler->method('findStorefrontSnippetFiles')
+            ->willReturn([$germanPath, $englishPath]);
+        $snippetFileHandler->method('exists')
+            ->willReturnCallback(static fn (string $path) => $path === $configPath);
+
+        $snippetFileHandler->method('openJsonFile')
+            ->willReturnCallback(static fn (string $path) => match ($path) {
+                $configPath => [
+                    'emptyTranslations' => [
+                        'administration' => ['help.videoUrl' => 'The video exists in German only'],
+                        'storefront' => ['help.namespace' => 'Every key below stays empty in English'],
+                    ],
+                ],
+                $germanPath => [
+                    'help' => [
+                        'videoUrl' => 'https://example.com/video',
+                        'namespace' => ['nested' => 'Verschachtelt'],
+                        'notAllowed' => 'Nicht erlaubt',
+                    ],
+                ],
+                default => [
+                    'help' => [
+                        'videoUrl' => '',
+                        'namespace' => ['nested' => ''],
+                        'notAllowed' => '',
+                    ],
+                ],
+            });
+
+        $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '/project');
+        $missingSnippets = $snippetValidator->getValidation()->missingSnippets->getElements();
+
+        static::assertCount(1, $missingSnippets);
+        static::assertSame('help.notAllowed', $missingSnippets[0]->getKeyPath());
+        static::assertSame('en', $missingSnippets[0]->getMissingForISO());
+    }
+
+    public function testValidationForADirectoryUsesItsOwnFilesAndAllowList(): void
+    {
+        $snippetFileHandler = static::createStub(SnippetFileHandler::class);
+
+        $extension = '/extensions/sample';
+        $germanPath = $extension . '/src/Resources/app/administration/src/snippet/de.json';
+        $englishPath = $extension . '/src/Resources/app/administration/src/snippet/en.json';
+        $configPath = $extension . '/' . SnippetFileHandler::VALIDATION_CONFIG;
+
+        $snippetFileHandler->method('findAdministrationSnippetFilesBelow')
+            ->willReturnCallback(static fn (string $directory) => $directory === $extension ? [$germanPath, $englishPath] : []);
+        $snippetFileHandler->method('exists')
+            ->willReturnCallback(static fn (string $path) => $path === $configPath);
+        $snippetFileHandler->method('openJsonFile')
+            ->willReturnCallback(static fn (string $path) => match ($path) {
+                $configPath => ['emptyTranslations' => ['administration' => ['sample.allowedEmpty' => 'Intentionally empty']]],
+                $germanPath => ['sample' => ['allowedEmpty' => '', 'missingInGerman' => '']],
+                default => ['sample' => ['allowedEmpty' => 'Allowed', 'missingInGerman' => 'Only English']],
+            });
+
+        $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '/project');
+        $missingSnippets = $snippetValidator->getValidationFor($extension)->missingSnippets->getElements();
+
+        static::assertCount(1, $missingSnippets);
+        static::assertSame('sample.missingInGerman', $missingSnippets[0]->getKeyPath());
+        static::assertSame('de', $missingSnippets[0]->getMissingForISO());
+        static::assertSame('/src/Resources/app/administration/src/snippet/en.json', $missingSnippets[0]->getFilePath());
+    }
+
+    public function testEmptyTranslationInEveryLocaleIsNotReported(): void
+    {
+        $snippetFileHandler = static::createStub(SnippetFileHandler::class);
+
+        $snippetFileHandler->method('findStorefrontSnippetFiles')
+            ->willReturn(['storefront.de.json', 'storefront.en.json']);
+
+        $snippetFileHandler->method('openJsonFile')
+            ->willReturnCallback(static fn () => ['intentionallyEmpty' => '']);
+
+        $snippetValidator = new SnippetValidator(new SnippetFileCollection(), $snippetFileHandler, '');
+
+        static::assertCount(0, $snippetValidator->getValidation()->missingSnippets);
+    }
+
     public function testValidateShouldNotFindAnyMissingSnippets(): void
     {
         $snippetFileHandler = static::createStub(SnippetFileHandler::class);

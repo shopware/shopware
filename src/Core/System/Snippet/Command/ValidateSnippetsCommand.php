@@ -43,6 +43,7 @@ class ValidateSnippetsCommand extends Command
     protected function configure(): void
     {
         $this->addOption('fix', 'f', InputOption::VALUE_NONE, 'Use this option to start a wizard to fix the snippets comfortably');
+        $this->addOption('dir', null, InputOption::VALUE_REQUIRED, 'Validate the snippets below this directory (e.g. an extension root) instead of the core bundles; the allow list is read from <dir>/snippet-validation.json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -52,15 +53,27 @@ class ValidateSnippetsCommand extends Command
             Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The "snippets:validate" command alias is deprecated; use "translation:validate" instead.');
         }
 
-        $invalidSnippetsStruct = $this->snippetValidator->getValidation();
+        $io = new SymfonyStyle($input, $output);
+
+        $directory = $input->getOption('dir');
+        if (\is_string($directory)) {
+            $resolvedDirectory = realpath($directory);
+            if ($resolvedDirectory === false) {
+                $io->error(\sprintf('Directory "%s" does not exist.', $directory));
+
+                return self::FAILURE;
+            }
+
+            $invalidSnippetsStruct = $this->snippetValidator->getValidationFor($resolvedDirectory);
+        } else {
+            $invalidSnippetsStruct = $this->snippetValidator->getValidation();
+        }
 
         $missingSnippetsCollection = $invalidSnippetsStruct->missingSnippets;
         $hasMissingSnippets = $missingSnippetsCollection->count() > 0;
 
         $invalidPluralization = $invalidSnippetsStruct->invalidPluralization;
         $hasInvalidPluralization = $invalidPluralization->count() > 0;
-
-        $io = new SymfonyStyle($input, $output);
 
         if (!$hasMissingSnippets && !$hasInvalidPluralization) {
             $io->success('Snippets are valid!');

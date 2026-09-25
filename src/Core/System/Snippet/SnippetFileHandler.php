@@ -15,6 +15,8 @@ use Symfony\Component\Finder\Finder;
 #[Package('discovery')]
 class SnippetFileHandler
 {
+    public const VALIDATION_CONFIG = 'snippet-validation.json';
+
     /**
      * @internal
      */
@@ -81,6 +83,54 @@ class SnippetFileHandler
         }
 
         return $this->findSnippetFilesByPath($bundleDir . '/Resources/snippet/');
+    }
+
+    /**
+     * Administration snippet files (`<locale>.json` inside a `snippet` directory) of everything below `$directory`,
+     * e.g. an extension root; build output and dependencies are skipped.
+     *
+     * @return list<string>
+     */
+    public function findAdministrationSnippetFilesBelow(string $directory): array
+    {
+        return $this->findSnippetFilesBelow($directory, '#(^|/)Resources/app/administration/.+/snippet/[^/]+$#', SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN);
+    }
+
+    /**
+     * Storefront snippet files (`<domain>.<locale>.json` inside `Resources/snippet`) of everything below `$directory`.
+     *
+     * @return list<string>
+     */
+    public function findStorefrontSnippetFilesBelow(string $directory): array
+    {
+        return $this->findSnippetFilesBelow($directory, '#(^|/)Resources/snippet/[^/]+$#', SnippetPatterns::CORE_SNIPPET_FILE_PATTERN);
+    }
+
+    public function exists(string $path): bool
+    {
+        return $this->filesystem->exists($path);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function findSnippetFilesBelow(string $directory, string $pathPattern, string $namePattern): array
+    {
+        $finder = (new Finder())
+            ->files()
+            ->in($directory)
+            ->exclude(['node_modules', 'vendor', 'var'])
+            ->ignoreUnreadableDirs()
+            ->path($pathPattern)
+            ->name($namePattern);
+
+        $files = [];
+        foreach ($finder as $file) {
+            $files[] = $file->getRealPath();
+        }
+        sort($files);
+
+        return $files;
     }
 
     private function getBundleDir(string $bundleClass): ?string

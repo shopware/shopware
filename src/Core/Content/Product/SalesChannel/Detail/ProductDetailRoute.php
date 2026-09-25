@@ -395,7 +395,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
 
     private function getBreadcrumbCategory(Request $request, SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('BREADCRUMB_REWORK')) {
             if ($this->config->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
                 $referrerCategoryId = $request->query->get('referrerCategoryId');
 

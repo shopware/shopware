@@ -35,7 +35,7 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
 
     public function testRegistersBufferedFlowExecutionTriggers(): void
     {
-        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
             static::assertSame(
                 [
                     'kernel.terminate' => 'triggerBufferedFlowExecution',
@@ -47,6 +47,16 @@ class BufferedFlowExecutionTriggersListenerTest extends TestCase
         } else {
             static::assertEmpty($this->bufferedFlowExecutionTriggersListener::getSubscribedEvents());
         }
+    }
+
+    public function testExplicitFlowOptOutWinsWithMajorActive(): void
+    {
+        $events = Feature::withFeatureEnabled('v6.8.0.0', static fn (): array => Feature::withFeatureDisabled(
+            'FLOW_EXECUTION_AFTER_BUSINESS_PROCESS',
+            static fn (): array => BufferedFlowExecutionTriggersListener::getSubscribedEvents()
+        ));
+
+        static::assertSame([], $events);
     }
 
     public function testDoesNotLoadServicesIfNoFlowsAreQueued(): void

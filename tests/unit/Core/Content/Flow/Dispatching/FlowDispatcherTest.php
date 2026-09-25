@@ -111,7 +111,7 @@ class FlowDispatcherTest extends TestCase
         $flowFactory = $this->createMock(FlowFactory::class);
         $this->container->set(FlowFactory::class, $flowFactory);
 
-        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
             $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
             $flowFactory->expects($this->once())
                 ->method('createBuffered')
@@ -138,6 +138,27 @@ class FlowDispatcherTest extends TestCase
         $flowDispatcher->dispatch($event);
     }
 
+    public function testExplicitFlowOptOutUsesImmediateExecutionWithMajorActive(): void
+    {
+        $event = $this->createCheckoutOrderPlacedEvent(new OrderEntity());
+        $this->dispatcher->method('dispatch')->willReturn($event);
+
+        $flow = new StorableFlow($event->getName(), $event->getContext(), [], []);
+        $flowFactory = $this->createMock(FlowFactory::class);
+        $flowFactory->expects($this->once())->method('create')->willReturn($flow);
+        $flowFactory->expects($this->never())->method('createBuffered');
+        $this->container->set(FlowFactory::class, $flowFactory);
+
+        $flowLoader = static::createStub(FlowLoader::class);
+        $flowLoader->method('load')->willReturn([]);
+        $this->container->set(FlowLoader::class, $flowLoader);
+
+        Feature::withFeatureEnabled('v6.8.0.0', fn () => Feature::withFeatureDisabled(
+            'FLOW_EXECUTION_AFTER_BUSINESS_PROCESS',
+            fn () => $this->flowDispatcher->dispatch($event)
+        ));
+    }
+
     /**
      * @param array<string, mixed> $flows
      */
@@ -154,7 +175,7 @@ class FlowDispatcherTest extends TestCase
             ->willReturnOnConsecutiveCalls($event, $flowLogEvent);
         $flowDispatcher = new FlowDispatcher($dispatcher, $this->container);
 
-        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
             $bufferedFlow = new BufferedFlow($event->getName(), $event->getContext(), []);
             $flowFactory = $this->createMock(FlowFactory::class);
             $flowFactory->expects($this->once())

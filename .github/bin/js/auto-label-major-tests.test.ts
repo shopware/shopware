@@ -163,9 +163,25 @@ test('BC-change attribute in .github tooling does not match', () => {
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
-test('accepted imprecision: a changelog release heading matches the version regex', () => {
-    const diff = diffFor('CHANGELOG.md', '+## 6.6.10.21');
+test('markdown never matches: release headings, upgrade notes and ADRs quote versions and flags', () => {
+    const changelog = diffFor('CHANGELOG.md', '+## 6.6.10.21');
+    const upgradeNotes = diffFor('UPGRADE-6.8.md', '+Tools return the MCP result format only behind the `v6.8.0.0` flag.');
+    const adr = diffFor('adr/2026-09-24-mcp-tool-result-envelope.md', "+3. **Spec format only (6.8.0).** Behind the 'v6.8.0.0' flag.");
+    const upperCase = diffFor('docs/README.MD', "+Feature::isActive('v6.8.0.0')");
+
+    for (const diff of [changelog, upgradeNotes, adr, upperCase]) {
+        assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), false);
+    }
+});
+
+test('markdown next to a code change does not hide the code change', () => {
+    const diff = diffFor('adr/2026-09-24-mcp-tool-result-envelope.md', '+Behind the `v6.8.0.0` flag.') + '\n' + diffFor('src/Core/Framework/Mcp/McpToolResponse.php', "+        if (Feature::isActive('v6.8.0.0')) {");
     assert.equal(hasMajorMarkers(diff, parseMajorFlags(REGISTRY)), true);
+});
+
+test('markdown inside Administration source does not enable the major-js arm', () => {
+    const diff = diffFor('src/Administration/Resources/app/administration/src/app/component/example/README.md', "+Shopware.Feature.isActive('v6.8.0.0')");
+    assert.equal(hasMajorJsMarkers(diff, parseMajorFlags(REGISTRY)), false);
 });
 
 const baseContext = (overrides: Partial<TestContext> = {}): TestContext => ({

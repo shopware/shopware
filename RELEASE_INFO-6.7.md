@@ -2,6 +2,10 @@
 
 ## Core
 
+### Feature flags can belong to a major version
+
+Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
+
 ### Plain text fields are sanitized with HTMLPurifier
 
 `StringField` and `LongTextField` values without the `AllowHtml` flag are now sanitized with HTMLPurifier instead of PHP's `strip_tags()`. A `<` that does not start a tag is kept, so `I <3 Kisses` or `5 < 10` are stored as typed. The text inside removed `<script>` and `<style>` elements is dropped instead of being stored, and HTML entities such as `&lt;` stay verbatim. A `<` directly followed by a letter still starts a tag and is removed.

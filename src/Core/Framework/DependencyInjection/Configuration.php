@@ -661,10 +661,7 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
-                        ->booleanNode('major')->defaultFalse()->end()
-                        // Only for a major flag that is not named after its major: the major it
-                        // arrives in, so FEATURE_ALL=v6.8.0.0 can leave out a later major's flags.
-                        ->scalarNode('majorVersion')->end()
+                        ->stringNode('major')->cannotBeEmpty()->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()

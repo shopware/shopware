@@ -41,15 +41,13 @@ const REGISTRY = `shopware:
         flags:
             - name: v6.8.0.0
               default: false
-              major: true
               toggleable: false
             - name: WEBHOOKS_REWORK
               default: false
-              major: true
+              major: v6.8.0.0
               toggleable: true
             - name: TELEMETRY_METRICS
               default: false
-              major: false
               toggleable: true
 `;
 

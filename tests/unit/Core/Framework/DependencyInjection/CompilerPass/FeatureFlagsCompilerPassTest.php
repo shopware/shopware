@@ -40,7 +40,6 @@ class FeatureFlagsCompilerPassTest extends TestCase
                 'name' => 'FEATURE_NEXT_123',
                 'active' => false,
                 'default' => true,
-                'major' => true,
                 'description' => 'This is a test feature',
             ],
         ]);
@@ -66,7 +65,6 @@ class FeatureFlagsCompilerPassTest extends TestCase
                 'name' => 'FEATURE_NEXT_123',
                 'active' => true,
                 'default' => true,
-                'major' => true,
                 'description' => 'This is a test feature',
             ],
         ]);
@@ -93,7 +91,6 @@ class FeatureFlagsCompilerPassTest extends TestCase
                 'name' => 'FEATURE_NEXT_123',
                 'active' => false,
                 'default' => true,
-                'major' => true,
                 'description' => 'This is a test feature',
             ],
         ]);
@@ -120,7 +117,6 @@ class FeatureFlagsCompilerPassTest extends TestCase
                 'name' => 'FEATURE_NEXT_123',
                 'active' => true,
                 'default' => true,
-                'major' => true,
                 'description' => 'This is a test feature',
             ],
         ]);

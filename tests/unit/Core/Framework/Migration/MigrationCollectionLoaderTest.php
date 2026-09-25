@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationException;
@@ -24,13 +25,6 @@ class MigrationCollectionLoaderTest extends TestCase
 {
     use EnvTestBehaviour;
 
-    protected function setUp(): void
-    {
-        // getLastSafeMajorVersion() bumps the major when FEATURE_ALL=major is set (e.g. on the
-        // nightly major runs) — pin the environment so the expectations stay deterministic
-        $this->setEnvVars(['FEATURE_ALL' => null]);
-    }
-
     /**
      * @param MigrationCollectionLoader::VERSION_SELECTION_* $mode
      */
@@ -41,13 +35,20 @@ class MigrationCollectionLoaderTest extends TestCase
         static::assertSame($expectedMajor, $this->createLoader()->getLastSafeMajorVersion($version, $mode));
     }
 
-    #[TestDox('getLastSafeMajorVersion simulates the next major when FEATURE_ALL=major')]
-    public function testGetLastSafeMajorVersionWithSimulatedMajor(): void
+    public function testFeatureAllDoesNotChangeMigrationVersionSelection(): void
     {
-        $this->setEnvVars(['FEATURE_ALL' => 'major']);
+        $this->setEnvVars(['FEATURE_ALL' => '1']);
 
-        static::assertSame(6, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_ALL));
-        static::assertSame(5, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN));
+        static::assertSame(5, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_ALL));
+        static::assertSame(4, $this->createLoader()->getLastSafeMajorVersion('6.5.2', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN));
+    }
+
+    public function testMajorFlagDoesNotChangeMigrationVersionSelection(): void
+    {
+        Feature::registerFeature('v6.8.0.0', ['default' => false]);
+        $this->setEnvVars(['V6_8_0_0' => '1']);
+
+        static::assertSame(7, $this->createLoader()->getLastSafeMajorVersion('6.7.2'));
     }
 
     public function testGetLastSafeMajorVersionRejectsUnknownMode(): void
@@ -111,6 +112,10 @@ class MigrationCollectionLoaderTest extends TestCase
         yield 'safe mode returns the penultimate major' => ['6.5.2', MigrationCollectionLoader::VERSION_SELECTION_SAFE, 3];
         yield 'blue-green on a later minor returns the previous major' => ['6.5.2', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN, 4];
         yield 'blue-green on the first minor goes one major further back' => ['6.5.0', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN, 3];
+        yield 'all mode selects the 6.8 namespace for a 6.8 version' => ['6.8.0.0', MigrationCollectionLoader::VERSION_SELECTION_ALL, 8];
+        yield 'safe mode excludes the previous major for a 6.8 version' => ['6.8.0.0', MigrationCollectionLoader::VERSION_SELECTION_SAFE, 6];
+        yield 'blue-green excludes two majors on the first 6.8 minor' => ['6.8.0.0', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN, 6];
+        yield 'blue-green includes the previous major on a later 6.8 minor' => ['6.8.1.0', MigrationCollectionLoader::VERSION_SELECTION_BLUE_GREEN, 7];
     }
 
     private function createLoader(MigrationSource ...$sources): MigrationCollectionLoader

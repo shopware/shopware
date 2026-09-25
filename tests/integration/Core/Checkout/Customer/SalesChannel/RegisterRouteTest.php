@@ -464,7 +464,7 @@ class RegisterRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             static::assertNull($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         } else {
             static::assertSame(

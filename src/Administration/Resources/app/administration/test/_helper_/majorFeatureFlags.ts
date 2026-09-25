@@ -5,8 +5,8 @@
 
 type FeatureFlag = {
     name: string;
-    major?: boolean;
-    majorVersion?: string;
+    major?: string;
+    default?: boolean;
 };
 
 type FeatureConfig = {
@@ -17,59 +17,61 @@ type FeatureConfig = {
     };
 };
 
-const ALL_MAJOR = 'major';
-
 function normalizeName(name: string): string {
     return name.toUpperCase().replace(/[.:-]/g, '_');
 }
 
-/**
- * Turns a version-shaped flag name or FEATURE_ALL value (`v6.8.0.0`, `V6_8_0_0`) into comparable
- * segments, or null when it is not version-shaped (`major`, `minor`, `1`, ...).
- */
-function majorVersion(value: string): number[] | null {
-    const match = /^V?(\d+(?:_\d+){1,3})$/.exec(normalizeName(value));
-
-    return match ? match[1].split('_').map(Number) : null;
+function isMajorVersionFlag(name: string): boolean {
+    return /^V\d+_\d+_0_0$/.test(normalizeName(name));
 }
 
-function arrivesUpTo(flag: FeatureFlag, target: number[]): boolean {
-    // The major a flag arrives in is either encoded in its name or declared via `majorVersion`.
-    const arrivesIn = majorVersion(flag.name) ?? (flag.majorVersion ? majorVersion(flag.majorVersion) : null);
-
-    // A major flag that names no target major belongs to every major, so it stays on in all of them.
-    if (arrivesIn === null) {
-        return true;
-    }
-
-    for (let i = 0; i < Math.max(arrivesIn.length, target.length); i += 1) {
-        const arrives = arrivesIn[i] ?? 0;
-        const targeted = target[i] ?? 0;
-
-        if (arrives !== targeted) {
-            return arrives < targeted;
-        }
-    }
-
-    return true;
+function isTrue(value: string | undefined): boolean {
+    return Boolean(value) && value !== '0' && value !== 'false';
 }
 
 /**
- * The major flags a `FEATURE_ALL` value activates: all of them for `major`, and the ones arriving up
- * to and including the given major for a version (`v6.8.0.0`). Any other value is not a major run
- * and activates none — mirrors `Feature::isActive()` in PHP.
+ * Mirrors the PHP feature resolution for the Jest baseline in a major CI lane.
  *
  * @private
  */
-export default function getMajorFeatureFlags(config: FeatureConfig, featureAll: string = ALL_MAJOR): string[] {
-    const target = majorVersion(featureAll);
+export default function getMajorFeatureFlags(
+    config: FeatureConfig,
+    environment: Record<string, string | undefined>,
+): string[] {
+    const flags = config.shopware?.feature?.flags ?? [];
 
-    if (featureAll !== ALL_MAJOR && target === null) {
-        return [];
+    const hasMajorLane = flags.some(
+        (flag) => isMajorVersionFlag(flag.name) && isTrue(environment[normalizeName(flag.name)]),
+    );
+
+    const active = (flag: FeatureFlag): boolean => {
+        const explicit = environment[normalizeName(flag.name)];
+        if (explicit !== undefined) {
+            return isTrue(explicit);
+        }
+
+        if (isTrue(environment.FEATURE_ALL)) {
+            return true;
+        }
+
+        if (typeof flag.major === 'string') {
+            const parentName = normalizeName(flag.major);
+            const parent = flags.find(({ name }) => normalizeName(name) === parentName);
+            return parent !== undefined && isMajorVersionFlag(parent.name) && active(parent);
+        }
+
+        return flag.default === true;
+    };
+
+    if (isTrue(environment.FEATURE_ALL)) {
+        return flags.filter(active).map(({ name }) => normalizeName(name));
     }
 
-    return (config.shopware?.feature?.flags ?? [])
-        .filter((flag) => flag.major)
-        .filter((flag) => target === null || arrivesUpTo(flag, target))
+    if (!hasMajorLane) {
+        return flags.filter((flag) => isTrue(environment[normalizeName(flag.name)])).map(({ name }) => normalizeName(name));
+    }
+
+    return flags
+        .filter((flag) => (flag.default || isMajorVersionFlag(flag.name) || typeof flag.major === 'string') && active(flag))
         .map(({ name }) => normalizeName(name));
 }

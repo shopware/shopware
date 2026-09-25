@@ -165,7 +165,7 @@ Test all transport-sensitive paths before relying on the 6.8 default:
 For the Shopware platform test suite:
 
 ```bash
-FEATURE_ALL=major composer admin:unit
+FEATURE_ALL=1 composer admin:unit
 ```
 
 `axios-mock-adapter` continues to work with the facade:

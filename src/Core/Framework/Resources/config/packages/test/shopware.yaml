@@ -60,7 +60,6 @@ shopware:
         flags:
             - name: FEATURE_NEXT_12345
               default: false
-              major: false
               description: "test feature flag"
 
     api:

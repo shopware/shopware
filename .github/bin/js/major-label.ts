@@ -12,13 +12,11 @@
  * off, so the milestone label — which records the version that ships a change — cannot
  * carry this. These labels are the orthogonal axis and must never be milestone labels.
  *
- * In-flight majors are derived exactly as the test lanes derive theirs: a `major: true`
- * flag named after its version and still `default: false`. This is the TypeScript twin of
- * `shopware_in_flight_majors()` in `.github/bin/lib/feature-flags.php`; the two must agree,
- * or a major would get a lane without a label or the reverse. Registering the next major
- * flag adds its labels with nothing to maintain here.
+ * In-flight majors are version-shaped flags still set to `default: false`.
+ * Registering the next major flag adds its labels with nothing
+ * to maintain here; the test workflows opt into their target version explicitly.
  *
- * Signals that name no version — the unversioned major flags, an edit to the registry, a
+ * Signals that name no version — an edit to the registry, a
  * path in `major-paths.yml` — belong to the nearest major, because that is the one that
  * flips them.
  *
@@ -35,7 +33,7 @@ export const MAJOR_PATHS_PATH = '.github/major-paths.yml';
 
 export type FeatureFlag = {
     name: string;
-    major: boolean;
+    major?: string;
     default: boolean;
 };
 
@@ -96,7 +94,7 @@ export function parseFeatureRegistry(registryYaml: string): FeatureFlag[] {
     for (const line of registryYaml.split('\n')) {
         const name = line.match(/^\s*-\s*name:\s*(\S+)/);
         if (name) {
-            flags.push({ name: name[1], major: false, default: false });
+            flags.push({ name: name[1], default: false });
             continue;
         }
 
@@ -105,9 +103,9 @@ export function parseFeatureRegistry(registryYaml: string): FeatureFlag[] {
             continue;
         }
 
-        const major = line.match(/^\s*major:\s*(true|false)\b/);
+        const major = line.match(/^\s*major:\s*(v\d+\.\d+\.0\.0)\b/i);
         if (major) {
-            current.major = major[1] === 'true';
+            current.major = major[1];
             continue;
         }
 
@@ -122,12 +120,12 @@ export function parseFeatureRegistry(registryYaml: string): FeatureFlag[] {
 
 /** A flag already defaulting to true has flipped and is not pending. */
 export function pendingMajorFlags(flags: FeatureFlag[]): string[] {
-    return flags.filter((flag) => flag.major && !flag.default).map((flag) => flag.name);
+    return flags.filter((flag) => /^v\d+\.\d+\.0\.0$/i.test(flag.name) && !flag.default).map((flag) => flag.name);
 }
 
 /**
  * The majors that have not shipped, oldest first — `['6.8', '6.9']`.
- * Mirrors `shopware_in_flight_majors()`, including its "named after its version" rule.
+ * Recognises standalone version flags by name.
  */
 export function resolveInFlightMajors(flags: FeatureFlag[]): string[] {
     return pendingMajorFlags(flags)
@@ -207,12 +205,11 @@ export function evaluateMajorLabels(options: {
 
     const version = escapeRegExp(targetMajor);
     const versionFlag = escapeRegExp(`v${targetMajor}.0.0`);
-    const unversionedFlags = isNextMajor
-        ? pendingMajorFlags(flags)
-              .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag))
-              .map(escapeRegExp)
-        : [];
-    const flagAlternatives = [versionFlag, ...unversionedFlags].join('|');
+    const relatedFlags = flags
+        .filter((flag) => flag.major === `v${targetMajor}.0.0`)
+        .filter((flag) => !/^v\d+\.\d+\.\d+\.\d+$/i.test(flag.name))
+        .map((flag) => escapeRegExp(flag.name));
+    const flagAlternatives = [versionFlag, ...relatedFlags].join('|');
     const pathMatchers = isNextMajor ? majorPaths.map(globToRegExp) : [];
 
     // `(?!\d)` keeps v6.8.0 from matching a v6.8.01 that a future scheme might introduce

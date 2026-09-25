@@ -65,6 +65,8 @@ jobs:
 
   acceptance:
     runs-on: ubuntu-24.04
+    env:
+      V6_8_0_0: ${{ matrix.major && '1' || '' }}
     permissions:
       contents: read
       id-token: write

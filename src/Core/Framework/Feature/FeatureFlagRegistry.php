@@ -50,9 +50,25 @@ class FeatureFlagRegistry
                 $stored = \json_decode($stored, true, 512, \JSON_THROW_ON_ERROR);
             }
 
-            $stored = array_filter($stored, static function (array $flag) {
-                return !\array_key_exists('major', $flag) || !$flag['major'];
-            });
+            // Version flags are never persisted. Keep filtering old unversioned `major: true`
+            // entries unless a current static flag supersedes their stale metadata.
+            $stored = array_filter($stored, static function (array $flag, string $name) use ($static): bool {
+                return !Feature::isMajorVersionFlag($name)
+                    && (isset($static[$name]) || ($flag['major'] ?? null) !== true);
+            }, \ARRAY_FILTER_USE_BOTH);
+
+            foreach ($stored as $name => $flag) {
+                if (!\is_string($flag['major'] ?? null)) {
+                    unset($stored[$name]['major']);
+                }
+
+                if (!isset($static[$name])) {
+                    continue;
+                }
+
+                // Static metadata may have changed since this flag was persisted; only the toggle is user state.
+                $stored[$name] = [...$static[$name], ...array_intersect_key($flag, ['active' => true, 'static' => true])];
+            }
 
             $flags = array_merge($static, $stored);
         } catch (DBALException) {

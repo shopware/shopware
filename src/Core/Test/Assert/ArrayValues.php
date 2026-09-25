@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('framework')]
 final class ArrayValues
 {
     /**

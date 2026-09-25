@@ -204,7 +204,7 @@ All entity read tools use `JsonEntityEncoder` for serialization (not the Store A
 
 ## Write tools
 - `EntityUpsertTool` (`shopware-entity-upsert`) -- create/update entities (dryRun wraps in transaction + rollback)
-- `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact)
+- `EntityDeleteTool` (`shopware-entity-delete`) -- delete entities (dryRun shows cascade impact). Mapping entities with a composite primary key (`product_category`, `product_property`, ...) take objects naming every key field; this is how a many-to-many link is removed, because `shopware-entity-upsert` can only add links
 - `SystemConfigWriteTool` (`shopware-system-config-write`) -- update configuration values
 - `OrderStateTool` (`shopware-order-state`) -- change the state of an order, its transactions, and/or deliveries in one call
 - `MediaUploadTool` (`shopware-media-upload`) -- upload media from URL, optionally assign to product as cover image

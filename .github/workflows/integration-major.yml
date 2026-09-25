@@ -12,15 +12,15 @@ on:
 permissions:
   contents: read
 
+env:
+  V6_8_0_0: '1'
+
 jobs:
-  major-matrix:
-    # Serves every major arm below, so it runs for any of their labels; each arm keeps its own gate.
-    # Nightly (workflow_call) and manual runs are unaffected.
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+  phpunit-matrix:
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
-      lanes: ${{ steps.major-lanes.outputs.lanes }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -33,24 +33,16 @@ jobs:
             echo "$MATRIX"
             echo 'EOF'
           } >> "$GITHUB_OUTPUT"
-      # The PHPUnit matrix carries the majors as a dimension; Jest needs the bare list for its own.
-      - id: major-lanes
-        run: |
-          set -euo pipefail
-          LANES=$(php .github/bin/major-lanes.php)
-          jq . <<<"$LANES"
-          echo "lanes=$LANES" >> "$GITHUB_OUTPUT"
 
   phpunit-major:
-    name: "${{ matrix.test.testsuite }}${{ matrix.test.path }} (${{ matrix.major }})"
-    # The matrix job also runs for the `major-js` arm, so gate the PHPUnit arm on its own labels.
+    name: "${{ matrix.test.testsuite }}${{ matrix.test.path }} (major)"
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
     needs:
-      - major-matrix
+      - phpunit-matrix
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.major-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
       DATABASE_URL: mysql://root@127.0.0.1:3306/root
@@ -88,11 +80,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Activate major lane
-        # FEATURE_ALL would activate future flags too.
-        env:
-          MAJOR_LANE: ${{ matrix.major }}
-        run: php .github/bin/major-lane-env.php "$MAJOR_LANE" >> "$GITHUB_ENV"
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
@@ -115,27 +102,15 @@ jobs:
           overwrite: true
 
   jest-admin-major:
-    name: "Jest Admin (${{ matrix.major }})"
+    name: "Jest Admin (major)"
     if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
-    needs:
-      - major-matrix
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        major: ${{ fromJson(needs.major-matrix.outputs.lanes) }}
     env:
       NODE_VERSION: 'lts/*'
       JEST_MAX_WORKERS: 100%
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Activate major lane
-        # FEATURE_ALL would activate future flags too.
-        env:
-          MAJOR_LANE: ${{ matrix.major }}
-        run: php .github/bin/major-lane-env.php "$MAJOR_LANE" >> "$GITHUB_ENV"
 
       - name: Setup Shopware
         uses: shopware/setup-shopware@main
@@ -160,7 +135,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: jest-admin-major-${{ matrix.major }}-results
+          name: jest-admin-major-results
           path: build/artifacts/jest/administration.junit.xml
           if-no-files-found: error
 

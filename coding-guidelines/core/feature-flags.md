@@ -25,14 +25,12 @@ active with that version flag:
         toggleable: true
 ```
 
-## While two majors are in flight
+## Major CI
 
-Trunk then carries the flags of both majors, and `FEATURE_ALL=1` no longer describes either release
-state: 6.9 changes decide the outcome of a 6.8 assertion. CI therefore runs one lane per unreleased
-major (`V6_8_0_0=1`, `V6_9_0_0=1`) in `integration-major.yml` and in the major
-arm of `acceptance.yml`. The lanes come from `feature.yaml` itself — a `major: true` flag named after
-its version and still `default: false` is a lane, see `.github/bin/lib/feature-flags.php` — so
-registering the next major flag adds its lane, with nothing to maintain in the workflows.
+`FEATURE_ALL=1` does not describe a release state: it also activates unrelated experimental
+features. Major CI sets the upcoming version flag directly (`V6_8_0_0=1`) in
+`integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
+Update these three workflow settings when the target major changes.
 
 The unit suite is the exception: its bootstrap activates every registered flag regardless of
 `FEATURE_ALL`, so a unit test always sees the newest major and has to pin itself explicitly — see

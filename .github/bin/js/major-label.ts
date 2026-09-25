@@ -12,11 +12,9 @@
  * off, so the milestone label — which records the version that ships a change — cannot
  * carry this. These labels are the orthogonal axis and must never be milestone labels.
  *
- * In-flight majors are derived exactly as the test lanes derive theirs: a `major: true`
- * flag named after its version and still `default: false`. This is the TypeScript twin of
- * `shopware_in_flight_majors()` in `.github/bin/lib/feature-flags.php`; the two must agree,
- * or a major would get a lane without a label or the reverse. Registering the next major
- * flag adds its labels with nothing to maintain here.
+ * In-flight majors are `major: true` flags named after their version and still
+ * `default: false`. Registering the next major flag adds its labels with nothing
+ * to maintain here; the test workflows opt into their target version explicitly.
  *
  * Signals that name no version — the unversioned major flags, an edit to the registry, a
  * path in `major-paths.yml` — belong to the nearest major, because that is the one that
@@ -127,7 +125,7 @@ export function pendingMajorFlags(flags: FeatureFlag[]): string[] {
 
 /**
  * The majors that have not shipped, oldest first — `['6.8', '6.9']`.
- * Mirrors `shopware_in_flight_majors()`, including its "named after its version" rule.
+ * Recognises standalone version flags by name and `major: true`.
  */
 export function resolveInFlightMajors(flags: FeatureFlag[]): string[] {
     return pendingMajorFlags(flags)

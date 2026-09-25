@@ -68,6 +68,7 @@ When a task matches a skill, open `.agents/skills/<name>/SKILL.md` and follow it
 - `shopware-php-code` — PHP architecture, API schema, migrations, deprecations, BC-sensitive code.
 - `shopware-admin-js` — Administration JavaScript, TypeScript, Vue, ACL, Jest.
 - `shopware-phpunit-tests` — PHPUnit test structure, fixtures, feature flags, coverage, data providers.
+- `shopware-fuzz-tests` — property-based/fuzz testing under `tests/fuzz`: invariant design, Eris generators, reproducing failures.
 
 Skills can have an optional unattended twin via [GitHub Agentic Workflows](https://github.com/githubnext/gh-aw) at `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`. Editing or compiling these workflows requires the `gh aw` CLI extension; the current pin lives in [`.github/aw/README.md`](.github/aw/README.md) → "Pinning".
 
@@ -78,6 +79,7 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 - PHP/server code: use the `shopware-php-code` skill when the task touches PHP architecture, API schema, migrations, deprecations, or BC-sensitive code.
 - Administration JS/TS/Vue code: detailed guidance starts at `src/Administration/Resources/app/administration/AGENTS.md`; use the `shopware-admin-js` skill for Admin coding rules.
 - PHPUnit tests: use the `shopware-phpunit-tests` skill.
+- Property-based/fuzz tests under `tests/fuzz`: use the `shopware-fuzz-tests` skill; see also `tests/fuzz/README.md`.
 - CI workflows, composite actions, and automation scripts: local rules in `.github/AGENTS.md`, rationale and examples in `coding-guidelines/core/ci-workflows.md`.
 - More specific nested `AGENTS.md` files add local rules for their subtree.
 

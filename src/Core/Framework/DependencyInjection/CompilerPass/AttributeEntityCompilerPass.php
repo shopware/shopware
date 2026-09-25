@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -66,10 +65,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $container->setDefinition($entity . '.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
-        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
-
         $registry->addMethodCall('register', [new Reference($entity . '.definition'), $entity . '.definition']);
-        $salesChannelRegistry->addMethodCall('register', [new Reference($entity . '.definition'), 'sales_channel_definition.' . $entity . '.definition']);
     }
 
     private function repository(ContainerBuilder $container, string $entity): void
@@ -107,10 +103,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $container->setDefinition($entity . '_translation.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
-        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
-
         $registry->addMethodCall('register', [new Reference($entity . '_translation.definition'), $entity . '_translation.definition']);
-        $salesChannelRegistry->addMethodCall('register', [new Reference($entity . '_translation.definition'), 'sales_channel_definition.' . $entity . '_translation.definition']);
 
         $this->repository($container, $entity . '_translation');
     }
@@ -142,10 +135,7 @@ class AttributeEntityCompilerPass implements CompilerPassInterface
         $container->setDefinition($meta['entity_name'] . '.definition', $definition);
 
         $registry = $container->getDefinition(DefinitionInstanceRegistry::class);
-        $salesChannelRegistry = $container->getDefinition(SalesChannelDefinitionInstanceRegistry::class);
-
         $registry->addMethodCall('register', [new Reference($meta['entity_name'] . '.definition'), $meta['entity_name'] . '.definition']);
-        $salesChannelRegistry->addMethodCall('register', [new Reference($meta['entity_name'] . '.definition'), 'sales_channel_definition.' . $meta['entity_name'] . '.definition']);
 
         $this->repository($container, $meta['entity_name']);
     }

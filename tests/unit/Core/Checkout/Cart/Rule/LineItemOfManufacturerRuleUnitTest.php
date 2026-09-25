@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -20,17 +20,15 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[CoversClass(LineItemOfManufacturerRule::class)]
 class LineItemOfManufacturerRuleUnitTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     public function testCustomProductOptionsDoNotMatchNotEqualManufacturerRule(): void
     {
         $manufacturerId = '019fa77183677a04ba9eaff57eed9627';
 
-        $productLineItem = self::createLineItem()
+        $productLineItem = CartRuleFixture::createLineItem()
             ->setPayloadValue('manufacturerId', $manufacturerId);
-        $optionLineItem = self::createLineItem('customized-products-option');
+        $optionLineItem = CartRuleFixture::createLineItem('customized-products-option');
 
-        $customizedProductLineItem = self::createLineItem('customized-products')
+        $customizedProductLineItem = CartRuleFixture::createLineItem('customized-products')
             ->setGood(false)
             ->setChildren(new LineItemCollection([$productLineItem, $optionLineItem]));
 
@@ -40,7 +38,7 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         );
 
         $matches = $rule->match(new CartRuleScope(
-            self::createCart(new LineItemCollection([$customizedProductLineItem])),
+            CartRuleFixture::createCart(new LineItemCollection([$customizedProductLineItem])),
             static::createStub(SalesChannelContext::class),
         ));
 
@@ -57,7 +55,7 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         );
 
         $hasMatch = $rule->match(new LineItemScope(
-            self::createLineItem('customized-products-option'),
+            CartRuleFixture::createLineItem('customized-products-option'),
             static::createStub(SalesChannelContext::class),
         ));
 

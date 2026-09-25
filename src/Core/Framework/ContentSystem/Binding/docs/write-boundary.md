@@ -14,3 +14,7 @@ A stored binding's wiring is also visible to the resolution and diagnostics kern
 
 - `Resolution/CandidateOrigin::Stored` — a stored `DataRequirement` whose produced type resolves and is assignable to the declared reference FQCN becomes the property's `resolved` pick directly, never a `candidates` menu entry (applied wiring is a resolution, not an offer).
 - `Diagnostics/ViolationCode::MismatchedReferenceType` — a stored wiring whose produced type is **not** assignable to the declared FQCN is an intrinsic-scope error, independent of any bound root source.
+
+## Where the Reconciler Sits
+
+`AttributionReconciler` is the last of `Layout/LayoutWriteBoundary`'s three passes, after `Layout/LayoutDefaultSeeder` and style normalization. It re-derives every element's `attributedSpecifications` on every DAL write of the `layout` field. A diverged or dangling attribution is dropped, never raised as an error.

@@ -13,3 +13,7 @@ Fill-only application wires a `resolves` entry only into a key the element carri
 Auto-application at scaffold supersedes the earlier stance that every binding application is an explicit client act; that stance now applies only to a non-default specification, applied via `bind-element` or an explicit `bindingSpecificationId`.
 
 A plugin overriding a *core* default is intentionally impossible in this cut — a synthesized specification's type is always its own containing file's type, and an authored `bindings:` entry can never claim the reserved id; an explicit replacement mechanism is a future item.
+
+## Limits on a Synthesized Id
+
+`DefaultBindingSpecificationSynthesizer` enforces `MAX_ID_LENGTH = 255` on the minted id — which is the type name — and applies the storage-key collision rules as hard load errors that name the offending file.

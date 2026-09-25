@@ -115,6 +115,50 @@ class CheckoutLegalGuaranteeTemplateTest extends TestCase
         }
     }
 
+    #[DataProvider('privacyLegalGuaranteeProvider')]
+    public function testPrivacyNoticeShowsLegalGuaranteeNotice(bool $accessibilityTweaks, bool $requireDataProtectionCheckbox, bool $showLegalGuaranteeNotice, bool $requiresTermsOfService): void
+    {
+        $this->setEnvVars(['ACCESSIBILITY_TWEAKS' => $accessibilityTweaks]);
+        $config = static::getContainer()->get(SystemConfigService::class);
+        $config->set('core.loginRegistration.requireDataProtectionCheckbox', $requireDataProtectionCheckbox);
+        $config->set('core.cart.showLegalGuaranteeNotice', $showLegalGuaranteeNotice);
+
+        $template = $requiresTermsOfService
+            ? '{% sw_include \'@Storefront/storefront/component/privacy-notice.html.twig\' %}'
+            : '{% sw_include \'@Storefront/storefront/component/privacy-notice.html.twig\' with { requiresTermsOfService: false } %}';
+
+        $crawler = $this->render($template, 'en-GB');
+
+        $expected = $showLegalGuaranteeNotice && $requiresTermsOfService;
+        $notice = $crawler->filter('.privacy-notice .legal-guarantee-notice');
+        static::assertCount($expected ? 1 : 0, $notice);
+        static::assertCount($expected ? 1 : 0, $crawler->filter('.privacy-notice #legalGuaranteeNoticeModal'));
+        static::assertCount($requireDataProtectionCheckbox ? 1 : 0, $crawler->filter('input[name="acceptedDataProtection"]'));
+
+        if ($expected) {
+            static::assertSame('Please note your legal guarantee rights.', $notice->text());
+            static::assertCount(1, $notice->filter('button[type="button"][data-bs-toggle="modal"][data-bs-target="#legalGuaranteeNoticeModal"]'));
+            static::assertCount(0, $notice->filterXPath('ancestor::label'));
+            static::assertCount(1, $crawler->filter('#legalGuaranteeNoticeModal .modal-body svg'));
+        }
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool, bool, bool}>
+     */
+    public static function privacyLegalGuaranteeProvider(): iterable
+    {
+        foreach ([false, true] as $accessibilityTweaks) {
+            foreach ([false, true] as $requireDataProtectionCheckbox) {
+                foreach ([false, true] as $showLegalGuaranteeNotice) {
+                    foreach ([false, true] as $requiresTermsOfService) {
+                        yield \sprintf('accessibility %d, checkbox %d, guarantee %d, tos %d', $accessibilityTweaks, $requireDataProtectionCheckbox, $showLegalGuaranteeNotice, $requiresTermsOfService) => [$accessibilityTweaks, $requireDataProtectionCheckbox, $showLegalGuaranteeNotice, $requiresTermsOfService];
+                    }
+                }
+            }
+        }
+    }
+
     private function render(string $template, string $locale): Crawler
     {
         $twig = static::getContainer()->get('twig');

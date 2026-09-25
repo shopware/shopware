@@ -11,7 +11,7 @@
  * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 
-import { customRef, getCurrentInstance, unref } from 'vue';
+import { computed, customRef, getCurrentInstance, isReadonly, isRef, unref } from 'vue';
 import type { ComponentInternalInstance, SetupContext } from '@vue/runtime-core';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import { _overridesMap } from './index';
@@ -30,6 +30,10 @@ type SetupResult = AnyRecord | undefined;
 // Hands the object created in setup() over to created(). Keyed per instance because the config is
 // shared by every instance of the component.
 const bags = new WeakMap<ComponentInternalInstance, AnyRecord>();
+
+// The read-only refs previousState hands out. They report writes instead of rejecting them, so
+// isReadonly() cannot tell them apart from a writable ref.
+const previousStateRefs = new WeakSet<object>();
 
 /**
  * @private
@@ -136,15 +140,17 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                         if (!wrapperCache.has(key)) {
                             const current = read(key);
 
-                            wrapperCache.set(
-                                key,
-                                typeof current === 'function'
-                                    ? current
-                                    : customRef(() => ({
-                                          get: () => unref(read(key)),
-                                          set: () => reportWrite(key),
-                                      })),
-                            );
+                            if (typeof current === 'function') {
+                                wrapperCache.set(key, current);
+                            } else {
+                                const wrapper = customRef(() => ({
+                                    get: () => unref(read(key)),
+                                    set: () => reportWrite(key),
+                                }));
+
+                                previousStateRefs.add(wrapper);
+                                wrapperCache.set(key, wrapper);
+                            }
                         }
 
                         return wrapperCache.get(key);
@@ -155,6 +161,29 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                         reportWrite(String(key));
 
                         return true;
+                    },
+                });
+            };
+
+            // The base component keeps writing `this.x = …`, and Vue sends that to setupState before data.
+            // For a data-backed key the write would land on the override's value: a read-only ref warns and
+            // drops it, a plain value is replaced. Either way data never changes, and an override deriving
+            // from previousState.x stays stuck on the old value. Migrated components do not have this
+            // problem because their script writes to its own local ref, so the write is sent back to data.
+            // A writable ref the override returns keeps receiving writes: the override owns that state, and
+            // a v-model in its template has to reach it.
+            const routeBaseWritesToData = (key: string, value: unknown): unknown => {
+                const data = instance.data as AnyRecord;
+                const ownsState = isRef(value) && !isReadonly(value) && !previousStateRefs.has(value);
+
+                if (!data || !(key in data) || ownsState) {
+                    return value;
+                }
+
+                return computed({
+                    get: () => unref(value),
+                    set: (newValue) => {
+                        data[key] = newValue;
                     },
                 });
             };
@@ -185,7 +214,7 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                         return;
                     }
 
-                    bag[key] = result[key];
+                    bag[key] = routeBaseWritesToData(key, result[key]);
                     // Vue memoises which bucket a key resolved from on first access. Anything that read the
                     // key earlier - an immediate watcher, a preceding created hook - pinned it to `data`,
                     // and setupState would never be consulted again.

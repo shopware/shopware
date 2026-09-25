@@ -2,23 +2,26 @@
 
 namespace Shopware\Tests\Migration\Core\V6_6;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Migration\V6_6\Migration1788531858FixGaranLabelInOrderConfirmationMail;
+use Shopware\Core\Migration\V6_6\Migration1790078381EmbedGaranLabelInOrderConfirmationMail;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(Migration1788531858FixGaranLabelInOrderConfirmationMail::class)]
-class Migration1788531858FixGaranLabelInOrderConfirmationMailTest extends TestCase
+#[CoversClass(Migration1790078381EmbedGaranLabelInOrderConfirmationMail::class)]
+class Migration1790078381EmbedGaranLabelInOrderConfirmationMailTest extends TestCase
 {
     private const FIXTURE_DIR = __DIR__ . '/../../../../src/Core/Migration/Fixtures/mails/order_confirmation_mail/';
+
+    private const DATA_URI_HTML = '<img src="{{ garanLabelDataUri }}" width="195" height="30" alt="GARAN label"/>';
 
     private Connection $connection;
 
@@ -46,14 +49,14 @@ class Migration1788531858FixGaranLabelInOrderConfirmationMailTest extends TestCa
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1788531858, (new Migration1788531858FixGaranLabelInOrderConfirmationMail())->getCreationTimestamp());
+        static::assertSame(1790078381, (new Migration1790078381EmbedGaranLabelInOrderConfirmationMail())->getCreationTimestamp());
     }
 
     public function testMigrationReappliesOrderConfirmationMailTemplate(): void
     {
-        $this->givenTheStoredTemplateIsOutdated();
+        $this->givenTheStoredTemplateUsesTheDataUri(editedByMerchant: false);
 
-        $migration = new Migration1788531858FixGaranLabelInOrderConfirmationMail();
+        $migration = new Migration1790078381EmbedGaranLabelInOrderConfirmationMail();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
@@ -66,39 +69,47 @@ class Migration1788531858FixGaranLabelInOrderConfirmationMailTest extends TestCa
         static::assertSame($filesystem->readFile(self::FIXTURE_DIR . 'de-html.html.twig'), $translations['Deutsch']['content_html']);
     }
 
-    public function testMigratedTemplateRendersTheGaranLabelWithFixedDimensionsInsideTheProductCell(): void
+    public function testMigratedTemplateEmbedsTheLabelAsInlineImageAndNamesTheDuration(): void
     {
-        $this->givenTheStoredTemplateIsOutdated();
+        $this->givenTheStoredTemplateUsesTheDataUri(editedByMerchant: false);
 
-        (new Migration1788531858FixGaranLabelInOrderConfirmationMail())->update($this->connection);
+        (new Migration1790078381EmbedGaranLabelInOrderConfirmationMail())->update($this->connection);
 
         $translations = $this->fetchMailTranslationsByLanguageName();
 
         foreach (['en' => $translations['English']['content_html'], 'de' => $translations['Deutsch']['content_html']] as $language => $html) {
             static::assertIsString($html);
-            static::assertStringContainsString(
-                '<img src="{{ garanLabel.cid }}" width="195" height="30"',
+            static::assertStringContainsString('sw_garan_label_mail', $html, $language . ': the mail references the label via cid');
+            static::assertStringNotContainsString('sw_garan_label_nested_uri', $html, $language);
+            static::assertStringContainsString('alt="GARAN', $html, $language);
+            static::assertStringContainsString('{{ garanLabel.duration', $html, $language . ': the alt text has to name the duration');
+            static::assertMatchesRegularExpression(
+                '/\{% if garanLabel\.cid %\}.*<img.*\{% else %\}.*\{\{ garanLabel\.duration.*\{% endif %\}/s',
                 $html,
-                $language . ': the label image needs explicit dimensions, mail clients scale it to the container otherwise'
+                $language . ': durations without an image fall back to the duration text'
             );
-            static::assertStringNotContainsString(
-                '<td colspan="6"><img src="{{ garanLabel.cid }}"',
-                $html,
-                $language . ': the label belongs into the product cell, not into a full width row of its own'
-            );
-            static::assertStringNotContainsString(
-                'src="{{ garanLabel.cid }}" alt=""',
-                $html,
-                $language . ': the label carries legally required information and must not be marked as decorative'
-            );
+        }
+
+        foreach (['en' => $translations['English']['content_plain'], 'de' => $translations['Deutsch']['content_plain']] as $language => $plain) {
+            static::assertIsString($plain);
+            static::assertStringContainsString('sw_garan_label_mail', $plain, $language . ': the plain text mail has to name the guarantee as well');
+            static::assertStringContainsString('{{ garanLabel.duration', $plain, $language);
         }
     }
 
-    /**
-     * Seeds the broken markup that shops which already ran Migration1783944800AddGaranLabel carry, and
-     * clears `updated_at` so the template counts as untouched by the merchant.
-     */
-    private function givenTheStoredTemplateIsOutdated(): void
+    public function testMigrationKeepsTemplatesEditedByTheMerchant(): void
+    {
+        $this->givenTheStoredTemplateUsesTheDataUri(editedByMerchant: true);
+
+        (new Migration1790078381EmbedGaranLabelInOrderConfirmationMail())->update($this->connection);
+
+        $translations = $this->fetchMailTranslationsByLanguageName();
+
+        static::assertSame(self::DATA_URI_HTML, $translations['English']['content_html']);
+        static::assertSame(self::DATA_URI_HTML, $translations['Deutsch']['content_html']);
+    }
+
+    private function givenTheStoredTemplateUsesTheDataUri(bool $editedByMerchant): void
     {
         $this->connection->executeStatement(
             'UPDATE `mail_template` AS `template`
@@ -112,12 +123,13 @@ class Migration1788531858FixGaranLabelInOrderConfirmationMailTest extends TestCa
             'UPDATE `mail_template_translation` AS `translation`
              INNER JOIN `mail_template` AS `template` ON `translation`.`mail_template_id` = `template`.`id`
              INNER JOIN `mail_template_type` AS `type` ON `template`.`mail_template_type_id` = `type`.`id`
-             SET `translation`.`updated_at` = NULL,
+             SET `translation`.`updated_at` = :updatedAt,
                  `translation`.`content_html` = :contentHtml,
                  `translation`.`content_plain` = :contentPlain
              WHERE `type`.`technical_name` = :technicalName',
             [
-                'contentHtml' => '<tr><td colspan="6"><img src="{{ garanLabelDataUri }}" alt="" /></td></tr>',
+                'updatedAt' => $editedByMerchant ? '2026-01-01 00:00:00.000' : null,
+                'contentHtml' => self::DATA_URI_HTML,
                 'contentPlain' => 'OUTDATED-plain',
                 'technicalName' => MailTemplateTypes::MAILTYPE_ORDER_CONFIRM,
             ]
@@ -146,7 +158,7 @@ class Migration1788531858FixGaranLabelInOrderConfirmationMailTest extends TestCa
              INNER JOIN `language` ON `language`.`id` = `translation`.`language_id`
              WHERE `translation`.`mail_template_id` = :mailTemplateId AND `language`.`name` IN (:names)',
             ['mailTemplateId' => $this->getMailTemplateId(), 'names' => ['English', 'Deutsch']],
-            ['names' => \Doctrine\DBAL\ArrayParameterType::STRING]
+            ['names' => ArrayParameterType::STRING]
         );
     }
 

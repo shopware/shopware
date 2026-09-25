@@ -1,0 +1,24 @@
+name: "Tab panel"
+description: "A tab panel with two ready-made tabs, each holding a rich-text block."
+icon: "regular-window"
+layout:
+  - component: Sw:Tabs:Panel
+    slots:
+      tabs:
+        - component: Sw:Tabs:Tab
+          properties:
+            title: "Description"
+            active: true
+          slots:
+            content:
+              - component: Sw:Content:Text
+                properties:
+                  text: "<p>Describe your product here.</p>"
+        - component: Sw:Tabs:Tab
+          properties:
+            title: "Details"
+          slots:
+            content:
+              - component: Sw:Content:Text
+                properties:
+                  text: "<p>Add further details here.</p>"

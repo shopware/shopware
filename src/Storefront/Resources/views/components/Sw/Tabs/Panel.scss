@@ -1,0 +1,21 @@
+.sw-tabs {
+    --sw-tabs-content-padding: var(--spacer-md);
+
+    margin-bottom: var(--spacer-md);
+}
+
+.sw-tabs__content {
+    padding-top: var(--sw-tabs-content-padding);
+}
+
+// The panel picks the first tab when no tab is flagged as open by default.
+// Mirror that for the panes, so nothing is hidden before Bootstrap takes over.
+.sw-tabs__content:not(:has(> .tab-pane.active)) > .tab-pane:first-child {
+    display: block;
+    opacity: 1;
+}
+
+// More than one tab flagged as open by default: the first one wins, like in the navigation.
+.sw-tabs__content > .tab-pane.active ~ .tab-pane.active {
+    display: none;
+}

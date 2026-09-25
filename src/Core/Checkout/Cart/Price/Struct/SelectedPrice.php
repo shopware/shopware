@@ -3,16 +3,14 @@
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
-final class SelectedPrice
+class SelectedPrice extends Struct
 {
     public function __construct(
-        private readonly float $value,
-        private readonly bool $isCalculated
+        protected float $value,
+        protected bool $isCalculated
     ) {
     }
 

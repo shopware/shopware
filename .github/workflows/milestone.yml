@@ -193,7 +193,7 @@ jobs:
     name: Set milestone
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: write
     if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(join(github.event.pull_request.labels.*.name, ','), 'milestone/') }}
     runs-on: ubuntu-latest

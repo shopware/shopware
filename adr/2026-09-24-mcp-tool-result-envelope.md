@@ -71,7 +71,14 @@ Tools describe their result, not the wire format. The result object has to outli
 | Error | A failure with a stable code (for example `missing_privilege`, `validation_failed`, `not_found`), a message and optional details, such as the missing privileges or the invalid fields | Formats differ in how they carry errors (`isError`, error objects, status codes). A stable code can be mapped to all of them. A message alone can't |
 | Content parts | Additional typed parts: text, image or other binary data with a MIME type, a link to a resource, an embedded resource | These map one to one to MCP content blocks today and to comparable concepts elsewhere (attachments, artifacts) |
 | Links to stored results | A reference to a result that is too large to send inline, with size and MIME type | Whether data goes inline or behind a link is decided by the mapper, based on the size limit of the target format, not by the tool |
-| Metadata | Well-known typed fields (pagination, `dryRun`, response size, the echoed query) plus a namespaced area for extension-specific values | The mapper decides where and under which names metadata goes, for example MCP `_meta` with its key rules. Extensions can add values without inventing top-level fields |
+| Metadata | Well-known typed fields (pagination, `dryRun`, response size, the echoed query, and the timestamps below) plus a namespaced area for extension-specific values | The mapper decides where and under which names metadata goes, for example MCP `_meta` with its key rules. Extensions can add values without inventing top-level fields |
+
+**Timestamps.** Two well-known metadata fields describe how fresh a result is:
+
+- *Generated at*: when the data was produced. The core sets it when rendering. A tool that returns older data, for example from a search index, sets the actual time of the data instead.
+- *Expires at* (optional): until when the result is valid. It is set for stored large results (the expiry of their signed pointer) and by tools whose data is known to go stale.
+
+Renderers pass them on where their format can express them, for example as cache hints once MCP offers those for tool results, and leave them out otherwise. Caching and stale-data handling can then build on them without changing any tool.
 
 **Design rules.**
 
@@ -90,6 +97,7 @@ One mapper in core converts every tool result before the SDK sends it. It is the
 - **One renderer per output format.** The mapper picks a renderer for each request: the legacy envelope, the handshake era, the stateless era, and later formats as they appear. The choice depends on the phase, the `v6.8.0.0` feature flag and the negotiated protocol version. Supporting a new format means adding a renderer, not touching tools.
 - **Every renderer handles every part.** A renderer maps each part type to the closest concept of its format. Where a format has no equivalent (for example images in a text-only format), the renderer falls back to a documented text form, never to silently dropping the part.
 - **Size limits per format.** The renderer applies the size limit of its format to the complete rendered result, including the text copy the MCP spec asks for. Anything too large is stored and sent as a link.
+- **Format version on the serialized form.** Results that leave PHP and are read back later or elsewhere carry a format version, an enum defined by core: stored large results in `mcp_tool_result_cache`, and responses from app tools. The mapper picks the matching parser for that version, so older stored results and apps built against an older format stay readable. The in-memory result object has no version field: inside PHP the class is the version, and the renderer is chosen by the output target, not by the result.
 - **Legacy input.** The mapper also accepts the legacy JSON string, so tools that still return a string and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result.
 
 For MCP today, the renderers fill `structuredContent`, `isError` and the text block, turn links to stored results into `resource_link` blocks, and respect era differences, for example that `structuredContent` must be an object on the handshake era.

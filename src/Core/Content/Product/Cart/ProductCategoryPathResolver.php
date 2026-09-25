@@ -1,0 +1,169 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\Cart;
+
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+
+/**
+ * Resolves the category path of a product as a list of names, ordered from the top level down.
+ *
+ * Resolving works purely on the loaded entity and issues no query of its own. It needs the
+ * `categories` and `mainCategories.category` associations, which {@see ProductGateway} loads for the
+ * cart. A caller that loads a product without them gets an empty path instead of an error, so a page
+ * that does not report categories does not pay for them.
+ *
+ * @internal
+ */
+#[Package('inventory')]
+class ProductCategoryPathResolver
+{
+    /**
+     * Carries the categories that list a product through a dynamic product group, for a product
+     * without direct category assignment, see {@see ProductGateway}.
+     */
+    public const STREAM_CATEGORIES_EXTENSION = 'analyticsStreamCategories';
+
+    /**
+     * The product's `categoryIds` cannot be used for this, because for a product assigned to
+     * multiple branches it is a union of those branches and therefore not a path. A single
+     * category is selected instead and its stored breadcrumb is used, which is always a path.
+     *
+     * @return list<string>
+     */
+    public function getPath(SalesChannelProductEntity $product, SalesChannelContext $context): array
+    {
+        $category = $this->getSeoCategory($product, $context);
+
+        if ($category === null) {
+            return [];
+        }
+
+        $breadcrumb = $category->getPlainBreadcrumb();
+        $ids = array_keys($breadcrumb);
+
+        foreach ($this->getSalesChannelEntryPoints($context) as $entryPoint) {
+            $position = array_search($entryPoint, $ids, true);
+
+            if ($position !== false) {
+                return array_values(\array_slice($breadcrumb, $position + 1));
+            }
+        }
+
+        return array_values($breadcrumb);
+    }
+
+    /**
+     * Mirrors the category selection of `CategoryBreadcrumbBuilder::getProductSeoCategory()` so
+     * the reported path matches the breadcrumb the storefront shows: the sales channel main category
+     * when one is assigned, otherwise the assigned categories, falling back to the categories that
+     * list the product through a dynamic product group when it has no direct assignment. Among
+     * those, a category visible in the navigation wins over a hidden one, then the deepest wins.
+     * That service is not reused here because it queries per product whenever a product has no
+     * main category.
+     */
+    private function getSeoCategory(SalesChannelProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    {
+        $categoryIds = $product->getCategoryIds() ?? [];
+
+        $mainCategory = $product->getMainCategories()
+            ?->filterBySalesChannelId($context->getSalesChannelId())
+            ->first()
+            ?->getCategory();
+
+        if ($mainCategory !== null
+            && \in_array($mainCategory->getId(), $categoryIds, true)
+            && $this->isCategoryAvailable($mainCategory, $context)
+        ) {
+            return $mainCategory;
+        }
+
+        $candidates = $categoryIds !== []
+            ? $product->getCategories()
+            : $product->getExtensionOfType(self::STREAM_CATEGORIES_EXTENSION, CategoryCollection::class)
+                ?? $this->getStreamCategories($product);
+
+        $best = null;
+        foreach ($candidates?->getElements() ?? [] as $category) {
+            if (!$this->isCategoryAvailable($category, $context)) {
+                continue;
+            }
+
+            if (!$best instanceof CategoryEntity || $this->isPreferred($category, $best)) {
+                $best = $category;
+            }
+        }
+
+        return $best;
+    }
+
+    /**
+     * The categories that list the product through a dynamic product group, when the caller loaded
+     * them as the `streams.categories` association. A Storefront page loader has to take this route,
+     * because it may only read through Store API routes, see {@see ProductStreamCategoryLoader}
+     * for the cart.
+     */
+    private function getStreamCategories(SalesChannelProductEntity $product): ?CategoryCollection
+    {
+        $streams = $product->getStreams();
+
+        if ($streams === null) {
+            return null;
+        }
+
+        $categories = new CategoryCollection();
+
+        foreach ($streams as $stream) {
+            foreach ($stream->getCategories() ?? [] as $category) {
+                if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM) {
+                    $categories->add($category);
+                }
+            }
+        }
+
+        return $categories;
+    }
+
+    private function isPreferred(CategoryEntity $category, CategoryEntity $current): bool
+    {
+        if ($category->getVisible() !== $current->getVisible()) {
+            return $category->getVisible();
+        }
+
+        return $category->getLevel() > $current->getLevel();
+    }
+
+    /**
+     * Mirrors `CategoryBreadcrumbBuilder::isCategoryAvailableForCustomer()`: the category is active
+     * and lies below one of the entry points of the sales channel. Being hidden from the navigation
+     * does not exclude it.
+     */
+    private function isCategoryAvailable(CategoryEntity $category, SalesChannelContext $context): bool
+    {
+        if (!$category->getActive()) {
+            return false;
+        }
+
+        $path = \array_slice(explode('|', $category->getPath() ?? ''), 1, -1);
+
+        return array_intersect($path, $this->getSalesChannelEntryPoints($context)) !== [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getSalesChannelEntryPoints(SalesChannelContext $context): array
+    {
+        $salesChannel = $context->getSalesChannel();
+
+        return array_values(array_filter([
+            $salesChannel->getNavigationCategoryId(),
+            $salesChannel->getServiceCategoryId(),
+            $salesChannel->getFooterCategoryId(),
+        ]));
+    }
+}

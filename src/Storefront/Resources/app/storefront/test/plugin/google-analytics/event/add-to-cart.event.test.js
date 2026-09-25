@@ -57,8 +57,8 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
     test('fires add_to_cart event when AddToCart plugin emits beforeFormSubmit', () => {
         document.body.innerHTML = `
-            <meta itemprop="priceCurrency" content="EUR">
-            <meta itemprop="price" content="99.99">
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
         `;
 
         const addToCartInstance = createMockPluginInstance();
@@ -78,12 +78,14 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
             'currency': 'EUR',
+            'value': 199.98,
             'items': expect.arrayContaining([
                 expect.objectContaining({
-                    'id': 'product-123',
-                    'name': 'Test Product',
-                    'quantity': '2',
-                    'brand': 'Test Brand',
+                    'item_id': 'product-123',
+                    'item_name': 'Test Product',
+                    'quantity': 2,
+                    'price': 99.99,
+                    'item_brand': 'Test Brand',
                 }),
             ]),
         }));
@@ -129,7 +131,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         // Verify it subscribed to the Listing plugin's afterRenderResponse event
         expect(subscribeSpy).toHaveBeenCalledWith(
             'Listing/afterRenderResponse',
-            expect.any(Function)
+            expect.any(Function),
         );
     });
 
@@ -172,7 +174,7 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         expect(window.gtag).toHaveBeenCalledTimes(2);
         expect(window.gtag).toHaveBeenLastCalledWith('event', 'add_to_cart', expect.objectContaining({
             'items': expect.arrayContaining([
-                expect.objectContaining({ 'id': 'product-new' }),
+                expect.objectContaining({ 'item_id': 'product-new' }),
             ]),
         }));
     });
@@ -214,5 +216,39 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
 
         expect(window.gtag).toHaveBeenCalledTimes(1);
+    });
+
+    test.each([
+        ['1', 10, 10],
+        ['10', 10, 100],
+        ['11', 8, 88],
+        ['50', 5, 250],
+    ])('reports the graduated price for a quantity of %s', (quantity, price, value) => {
+        // the meta tag carries the cheapest tier, which only applies from 50 units on
+        document.body.innerHTML = `
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="5">
+            <div class="product-detail-buy"
+                 data-product-prices='[{"quantity":10,"price":10},{"quantity":49,"price":8},{"quantity":50,"price":5}]'>
+                <form class="buy-widget"></form>
+            </div>
+        `;
+
+        const form = document.querySelector('.buy-widget');
+        const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('lineItems[product-123][quantity]', quantity);
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': value,
+            'items': [expect.objectContaining({ 'price': price })],
+        }));
     });
 });

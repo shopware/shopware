@@ -1,0 +1,380 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
+use Shopware\Storefront\Framework\Twig\Extension\AnalyticsLineItemPriceExtension;
+
+/**
+ * @internal
+ */
+#[Package('checkout')]
+#[CoversClass(AnalyticsLineItemPriceExtension::class)]
+class AnalyticsLineItemPriceExtensionTest extends TestCase
+{
+    private AnalyticsLineItemPriceExtension $extension;
+
+    protected function setUp(): void
+    {
+        $this->extension = new AnalyticsLineItemPriceExtension(new CashRounding());
+    }
+
+    public function testRegistersTheTwigFunction(): void
+    {
+        $names = array_map(static fn ($function) => $function->getName(), $this->extension->getFunctions());
+
+        static::assertSame(['sw_analytics_line_item_prices'], $names);
+    }
+
+    /**
+     * The account edit-order page inherits the analytics block from the confirm page without a cart,
+     * so the Twig function is reached with a null. A `TypeError` there renders as a 500 for the whole
+     * page, which is a much worse outcome than reporting no prices.
+     */
+    #[TestDox('A missing line item collection reports no prices instead of raising a TypeError')]
+    public function testReturnsNoPricesWithoutLineItems(): void
+    {
+        static::assertSame([], $this->extension->getPrices(null, $this->context()));
+    }
+
+    public function testReportsTheUnitPriceWhenNoPromotionApplies(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 3),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['product-1' => ['price' => 10.0, 'discount' => 0.0, 'total' => 30.0]], $prices);
+    }
+
+    public function testAllocatesAnAbsoluteDiscountToTheDiscountedLine(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 3),
+            $this->product('product-2', 20.0, 1),
+            $this->promotion([['id' => 'product-1', 'quantity' => 3, 'discount' => 6.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 8.0, 'discount' => 2.0, 'total' => 24.0], $prices['product-1']);
+        static::assertSame(['price' => 20.0, 'discount' => 0.0, 'total' => 20.0], $prices['product-2']);
+    }
+
+    public function testSumsSeveralPromotionsOnTheSameLine(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 2),
+            $this->promotion([['id' => 'product-1', 'quantity' => 2, 'discount' => 4.0]]),
+            $this->promotion([['id' => 'product-1', 'quantity' => 2, 'discount' => 6.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 5.0, 'discount' => 5.0, 'total' => 10.0], $prices['product-1']);
+    }
+
+    /**
+     * A discount does not have to apply to every unit of a line, so the aggregated discount is spread
+     * over the full quantity rather than over the discounted quantity.
+     */
+    public function testSpreadsAPartialQuantityDiscountOverTheWholeLine(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 4),
+            $this->promotion([['id' => 'product-1', 'quantity' => 2, 'discount' => 10.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 7.5, 'discount' => 2.5, 'total' => 30.0], $prices['product-1']);
+    }
+
+    public function testNeverReportsANegativePrice(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 25.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 0.0, 'discount' => 10.0, 'total' => 0.0], $prices['product-1']);
+    }
+
+    public function testIgnoresShippingDiscounts(): void
+    {
+        $promotion = $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 5.0]]);
+        $promotion->setPayloadValue('discountScope', PromotionDiscountEntity::SCOPE_DELIVERY);
+
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $promotion,
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 10.0, 'discount' => 0.0, 'total' => 10.0], $prices['product-1']);
+    }
+
+    public function testSkipsDiscountAndShippingLineItems(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 2.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['product-1'], array_keys($prices));
+    }
+
+    public function testRoundsToTheCurrencyItemRounding(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 3),
+            $this->promotion([['id' => 'product-1', 'quantity' => 3, 'discount' => 10.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        // 20.00 / 3 = 6.666…, rounded to the two decimals the currency uses; 6.67 * 3 would report
+        // 20.01, so the paid line total is carried separately for the event value
+        static::assertSame(['price' => 6.67, 'discount' => 3.33, 'total' => 20.0], $prices['product-1']);
+    }
+
+    public function testHonoursACurrencyWithoutDecimals(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 3),
+            $this->promotion([['id' => 'product-1', 'quantity' => 3, 'discount' => 10.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context(new CashRoundingConfig(0, 1.0, true)));
+
+        static::assertSame(['price' => 7.0, 'discount' => 3.0, 'total' => 20.0], $prices['product-1']);
+    }
+
+    /**
+     * A composition references the cart line item id, which an order line item keeps in `identifier`
+     * while its own id is the primary key of the order line item. Resolving the composition against
+     * the wrong one silently reports undiscounted prices on the finish page.
+     */
+    public function testResolvesOrderLineItemsThroughTheirIdentifier(): void
+    {
+        $lineItems = new OrderLineItemCollection([
+            $this->orderProduct('order-line-item-1', 'product-1', 10.0, 2),
+            $this->orderPromotion('order-line-item-2', [['id' => 'product-1', 'quantity' => 2, 'discount' => 4.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['order-line-item-1' => ['price' => 8.0, 'discount' => 2.0, 'total' => 16.0]], $prices);
+    }
+
+    public function testIgnoresLineItemsWithoutAPrice(): void
+    {
+        $lineItem = new LineItem('product-1', LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
+        $lineItem->setGood(true);
+
+        $prices = $this->extension->getPrices(new LineItemCollection([$lineItem]), $this->context());
+
+        static::assertSame([], $prices);
+    }
+
+    public function testIgnoresMalformedCompositionEntries(): void
+    {
+        $promotion = $this->promotion([
+            ['quantity' => 1, 'discount' => 5.0],
+            ['id' => 'product-1', 'quantity' => 1],
+            ['id' => 'product-1', 'quantity' => 1, 'discount' => 2.0],
+        ]);
+
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $promotion,
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 8.0, 'discount' => 2.0, 'total' => 8.0], $prices['product-1']);
+    }
+
+    /**
+     * Promotions are capped at the cart total, not at their product, so two combinable percentage
+     * promotions on a 10.00 product can discount 12.00. The customer pays 98.00 for the cart, so the
+     * 2.00 the product cannot absorb is spread over the rest instead of being dropped.
+     */
+    public function testSpreadsADiscountExceedingItsLineOverTheOtherLines(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->product('product-2', 100.0, 1),
+            $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 7.0]]),
+            $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 5.0]]),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 0.0, 'discount' => 10.0, 'total' => 0.0], $prices['product-1']);
+        static::assertSame(['price' => 98.0, 'discount' => 2.0, 'total' => 98.0], $prices['product-2']);
+    }
+
+    /**
+     * A 10.00 discount split over three 10.00 lines leaves 6.666… on each; rounding every line on its
+     * own would report 20.01, although the customer pays 20.00 for the goods.
+     */
+    public function testLineTotalsAddUpToTheRoundedGoodsTotal(): void
+    {
+        $share = 10.0 / 3;
+
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->product('product-2', 10.0, 1),
+            $this->product('product-3', 10.0, 1),
+            $this->promotion([
+                ['id' => 'product-1', 'quantity' => 1, 'discount' => $share],
+                ['id' => 'product-2', 'quantity' => 1, 'discount' => $share],
+                ['id' => 'product-3', 'quantity' => 1, 'discount' => $share],
+            ]),
+        ]);
+
+        $totals = array_column($this->extension->getPrices($lineItems, $this->context()), 'total');
+        sort($totals);
+
+        static::assertSame([6.66, 6.67, 6.67], $totals);
+        static::assertEqualsWithDelta(20.0, array_sum($totals), 0.0001);
+    }
+
+    /**
+     * 10 percent of 0.05 is stored as 0.005 in the composition, while the promotion line charges the
+     * cash rounded 0.01, so the customer pays 0.04.
+     */
+    public function testScalesTheCompositionToTheChargedPromotionTotal(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 0.05, 1),
+            $this->promotion([['id' => 'product-1', 'quantity' => 1, 'discount' => 0.005]], charged: 0.01),
+        ]);
+
+        $prices = $this->extension->getPrices($lineItems, $this->context());
+
+        static::assertSame(['price' => 0.04, 'discount' => 0.01, 'total' => 0.04], $prices['product-1']);
+    }
+
+    /**
+     * Cash rounding ignores the interval above two decimals, so the correction steps have to use the
+     * decimals, or three 9.6666… lines report 29.0001.
+     */
+    public function testLineTotalsAddUpWithMoreThanTwoDecimals(): void
+    {
+        $share = 1.0 / 3;
+
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->product('product-2', 10.0, 1),
+            $this->product('product-3', 10.0, 1),
+            $this->promotion([
+                ['id' => 'product-1', 'quantity' => 1, 'discount' => $share],
+                ['id' => 'product-2', 'quantity' => 1, 'discount' => $share],
+                ['id' => 'product-3', 'quantity' => 1, 'discount' => $share],
+            ]),
+        ]);
+
+        $totals = array_column($this->extension->getPrices($lineItems, $this->context(new CashRoundingConfig(4, 0.01, true))), 'total');
+
+        static::assertEqualsWithDelta(29.0, array_sum($totals), 0.00001);
+    }
+
+    private function context(?CashRoundingConfig $itemRounding = null): SalesChannelContext
+    {
+        return Generator::generateSalesChannelContext(
+            itemRounding: $itemRounding ?? new CashRoundingConfig(2, 0.01, true),
+        );
+    }
+
+    private function product(string $id, float $unitPrice, int $quantity): LineItem
+    {
+        $lineItem = new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id, $quantity);
+        $lineItem->setGood(true);
+        $lineItem->setPrice($this->price($unitPrice, $quantity));
+
+        return $lineItem;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $composition
+     */
+    private function promotion(array $composition, ?float $charged = null): LineItem
+    {
+        // the promotion line item charges what its composition adds up to, unless a test says otherwise
+        $charged ??= array_sum(array_map(
+            static fn (array $entry) => isset($entry['id'], $entry['discount']) ? (float) $entry['discount'] : 0.0,
+            $composition
+        ));
+
+        $lineItem = new LineItem('promotion-' . md5(json_encode($composition, \JSON_THROW_ON_ERROR)), LineItem::PROMOTION_LINE_ITEM_TYPE);
+        $lineItem->setGood(false);
+        $lineItem->setPayloadValue('composition', $composition);
+        $lineItem->setPrice($this->price(-$charged, 1));
+
+        return $lineItem;
+    }
+
+    private function orderProduct(string $id, string $identifier, float $unitPrice, int $quantity): OrderLineItemEntity
+    {
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId($id);
+        $lineItem->setIdentifier($identifier);
+        $lineItem->setType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItem->setGood(true);
+        $lineItem->setQuantity($quantity);
+        $lineItem->setPrice($this->price($unitPrice, $quantity));
+
+        return $lineItem;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $composition
+     */
+    private function orderPromotion(string $id, array $composition): OrderLineItemEntity
+    {
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setId($id);
+        $lineItem->setIdentifier($id);
+        $lineItem->setType(LineItem::PROMOTION_LINE_ITEM_TYPE);
+        $lineItem->setGood(false);
+        $lineItem->setQuantity(1);
+        $lineItem->setPayload(['composition' => $composition]);
+        $lineItem->setPrice($this->price(-array_sum(array_column($composition, 'discount')), 1));
+
+        return $lineItem;
+    }
+
+    private function price(float $unitPrice, int $quantity): CalculatedPrice
+    {
+        return new CalculatedPrice(
+            $unitPrice,
+            $unitPrice * $quantity,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection(),
+            $quantity
+        );
+    }
+}

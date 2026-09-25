@@ -1,9 +1,11 @@
 import Feature from 'src/helper/feature.helper';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
+import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
 
 describe('plugin/google-analytics/events/view-item.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
+        window.sessionStorage.clear();
         Feature.init({ JSON_LD_DATA: false });
     });
 
@@ -23,15 +25,13 @@ describe('plugin/google-analytics/events/view-item.event', () => {
 
     test('fires view_item event with product data', () => {
         document.body.innerHTML = `
-            <div itemtype="https://schema.org/Product">
-                <span itemprop="sku">
+            <h1 class="product-detail-name">Test Product</h1>
+            <div class="product-detail-buy" data-product-variant="Red, L">
+                <span class="product-detail-ordernumber">
                     product-123
                 </span>
-                <span itemprop="name">Test Product</span>
-                <div itemprop="brand">
-                    <meta itemprop="name" content="Test Brand">
-                </div>
             </div>
+            <meta property="product:brand" content="Test Brand">
             <meta property="product:price:currency" content="EUR">
             <meta property="product:price:amount" content="99.99">
             <nav aria-label="breadcrumb">
@@ -44,14 +44,16 @@ describe('plugin/google-analytics/events/view-item.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', {
             'items': [{
-                'id': 'product-123',
-                'name': 'Test Product',
-                'brand': 'Test Brand',
+                'item_id': 'product-123',
+                'item_name': 'Test Product',
+                'item_brand': 'Test Brand',
+                'item_variant': 'Red, L',
+                'price': 99.99,
                 'item_category': 'Category 1',
                 'item_category2': 'Category 2',
             }],
             'currency': 'EUR',
-            'value': '99.99',
+            'value': 99.99,
         });
     });
 
@@ -76,6 +78,7 @@ describe('plugin/google-analytics/events/view-item.event', () => {
 
         document.body.innerHTML = `
             <script type="application/ld+json">${JSON.stringify(productData)}</script>
+            <div class="product-detail-buy" data-product-variant="Red, L"></div>
             <nav aria-label="breadcrumb">
                 <span class="breadcrumb-title">Category 1</span>
             </nav>
@@ -85,17 +88,73 @@ describe('plugin/google-analytics/events/view-item.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', {
             'items': [{
-                'id': 'product-456',
-                'name': 'JSON-LD Product',
-                'brand': 'JSON-LD Brand',
+                'item_id': 'product-456',
+                'item_name': 'JSON-LD Product',
+                'item_brand': 'JSON-LD Brand',
+                // JSON-LD carries no selected option string, so the variant still comes from the DOM
+                'item_variant': 'Red, L',
+                'price': 49.99,
                 'item_category': 'Category 1',
             }],
             'currency': 'USD',
-            'value': '49.99',
+            'value': 49.99,
         });
     });
 
-    test('does not fire event when product itemtype is missing', () => {
+    /**
+     * @deprecated tag:v6.8.0 - The microdata is replaced by JSON-LD, this test will be removed.
+     */
+    test('fires view_item event from the deprecated microdata', () => {
+        document.body.innerHTML = `
+            <div itemtype="https://schema.org/Product">
+                <h1 class="product-detail-name" itemprop="name">Test Product</h1>
+                <span itemprop="sku">
+                    product-123
+                </span>
+                <div itemprop="brand">
+                    <meta itemprop="name" content="Test Brand">
+                </div>
+            </div>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        new ViewItemEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', {
+            'items': [{
+                'item_id': 'product-123',
+                'item_name': 'Test Product',
+                'item_brand': 'Test Brand',
+                'price': 99.99,
+            }],
+            'currency': 'EUR',
+            'value': 99.99,
+        });
+    });
+
+    /**
+     * @deprecated tag:v6.8.0 - The microdata is replaced by JSON-LD, this test will be removed.
+     */
+    test('fires view_item event from a static CMS product name element', () => {
+        document.body.innerHTML = `
+            <div itemtype="https://schema.org/Product">
+                <span itemprop="name">Static Product</span>
+                <span class="product-detail-ordernumber">product-123</span>
+            </div>
+        `;
+
+        new ViewItemEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_id': 'product-123',
+                'item_name': 'Static Product',
+            })],
+        }));
+    });
+
+    test('does not fire event when no product markup is present', () => {
         document.body.innerHTML = '<div>No product here</div>';
 
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
@@ -106,11 +165,9 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         consoleSpy.mockRestore();
     });
 
-    test('does not fire event when product ID is missing', () => {
+    test('does not fire event when the product number is missing', () => {
         document.body.innerHTML = `
-            <div itemtype="https://schema.org/Product">
-                <span itemprop="name">Test Product</span>
-            </div>
+            <h1 class="product-detail-name">Test Product</h1>
         `;
 
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
@@ -119,5 +176,30 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         expect(window.gtag).not.toHaveBeenCalled();
         expect(consoleSpy).toHaveBeenCalled();
         consoleSpy.mockRestore();
+    });
+
+    test('reports the list on the item, where view_item defines it', () => {
+        // the listing displayed the parent, the detail page resolved to one of its variants
+        ListAttributionHelper.remember('SW10000', { item_list_id: 'category-1', item_list_name: 'Shirts' }, 'parent-id');
+
+        document.body.innerHTML = `
+            <h1 class="product-detail-name">Test Product</h1>
+            <div class="product-detail-buy" data-product-variant="Red, L" data-product-id="variant-id" data-product-parent-id="parent-id">
+                <span class="product-detail-ordernumber">SW10000.1</span>
+            </div>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="19.99">
+        `;
+
+        new ViewItemEvent().execute();
+
+        const [, , parameters] = window.gtag.mock.calls[0];
+
+        expect(parameters).not.toHaveProperty('item_list_id');
+        expect(parameters.items[0]).toEqual(expect.objectContaining({
+            'item_id': 'SW10000.1',
+            'item_list_id': 'category-1',
+            'item_list_name': 'Shirts',
+        }));
     });
 });

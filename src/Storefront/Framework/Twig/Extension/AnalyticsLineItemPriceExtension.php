@@ -1,0 +1,270 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Framework\Twig\Extension;
+
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
+
+/**
+ * Resolves the price and the discount an analytics integration has to report per product line item.
+ *
+ * Google Analytics expects `price` to be the unit price after the discount and `discount` to be the
+ * discount per unit, and it does not subtract one from the other itself. Shopware keeps promotion
+ * discounts in separate line items instead, so the discount has to be allocated back to the products
+ * it was calculated from. Every discount line item carries that allocation in `payload.composition`.
+ *
+ * @internal
+ */
+#[Package('checkout')]
+class AnalyticsLineItemPriceExtension extends AbstractExtension
+{
+    public function __construct(private readonly CashRounding $rounding)
+    {
+    }
+
+    /**
+     * @return list<TwigFunction>
+     */
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('sw_analytics_line_item_prices', $this->getPrices(...)),
+        ];
+    }
+
+    /**
+     * Allocates the promotion discounts of a cart or an order to its product line items.
+     *
+     * The discount is allocated on the line total and only then divided by the quantity, because a
+     * discount does not have to apply to every unit of a line item: graduation filters and the set
+     * scopes discount part of a line, and a fixed unit price discounts nothing at all when the unit
+     * is already cheaper. Dividing the aggregated discount by the line item quantity therefore stays
+     * correct, while dividing per composition entry would not.
+     *
+     * @param iterable<LineItem|OrderLineItemEntity>|null $lineItems the top level line items,
+     *                                                               including the discount line
+     *                                                               items. Null is accepted because
+     *                                                               this is a Twig function: a
+     *                                                               template that includes the
+     *                                                               component without a cart must
+     *                                                               get an empty result, not a
+     *                                                               `TypeError` rendered as a 500.
+     *
+     * @return array<string, array{price: float, discount: float, total: float}> keyed by line item id
+     */
+    public function getPrices(?iterable $lineItems, SalesChannelContext $context): array
+    {
+        if ($lineItems === null) {
+            return [];
+        }
+
+        $lineItems = array_values(\is_array($lineItems) ? $lineItems : iterator_to_array($lineItems, false));
+
+        $discounts = $this->collectDiscounts($lineItems);
+        $rounding = $context->getItemRounding();
+
+        $lines = [];
+
+        foreach ($lineItems as $lineItem) {
+            if (!$this->isGood($lineItem)) {
+                continue;
+            }
+
+            $price = $lineItem->getPrice();
+            $quantity = $lineItem->getQuantity();
+
+            if ($price === null || $quantity < 1) {
+                continue;
+            }
+
+            $lines[$lineItem->getId()] = [
+                'total' => $price->getTotalPrice(),
+                'quantity' => $quantity,
+                'discount' => $discounts[$this->getCartLineItemId($lineItem)] ?? 0.0,
+            ];
+        }
+
+        $lines = $this->allocate($lines);
+        $totals = $this->roundTotals($lines, $rounding);
+
+        $prices = [];
+
+        foreach ($lines as $id => $line) {
+            $prices[$id] = [
+                'price' => $this->rounding->cashRound(($line['total'] - $line['discount']) / $line['quantity'], $rounding),
+                'discount' => $this->rounding->cashRound($line['discount'] / $line['quantity'], $rounding),
+                // The rounded unit price times the quantity can miss the paid line total by a cent,
+                // 20.00 split over three units reports 6.67, so the event value uses this instead.
+                'total' => $totals[$id],
+            ];
+        }
+
+        return $prices;
+    }
+
+    /**
+     * Caps every line at its own total and spreads what exceeds it over the other lines.
+     *
+     * Promotions are only capped at the cart total, and a percentage promotion is calculated on the
+     * original price of its items, so two combinable promotions on the same product can discount it
+     * by more than it costs. The customer still pays the lower cart total, so dropping that overflow
+     * would report more revenue than was paid. It is spread over the remaining line totals in
+     * proportion, which keeps the reported value equal to the paid goods total.
+     *
+     * @param array<string, array{total: float, quantity: int, discount: float}> $lines
+     *
+     * @return array<string, array{total: float, quantity: int, discount: float}>
+     */
+    private function allocate(array $lines): array
+    {
+        $overflow = 0.0;
+
+        foreach ($lines as $id => $line) {
+            $capped = min($line['discount'], $line['total']);
+            $overflow += $line['discount'] - $capped;
+            $lines[$id]['discount'] = $capped;
+        }
+
+        if ($overflow <= 0.0) {
+            return $lines;
+        }
+
+        $remaining = array_sum(array_map(static fn (array $line) => $line['total'] - $line['discount'], $lines));
+
+        if ($remaining <= 0.0) {
+            return $lines;
+        }
+
+        // the cart total caps every promotion, so the overflow never exceeds what is left, but a
+        // share is still capped at its line in case the cart was calculated differently
+        $share = min(1.0, $overflow / $remaining);
+
+        foreach ($lines as $id => $line) {
+            $lines[$id]['discount'] += ($line['total'] - $line['discount']) * $share;
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Rounds the discounted line totals so that they still add up to the rounded goods total.
+     *
+     * A promotion split over several lines leaves fractions on each of them, a 10.00 discount over
+     * three 10.00 lines leaves 6.666… per line, and rounding every line on its own reports 20.01.
+     * The difference to the rounded sum is corrected one rounding step at a time on the lines whose
+     * rounding moved them the furthest, the largest remainder method.
+     *
+     * @param array<string, array{total: float, quantity: int, discount: float}> $lines
+     *
+     * @return array<string, float>
+     */
+    private function roundTotals(array $lines, CashRoundingConfig $rounding): array
+    {
+        $exact = array_map(static fn (array $line) => $line['total'] - $line['discount'], $lines);
+        $totals = array_map(fn (float $total) => $this->rounding->cashRound($total, $rounding), $exact);
+
+        if ($totals === []) {
+            return [];
+        }
+
+        // cash rounding ignores the interval above two decimals and rounds to the decimals only
+        $step = $rounding->getDecimals() > 2
+            ? 10 ** -$rounding->getDecimals()
+            : max($rounding->getInterval(), 10 ** -$rounding->getDecimals());
+        $difference = $this->rounding->cashRound(array_sum($exact), $rounding) - array_sum($totals);
+        $steps = (int) round($difference / $step);
+
+        // lines rounded down the most are raised first, lines rounded up the most are lowered first
+        $remainders = [];
+        foreach ($exact as $id => $total) {
+            $remainders[$id] = $total - $totals[$id];
+        }
+
+        $steps > 0 ? arsort($remainders) : asort($remainders);
+
+        foreach (array_keys($remainders) as $id) {
+            if ($steps === 0) {
+                break;
+            }
+
+            $adjusted = $totals[$id] + ($steps > 0 ? $step : -$step);
+            if ($adjusted < 0.0 || $adjusted > $lines[$id]['total']) {
+                continue;
+            }
+
+            $totals[$id] = round($adjusted, $rounding->getDecimals());
+            $steps += $steps > 0 ? -1 : 1;
+        }
+
+        return $totals;
+    }
+
+    /**
+     * @param list<LineItem|OrderLineItemEntity> $lineItems
+     *
+     * @return array<string, float> the discounted amount per cart line item id, as a positive value
+     */
+    private function collectDiscounts(array $lineItems): array
+    {
+        $discounts = [];
+
+        foreach ($lineItems as $lineItem) {
+            if ($lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE) {
+                continue;
+            }
+
+            $payload = $lineItem->getPayload() ?? [];
+
+            // shipping discounts reduce the delivery instead of the products, and never carry a
+            // composition, but the reported shipping costs already account for them
+            if (($payload['discountScope'] ?? null) === PromotionDiscountEntity::SCOPE_DELIVERY) {
+                continue;
+            }
+
+            $composition = [];
+            foreach ($payload['composition'] ?? [] as $entry) {
+                if (!\is_array($entry) || !\is_string($entry['id'] ?? null) || !is_numeric($entry['discount'] ?? null)) {
+                    continue;
+                }
+
+                $composition[$entry['id']] = ($composition[$entry['id']] ?? 0.0) + abs((float) $entry['discount']);
+            }
+
+            // A percentage promotion stores the unrounded share in its composition, while its line
+            // item carries the cash rounded amount the customer is charged: 10 percent of 0.05 is
+            // 0.005 in the composition and 0.01 on the line. The shares are scaled to the charged
+            // amount, so the reported value matches what was paid.
+            $composed = array_sum($composition);
+            $charged = abs($lineItem->getPrice()?->getTotalPrice() ?? $composed);
+            $factor = $composed > 0.0 ? $charged / $composed : 1.0;
+
+            foreach ($composition as $id => $discount) {
+                $discounts[$id] = ($discounts[$id] ?? 0.0) + $discount * $factor;
+            }
+        }
+
+        return $discounts;
+    }
+
+    /**
+     * A composition references the cart line item it was calculated from. An order line item keeps
+     * that id in `identifier`, because its own id is the freshly generated primary key of the order
+     * line item, so the finish page has to resolve compositions through `identifier`.
+     */
+    private function getCartLineItemId(LineItem|OrderLineItemEntity $lineItem): string
+    {
+        return $lineItem instanceof OrderLineItemEntity ? $lineItem->getIdentifier() : $lineItem->getId();
+    }
+
+    private function isGood(LineItem|OrderLineItemEntity $lineItem): bool
+    {
+        return $lineItem instanceof OrderLineItemEntity ? $lineItem->getGood() : $lineItem->isGood();
+    }
+}

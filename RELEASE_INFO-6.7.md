@@ -184,6 +184,10 @@ The order is the `parentOrder` computed of `sw-users-permissions-permissions-gri
 
 ## Storefront
 
+### Unused address placeholders removed
+
+The `address.additionalField1Placeholder` and `address.additionalField2Placeholder` snippets were removed. The default address form has not used them since 6.7.0.0. Theme overrides that still use these keys should provide their own translations.
+
 ### Checkout form data is kept in the session storage
 
 The `CheckoutCustomerStorage` plugin stores the consent checkboxes of the confirm page, terms of service and revocation, together with the customer comment, in the browser's session storage instead of the local storage. They survive the page reloads within a checkout, for example after picking another payment method, but no longer outlive the browsing session they were entered in. The revocation checkbox moves here from `FormPreserverPlugin`, which no longer persists it.

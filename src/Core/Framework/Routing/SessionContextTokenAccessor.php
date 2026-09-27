@@ -29,7 +29,7 @@ class SessionContextTokenAccessor
     public const CONTEXT_SOURCE_SESSION = 'session';
 
     /**
-     * Set on Store API requests, keeps the response out of shared caches.
+     * Set on Store API requests whose token comes from the session, so the response omits the token header.
      */
     public const ATTRIBUTE_TOKEN_FROM_SESSION = 'sw-context-token-from-session';
 

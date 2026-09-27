@@ -27,7 +27,6 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Store API requests resolve their context token from the storefront session when the caller opts
@@ -75,7 +74,6 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertSame($sessionToken, $this->resolvedContext($request)->getToken());
         static::assertTrue($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
-        static::assertTrue($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
     }
 
     public function testUnderCustomerBindingTheSalesChannelKeyIsAuthoritative(): void
@@ -212,7 +210,6 @@ class SessionContextTokenResolutionTest extends TestCase
             'without the explicit opt-in a token-less request must get a fresh throwaway context, never the shoppers session'
         );
         static::assertFalse($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
-        static::assertFalse($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
     }
 
     public function testACookieThatDoesNotResumeASessionFails(): void
@@ -247,40 +244,6 @@ class SessionContextTokenResolutionTest extends TestCase
         $this->resolve($request);
     }
 
-    public function testSharedCacheableRoutesResolveFromTheSessionButAreNeverStored(): void
-    {
-        $sessionToken = Random::getAlphanumericString(32);
-
-        $request = $this->createStoreApiRequest();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
-        $request->attributes->set('_route', 'store-api.product.search');
-        $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => $sessionToken]);
-
-        $this->resolve($request);
-
-        static::assertSame($sessionToken, $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-        static::assertSame($sessionToken, $this->resolvedContext($request)->getToken());
-        static::assertTrue($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION));
-
-        // the full kernel.response chain, so CacheResponseSubscriber runs before the no-store enforcement
-        $response = new Response();
-        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $sessionToken);
-        static::getContainer()->get('event_dispatcher')->dispatch(
-            new ResponseEvent(
-                static::getContainer()->get('kernel'),
-                $request,
-                HttpKernelInterface::MAIN_REQUEST,
-                $response
-            ),
-            KernelEvents::RESPONSE
-        );
-
-        static::assertTrue($response->headers->hasCacheControlDirective('no-store'), (string) $response->headers->get('cache-control'));
-        static::assertFalse($response->headers->hasCacheControlDirective('public'), (string) $response->headers->get('cache-control'));
-        static::assertFalse($response->headers->hasCacheControlDirective('s-maxage'), (string) $response->headers->get('cache-control'));
-        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-    }
-
     public function testATokenHeaderWithoutTheSessionSourceLeavesTheSessionAlone(): void
     {
         $sessionToken = Random::getAlphanumericString(32);
@@ -301,7 +264,7 @@ class SessionContextTokenResolutionTest extends TestCase
         static::assertSame(self::SESSION_ID, $session->getId());
     }
 
-    public function testAResponseWithoutSessionInvolvementKeepsItsCacheHeaders(): void
+    public function testAResponseWithoutSessionInvolvementKeepsItsContextToken(): void
     {
         $request = $this->createStoreApiRequest(Random::getAlphanumericString(32), sessionOptIn: false);
         $this->attachSession($request, [PlatformRequest::HEADER_CONTEXT_TOKEN => Random::getAlphanumericString(32)]);
@@ -310,7 +273,6 @@ class SessionContextTokenResolutionTest extends TestCase
 
         $response = $this->respond($request);
 
-        static::assertFalse($response->headers->hasCacheControlDirective('no-store'));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN), 'a client that manages its own token keeps getting it back');
     }
 

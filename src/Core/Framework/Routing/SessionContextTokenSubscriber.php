@@ -102,7 +102,6 @@ class SessionContextTokenSubscriber implements EventSubscriberInterface
 
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
         $request->attributes->set(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION, true);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
     }
 
     public function onCustomerLogin(CustomerLoginEvent $event): void

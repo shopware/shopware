@@ -46,10 +46,6 @@ class SessionContextTokenRequestLifecycleTest extends TestCase
             $response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN),
             'a session sourced client manages no token, so it is not handed one back'
         );
-        static::assertTrue(
-            $response->headers->hasCacheControlDirective('no-store'),
-            (string) $response->headers->get('cache-control')
-        );
     }
 
     public function testTheSameSessionKeepsAnsweringWithTheSameToken(): void

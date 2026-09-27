@@ -19,6 +19,11 @@ https://getbootstrap.com/docs/5.2/components/breadcrumb
         }
     }
 
+    .breadcrumb-item {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
     .breadcrumb-item + .breadcrumb-item:before {
         line-height: 24px;
         padding-top: 3px;

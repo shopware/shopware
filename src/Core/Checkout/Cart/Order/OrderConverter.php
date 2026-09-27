@@ -308,7 +308,7 @@ class OrderConverter
     }
 
     /**
-     * @param array<string, array<string, bool>|string> $overrideOptions
+     * @param array<string, array<string, bool>|string|null> $overrideOptions
      *
      * @throws InconsistentCriteriaIdsException
      */

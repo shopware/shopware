@@ -71,6 +71,12 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
 
+### `SalesChannelContextRestorer::restoreByOrder()` is deprecated
+
+`SalesChannelContextRestorer::restoreByOrder()` now builds the context with `OrderConverter::assembleSalesChannelContext()` and re-evaluates the rules afterwards, as before. Its contexts therefore match every other order context: they use the customer addresses that match the order's addresses instead of the customer's default addresses, keep the order's tax status, and dispatch `BeforeSalesChannelContextAssembledEvent` and `SalesChannelContextAssembledEvent`. Like the converter, it now fails with `CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND` when the order's billing address does not exist.
+
+`restoreByOrder()` and `SalesChannelContextRestorerOrderCriteriaEvent` are deprecated and will be removed in 6.8.0.0. Load the order yourself and pass it to `OrderConverter::assembleSalesChannelContext()` instead.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

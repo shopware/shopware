@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -85,6 +86,8 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testRestoreByOrder(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $ids = new IdsCollection();
         $this->createOrder($ids);
@@ -104,6 +107,28 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $saleChanelContext = $this->contextRestorer->restoreByOrder($ids->create('order'), $context);
         static::assertTrue(\in_array($ruleId, $saleChanelContext->getRuleIds(), true));
+    }
+
+    public function testRestoreByOrderUsesTheCustomerAddressMatchingTheOrderShippingAddress(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $ids = new IdsCollection();
+        $shippingAddress = [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'street' => 'Ebbinghoff 10',
+            'zipcode' => '48624',
+            'city' => 'Schöppingen',
+            'countryId' => $this->getValidCountryId(),
+        ];
+        $customer = $this->createCustomer([['id' => $ids->get('customer-shipping-address'), ...$shippingAddress]]);
+        $this->createOrder($ids, $customer->getId(), ['id' => $ids->create('shipping-address'), ...$shippingAddress]);
+
+        $salesChannelContext = $this->contextRestorer->restoreByOrder($ids->get('order'), Context::createDefaultContext());
+
+        static::assertSame($ids->get('customer-shipping-address'), $salesChannelContext->getCustomer()?->getActiveShippingAddress()?->getId());
     }
 
     public function testRestoreByCustomer(): void
@@ -143,6 +168,8 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testOrderCriteriaEventIsFired(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $ids = new IdsCollection();
         $this->createOrder($ids);
@@ -155,11 +182,26 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertInstanceOf(SalesChannelContextRestorerOrderCriteriaEvent::class, $salesChannelContextRestorerCriteriaEvent);
     }
 
-    private function createOrder(IdsCollection $ids): void
+    /**
+     * @param array<string, string>|null $shippingAddress
+     */
+    private function createOrder(IdsCollection $ids, ?string $customerId = null, ?array $shippingAddress = null): void
     {
-        $customer = (new CustomerBuilder($ids, '10000'))
-            ->add('guest', true)
-            ->add('createdAt', new \DateTime('- 25 hours'))->build();
+        $orderCustomer = [
+            'id' => $ids->get('customer'),
+            'salutationId' => $this->getValidSalutationId(),
+            'email' => 'test',
+            'firstName' => 'test',
+            'lastName' => 'test',
+        ];
+
+        if ($customerId !== null) {
+            $orderCustomer['customerId'] = $customerId;
+        } else {
+            $orderCustomer['customer'] = (new CustomerBuilder($ids, '10000'))
+                ->add('guest', true)
+                ->add('createdAt', new \DateTime('- 25 hours'))->build();
+        }
 
         $data = [
             'id' => $ids->create('order'),
@@ -176,14 +218,7 @@ class SalesChannelContextRestorerTest extends TestCase
             'price' => new CartPrice(200, 200, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             'shippingCosts' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
             'ruleIds' => [$ids->get('rule')],
-            'orderCustomer' => [
-                'id' => $ids->get('customer'),
-                'salutationId' => $this->getValidSalutationId(),
-                'email' => 'test',
-                'firstName' => 'test',
-                'lastName' => 'test',
-                'customer' => $customer,
-            ],
+            'orderCustomer' => $orderCustomer,
             'addresses' => [
                 [
                     'id' => $ids->create('billing-address'),
@@ -195,7 +230,7 @@ class SalesChannelContextRestorerTest extends TestCase
                     'zipcode' => 'asd',
                     'city' => 'asd',
                 ],
-                [
+                $shippingAddress ?? [
                     'id' => $ids->create('shipping-address'),
                     'countryId' => $this->getValidCountryId(),
                     'salutationId' => $this->getValidSalutationId(),
@@ -285,12 +320,16 @@ class SalesChannelContextRestorerTest extends TestCase
         return $id;
     }
 
-    private function createCustomer(): CustomerEntity
+    /**
+     * @param list<array<string, string>> $additionalAddresses
+     */
+    private function createCustomer(array $additionalAddresses = []): CustomerEntity
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
         $customer = [
+            'addresses' => $additionalAddresses,
             'id' => $customerId,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [

@@ -601,7 +601,8 @@
                             "schema": {
                                 "required": [
                                     "title",
-                                    "content"
+                                    "content",
+                                    "points"
                                 ],
                                 "properties": {
                                     "name": {
@@ -621,7 +622,7 @@
                                         "type": "string"
                                     },
                                     "points": {
-                                        "description": "The review rating for the product. When it is omitted, the review is saved without a rating.",
+                                        "description": "The review rating for the product, from 1 to 5.",
                                         "type": "number",
                                         "format": "double"
                                     }

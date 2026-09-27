@@ -144,7 +144,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $definition->add('title', new NotBlank(), new Length(min: 5));
         $definition->add('content', new NotBlank(), new Length(min: 40));
 
-        $definition->add('points', new GreaterThanOrEqual(1), new LessThanOrEqual(5));
+        $definition->add('points', new NotBlank(), new GreaterThanOrEqual(1), new LessThanOrEqual(5));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $data->get('customerId')));

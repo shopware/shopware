@@ -79,6 +79,10 @@ Registration and address routes now reject HTML in `firstName`, `lastName`, `tit
 
 Input that only looks like markup, for example `I <3 you` or `5 > 3`, still passes. The check is available as the reusable constraint `Shopware\Core\Framework\Validation\Constraint\NoHtml` for your own validation definitions.
 
+### Product reviews require a rating
+
+`POST /store-api/product/{productId}/review` now rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Previously such a review was saved without a rating. Headless frontends that let customers skip the rating must send `points` between 1 and 5.
+
 ### Store API OpenAPI schema matches the actual responses
 
 The Store API OpenAPI schema was corrected where it contradicted the real responses; the responses themselves are unchanged. If you generate types or validate responses from the schema, regenerate them. Notable changes:

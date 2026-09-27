@@ -109,6 +109,7 @@
             :plain-appearance="true"
             :allow-delete="!attachView"
             :show-actions="attachView || !feature.isActive('DOCUMENT_GENERATION_REWORK')"
+            @delete-item-finish="getList"
         >
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">

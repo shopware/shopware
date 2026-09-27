@@ -48,7 +48,7 @@ class ConfigurationService
      */
     public function getConfiguration(string $domain, Context $context): array
     {
-        $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
+        $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/D', $domain, $match);
 
         if (!$validDomain) {
             throw SystemConfigException::invalidDomain();

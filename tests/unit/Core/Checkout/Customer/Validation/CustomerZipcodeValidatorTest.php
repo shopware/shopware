@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -182,7 +183,8 @@ class CustomerZipcodeValidatorTest extends TestCase
         $mock->validate('123456', $this->constraint);
     }
 
-    public function testInvalidZipcodeWithAdvancedValidationPattern(): void
+    #[DataProvider('invalidAdvancedPatternZipcodeProvider')]
+    public function testInvalidZipcodeWithAdvancedValidationPattern(string $zipcode): void
     {
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
@@ -224,7 +226,16 @@ class CustomerZipcodeValidatorTest extends TestCase
 
         $mock->initialize($executionContext);
 
-        $mock->validate('1234567', $this->constraint);
+        $mock->validate($zipcode, $this->constraint);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidAdvancedPatternZipcodeProvider(): iterable
+    {
+        yield 'too long' => ['1234567'];
+        yield 'trailing newline' => ["12345\n"];
     }
 
     public function testValidZipcodeWithDefaultPattern(): void

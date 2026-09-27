@@ -22,6 +22,20 @@ class SalesChannelFileRequestPathResolverTest extends TestCase
         static::assertSame('files/agentic/.well-known/ucp.json.twig', $templatePath);
     }
 
+    public function testItRejectsFileFamilyWithTrailingNewline(): void
+    {
+        $this->expectExceptionObject(SalesChannelException::invalidSalesChannelFileFamily("agentic\n"));
+
+        (new SalesChannelFileRequestPathResolver())->validateFileFamily("agentic\n");
+    }
+
+    public function testItRejectsParentSegmentWithTrailingNewline(): void
+    {
+        $this->expectExceptionObject(SalesChannelException::invalidSalesChannelFilePath("..\n/ucp.json"));
+
+        (new SalesChannelFileRequestPathResolver())->buildTemplatePath('agentic', "..\n/ucp.json");
+    }
+
     public function testItRejectsFileFamilyLongerThanDatabaseColumn(): void
     {
         $fileFamily = str_repeat('a', 65);

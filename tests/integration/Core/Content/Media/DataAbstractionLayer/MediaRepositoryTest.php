@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -21,6 +22,8 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -72,6 +75,30 @@ class MediaRepositoryTest extends TestCase
         $this->documentRepository = static::getContainer()->get('document.repository');
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
+    }
+
+    public function testDeletingTheCoverMediaRemovesTheProductCover(): void
+    {
+        $ids = new IdsCollection();
+        $connection = static::getContainer()->get(Connection::class);
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository->create([
+            (new ProductBuilder($ids, 'cover-product'))->price(100)->cover('cover-media')->build(),
+        ], $this->context);
+
+        $mediaId = $connection->fetchOne(
+            'SELECT LOWER(HEX(media_id)) FROM product_media WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($ids->get('cover-media'))]
+        );
+        static::assertIsString($mediaId);
+
+        $this->mediaRepository->delete([['id' => $mediaId]], $this->context);
+
+        $product = $productRepository->search(new Criteria([$ids->get('cover-product')]), $this->context)->getEntities()->first();
+        static::assertNotNull($product);
+        static::assertNull($product->getCoverId());
     }
 
     public function testPrivateMediaNotReadable(): void

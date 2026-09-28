@@ -7,7 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\SalesChannel\SeoResolverData;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -103,6 +105,25 @@ class SeoResolverDataTest extends TestCase
         $entities = $this->seoResolverData->getAll('product', 'entity-id-1');
         static::assertCount(1, $entities);
         static::assertSame($entity, $entities[array_key_first($entities)]);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove with the legacy get() method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLegacyGetWorksWhenDeprecationEmissionIsDisabled(): void
+    {
+        $entity = $this->createMockEntity('entity-id-1');
+        $this->seoResolverData->add('product', $entity);
+
+        $previous = Feature::$emitDeprecations;
+        Feature::$emitDeprecations = false;
+
+        try {
+            static::assertSame($entity, $this->seoResolverData->get('product', 'entity-id-1'));
+        } finally {
+            Feature::$emitDeprecations = $previous;
+        }
     }
 
     public function testGetAllReturnsMultipleEntitiesForSameIdButDifferentObjects(): void

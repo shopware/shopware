@@ -114,6 +114,7 @@ use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\HtmlPurifierConfigProvider;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Validation\Constraint\NoHtmlValidator;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -856,6 +857,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(HtmlPurifierConfigProvider::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(NoHtmlValidator::class)
+        ->args([
+            service(HtmlSanitizer::class),
+        ])
+        ->tag('validator.constraint_validator');
 
     $services->set(ExcludeExceptionHandler::class)
         ->decorate('monolog.handler.main', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)

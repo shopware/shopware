@@ -80,7 +80,7 @@ class MakerCommandTest extends TestCase
 
         $generator = new EntityGenerator(new MockClock());
         $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
-        $command->setName('make:plugin:entity-generator');
+        $command->setName('make:plugin:entity');
 
         // StringInput parses like the real CLI; the ArrayInput used by CommandTester accepts values for flag options
         $input = new StringInput('ExamplePlugin --entities=Foo,Bar');

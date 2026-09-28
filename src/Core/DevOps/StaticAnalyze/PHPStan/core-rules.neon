@@ -1,10 +1,12 @@
 includes:
     - tagged-service-contracts.php
+    - store-api-route-extensions.neon
 
 parameters:
     shopwareTaggedServiceContractAdditionalTagContracts: []
 
 parametersSchema:
+    shopwareLegacyStoreApiRouteMethods: listOf(string())
     shopwareTaggedServiceContractTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
     shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
 
@@ -46,6 +48,13 @@ services:
         arguments:
             deprecationPatterns:
                 - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern
+        tags:
+            - phpstan.rules.rule
+
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\StoreApiRouteExtensionRule
+        arguments:
+            legacyRouteMethods: %shopwareLegacyStoreApiRouteMethods%
         tags:
             - phpstan.rules.rule
 

@@ -136,8 +136,8 @@ class EntityDeleteToolTest extends TestCase
             new EntityWrittenEvent('category', [new EntityWriteResult('category-1', [], 'category', EntityWriteResult::OPERATION_UPDATE)], $context),
         ]));
 
-        $repository = static::createStub(EntityRepository::class);
-        $repository->method('delete')->willReturn($events);
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('delete')->willReturn($events);
 
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
         $result = $this->decode(($tool)('product_category', '[{"productId":"product-1","categoryId":"category-1"}]', false));

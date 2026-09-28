@@ -87,9 +87,9 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
 
-### Digital products can be sold in quantities above one
+### Digital products follow their max. order quantity again
 
-Digital products follow their `maxPurchase` like physical products again, so an empty value falls back to `core.cart.maxQuantity`. Since 6.7.14.0 they were capped at one unit regardless of `maxPurchase`. New digital products created in the Administration still start with a `maxPurchase` of `1`.
+Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
 
 ## API
 
@@ -221,10 +221,6 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
-
-### Quantity controls for digital products
-
-For digital products with a `calculatedMaxPurchase` above `1`, the product detail page shows the quantity selector and the cart enables its quantity controls. In `component/line-item/element/quantity.html.twig`, `isDigital` still locks the quantity controls and is now `false` for these line items.
 
 ## App system
 

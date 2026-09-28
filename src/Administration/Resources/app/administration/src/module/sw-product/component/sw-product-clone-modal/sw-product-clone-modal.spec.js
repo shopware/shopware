@@ -129,7 +129,7 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                     },
                 },
                 stubs: {
-                    'mt-progress-bar': true,
+                    'sw-progress-bar': true,
                 },
             },
         });

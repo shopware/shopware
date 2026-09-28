@@ -17,12 +17,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
@@ -107,7 +109,7 @@ class EntityDeleteToolTest extends TestCase
         $connection->expects($this->once())->method('rollBack');
 
         $writeResult = new EntityWriteResult('abc', [], 'product', EntityWriteResult::OPERATION_DELETE);
-        $writtenEvent = new EntityWrittenEvent('product', [$writeResult], Context::createDefaultContext());
+        $writtenEvent = new EntityDeletedEvent('product', [$writeResult], Context::createDefaultContext());
         $events = static::createStub(EntityWrittenContainerEvent::class);
         $events->method('getEvents')->willReturn(new NestedEventCollection([$writtenEvent]));
 
@@ -121,6 +123,30 @@ class EntityDeleteToolTest extends TestCase
         static::assertTrue($result['_meta']['dryRun']);
         static::assertSame('product', $result['data'][0]['entity']);
         static::assertSame(['abc'], $result['data'][0]['ids']);
+    }
+
+    public function testReportsTheLinkedEntitiesOfAMappingDeleteAsUpdatedNotDeleted(): void
+    {
+        $context = Context::createDefaultContext();
+        $key = ['productId' => 'product-1', 'categoryId' => 'category-1'];
+        $events = static::createStub(EntityWrittenContainerEvent::class);
+        $events->method('getEvents')->willReturn(new NestedEventCollection([
+            new EntityDeletedEvent('product_category', [new EntityWriteResult($key, [], 'product_category', EntityWriteResult::OPERATION_DELETE)], $context),
+            new EntityWrittenEvent('product', [new EntityWriteResult('product-1', [], 'product', EntityWriteResult::OPERATION_UPDATE)], $context),
+            new EntityWrittenEvent('category', [new EntityWriteResult('category-1', [], 'category', EntityWriteResult::OPERATION_UPDATE)], $context),
+        ]));
+
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('delete')->willReturn($events);
+
+        $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
+        $result = $this->decode(($tool)('product_category', '[{"productId":"product-1","categoryId":"category-1"}]', false));
+
+        static::assertTrue($result['success']);
+        static::assertSame(
+            [['product_category', 'delete'], ['product', 'update'], ['category', 'update']],
+            array_map(static fn (array $row): array => [$row['entity'], $row['operation']], $result['data']),
+        );
     }
 
     public function testDryRunReturnsErrorWhenDeleteThrows(): void
@@ -188,7 +214,78 @@ class EntityDeleteToolTest extends TestCase
         $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
         $result = $this->decode(($tool)(
             'product_category',
-            '[{"productId":"product-1","categoryId":"category-1","productVersionId":"ignored"}]',
+            '[{"productId":"product-1","categoryId":"category-1"}]',
+            false,
+        ));
+
+        static::assertTrue($result['success']);
+    }
+
+    public function testKeepsVersionFieldsTheCallerNames(): void
+    {
+        $draft = Uuid::randomHex();
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
+            ->method('delete')
+            ->with([[
+                'productId' => 'product-1',
+                'categoryId' => 'category-1',
+                'productVersionId' => $draft,
+                'categoryVersionId' => Defaults::LIVE_VERSION,
+            ]])
+            ->willReturn($this->emptyEvents());
+
+        $tool = $this->createTool($repository, definition: new ProductCategoryDefinition(), context: $this->versionedContext($draft));
+        $result = $this->decode(($tool)(
+            'product_category',
+            \sprintf('[{"productId":"product-1","categoryId":"category-1","productVersionId":"%s","categoryVersionId":"%s"}]', $draft, Defaults::LIVE_VERSION),
+            false,
+        ));
+
+        static::assertTrue($result['success']);
+    }
+
+    public function testRefusesToGuessVersionFieldsOutsideTheLiveVersion(): void
+    {
+        $draft = Uuid::randomHex();
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('delete');
+
+        $tool = $this->createTool($repository, definition: new ProductCategoryDefinition(), context: $this->versionedContext($draft));
+        $result = $this->decode(($tool)('product_category', '[{"productId":"product-1","categoryId":"category-1"}]', false));
+
+        static::assertFalse($result['success']);
+        static::assertSame(
+            \sprintf('This request runs in version %s. Name every version field (productVersionId, categoryVersionId) in each ids object, for example the live version %s for a side that is not being edited.', $draft, Defaults::LIVE_VERSION),
+            $result['error'],
+        );
+    }
+
+    public function testRejectsAVersionFieldThatIsNotAUuid(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('delete');
+
+        $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
+        $result = $this->decode(($tool)(
+            'product_category',
+            '[{"productId":"product-1","categoryId":"category-1","productVersionId":"not-a-version"}]',
+            false,
+        ));
+
+        static::assertFalse($result['success']);
+        static::assertSame('"productVersionId" must be a version UUID.', $result['error']);
+    }
+
+    public function testDeletesMappingRowByCompositeKeyInTheLiveVersionWhenNamedExplicitly(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())->method('delete')->willReturn($this->emptyEvents());
+
+        $tool = $this->createTool($repository, definition: new ProductCategoryDefinition());
+        $result = $this->decode(($tool)(
+            'product_category',
+            \sprintf('[{"productId":"product-1","categoryId":"category-1","productVersionId":"%s"}]', Defaults::LIVE_VERSION),
             false,
         ));
 
@@ -228,7 +325,7 @@ class EntityDeleteToolTest extends TestCase
     /**
      * @param (MockObject&EntityRepository<EntityCollection<Entity>>)|null $repository
      */
-    private function createTool(?EntityRepository $repository = null, ?Connection $connection = null, ?EntityDefinition $definition = null): EntityDeleteTool
+    private function createTool(?EntityRepository $repository = null, ?Connection $connection = null, ?EntityDefinition $definition = null, ?Context $context = null): EntityDeleteTool
     {
         if ($repository === null) {
             $repository = static::createStub(EntityRepository::class);
@@ -248,9 +345,14 @@ class EntityDeleteToolTest extends TestCase
         $registry->method('getByEntityName')->willReturn($definition);
 
         $contextProvider = static::createStub(McpContextProvider::class);
-        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+        $contextProvider->method('getContext')->willReturn($context ?? Context::createDefaultContext());
 
         return new EntityDeleteTool($registry, $contextProvider, $connection);
+    }
+
+    private function versionedContext(string $versionId): Context
+    {
+        return Context::createDefaultContext()->createWithVersionId($versionId);
     }
 
     private function emptyEvents(): EntityWrittenContainerEvent

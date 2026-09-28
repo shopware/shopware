@@ -139,6 +139,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-media-collapse': true,
                 },
                 provide: {
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () =>
+                            Promise.resolve(
+                                createEntityCollection([
+                                    {
+                                        id: 'field-set-id-1',
+                                        name: 'example',
+                                        customFields: [
+                                            {
+                                                name: 'customFieldName',
+                                                type: 'text',
+                                                config: {
+                                                    label: 'configFieldLabel',
+                                                },
+                                            },
+                                        ],
+                                    },
+                                ]),
+                            ),
+                    },
                     validationService: {},
                     repositoryFactory: {
                         create: (entity) => {

@@ -392,7 +392,7 @@ class AdministrationController extends AbstractController
 
         if ($flag === null) {
             return new JsonResponse(
-                ['preview' => strip_tags($html)]
+                ['preview' => $this->htmlSanitizer->stripTags($html)]
             );
         }
 

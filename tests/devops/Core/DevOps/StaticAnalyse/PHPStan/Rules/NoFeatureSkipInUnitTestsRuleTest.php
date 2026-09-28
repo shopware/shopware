@@ -23,6 +23,9 @@ class NoFeatureSkipInUnitTestsRuleTest extends RuleTestCase
             [\sprintf(NoFeatureSkipInUnitTestsRule::ERROR_SKIP_GUARD, 'skipTestIfInActive'), 25],
             [NoFeatureSkipInUnitTestsRule::ERROR_IS_ACTIVE_GUARD, 32],
             [NoFeatureSkipInUnitTestsRule::ERROR_IS_ACTIVE_GUARD, 41],
+            // the else and elseif branches of a flag condition are as frozen as the if body
+            [NoFeatureSkipInUnitTestsRule::ERROR_IS_ACTIVE_GUARD, 76],
+            [NoFeatureSkipInUnitTestsRule::ERROR_IS_ACTIVE_GUARD, 85],
             // NOT flagged: 49 (#[DisabledFeatures] is the intended tool), 56 (skip on an extension, no
             // flag involved), 65 (branching on the flag without skipping)
         ]);

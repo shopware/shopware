@@ -7,6 +7,7 @@ use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\ElseIf_;
 use PhpParser\Node\Stmt\If_;
 use PhpParser\NodeFinder;
 use PHPStan\Analyser\Scope;
@@ -22,8 +23,9 @@ use Shopware\Core\Framework\Log\Package;
  * The unit suite runs with every registered feature flag active (the FeatureFlagExtension rewrites the
  * environment per test) and, since no kernel boots, with every flag a plugin registers through its bundle
  * configuration unknown and therefore inactive. A skip guard on a flag cannot vary there: it skips on every
- * run or on none, and the same holds for a `markTestSkipped()` behind `Feature::isActive()`. The legacy
- * branch of a flag is exercised with `#[DisabledFeatures]` instead.
+ * run or on none, and the same holds for a `markTestSkipped()` in any branch of an `if` chain whose
+ * conditions read `Feature::isActive()`, the `else` and `elseif` branches included. The legacy branch of a
+ * flag is exercised with `#[DisabledFeatures]` instead.
  *
  * Enforcement is narrowed to the namespaces the extension rewrites ({@see Configuration}); suites whose flag
  * state comes from the job environment keep their guards.
@@ -83,7 +85,12 @@ class NoFeatureSkipInUnitTestsRule implements Rule
         }
 
         foreach ($finder->findInstanceOf($node->getOriginalNode(), If_::class) as $if) {
-            if (!$this->mentionsIsActive($if->cond, $scope) || !$this->skips($if->stmts)) {
+            // the whole chain: a skip in an else or elseif branch is as frozen as one in the if body
+            $conditions = [$if->cond, ...array_map(static fn (ElseIf_ $elseIf): Node => $elseIf->cond, $if->elseifs)];
+            $statements = array_merge($if->stmts, ...array_map(static fn (ElseIf_ $elseIf): array => $elseIf->stmts, $if->elseifs));
+            $statements = array_merge($statements, $if->else->stmts ?? []);
+
+            if (!$this->mentionsIsActive($conditions, $scope) || !$this->skips($statements)) {
                 continue;
             }
 
@@ -112,15 +119,24 @@ class NoFeatureSkipInUnitTestsRule implements Rule
         return $call->name->name;
     }
 
-    private function mentionsIsActive(Node $condition, Scope $scope): bool
+    /**
+     * @param array<Node> $conditions
+     */
+    private function mentionsIsActive(array $conditions, Scope $scope): bool
     {
-        foreach ((new NodeFinder())->findInstanceOf($condition, StaticCall::class) as $call) {
-            if ($this->featureMethod($call, $scope) === 'isActive') {
+        foreach ($conditions as $condition) {
+            if ($condition instanceof StaticCall && $this->featureMethod($condition, $scope) === 'isActive') {
                 return true;
+            }
+
+            foreach ((new NodeFinder())->findInstanceOf($condition, StaticCall::class) as $call) {
+                if ($this->featureMethod($call, $scope) === 'isActive') {
+                    return true;
+                }
             }
         }
 
-        return $condition instanceof StaticCall && $this->featureMethod($condition, $scope) === 'isActive';
+        return false;
     }
 
     /**

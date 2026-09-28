@@ -70,4 +70,24 @@ class Cases extends TestCase
 
         static::assertFalse(false);
     }
+
+    public function testSkipsForeverInTheElseBranch(): void
+    {
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertTrue(true);
+        } else {
+            static::markTestSkipped('needs the flag');
+        }
+    }
+
+    public function testSkipsForeverInAnElseIfBranch(): void
+    {
+        if (!\extension_loaded('imagick')) {
+            static::assertTrue(true);
+        } elseif (Feature::isActive('v6.8.0.0')) {
+            static::markTestSkipped('legacy branch only');
+        }
+
+        static::assertTrue(true);
+    }
 }

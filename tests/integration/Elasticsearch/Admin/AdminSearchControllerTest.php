@@ -42,6 +42,12 @@ class AdminSearchControllerTest extends TestCase
      */
     private static IdsCollection $indexedIds;
 
+    public static function tearDownAfterClass(): void
+    {
+        // the promotions are committed once for the whole class, so the tests running after it would see them
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM promotion');
+    }
+
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);

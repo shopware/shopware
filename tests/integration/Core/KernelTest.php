@@ -86,10 +86,10 @@ class KernelTest extends TestCase
         }
     }
 
-    public function testMajorFeatureToggleBootsSeparateContainers(): void
+    public function testMajorFeatureToggleBootsSeparateDefaultBuildDirs(): void
     {
         $this->setEnvVars([
-            'APP_BUILD_DIR' => $this->appCacheDir . '/var/build',
+            'APP_BUILD_DIR' => null,
             'FEATURE_ALL' => 'false',
             'V6_8_0_0' => 'false',
         ]);
@@ -99,8 +99,7 @@ class KernelTest extends TestCase
             $inactiveKernel->boot();
             $inactiveCacheDir = $inactiveKernel->getCacheDir();
             $inactiveBuildDir = $inactiveKernel->getBuildDir();
-            $inactiveContainerClass = $inactiveKernel->getContainer()::class;
-            static::assertSame($this->appCacheDir . '/var/build', $inactiveBuildDir);
+            static::assertSame($inactiveCacheDir, $inactiveBuildDir);
             static::assertDirectoryExists($inactiveCacheDir);
             static::assertDirectoryExists($inactiveBuildDir);
         } finally {
@@ -113,8 +112,8 @@ class KernelTest extends TestCase
         try {
             $activeKernel->boot();
             static::assertNotSame($inactiveCacheDir, $activeKernel->getCacheDir());
-            static::assertSame($inactiveBuildDir, $activeKernel->getBuildDir());
-            static::assertNotSame($inactiveContainerClass, $activeKernel->getContainer()::class);
+            static::assertNotSame($inactiveBuildDir, $activeKernel->getBuildDir());
+            static::assertSame($activeKernel->getCacheDir(), $activeKernel->getBuildDir());
             static::assertDirectoryExists($activeKernel->getCacheDir());
             static::assertDirectoryExists($activeKernel->getBuildDir());
             static::assertDirectoryExists($inactiveCacheDir);

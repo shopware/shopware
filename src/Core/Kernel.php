@@ -181,7 +181,7 @@ class Kernel extends HttpKernel
     public function getBuildDir(): string
     {
         if (EnvironmentHelper::hasVariable('APP_BUILD_DIR')) {
-            return (string) EnvironmentHelper::getVariable('APP_BUILD_DIR');
+            return EnvironmentHelper::getVariable('APP_BUILD_DIR') . '/' . $this->environment;
         }
 
         return parent::getBuildDir();
@@ -226,14 +226,6 @@ class Kernel extends HttpKernel
         } finally {
             $this->rebooting = false;
         }
-    }
-
-    protected function getContainerClass(): string
-    {
-        $class = parent::getContainerClass();
-
-        // Symfony reuses compiled containers by filename, so vary the class while keeping APP_BUILD_DIR fixed.
-        return EnvironmentHelper::hasVariable('APP_BUILD_DIR') ? $class . '_h' . $this->getCacheHash() : $class;
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void

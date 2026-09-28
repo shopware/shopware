@@ -84,6 +84,17 @@ class KernelTest extends TestCase
         static::assertSame($cacheDir, $kernel->getCacheDir());
     }
 
+    public function testConfiguredBuildDirDoesNotVaryWithMajorFeature(): void
+    {
+        $this->setEnvVars(['APP_BUILD_DIR' => '/build-dir', 'V6_8_0_0' => 'false']);
+        $kernel = $this->createKernel();
+
+        static::assertSame('/build-dir/fooBar', $kernel->getBuildDir());
+
+        $this->setEnvVars(['V6_8_0_0' => 'true']);
+        static::assertSame('/build-dir/fooBar', $kernel->getBuildDir());
+    }
+
     public function testRegisterBundlesAutoAddsTwigComponentBundleWhenMissingPreV68(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);

@@ -48,6 +48,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
@@ -333,6 +334,46 @@ class CheckoutControllerTest extends TestCase
             $submitButton = $crawler->filterXPath('//button[@id="confirmFormSubmit"][@disabled]');
             static::assertCount(($orderShouldBeBlocked || $errors->blockOrder()) ? 1 : 0, $submitButton);
         }
+    }
+
+    #[DataProvider('termsBlockVariantProvider')]
+    public function testConfirmPageRendersTermsAboveTheSummaryAndTheOrderButtonDirectlyBelowIt(bool $showTosCheckbox, string $expectedTermsBlockClass): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        static::getContainer()->get(SystemConfigService::class)->set('core.cart.showTosCheckbox', $showTosCheckbox);
+
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+        $browser->request('GET', '/checkout/confirm');
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        /** @var list<string> $asideSections */
+        $asideSections = $crawler->filter('.checkout-aside-container')->children()->each(
+            static fn (Crawler $section) => explode(' ', (string) $section->attr('class'))[0]
+        );
+        $visibleAsideSections = array_values(array_filter($asideSections, static fn (string $class) => $class !== 'modal'));
+
+        static::assertSame([$expectedTermsBlockClass, 'checkout-aside-summary', 'checkout-aside-action'], $visibleAsideSections);
+    }
+
+    /**
+     * @return iterable<string, array{bool, string}>
+     */
+    public static function termsBlockVariantProvider(): iterable
+    {
+        yield 'terms checkbox sits above the summary' => [true, 'confirm-tos'];
+        yield 'terms sentence without checkbox sits above the summary' => [false, 'checkout-confirm-tos-information'];
     }
 
     /**

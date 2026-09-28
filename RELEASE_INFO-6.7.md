@@ -2,6 +2,16 @@
 
 ## Core
 
+### `JsonField` supports typed properties with additional extension data
+
+`JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:
+
+```php
+new JsonField('config', 'config', [new IntField('position', 'position')], allowAdditionalProperties: true);
+```
+
+Mapped properties continue through their field serializers; additional properties are retained unchanged.
+
 ### Plain text fields are sanitized with HTMLPurifier
 
 `StringField` and `LongTextField` values without the `AllowHtml` flag are now sanitized with HTMLPurifier instead of PHP's `strip_tags()`. A `<` that does not start a tag is kept, so `I <3 Kisses` or `5 < 10` are stored as typed. The text inside removed `<script>` and `<style>` elements is dropped instead of being stored, and HTML entities such as `&lt;` stay verbatim. A `<` directly followed by a letter still starts a tag and is removed.
@@ -9,6 +19,10 @@
 A value consisting only of markup now sanitizes to an empty string; on a required field the write is rejected with a constraint violation.
 
 Extensions can apply the same behaviour with the new `Shopware\Core\Framework\Util\HtmlSanitizer::stripTags()`.
+
+### Search keeps the text behind a stray `<`
+
+The search tokenizer used `strip_tags()` as well, so a product named `I <3 Kisses` was indexed as `i` and was not found by searching for "kisses". Product names, search terms and every other tokenized field now keep everything a `<` cannot turn into a tag. Run `bin/console dal:refresh:index` to rebuild the search keywords of existing products.
 
 ### Dompdf page count placeholder replaced for core and fallback fonts
 
@@ -44,6 +58,18 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Sales-channel scoped limits for `system_config` rate limiters
+
+The cart setting "Maximum addable products to cart per minute through API" can be set per sales channel, but only the global value took effect.
+Per-sales-channel values now apply, a global value counts per sales channel instead of shop-wide, and cart-add counters restart once on update.
+Rate limiters with the `system_config` policy can resolve limits per sales channel when the caller passes the sales channel ID.
+
+To make use of it, you can already pass the sales channel ID to the following class methods:
+- `Shopware\Core\Framework\RateLimiter\RateLimiter::ensureAccepted()`
+- `Shopware\Core\Framework\RateLimiter\RateLimiterFactory::create()`
+
+The optional parameter will be part of the method signatures with 6.8.
+
 ### Order transaction state machine gained a transition
 
 The order transaction state machine now allows transitions from the state "unconfirmed" to "in_progress".
@@ -57,7 +83,17 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
 
+### Creating a language no longer fails on a drifted Elasticsearch/OpenSearch mapping
+
+Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
+
 ## API
+
+### HTML in customer name and address fields is rejected with a dedicated violation
+
+Registration and address routes now reject HTML in `firstName`, `lastName`, `title`, `company`, `department`, `street`, `additionalAddressLine1`, `additionalAddressLine2` and `city` with the violation code `VIOLATION::CONTAINS_HTML_ERROR` and a source pointer to the offending field. Previously such input was emptied while being sanitized and then surfaced as a generic error that the storefront could not attach to a field, so a first name like `<John` failed registration with "Something went wrong".
+
+Input that only looks like markup, for example `I <3 you` or `5 > 3`, still passes. The check is available as the reusable constraint `Shopware\Core\Framework\Validation\Constraint\NoHtml` for your own validation definitions.
 
 ### Store API OpenAPI schema matches the actual responses
 
@@ -69,6 +105,29 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
 ## Administration
+
+### [Internal] Native `<sw-block>` names are isolated per component
+
+Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.
+
+### Custom-field set loader computed properties deprecated
+
+The following Administration components now load custom-field sets through `customFieldDataProviderService`. This replaces their separate loaders with one shared implementation and gives each component cached results by entity, language, and requested limit. Their previous loader computed properties remain available in 6.7 but are deprecated for v6.8.0:
+
+| Component | Deprecated computed properties |
+|---|---|
+| `sw-category-detail` (categories and landing pages) | `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria` |
+| `sw-customer-detail-base` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-customer-detail-addresses` | `customFieldSetRepository` |
+| `sw-manufacturer-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-order-detail-details` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-sales-channel-detail` | `customFieldRepository` |
+| `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` |
+
+Extensions that load renderable custom-field sets should use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
+
+The `repositoryFactory` injection in `sw-customer-detail-base` remains available only for its deprecated `customFieldSetRepository` property and will be removed in 6.8.
 
 ### New extension points for the Shopping Experiences layout list
 
@@ -130,6 +189,7 @@ The `assetFilter` computed property is removed in v6.8.0 in these components; us
 - `sw-settings-listing-option-criteria-grid`
 - `sw-settings-product-feature-sets-values-card`
 - `sw-tax-rule-card`
+
 ### Main menu group "Catalogues" is now "Products"
 
 The first main menu group is labelled "Products", its product list entry is labelled "Overview", and the matching group in Settings > Users & permissions is labelled "Products" as well. Menu ids and privilege parent keys are unchanged: entries still hook into the `sw-catalogue` menu id, and privileges still use `parent: 'catalogues'`.

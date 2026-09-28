@@ -27,7 +27,7 @@ type PluginHooks = {
 };
 
 function createPlugin(root = administrationRoot): PluginHooks {
-    return VirtualShopwareModulesPlugin({ administrationRoot: root }) as unknown as PluginHooks;
+    return VirtualShopwareModulesPlugin({ administrationRoot: root, consumer: 'host' }) as unknown as PluginHooks;
 }
 
 function writeRegistry(root: string, exportName: string): string {
@@ -54,7 +54,7 @@ function load(plugin: PluginHooks, id: string): { source: string | null; watched
 
 describe('build/vite-plugins/virtual-shopware-modules', () => {
     it('is a plugin named shopware-virtual-modules', () => {
-        expect(VirtualShopwareModulesPlugin({ administrationRoot }).name).toBe('shopware-virtual-modules');
+        expect(VirtualShopwareModulesPlugin({ administrationRoot, consumer: 'host' }).name).toBe('shopware-virtual-modules');
     });
 
     describe('resolveId', () => {

@@ -2,15 +2,18 @@
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1787220016AddOwnerToWebhook;
+use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
@@ -20,6 +23,7 @@ use Shopware\Core\Migration\V6_7\Migration1787220016AddOwnerToWebhook;
 class Migration1787220016AddOwnerToWebhookTest extends TestCase
 {
     use KernelTestBehaviour;
+    use MigrationTestTrait;
 
     private Connection $connection;
 
@@ -43,27 +47,25 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
         static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'owner_integration_id'));
     }
 
-    public function testMigrationDeactivatesAppLessWebhooksWithoutOwner(): void
+    public function testMigrationAssignsAppLessWebhooksWithoutOwnerToOldestAdmin(): void
     {
         (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
 
-        $userId = $this->createUser();
+        $oldestAdminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
+        TestUser::createNewAdminTestUser($this->connection);
+        $userId = TestUser::createNewTestUser($this->connection)->getUserId();
         $ownerlessId = Uuid::randomBytes();
         $ownedByUserId = Uuid::randomBytes();
 
         $this->insertWebhook($ownerlessId, 'ownerless', null);
         $this->insertWebhook($ownedByUserId, 'owned-by-user', $userId);
 
-        try {
-            (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
+        (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
 
-            static::assertFalse($this->fetchActive($ownerlessId));
-            static::assertTrue($this->fetchActive($ownedByUserId));
-        } finally {
-            $this->connection->delete('webhook', ['id' => $ownerlessId]);
-            $this->connection->delete('webhook', ['id' => $ownedByUserId]);
-            $this->connection->delete('user', ['id' => Uuid::fromHexToBytes($userId)]);
-        }
+        static::assertEquals([
+            Uuid::fromBytesToHex($ownerlessId) => ['active' => 1, 'owner_user_id' => $oldestAdminId],
+            Uuid::fromBytesToHex($ownedByUserId) => ['active' => 1, 'owner_user_id' => $userId],
+        ], $this->fetchWebhooks([$ownerlessId, $ownedByUserId]));
     }
 
     private function insertWebhook(string $id, string $name, ?string $ownerUserId): void
@@ -79,29 +81,17 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
         ]);
     }
 
-    private function fetchActive(string $id): bool
+    /**
+     * @param list<string> $ids
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function fetchWebhooks(array $ids): array
     {
-        return (bool) $this->connection->fetchOne('SELECT active FROM webhook WHERE id = :id', ['id' => $id]);
-    }
-
-    private function createUser(): string
-    {
-        $userId = Uuid::randomHex();
-        $localeId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1');
-
-        $this->connection->insert('user', [
-            'id' => Uuid::fromHexToBytes($userId),
-            'first_name' => 'webhook',
-            'last_name' => 'owner',
-            'email' => 'owner-' . $userId . '@example.com',
-            'username' => 'owner-' . $userId,
-            'password' => password_hash('shopware', \PASSWORD_BCRYPT),
-            'locale_id' => Uuid::fromHexToBytes($localeId),
-            'active' => 1,
-            'admin' => 0,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        return $userId;
+        return $this->connection->fetchAllAssociativeIndexed(
+            'SELECT LOWER(HEX(id)), active, LOWER(HEX(owner_user_id)) AS owner_user_id FROM webhook WHERE id IN (:ids)',
+            ['ids' => $ids],
+            ['ids' => ArrayParameterType::BINARY]
+        );
     }
 }

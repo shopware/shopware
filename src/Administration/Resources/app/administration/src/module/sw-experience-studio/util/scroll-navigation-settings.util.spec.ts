@@ -78,7 +78,12 @@ describe('module/sw-experience-studio/util/scroll-navigation-settings.util', () 
 
     it('returns the same settings object when nothing is stale', () => {
         const tree = [{ id: 'root', component: 'Sw:Grid:Container' }] as unknown as ContentElementNode[];
-        const settings = { active: true, mode: 'flat' as const, position: 'left' as const, anchors: { root: { label: '' } } };
+        const settings = {
+            active: true,
+            mode: 'flat' as const,
+            position: 'left' as const,
+            anchors: { root: { label: '' } },
+        };
 
         expect(pruneScrollNavigationAnchors(settings, tree)).toBe(settings);
     });

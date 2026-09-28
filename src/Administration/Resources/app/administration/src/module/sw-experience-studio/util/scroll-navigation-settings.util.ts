@@ -53,15 +53,24 @@ function readAnchors(stored: unknown): Record<string, ScrollNavigationAnchor> {
         return {};
     }
 
-    return Object.entries(stored).reduce<Record<string, ScrollNavigationAnchor>>((anchors, [elementId, anchor]) => {
-        if (!isRecord(anchor)) {
+    return Object.entries(stored).reduce<Record<string, ScrollNavigationAnchor>>(
+        (
+            anchors,
+            [
+                elementId,
+                anchor,
+            ],
+        ) => {
+            if (!isRecord(anchor)) {
+                return anchors;
+            }
+
+            anchors[elementId] = { label: typeof anchor.label === 'string' ? anchor.label : '' };
+
             return anchors;
-        }
-
-        anchors[elementId] = { label: typeof anchor.label === 'string' ? anchor.label : '' };
-
-        return anchors;
-    }, {});
+        },
+        {},
+    );
 }
 
 /**

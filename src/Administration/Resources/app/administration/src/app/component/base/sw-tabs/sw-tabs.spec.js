@@ -66,7 +66,9 @@ describe('src/app/component/base/sw-tabs', () => {
 
     it('should not read the slotted items on the deprecated branch', async () => {
         // The default slot must not be invoked from `mounted`, which Vue reports as a console.warn and
-        // the test setup escalates to a failure.
+        // the test setup escalates to a failure. The spy only swallows the deprecation notice this
+        // branch emits once the major flag is active; Vue's own warning bypasses it and still fails.
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
         const wrapper = await createWrapper({
             global: {
                 stubs: {
@@ -86,6 +88,8 @@ describe('src/app/component/base/sw-tabs', () => {
 
         expect(wrapper.html()).toContain('sw-tabs-deprecated');
         expect(wrapper.vm.activeItem).toBeNull();
+
+        warnSpy.mockRestore();
     });
 
     it.each([

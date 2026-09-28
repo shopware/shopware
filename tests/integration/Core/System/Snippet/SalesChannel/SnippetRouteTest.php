@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -121,6 +122,23 @@ class SnippetRouteTest extends TestCase
 
         static::assertSame($set['hash'], $setWithTrailingDot['hash']);
         static::assertSame($set['snippets'], $setWithTrailingDot['snippets']);
+    }
+
+    public function testCompressedCriteriaDoesNotAddRequestParameters(): void
+    {
+        $this->createSnippet('myPrefix.inside.key', 'Inside');
+        $this->createSnippet('myPrefixOther.key', 'Outside');
+
+        $compressed = gzencode(json_encode(['prefixes' => 'myPrefix'], \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/snippet', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        $set = $this->getJsonResponse()['sets'][0];
+
+        // the route has no POST form and does not opt in, so the prefixes are not read from the compressed criteria
+        static::assertSame('Inside', $set['snippets']['myPrefix.inside.key'] ?? null);
+        static::assertSame('Outside', $set['snippets']['myPrefixOther.key'] ?? null);
     }
 
     public function testEtagRevalidationReturnsNotModified(): void

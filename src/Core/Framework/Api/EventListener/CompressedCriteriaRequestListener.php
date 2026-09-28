@@ -12,10 +12,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Copies the fields of the compressed `_criteria` parameter into the query parameters,
- * so a cacheable Store API GET request is read the same way as a POST request with that body.
+ * so a GET request is read the same way as a POST request with that body.
+ *
+ * Only cacheable Store API routes that accept POST as well are handled.
  *
  * @internal
  *
@@ -49,7 +52,7 @@ class CompressedCriteriaRequestListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->isCacheableStoreApiRoute($request)) {
+        if (!$this->isCacheableStoreApiRoute($request) || !$this->routeAcceptsPost($request)) {
             return;
         }
 
@@ -81,5 +84,32 @@ class CompressedCriteriaRequestListener implements EventSubscriberInterface
         $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
 
         return CacheAttribute::fromAttributeValue($cache) !== null;
+    }
+
+    /**
+     * The compressed criteria is the GET form of a POST body, so a route without a POST form has nothing to read from it.
+     * The route is read from the class named in `_controller`, because a decorator of a route does not repeat the attribute.
+     */
+    private function routeAcceptsPost(Request $request): bool
+    {
+        $controller = $request->attributes->get('_controller');
+        if (!\is_string($controller) || !str_contains($controller, '::')) {
+            return false;
+        }
+
+        [$class, $method] = explode('::', $controller, 2);
+        if (!method_exists($class, $method)) {
+            return false;
+        }
+
+        foreach ((new \ReflectionMethod($class, $method))->getAttributes(Route::class) as $attribute) {
+            $route = $attribute->newInstance();
+
+            if ($route->name === $request->attributes->get('_route')) {
+                return \in_array(Request::METHOD_POST, $route->methods, true);
+            }
+        }
+
+        return false;
     }
 }

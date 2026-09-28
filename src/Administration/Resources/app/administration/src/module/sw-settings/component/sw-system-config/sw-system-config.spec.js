@@ -2007,7 +2007,13 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     it('should fall back to the schema when a legacy getConfig override resolves to a non-array value', async () => {
         const config = createConfig();
 
-        wrapper = await createWrapper({}, config, {}, {}, config.flatMap((tab) => tab.cards));
+        wrapper = await createWrapper(
+            {},
+            config,
+            {},
+            {},
+            config.flatMap((tab) => tab.cards),
+        );
         await flushPromises();
 
         // Simulate a faulty extension override that forgot to return the (modified) card list

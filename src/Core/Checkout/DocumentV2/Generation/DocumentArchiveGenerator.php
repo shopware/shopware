@@ -153,7 +153,7 @@ final class DocumentArchiveGenerator
 
     private function loadMediaContent(MediaEntity $media, Context $context): string
     {
-        $this->documentMediaGuard->assertIsDocumentMedia($media, $context);
+        $this->documentMediaGuard->assertServable($media, $context);
 
         return $context->scope(
             Context::SYSTEM_SCOPE,

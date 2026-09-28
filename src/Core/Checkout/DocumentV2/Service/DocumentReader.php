@@ -71,7 +71,7 @@ final readonly class DocumentReader
             }
         }
 
-        $this->documentMediaGuard->assertIsDocumentMedia($resolvedFile->media, $context);
+        $this->documentMediaGuard->assertServable($resolvedFile->media, $context);
 
         $content = $context->scope(
             Context::SYSTEM_SCOPE,

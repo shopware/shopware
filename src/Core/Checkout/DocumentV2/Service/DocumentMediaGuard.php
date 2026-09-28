@@ -36,16 +36,27 @@ final class DocumentMediaGuard implements ResetInterface
         $this->folderIdResolved = false;
     }
 
-    public function assertIsDocumentMedia(MediaEntity $media, Context $context): void
+    public function assertServable(MediaEntity $media, Context $context): void
     {
-        if ($media->getMediaFolderId() === $this->getFolderId($context)) {
+        if ($this->isServable($media, $context)) {
             return;
         }
 
         throw DocumentV2Exception::documentMediaNotAllowed($media->getId());
     }
 
-    public function getFolderId(Context $context): ?string
+    public function isServable(MediaEntity $media, Context $context): bool
+    {
+        if (!$media->isPrivate()) {
+            return true;
+        }
+
+        $folderId = $this->getFolderId($context);
+
+        return $folderId !== null && $media->getMediaFolderId() === $folderId;
+    }
+
+    private function getFolderId(Context $context): ?string
     {
         if ($this->folderIdResolved) {
             return $this->folderId;

@@ -316,7 +316,7 @@ final class DocumentV2Controller extends AbstractController
             throw DocumentV2Exception::mediaNotFound($mediaId);
         }
 
-        $this->documentMediaGuard->assertIsDocumentMedia($media, $context);
+        $this->documentMediaGuard->assertServable($media, $context);
 
         return $mediaId;
     }

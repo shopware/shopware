@@ -100,10 +100,9 @@ class DocumentV2ControllerTest extends TestCase
         $this->documentFileRepository = new StaticEntityRepository([], new DocumentFileDefinition());
         $this->documentTypeRepository = new StaticEntityRepository([], new DocumentTypeDefinition());
 
-        // DocumentMediaGuard resolves no folder in the unit setup, so document media carries a null folder.
         $this->mediaRepository = static::createStub(EntityRepository::class);
         $this->mediaRepository->method('search')->willReturn(
-            $this->createMediaSearchResult($this->createMedia(null)),
+            $this->createMediaSearchResult($this->createMedia(null, private: false)),
         );
 
         $storage = static::createStub(AppFeatureStorage::class);
@@ -340,7 +339,7 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame($mediaId, $this->documentFileRepository->creates[0][0]['mediaId']);
     }
 
-    public function testUploadRejectsReferencedMediaOutsideTheDocumentFolder(): void
+    public function testUploadRejectsPrivateReferencedMediaOutsideTheDocumentFolder(): void
     {
         $orderId = Uuid::randomHex();
         $orderVersionId = Uuid::randomHex();
@@ -351,7 +350,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $mediaRepository = static::createStub(EntityRepository::class);
         $mediaRepository->method('search')->willReturn(
-            $this->createMediaSearchResult($this->createMedia(Uuid::randomHex())),
+            $this->createMediaSearchResult($this->createMedia(Uuid::randomHex(), private: true)),
         );
 
         $controller = new DocumentV2Controller(
@@ -427,7 +426,7 @@ class DocumentV2ControllerTest extends TestCase
 
         $source = new AdminApiSource(Uuid::randomHex());
         $source->setIsAdmin(false);
-        $source->setPermissions(['document:create', 'media:read']);
+        $source->setPermissions(['document:create']);
 
         static::expectExceptionObject(DocumentV2Exception::mediaNotFound($mediaId));
 
@@ -1177,10 +1176,11 @@ class DocumentV2ControllerTest extends TestCase
         return new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]]));
     }
 
-    private function createMedia(?string $mediaFolderId): MediaEntity
+    private function createMedia(?string $mediaFolderId, bool $private): MediaEntity
     {
         $media = new MediaEntity();
         $media->setId('found-media');
+        $media->setPrivate($private);
 
         if ($mediaFolderId !== null) {
             $media->setMediaFolderId($mediaFolderId);

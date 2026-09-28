@@ -178,7 +178,7 @@ class DocumentV2Exception extends HttpException
         return new self(
             Response::HTTP_FORBIDDEN,
             self::DOCUMENT_MEDIA_NOT_ALLOWED,
-            'Media with id "{{ mediaId }}" is not a document media file.',
+            'Media with id "{{ mediaId }}" is private and not a document media file.',
             ['mediaId' => $mediaId],
         );
     }

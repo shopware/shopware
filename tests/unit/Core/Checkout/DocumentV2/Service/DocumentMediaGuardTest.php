@@ -27,36 +27,89 @@ class DocumentMediaGuardTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testGetFolderIdResolvesTheDocumentDefaultFolder(): void
+    public function testAcceptsPublicMediaOfAnotherFolderWithoutResolvingTheDocumentFolder(): void
     {
-        $folderId = Uuid::randomHex();
-        $guard = new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[$folderId]]));
+        $repository = StaticEntityRepository::of(MediaFolderCollection::class, [[Uuid::randomHex()]]);
+        $guard = new DocumentMediaGuard($repository);
 
-        static::assertSame($folderId, $guard->getFolderId($this->context));
+        $guard->assertServable($this->createMedia(Uuid::randomHex(), private: false), $this->context);
+
+        static::assertCount(1, $repository->searches);
     }
 
-    public function testGetFolderIdIsResolvedOnlyOnce(): void
+    public function testAcceptsPublicMediaWithoutAFolder(): void
+    {
+        $guard = new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[Uuid::randomHex()]]));
+
+        $guard->assertServable($this->createMedia(null, private: false), $this->context);
+
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function testAcceptsPrivateMediaOfTheDocumentFolder(): void
     {
         $folderId = Uuid::randomHex();
         $repository = StaticEntityRepository::of(MediaFolderCollection::class, [[$folderId]]);
         $guard = new DocumentMediaGuard($repository);
 
-        static::assertSame($folderId, $guard->getFolderId($this->context));
-        static::assertSame($folderId, $guard->getFolderId($this->context));
+        $guard->assertServable($this->createMedia($folderId, private: true), $this->context);
+
         static::assertSame([], $repository->searches);
     }
 
-    public function testAnUnresolvableFolderIsCachedAsWell(): void
+    public function testRejectsPrivateMediaOfAnotherFolder(): void
     {
-        $repository = StaticEntityRepository::of(MediaFolderCollection::class, [[]]);
+        $media = $this->createMedia(Uuid::randomHex(), private: true);
+        $guard = new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[Uuid::randomHex()]]));
+
+        static::expectExceptionObject(DocumentV2Exception::documentMediaNotAllowed($media->getId()));
+
+        $guard->assertServable($media, $this->context);
+    }
+
+    public function testRejectsPrivateMediaWithoutAFolder(): void
+    {
+        $media = $this->createMedia(null, private: true);
+        $guard = new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[Uuid::randomHex()]]));
+
+        static::expectExceptionObject(DocumentV2Exception::documentMediaNotAllowed($media->getId()));
+
+        $guard->assertServable($media, $this->context);
+    }
+
+    public function testRejectsPrivateMediaWithoutAFolderWhenTheDocumentFolderIsMissing(): void
+    {
+        $media = $this->createMedia(null, private: true);
+        $guard = new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]]));
+
+        static::expectExceptionObject(DocumentV2Exception::documentMediaNotAllowed($media->getId()));
+
+        $guard->assertServable($media, $this->context);
+    }
+
+    public function testIsServableReportsWithoutThrowing(): void
+    {
+        $folderId = Uuid::randomHex();
+        $guard = new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[$folderId]]));
+
+        static::assertTrue($guard->isServable($this->createMedia(Uuid::randomHex(), private: false), $this->context));
+        static::assertTrue($guard->isServable($this->createMedia($folderId, private: true), $this->context));
+        static::assertFalse($guard->isServable($this->createMedia(Uuid::randomHex(), private: true), $this->context));
+    }
+
+    public function testResolvesTheDocumentFolderOnlyOnce(): void
+    {
+        $folderId = Uuid::randomHex();
+        $repository = StaticEntityRepository::of(MediaFolderCollection::class, [[$folderId]]);
         $guard = new DocumentMediaGuard($repository);
 
-        static::assertNull($guard->getFolderId($this->context));
-        static::assertNull($guard->getFolderId($this->context));
+        $guard->assertServable($this->createMedia($folderId, private: true), $this->context);
+        $guard->assertServable($this->createMedia($folderId, private: true), $this->context);
+
         static::assertSame([], $repository->searches);
     }
 
-    public function testResetResolvesTheFolderAgain(): void
+    public function testResetResolvesTheDocumentFolderAgain(): void
     {
         $firstFolderId = Uuid::randomHex();
         $secondFolderId = Uuid::randomHex();
@@ -64,62 +117,24 @@ class DocumentMediaGuardTest extends TestCase
             StaticEntityRepository::of(MediaFolderCollection::class, [[$firstFolderId], [$secondFolderId]]),
         );
 
-        static::assertSame($firstFolderId, $guard->getFolderId($this->context));
+        $guard->assertServable($this->createMedia($firstFolderId, private: true), $this->context);
 
         $guard->reset();
 
-        static::assertSame($secondFolderId, $guard->getFolderId($this->context));
-    }
+        $guard->assertServable($this->createMedia($secondFolderId, private: true), $this->context);
 
-    public function testAssertIsDocumentMediaAcceptsMediaOfTheDocumentFolder(): void
-    {
-        $folderId = Uuid::randomHex();
-        $repository = StaticEntityRepository::of(MediaFolderCollection::class, [[$folderId]]);
-        $guard = new DocumentMediaGuard($repository);
-
-        $guard->assertIsDocumentMedia($this->createMedia($folderId), $this->context);
-
-        static::assertSame([], $repository->searches);
-    }
-
-    public function testAssertIsDocumentMediaRejectsMediaOfAnotherFolder(): void
-    {
-        $media = $this->createMedia(Uuid::randomHex());
-        $guard = new DocumentMediaGuard(
-            StaticEntityRepository::of(MediaFolderCollection::class, [[Uuid::randomHex()]]),
-        );
+        $media = $this->createMedia($firstFolderId, private: true);
 
         static::expectExceptionObject(DocumentV2Exception::documentMediaNotAllowed($media->getId()));
 
-        $guard->assertIsDocumentMedia($media, $this->context);
+        $guard->assertServable($media, $this->context);
     }
 
-    public function testAssertIsDocumentMediaRejectsMediaWithoutAFolder(): void
-    {
-        $media = $this->createMedia(null);
-        $guard = new DocumentMediaGuard(
-            StaticEntityRepository::of(MediaFolderCollection::class, [[Uuid::randomHex()]]),
-        );
-
-        static::expectExceptionObject(DocumentV2Exception::documentMediaNotAllowed($media->getId()));
-
-        $guard->assertIsDocumentMedia($media, $this->context);
-    }
-
-    public function testAssertIsDocumentMediaAcceptsMediaWithoutAFolderWhenTheFolderIsMissing(): void
-    {
-        $repository = StaticEntityRepository::of(MediaFolderCollection::class, [[]]);
-        $guard = new DocumentMediaGuard($repository);
-
-        $guard->assertIsDocumentMedia($this->createMedia(null), $this->context);
-
-        static::assertSame([], $repository->searches);
-    }
-
-    private function createMedia(?string $mediaFolderId): MediaEntity
+    private function createMedia(?string $mediaFolderId, bool $private): MediaEntity
     {
         $media = new MediaEntity();
         $media->setId(Uuid::randomHex());
+        $media->setPrivate($private);
 
         if ($mediaFolderId !== null) {
             $media->setMediaFolderId($mediaFolderId);

@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Media\MediaService;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -368,39 +367,6 @@ class DocumentV2ControllerTest extends TestCase
         (new Filesystem())->remove($tempFile);
     }
 
-    public function testUploadRejectsCallerSuppliedMediaIdWithoutMediaReadPrivilege(): void
-    {
-        $orderId = $this->createDraftOrder();
-        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
-
-        $browser = $this->getBrowser(true, [], [
-            'document:create',
-            'document:read',
-            'document_file:create',
-            'document_file:read',
-        ]);
-
-        $browser->jsonRequest(
-            'POST',
-            '/api/_action/order/document-v2/upload',
-            [
-                'documentType' => DocumentType::INVOICE->value,
-                'format' => DocumentFormat::PDF->value,
-                'orderId' => $orderId,
-                'orderVersionId' => $orderVersionId,
-                'mediaId' => Uuid::randomHex(),
-                'documentNumber' => '1003-' . Uuid::randomHex(),
-            ],
-        );
-
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
-
-        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $payload['errors'][0]['code'] ?? null);
-        static::assertStringContainsString('media:read', (string) ($payload['errors'][0]['detail'] ?? ''));
-    }
-
     public function testUploadRejectsNonExistentMediaId(): void
     {
         $orderId = $this->createDraftOrder();
@@ -411,7 +377,6 @@ class DocumentV2ControllerTest extends TestCase
             'document:read',
             'document_file:create',
             'document_file:read',
-            'media:read',
         ]);
 
         $browser->jsonRequest(
@@ -447,7 +412,6 @@ class DocumentV2ControllerTest extends TestCase
             'document:read',
             'document_file:create',
             'document_file:read',
-            'media:read',
         ]);
 
         $browser->jsonRequest(
@@ -478,7 +442,50 @@ class DocumentV2ControllerTest extends TestCase
         static::assertSame($content, $response->getContent());
     }
 
-    public function testUploadRejectsMediaOutsideTheDocumentFolder(): void
+    public function testUploadAcceptsPublicLibraryMedia(): void
+    {
+        $orderId = $this->createDraftOrder();
+        $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $content = 'library invoice';
+        $mediaId = $this->createPublicLibraryMedia($content);
+
+        $browser = $this->getBrowser(true, [], [
+            'document:create',
+            'document:read',
+            'document_file:create',
+            'document_file:read',
+        ]);
+
+        $browser->jsonRequest(
+            'POST',
+            '/api/_action/order/document-v2/upload',
+            [
+                'documentType' => DocumentType::INVOICE->value,
+                'format' => DocumentFormat::PDF->value,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+                'mediaId' => $mediaId,
+                'documentNumber' => '1008-' . Uuid::randomHex(),
+            ],
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $browser->request(
+            'GET',
+            \sprintf('/api/_action/order/document-v2/%s/download/%s', $payload['documentId'], DocumentFormat::PDF->value),
+        );
+
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame($content, $response->getContent());
+    }
+
+    public function testUploadRejectsPrivateMediaOutsideTheDocumentFolder(): void
     {
         $orderId = $this->createDraftOrder();
         $orderVersionId = $this->orderRepository->createVersion($orderId, $this->context, 'DRAFT');
@@ -490,7 +497,6 @@ class DocumentV2ControllerTest extends TestCase
             'document:read',
             'document_file:create',
             'document_file:read',
-            'media:read',
         ]);
 
         $browser->jsonRequest(
@@ -506,11 +512,7 @@ class DocumentV2ControllerTest extends TestCase
             ],
         );
 
-        $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode(), (string) $response->getContent());
-
-        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertSame(DocumentV2Exception::MEDIA_NOT_FOUND, $payload['errors'][0]['code'] ?? null);
+        $this->assertMediaNotAllowed($browser->getResponse());
     }
 
     public function testDownloadRejectsDocumentFileLinkedToForeignMediaThroughTheApi(): void
@@ -548,6 +550,21 @@ class DocumentV2ControllerTest extends TestCase
         );
 
         $this->assertMediaNotAllowed($this->getBrowser()->getResponse());
+    }
+
+    public function testDownloadServesDocumentLinkedToPublicLibraryMedia(): void
+    {
+        $content = 'library content';
+        $documentId = $this->createDocumentThroughApi(documentFileMediaId: $this->createPublicLibraryMedia($content));
+
+        $this->getBrowser()->request(
+            'GET',
+            \sprintf('/api/_action/order/document-v2/%s/download/%s', $documentId, DocumentFormat::PDF->value),
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame($content, $response->getContent());
     }
 
     public function testDownloadStillWorksWithoutMediaReadPrivilege(): void
@@ -673,6 +690,18 @@ class DocumentV2ControllerTest extends TestCase
             DocumentFormat::PDF->mimeType(),
             'foreign-' . Uuid::randomHex(),
             $this->context,
+        );
+    }
+
+    private function createPublicLibraryMedia(string $content): string
+    {
+        return static::getContainer()->get(MediaService::class)->saveFile(
+            $content,
+            DocumentFormat::PDF->value,
+            DocumentFormat::PDF->mimeType(),
+            'library-' . Uuid::randomHex(),
+            $this->context,
+            private: false,
         );
     }
 

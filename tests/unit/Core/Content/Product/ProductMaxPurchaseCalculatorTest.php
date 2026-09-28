@@ -7,12 +7,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
-use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -92,91 +90,27 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
             2,
         ];
 
+        yield 'digital product without maxPurchase falls back to system config like other products' => [
+            [
+                'type' => ProductDefinition::TYPE_DIGITAL,
+            ],
+            10,
+        ];
+
+        yield 'digital product with maxPurchase 1 is limited to one unit' => [
+            [
+                'type' => ProductDefinition::TYPE_DIGITAL,
+                'maxPurchase' => 1,
+            ],
+            1,
+        ];
+
         yield 'digital product allows a configured maxPurchase above 1' => [
             [
                 'type' => ProductDefinition::TYPE_DIGITAL,
                 'maxPurchase' => 5,
             ],
             5,
-        ];
-
-        yield 'digital product with a maxPurchase above 1 is still limited by closeout stock' => [
-            [
-                'type' => ProductDefinition::TYPE_DIGITAL,
-                'maxPurchase' => 5,
-                'stock' => 2,
-                'isCloseout' => true,
-            ],
-            2,
-        ];
-
-        yield 'digital product caps max at 1 even when maxPurchase is null' => [
-            [
-                'type' => ProductDefinition::TYPE_DIGITAL,
-            ],
-            1,
-        ];
-
-        yield 'digital product caps max at 1 instead of honouring a maxPurchase of 0' => [
-            [
-                'type' => ProductDefinition::TYPE_DIGITAL,
-                'maxPurchase' => 0,
-            ],
-            1,
-        ];
-
-        yield 'digital product without maxPurchase is out of stock when closeout stock is empty' => [
-            [
-                'type' => ProductDefinition::TYPE_DIGITAL,
-                'stock' => 0,
-                'isCloseout' => true,
-            ],
-            0,
-        ];
-
-        yield 'non-digital product with null maxPurchase falls back to system config' => [
-            [
-                'type' => ProductDefinition::TYPE_PHYSICAL,
-            ],
-            10,
-        ];
-    }
-
-    /**
-     * @param array<string, int|list<string>> $entityData
-     */
-    #[DataProvider('legacyDownloadStateCases')]
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testCalculateWithLegacyDownloadStateWhile68IsInactive(array $entityData, int $expected): void
-    {
-        $entity = new PartialEntity();
-        $entity->assign($entityData);
-
-        static::assertSame($expected, $this->service->calculate($entity, static::createStub(SalesChannelContext::class)));
-    }
-
-    public static function legacyDownloadStateCases(): \Generator
-    {
-        yield 'download state caps max at 1 when maxPurchase is null' => [
-            [
-                'states' => [State::IS_DOWNLOAD],
-            ],
-            1,
-        ];
-
-        yield 'download state allows a configured maxPurchase above 1' => [
-            [
-                'maxPurchase' => 5,
-                'states' => [State::IS_DOWNLOAD],
-            ],
-            5,
-        ];
-
-        yield 'other states fall back to system config instead of the digital cap' => [
-            [
-                'states' => ['some-other-state'],
-            ],
-            10,
         ];
     }
 }

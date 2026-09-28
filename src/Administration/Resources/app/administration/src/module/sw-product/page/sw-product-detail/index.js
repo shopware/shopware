@@ -1353,14 +1353,7 @@ export default {
         },
 
         validateProductPurchase() {
-            let maxPurchase = this.product.maxPurchase;
-
-            // digital products are limited to one unit, unless a max purchase above 1 is set
-            if (this.productType === 'digital') {
-                maxPurchase = Math.max(maxPurchase ?? this.parentProduct?.maxPurchase ?? 1, 1);
-            }
-
-            if (maxPurchase && this.product.minPurchase > maxPurchase) {
+            if (this.product.maxPurchase && this.product.minPurchase > this.product.maxPurchase) {
                 return false;
             }
 

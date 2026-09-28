@@ -77,7 +77,7 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 
 ### Digital products can be sold in quantities above one
 
-Digital products are limited to one unit per order only while their `maxPurchase` is empty or `1`. A higher `maxPurchase` now applies like for physical products, including values set through the API, which were capped at one unit since 6.7.14.0.
+Digital products follow their `maxPurchase` like physical products again, so an empty value falls back to `core.cart.maxQuantity`. Since 6.7.14.0 they were capped at one unit regardless of `maxPurchase`. New digital products created in the Administration still start with a `maxPurchase` of `1`.
 
 ## API
 

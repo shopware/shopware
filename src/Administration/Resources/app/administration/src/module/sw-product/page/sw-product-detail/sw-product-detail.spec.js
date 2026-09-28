@@ -1457,45 +1457,4 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         expect(store.parentProduct).toEqual({});
     });
-
-    describe('purchase quantity validation', () => {
-        function setProducts(product, parentProduct = {}) {
-            const store = Shopware.Store.get('swProductDetail');
-            store.product = { isNew: () => false, ...product };
-            store.parentProduct = parentProduct;
-        }
-
-        it('should reject a physical product whose min purchase exceeds its max purchase', () => {
-            setProducts({ type: 'physical', minPurchase: 3, maxPurchase: 2 });
-
-            expect(wrapper.vm.validateProductPurchase()).toBe(false);
-        });
-
-        it('should accept a physical product with a min purchase and no max purchase', () => {
-            setProducts({ type: 'physical', minPurchase: 3, maxPurchase: null });
-
-            expect(wrapper.vm.validateProductPurchase()).toBe(true);
-        });
-
-        it('should treat an empty max purchase of a digital product as one unit', () => {
-            setProducts({ type: 'digital', minPurchase: 3, maxPurchase: null });
-
-            expect(wrapper.vm.validateProductPurchase()).toBe(false);
-        });
-
-        it('should accept a digital product whose min purchase fits its max purchase', () => {
-            setProducts({ type: 'digital', minPurchase: 3, maxPurchase: 5 });
-
-            expect(wrapper.vm.validateProductPurchase()).toBe(true);
-        });
-
-        it('should use the inherited max purchase of a digital variant', () => {
-            setProducts(
-                { type: 'digital', parentId: 'parent', minPurchase: 3, maxPurchase: null },
-                { id: 'parent', maxPurchase: 5 },
-            );
-
-            expect(wrapper.vm.validateProductPurchase()).toBe(true);
-        });
-    });
 });

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -26,19 +25,12 @@ class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
 
     public function calculate(Entity $product, SalesChannelContext $context): int
     {
-        $maxPurchase = $product->get('maxPurchase');
-
-        // digital products are sold as a single unit, unless their max purchase explicitly allows more
-        if ($this->isDigitalProduct($product) && ($maxPurchase ?? 1) <= 1) {
-            $maxPurchase = 1;
-        }
-
         $fallback = $this->systemConfigService->getInt(
             'core.cart.maxQuantity',
             $context->getSalesChannelId()
         );
 
-        $max = $maxPurchase ?? $fallback;
+        $max = $product->get('maxPurchase') ?? $fallback;
 
         if ($product->get('isCloseout') && $product->get('stock') < $max) {
             $max = (int) $product->get('stock');
@@ -51,21 +43,5 @@ class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
         $max = \floor(($max - $min) / $steps) * $steps + $min;
 
         return (int) \max($max, 0);
-    }
-
-    private function isDigitalProduct(Entity $product): bool
-    {
-        if ($product->get('type') === ProductDefinition::TYPE_DIGITAL) {
-            return true;
-        }
-
-        // v6.7 fallback: type backfill is deferred to updateDestructive (#16282), so also accept the legacy IS_DOWNLOAD state.
-        if (Feature::isActive('v6.8.0.0')) {
-            return false;
-        }
-
-        $states = $product->get('states');
-
-        return \is_array($states) && \in_array(State::IS_DOWNLOAD, $states, true);
     }
 }

@@ -89,6 +89,9 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 ### MCP session registry follows the session store
 
 Each MCP server keeps a registry of its active sessions, which `tools/list_changed` broadcasts go to. It no longer uses `cache.system`. When a server stores its sessions in a cache pool (`session: {store: cache, cache_pool: ...}`), for example Redis, the registry uses the same pool, so broadcasts reach sessions on every server. With the default file store, the registry is a file cache next to the session files. If you overrode `shopware.mcp.session_registry_cache` or `mcp.store_api.session_registry_cache` to share the registry, you can remove that override. In multi-server setups, also configure `framework.lock` with a shared store, so concurrent registry updates on different servers don't lose sessions.
+### Large MCP tool results from extensions are offloaded like core results
+
+MCP tools from plugins and bundles that extend `McpToolResponse` now store results larger than 100 KB in the tool-result cache on the Admin API endpoint, like core tools already did. The response then contains `_meta.resourceUri` instead of the full data, and the model reads the data with `resources/read`. Before, these results were always returned inline. On the Store API endpoint, results always stay inline, because it has no tool-result resource yet.
 
 ## API
 

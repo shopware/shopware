@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCom
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpSessionRegistryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolResultCacheCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFactoryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
@@ -154,6 +155,8 @@ class Framework extends Bundle
         // "mcp.servers.elements" parameter, so it has to run before the bundle's own McpPass reads
         // it. That one is registered with the default priority.
         $container->addCompilerPass(new McpToolDiscoveryCompilerPass(), priority: 20);
+        // Wires the tool-result cache into plugin and bundle tools; before Monolog's channel pass.
+        $container->addCompilerPass(new McpToolResultCacheCompilerPass(), priority: 15);
         $container->addCompilerPass(new McpToolAnalysisCompilerPass());
         $container->addCompilerPass(new McpServerBuilderCompilerPass());
         $container->addCompilerPass(new McpSessionRegistryCompilerPass());

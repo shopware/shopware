@@ -99,6 +99,8 @@ class KernelTest extends TestCase
             $inactiveKernel->boot();
             $inactiveCacheDir = $inactiveKernel->getCacheDir();
             $inactiveBuildDir = $inactiveKernel->getBuildDir();
+            $inactiveContainerClass = $inactiveKernel->getContainer()::class;
+            static::assertSame($this->appCacheDir . '/var/build', $inactiveBuildDir);
             static::assertDirectoryExists($inactiveCacheDir);
             static::assertDirectoryExists($inactiveBuildDir);
         } finally {
@@ -111,7 +113,8 @@ class KernelTest extends TestCase
         try {
             $activeKernel->boot();
             static::assertNotSame($inactiveCacheDir, $activeKernel->getCacheDir());
-            static::assertNotSame($inactiveBuildDir, $activeKernel->getBuildDir());
+            static::assertSame($inactiveBuildDir, $activeKernel->getBuildDir());
+            static::assertNotSame($inactiveContainerClass, $activeKernel->getContainer()::class);
             static::assertDirectoryExists($activeKernel->getCacheDir());
             static::assertDirectoryExists($activeKernel->getBuildDir());
             static::assertDirectoryExists($inactiveCacheDir);

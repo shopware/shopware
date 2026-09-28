@@ -4,7 +4,7 @@
 
 ### Feature flags can remove legacy service definitions
 
-Extensions can tag a PHP service definition with `shopware.inactiveFeature` and a `flag` attribute, for example `v6.8.0.0`. The service remains registered while the flag is inactive and is absent from the container once the flag is active. Use this for services that are removed with a major version; `shopware.feature` continues to register services only while their flag is active. Changing `FEATURE_ALL` or a version-shaped major flag in the environment selects a separate container on the next kernel boot, including when `APP_BUILD_DIR` is configured. Restart long-running processes to apply the new mode.
+Extensions can tag a PHP service definition with `shopware.inactiveFeature` and a `flag` attribute, for example `v6.8.0.0`. The service remains registered while the flag is inactive and is absent from the container once the flag is active. Use this for services that are removed with a major version; `shopware.feature` continues to register services only while their flag is active. Changing `FEATURE_ALL` or a version-shaped major flag in the environment selects a separate container on the next kernel boot. A configured `APP_BUILD_DIR` remains unchanged across flag modes. Restart long-running processes to apply the new mode.
 
 Deprecated service aliases with an announced removal version are removed when that major flag becomes active. Their target services remain available.
 ### `JsonField` supports typed properties with additional extension data

@@ -79,6 +79,9 @@ class KernelTest extends TestCase
 
         $this->setEnvVars(['TELEMETRY_METRICS' => 'true']);
         static::assertSame($cacheDir, $kernel->getCacheDir());
+
+        $this->setEnvVars(['V9_9_9_9' => 'true']);
+        static::assertSame($cacheDir, $kernel->getCacheDir());
     }
 
     public function testRegisterBundlesAutoAddsTwigComponentBundleWhenMissingPreV68(): void

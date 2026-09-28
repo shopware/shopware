@@ -31,6 +31,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 #[Package('framework')]
@@ -180,7 +181,7 @@ class Kernel extends HttpKernel
     public function getBuildDir(): string
     {
         if (EnvironmentHelper::hasVariable('APP_BUILD_DIR')) {
-            return EnvironmentHelper::getVariable('APP_BUILD_DIR') . '/' . $this->environment . '_h' . $this->getCacheHash();
+            return (string) EnvironmentHelper::getVariable('APP_BUILD_DIR');
         }
 
         return parent::getBuildDir();
@@ -225,6 +226,14 @@ class Kernel extends HttpKernel
         } finally {
             $this->rebooting = false;
         }
+    }
+
+    protected function getContainerClass(): string
+    {
+        $class = parent::getContainerClass();
+
+        // Symfony reuses compiled containers by filename, so vary the class while keeping APP_BUILD_DIR fixed.
+        return EnvironmentHelper::hasVariable('APP_BUILD_DIR') ? $class . '_h' . $this->getCacheHash() : $class;
     }
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
@@ -326,14 +335,27 @@ class Kernel extends HttpKernel
         asort($plugins);
 
         // The feature registry is initialized after the container cache is selected.
-        // Read version-shaped flags from the environment so a changed major mode gets a new container.
+        /** @var list<string>|null $majorVersionFlagNames */
+        static $majorVersionFlagNames = null;
+        if ($majorVersionFlagNames === null) {
+            /** @var array{shopware: array{feature: array{flags: list<array{name: string, major: bool}>}}} $config */
+            $config = Yaml::parseFile(__DIR__ . '/Framework/Resources/config/packages/feature.yaml');
+            $majorVersionFlagNames = [];
+            foreach ($config['shopware']['feature']['flags'] as $flag) {
+                if (!$flag['major'] || \preg_match('/^v\d+(?:\.\d+){1,3}$/i', $flag['name']) !== 1) {
+                    continue;
+                }
+
+                $majorVersionFlagNames[] = Feature::normalizeName($flag['name']);
+            }
+        }
+
         $majorFeatureFlags = [];
-        foreach (array_keys($_SERVER + $_ENV) as $name) {
-            if (\preg_match('/^V?\d+(?:_\d+){1,3}$/i', $name) !== 1) {
+        foreach ($majorVersionFlagNames as $name) {
+            if (!EnvironmentHelper::hasVariable($name) && !EnvironmentHelper::hasVariable(strtolower($name))) {
                 continue;
             }
 
-            $name = Feature::normalizeName($name);
             $value = EnvironmentHelper::hasVariable($name)
                 ? EnvironmentHelper::getVariable($name)
                 : EnvironmentHelper::getVariable(strtolower($name));

@@ -224,6 +224,12 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
 
+### App MCP capabilities use generic feature storage
+
+App-declared MCP tools, prompts, and resources are now persisted through the generic app feature storage. Installed apps do not need to change their `mcp.xml`.
+
+The dedicated app MCP DAL aggregates (`app_mcp_tool`, `app_mcp_prompt`, `app_mcp_resource` and their translation tables) and their accessors on `AppEntity` and `LanguageEntity` were experimental and have been removed.
+
 # 6.7.15.0
 
 ## Features
@@ -1729,12 +1735,6 @@ Extension SDK action and URI-signing requests now require `app.all` or `app.<app
 Target URLs must be absolute and use a host declared in the app manifest's `allowed-hosts`.
 The Administration module response omits modules for apps the current user cannot access.
 Assign the relevant app privilege to users or integrations that need to use an app's Administration features, and keep the app's target hosts declared in its manifest.
-
-### App MCP capabilities use generic feature storage
-
-App-declared MCP tools, prompts, and resources are now persisted through the generic app feature storage. Installed apps do not need to change their `mcp.xml`.
-
-The dedicated app MCP DAL aggregates (`app_mcp_tool`, `app_mcp_prompt`, `app_mcp_resource` and their translation tables) and their accessors on `AppEntity` and `LanguageEntity` were experimental and have been removed.
 
 ## Hosting & Configuration
 

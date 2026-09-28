@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Notification\Api;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationException;
 use Shopware\Core\Framework\Notification\NotificationService;
@@ -23,6 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Package('framework')]
+#[ClassMoved(version: 'v6.8.0', previousClassName: 'Shopware\Administration\Controller\NotificationController')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class NotificationController extends AbstractController
 {

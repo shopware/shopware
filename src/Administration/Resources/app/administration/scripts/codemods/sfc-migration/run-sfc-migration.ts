@@ -86,12 +86,7 @@ function buildIndexShim(originalSource: string, componentName: string): string {
     const visibility = PUBLIC_ANNOTATION.test(sourceDocblock) ? '@public' : '@private';
     const docblock = [
         '/**',
-        ...(packageMatch
-            ? [
-                  ` * @sw-package ${packageMatch[1]}`,
-                  ' *',
-              ]
-            : []),
+        ...(packageMatch ? [` * @sw-package ${packageMatch[1]}`, ' *'] : []),
         ` * ${visibility}`,
         ' */',
     ].join('\n');
@@ -354,10 +349,7 @@ async function runMigration(
                 name,
             });
 
-            report(name, dir, written.ok ? outcome : 'error', [
-                ...converted.reasons,
-                ...written.reasons,
-            ]);
+            report(name, dir, written.ok ? outcome : 'error', [...converted.reasons, ...written.reasons]);
         } catch (error) {
             report(name, dir, 'error', [`unexpected failure: ${errorText(error)}`]);
         }
@@ -390,10 +382,7 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
     if (histogram.size > 0) {
         console.log('\nReasons (by frequency):');
 
-        for (const [
-            reason,
-            count,
-        ] of [...histogram.entries()].sort((a, b) => b[1] - a[1])) {
+        for (const [reason, count] of [...histogram.entries()].sort((a, b) => b[1] - a[1])) {
             console.log(`  ${String(count).padStart(4)}  ${reason}`);
         }
     }

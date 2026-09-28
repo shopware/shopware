@@ -79,16 +79,10 @@ const LISTING_DESCRIPTOR: ComposableDescriptor = {
     // The two services the mixin injected, which the composable resolves itself, and the `filters`
     // computed it defaulted to an empty list — a component that reads one without declaring it
     // would read nothing after the migration.
-    unmappedMembers: [
-        'feature',
-        'searchRankingService',
-        'filters',
-    ],
+    unmappedMembers: ['feature', 'searchRankingService', 'filters'],
     // `filters` was the mixin's own computed and the component's override at once, so it arrives as
     // an optional getter: a component without filters keeps the mixin's empty list.
-    callbackArgs: [
-        { name: 'filters', kind: 'getter', optional: true },
-    ],
+    callbackArgs: [{ name: 'filters', kind: 'getter', optional: true }],
     scaffold: {
         iocMember: 'getList',
         configKeys: [

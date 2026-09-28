@@ -20,6 +20,7 @@ export default {
         'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
+        'customFieldDataProviderService',
     ],
 
     data() {
@@ -82,6 +83,7 @@ export default {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -102,6 +104,7 @@ export default {
             return Object.values(this.bulkEditProduct).some((field) => field.isChanged) || this.bulkEditSelected.length > 0;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -806,10 +809,7 @@ export default {
             }
 
             return this.product?.prices.reduce((r, a) => {
-                r[a.ruleId] = [
-                    ...(r[a.ruleId] || []),
-                    a,
-                ];
+                r[a.ruleId] = [...(r[a.ruleId] || []), a];
                 return r;
             }, {});
         },
@@ -1064,7 +1064,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('product', false, null).then((res) => {
                 this.customFieldSets = res;
             });
         },
@@ -1211,12 +1211,7 @@ export default {
                     return;
                 }
 
-                if (
-                    [
-                        'price',
-                        'purchasePrices',
-                    ].includes(key)
-                ) {
+                if (['price', 'purchasePrices'].includes(key)) {
                     hasPriceChange = true;
                 }
 
@@ -1263,14 +1258,7 @@ export default {
                 // each variant's effective set (its own rows when it overrides, otherwise the
                 // inherited parent set) with the removed channels dropped and the added ones
                 // merged in.
-                if (
-                    this.isChild &&
-                    key === 'visibilities' &&
-                    [
-                        'add',
-                        'remove',
-                    ].includes(bulkEditField.type)
-                ) {
+                if (this.isChild && key === 'visibilities' && ['add', 'remove'].includes(bulkEditField.type)) {
                     this.transformVariantVisibilityChange(change);
                 }
 
@@ -1615,12 +1603,7 @@ export default {
         },
 
         onInheritanceRemove(item) {
-            if (
-                [
-                    'properties',
-                    'prices',
-                ].includes(item.name)
-            ) {
+            if (['properties', 'prices'].includes(item.name)) {
                 this.setProductAssociation(item.name);
             }
 

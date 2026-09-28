@@ -151,7 +151,7 @@ class SendMailActionTest extends TestCase
         }
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             static::getContainer()->get('document.repository')
@@ -581,10 +581,12 @@ class SendMailActionTest extends TestCase
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
-        $subscriber->handleFlow($flow);
-
-        static::assertIsObject($mailFilterEvent);
-        static::assertSame(1, $mailService->calls);
+        try {
+            $subscriber->handleFlow($flow);
+        } finally {
+            static::assertNull($mailFilterEvent);
+            static::assertSame(0, $mailService->calls);
+        }
     }
 
     #[DataProvider('updateTemplateDataProvider')]
@@ -721,7 +723,7 @@ class SendMailActionTest extends TestCase
         $sequencesConfig = $this->createFlowSequencesConfig($mailTemplateId, $documentTypes);
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -796,7 +798,7 @@ class SendMailActionTest extends TestCase
         $flow = $flowFactory->create($event);
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -898,7 +900,7 @@ class SendMailActionTest extends TestCase
         );
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository

@@ -41,6 +41,7 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpResourceLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
@@ -153,6 +154,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpToolsetRegistry::class)->nullOnInvalid(),
             service(McpToolsetSessionStorage::class)->nullOnInvalid(),
             service('request_stack'),
+            service(McpRequestedToolsetResolver::class),
         ])
         ->tag('mcp.admin.request_handler');
 
@@ -248,6 +250,7 @@ return static function (ContainerConfigurator $container): void {
             service('mcp.store_api.toolset_registry'),
             service(McpToolsetSessionStorage::class),
             service('request_stack'),
+            service(McpRequestedToolsetResolver::class),
         ])
         ->tag('mcp.store_api.request_handler');
 
@@ -465,6 +468,9 @@ return static function (ContainerConfigurator $container): void {
             service('request_stack'),
         ])
         ->tag('shopware.store_api_mcp.tool');
+
+    $services->set(McpRequestedToolsetResolver::class)
+        ->args([service('request_stack')]);
 
     $services->set(ToolsetsListTool::class)
         ->args([

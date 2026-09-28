@@ -8,10 +8,7 @@ import './sw-category-layout-card.scss';
 export default {
     template,
 
-    inject: [
-        'acl',
-        'cmsPageTypeService',
-    ],
+    inject: ['acl', 'cmsPageTypeService'],
 
     props: {
         category: {
@@ -35,11 +32,7 @@ export default {
             type: Array,
             required: false,
             default() {
-                return [
-                    'page',
-                    'landingpage',
-                    'product_list',
-                ];
+                return ['page', 'landingpage', 'product_list'];
             },
         },
 

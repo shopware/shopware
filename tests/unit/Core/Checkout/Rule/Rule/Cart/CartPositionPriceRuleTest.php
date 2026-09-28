@@ -163,9 +163,7 @@ class CartPositionPriceRuleTest extends TestCase
         $context = static::createStub(SalesChannelContext::class);
         $cart->getPrice()->assign(['positionPrice' => 275]);
 
-        static::assertFalse(
-            $rule->match(new CartRuleScope($cart, $context))
-        );
+        $rule->match(new CartRuleScope($cart, $context));
     }
 
     /**

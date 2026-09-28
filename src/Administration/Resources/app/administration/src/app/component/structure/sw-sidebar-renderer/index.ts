@@ -150,14 +150,8 @@ export default Shopware.Component.wrapComponentConfig({
         };
 
         watch(
-            [
-                overlayTrapTarget,
-                isResizing,
-            ],
-            ([
-                locationId,
-                resizing,
-            ]) => {
+            [overlayTrapTarget, isResizing],
+            ([locationId, resizing]) => {
                 // Only paused while dragging: deactivating would lose the return focus target
                 if (resizing) {
                     focusTrap.value?.pause();

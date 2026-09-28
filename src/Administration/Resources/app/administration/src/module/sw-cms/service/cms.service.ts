@@ -351,14 +351,8 @@ class CmsService {
         property: string,
         deep: boolean = true,
     ): void {
-        const toOneAssociation = [
-            'many_to_one',
-            'one_to_one',
-        ].includes(propSchema.relation!);
-        const toManyAssociation = [
-            'one_to_many',
-            'many_to_many',
-        ].includes(propSchema.relation!);
+        const toOneAssociation = ['many_to_one', 'one_to_one'].includes(propSchema.relation!);
+        const toManyAssociation = ['one_to_many', 'many_to_many'].includes(propSchema.relation!);
 
         if (toOneAssociation && propSchema.entity) {
             this.addToMappingEntity(mappings, propSchema, pathPrefix, property);
@@ -463,12 +457,7 @@ function CmsElementCollect(slot: RuntimeSlot) {
 
     let entityCount = 0;
     Object.keys(slot.config).forEach((key) => {
-        if (
-            [
-                'mapped',
-                'default',
-            ].includes(slot.config[key].source)
-        ) {
+        if (['mapped', 'default'].includes(slot.config[key].source)) {
             return;
         }
 
@@ -499,12 +488,7 @@ function CmsElementCollectWithInheritance(slot: RuntimeSlot) {
 
     let entityCount = 0;
     Object.keys(slot.config).forEach((configKey) => {
-        if (
-            [
-                'mapped',
-                'default',
-            ].includes(slot.config[configKey].source)
-        ) {
+        if (['mapped', 'default'].includes(slot.config[configKey].source)) {
             return;
         }
 

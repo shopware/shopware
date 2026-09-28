@@ -64,9 +64,7 @@ export default Shopware.Component.wrapComponentConfig({
         MtModalRoot,
     },
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     data(): {
         isOpen: boolean;

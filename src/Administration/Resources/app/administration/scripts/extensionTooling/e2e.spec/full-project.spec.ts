@@ -83,10 +83,7 @@ describe('scripts/extensionTooling e2e', () => {
         // Multi-bundle suite under one composer root.
         writeFile(path.join(projectRoot, 'custom/plugins/Suite/composer.json'), '{}\n');
 
-        for (const bundleName of [
-            'BundleA',
-            'BundleB',
-        ]) {
+        for (const bundleName of ['BundleA', 'BundleB']) {
             writeFile(
                 path.join(projectRoot, 'custom/plugins/Suite/src', bundleName, 'Resources/app/administration/src/main.ts'),
                 ['export const suiteCriteria = new Shopware.Data.Criteria(1, 25);'],
@@ -161,12 +158,7 @@ describe('scripts/extensionTooling e2e', () => {
     });
 
     it('connects zero-config, shim-config, multi-bundle, and vendor layouts', () => {
-        const byName = Object.fromEntries(
-            setupResult.manifest.projects.map((project) => [
-                project.name,
-                project,
-            ]),
-        );
+        const byName = Object.fromEntries(setupResult.manifest.projects.map((project) => [project.name, project]));
 
         expect(Object.keys(byName).sort()).toEqual([
             'JsOnly',
@@ -204,12 +196,7 @@ describe('scripts/extensionTooling e2e', () => {
         'passes a clean check and reports vendor findings without failing',
         async () => {
             const check = await checkExtensions({ projectRoot, administrationRoot });
-            const byName = Object.fromEntries(
-                check.results.map((result) => [
-                    result.project.name,
-                    result,
-                ]),
-            );
+            const byName = Object.fromEntries(check.results.map((result) => [result.project.name, result]));
 
             expect(byName.ZeroConfig.typescript.status).toBe('passed');
             // The dedicated spec program type-checked main.spec.ts with jest types.

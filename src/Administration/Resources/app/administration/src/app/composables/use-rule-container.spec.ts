@@ -57,18 +57,9 @@ describe('src/app/composables/use-rule-container', () => {
     });
 
     it.each([
-        [
-            0,
-            'container-condition-level__is--even',
-        ],
-        [
-            1,
-            'container-condition-level__is--odd',
-        ],
-        [
-            2,
-            'container-condition-level__is--even',
-        ],
+        [0, 'container-condition-level__is--even'],
+        [1, 'container-condition-level__is--odd'],
+        [2, 'container-condition-level__is--even'],
     ])('marks level %s as %s', (level, expectedClass) => {
         const { composable } = createComposable({ condition: () => ({}), level: () => level });
 
@@ -84,10 +75,7 @@ describe('src/app/composables/use-rule-container', () => {
     it('counts the children of the provided association field as the next position', () => {
         const { composable } = createComposable({
             condition: () => ({
-                children: [
-                    {},
-                    {},
-                ],
+                children: [{}, {}],
             }),
         });
 

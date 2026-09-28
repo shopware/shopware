@@ -58,10 +58,7 @@ describe('src/app/component/structure/sw-sidebar-renderer: overlay focus trap', 
         initializeSidebar();
 
         // focus-trap needs layout boxes, which jsdom does not compute
-        HTMLElement.prototype.getClientRects = () =>
-            [
-                { width: 10, height: 10 },
-            ] as unknown as DOMRectList;
+        HTMLElement.prototype.getClientRects = () => [{ width: 10, height: 10 }] as unknown as DOMRectList;
 
         mockLocalStorage = {
             getItem: jest.fn(),

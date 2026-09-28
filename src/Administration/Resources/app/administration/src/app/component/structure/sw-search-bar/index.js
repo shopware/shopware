@@ -44,11 +44,7 @@ export default {
         };
     },
 
-    emits: [
-        'search',
-        'active-item-index-select',
-        'keyup-enter',
-    ],
+    emits: ['search', 'active-item-index-select', 'keyup-enter'],
 
     shortcuts: {
         f: 'setFocus',
@@ -607,10 +603,7 @@ export default {
 
                     this.results = this.results.filter((result) => entity !== result.entity);
 
-                    this.results = [
-                        ...this.results,
-                        item,
-                    ];
+                    this.results = [...this.results, item];
                 }
             });
 
@@ -688,10 +681,7 @@ export default {
             if (entityResults.total > 0) {
                 this.results = this.results.filter((result) => this.currentSearchType !== result.entity);
 
-                this.results = [
-                    ...this.results,
-                    entityResults,
-                ];
+                this.results = [...this.results, entityResults];
             }
 
             this.isLoading = false;
@@ -909,11 +899,7 @@ export default {
             return this.repositoryFactory
                 .create('sales_channel_type')
                 .search(new Criteria(1, 100), Shopware.Context.api, {
-                    cacheKey: [
-                        'shared-data',
-                        'sales-channel-types',
-                        Shopware.Context.api.languageId ?? 'default',
-                    ],
+                    cacheKey: ['shared-data', 'sales-channel-types', Shopware.Context.api.languageId ?? 'default'],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((salesChannelTypes) => {
@@ -1048,10 +1034,9 @@ export default {
         },
 
         loadSearchTrends() {
-            return Promise.all([
-                this.getFrequentlyUsedModules(),
-                this.getRecentlySearch(),
-            ]).then((response) => response.filter((item) => item?.total));
+            return Promise.all([this.getFrequentlyUsedModules(), this.getRecentlySearch()]).then((response) =>
+                response.filter((item) => item?.total),
+            );
         },
 
         async getFrequentlyUsedModules(checkNonExistentKeys = true) {
@@ -1122,10 +1107,7 @@ export default {
                             : new Criteria(1, 25);
                     }
 
-                    const ids = [
-                        item.id,
-                        ...queries[item.entity].ids,
-                    ];
+                    const ids = [item.id, ...queries[item.entity].ids];
                     queries[item.entity].setIds(ids);
                 });
 
@@ -1165,10 +1147,7 @@ export default {
         },
 
         getInfoModuleFrequentlyUsed(key) {
-            const [
-                moduleName,
-                routeName,
-            ] = key.split('@');
+            const [moduleName, routeName] = key.split('@');
             const module = this.moduleFactory.getModuleByKey('name', moduleName);
 
             if (!module) {

@@ -41,14 +41,9 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
 
         entitySchema = JSON.parse(fs.readFileSync(entitySchemaMockPath, 'utf8'));
 
-        Object.entries(entitySchema).forEach(
-            ([
-                name,
-                value,
-            ]) => {
-                entityDefinitionFactory.add(name, value);
-            },
-        );
+        Object.entries(entitySchema).forEach(([name, value]) => {
+            entityDefinitionFactory.add(name, value);
+        });
     });
 
     it('should contain the header titles', async () => {
@@ -115,11 +110,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
     it('should render default user privileges as selected and disabled', async () => {
         const wrapper = await createWrapper();
 
-        [
-            'currency',
-            'language',
-            'locale',
-        ].forEach((entityName) => {
+        ['currency', 'language', 'locale'].forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
 
@@ -160,17 +151,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                     parent: null,
                     roles: {
                         viewer: {
-                            privileges: [
-                                'product:read',
-                                'document:read',
-                            ],
+                            privileges: ['product:read', 'document:read'],
                             dependencies: [],
                         },
                         editor: {
-                            privileges: [
-                                'product:update',
-                                'document:update',
-                            ],
+                            privileges: ['product:update', 'document:update'],
                             dependencies: ['product.viewer'],
                         },
                     },
@@ -178,10 +163,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             ],
         });
 
-        [
-            'product',
-            'document',
-        ].forEach((entityName) => {
+        ['product', 'document'].forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
 
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
@@ -238,10 +220,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
 
     it('should render a row for each entity with all checkboxes enabled and product and category read and update checked', async () => {
         const wrapper = await createWrapper({
-            rolePrivileges: [
-                'product.viewer',
-                'product.editor',
-            ],
+            rolePrivileges: ['product.viewer', 'product.editor'],
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -249,17 +228,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                     parent: null,
                     roles: {
                         viewer: {
-                            privileges: [
-                                'product:read',
-                                'document:read',
-                            ],
+                            privileges: ['product:read', 'document:read'],
                             dependencies: [],
                         },
                         editor: {
-                            privileges: [
-                                'product:update',
-                                'document:update',
-                            ],
+                            privileges: ['product:update', 'document:update'],
                             dependencies: ['product.viewer'],
                         },
                     },
@@ -267,10 +240,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             ],
         });
 
-        [
-            'product',
-            'document',
-        ].forEach((entityName) => {
+        ['product', 'document'].forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
 
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
@@ -327,10 +297,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
 
     it('should be able to check the checkboxes', async () => {
         const wrapper = await createWrapper({
-            rolePrivileges: [
-                'product.viewer',
-                'product.editor',
-            ],
+            rolePrivileges: ['product.viewer', 'product.editor'],
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -338,17 +305,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                     parent: null,
                     roles: {
                         viewer: {
-                            privileges: [
-                                'product:read',
-                                'document:read',
-                            ],
+                            privileges: ['product:read', 'document:read'],
                             dependencies: [],
                         },
                         editor: {
-                            privileges: [
-                                'product:update',
-                                'document:update',
-                            ],
+                            privileges: ['product:update', 'document:update'],
                             dependencies: ['product.viewer'],
                         },
                     },
@@ -359,10 +320,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const privileges = wrapper.props().role.privileges;
         const detailedPrivileges = wrapper.props().detailedPrivileges;
 
-        expect(privileges).toEqual([
-            'product.viewer',
-            'product.editor',
-        ]);
+        expect(privileges).toEqual(['product.viewer', 'product.editor']);
         expect(detailedPrivileges).toEqual([]);
 
         const orderRow = wrapper.find('.sw-users-permissions-detailed-permissions-grid__entry_order');
@@ -372,26 +330,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         await orderUpdateInput.setChecked();
         await orderCreateInput.setChecked();
 
-        expect(privileges).toEqual([
-            'product.viewer',
-            'product.editor',
-        ]);
-        expect(detailedPrivileges).toEqual([
-            'order:update',
-            'order:create',
-        ]);
+        expect(privileges).toEqual(['product.viewer', 'product.editor']);
+        expect(detailedPrivileges).toEqual(['order:update', 'order:create']);
     });
 
     it('should be able to uncheck the checkboxes', async () => {
         const wrapper = await createWrapper({
-            rolePrivileges: [
-                'product.viewer',
-                'product.editor',
-            ],
-            detailedPrivileges: [
-                'order:update',
-                'order:create',
-            ],
+            rolePrivileges: ['product.viewer', 'product.editor'],
+            detailedPrivileges: ['order:update', 'order:create'],
             privilegesMappings: [
                 {
                     category: 'permissions',
@@ -399,17 +345,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
                     parent: null,
                     roles: {
                         viewer: {
-                            privileges: [
-                                'product:read',
-                                'document:read',
-                            ],
+                            privileges: ['product:read', 'document:read'],
                             dependencies: [],
                         },
                         editor: {
-                            privileges: [
-                                'product:update',
-                                'document:update',
-                            ],
+                            privileges: ['product:update', 'document:update'],
                             dependencies: ['product.viewer'],
                         },
                     },
@@ -420,24 +360,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         const privileges = wrapper.props().role.privileges;
         const detailedPrivileges = wrapper.props().detailedPrivileges;
 
-        expect(privileges).toEqual([
-            'product.viewer',
-            'product.editor',
-        ]);
-        expect(detailedPrivileges).toEqual([
-            'order:update',
-            'order:create',
-        ]);
+        expect(privileges).toEqual(['product.viewer', 'product.editor']);
+        expect(detailedPrivileges).toEqual(['order:update', 'order:create']);
 
         const orderRow = wrapper.find('.sw-users-permissions-detailed-permissions-grid__entry_order');
         const orderUpdateInput = orderRow.find('.sw-users-permissions-detailed-permissions-grid__role_update input');
 
         await orderUpdateInput.setChecked(false);
 
-        expect(privileges).toEqual([
-            'product.viewer',
-            'product.editor',
-        ]);
+        expect(privileges).toEqual(['product.viewer', 'product.editor']);
         expect(detailedPrivileges).toEqual(['order:create']);
     });
 });

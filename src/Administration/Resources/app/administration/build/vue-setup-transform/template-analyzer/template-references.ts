@@ -69,11 +69,7 @@ function getBindingPatternSources(directive: DirectiveNode | undefined): string[
     if (directive.name === 'for') {
         const parseResult = directive.forParseResult;
 
-        return [
-            parseResult?.value,
-            parseResult?.key,
-            parseResult?.index,
-        ]
+        return [parseResult?.value, parseResult?.key, parseResult?.index]
             .map((expression) => expression?.content)
             .filter((content): content is string => Boolean(content));
     }

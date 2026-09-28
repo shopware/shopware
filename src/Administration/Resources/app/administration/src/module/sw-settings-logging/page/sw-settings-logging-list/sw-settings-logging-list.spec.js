@@ -42,10 +42,7 @@ async function createWrapper() {
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
-                    props: [
-                        'defaultItem',
-                        'items',
-                    ],
+                    props: ['defaultItem', 'items'],
                     template: '<div class="mt-tabs"></div>',
                 },
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),

@@ -516,19 +516,19 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(1);
     });
 
-    it.each([
-        'sw-sales-channel-detail-base-sales-channel-change',
-        'sw-sales-channel-list-add-new-channel',
-    ])('should show the sales channel modal when "%s" event is triggered', async (eventName) => {
-        const wrapper = await createWrapper();
+    it.each(['sw-sales-channel-detail-base-sales-channel-change', 'sw-sales-channel-list-add-new-channel'])(
+        'should show the sales channel modal when "%s" event is triggered',
+        async (eventName) => {
+            const wrapper = await createWrapper();
 
-        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(false);
+            expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(false);
 
-        Shopware.Utils.EventBus.emit(eventName);
-        await flushPromises();
+            Shopware.Utils.EventBus.emit(eventName);
+            await flushPromises();
 
-        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
-    });
+            expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
+        },
+    );
 
     // The collapsed tooltip itself is rendered by sw-admin-menu-item based on this prop
     it('should pass the sidebar state down to the menu items for the collapsed tooltip', async () => {
@@ -684,17 +684,11 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         });
 
         it('should give the sales channel rows the color of the sales channel module', async () => {
-            const wrapper = await createWrapper([
-                headlessSalesChannel,
-                storeFrontWithStandardDomain,
-            ]);
+            const wrapper = await createWrapper([headlessSalesChannel, storeFrontWithStandardDomain]);
             await flushPromises();
 
             expect(getModuleByEntityName).toHaveBeenCalledWith('sales_channel');
-            expect(wrapper.vm.buildMenuTree.map((entry) => entry.color)).toEqual([
-                moduleColor,
-                moduleColor,
-            ]);
+            expect(wrapper.vm.buildMenuTree.map((entry) => entry.color)).toEqual([moduleColor, moduleColor]);
         });
 
         it('should give the more items row the color of the sales channel module', async () => {

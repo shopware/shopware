@@ -26,14 +26,9 @@ export default {
         'feature',
     ],
 
-    emits: [
-        'update:selection',
-        'media-folder-change',
-    ],
+    emits: ['update:selection', 'media-folder-change'],
 
-    mixins: [
-        Mixin.getByName('media-grid-listener'),
-    ],
+    mixins: [Mixin.getByName('media-grid-listener')],
 
     props: {
         selection: {
@@ -156,11 +151,7 @@ export default {
         },
 
         selectableItems() {
-            return [
-                ...this.subFolders,
-                ...this.pendingUploads,
-                ...this.items,
-            ];
+            return [...this.subFolders, ...this.pendingUploads, ...this.items];
         },
 
         rootFolder() {
@@ -387,13 +378,7 @@ export default {
 
         async loadItems() {
             this.isLoading = true;
-            const [
-                nextFolders,
-                nextMedia,
-            ] = await Promise.allSettled([
-                this.nextFolders(),
-                this.nextMedia(),
-            ]);
+            const [nextFolders, nextMedia] = await Promise.allSettled([this.nextFolders(), this.nextMedia()]);
 
             if (nextMedia.status === 'fulfilled') {
                 this.items.push(...nextMedia.value);

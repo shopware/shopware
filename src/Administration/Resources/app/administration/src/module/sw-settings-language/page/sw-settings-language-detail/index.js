@@ -20,10 +20,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -90,11 +87,7 @@ export default {
 
         usedLocaleCriteria() {
             return new Criteria(1, null)
-                .addFilter(
-                    Criteria.not('and', [
-                        Criteria.equals('id', this.languageId),
-                    ]),
-                )
+                .addFilter(Criteria.not('and', [Criteria.equals('id', this.languageId)]))
                 .addAggregation(Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null));
         },
 
@@ -223,11 +216,7 @@ export default {
         },
 
         showSnippetAutoUpdate() {
-            return [
-                'upToDate',
-                'updateAvailable',
-                'updating',
-            ].includes(this.snippetUpdateState);
+            return ['upToDate', 'updateAvailable', 'updating'].includes(this.snippetUpdateState);
         },
 
         salesChannelsEmptyHint() {
@@ -242,10 +231,7 @@ export default {
             return this.assignedSalesChannels.length ? `${title} (${this.assignedSalesChannels.length})` : title;
         },
 
-        ...mapPropertyErrors('language', [
-            'localeId',
-            'name',
-        ]),
+        ...mapPropertyErrors('language', ['localeId', 'name']),
     },
 
     watch: {
@@ -336,20 +322,11 @@ export default {
 
             this.isSnippetMetadataLoading = true;
 
-            return Promise.all([
-                this.translationService.getList(),
-                this.translationService.getMeta(),
-            ])
-                .then(
-                    ([
-                        listResponse,
-                        metaResponse,
-                    ]) => {
-                        this.builtInLocales = metaResponse?.builtInLocales ?? this.builtInLocales;
-                        this.snippetMetadata =
-                            (listResponse?.items ?? []).find((item) => item.locale === localeCode) ?? null;
-                    },
-                )
+            return Promise.all([this.translationService.getList(), this.translationService.getMeta()])
+                .then(([listResponse, metaResponse]) => {
+                    this.builtInLocales = metaResponse?.builtInLocales ?? this.builtInLocales;
+                    this.snippetMetadata = (listResponse?.items ?? []).find((item) => item.locale === localeCode) ?? null;
+                })
                 .catch(() => {
                     this.snippetMetadata = null;
                     this.createNotificationError({
@@ -454,10 +431,7 @@ export default {
 
         invalidateLanguageCaches() {
             Shopware.Service('cacheService').invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'active-languages',
-                ],
+                cacheKey: ['shared-data', 'active-languages'],
             });
         },
     },

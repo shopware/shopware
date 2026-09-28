@@ -215,9 +215,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-physical',
-            ],
+            states: ['is-physical'],
         };
 
         await flushPromises();
@@ -232,9 +230,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await flushPromises();
@@ -248,9 +244,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await flushPromises();
@@ -280,9 +274,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await wrapper.vm.$nextTick();
@@ -295,9 +287,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-physical',
-            ],
+            states: ['is-physical'],
         };
     });
 
@@ -514,9 +504,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'media'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'media')];
 
         await wrapper.vm.$nextTick();
 
@@ -542,9 +530,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'prices'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'prices')];
 
         await wrapper.vm.$nextTick();
 
@@ -556,9 +542,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'deliverability'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'deliverability')];
 
         await wrapper.vm.$nextTick();
 

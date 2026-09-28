@@ -69,43 +69,28 @@ async function resolve(page) {
     loadedData.push(fetchByCriteria(searches));
 
     // Internal promises are allowed to fail, no need to catch
-    return Promise.all(loadedData).then(
-        ([
-            readResults,
-            searchResults,
-        ]) => {
-            Object.entries(slotEntityList).forEach(
-                ([
-                    slotId,
-                    slotEntityData,
-                ]) => {
-                    const slot = slots[slotId];
-                    const slotEntities = [];
+    return Promise.all(loadedData).then(([readResults, searchResults]) => {
+        Object.entries(slotEntityList).forEach(([slotId, slotEntityData]) => {
+            const slot = slots[slotId];
+            const slotEntities = [];
 
-                    Object.entries(slotEntityData).forEach(
-                        ([
-                            searchKey,
-                            slotData,
-                        ]) => {
-                            if (canBeMerged(slotData)) {
-                                slotEntities[searchKey] = readResults[slotData.name];
-                            } else {
-                                slotEntities[searchKey] = searchResults[slotId][searchKey];
-                            }
-                        },
-                    );
+            Object.entries(slotEntityData).forEach(([searchKey, slotData]) => {
+                if (canBeMerged(slotData)) {
+                    slotEntities[searchKey] = readResults[slotData.name];
+                } else {
+                    slotEntities[searchKey] = searchResults[slotId][searchKey];
+                }
+            });
 
-                    const cmsElement = cmsElements[slot.type];
+            const cmsElement = cmsElements[slot.type];
 
-                    if (cmsElement) {
-                        cmsElement.enrich(slot, slotEntities);
-                    }
-                },
-            );
+            if (cmsElement) {
+                cmsElement.enrich(slot, slotEntities);
+            }
+        });
 
-            return true;
-        },
-    );
+        return true;
+    });
 }
 
 function initVisibility(element) {
@@ -113,11 +98,7 @@ function initVisibility(element) {
         element.visibility = {};
     }
 
-    const visibilityProperties = [
-        'mobile',
-        'tablet',
-        'desktop',
-    ];
+    const visibilityProperties = ['mobile', 'tablet', 'desktop'];
 
     visibilityProperties.forEach((key) => {
         if (typeof element.visibility[key] === 'boolean') {
@@ -166,16 +147,11 @@ function initBlockConfig(block) {
 
     const defaultConfig = blockConfig.defaultConfig || {};
 
-    Object.entries(defaultConfig).forEach(
-        ([
-            key,
-            value,
-        ]) => {
-            if (!block[key]) {
-                block[key] = cloneDeep(value);
-            }
-        },
-    );
+    Object.entries(defaultConfig).forEach(([key, value]) => {
+        if (!block[key]) {
+            block[key] = cloneDeep(value);
+        }
+    });
 }
 
 /**
@@ -207,35 +183,25 @@ function optimizeCriteriaObjects(slotEntityCollection) {
     const directReads = {};
     const searches = {};
 
-    Object.entries(slotEntityCollection).forEach(
-        ([
-            slotId,
-            criteriaList,
-        ]) => {
-            Object.entries(criteriaList).forEach(
-                ([
-                    searchKey,
-                    entity,
-                ]) => {
-                    if (canBeMerged(entity)) {
-                        if (!directReads[entity.name]) {
-                            directReads[entity.name] = [];
-                        }
+    Object.entries(slotEntityCollection).forEach(([slotId, criteriaList]) => {
+        Object.entries(criteriaList).forEach(([searchKey, entity]) => {
+            if (canBeMerged(entity)) {
+                if (!directReads[entity.name]) {
+                    directReads[entity.name] = [];
+                }
 
-                        const entityId = Array.isArray(entity.value) ? entity.value : [entity.value];
+                const entityId = Array.isArray(entity.value) ? entity.value : [entity.value];
 
-                        directReads[entity.name].push(...entityId);
-                    } else {
-                        if (!searches[slotId]) {
-                            searches[slotId] = { [searchKey]: [] };
-                        }
+                directReads[entity.name].push(...entityId);
+            } else {
+                if (!searches[slotId]) {
+                    searches[slotId] = { [searchKey]: [] };
+                }
 
-                        searches[slotId][searchKey] = entity;
-                    }
-                },
-            );
-        },
-    );
+                searches[slotId][searchKey] = entity;
+            }
+        });
+    });
 
     return {
         directReads,
@@ -273,28 +239,23 @@ async function fetchByIdentifier(directReads) {
     const entities = {};
     const fetchPromises = [];
 
-    Object.entries(directReads).forEach(
-        ([
-            entityName,
-            entityIds,
-        ]) => {
-            if (entityIds.length > 0) {
-                const criteria = new Criteria(1, 25);
-                criteria.setIds(entityIds);
+    Object.entries(directReads).forEach(([entityName, entityIds]) => {
+        if (entityIds.length > 0) {
+            const criteria = new Criteria(1, 25);
+            criteria.setIds(entityIds);
 
-                const repo = getRepository(entityName);
-                if (!repo) {
-                    return;
-                }
-
-                fetchPromises.push(
-                    repo.search(criteria, contextService).then((response) => {
-                        entities[entityName] = response;
-                    }),
-                );
+            const repo = getRepository(entityName);
+            if (!repo) {
+                return;
             }
-        },
-    );
+
+            fetchPromises.push(
+                repo.search(criteria, contextService).then((response) => {
+                    entities[entityName] = response;
+                }),
+            );
+        }
+    });
 
     await Promise.allSettled(fetchPromises);
     return entities;

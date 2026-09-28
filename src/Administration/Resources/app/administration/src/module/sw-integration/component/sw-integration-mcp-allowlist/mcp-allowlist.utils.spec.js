@@ -60,29 +60,19 @@ describe('mcp-allowlist.utils', () => {
         });
 
         it('returns longest common prefix for multiple names sharing a prefix', () => {
-            const names = [
-                'shopware-entity-search',
-                'shopware-entity-read',
-                'shopware-entity-aggregate',
-            ];
+            const names = ['shopware-entity-search', 'shopware-entity-read', 'shopware-entity-aggregate'];
 
             expect(humanizeCommonPrefix(names)).toBe('Shopware Entity');
         });
 
         it('returns only the shared single segment when names diverge after first segment', () => {
-            const names = [
-                'swag-orders',
-                'swag-products',
-            ];
+            const names = ['swag-orders', 'swag-products'];
 
             expect(humanizeCommonPrefix(names)).toBe('Swag');
         });
 
         it('returns empty string when names share no common prefix', () => {
-            const names = [
-                'shopware-search',
-                'acme-orders',
-            ];
+            const names = ['shopware-search', 'acme-orders'];
 
             expect(humanizeCommonPrefix(names)).toBe('');
         });

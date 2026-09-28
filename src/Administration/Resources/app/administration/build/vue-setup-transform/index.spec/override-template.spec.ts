@@ -255,10 +255,7 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         const result = transformOrFail(source, 'extended-names.override.vue');
 
-        expect(result.extendedBlockNames).toEqual([
-            'sw_example_component_headline',
-            'sw_example_component_body',
-        ]);
+        expect(result.extendedBlockNames).toEqual(['sw_example_component_headline', 'sw_example_component_body']);
         expect(result.ownedBlockNames).toEqual([]);
     });
 

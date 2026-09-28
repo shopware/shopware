@@ -28,19 +28,13 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             await wrapper.vm.runBulkAction('uninstall');
 
             expect(wrapper.vm.showBulkUninstallModal).toBe(true);
-            expect(wrapper.vm.bulkUninstallItems.map((item) => item.name)).toEqual([
-                'A',
-                'B',
-            ]);
+            expect(wrapper.vm.bulkUninstallItems.map((item) => item.name)).toEqual(['A', 'B']);
             expect(shopwareService.uninstallExtension).not.toHaveBeenCalled();
             expect(reload).not.toHaveBeenCalled();
             expect(wrapper.vm.isBulkRunning).toBe(true);
         });
 
-        it.each([
-            true,
-            false,
-        ])(
+        it.each([true, false])(
             'should uninstall every item via the service with the batch-wide removeData=%s on confirm',
             async (removeData) => {
                 setMyExtensions([
@@ -141,10 +135,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             await wrapper.vm.runBulkAction('deactivate');
 
             expect(wrapper.vm.showBulkDeactivationModal).toBe(true);
-            expect(wrapper.vm.bulkDeactivationItems.map((item) => item.name)).toEqual([
-                'Rented',
-                'Free',
-            ]);
+            expect(wrapper.vm.bulkDeactivationItems.map((item) => item.name)).toEqual(['Rented', 'Free']);
             expect(wrapper.vm.rentedBulkDeactivationItems.map((item) => item.name)).toEqual(['Rented']);
             expect(shopwareService.deactivateExtension).not.toHaveBeenCalled();
             expect(reload).not.toHaveBeenCalled();

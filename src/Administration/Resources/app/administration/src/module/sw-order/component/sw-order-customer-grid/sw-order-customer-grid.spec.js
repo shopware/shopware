@@ -104,7 +104,6 @@ async function createWrapper() {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
                 'sw-context-menu-item': true,
-                'sw-empty-state': true,
                 'sw-card-filter': {
                     data() {
                         return { term: '' };
@@ -126,10 +125,7 @@ async function createWrapper() {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-select-result': {
-                    props: [
-                        'item',
-                        'index',
-                    ],
+                    props: ['item', 'index'],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -249,8 +245,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should show empty title correctly', async () => {
@@ -259,16 +254,14 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.attributes('title')).toBe('sw-customer.list.messageEmpty');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-customer.list.messageEmpty');
 
         const searchField = wrapper.find('.sw-card-filter');
 
         await searchField.setValue('Hello World');
         await searchField.trigger('input');
 
-        emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.attributes('title')).toBe(
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe(
             'sw-order.initialModal.customerGrid.textEmptySearch{"name":"Hello World"}',
         );
     });
@@ -279,8 +272,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.exists()).toBeFalsy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeFalsy();
 
         const gridBody = wrapper.find('.sw-data-grid__body');
         expect(gridBody.findAll('.sw-data-grid__row')).toHaveLength(customers.length);

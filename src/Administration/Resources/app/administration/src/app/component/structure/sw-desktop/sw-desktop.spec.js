@@ -140,10 +140,7 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
     const wrapper = mount(await wrapTestComponent('sw-desktop', { sync: true }), {
         attachTo: document.body,
         global: {
-            plugins: [
-                router,
-                shortcutPlugin,
-            ],
+            plugins: [router, shortcutPlugin],
             stubs: {
                 'sw-admin-menu': true,
                 'router-view': true,

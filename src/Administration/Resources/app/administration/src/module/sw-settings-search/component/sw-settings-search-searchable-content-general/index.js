@@ -9,19 +9,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
-    emits: [
-        'data-load',
-        'config-save',
-    ],
+    emits: ['data-load', 'config-save'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     props: {
         isEmpty: {

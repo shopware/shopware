@@ -172,51 +172,37 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         Shopware.Store.get('swFlow').triggerActions = [
             {
                 name: 'action.add.order.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\OrderAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
                 extensions: [],
             },
             {
                 name: 'action.add.customer.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
                 extensions: [],
             },
             {
                 name: 'action.remove.customer.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
                 extensions: [],
             },
             {
                 name: 'action.remove.order.tag',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\OrderAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
                 extensions: [],
             },
             {
                 name: 'action.mail.send',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\MailAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'],
                 extensions: [],
             },
             {
                 name: 'action.set.order.state',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\OrderAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
                 extensions: [],
             },
             {
                 name: 'telegram.send.message',
-                requirements: [
-                    'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                ],
+                requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'],
                 extensions: [],
             },
             {
@@ -228,9 +214,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should show create an selector when select initially', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        const wrapper = await createWrapper(['flow.editor']);
         await flushPromises();
 
         let helpElement = wrapper.find('.sw-flow-detail-flow__trigger-explain');
@@ -260,9 +244,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
             sequences: getSequencesCollection(sequencesFixture),
         });
 
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        const wrapper = await createWrapper(['flow.editor']);
         await flushPromises();
 
         const sequences = wrapper.findAll('.sw-flow-sequence');
@@ -281,9 +263,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
             sequences: getSequencesCollection(sequencesFixture),
         });
 
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        const wrapper = await createWrapper(['flow.editor']);
         await flushPromises();
 
         const addButton = wrapper.find('.sw-flow-detail-flow__position-plus .mt-icon');
@@ -318,9 +298,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
             ],
         });
 
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        const wrapper = await createWrapper(['flow.editor']);
         await flushPromises();
 
         const alertElement = wrapper.findAll('.sw-flow-detail-flow__warning-box');
@@ -344,9 +322,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
             ],
         });
 
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        const wrapper = await createWrapper(['flow.editor']);
         await flushPromises();
 
         await wrapper.setProps({ isTemplate: true });
@@ -356,9 +332,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
     });
 
     it('should create a sequence when sequences is empty and eventName exists', async () => {
-        const wrapper = await createWrapper([
-            'flow.editor',
-        ]);
+        const wrapper = await createWrapper(['flow.editor']);
         await flushPromises();
 
         Shopware.Store.get('swFlow').setFlow({

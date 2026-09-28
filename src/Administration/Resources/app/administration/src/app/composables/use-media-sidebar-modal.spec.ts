@@ -24,26 +24,10 @@ function options(): {
 
 describe('src/app/composables/use-media-sidebar-modal', () => {
     it.each([
-        [
-            'openModalReplace',
-            'showModalReplace',
-            'media.editor',
-        ],
-        [
-            'openModalDelete',
-            'showModalDelete',
-            'media.deleter',
-        ],
-        [
-            'openFolderDissolve',
-            'showFolderDissolve',
-            'media.editor',
-        ],
-        [
-            'openModalMove',
-            'showModalMove',
-            'media.editor',
-        ],
+        ['openModalReplace', 'showModalReplace', 'media.editor'],
+        ['openModalDelete', 'showModalDelete', 'media.deleter'],
+        ['openFolderDissolve', 'showFolderDissolve', 'media.editor'],
+        ['openModalMove', 'showModalMove', 'media.editor'],
     ])('%s opens its modal only with the %s privilege', (open, flag, privilege) => {
         stubShopware([]);
         const denied = useMediaSidebarModal(options()) as unknown as Record<string, (() => void) & { value: boolean }>;
@@ -74,26 +58,11 @@ describe('src/app/composables/use-media-sidebar-modal', () => {
     });
 
     it.each([
-        [
-            'deleteSelectedItems',
-            'showModalDelete',
-            'onItemsDelete',
-        ],
-        [
-            'onFolderDissolved',
-            'showFolderDissolve',
-            'onFolderItemsDissolve',
-        ],
-        [
-            'onFolderMoved',
-            'showModalMove',
-            'onItemsMove',
-        ],
+        ['deleteSelectedItems', 'showModalDelete', 'onItemsDelete'],
+        ['onFolderDissolved', 'showFolderDissolve', 'onFolderItemsDissolve'],
+        ['onFolderMoved', 'showModalMove', 'onItemsMove'],
     ])('%s closes its modal and reports the ids a tick later', async (handler, flag, callback) => {
-        stubShopware([
-            'media.editor',
-            'media.deleter',
-        ]);
+        stubShopware(['media.editor', 'media.deleter']);
         const callbacks = options();
         const composable = useMediaSidebarModal(callbacks) as unknown as Record<
             string,

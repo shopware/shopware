@@ -19,9 +19,7 @@ export default {
         'inline-edit-cancel',
     ],
 
-    mixins: [
-        'sw-inline-snippet',
-    ],
+    mixins: ['sw-inline-snippet'],
 
     props: {
         modelValue: {

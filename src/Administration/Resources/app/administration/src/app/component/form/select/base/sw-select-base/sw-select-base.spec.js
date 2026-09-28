@@ -100,10 +100,7 @@ describe('components/sw-select-base', () => {
         const originalElementsFromPoint = document.elementsFromPoint;
 
         try {
-            document.elementsFromPoint = jest.fn(() => [
-                selection,
-                document.body,
-            ]);
+            document.elementsFromPoint = jest.fn(() => [selection, document.body]);
             wrapper.vm.collapse = jest.fn();
 
             wrapper.vm.listenToClickOutside({
@@ -123,9 +120,7 @@ describe('components/sw-select-base', () => {
         const originalElementsFromPoint = document.elementsFromPoint;
 
         try {
-            document.elementsFromPoint = jest.fn(() => [
-                document.body,
-            ]);
+            document.elementsFromPoint = jest.fn(() => [document.body]);
             wrapper.vm.collapse = jest.fn();
 
             wrapper.vm.listenToClickOutside({

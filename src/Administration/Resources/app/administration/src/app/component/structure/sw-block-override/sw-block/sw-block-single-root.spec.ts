@@ -84,10 +84,7 @@ describe('sw-block single root', () => {
             callerAttributes: 'class="from-caller"',
         });
 
-        expect(wrapper.get('.inner').classes()).toStrictEqual([
-            'inner',
-            'from-caller',
-        ]);
+        expect(wrapper.get('.inner').classes()).toStrictEqual(['inner', 'from-caller']);
     });
 
     it('forwards a listener the caller registers to the block content', async () => {
@@ -147,10 +144,7 @@ describe('sw-block single root', () => {
         const wrapper = await mountConverted({
             blockContent: '<div v-for="entry in entries" :key="entry" class="inner">{{ entry }}</div>',
             componentData: {
-                entries: [
-                    'a',
-                    'b',
-                ],
+                entries: ['a', 'b'],
             },
         });
 

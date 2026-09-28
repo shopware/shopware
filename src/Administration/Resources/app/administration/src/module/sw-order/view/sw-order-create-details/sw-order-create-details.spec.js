@@ -163,10 +163,7 @@ describe('src/module/sw-order/view/sw-order-create-details', () => {
     it('should only show successfully applied promotion codes', async () => {
         const orderStore = Shopware.Store.get('swOrder');
 
-        orderStore.setPromotionCodes([
-            { code: 'VALID-CODE' },
-            { code: 'INVALID-CODE' },
-        ]);
+        orderStore.setPromotionCodes([{ code: 'VALID-CODE' }, { code: 'INVALID-CODE' }]);
         orderStore.setCart({
             token: null,
             lineItems: [

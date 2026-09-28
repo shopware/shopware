@@ -64,11 +64,7 @@ describe('components/sw-existence-filter', () => {
 
         await selectMtSelectOptionByText(wrapper, 'false');
 
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            'media',
-            [Criteria.equals('media.id', null)],
-            'false',
-        ]);
+        expect(wrapper.emitted()['filter-update'][0]).toEqual(['media', [Criteria.equals('media.id', null)], 'false']);
     });
 
     it('should emit `filter-reset` event when user clicks Reset button from `true`', async () => {
@@ -106,11 +102,7 @@ describe('components/sw-existence-filter', () => {
 
         await selectMtSelectOptionByText(wrapper, 'false');
 
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            'media',
-            [Criteria.equals('media.id', null)],
-            'false',
-        ]);
+        expect(wrapper.emitted()['filter-update'][0]).toEqual(['media', [Criteria.equals('media.id', null)], 'false']);
     });
 
     it('should emit `filter-update` event when user changes from `false` to `true`', async () => {

@@ -95,10 +95,7 @@ const flowSequenceRepositorySyncDeletedMock = jest.fn((sequencesIds) => {
     });
 
     // eslint-disable-next-line jest/no-standalone-expect
-    expect(ids).toEqual([
-        '2',
-        '4',
-    ]);
+    expect(ids).toEqual(['2', '4']);
 });
 
 const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
@@ -111,10 +108,7 @@ const flowSequenceRepositorySyncMock = jest.fn((sequences) => {
     });
 
     // eslint-disable-next-line jest/no-standalone-expect
-    expect(ids).toEqual([
-        '1',
-        '3',
-    ]);
+    expect(ids).toEqual(['1', '3']);
 });
 
 const businessEventServiceMock = {
@@ -184,9 +178,7 @@ async function createWrapper(
                                 },
                                 search: () => {
                                     if (entity === 'rule') {
-                                        return Promise.resolve([
-                                            { id: '1111', name: 'test rule' },
-                                        ]);
+                                        return Promise.resolve([{ id: '1111', name: 'test rule' }]);
                                     }
 
                                     return Promise.resolve([]);

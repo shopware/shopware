@@ -14,11 +14,7 @@ const { get, format } = Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'orderService', 'acl'],
 
     emits: [
         'item-edit',

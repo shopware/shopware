@@ -130,13 +130,7 @@ export default {
             get() {
                 const sorting = this.$route.query.sorting;
 
-                return [
-                    'updated-at',
-                    'name-asc',
-                    'name-desc',
-                ].includes(sorting)
-                    ? sorting
-                    : 'updated-at';
+                return ['updated-at', 'name-asc', 'name-desc'].includes(sorting) ? sorting : 'updated-at';
             },
 
             set(newSorting) {
@@ -413,10 +407,7 @@ export default {
         onSelectChange(extension, checked) {
             if (checked) {
                 if (!this.selectedNames.includes(extension.name)) {
-                    this.selectedNames = [
-                        ...this.selectedNames,
-                        extension.name,
-                    ];
+                    this.selectedNames = [...this.selectedNames, extension.name];
                 }
                 return;
             }
@@ -576,10 +567,7 @@ export default {
 
         markBulkProcessing(name) {
             if (!this.bulkProcessingNames.includes(name)) {
-                this.bulkProcessingNames = [
-                    ...this.bulkProcessingNames,
-                    name,
-                ];
+                this.bulkProcessingNames = [...this.bulkProcessingNames, name];
             }
         },
 
@@ -623,25 +611,20 @@ export default {
             const domains = new Set();
 
             items.forEach((item) => {
-                Object.entries(item.permissions || {}).forEach(
-                    ([
-                        category,
-                        perms,
-                    ]) => {
-                        (perms || []).forEach((perm) => {
-                            const key = `${category}|${perm.entity}|${perm.operation}`;
-                            if (seen.has(key)) {
-                                return;
-                            }
-                            seen.add(key);
+                Object.entries(item.permissions || {}).forEach(([category, perms]) => {
+                    (perms || []).forEach((perm) => {
+                        const key = `${category}|${perm.entity}|${perm.operation}`;
+                        if (seen.has(key)) {
+                            return;
+                        }
+                        seen.add(key);
 
-                            if (!permissions[category]) {
-                                permissions[category] = [];
-                            }
-                            permissions[category].push(perm);
-                        });
-                    },
-                );
+                        if (!permissions[category]) {
+                            permissions[category] = [];
+                        }
+                        permissions[category].push(perm);
+                    });
+                });
 
                 (item.domains || []).forEach((domain) => domains.add(domain));
             });

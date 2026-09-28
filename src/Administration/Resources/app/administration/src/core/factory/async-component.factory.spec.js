@@ -12,38 +12,23 @@ import { cloneDeep } from 'src/core/service/utils/object.utils';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
 
 function createComponentMatrix(components) {
-    const possibilities = [
-        (value) => value,
-        (value) => (v) => Promise.resolve(value(v)),
-    ];
+    const possibilities = [(value) => value, (value) => (v) => Promise.resolve(value(v))];
 
-    const possibilitiesForComponents = Object.entries(components).map(
-        ([
-            key,
-            value,
-        ]) => {
-            return possibilities.map((possibility) => {
-                return {
-                    key: key,
-                    value: possibility(value),
-                };
-            });
-        },
-    );
+    const possibilitiesForComponents = Object.entries(components).map(([key, value]) => {
+        return possibilities.map((possibility) => {
+            return {
+                key: key,
+                value: possibility(value),
+            };
+        });
+    });
 
     // create cartesian product of all component possibilities
     const flatten = (arr) => [].concat(...arr);
     const cartesianProduct = (sets) => {
         return sets.reduce(
             (acc, set) => {
-                return flatten(
-                    acc.map((x) =>
-                        set.map((y) => [
-                            ...x,
-                            y,
-                        ]),
-                    ),
-                );
+                return flatten(acc.map((x) => set.map((y) => [...x, y])));
             },
             [[]],
         );
@@ -2296,10 +2281,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 mount(await ComponentFactory.build('root-component'));
 
-                expect(createdData).toEqual([
-                    'root',
-                    'overridden',
-                ]);
+                expect(createdData).toEqual(['root', 'overridden']);
             });
         });
     });
@@ -2357,10 +2339,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 mount(await ComponentFactory.build('root-component'));
 
-                expect(createdData).toEqual([
-                    'root',
-                    'overridden',
-                ]);
+                expect(createdData).toEqual(['root', 'overridden']);
             });
         });
     });
@@ -2681,10 +2660,7 @@ describe('core/factory/async-component.factory.ts', () => {
             B: () => ({
                 template: '{% block overrides %}{% parent %} {{logAnotherService}}{% endblock %}',
 
-                inject: [
-                    'someService',
-                    'anotherService',
-                ],
+                inject: ['someService', 'anotherService'],
                 mixins: [
                     {
                         computed: {
@@ -2911,10 +2887,7 @@ describe('core/factory/async-component.factory.ts', () => {
         expect(inputConfig).toBe(outputConfig);
     });
 
-    it.each([
-        [1],
-        [3],
-    ])('should call whole super chain with %i empty override', async (numberOfEmptyOverrides) => {
+    it.each([[1], [3]])('should call whole super chain with %i empty override', async (numberOfEmptyOverrides) => {
         const { Criteria } = Shopware.Data;
 
         // Register sw-order-list with reactive computed orderCriteria changes triggered via template button interactions, similar to the real component
@@ -3011,33 +2984,21 @@ describe('core/factory/async-component.factory.ts', () => {
         // Expected behaviour is that on each button change and initial the criteria has all associations
         const wrapper = mount(await ComponentFactory.build('sw-order-list'));
         expect(wrapper.vm).toBeTruthy();
-        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual([
-            'override2',
-            'override3',
-            'override4',
-        ]);
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
 
         // Click next page button
         const nextButton = wrapper.find('#next');
         await nextButton.trigger('click');
         await flushPromises();
 
-        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual([
-            'override2',
-            'override3',
-            'override4',
-        ]);
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
 
         // Click previous page button
         const previousButton = wrapper.find('#previous');
         await previousButton.trigger('click');
         await flushPromises();
 
-        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual([
-            'override2',
-            'override3',
-            'override4',
-        ]);
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
     });
 
     describe('returns a component that overrides a method which is called multiple times with parameters', () => {

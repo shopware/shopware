@@ -12,19 +12,11 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['feature', 'repositoryFactory'],
 
-    emits: [
-        'media-settings-modal-save',
-        'media-settings-modal-close',
-    ],
+    emits: ['media-settings-modal-save', 'media-settings-modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         mediaFolderId: {

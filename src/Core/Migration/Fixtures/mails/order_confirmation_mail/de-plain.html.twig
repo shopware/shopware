@@ -34,6 +34,12 @@ Beschreibung {{ lineItem.label|u.wordwrap(80) }},
 {{ referencePriceFeature.value.purchaseUnit }} {{ referencePriceFeature.value.unitName }}({{ referencePriceFeature.value.price|currency(currencyIsoCode) }} pro {{ referencePriceFeature.value.referenceUnit }} {{ referencePriceFeature.value.unitName }}),
 {% endif %}
 {% endif %}
+{% if lineItem.productId is defined and lineItem.productId %}
+{% set garanLabel = lineItem.productId|sw_garan_label_mail(context) %}
+{% if garanLabel %}
+Gewerbliche Haltbarkeitsgarantie (GARAN) {{ garanLabel.duration }} Jahre,
+{% endif %}
+{% endif %}
 Menge {{ lineItem.quantity }},
 Preis {{ lineItem.unitPrice|currency(currencyIsoCode) }},
 Summe {{ lineItem.totalPrice|currency(currencyIsoCode) }},

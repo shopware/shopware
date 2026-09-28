@@ -226,7 +226,7 @@ Shopware now follows a `301` or `302` from an app endpoint without dropping the 
 
 ### App MCP capabilities use generic feature storage
 
-App-declared MCP tools, prompts, and resources are now persisted through the generic app feature storage. Installed apps do not need to change their `mcp.xml`.
+App-declared MCP tools, prompts, and resources are now persisted through the generic app feature storage. Installed apps do not need to change their `mcp.xml`, but their existing MCP tools, prompts, and resources are not migrated. Reinstall or update affected apps after upgrading to re-register them.
 
 The dedicated app MCP DAL aggregates (`app_mcp_tool`, `app_mcp_prompt`, `app_mcp_resource` and their translation tables) and their accessors on `AppEntity` and `LanguageEntity` were experimental and have been removed.
 

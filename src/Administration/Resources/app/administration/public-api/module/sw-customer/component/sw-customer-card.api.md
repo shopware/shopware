@@ -16,6 +16,7 @@ mixins
 inject
   acl
   contextStoreService
+  customerVatIdService
   repositoryFactory
 
 props
@@ -30,11 +31,13 @@ slots
   metadata-additional  {}  block=sw_customer_card_metadata_additional
 
 data
+  euVatIdPatterns: any
   showConvertCustomerModal: any
   showImitateCustomerModal: any
 
 computed
   accountTypeOptions: any
+  billingCountry: any
   canUseConvertCustomer: any
   canUseCustomerImitation: any
   currentUser: any
@@ -46,10 +49,14 @@ computed
   hasSingleBoundSalesChannelUrl: any
   hasSummarySlot: any
   isBusinessAccountType: any
+  isVatIdRequired: any
   moduleColor: any
   salutationCriteria: any
+  vatIdIssue: any
+  vatIdWarning: any
 
 methods
+  createdComponent(): Promise<any>
   getMailTo(mail: any): any
   onCloseConvertCustomerModal(): any
   onCloseImitateCustomerModal(): any
@@ -90,6 +97,7 @@ blocks
             sw_customer_card_password_confirm  [after v-if]
       sw_customer_card_row_secondary
         sw_customer_card_slot_default
+      sw_customer_card_vat_id_warning
 
 crossings
   <div>  sw_customer_card_metadata -> sw_customer_card_metadata_customer_email

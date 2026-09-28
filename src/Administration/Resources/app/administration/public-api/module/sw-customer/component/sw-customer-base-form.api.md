@@ -15,6 +15,7 @@ inject
 
 props
   customer: object
+  isVatIdRequired?: boolean  default=false
 
 emits
   sales-channel-change(...args: any[])

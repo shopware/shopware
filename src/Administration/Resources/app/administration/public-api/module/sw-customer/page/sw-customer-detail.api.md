@@ -17,6 +17,7 @@ inject
   acl
   customerGroupRegistrationService
   customerValidationService
+  customerVatIdService
   feature
   repositoryFactory
 
@@ -63,6 +64,7 @@ methods
   saveFinish(): any
   saveOnLanguageChange(): any
   validPassword(customer: any): Promise<any>
+  validVatIdField(): Promise<any>
   validateEmail(): Promise<any>
 
 blocks

@@ -16,12 +16,14 @@ mixins
 inject
   customFieldDataProviderService
   customerValidationService
+  customerVatIdService
   numberRangeService
   repositoryFactory
   systemConfigApiService
 
 data
   address: any
+  billingCountry: any
   customer: any
   customerCustomFieldSets: any
   customerNumberPreview: any
@@ -30,7 +32,9 @@ data
 
 computed
   addressCompanyError: any
+  countryRepository: any
   customerRepository: any
+  isVatIdRequired: any
   languageCriteria: any
   languageId: any
   languageRepository: any
@@ -49,6 +53,7 @@ methods
   onChangeSalesChannel(salesChannelId: any): any
   onSave(): Promise<any>
   saveFinish(): any
+  validVatIdField(): Promise<any>
   validateEmail(): Promise<any>
 
 blocks

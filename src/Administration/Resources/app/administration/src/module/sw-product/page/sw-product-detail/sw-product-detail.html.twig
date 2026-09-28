@@ -259,6 +259,7 @@
             <sw-product-clone-modal
                 v-if="cloning"
                 :product="product"
+                :product-number-preview="productNumberPreview"
                 @clone-finish="onDuplicateFinish"
             />
             {% endblock %}

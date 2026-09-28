@@ -53,25 +53,26 @@ All blocks of this template are available in the template which renders this tem
                         {% endblock %}
                         {% block document_line_item_table_head_unit_price %}
                             <th class="numbers incl-vat">
-                                {{ 'document.lineItems.header.unitPrice'|trans|sw_sanitize(null, true) }}
-                                {% if displayVAT %}
-                                    {% if taxStatusGross %}
+                                {# No whitespace before the span, Dompdf would render it and push the label out of line with the prices -#}
+                                {{ 'document.lineItems.header.unitPrice'|trans|sw_sanitize(null, true) -}}
+                                {% if displayVAT -%}
+                                    {% if taxStatusGross -%}
                                         <span>{{ 'document.lineItems.inclVAT'|trans|sw_sanitize(null, true) }}</span>
-                                    {% elseif taxStatusNet %}
+                                    {%- elseif taxStatusNet -%}
                                         <span>{{ 'document.lineItems.exclVAT'|trans|sw_sanitize(null, true) }}</span>
-                                    {% endif %}
+                                    {%- endif %}
                                 {% endif %}
                             </th>
                         {% endblock %}
                         {% block document_line_item_table_head_total_price %}
                             <th class="numbers incl-vat">
-                                {{ 'document.lineItems.header.total'|trans|sw_sanitize(null, true) }}
-                                {% if displayVAT %}
-                                    {% if taxStatusGross %}
+                                {{ 'document.lineItems.header.total'|trans|sw_sanitize(null, true) -}}
+                                {% if displayVAT -%}
+                                    {% if taxStatusGross -%}
                                         <span>{{ 'document.lineItems.inclVAT'|trans|sw_sanitize(null, true) }}</span>
-                                    {% elseif taxStatusNet %}
+                                    {%- elseif taxStatusNet -%}
                                         <span>{{ 'document.lineItems.exclVAT'|trans|sw_sanitize(null, true) }}</span>
-                                    {% endif %}
+                                    {%- endif %}
                                 {% endif %}
                             </th>
                         {% endblock %}

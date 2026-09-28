@@ -33,6 +33,8 @@ runs:
         keep-composer-tools: ${{ inputs.keep-composer-tools }}
         shopware-version: ${{ github.ref }}
         shopware-repository: ${{ github.repository }}
+        # Keeps setup-shopware's default ini values; zend.assertions can't be enabled at runtime.
+        php-ini-values: "session.gc_probability=0,session.save_path=/tmp/php-sessions,zend.assertions=1"
 
     - name: Wait for OpenSearch/Elasticsearch
       if: ${{ inputs.needs-opensearch == 'true' }}

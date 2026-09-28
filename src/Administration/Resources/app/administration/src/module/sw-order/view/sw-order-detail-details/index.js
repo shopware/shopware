@@ -50,6 +50,10 @@ export default {
             from: 'repositoryFactory',
             default: null,
         },
+        customFieldDataProviderService: {
+            from: 'customFieldDataProviderService',
+            default: null,
+        },
     },
 
     emits: [
@@ -116,10 +120,12 @@ export default {
             return this.order.primaryOrderTransaction;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
@@ -189,7 +195,7 @@ export default {
         createdComponent() {
             this.loadingChange(true);
 
-            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
+            this.customFieldDataProviderService.getCustomFieldSets('order', false, null).then((result) => {
                 this.customFieldSets = result;
                 this.loadingChange(false);
             });

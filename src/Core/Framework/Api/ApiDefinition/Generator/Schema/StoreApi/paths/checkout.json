@@ -211,14 +211,7 @@
                 "operationId": "deleteCart",
                 "responses": {
                     "204": {
-                        "description": "Successfully deleted the cart",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/SuccessResponse"
-                                }
-                            }
-                        }
+                        "description": "Successfully deleted the cart"
                     },
                     "401": {
                         "$ref": "#/components/responses/401",
@@ -539,63 +532,43 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "payments",
+                                        "shipments",
+                                        "errors"
+                                    ],
                                     "properties": {
-                                        "paymentMethods": {
-                                            "properties": {
-                                                "total": {
-                                                    "description": "Total amount",
-                                                    "type": "integer"
-                                                },
-                                                "aggregations": {
-                                                    "description": "aggregation result",
-                                                    "type": "object"
-                                                },
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/PaymentMethod"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "shippingMethods": {
-                                            "properties": {
-                                                "total": {
-                                                    "description": "Total amount",
-                                                    "type": "integer"
-                                                },
-                                                "aggregations": {
-                                                    "description": "aggregation result",
-                                                    "type": "object"
-                                                },
-                                                "elements": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/ShippingMethod"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "errors": {
+                                        "payments": {
+                                            "description": "Payment methods that are available after the gateway ran.",
                                             "type": "array",
                                             "items": {
-                                                "properties": {
-                                                    "code": {
-                                                        "description": "Error code",
-                                                        "type": "string"
-                                                    },
-                                                    "detail": {
-                                                        "description": "Error detail",
-                                                        "type": "string"
-                                                    },
-                                                    "blocking": {
-                                                        "description": "If the error is blocking",
-                                                        "type": "boolean"
+                                                "$ref": "#/components/schemas/PaymentMethod"
+                                            }
+                                        },
+                                        "shipments": {
+                                            "description": "Shipping methods that are available after the gateway ran.",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ShippingMethod"
+                                            }
+                                        },
+                                        "errors": {
+                                            "description": "Cart errors added by the gateway. An empty list is returned as `[]`, otherwise the errors are keyed by their id.",
+                                            "anyOf": [
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CartError"
+                                                    }
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "$ref": "#/components/schemas/CartError"
                                                     }
                                                 }
-                                            }
+                                            ]
                                         }
                                     }
                                 }

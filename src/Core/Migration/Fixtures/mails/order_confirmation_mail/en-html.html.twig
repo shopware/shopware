@@ -74,10 +74,14 @@
                         {% endif %}
 
                         {% if nestedItem.productId is defined and nestedItem.productId %}
-                            {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}
-                            {% if garanLabelDataUri %}
+                            {% set garanLabel = nestedItem.productId|sw_garan_label_mail(context) %}
+                            {% if garanLabel %}
                                 <div style="padding-top: 5px;{% if nestingLevel > 0 %} padding-left: {{ (nestingLevel + 1) * 10 }}px;{% endif %}">
-                                    <img src="{{ garanLabelDataUri }}" width="195" height="30" style="display:block; max-width:195px; height:auto;" alt="GARAN label showing the commercial guarantee for this product"/>
+                                    {% if garanLabel.cid %}
+                                        <img src="{{ garanLabel.cid }}" width="195" height="30" style="display:block; max-width:195px; height:auto;" alt="GARAN label: commercial guarantee of durability of {{ garanLabel.duration|replace({',': '.'}) }} years"/>
+                                    {% else %}
+                                        GARAN label: commercial guarantee of durability of {{ garanLabel.duration|replace({',': '.'}) }} years
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         {% endif %}

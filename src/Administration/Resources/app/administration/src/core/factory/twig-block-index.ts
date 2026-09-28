@@ -102,7 +102,7 @@ function parseTwigBlockEntries(componentName: string, rawTemplate: string): Lega
 
     return parsedTokens.filter(isBlockToken).map((token) => ({
         blockName: token.token.blockName,
-        innerTemplate: reconstructInnerTemplate((token.token.output ?? []) as TwigToken[]),
+        innerTemplate: reconstructInnerTemplate(componentName, (token.token.output ?? []) as TwigToken[]),
     }));
 }
 

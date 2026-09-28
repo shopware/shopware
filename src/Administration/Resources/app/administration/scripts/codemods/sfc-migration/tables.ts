@@ -127,6 +127,7 @@ const GENERATED_HELPER_NAMES = new Set([
     'slots',
     'attrs',
     'nextTick',
+    'useShortcut',
 ]);
 
 export {

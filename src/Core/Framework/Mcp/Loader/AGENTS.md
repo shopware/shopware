@@ -1,7 +1,7 @@
 # MCP Loaders
 
 ## Purpose
-Loaders extend the MCP SDK's capability discovery to include tools, prompts, and resources from Shopware apps. Three concrete loaders (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`) extend `AbstractAppMcpLoader`, which provides the shared try/fetch/foreach pipeline plus `capabilityName()` (prefixes the app name) and `resolveDescription()` helpers.
+Loaders extend the MCP SDK's capability discovery to include tools, prompts, and resources from Shopware apps. Three concrete loaders (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`) extend `AbstractAppMcpLoader`, which fetches the active apps' features, skips those whose app has no secret (unless `requiresAppSecret()` says otherwise), and hands each one to `registerCapability()`; it also provides the `capabilityName()` (prefixes the app name) and `resolveDescription()` helpers.
 
 ## Plugin integration
 Plugins register MCP tools by tagging services with `shopware.mcp.tool` in their DI XML. At compile time, `McpToolDiscoveryCompilerPass` does two things:
@@ -73,10 +73,10 @@ App tools whose `url` starts with `/` are dispatched as Symfony subrequests inst
 
 **Why POST form params, not JSON body:** Shopware's `JsonRequestTransformer` middleware only runs on the main request. In a subrequest, a raw JSON body is not parsed into the `request` ParameterBag. Passing `['arguments' => $arguments]` as form data ensures `hook.request.request.all('arguments')` returns the array in Twig scripts.
 
-**Secret filter:** `AppMcpToolLoader` skips tools of apps without a secret unless the tool URL is internal (starts with `/`) -- apps without a registration secret are included when their tool URL is internal.
+**Secret filter:** `AbstractAppMcpLoader` skips capabilities of apps without a secret; `AppMcpToolLoader` overrides `requiresAppSecret()` so tools with an internal URL (starts with `/`) are still included.
 
 ### Classes
-- `AbstractAppMcpLoader` -- base class implementing `LoaderInterface`: wraps the DB fetch in a try/catch, iterates rows, and provides `capabilityName()` / `resolveDescription()` helpers for concrete loaders
+- `AbstractAppMcpLoader` -- base class implementing `LoaderInterface`: fetches the typed features from app feature storage, applies the app-secret filter, and provides `capabilityName()` / `resolveDescription()` helpers for concrete loaders
 - `AppMcpToolLoader` -- reads `mcp_tool` features from app feature storage, registers tools, enforces reserved `shopware-` prefix, honors the `shopware.mcp.allowed_tools` compile-time allowlist
 - `AppMcpPromptLoader` -- reads `mcp_prompt` features, registers prompts
 - `AppMcpResourceLoader` -- reads `mcp_resource` features, registers resources

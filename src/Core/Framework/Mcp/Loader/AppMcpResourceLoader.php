@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Loader;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\ResourceDefinition;
 use Mcp\Server\RequestContext;
+use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Mcp\Feature\McpResourceConfig;
 use Shopware\Core\Framework\Log\Package;
 
@@ -12,57 +13,40 @@ use Shopware\Core\Framework\Log\Package;
  * @experimental stableVersion:v6.8.0
  *
  * Registers app-provided MCP resources with the MCP server registry at build time.
+ *
+ * @extends AbstractAppMcpLoader<McpResourceConfig>
  */
 #[Package('framework')]
 class AppMcpResourceLoader extends AbstractAppMcpLoader
 {
-    protected function fetchRows(): array
+    protected function getConfigClass(): string
     {
-        $locale = $this->systemLocale();
-        $features = $this->storage->forActiveApps(McpResourceConfig::class);
-
-        $rows = [];
-
-        foreach ($features as $feature) {
-            if (!$feature->appHasSecret) {
-                continue;
-            }
-
-            $config = $feature->config;
-
-            $rows[] = [
-                ...$config->toArray(),
-                'app_name' => $feature->appName,
-                'label' => $config->label->forLocale($locale),
-                'description' => $config->description->forLocale($locale),
-            ];
-        }
-
-        return $rows;
+        return McpResourceConfig::class;
     }
 
-    protected function registerCapability(RegistryInterface $registry, array $row): void
+    protected function registerCapability(RegistryInterface $registry, AppFeature $feature, string $locale): void
     {
-        $appName = (string) $row['app_name'];
-        $name = (string) $row['name'];
-        $resourceName = $this->capabilityName($appName, $name);
+        $appName = $feature->appName;
+        $config = $feature->config;
+        $resourceName = $this->capabilityName($appName, $config->name);
 
         if ($this->isReservedName($resourceName, $appName, 'resource')) {
             return;
         }
 
-        $description = $this->resolveDescription($row, $resourceName);
-        $mimeType = isset($row['mimeType']) ? (string) $row['mimeType'] : null;
-
         $resource = new ResourceDefinition(
-            uri: (string) $row['uri'],
+            uri: $config->uri,
             name: $resourceName,
-            description: $description,
-            mimeType: $mimeType,
+            description: $this->resolveDescription(
+                $config->description->forLocale($locale),
+                $config->label->forLocale($locale),
+                $resourceName,
+            ),
+            mimeType: $config->mimeType,
         );
 
-        $url = (string) $row['url'];
-        $uri = (string) $row['uri'];
+        $url = $config->url;
+        $uri = $config->uri;
 
         $registry->registerResource($resource, function (RequestContext $context) use ($resourceName, $appName, $url, $uri): string {
             return $this->executor->execute($resourceName, $appName, $url, ['uri' => $uri]);

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Loader;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
 use Mcp\Server\RequestContext;
+use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
 use Shopware\Core\Framework\Log\Package;
 
@@ -12,54 +13,36 @@ use Shopware\Core\Framework\Log\Package;
  * @experimental stableVersion:v6.8.0
  *
  * Registers app-provided MCP prompts with the MCP server registry at build time.
+ *
+ * @extends AbstractAppMcpLoader<McpPromptConfig>
  */
 #[Package('framework')]
 class AppMcpPromptLoader extends AbstractAppMcpLoader
 {
-    protected function fetchRows(): array
+    protected function getConfigClass(): string
     {
-        $locale = $this->systemLocale();
-        $features = $this->storage->forActiveApps(McpPromptConfig::class);
-
-        $rows = [];
-
-        foreach ($features as $feature) {
-            if (!$feature->appHasSecret) {
-                continue;
-            }
-
-            $config = $feature->config;
-
-            $rows[] = [
-                ...$config->toArray(),
-                'app_name' => $feature->appName,
-                'label' => $config->label->forLocale($locale),
-                'description' => $config->description->forLocale($locale),
-            ];
-        }
-
-        return $rows;
+        return McpPromptConfig::class;
     }
 
-    protected function registerCapability(RegistryInterface $registry, array $row): void
+    protected function registerCapability(RegistryInterface $registry, AppFeature $feature, string $locale): void
     {
-        $appName = (string) $row['app_name'];
-        $name = (string) $row['name'];
-        $promptName = $this->capabilityName($appName, $name);
+        $appName = $feature->appName;
+        $config = $feature->config;
+        $promptName = $this->capabilityName($appName, $config->name);
 
         if ($this->isReservedName($promptName, $appName, 'prompt')) {
             return;
         }
 
-        $description = $this->resolveDescription($row, $promptName);
+        $label = $config->label->forLocale($locale);
 
         $prompt = new Prompt(
             name: $promptName,
-            title: isset($row['label']) && $row['label'] !== '' ? (string) $row['label'] : null,
-            description: $description,
+            title: $label ?: null,
+            description: $this->resolveDescription($config->description->forLocale($locale), $label, $promptName),
         );
 
-        $url = (string) $row['url'];
+        $url = $config->url;
 
         $registry->registerPrompt($prompt, function (RequestContext $context) use ($promptName, $appName, $url): string {
             return $this->executor->execute($promptName, $appName, $url, []);

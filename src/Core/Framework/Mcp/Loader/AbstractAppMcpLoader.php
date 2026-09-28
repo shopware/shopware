@@ -2,18 +2,22 @@
 
 namespace Shopware\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\Registry\Loader\LoaderInterface;
 use Mcp\Capability\RegistryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\Feature\AppFeatureException;
+use Shopware\Core\Framework\App\Feature\AppFeature;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptConfig;
+use Shopware\Core\Framework\App\Mcp\Feature\McpResourceConfig;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @experimental stableVersion:v6.8.0
+ *
+ * @template T of McpToolConfig|McpPromptConfig|McpResourceConfig
  */
 #[Package('framework')]
 abstract class AbstractAppMcpLoader implements LoaderInterface
@@ -28,29 +32,39 @@ abstract class AbstractAppMcpLoader implements LoaderInterface
 
     public function load(RegistryInterface $registry): void
     {
-        try {
-            $rows = $this->fetchRows();
-        } catch (DBALException) {
-            return;
-        } catch (AppFeatureException) {
-            // the MCP feature type is not registered; nothing to load
-            return;
-        }
+        $features = $this->storage->forActiveApps($this->getConfigClass());
 
-        foreach ($rows as $row) {
-            $this->registerCapability($registry, $row);
+        // matches the old loaders' hardcoded system-language read
+        $locale = $this->localeProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
+
+        foreach ($features as $feature) {
+            if ($this->requiresAppSecret($feature->config) && !$feature->appHasSecret) {
+                continue;
+            }
+
+            $this->registerCapability($registry, $feature, $locale);
         }
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return class-string<T>
      */
-    abstract protected function fetchRows(): array;
+    abstract protected function getConfigClass(): string;
 
     /**
-     * @param array<string, mixed> $row
+     * @param AppFeature<T> $feature
      */
-    abstract protected function registerCapability(RegistryInterface $registry, array $row): void;
+    abstract protected function registerCapability(RegistryInterface $registry, AppFeature $feature, string $locale): void;
+
+    /**
+     * Capabilities are executed by signing a request to the app, which needs the app secret.
+     *
+     * @param T $config
+     */
+    protected function requiresAppSecret(McpToolConfig|McpPromptConfig|McpResourceConfig $config): bool
+    {
+        return true;
+    }
 
     protected function capabilityName(string $appName, string $name): string
     {
@@ -71,22 +85,8 @@ abstract class AbstractAppMcpLoader implements LoaderInterface
         return false;
     }
 
-    /**
-     * @param array<string, mixed> $row
-     */
-    protected function resolveDescription(array $row, string $fallback): string
+    protected function resolveDescription(?string $description, ?string $label, string $fallback): string
     {
-        $description = isset($row['description']) && $row['description'] !== '' ? (string) $row['description'] : null;
-        $label = isset($row['label']) && $row['label'] !== '' ? (string) $row['label'] : null;
-
-        return $description ?? $label ?? $fallback;
-    }
-
-    /**
-     * The label/description locale to show. Matches the old loaders' hardcoded system-language read.
-     */
-    protected function systemLocale(): string
-    {
-        return $this->localeProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
+        return $description ?: ($label ?: $fallback);
     }
 }

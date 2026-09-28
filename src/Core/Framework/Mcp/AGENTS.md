@@ -148,7 +148,7 @@ App MCP tools can use `/api/script/{path}` as their `url` — Shopware dispatche
 1. `AppMcpCapabilityExecutor` detects URLs starting with `/` and dispatches a Symfony subrequest instead of a Guzzle HTTP call.
 2. Arguments are passed as a `POST` form parameter named `arguments` (not JSON body), so Twig scripts can access them via `hook.request.request.all('arguments')`.
 3. Auth headers from the parent MCP request are inherited — the subrequest runs in the integration's authenticated context, so DAL ACL is enforced normally.
-4. `AppMcpToolLoader` SQL includes apps without a secret when their tool URL starts with `/`.
+4. `AppMcpToolLoader` includes apps without a secret when their tool URL starts with `/`.
 
 ### App script pattern
 

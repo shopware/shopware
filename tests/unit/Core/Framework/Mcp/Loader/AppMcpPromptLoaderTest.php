@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\Registry\PromptReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
@@ -46,18 +45,6 @@ class AppMcpPromptLoaderTest extends TestCase
         $this->localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $this->localeProvider->method('getLocaleForLanguageId')->willReturn('en-GB');
         $this->loader = new AppMcpPromptLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger());
-    }
-
-    public function testLoadWithDBALExceptionRegistersNoPrompts(): void
-    {
-        $exception = new class('DB error') extends \Exception implements DBALException {};
-
-        $this->storage->method('forActiveApps')->willThrowException($exception);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerPrompt');
-
-        $this->loader->load($registry);
     }
 
     public function testLoadWithOnePromptRegistersPromptWithCorrectName(): void

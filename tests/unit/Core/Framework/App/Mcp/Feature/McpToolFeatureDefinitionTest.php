@@ -4,13 +4,16 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Mcp\Feature;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Feature\TranslatedString;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\App\Mcp\Feature\McpToolFeatureDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 
@@ -78,44 +81,32 @@ class McpToolFeatureDefinitionTest extends TestCase
         static::assertSame('Syncs orders', $configs[0]->description->forLocale('fr-FR'));
     }
 
-    public function testFromAppPassesWhenManifestGrantsRequiredPrivileges(): void
+    public function testValidatePassesWhenManifestGrantsRequiredPrivileges(): void
     {
-        $configs = $this->definition->fromApp(
-            $this->manifest(Permissions::fromArray([
-                'permissions' => ['order' => ['read', 'update']],
-                'additionalPrivileges' => [],
-            ])),
-            new Filesystem(__DIR__ . '/../../_fixtures'),
-            'en-GB',
-        );
+        $this->expectNotToPerformAssertions();
 
-        static::assertCount(1, $configs);
+        $this->definition->validate($this->declaredTools(), $this->persistContext(Permissions::fromArray([
+            'permissions' => ['order' => ['read', 'update']],
+            'additionalPrivileges' => [],
+        ])));
     }
 
-    public function testFromAppRejectsRequiredPrivilegeMissingFromManifestPermissions(): void
+    public function testValidateRejectsRequiredPrivilegeMissingFromManifestPermissions(): void
     {
         $this->expectException(AppException::class);
         $this->expectExceptionMessageMatches('/requires "order:update" but it is not declared in <permissions>/');
 
-        $this->definition->fromApp(
-            $this->manifest(Permissions::fromArray([
-                'permissions' => ['order' => ['read']],
-                'additionalPrivileges' => [],
-            ])),
-            new Filesystem(__DIR__ . '/../../_fixtures'),
-            'en-GB',
-        );
+        $this->definition->validate($this->declaredTools(), $this->persistContext(Permissions::fromArray([
+            'permissions' => ['order' => ['read']],
+            'additionalPrivileges' => [],
+        ])));
     }
 
-    public function testFromAppSkipsPrivilegeValidationWhenManifestHasNoPermissions(): void
+    public function testValidateSkipsPrivilegeCheckWhenManifestHasNoPermissions(): void
     {
-        $configs = $this->definition->fromApp(
-            $this->manifest(null),
-            new Filesystem(__DIR__ . '/../../_fixtures'),
-            'en-GB',
-        );
+        $this->expectNotToPerformAssertions();
 
-        static::assertCount(1, $configs);
+        $this->definition->validate($this->declaredTools(), $this->persistContext(null));
     }
 
     public function testPayloadRoundTripIgnoresStored(): void
@@ -135,6 +126,29 @@ class McpToolFeatureDefinitionTest extends TestCase
         $hydrated = $this->definition->fromPayload($payload);
 
         static::assertEquals($declared, $hydrated);
+    }
+
+    /**
+     * @return list<McpToolConfig>
+     */
+    private function declaredTools(): array
+    {
+        return $this->definition->fromApp(
+            static::createStub(Manifest::class),
+            new Filesystem(__DIR__ . '/../../_fixtures'),
+            'en-GB',
+        );
+    }
+
+    private function persistContext(?Permissions $permissions): AppPersistContext
+    {
+        return new AppPersistContext(
+            $this->manifest($permissions),
+            new AppEntity(),
+            Context::createDefaultContext(),
+            new Filesystem(__DIR__ . '/../../_fixtures'),
+            'en-GB',
+        );
     }
 
     private function manifest(?Permissions $permissions): Manifest

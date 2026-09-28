@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\Registry\ToolReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
@@ -15,7 +14,6 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\Feature\AppFeature;
-use Shopware\Core\Framework\App\Feature\AppFeatureException;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\App\Feature\TranslatedString;
 use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
@@ -48,28 +46,6 @@ class AppMcpToolLoaderTest extends TestCase
         $this->localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $this->localeProvider->method('getLocaleForLanguageId')->willReturn('en-GB');
         $this->loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger());
-    }
-
-    public function testLoadWithDBALExceptionRegistersNoTools(): void
-    {
-        $exception = new class('DB error') extends \Exception implements DBALException {};
-
-        $this->storage->method('forActiveApps')->willThrowException($exception);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerTool');
-
-        $this->loader->load($registry);
-    }
-
-    public function testLoadWithUnknownFeatureExceptionRegistersNoTools(): void
-    {
-        $this->storage->method('forActiveApps')->willThrowException(AppFeatureException::unknownFeature(McpToolConfig::class));
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerTool');
-
-        $this->loader->load($registry);
     }
 
     public function testLoadWithOneToolRegistersToolWithCorrectName(): void

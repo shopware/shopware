@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinition;
 use Shopware\Core\Framework\App\Feature\TranslatedString;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Mcp\Mcp;
 use Shopware\Core\Framework\App\Mcp\Xml\McpTool;
@@ -44,8 +45,6 @@ class McpToolFeatureDefinition extends AppFeatureDefinition
         }
 
         $tools = Mcp::createFromXmlFile($appFilesystem->path(self::FILE))->getTools()?->getTools() ?? [];
-
-        $this->validateRequiredPrivileges($manifest, $tools);
 
         return array_map(
             static function (McpTool $tool) use ($defaultLocale): McpToolConfig {
@@ -97,37 +96,28 @@ class McpToolFeatureDefinition extends AppFeatureDefinition
      * Rejects the install or update when a tool declares required privileges that the
      * manifest does not grant in <permissions>.
      *
-     * @param list<McpTool> $tools
+     * @param list<McpToolConfig> $configs
      */
-    private function validateRequiredPrivileges(Manifest $manifest, array $tools): void
+    public function validate(array $configs, AppPersistContext $context): void
     {
-        $permissions = $manifest->getPermissions();
+        $permissions = $context->manifest->getPermissions();
         if ($permissions === null) {
             return;
         }
 
         $granted = $permissions->asParsedPrivileges();
-        $appName = $manifest->getMetadata()->getName();
 
-        foreach ($tools as $tool) {
-            $required = $tool->getRequiredPrivileges();
-            if ($required === []) {
-                continue;
-            }
-
-            $missing = array_values(array_filter(
-                $required,
-                static fn (string $privilege): bool => !\in_array($privilege, $granted, true),
-            ));
+        foreach ($configs as $config) {
+            $missing = array_values(array_diff($config->requiredPrivileges, $granted));
 
             if ($missing === []) {
                 continue;
             }
 
             throw AppException::invalidConfiguration(
-                $appName,
+                $context->manifest->getMetadata()->getName(),
                 new MissingPermissionError(array_map(
-                    static fn (string $p): string => \sprintf('Tool "%s" requires "%s" but it is not declared in <permissions>', $tool->getName(), $p),
+                    static fn (string $p): string => \sprintf('Tool "%s" requires "%s" but it is not declared in <permissions>', $config->name, $p),
                     $missing,
                 )),
             );

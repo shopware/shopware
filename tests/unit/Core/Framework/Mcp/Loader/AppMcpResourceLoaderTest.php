@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\Registry\ResourceReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
@@ -46,18 +45,6 @@ class AppMcpResourceLoaderTest extends TestCase
         $this->localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $this->localeProvider->method('getLocaleForLanguageId')->willReturn('en-GB');
         $this->loader = new AppMcpResourceLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger());
-    }
-
-    public function testLoadWithDBALExceptionRegistersNoResources(): void
-    {
-        $exception = new class('DB error') extends \Exception implements DBALException {};
-
-        $this->storage->method('forActiveApps')->willThrowException($exception);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerResource');
-
-        $this->loader->load($registry);
     }
 
     public function testLoadWithOneResourceRegistersResourceWithCorrectProperties(): void

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\Semver\VersionParser;
 use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
@@ -92,6 +93,7 @@ class AppManager
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
         private readonly ClockInterface $clock,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -250,7 +252,19 @@ class AppManager
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
         $activateContext = new AppActivationContext($app, $context);
-        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
+
+        $attempted = [];
+
+        try {
+            foreach ($this->lifecycleHandlers as $handler) {
+                $attempted[] = $handler;
+                $handler->activate($activateContext);
+            }
+        } catch (\Throwable $e) {
+            $this->rollBackActivation($app, $attempted, $context);
+
+            throw $e;
+        }
 
         $this->activeAppsLoader->reset();
 
@@ -767,6 +781,38 @@ class AppManager
         foreach ($this->lifecycleHandlers as $handler) {
             $callback($handler);
         }
+    }
+
+    /**
+     * @param list<AbstractLifecycleHandler> $attempted
+     */
+    private function rollBackActivation(AppEntity $app, array $attempted, Context $context): void
+    {
+        try {
+            $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
+            $app->setActive(false);
+        } catch (\Throwable $e) {
+            $this->logger->error('Could not reset the active flag after a failed app activation', [
+                'app' => $app->getName(),
+                'exception' => $e,
+            ]);
+        }
+
+        $deactivateContext = new AppActivationContext($app, $context);
+
+        foreach (array_reverse($attempted) as $handler) {
+            try {
+                $handler->deactivate($deactivateContext);
+            } catch (\Throwable $e) {
+                $this->logger->error('Could not roll back a lifecycle handler after a failed app activation', [
+                    'app' => $app->getName(),
+                    'handler' => $handler::class,
+                    'exception' => $e,
+                ]);
+            }
+        }
+
+        $this->activeAppsLoader->reset();
     }
 
     private function ensureMeetsRequirements(Manifest $manifest): void

@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
@@ -835,6 +837,124 @@ class AppManagerTest extends TestCase
         ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
     }
 
+    public function testActivateRollsBackTheAttemptedHandlersWhenOneFails(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'test-app', active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $failure = new \RuntimeException('handler failed');
+        $calls = [];
+
+        $first = $this->createMock(AbstractLifecycleHandler::class);
+        $first->expects($this->once())->method('activate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'first::activate'; });
+        $first->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'first::deactivate'; });
+
+        $failing = $this->createMock(AbstractLifecycleHandler::class);
+        $failing->expects($this->once())->method('activate')
+            ->willReturnCallback(static function () use (&$calls, $failure): void {
+                $calls[] = 'failing::activate';
+                throw $failure;
+            });
+        $failing->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'failing::deactivate'; });
+
+        $notReached = $this->createMock(AbstractLifecycleHandler::class);
+        $notReached->expects($this->never())->method('activate');
+        $notReached->expects($this->never())->method('deactivate');
+
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->expectNoCollaboratorCallsBeyondActivation();
+
+        $caught = null;
+
+        try {
+            $this->createAppManager($appRepository, persisters: [$first, $failing, $notReached])
+                ->activate($app, Context::createDefaultContext());
+        } catch (\RuntimeException $exception) {
+            $caught = $exception;
+        }
+
+        static::assertSame($failure, $caught);
+        static::assertSame(['first::activate', 'failing::activate', 'failing::deactivate', 'first::deactivate'], $calls);
+        static::assertFalse($app->isActive());
+        static::assertSame([
+            ['id' => 'test-app', 'active' => true],
+            ['id' => 'test-app', 'active' => false],
+        ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppDeactivatedEvent::class));
+    }
+
+    public function testActivateKeepsTheOriginalFailureWhenAHandlerCannotBeRolledBack(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'test-app', active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $failure = new \RuntimeException('handler failed');
+        $rollbackFailure = new \RuntimeException('rollback failed');
+
+        $stuck = $this->createMock(AbstractLifecycleHandler::class);
+        $stuck->expects($this->once())->method('activate');
+        $stuck->expects($this->once())->method('deactivate')->willThrowException($rollbackFailure);
+
+        $failing = $this->createMock(AbstractLifecycleHandler::class);
+        $failing->expects($this->once())->method('activate')->willThrowException($failure);
+        $failing->expects($this->once())->method('deactivate');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')
+            ->with('Could not roll back a lifecycle handler after a failed app activation', static::callback(
+                static fn (array $context): bool => $context['handler'] === $stuck::class && $context['exception'] === $rollbackFailure
+            ));
+
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+        $this->scriptExecutor->expects($this->never())->method('execute');
+        $this->expectNoCollaboratorCallsBeyondActivation();
+
+        $caught = null;
+
+        try {
+            $this->createAppManager($appRepository, persisters: [$stuck, $failing], logger: $logger)
+                ->activate($app, Context::createDefaultContext());
+        } catch (\RuntimeException $exception) {
+            $caught = $exception;
+        }
+
+        static::assertSame($failure, $caught);
+        static::assertFalse($app->isActive());
+    }
+
+    public function testActivateDoesNotRollBackWhenTheActivatedHookFails(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'test-app', active: false);
+        $appRepository = AppFixture::createAppRepository($app);
+        $failure = new \RuntimeException('activated hook failed');
+
+        $handler = $this->createMock(AbstractLifecycleHandler::class);
+        $handler->expects($this->once())->method('activate');
+        $handler->expects($this->never())->method('deactivate');
+
+        $this->scriptExecutor->expects($this->once())->method('execute')->willThrowException($failure);
+        $this->activeAppsLoader->expects($this->once())->method('reset');
+        $this->expectNoCollaboratorCallsBeyondActivation();
+
+        $caught = null;
+
+        try {
+            $this->createAppManager($appRepository, persisters: [$handler])
+                ->activate($app, Context::createDefaultContext());
+        } catch (\RuntimeException $exception) {
+            $caught = $exception;
+        }
+
+        static::assertSame($failure, $caught);
+        static::assertTrue($app->isActive());
+        static::assertSame([
+            ['id' => 'test-app', 'active' => true],
+        ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
+    }
+
     public function testDeactivateDoesNothingIfAppIsAlreadyInactive(): void
     {
         $app = AppFixture::createAppEntity(id: 'test-app', active: false);
@@ -1040,6 +1160,17 @@ XML,
         $this->createAppManager(AppFixture::createAppRepository())->delete($app, $context, true);
     }
 
+    private function expectNoCollaboratorCallsBeyondActivation(): void
+    {
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
+    }
+
     private function expectNoLifecycleCollaboratorCalls(): void
     {
         $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
@@ -1063,6 +1194,7 @@ XML,
         array $persisters = [],
         ?AclRoleEntity $aclRole = null,
         ?StaticEntityRepository $languageRepository = null,
+        ?LoggerInterface $logger = null,
     ): AppManager {
         $aclRoleRepository = new StaticEntityRepository([new AclRoleCollection($aclRole ? [$aclRole] : [])]);
 
@@ -1091,6 +1223,7 @@ XML,
             $this->deletedAppsGateway,
             $this->requirementsValidator,
             new NativeClock(),
+            $logger ?? new NullLogger(),
         );
     }
 

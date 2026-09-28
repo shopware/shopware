@@ -21,7 +21,7 @@ class SingleSelectField extends CustomFieldType
     protected array $placeholder = [];
 
     /**
-     * @var array<string, string>
+     * @var array<string, array<string, string>>
      */
     protected array $options;
 
@@ -34,7 +34,7 @@ class SingleSelectField extends CustomFieldType
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, array<string, string>>
      */
     public function getOptions(): array
     {

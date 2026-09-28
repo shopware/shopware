@@ -16,6 +16,8 @@ parameters:
         - var/cache/static_phpstan_dev/Symfony/Config
     scanFiles:
         - vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php
+        # global functions the matrix generators share, required by tests/devops/Github
+        - .github/bin/lib/feature-flags.php
 
     excludePaths:
         # vendor patches over autoload files

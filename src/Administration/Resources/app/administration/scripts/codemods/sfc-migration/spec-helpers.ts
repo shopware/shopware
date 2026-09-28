@@ -48,10 +48,7 @@ function manifest(root: string): Record<string, Buffer> {
     visit(root);
 
     return Object.fromEntries(
-        files.sort().map((file) => [
-            path.relative(root, file).split(path.sep).join('/'),
-            fs.readFileSync(file),
-        ]),
+        files.sort().map((file) => [path.relative(root, file).split(path.sep).join('/'), fs.readFileSync(file)]),
     );
 }
 
@@ -78,10 +75,7 @@ function templateImportRange(jsSource: string): { start: number; end: number } {
 /** The authored script of a fixture, exactly as the pipeline reads it. */
 function fixtureScript(name: string): { source: string; lang: 'js' | 'ts' } {
     const dir = path.join(FIXTURES, name);
-    const indexPath = [
-        path.join(dir, 'index.js'),
-        path.join(dir, 'index.ts'),
-    ].find((file) => fs.existsSync(file)) as string;
+    const indexPath = [path.join(dir, 'index.js'), path.join(dir, 'index.ts')].find((file) => fs.existsSync(file)) as string;
 
     return { source: fs.readFileSync(indexPath, 'utf8'), lang: indexPath.endsWith('.ts') ? 'ts' : 'js' };
 }

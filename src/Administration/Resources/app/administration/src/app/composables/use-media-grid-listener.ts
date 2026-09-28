@@ -116,10 +116,7 @@ export default function useMediaGridListener(options: UseMediaGridListenerOption
         }
 
         if (!isItemSelected(item)) {
-            selectedItems.value = [
-                ...selectedItems.value,
-                item,
-            ];
+            selectedItems.value = [...selectedItems.value, item];
         }
     }
 

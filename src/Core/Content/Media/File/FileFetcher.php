@@ -23,7 +23,8 @@ class FileFetcher
         private readonly HttpClientInterface $httpClient,
         private readonly bool $enableUrlUploadFeature = true,
         private readonly bool $enableUrlValidation = true,
-        private readonly int $maxFileSize = 0
+        private readonly int $maxFileSize = 0,
+        private readonly float $urlUploadTimeout = 0.0,
     ) {
     }
 
@@ -165,6 +166,10 @@ class FileFetcher
             'headers' => ['User-Agent' => 'Shopware Remote File Fetcher'],
             'resolve' => [$resolved->host => $resolved->ip],
         ];
+
+        if ($this->urlUploadTimeout > 0) {
+            $options['max_duration'] = $this->urlUploadTimeout;
+        }
 
         if ($this->enableUrlValidation) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);

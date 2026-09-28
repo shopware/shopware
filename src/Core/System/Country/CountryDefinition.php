@@ -111,7 +111,7 @@ class CountryDefinition extends EntityDefinition
             (new BoolField('postal_code_required', 'postalCodeRequired'))->addFlags(new ApiAware())->setDescription('The postal code is made mandatory specification in the address, when boolean value is `true`.'),
             (new BoolField('check_postal_code_pattern', 'checkPostalCodePattern'))->addFlags(new ApiAware())->setDescription('Verify for valid postal code pattern.'),
             (new BoolField('check_advanced_postal_code_pattern', 'checkAdvancedPostalCodePattern'))->addFlags(new ApiAware())->setDescription('Verify for advanced postal code pattern.'),
-            (new StringField('advanced_postal_code_pattern', 'advancedPostalCodePattern'))->addFlags(new ApiAware())->setDescription('Wildcard formatted zip codes to allow easy searching in the frontend based on initial constants, for example - 24****, 1856**.'),
+            (new StringField('advanced_postal_code_pattern', 'advancedPostalCodePattern', 1024))->addFlags(new ApiAware())->setDescription('Wildcard formatted zip codes to allow easy searching in the frontend based on initial constants, for example - 24****, 1856**.'),
             (new TranslatedField('addressFormat'))->addFlags(new ApiAware()),
             (new StringField('default_postal_code_pattern', 'defaultPostalCodePattern', 1024))->addFlags(new ApiAware())->setDescription('Default pattern of postal or zip code.'),
             (new BoolField('is_eu', 'isEu'))->addFlags(new ApiAware(), new Required()),

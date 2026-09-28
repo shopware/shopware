@@ -199,10 +199,7 @@ describe('core/factory/twig-block-index.ts', () => {
             `,
             );
 
-            const [
-                pluginOne,
-                pluginTwo,
-            ] = getBlockEntries('sw-product-detail', 'twig_started_condition_block');
+            const [pluginOne, pluginTwo] = getBlockEntries('sw-product-detail', 'twig_started_condition_block');
 
             expect(pluginOne.innerTemplate).toContain(
                 `v-if="$swLegacyBlockIf('twig_started_condition_block:0', conditionFromPluginOne, ${options(0, true, 'shimExtension')})"`,

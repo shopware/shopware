@@ -16,7 +16,7 @@
     <strong>Informationen zu Ihrer Bestellung:</strong><br>
     <br>
 
-    <table border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
+    <table border="0" cellpadding="6" cellspacing="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
         <tr>
             <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Produkt-Nr.</strong></td>
             <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Produktbild</strong></td>
@@ -73,20 +73,24 @@
                                 </div>
                             {% endif %}
                         {% endif %}
+
+                        {% if nestedItem.productId is defined and nestedItem.productId %}
+                            {% set garanLabel = nestedItem.productId|sw_garan_label_mail(context) %}
+                            {% if garanLabel %}
+                                <div style="padding-top: 5px;{% if nestingLevel > 0 %} padding-left: {{ (nestingLevel + 1) * 10 }}px;{% endif %}">
+                                    {% if garanLabel.cid %}
+                                        <img src="{{ garanLabel.cid }}" width="195" height="30" style="display:block; max-width:195px; height:auto;" alt="GARAN-Kennzeichnung: gewerbliche Haltbarkeitsgarantie von {{ garanLabel.duration }} Jahren"/>
+                                    {% else %}
+                                        GARAN-Kennzeichnung: gewerbliche Haltbarkeitsgarantie von {{ garanLabel.duration }} Jahren
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
                     </td>
                     <td style="text-align: center">{{ nestedItem.quantity }}</td>
                     <td>{{ nestedItem.unitPrice|currency(currencyIsoCode) }}</td>
                     <td>{{ nestedItem.totalPrice|currency(currencyIsoCode) }}</td>
                 </tr>
-
-                {% if nestedItem.productId is defined and nestedItem.productId %}
-                    {% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}
-                    {% if garanLabelDataUri %}
-                        <tr>
-                            <td colspan="6"><img src="{{ garanLabelDataUri }}" alt="" /></td>
-                        </tr>
-                    {% endif %}
-                {% endif %}
 
                 {% if nestedItem.children.count > 0 %}
                     {% set nestingLevel = nestingLevel + 1 %}

@@ -7,10 +7,7 @@ import template from './sw-custom-field-set-detail-base.html.twig';
 export default {
     template,
 
-    inject: [
-        'customFieldDataProviderService',
-        'acl',
-    ],
+    inject: ['customFieldDataProviderService', 'acl'],
 
     emits: ['reset-errors'],
 

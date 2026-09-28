@@ -10,11 +10,10 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Services\ExtensionRemovalValidatorInterface;
 use Shopware\Core\Framework\Store\Services\StoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreException;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 
 /**
@@ -42,16 +41,13 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('activate')
             ->with('app-id', $context);
 
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
-
         $storeAppLifecycleService = new StoreAppLifecycleService(
             static::createStub(StoreClient::class),
             static::createStub(AppLoader::class),
             $appLifecycle,
             $appStorage,
-            $salesChannelRepository,
-            null,
-            static::createStub(AppConfirmationDeltaProvider::class),
+            removalValidators: [],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
         );
 
         $storeAppLifecycleService->activateExtension('TestApp', $context);
@@ -75,16 +71,13 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('deactivate')
             ->with('app-id', $context);
 
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
-
         $storeAppLifecycleService = new StoreAppLifecycleService(
             static::createStub(StoreClient::class),
             static::createStub(AppLoader::class),
             $appLifecycle,
             $appStorage,
-            $salesChannelRepository,
-            null,
-            static::createStub(AppConfirmationDeltaProvider::class),
+            removalValidators: [],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
         );
 
         $storeAppLifecycleService->deactivateExtension('TestApp', $context);
@@ -125,16 +118,13 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('deleteApp')
             ->with('TestApp');
 
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
-
         $storeAppLifecycleService = new StoreAppLifecycleService(
             $storeClient,
             $appLoader,
             $appLifecycle,
             $appStorage,
-            $salesChannelRepository,
-            null,
-            static::createStub(AppConfirmationDeltaProvider::class),
+            removalValidators: [],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
         );
 
         $storeAppLifecycleService->removeExtensionAndCancelSubscription(123, 'TestApp', 'app-id', false, $context);
@@ -156,18 +146,108 @@ class StoreAppLifecycleServiceTest extends TestCase
 
         $this->expectExceptionObject(StoreException::extensionNotFoundFromId('missing-app-id'));
 
-        $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection()]);
-
         $storeAppLifecycleService = new StoreAppLifecycleService(
             $storeClient,
             static::createStub(AppLoader::class),
             static::createStub(AbstractAppLifecycle::class),
             $appStorage,
-            $salesChannelRepository,
-            null,
-            static::createStub(AppConfirmationDeltaProvider::class),
+            removalValidators: [],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
         );
 
         $storeAppLifecycleService->removeExtensionAndCancelSubscription(123, 'TestApp', 'missing-app-id', false, $context);
+    }
+
+    public function testUninstallAsksEveryRemovalValidatorBeforeUninstalling(): void
+    {
+        $app = AppFixture::createAppEntity('TestApp', 'app-id');
+        $context = Context::createDefaultContext();
+
+        $appStorage = static::createStub(AppStorage::class);
+        $appStorage->method('findByName')->willReturn($app);
+
+        $firstValidator = $this->createMock(ExtensionRemovalValidatorInterface::class);
+        $firstValidator
+            ->expects($this->once())
+            ->method('validateCanBeRemoved')
+            ->with('TestApp', 'app-id', $context);
+
+        $secondValidator = $this->createMock(ExtensionRemovalValidatorInterface::class);
+        $secondValidator
+            ->expects($this->once())
+            ->method('validateCanBeRemoved')
+            ->with('TestApp', 'app-id', $context);
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle
+            ->expects($this->once())
+            ->method('uninstall')
+            ->with('TestApp', ['id' => 'app-id'], $context, false);
+
+        $storeAppLifecycleService = new StoreAppLifecycleService(
+            static::createStub(StoreClient::class),
+            static::createStub(AppLoader::class),
+            $appLifecycle,
+            $appStorage,
+            removalValidators: [$firstValidator, $secondValidator],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
+        );
+
+        $storeAppLifecycleService->uninstallExtension('TestApp', $context);
+    }
+
+    public function testRejectedRemovalKeepsTheAppInstalled(): void
+    {
+        $app = AppFixture::createAppEntity('TestApp', 'app-id');
+        $context = Context::createDefaultContext();
+
+        $appStorage = static::createStub(AppStorage::class);
+        $appStorage->method('findByName')->willReturn($app);
+
+        $validator = static::createStub(ExtensionRemovalValidatorInterface::class);
+        $validator->method('validateCanBeRemoved')->willThrowException(StoreException::extensionThemeStillInUse('app-id'));
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle->expects($this->never())->method('uninstall');
+
+        $storeAppLifecycleService = new StoreAppLifecycleService(
+            static::createStub(StoreClient::class),
+            static::createStub(AppLoader::class),
+            $appLifecycle,
+            $appStorage,
+            removalValidators: [$validator],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
+        );
+
+        $this->expectExceptionObject(StoreException::extensionThemeStillInUse('app-id'));
+
+        $storeAppLifecycleService->uninstallExtension('TestApp', $context);
+    }
+
+    public function testRejectedRemovalKeepsTheSubscription(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $validator = static::createStub(ExtensionRemovalValidatorInterface::class);
+        $validator->method('validateCanBeRemoved')->willThrowException(StoreException::extensionThemeStillInUse('app-id'));
+
+        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient->expects($this->never())->method('cancelSubscription');
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle->expects($this->never())->method('uninstall');
+
+        $storeAppLifecycleService = new StoreAppLifecycleService(
+            $storeClient,
+            static::createStub(AppLoader::class),
+            $appLifecycle,
+            static::createStub(AppStorage::class),
+            removalValidators: [$validator],
+            appDeltaService: static::createStub(AppConfirmationDeltaProvider::class),
+        );
+
+        $this->expectExceptionObject(StoreException::extensionThemeStillInUse('app-id'));
+
+        $storeAppLifecycleService->removeExtensionAndCancelSubscription(123, 'TestApp', 'app-id', false, $context);
     }
 }

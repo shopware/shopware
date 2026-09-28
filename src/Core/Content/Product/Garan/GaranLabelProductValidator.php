@@ -19,6 +19,19 @@ class GaranLabelProductValidator implements EventSubscriberInterface
     public const VIOLATION_CODE = 'INVALID_GARAN_GUARANTEE_MONTHS';
 
     /**
+     * The statutory guarantee already covers the first 24 months, so a commercial guarantee only
+     * says something beyond them: 30 is the lowest half-year value that qualifies.
+     */
+    public const MINIMUM_MONTHS = 30;
+
+    /**
+     * 50 years.
+     */
+    public const MAXIMUM_MONTHS = 600;
+
+    public const STEP_MONTHS = 6;
+
+    /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
     public static function getSubscribedEvents(): array
@@ -26,6 +39,13 @@ class GaranLabelProductValidator implements EventSubscriberInterface
         return [
             PreWriteValidationEvent::class => 'validate',
         ];
+    }
+
+    public static function isValidDuration(int $guaranteeMonths): bool
+    {
+        return $guaranteeMonths >= self::MINIMUM_MONTHS
+            && $guaranteeMonths <= self::MAXIMUM_MONTHS
+            && $guaranteeMonths % self::STEP_MONTHS === 0;
     }
 
     public function validate(PreWriteValidationEvent $event): void
@@ -49,10 +69,10 @@ class GaranLabelProductValidator implements EventSubscriberInterface
                 continue;
             }
 
-            if (!\is_int($guaranteeMonths) || $guaranteeMonths <= 24 || $guaranteeMonths % 6 !== 0) {
+            if (!\is_int($guaranteeMonths) || !self::isValidDuration($guaranteeMonths)) {
                 $violations->add(new ConstraintViolation(
-                    'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
-                    'The GARAN guarantee duration must be empty or a half-year value greater than 24 months.',
+                    'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
+                    'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
                     [],
                     null,
                     $command->getPath() . '/guaranteeMonths',

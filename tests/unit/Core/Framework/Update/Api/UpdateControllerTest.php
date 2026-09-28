@@ -7,16 +7,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
+use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Api\UpdateController;
-use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
-use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
-use Shopware\Core\Framework\Update\Struct\ValidationResult;
 use Shopware\Core\Framework\Update\Struct\Version;
+use Shopware\Core\Framework\Update\UpdateException;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -40,8 +39,7 @@ class UpdateControllerTest extends TestCase
 
         $updateController = new UpdateController(
             $apiClient,
-            static::createStub(WriteableCheck::class),
-            static::createStub(LicenseCheck::class),
+            static::createStub(StoreClient::class),
             static::createStub(ExtensionCompatibility::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
@@ -66,8 +64,7 @@ class UpdateControllerTest extends TestCase
 
         $updateController = new UpdateController(
             $apiClient,
-            static::createStub(WriteableCheck::class),
-            static::createStub(LicenseCheck::class),
+            static::createStub(StoreClient::class),
             static::createStub(ExtensionCompatibility::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
@@ -80,10 +77,10 @@ class UpdateControllerTest extends TestCase
         $content = $response->getContent();
 
         static::assertJson((string) $content);
-        static::assertSame('{"extensions":[],"title":"","body":"","date":"2020-01-01T00:00:00.000+00:00","version":"6.5.0.0","fixedVulnerabilities":[]}', $content);
+        static::assertSame('{"extensions":[],"title":"","body":"","date":"2020-01-01T00:00:00.000+00:00","version":"6.5.0.0","fixedVulnerabilities":[],"autoUpdateEnabled":true,"clusterSetup":false}', $content);
     }
 
-    public function testCheckForUpdatesNoUpdateWithDisabledUpdateCheckByEnv(): void
+    public function testCheckForUpdatesStillReportsUpdateWhenAutoUpdateIsDisabled(): void
     {
         $apiClient = static::createStub(ApiClient::class);
         $apiClient
@@ -92,14 +89,13 @@ class UpdateControllerTest extends TestCase
 
         $updateController = new UpdateController(
             $apiClient,
-            static::createStub(WriteableCheck::class),
-            static::createStub(LicenseCheck::class),
+            static::createStub(StoreClient::class),
             static::createStub(ExtensionCompatibility::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
             static::createStub(AbstractExtensionLifecycle::class),
             '6.1.0.0',
-            true
+            shopwareUpdateEnabled: false,
         );
 
         $response = $updateController->updateApiCheck();
@@ -107,38 +103,44 @@ class UpdateControllerTest extends TestCase
         $content = $response->getContent();
 
         static::assertJson((string) $content);
-        static::assertSame('{}', $content);
+        static::assertSame('{"extensions":[],"title":"","body":"","date":"2020-01-01T00:00:00.000+00:00","version":"6.5.0.0","fixedVulnerabilities":[],"autoUpdateEnabled":false,"clusterSetup":false}', $content);
     }
 
-    public function testCheckForRequirements(): void
+    public function testCheckLicenseIsValidWithoutLicenseHost(): void
     {
-        $writeableCheck = static::createStub(WriteableCheck::class);
-        $writeableCheck
-            ->method('check')
-            ->willReturn(new ValidationResult('writeable', false, 'message'));
+        $systemConfig = static::createStub(SystemConfigService::class);
+        $systemConfig->method('getString')->willReturn('');
 
-        $licenseCheck = static::createStub(LicenseCheck::class);
-        $licenseCheck
-            ->method('check')
-            ->willReturn(new ValidationResult('license', false, 'message'));
+        $response = $this->createController(systemConfig: $systemConfig)->checkLicense();
 
-        $updateController = new UpdateController(
-            static::createStub(ApiClient::class),
-            $writeableCheck,
-            $licenseCheck,
-            static::createStub(ExtensionCompatibility::class),
-            static::createStub(EventDispatcherInterface::class),
-            static::createStub(SystemConfigService::class),
-            static::createStub(AbstractExtensionLifecycle::class),
-            '6.1.0'
-        );
+        static::assertJson((string) $response->getContent());
+        static::assertSame('{"isValid":true}', $response->getContent());
+    }
 
-        $response = $updateController->checkRequirements();
+    public function testCheckLicenseIsValidWithUpgradeableShop(): void
+    {
+        $systemConfig = static::createStub(SystemConfigService::class);
+        $systemConfig->method('getString')->willReturn('licensehost.test');
 
-        $content = $response->getContent();
+        $storeClient = static::createStub(StoreClient::class);
+        $storeClient->method('isShopUpgradeable')->willReturn(true);
 
-        static::assertJson((string) $content);
-        static::assertSame('[{"extensions":[],"name":"writeable","result":false,"message":"message","vars":[]},{"extensions":[],"name":"license","result":false,"message":"message","vars":[]}]', $content);
+        $response = $this->createController(storeClient: $storeClient, systemConfig: $systemConfig)->checkLicense();
+
+        static::assertSame('{"isValid":true}', $response->getContent());
+    }
+
+    public function testCheckLicenseIsInvalid(): void
+    {
+        $systemConfig = static::createStub(SystemConfigService::class);
+        $systemConfig->method('getString')->willReturn('licensehost.test');
+
+        $storeClient = static::createStub(StoreClient::class);
+        $storeClient->method('isShopUpgradeable')->willReturn(false);
+
+        $response = $this->createController(storeClient: $storeClient, systemConfig: $systemConfig)->checkLicense();
+
+        static::assertSame('{"isValid":false}', $response->getContent());
     }
 
     public function testCheckPluginCompatibility(): void
@@ -150,8 +152,7 @@ class UpdateControllerTest extends TestCase
 
         $updateController = new UpdateController(
             static::createStub(ApiClient::class),
-            static::createStub(WriteableCheck::class),
-            static::createStub(LicenseCheck::class),
+            static::createStub(StoreClient::class),
             $pluginCompatibility,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
@@ -174,8 +175,7 @@ class UpdateControllerTest extends TestCase
 
         $updateController = new UpdateController(
             $apiClient,
-            static::createStub(WriteableCheck::class),
-            static::createStub(LicenseCheck::class),
+            static::createStub(StoreClient::class),
             static::createStub(ExtensionCompatibility::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(SystemConfigService::class),
@@ -203,8 +203,7 @@ class UpdateControllerTest extends TestCase
 
         $updateController = new UpdateController(
             static::createStub(ApiClient::class),
-            static::createStub(WriteableCheck::class),
-            static::createStub(LicenseCheck::class),
+            static::createStub(StoreClient::class),
             static::createStub(ExtensionCompatibility::class),
             $eventDispatcher,
             static::createStub(SystemConfigService::class),
@@ -220,7 +219,7 @@ class UpdateControllerTest extends TestCase
 
         $updateController->setContainer($container);
 
-        $updateController->deactivatePlugins(new Request(), Context::createDefaultContext());
+        $updateController->deactivateExtensions(new Request(), Context::createDefaultContext());
 
         static::assertCount(2, $events);
         static::assertArrayHasKey(0, $events);
@@ -253,8 +252,7 @@ class UpdateControllerTest extends TestCase
 
         $updateController = new UpdateController(
             static::createStub(ApiClient::class),
-            static::createStub(WriteableCheck::class),
-            static::createStub(LicenseCheck::class),
+            static::createStub(StoreClient::class),
             $pluginCompatibility,
             $eventDispatcher,
             static::createStub(SystemConfigService::class),
@@ -270,7 +268,7 @@ class UpdateControllerTest extends TestCase
 
         $updateController->setContainer($container);
 
-        $response = $updateController->deactivatePlugins(new Request(), Context::createDefaultContext());
+        $response = $updateController->deactivateExtensions(new Request(), Context::createDefaultContext());
 
         static::assertCount(1, $events);
 
@@ -281,6 +279,156 @@ class UpdateControllerTest extends TestCase
                 'total' => 3,
             ],
             $content
+        );
+    }
+
+    public function testCheckForUpdatesReportsClusterSetup(): void
+    {
+        $apiClient = static::createStub(ApiClient::class);
+        $apiClient
+            ->method('checkForUpdates')
+            ->willReturn(new Version(['version' => '6.5.0.0', 'date' => '2020-01-01']));
+
+        $updateController = new UpdateController(
+            $apiClient,
+            static::createStub(StoreClient::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
+            '6.1.0.0',
+            clusterSetup: true,
+        );
+
+        $content = $updateController->updateApiCheck()->getContent();
+
+        static::assertIsString($content);
+        static::assertStringContainsString('"clusterSetup":true', $content);
+    }
+
+    public function testDownloadRecoveryThrowsOnClusterSetup(): void
+    {
+        $apiClient = $this->createMock(ApiClient::class);
+        $apiClient->expects($this->never())->method('downloadRecoveryTool');
+
+        $updateController = new UpdateController(
+            $apiClient,
+            static::createStub(StoreClient::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
+            '6.1.0',
+            clusterSetup: true,
+        );
+
+        $this->expectExceptionObject(UpdateException::clusterSetupNotSupported());
+
+        $updateController->downloadLatestRecovery();
+    }
+
+    public function testDownloadRecoveryThrowsWhenAutoUpdateIsDisabled(): void
+    {
+        $apiClient = $this->createMock(ApiClient::class);
+        $apiClient->expects($this->never())->method('downloadRecoveryTool');
+
+        $updateController = new UpdateController(
+            $apiClient,
+            static::createStub(StoreClient::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
+            '6.1.0',
+            shopwareUpdateEnabled: false,
+        );
+
+        $this->expectExceptionObject(UpdateException::autoUpdateDisabled());
+
+        $updateController->downloadLatestRecovery();
+    }
+
+    public function testDeactivateExtensionsThrowsWhenAutoUpdateIsDisabled(): void
+    {
+        $apiClient = $this->createMock(ApiClient::class);
+        $apiClient->expects($this->never())->method('checkForUpdates');
+
+        $updateController = new UpdateController(
+            $apiClient,
+            static::createStub(StoreClient::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
+            '6.1.0',
+            shopwareUpdateEnabled: false,
+        );
+
+        $this->expectExceptionObject(UpdateException::autoUpdateDisabled());
+
+        $updateController->deactivateExtensions(new Request(), Context::createDefaultContext());
+    }
+
+    public function testCheckLicenseWorksWhenAutoUpdateIsDisabled(): void
+    {
+        $systemConfig = static::createStub(SystemConfigService::class);
+        $systemConfig->method('getString')->willReturn('');
+
+        $updateController = new UpdateController(
+            static::createStub(ApiClient::class),
+            static::createStub(StoreClient::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            $systemConfig,
+            static::createStub(AbstractExtensionLifecycle::class),
+            '6.1.0',
+            shopwareUpdateEnabled: false,
+        );
+
+        static::assertSame('{"isValid":true}', (string) $updateController->checkLicense()->getContent());
+    }
+
+    public function testAllEndpointsThrowWhenModuleIsHidden(): void
+    {
+        $updateController = new UpdateController(
+            static::createStub(ApiClient::class),
+            static::createStub(StoreClient::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
+            '6.1.0',
+            updateModuleHidden: true,
+        );
+
+        $endpoints = [
+            'update check' => static fn () => $updateController->updateApiCheck(),
+            'check license' => static fn () => $updateController->checkLicense(),
+            'extension compatibility' => static fn () => $updateController->extensionCompatibility(Context::createDefaultContext()),
+            'download recovery' => static fn () => $updateController->downloadLatestRecovery(),
+            'deactivate extensions' => static fn () => $updateController->deactivateExtensions(new Request(), Context::createDefaultContext()),
+        ];
+
+        foreach ($endpoints as $name => $endpoint) {
+            try {
+                $endpoint();
+                static::fail(\sprintf('Expected UpdateException for endpoint "%s"', $name));
+            } catch (UpdateException $e) {
+                static::assertSame(UpdateException::UPDATE_MODULE_HIDDEN, $e->getErrorCode(), $name);
+            }
+        }
+    }
+
+    private function createController(?StoreClient $storeClient = null, ?SystemConfigService $systemConfig = null): UpdateController
+    {
+        return new UpdateController(
+            static::createStub(ApiClient::class),
+            $storeClient ?? static::createStub(StoreClient::class),
+            static::createStub(ExtensionCompatibility::class),
+            static::createStub(EventDispatcherInterface::class),
+            $systemConfig ?? static::createStub(SystemConfigService::class),
+            static::createStub(AbstractExtensionLifecycle::class),
+            '6.1.0'
         );
     }
 }

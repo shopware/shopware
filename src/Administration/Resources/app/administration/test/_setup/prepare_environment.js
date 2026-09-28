@@ -30,6 +30,7 @@ import {
     MtEmptyState,
     MtFloatingUi,
     MtIcon,
+    MtInset,
     MtLink,
     MtLoader,
     MtNumberField,
@@ -315,6 +316,7 @@ config.global.stubs = {
     'mt-empty-state': MtEmptyState,
     'mt-floating-ui': MtFloatingUi,
     'mt-icon': MtIcon,
+    'mt-inset': MtInset,
     'mt-link': MtLink,
     'mt-loader': MtLoader,
     'mt-number-field': MtNumberField,
@@ -397,11 +399,6 @@ directiveRegistry.forEach((value, key) => {
                 el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
             },
         };
-        return;
-    }
-
-    if (key === 'popover') {
-        config.global.directives[key] = {};
         return;
     }
 

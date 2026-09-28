@@ -37,10 +37,7 @@ describe('src/module/sw-cms/store/cms-page.store.ts', () => {
 
         function setCurrentPage(elementSlot) {
             Shopware.Store.get('cmsPage').currentPage = {
-                sections: [
-                    { blocks: [] },
-                    { blocks: [{ slots: [elementSlot] }] },
-                ],
+                sections: [{ blocks: [] }, { blocks: [{ slots: [elementSlot] }] }],
             };
         }
 

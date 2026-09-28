@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -143,34 +144,58 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use getTypeName() instead.
      */
     public function getDocumentType(): ?DocumentTypeEntity
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         return $this->documentType;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use setTypeName() instead.
      */
     public function setDocumentType(DocumentTypeEntity $documentType): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         $this->documentType = $documentType;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getTypeName() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use getTypeName() instead.
      */
     public function getDocumentTypeId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         return $this->documentTypeId;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setTypeName() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use setTypeName() instead.
      */
     public function setDocumentTypeId(string $documentTypeId): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setTypeName()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         $this->documentTypeId = $documentTypeId;
     }
 
@@ -225,34 +250,58 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use getDocumentFiles() instead.
      */
     public function getDocumentMediaFile(): ?MediaEntity
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getDocumentFiles()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         return $this->documentMediaFile;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use setDocumentFiles() instead.
      */
     public function setDocumentMediaFile(?MediaEntity $documentMediaFile): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setDocumentFiles()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         $this->documentMediaFile = $documentMediaFile;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use getDocumentFiles() instead.
      */
     public function getDocumentMediaFileId(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getDocumentFiles()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         return $this->documentMediaFileId;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use setDocumentFiles() instead.
      */
     public function setDocumentMediaFileId(?string $documentMediaFileId): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setDocumentFiles()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         $this->documentMediaFileId = $documentMediaFileId;
     }
 
@@ -267,34 +316,58 @@ class DocumentEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use getDocumentFiles() instead.
      */
     public function getDocumentA11yMediaFileId(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getDocumentFiles()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         return $this->documentA11yMediaFileId;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use setDocumentFiles() instead.
      */
     public function setDocumentA11yMediaFileId(?string $mediaFileId): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setDocumentFiles()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         $this->documentA11yMediaFileId = $mediaFileId;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use getDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use getDocumentFiles() instead.
      */
     public function getDocumentA11yMediaFile(): ?MediaEntity
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getDocumentFiles()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         return $this->documentA11yMediaFile;
     }
 
     /**
-     * @deprecated tag:v6.9.0 reason:experimental-replacement - Will be removed. Use setDocumentFiles() instead.
+     * @deprecated tag:v6.9.0 - Will be removed. Use setDocumentFiles() instead.
      */
     public function setDocumentA11yMediaFile(?MediaEntity $mediaEntity): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'setDocumentFiles()'),
+            silentUntil: 'v6.8.0.0',
+        );
+
         $this->documentA11yMediaFile = $mediaEntity;
     }
 

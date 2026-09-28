@@ -21,6 +21,7 @@ export const DOCUMENT_TYPE_TECHNICAL_NAMES = {
 export const COMPANY_SETTINGS_MOVED_BANNER_STORAGE_KEY = 'companySettingsMovedBannerHidden';
 
 const INVALID_PAYMENT_DUE_DATE = 'DOCUMENT_BASE_CONFIG_INVALID_PAYMENT_DUE_DATE';
+const DUPLICATE_FILENAME_INFIX = 'DOCUMENT_BASE_CONFIG_DUPLICATE_FILENAME_INFIX';
 
 /**
  * @private
@@ -29,10 +30,7 @@ export const DOCUMENT_CONFIG_DEFAULTS = {
     pageSize: 'a4',
     pageOrientation: 'portrait',
     itemsPerPage: 10,
-    fileTypes: [
-        'pdf',
-        'html',
-    ],
+    fileTypes: ['pdf', 'html'],
     displayHeader: true,
     displayFooter: true,
     displayPageCount: true,
@@ -367,10 +365,7 @@ export default {
         'documentV2Service',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -546,10 +541,7 @@ export default {
             return this.repositoryFactory.create('document_base_config_sales_channel');
         },
 
-        ...mapPropertyErrors('documentConfig', [
-            'name',
-            'documentTypeId',
-        ]),
+        ...mapPropertyErrors('documentConfig', ['name', 'documentTypeId']),
 
         getPaymentDueDateError() {
             if (this.paymentDueDateIsValid) {
@@ -567,10 +559,7 @@ export default {
             this.isLoading = true;
 
             try {
-                const promises = [
-                    this.salesChannelRepository.search(new Criteria(1, 500)),
-                    this.loadCustomFieldSets(),
-                ];
+                const promises = [this.salesChannelRepository.search(new Criteria(1, 500)), this.loadCustomFieldSets()];
 
                 if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
                     promises.push(this.loadAvailableDocumentTypes());
@@ -745,11 +734,13 @@ export default {
                     this.paymentDueDateIsValid = true;
                 })
                 .catch((error) => {
+                    this.documentConfig.filenameInfixes ??= {};
+
                     if (error.response?.data?.errors?.length) {
                         error.response.data.errors.forEach((errorEntry) => {
                             if (errorEntry.code === INVALID_PAYMENT_DUE_DATE) {
                                 this.paymentDueDateIsValid = false;
-                            } else {
+                            } else if (errorEntry.code !== DUPLICATE_FILENAME_INFIX) {
                                 this.createNotificationError({
                                     message: this.$t(
                                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
@@ -766,6 +757,51 @@ export default {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        filenameInfixError(format) {
+            if (!this.documentConfig?.id) {
+                return null;
+            }
+
+            const error = Shopware.Store.get('error').getApiErrorFromPath('document_base_config', this.documentConfig.id, [
+                'filenameInfixes',
+                format,
+            ]);
+
+            if (!error) {
+                return null;
+            }
+
+            const formats = (error.parameters?.['{{ formats }}'] ?? '')
+                .split(',')
+                .map((otherFormat) => otherFormat.trim())
+                .filter((otherFormat) => otherFormat !== '')
+                .map((otherFormat) => this.formatLabels[otherFormat] ?? otherFormat)
+                .join(', ');
+            const configs = error.parameters?.['{{ configs }}'];
+
+            if (configs) {
+                return {
+                    detail: this.$t('sw-settings-document.errors.duplicateFilenameInfixInSalesChannelConfig', {
+                        formats,
+                        configs,
+                    }),
+                };
+            }
+
+            const infix = error.parameters?.['{{ infix }}'];
+            const isInherited = infix && !this.documentConfig.filenameInfixes?.[format];
+
+            if (isInherited) {
+                return {
+                    detail: this.$t('sw-settings-document.errors.duplicateFilenameInfixInherited', { formats, infix }),
+                };
+            }
+
+            return {
+                detail: this.$t('sw-settings-document.errors.duplicateFilenameInfix', { formats }),
+            };
         },
 
         async onCancel() {

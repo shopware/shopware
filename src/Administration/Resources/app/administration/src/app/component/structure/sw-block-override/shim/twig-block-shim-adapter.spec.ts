@@ -1326,11 +1326,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             const wrapper = await createWrapper({
                 blockName: 'shim_directive_vfor',
                 extraData: {
-                    items: [
-                        'alpha',
-                        'beta',
-                        'gamma',
-                    ],
+                    items: ['alpha', 'beta', 'gamma'],
                 },
             });
 
@@ -1423,11 +1419,7 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
                 blockName: 'shim_limitation_twig_for',
                 defaultContent: '',
                 extraData: {
-                    items: [
-                        'a',
-                        'b',
-                        'c',
-                    ],
+                    items: ['a', 'b', 'c'],
                 },
             });
 

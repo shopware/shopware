@@ -6,9 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\Authentication\UserCredentialsChangedSubscriber;
+use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,6 +30,7 @@ class UserCredentialsChangedSubscriberTest extends TestCase
     {
         $subscriber = new UserCredentialsChangedSubscriber(
             $this->refreshTokenRepositoryExpectingRevocation(),
+            $this->authCodeRepositoryExpectingRevocation(),
             $this->connectionExpectingTimestampUpdate(),
             new MockClock('2026-06-30 12:00:00')
         );
@@ -42,12 +45,15 @@ class UserCredentialsChangedSubscriberTest extends TestCase
     {
         $refreshTokenRepository = $this->createMock(RefreshTokenRepository::class);
         $refreshTokenRepository->expects($this->never())->method('revokeRefreshTokensForUser');
+        $authCodeRepository = $this->createMock(AuthCodeRepository::class);
+        $authCodeRepository->expects($this->never())->method('revokeAuthCodesForUser');
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('update');
 
         $subscriber = new UserCredentialsChangedSubscriber(
             $refreshTokenRepository,
+            $authCodeRepository,
             $connection,
             new MockClock('2026-06-30 12:00:00')
         );
@@ -62,6 +68,7 @@ class UserCredentialsChangedSubscriberTest extends TestCase
     {
         $subscriber = new UserCredentialsChangedSubscriber(
             $this->refreshTokenRepositoryExpectingRevocation(),
+            $this->authCodeRepositoryExpectingRevocation(),
             $this->connectionExpectingTimestampUpdate(),
             new MockClock('2026-06-30 12:00:00')
         );
@@ -70,6 +77,25 @@ class UserCredentialsChangedSubscriberTest extends TestCase
             'id' => self::USER_ID,
             'password' => 'changed',
         ]));
+    }
+
+    public function testDeletingUserInvalidatesTokens(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('update');
+
+        $subscriber = new UserCredentialsChangedSubscriber(
+            $this->refreshTokenRepositoryExpectingRevocation(),
+            $this->authCodeRepositoryExpectingRevocation(),
+            $connection,
+            new MockClock('2026-06-30 12:00:00')
+        );
+
+        $subscriber->onUserDeleted(new EntityDeletedEvent(
+            UserDefinition::ENTITY_NAME,
+            [new EntityWriteResult(self::USER_ID, [], UserDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_DELETE)],
+            Context::createDefaultContext()
+        ));
     }
 
     /**
@@ -93,6 +119,17 @@ class UserCredentialsChangedSubscriberTest extends TestCase
             ->with(self::USER_ID);
 
         return $refreshTokenRepository;
+    }
+
+    private function authCodeRepositoryExpectingRevocation(): AuthCodeRepository
+    {
+        $authCodeRepository = $this->createMock(AuthCodeRepository::class);
+        $authCodeRepository
+            ->expects($this->once())
+            ->method('revokeAuthCodesForUser')
+            ->with(self::USER_ID);
+
+        return $authCodeRepository;
     }
 
     private function connectionExpectingTimestampUpdate(): Connection

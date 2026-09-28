@@ -40,9 +40,7 @@ export default {
         'paginate',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         options: {
@@ -190,10 +188,7 @@ export default {
 
             this.$emit('item-add', item);
 
-            this.currentValue = [
-                ...this.currentValue,
-                identifier,
-            ];
+            this.currentValue = [...this.currentValue, identifier];
 
             this.$refs.selectionList.focus();
             this.$refs.selectionList.select();

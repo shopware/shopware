@@ -93,16 +93,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_export:update',
                 'property_group:read',
             ],
-            dependencies: [
-                'sales_channel.viewer',
-                'sales_channel.editor',
-            ],
+            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
         },
         deleter: {
-            privileges: [
-                'sales_channel:delete',
-                'product_visibility:delete',
-            ],
+            privileges: ['sales_channel:delete', 'product_visibility:delete'],
             dependencies: ['sales_channel.viewer'],
         },
     },

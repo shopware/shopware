@@ -441,6 +441,13 @@ EOF,
                             'write' => 'Full write access',
                         ],
                     ],
+                    'authorizationCode' => [
+                        'authorizationUrl' => $url . '/api/oauth/authorize',
+                        'tokenUrl' => $url . '/api/oauth/token',
+                        'scopes' => [
+                            'write' => 'Full write access',
+                        ],
+                    ],
                 ],
             ]),
         ];

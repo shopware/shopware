@@ -27,6 +27,7 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
+import type OAuthAuthorizeApiService from 'src/core/service/api/oauth-authorize.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
@@ -283,6 +284,7 @@ declare global {
         mediaService: MediaService;
         menuService: $TSFixMe;
         numberRangeService: $TSFixMe;
+        oauthAuthorizeApiService: OAuthAuthorizeApiService;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;
         productStreamConditionService: $TSFixMe;

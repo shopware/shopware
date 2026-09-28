@@ -204,7 +204,7 @@ export default [
             'config/*.js',
             'eslint.config.ts',
             'jest.config.js',
-            'jest.config.ts',
+            '_jest.config.ts',
             'scripts/**/*',
             '!scripts/extensionTooling/',
             '!scripts/extensionTooling/**/*',

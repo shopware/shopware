@@ -12,10 +12,7 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'numberRangeService',
-    ],
+    inject: ['repositoryFactory', 'numberRangeService'],
 
     emits: ['clone-finish'],
 
@@ -74,7 +71,6 @@ export default {
                     mainVariantId: null,
                     canonicalProductId: null,
                     variantListingConfig: variantListingConfigOverwrite,
-                    childCount: this.product.childCount,
                 },
             };
 

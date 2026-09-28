@@ -32,10 +32,7 @@ export function resolveVueParser() {
 
 const vueParser = resolveVueParser();
 
-export const defaultTwigFiles = [
-    '**/*.html.twig',
-    '**/*.vue.twig',
-];
+export const defaultTwigFiles = ['**/*.html.twig', '**/*.vue.twig'];
 
 export function legacyTwigConfig(files = defaultTwigFiles) {
     return [

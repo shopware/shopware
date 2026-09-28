@@ -296,6 +296,14 @@ class SeoUrlPersister
                    AND sales_channel_id = :salesChannelId
                    AND route_name = :routeName
                    AND is_canonical IS NULL AND is_deleted = 0
+                   AND NOT EXISTS (
+                       SELECT 1 FROM seo_url existing
+                       WHERE existing.language_id = :languageId
+                         AND existing.foreign_key = :foreignKey
+                         AND existing.sales_channel_id = :salesChannelId
+                         AND existing.route_name = :routeName
+                         AND existing.is_canonical = 1
+                   )
                  ORDER BY created_at ASC
                  LIMIT 1',
                 [

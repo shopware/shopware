@@ -13,5 +13,8 @@ const featureConfigPath = resolve(
     '../../../../Core/Framework/Resources/config/packages/feature.yaml',
 );
 
-global.activeFeatureFlags =
-    process.env.FEATURE_ALL === 'major' ? getMajorFeatureFlags(parse(readFileSync(featureConfigPath, 'utf8'))) : [];
+// FEATURE_ALL is `major` or a single major (`v6.8.0.0`), the lanes integration-major.yml runs.
+global.activeFeatureFlags = getMajorFeatureFlags(
+    parse(readFileSync(featureConfigPath, 'utf8')),
+    process.env.FEATURE_ALL ?? '',
+);

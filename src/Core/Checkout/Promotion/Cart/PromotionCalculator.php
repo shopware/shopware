@@ -35,6 +35,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountZeroValueError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
@@ -159,6 +160,9 @@ class PromotionCalculator
                 $unknownCondition = $this->getUnknownCondition($discountItem->getPriceDefinition());
                 if ($unknownCondition !== null) {
                     $calculated->addErrors(new PromotionDiscountUnknownConditionError($discountItem, $unknownCondition->getOriginalName()));
+                } elseif (!$isAutomaticDiscount && $result->getCompositionItems() !== []) {
+                    // the discount matched line items but grants nothing for this cart
+                    $calculated->addErrors(new PromotionDiscountZeroValueError($discountItem));
                 }
 
                 continue;

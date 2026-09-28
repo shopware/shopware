@@ -15,54 +15,18 @@ const createDocument = (documentType) => {
 
 describe('core/service/documentV2.service.ts', () => {
     it.each([
-        [
-            DOCUMENT_TYPES.INVOICE,
-            DOCUMENT_TYPES.INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.DELIVERY_NOTE,
-            DOCUMENT_TYPES.DELIVERY_NOTE,
-        ],
-        [
-            DOCUMENT_TYPES.CREDIT_NOTE,
-            DOCUMENT_TYPES.CREDIT_NOTE,
-        ],
-        [
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_INVOICE,
-            DOCUMENT_TYPES.INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
-            DOCUMENT_TYPES.INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
-            DOCUMENT_TYPES.CREDIT_NOTE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
-            DOCUMENT_TYPES.CREDIT_NOTE,
-        ],
-        [
-            null,
-            null,
-        ],
-        [
-            'foo',
-            'foo',
-        ],
+        [DOCUMENT_TYPES.INVOICE, DOCUMENT_TYPES.INVOICE],
+        [DOCUMENT_TYPES.DELIVERY_NOTE, DOCUMENT_TYPES.DELIVERY_NOTE],
+        [DOCUMENT_TYPES.CREDIT_NOTE, DOCUMENT_TYPES.CREDIT_NOTE],
+        [DOCUMENT_TYPES.CANCELLATION_INVOICE, DOCUMENT_TYPES.CANCELLATION_INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_INVOICE, DOCUMENT_TYPES.INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE, DOCUMENT_TYPES.INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE, DOCUMENT_TYPES.CANCELLATION_INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE, DOCUMENT_TYPES.CANCELLATION_INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE, DOCUMENT_TYPES.CREDIT_NOTE],
+        [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE, DOCUMENT_TYPES.CREDIT_NOTE],
+        [null, null],
+        ['foo', 'foo'],
     ])('should get the correct document family', async (documentType, expected) => {
         const documentV2Service = new DocumentV2Service();
 
@@ -70,54 +34,18 @@ describe('core/service/documentV2.service.ts', () => {
     });
 
     it.each([
-        [
-            DOCUMENT_TYPES.INVOICE,
-            DOCUMENT_TYPES.INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.DELIVERY_NOTE,
-            DOCUMENT_TYPES.DELIVERY_NOTE,
-        ],
-        [
-            DOCUMENT_TYPES.CREDIT_NOTE,
-            DOCUMENT_TYPES.CREDIT_NOTE,
-        ],
-        [
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_INVOICE,
-            DOCUMENT_TYPES.INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE,
-            DOCUMENT_TYPES.INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE,
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE,
-            DOCUMENT_TYPES.CREDIT_NOTE,
-        ],
-        [
-            DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE,
-            DOCUMENT_TYPES.CREDIT_NOTE,
-        ],
-        [
-            'foo',
-            'foo',
-        ],
-        [
-            null,
-            null,
-        ],
+        [DOCUMENT_TYPES.INVOICE, DOCUMENT_TYPES.INVOICE],
+        [DOCUMENT_TYPES.DELIVERY_NOTE, DOCUMENT_TYPES.DELIVERY_NOTE],
+        [DOCUMENT_TYPES.CREDIT_NOTE, DOCUMENT_TYPES.CREDIT_NOTE],
+        [DOCUMENT_TYPES.CANCELLATION_INVOICE, DOCUMENT_TYPES.CANCELLATION_INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_INVOICE, DOCUMENT_TYPES.INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE, DOCUMENT_TYPES.INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE, DOCUMENT_TYPES.CANCELLATION_INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE, DOCUMENT_TYPES.CANCELLATION_INVOICE],
+        [DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE, DOCUMENT_TYPES.CREDIT_NOTE],
+        [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE, DOCUMENT_TYPES.CREDIT_NOTE],
+        ['foo', 'foo'],
+        [null, null],
     ])('should get the correct document number range type', (documentType, expected) => {
         const documentV2Service = new DocumentV2Service();
 
@@ -139,10 +67,7 @@ describe('core/service/documentV2.service.ts', () => {
                 FILE_FORMATS.ZUGFERD_XML,
             ],
         ],
-        [
-            [],
-            [],
-        ],
+        [[], []],
         [
             [
                 'foo',
@@ -162,14 +87,8 @@ describe('core/service/documentV2.service.ts', () => {
             ],
         ],
         [
-            [
-                'bar',
-                'foo',
-            ],
-            [
-                'bar',
-                'foo',
-            ],
+            ['bar', 'foo'],
+            ['bar', 'foo'],
         ],
     ])('should bring formats in the correct order', (formats, expectedOrder) => {
         const documentV2Service = new DocumentV2Service();
@@ -178,16 +97,8 @@ describe('core/service/documentV2.service.ts', () => {
     });
 
     it.each([
-        [
-            [],
-            undefined,
-            null,
-        ],
-        [
-            [],
-            'foo',
-            'foo',
-        ],
+        [[], undefined, null],
+        [[], 'foo', 'foo'],
         [
             [
                 FILE_FORMATS.ZUGFERD_XML,
@@ -208,14 +119,7 @@ describe('core/service/documentV2.service.ts', () => {
             FILE_FORMATS.HTML,
             FILE_FORMATS.PDF,
         ],
-        [
-            [
-                'foo',
-                'bar',
-            ],
-            FILE_FORMATS.HTML,
-            'foo',
-        ],
+        [['foo', 'bar'], FILE_FORMATS.HTML, 'foo'],
     ])('should get the preferred file format', (fileFormats, defaultFormat, expectedFormat) => {
         const documentV2Service = new DocumentV2Service();
 
@@ -223,14 +127,8 @@ describe('core/service/documentV2.service.ts', () => {
     });
 
     it.each([
-        [
-            undefined,
-            { documentComment: '', documentDate: expect.any(String), documentNumber: '', requestedFileFormats: [] },
-        ],
-        [
-            null,
-            { documentComment: '', documentDate: expect.anything(), documentNumber: '', requestedFileFormats: [] },
-        ],
+        [undefined, { documentComment: '', documentDate: expect.any(String), documentNumber: '', requestedFileFormats: [] }],
+        [null, { documentComment: '', documentDate: expect.anything(), documentNumber: '', requestedFileFormats: [] }],
         [
             DOCUMENT_TYPES.INVOICE,
             { documentComment: '', documentDate: expect.anything(), documentNumber: '', requestedFileFormats: [] },
@@ -252,16 +150,8 @@ describe('core/service/documentV2.service.ts', () => {
     });
 
     it.each([
-        [
-            [],
-            [],
-            [],
-        ],
-        [
-            [],
-            INVOICE_DOCUMENT_TYPES,
-            [],
-        ],
+        [[], [], []],
+        [[], INVOICE_DOCUMENT_TYPES, []],
         [
             [
                 createDocument(DOCUMENT_TYPES.DELIVERY_NOTE),
@@ -272,10 +162,7 @@ describe('core/service/documentV2.service.ts', () => {
                 createDocument(DOCUMENT_TYPES.ZUGFERD_INVOICE),
             ],
             INVOICE_DOCUMENT_TYPES,
-            [
-                createDocument(DOCUMENT_TYPES.INVOICE),
-                createDocument(DOCUMENT_TYPES.ZUGFERD_INVOICE),
-            ],
+            [createDocument(DOCUMENT_TYPES.INVOICE), createDocument(DOCUMENT_TYPES.ZUGFERD_INVOICE)],
         ],
     ])('should filter given documents by provided document types', (documents, documentTypes, expectedDocuments) => {
         const documentV2Service = new DocumentV2Service();
@@ -284,16 +171,8 @@ describe('core/service/documentV2.service.ts', () => {
     });
 
     it.each([
-        [
-            [],
-            [],
-            [],
-        ],
-        [
-            [],
-            INVOICE_DOCUMENT_TYPES,
-            [],
-        ],
+        [[], [], []],
+        [[], INVOICE_DOCUMENT_TYPES, []],
         [
             [
                 createDocument(DOCUMENT_TYPES.DELIVERY_NOTE),
@@ -304,10 +183,7 @@ describe('core/service/documentV2.service.ts', () => {
                 createDocument(DOCUMENT_TYPES.ZUGFERD_INVOICE),
             ],
             INVOICE_DOCUMENT_TYPES,
-            [
-                `1000-${DOCUMENT_TYPES.INVOICE}`,
-                `1000-${DOCUMENT_TYPES.ZUGFERD_INVOICE}`,
-            ],
+            [`1000-${DOCUMENT_TYPES.INVOICE}`, `1000-${DOCUMENT_TYPES.ZUGFERD_INVOICE}`],
         ],
     ])('should filter given documents by provided document types', (documents, documentTypes, expectedDocuments) => {
         const documentV2Service = new DocumentV2Service();
@@ -316,26 +192,11 @@ describe('core/service/documentV2.service.ts', () => {
     });
 
     it.each([
-        [
-            FILE_FORMATS.HTML,
-            'sw-order.components.createDocumentModal.fileFormats.html',
-        ],
-        [
-            FILE_FORMATS.PDF,
-            'sw-order.components.createDocumentModal.fileFormats.pdf',
-        ],
-        [
-            FILE_FORMATS.ZUGFERD_XML,
-            'sw-order.components.createDocumentModal.fileFormats.zugferdXml',
-        ],
-        [
-            FILE_FORMATS.ZUGFERD_EMBEDDED_PDF,
-            'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf',
-        ],
-        [
-            'foo',
-            'sw-order.components.createDocumentModal.fileFormats.foo',
-        ],
+        [FILE_FORMATS.HTML, 'sw-order.components.createDocumentModal.fileFormats.html'],
+        [FILE_FORMATS.PDF, 'sw-order.components.createDocumentModal.fileFormats.pdf'],
+        [FILE_FORMATS.ZUGFERD_XML, 'sw-order.components.createDocumentModal.fileFormats.zugferdXml'],
+        [FILE_FORMATS.ZUGFERD_EMBEDDED_PDF, 'sw-order.components.createDocumentModal.fileFormats.zugferdEmbeddedPdf'],
+        ['foo', 'sw-order.components.createDocumentModal.fileFormats.foo'],
     ])('should get correct file format snippet', (fileFormat, expectedSnippet) => {
         const documentV2Service = new DocumentV2Service();
 
@@ -343,26 +204,11 @@ describe('core/service/documentV2.service.ts', () => {
     });
 
     it.each([
-        [
-            DOCUMENT_TYPES.INVOICE,
-            'sw-order.components.createDocumentModal.documentTypes.invoice',
-        ],
-        [
-            DOCUMENT_TYPES.CREDIT_NOTE,
-            'sw-order.components.createDocumentModal.documentTypes.creditNote',
-        ],
-        [
-            DOCUMENT_TYPES.CANCELLATION_INVOICE,
-            'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice',
-        ],
-        [
-            DOCUMENT_TYPES.DELIVERY_NOTE,
-            'sw-order.components.createDocumentModal.documentTypes.deliveryNote',
-        ],
-        [
-            'foo',
-            'foo',
-        ],
+        [DOCUMENT_TYPES.INVOICE, 'sw-order.components.createDocumentModal.documentTypes.invoice'],
+        [DOCUMENT_TYPES.CREDIT_NOTE, 'sw-order.components.createDocumentModal.documentTypes.creditNote'],
+        [DOCUMENT_TYPES.CANCELLATION_INVOICE, 'sw-order.components.createDocumentModal.documentTypes.cancellationInvoice'],
+        [DOCUMENT_TYPES.DELIVERY_NOTE, 'sw-order.components.createDocumentModal.documentTypes.deliveryNote'],
+        ['foo', 'foo'],
     ])('should translate a core document type via its snippet key', (documentType, expectedKey) => {
         const documentV2Service = new DocumentV2Service();
 
@@ -433,10 +279,7 @@ describe('core/service/documentV2.service.ts', () => {
         });
         const documentV2Service = new DocumentV2Service({ getAvailableTypes });
 
-        const [
-            first,
-            second,
-        ] = await Promise.all([
+        const [first, second] = await Promise.all([
             documentV2Service.getAvailableDocumentTypes(),
             documentV2Service.getAvailableDocumentTypes(),
         ]);

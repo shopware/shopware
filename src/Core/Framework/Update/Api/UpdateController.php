@@ -7,13 +7,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
-use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
-use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
+use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
+use Shopware\Core\Framework\Update\UpdateException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,7 +29,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  */
 #[Package('framework')]
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], PlatformRequest::ATTRIBUTE_OPENAPI => false])]
 class UpdateController extends AbstractController
 {
     public const UPDATE_PREVIOUS_VERSION_KEY = 'core.update.previousVersion';
@@ -39,14 +39,15 @@ class UpdateController extends AbstractController
      */
     public function __construct(
         private readonly ApiClient $apiClient,
-        private readonly WriteableCheck $writeableCheck,
-        private readonly LicenseCheck $licenseCheck,
+        private readonly StoreClient $storeClient,
         private readonly ExtensionCompatibility $extensionCompatibility,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfig,
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
         private readonly string $shopwareVersion,
-        private readonly bool $disableUpdateCheck = false
+        private readonly bool $shopwareUpdateEnabled = true,
+        private readonly bool $updateModuleHidden = false,
+        private readonly bool $clusterSetup = false,
     ) {
     }
 
@@ -58,9 +59,7 @@ class UpdateController extends AbstractController
     )]
     public function updateApiCheck(): JsonResponse
     {
-        if ($this->disableUpdateCheck) {
-            return new JsonResponse();
-        }
+        $this->ensureUpdateModuleVisible();
 
         $updates = $this->apiClient->checkForUpdates();
 
@@ -68,7 +67,11 @@ class UpdateController extends AbstractController
             return new JsonResponse();
         }
 
-        return new JsonResponse($updates);
+        return new JsonResponse([
+            ...$updates->jsonSerialize(),
+            'autoUpdateEnabled' => $this->shopwareUpdateEnabled,
+            'clusterSetup' => $this->clusterSetup,
+        ]);
     }
 
     #[Route(
@@ -77,11 +80,14 @@ class UpdateController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update']],
         methods: [Request::METHOD_GET]
     )]
-    public function checkRequirements(): JsonResponse
+    public function checkLicense(): JsonResponse
     {
+        $this->ensureUpdateModuleVisible();
+
+        $licenseHost = $this->systemConfig->getString('core.store.licenseHost');
+
         return new JsonResponse([
-            $this->writeableCheck->check(),
-            $this->licenseCheck->check(),
+            'isValid' => $licenseHost === '' || $this->storeClient->isShopUpgradeable(),
         ]);
     }
 
@@ -93,6 +99,8 @@ class UpdateController extends AbstractController
     )]
     public function extensionCompatibility(Context $context): JsonResponse
     {
+        $this->ensureUpdateModuleVisible();
+
         $update = $this->apiClient->checkForUpdates();
 
         return new JsonResponse($this->extensionCompatibility->getExtensionCompatibilities($update, $context));
@@ -106,6 +114,12 @@ class UpdateController extends AbstractController
     )]
     public function downloadLatestRecovery(): Response
     {
+        $this->ensureAutoUpdateEnabled();
+
+        if ($this->clusterSetup) {
+            throw UpdateException::clusterSetupNotSupported();
+        }
+
         $this->apiClient->downloadRecoveryTool();
 
         return new NoContentResponse();
@@ -117,8 +131,10 @@ class UpdateController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update', 'system_config:read']],
         methods: [Request::METHOD_GET]
     )]
-    public function deactivatePlugins(Request $request, Context $context): JsonResponse
+    public function deactivateExtensions(Request $request, Context $context): JsonResponse
     {
+        $this->ensureAutoUpdateEnabled();
+
         $update = $this->apiClient->checkForUpdates();
 
         $offset = $request->query->getInt('offset');
@@ -136,7 +152,7 @@ class UpdateController extends AbstractController
             ExtensionCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
         );
 
-        $deactivatePluginStep = new DeactivateExtensionsStep(
+        $deactivateExtensionsStep = new DeactivateExtensionsStep(
             $update,
             $deactivationFilter,
             $this->extensionCompatibility,
@@ -145,7 +161,7 @@ class UpdateController extends AbstractController
             $context
         );
 
-        $result = $deactivatePluginStep->run($offset);
+        $result = $deactivateExtensionsStep->run($offset);
 
         if ($result->getOffset() === $result->getTotal()) {
             $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
@@ -160,6 +176,22 @@ class UpdateController extends AbstractController
             'offset' => $result->getOffset(),
             'total' => $result->getTotal(),
         ]);
+    }
+
+    private function ensureUpdateModuleVisible(): void
+    {
+        if ($this->updateModuleHidden) {
+            throw UpdateException::updateModuleHidden();
+        }
+    }
+
+    private function ensureAutoUpdateEnabled(): void
+    {
+        $this->ensureUpdateModuleVisible();
+
+        if (!$this->shopwareUpdateEnabled) {
+            throw UpdateException::autoUpdateDisabled();
+        }
     }
 
     private function rebootKernelWithoutPlugins(): ContainerInterface

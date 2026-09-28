@@ -9,10 +9,7 @@ import './sw-product-variants-delivery-media.scss';
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-    ],
+    inject: ['repositoryFactory', 'mediaService'],
 
     props: {
         product: {
@@ -60,10 +57,7 @@ export default {
             }
 
             // add non sorted groups at the end of the sorted array
-            sortedGroups = [
-                ...sortedGroups,
-                ...selectedGroupsCopy,
-            ];
+            sortedGroups = [...sortedGroups, ...selectedGroupsCopy];
 
             return sortedGroups;
         },

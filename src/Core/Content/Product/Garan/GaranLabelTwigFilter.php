@@ -23,6 +23,7 @@ class GaranLabelTwigFilter extends AbstractExtension
         private readonly GaranLabelDurationFormatter $durationFormatter,
         private readonly EntityRepository $productRepository,
         private readonly GaranLabelResolver $resolver,
+        private readonly GaranLabelInlineImage $inlineImage,
     ) {
     }
 
@@ -37,12 +38,29 @@ class GaranLabelTwigFilter extends AbstractExtension
             new TwigFilter('sw_garan_label_nested', $this->renderNestedLabel(...), ['is_safe' => ['html']]),
             new TwigFilter('sw_garan_label_data_uri', $this->renderAsDataUri(...)),
             new TwigFilter('sw_garan_label_nested_uri', $this->renderNestedAsDataUri(...)),
+            new TwigFilter('sw_garan_label_text_length', $this->fitTextLength(...)),
+            new TwigFilter('sw_garan_label_duration_text_length', $this->fitDurationTextLength(...)),
+            new TwigFilter('sw_garan_label_mail', $this->resolveMailLabel(...)),
         ];
     }
 
     public function formatDuration(?int $guaranteeMonths): ?string
     {
         return $this->durationFormatter->formatMonths($guaranteeMonths);
+    }
+
+    /**
+     * The label templates are also included directly, so the fit has to be available to the
+     * templates themselves rather than only to `GaranLabelRenderer`.
+     */
+    public function fitTextLength(?string $value, float $clearWidth, float $fontSize, float $letterSpacing = 0.0): ?float
+    {
+        return GaranLabelTextFitter::fitTextLength($value, $clearWidth, $fontSize, $letterSpacing);
+    }
+
+    public function fitDurationTextLength(?string $value, float $clearWidth, float $fontSize, float $letterSpacing = 0.0): ?float
+    {
+        return GaranLabelTextFitter::fitDurationTextLength($value, $clearWidth, $fontSize, $letterSpacing);
     }
 
     public function render(?string $productId, Context $context): ?string
@@ -91,6 +109,34 @@ class GaranLabelTwigFilter extends AbstractExtension
         }
 
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    }
+
+    /**
+     * Returns the reference of the inline label image and the formatted duration for mail templates.
+     * `cid` is null for durations without an image, so the template can fall back to the duration text.
+     *
+     * @return array{cid: string|null, duration: string}|null
+     */
+    public function resolveMailLabel(?string $productId, Context $context): ?array
+    {
+        $product = $this->loadProduct($productId, $context);
+
+        if ($product === null) {
+            return null;
+        }
+
+        $duration = $this->resolver->resolveDuration($product);
+
+        if ($duration === null) {
+            return null;
+        }
+
+        $name = $this->inlineImage->getName((int) $product->getGuaranteeMonths());
+
+        return [
+            'cid' => $name !== null ? 'cid:' . $name : null,
+            'duration' => $duration,
+        ];
     }
 
     private function loadProduct(?string $productId, Context $context): ?ProductEntity

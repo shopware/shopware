@@ -11,6 +11,7 @@ use Shopware\Core\DevOps\System\Command\OpenApiValidationCommand;
 use Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
@@ -37,6 +38,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(BusinessEventCollector::class),
             service(HookableEventCollector::class),
+            service(PolicyRegistry::class),
             tagged_iterator('shopware.hookable_event.describer'),
             service('twig'),
         ])

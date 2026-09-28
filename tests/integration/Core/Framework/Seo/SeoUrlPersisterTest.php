@@ -788,6 +788,102 @@ class SeoUrlPersisterTest extends TestCase
         ], $context);
     }
 
+    public function testRestoreCanonicalDoesNotDuplicateAcrossSameLanguageSalesChannels(): void
+    {
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $context = Context::createDefaultContext();
+        $this->ids = new IdsCollection();
+
+        $salesChannelAId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelAId, 'channel-a');
+        $salesChannelA = $this->salesChannelRepository->search(new Criteria([$salesChannelAId]), $context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannelA);
+
+        $salesChannelBId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelBId, 'channel-b');
+        $salesChannelB = $this->salesChannelRepository->search(new Criteria([$salesChannelBId]), $context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannelB);
+
+        $product = (new ProductBuilder($this->ids, 'p1'))
+            ->name('Old Name')
+            ->price(10)
+            ->visibility($salesChannelAId)
+            ->visibility($salesChannelBId)
+            ->build();
+        $productRepository->create([$product], $context);
+        $productId = $product['id'];
+
+        $template = '{{ product.translated.name }}';
+        $route = static::getContainer()->get(ProductPageSeoUrlRoute::class);
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $context,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$productId],
+            $this->seoUrlGenerator->generate([$productId], $template, $route, $context, $salesChannelA),
+            $salesChannelA
+        );
+
+        $productRepository->update([['id' => $productId, 'name' => 'Shared Name']], $context);
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $context,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$productId],
+            $this->seoUrlGenerator->generate([$productId], $template, $route, $context, $salesChannelA),
+            $salesChannelA
+        );
+
+        $this->seoUrlPersister->updateSeoUrls(
+            $context,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$productId],
+            $this->seoUrlGenerator->generate([$productId], $template, $route, $context, $salesChannelB),
+            $salesChannelB
+        );
+
+        $sharedCriteria = new Criteria();
+        $sharedCriteria->addFilter(new EqualsFilter('foreignKey', $productId));
+        $sharedCriteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelBId));
+        $sharedCriteria->addFilter(new EqualsFilter('isCanonical', true));
+        $sharedCanonical = $this->seoUrlRepository->search($sharedCriteria, $context)->getEntities()->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $sharedCanonical);
+        $sharedPath = $sharedCanonical->getSeoPathInfo();
+
+        $otherProductId = Uuid::randomHex();
+        $this->seoUrlPersister->updateSeoUrls(
+            $context,
+            ProductPageSeoUrlRoute::ROUTE_NAME,
+            [$otherProductId],
+            [[
+                'foreignKey' => $otherProductId,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => $sharedPath,
+            ]],
+            $salesChannelA
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $productId));
+        $criteria->addFilter(new EqualsFilter('isCanonical', true));
+        $canonicals = $this->seoUrlRepository->search($criteria, $context)->getEntities();
+
+        static::assertCount(2, $canonicals);
+
+        $canonicalChannelIds = [];
+        foreach ($canonicals as $canonical) {
+            static::assertSame($sharedPath, $canonical->getSeoPathInfo());
+            $canonicalChannelIds[] = $canonical->getSalesChannelId();
+        }
+        sort($canonicalChannelIds);
+
+        $expectedChannelIds = [$salesChannelAId, $salesChannelBId];
+        sort($expectedChannelIds);
+        static::assertSame($expectedChannelIds, $canonicalChannelIds);
+    }
+
     private function createLanguages(Context $context): void
     {
         $languages = [[

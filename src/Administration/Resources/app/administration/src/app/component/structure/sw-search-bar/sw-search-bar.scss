@@ -138,21 +138,10 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
                 outline-offset: var(--scale-size-2);
                 outline: var(--scale-size-2) solid var(--color-border-brand-default);
             }
+        }
 
-            // Opt-in module colors, the color arrives as --sw-search-bar-type-color
-            &.is--module-colored {
-                background-color: var(--sw-search-bar-type-color);
-                border-color: var(--sw-search-bar-type-color);
-                color: var(--color-static-white);
-
-                &:hover {
-                    background-color: color-mix(in srgb, var(--sw-search-bar-type-color) 88%, black);
-                }
-
-                &:active {
-                    background-color: color-mix(in srgb, var(--sw-search-bar-type-color) 78%, black);
-                }
-            }
+        &-icon {
+            flex-shrink: 0;
         }
     }
 

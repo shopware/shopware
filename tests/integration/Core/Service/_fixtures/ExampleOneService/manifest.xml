@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <!-- no <setup>: a registrationUrl would start the app handshake over the Guzzle app client, which this test does not fake -->
+    <meta>
+        <name>ExampleOneService</name>
+        <label>Example One</label>
+        <label lang="de-DE">Beispiel Eins</label>
+        <description>Example service for the service lifecycle test</description>
+        <description lang="de-DE">Beispiel-Service für den Service-Lifecycle-Test</description>
+        <author>Example AG</author>
+        <copyright>(c) by Example AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+    <permissions>
+        <read>order</read>
+    </permissions>
+</manifest>

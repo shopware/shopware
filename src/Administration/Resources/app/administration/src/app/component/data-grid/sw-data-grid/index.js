@@ -30,15 +30,9 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['acl', 'repositoryFactory', 'feature'],
 
-    mixins: [
-        Mixin.getByName('translate-with-fallback'),
-    ],
+    mixins: [Mixin.getByName('translate-with-fallback')],
 
     emits: [
         'selection-change',

@@ -179,17 +179,14 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
         const wrapper = await createWrapper({
             route: {
                 name: 'sw.product.detail.base',
-                matched: [
-                    { name: 'sw.product.detail' },
-                    { name: 'sw.product.detail.base' },
-                ],
+                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
                 meta: { parentPath: 'sw.product.index' },
             },
             routerRoutes: [{ name: 'sw.product.index', meta: {} }],
             props: {
                 entry: {
                     id: 'sw-catalogue',
-                    label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+                    label: 'global.sw-admin-menu.navigation.mainMenuItemProducts',
                     icon: 'regular-products',
                     level: 1,
                     children: [

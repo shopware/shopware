@@ -3,6 +3,9 @@
 How the `integration-major` job runs
 (`.github/workflows/integration-major.yml`): `APP_ENV=test`,
 `FEATURE_ALL=major`, `BLUE_GREEN_DEPLOYMENT=1`, fresh install per shard.
+While more than one major is in flight the job runs one lane per major and
+`FEATURE_ALL` carries that major instead (`v6.8.0.0`); the failing job name says
+which lane, and reproducing with `major` would mix the next major in.
 
 Reproduce failures against the local Docker stack (`docker compose exec web`).
 Ask before the first reproduction run — it mutates the shared test DB.

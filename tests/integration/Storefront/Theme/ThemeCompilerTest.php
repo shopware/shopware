@@ -92,7 +92,7 @@ class ThemeCompilerTest extends TestCase
             static::getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
@@ -188,7 +188,7 @@ class ThemeCompilerTest extends TestCase
             mkdir($testFolder);
         }
 
-        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver = static::createStub(ThemeFileResolver::class);
         $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
 
         $config = new StorefrontPluginConfiguration('test');
@@ -205,10 +205,10 @@ class ThemeCompilerTest extends TestCase
             $resolver,
             true,
             static::getContainer()->get('event_dispatcher'),
-            $this->createMock(ThemeFilesystemResolver::class),
+            static::createStub(ThemeFilesystemResolver::class),
             [],
-            $this->createMock(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(CacheInvalidator::class),
+            static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
@@ -467,7 +467,7 @@ PHP_EOL;
      */
     private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
     {
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel
             ->method('getBundles')
             ->willReturn($plugins);

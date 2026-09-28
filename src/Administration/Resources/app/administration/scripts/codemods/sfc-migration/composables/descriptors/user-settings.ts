@@ -16,17 +16,10 @@ const USER_SETTINGS_DESCRIPTOR: ComposableDescriptor = {
         'userGridSettingsCriteria',
     ]),
     // get/saveUserSettings read through getUserSettingsEntity, which builds its own criteria.
-    internallyReferencedMembers: [
-        'getUserSettingsEntity',
-        'userGridSettingsCriteria',
-    ],
+    internallyReferencedMembers: ['getUserSettingsEntity', 'userGridSettingsCriteria'],
     // The mixin's own computeds, plus the `acl` it injected for the component; the composable
     // resolves all three itself and returns none of them.
-    unmappedMembers: [
-        'acl',
-        'currentUser',
-        'userConfigRepository',
-    ],
+    unmappedMembers: ['acl', 'currentUser', 'userConfigRepository'],
 };
 
 export default USER_SETTINGS_DESCRIPTOR;

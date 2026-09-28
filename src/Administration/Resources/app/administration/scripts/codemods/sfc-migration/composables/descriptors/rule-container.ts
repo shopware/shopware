@@ -16,26 +16,13 @@ const RULE_CONTAINER_DESCRIPTOR: ComposableDescriptor = {
             'containerRowClass',
             'nextPosition',
         ]),
-        ...methodMembers([
-            'createCondition',
-            'insertNodeIntoTree',
-            'removeNodeFromTree',
-        ]),
+        ...methodMembers(['createCondition', 'insertNodeIntoTree', 'removeNodeFromTree']),
     },
     // nextPosition counts the children under the provided association field, and the watcher reads
     // it back before asking for a placeholder.
-    internallyReferencedMembers: [
-        'childAssociationField',
-        'nextPosition',
-    ],
-    propArgs: [
-        'condition',
-        'level',
-        'disabled',
-    ],
-    callbackArgs: [
-        { name: 'onAddPlaceholder', kind: 'callback' },
-    ],
+    internallyReferencedMembers: ['childAssociationField', 'nextPosition'],
+    propArgs: ['condition', 'level', 'disabled'],
+    callbackArgs: [{ name: 'onAddPlaceholder', kind: 'callback' }],
     // `parentCondition` is the fourth prop the mixin declared, which its own logic never read.
     providedProps: [
         { name: 'condition', definition: '{\ntype: Object,\nrequired: true,\n}' },

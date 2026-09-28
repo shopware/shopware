@@ -168,6 +168,7 @@
                         "$ref": "#/components/responses/GatewayContextTokenResponse"
                     },
                     "400": {
+                        "$ref": "#/components/responses/400",
                         "description": "App server communication error"
                     },
                     "401": {
@@ -222,6 +223,7 @@
                         "$ref": "#/components/responses/GatewayContextTokenResponse"
                     },
                     "400": {
+                        "$ref": "#/components/responses/400",
                         "description": "App server communication error"
                     },
                     "401": {

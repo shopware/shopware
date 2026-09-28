@@ -59,8 +59,6 @@ class JWTDecoderTest extends TestCase
     #[DataProvider('provideInvalidJwts')]
     public function testValidateWithInvalidToken(string $invalidJwt, JWTException $expectedException): void
     {
-        $this->expectExceptionObject($expectedException);
-
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->atMost(1))
             ->method('get')
@@ -74,6 +72,8 @@ class JWTDecoderTest extends TestCase
 
         $signatureValidator = new HasValidRSAJWKSignature($jwks);
         $domainValidator = new MatchesLicenceDomain($systemConfigService);
+
+        $this->expectExceptionObject($expectedException);
 
         $this->decoder->validate($invalidJwt, $signatureValidator, $domainValidator);
     }

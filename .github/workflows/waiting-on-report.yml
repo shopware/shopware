@@ -1,0 +1,34 @@
+name: Waiting-on report
+
+# Reports who each open pull request is waiting for, into the job summary. It labels
+# nothing, comments nowhere and closes nothing — the rule and its rationale live in
+# .github/bin/js/waiting-on.ts.
+#
+# A daily sweep rather than pull_request events, for two reasons: the state changes as time
+# passes and not only when something happens, and a fork pull request event carries a
+# read-only token that could not write a label later on anyway.
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # every day at 06:00 UTC, before the European working day
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  report:
+    name: Report who is waiting for whom
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { reportWaitingOn } = await import('${{ github.workspace }}/.github/bin/js/waiting-on.ts')
+            await reportWaitingOn({ github, core, context })

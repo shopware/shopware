@@ -45,6 +45,7 @@ async function createWrapper(propsOverride) {
                     </div>
                 `,
                     },
+                    'mt-tabs': true,
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
@@ -55,11 +56,7 @@ async function createWrapper(propsOverride) {
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
                     'sw-text-editor': {
                         props: ['value'],
-                        emits: [
-                            'blur',
-                            'update:value',
-                            'change',
-                        ],
+                        emits: ['blur', 'update:value', 'change'],
                         template:
                             '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                     },
@@ -90,6 +87,7 @@ describe('module/sw-cms/elements/category-name/config', () => {
 
     beforeEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('cmsPage').setCurrentMappingEntity('category');
         Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_list',
         });

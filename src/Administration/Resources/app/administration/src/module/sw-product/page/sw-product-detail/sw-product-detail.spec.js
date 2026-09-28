@@ -50,9 +50,7 @@ const advancedModeSettings = {
 
 const defaultSalesChannelData = {
     'core.defaultSalesChannel.active': false,
-    'core.defaultSalesChannel.salesChannel': [
-        '98432def39fc4624b33213a56b8c944d',
-    ],
+    'core.defaultSalesChannel.salesChannel': ['98432def39fc4624b33213a56b8c944d'],
     'core.defaultSalesChannel.visibility': {
         '98432def39fc4624b33213a56b8c944d': 10,
     },
@@ -180,11 +178,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
                         template: '<div class="sw-tabs-item"><slot /></div>',
-                        props: [
-                            'route',
-                            'title',
-                            'hasError',
-                        ],
+                        props: ['route', 'title', 'hasError'],
                     },
                     'mt-tabs': {
                         name: 'mt-tabs',
@@ -507,9 +501,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             '.sw-product-detail__tab-reviews',
         ];
 
-        const invisibleTabItem = [
-            '.sw-product-detail__tab-variants',
-        ];
+        const invisibleTabItem = ['.sw-product-detail__tab-variants'];
 
         visibleTabItem.forEach((item) => {
             expect(wrapper.find(item).attributes().style).toBeFalsy();
@@ -521,11 +513,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should always show the correct menu, even with the defaults not matching the userConfig', async () => {
-        const keys = [
-            'general_information',
-            'prices',
-            'deliverability',
-        ];
+        const keys = ['general_information', 'prices', 'deliverability'];
         const mockKey = 'mock_key_without_result';
         const settings = [...keys].map((key) => {
             return {
@@ -778,31 +766,92 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
+    it.each(['success', 'empty'])('should announce a save that finished with "%s"', async (response) => {
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.updateSeoPromises = [];
+
+        Shopware.Utils.EventBus.emit = jest.fn();
+
+        wrapper.vm.onSaveFinished(response);
+        await flushPromises();
+
+        expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
+    });
+
+    it('should not announce a save that failed', async () => {
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.updateSeoPromises = [];
+
+        Shopware.Utils.EventBus.emit = jest.fn();
+
+        wrapper.vm.onSaveFinished({ response: { data: { errors: [{ detail: 'nope' }] } } });
+        await flushPromises();
+
+        expect(Shopware.Utils.EventBus.emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
+    });
+
     it('should handle success response correctly', async () => {
         wrapper.vm.updateSeoPromises = [Promise.resolve()];
         Shopware.Store.get('swProductDetail').setLoading = jest.fn();
-        Shopware.Store.get('error').resetApiErrors = jest.fn();
+        jest.spyOn(Shopware.Store.get('error'), 'resetApiErrors');
         wrapper.vm.loadProduct = jest.fn();
 
         Shopware.Utils.EventBus.emit = jest.fn();
 
         wrapper.vm.onSaveFinished('success');
 
-        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
-            'product',
-            true,
-        ]);
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith(['product', true]);
 
         await flushPromises();
 
         expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-finish');
         expect(wrapper.vm.isSaveSuccessful).toBe(true);
-        expect(Shopware.Store.get('error').resetApiErrors).not.toHaveBeenCalled();
-        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
-            'product',
-            false,
-        ]);
+        expect(Shopware.Store.get('error').resetApiErrors).toHaveBeenCalled();
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith(['product', false]);
         expect(wrapper.vm.loadProduct).toHaveBeenCalled();
+    });
+
+    it.each(['success', 'empty'])(
+        'should discard the api errors of the previous save when the save finished with "%s"',
+        async (response) => {
+            wrapper.vm.loadProduct = jest.fn();
+            wrapper.vm.updateSeoPromises = [];
+
+            Shopware.Store.get('error').addApiError({
+                expression: 'product.1234.guaranteeMonths',
+                error: {
+                    code: 'INVALID_GARAN_GUARANTEE_MONTHS',
+                    detail: 'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
+                },
+            });
+
+            wrapper.vm.onSaveFinished(response);
+            await flushPromises();
+
+            expect(wrapper.vm.isSaveSuccessful).toBe(true);
+            expect(Shopware.Store.get('error').api).toEqual({});
+        },
+    );
+
+    it('should keep the api errors when the save failed', async () => {
+        wrapper.vm.loadProduct = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.updateSeoPromises = [];
+
+        Shopware.Store.get('error').addApiError({
+            expression: 'product.1234.guaranteeMonths',
+            error: {
+                code: 'INVALID_GARAN_GUARANTEE_MONTHS',
+                detail: 'The GARAN guarantee duration must be empty or a half-year value between 30 and 600 months.',
+            },
+        });
+
+        wrapper.vm.onSaveFinished({ response: { data: { errors: [{ detail: 'nope' }] } } });
+        await flushPromises();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(Shopware.Store.get('error').api.product['1234'].guaranteeMonths).toBeDefined();
     });
 
     it('should handle duplicate product number error correctly', async () => {
@@ -915,10 +964,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await flushPromises();
 
-        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith([
-            'product',
-            false,
-        ]);
+        expect(Shopware.Store.get('swProductDetail').setLoading).toHaveBeenCalledWith(['product', false]);
         expect(wrapper.vm.loadProduct).toHaveBeenCalled();
     });
 
@@ -1136,9 +1182,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.parentProduct.purchasePrices).toEqual([
-            { currencyId: undefined, gross: 0, net: 0, linked: true },
-        ]);
+        expect(wrapper.vm.parentProduct.purchasePrices).toEqual([{ currencyId: undefined, gross: 0, net: 0, linked: true }]);
         expect(wrapper.vm.parentProduct._origin.purchasePrices).toEqual(wrapper.vm.parentProduct.purchasePrices);
     });
 
@@ -1283,9 +1327,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.purchasePrices).toEqual([
-            { currencyId: undefined, gross: 50, net: 42, linked: true },
-        ]);
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, gross: 50, net: 42, linked: true }]);
     });
 
     it('should ignore purchase price if its set', async () => {

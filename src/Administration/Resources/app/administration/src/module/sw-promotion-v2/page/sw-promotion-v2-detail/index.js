@@ -12,11 +12,7 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -229,12 +225,7 @@ export default {
                 return;
             }
 
-            if (
-                ![
-                    this.cleanUpIndividualCodes,
-                    this.cleanUpFixedCode,
-                ].some((check) => check)
-            ) {
+            if (![this.cleanUpIndividualCodes, this.cleanUpFixedCode].some((check) => check)) {
                 this.savePromotion();
 
                 return;

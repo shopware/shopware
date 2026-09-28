@@ -42,18 +42,15 @@ class MediaFolderService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mediaFolderId', $folder->getId()));
-        $mediaIds = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
-        $payload = [];
-        foreach ($mediaIds as $mediaId) {
-            $payload[] = [
-                'id' => $mediaId,
-                'mediaFolderId' => $folder->getParentId(),
-            ];
+        $medias = $this->mediaRepo->searchIds($criteria, $context)->getPrimaryKeyData();
+        foreach ($medias as &$media) {
+            $media['mediaFolderId'] = $folder->getParentId();
         }
+        unset($media);
 
-        if ($payload !== []) {
-            $this->mediaRepo->update($payload, $context);
+        if ($medias !== []) {
+            $this->mediaRepo->update($medias, $context);
         }
     }
 
@@ -62,9 +59,9 @@ class MediaFolderService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('parentId', $folder->getId()));
         $criteria->addAssociation('configuration');
-        $subFolders = $this->mediaFolderRepo->search($criteria, $context);
+        $subFolders = $this->mediaFolderRepo->search($criteria, $context)->getEntities();
 
-        if ($subFolders->getTotal() === 0) {
+        if ($subFolders->count() === 0) {
             $this->deleteOwnConfiguration($folder, $context);
 
             return;
@@ -72,20 +69,21 @@ class MediaFolderService
 
         $payload = [];
 
-        foreach ($subFolders->getEntities() as $subFolder) {
+        foreach ($subFolders as $subFolder) {
             $payload[$subFolder->getId()] = [
                 'id' => $subFolder->getId(),
                 'parentId' => $folder->getParentId(),
             ];
         }
 
-        $subFolders = $subFolders->getEntities()->filterByProperty('useParentConfiguration', true);
+        $subFolders = $subFolders->filterByProperty('useParentConfiguration', true);
 
-        if (\count($subFolders) === 0) {
+        $subFolderCount = $subFolders->count();
+        if ($subFolderCount === 0) {
             $this->deleteOwnConfiguration($folder, $context);
         }
 
-        if ((!$folder->getUseParentConfiguration()) && \count($subFolders) > 1) {
+        if ((!$folder->getUseParentConfiguration()) && $subFolderCount > 1) {
             $payload = $this->duplicateFolderConfig($subFolders, $payload, $context);
         }
 
@@ -138,8 +136,7 @@ class MediaFolderService
     private function fetchFolder(string $folderId, Context $context): MediaFolderEntity
     {
         $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $context)->getEntities()->get($folderId);
-
-        if (!$folder) {
+        if ($folder === null) {
             throw MediaException::mediaFolderIdNotFound($folderId);
         }
 

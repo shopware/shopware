@@ -22,15 +22,9 @@ class GaranLabelResolver
 
     public function resolve(ProductEntity $product, string $type = self::LABEL_TYPE_FULL): ?string
     {
-        if (!$product->isGuaranteeConfirmed()) {
-            return null;
-        }
+        $duration = $this->resolveDuration($product);
 
-        $brand = trim((string) $product->getManufacturer()?->getTranslation('name'));
-        $modelIdentifier = trim((string) $product->getManufacturerNumber());
-        $duration = $this->durationFormatter->formatMonths($product->getGuaranteeMonths());
-
-        if ($duration === null || $brand === '' || $modelIdentifier === '') {
+        if ($duration === null) {
             return null;
         }
 
@@ -38,6 +32,26 @@ class GaranLabelResolver
             return $this->renderer->renderNestedLabel($duration);
         }
 
-        return $this->renderer->render($duration, $brand, $modelIdentifier);
+        return $this->renderer->render(
+            $duration,
+            trim((string) $product->getManufacturer()?->getTranslation('name')),
+            trim((string) $product->getManufacturerNumber()),
+        );
+    }
+
+    public function resolveDuration(ProductEntity $product): ?string
+    {
+        if (!$product->isGuaranteeConfirmed()) {
+            return null;
+        }
+
+        $brand = trim((string) $product->getManufacturer()?->getTranslation('name'));
+        $modelIdentifier = trim((string) $product->getManufacturerNumber());
+
+        if ($brand === '' || $modelIdentifier === '') {
+            return null;
+        }
+
+        return $this->durationFormatter->formatMonths($product->getGuaranteeMonths());
     }
 }

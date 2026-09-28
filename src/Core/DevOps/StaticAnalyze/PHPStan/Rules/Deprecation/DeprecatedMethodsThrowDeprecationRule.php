@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ServiceMap;
@@ -27,38 +28,21 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     private const RULE_EXCEPTIONS = [
         // Subscribers still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-subscriber',
-        // Decorators still need to be called for BC reasons, therefore they do not trigger deprecations.
-        'reason:remove-decorator',
-        // Command methods are still called from symfony, the execute method should throw a deprecation though.
-        'reason:remove-command',
         // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
         'reason:remove-entity',
-        // Only the route on controller will be removed
-        'reason:remove-route',
-        // Interface methods that will be removed should trigger deprecations instead.
-        'reason:remove-interface',
-        // Throwing deprecations in PHPStan rules would cause problems while executed
-        'reason:remove-phpstan-rule',
         // Exception still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-exception',
-        // Getter setter that could be serialized when dispatched via bus needs to be deprecated and removed silently
-        'reason:remove-getter-setter',
-        // The replacement is still experimental, so the deprecation is announced but stays silent for now.
-        'reason:experimental-replacement',
-        // The method is used purely for blue-green deployment, therefor it will be removed from the next major without replacement
-        'reason:blue-green-deployment',
-        // The class is a decorating class and will be removed. Third party code should never rely on explicit decorators
-        'reason:decoration-will-be-removed',
-        // The constraint can still be used, just not via an annotation
-        'reason:remove-constraint-annotation',
-        // Container factory for deprecated service
-        'reason:factory-for-deprecation',
         // Rules still need to be called for rule evaluation, therefore they do not trigger deprecations.
         'reason:remove-rule',
     ];
 
-    public function __construct(private readonly ServiceMap $serviceMap)
-    {
+    /**
+     * @param iterable<DeprecationPattern> $deprecationPatterns
+     */
+    public function __construct(
+        private readonly ServiceMap $serviceMap,
+        private readonly iterable $deprecationPatterns,
+    ) {
     }
 
     public function getNodeType(): string
@@ -88,34 +72,48 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $methodContent = fn (): string => $this->getMethodContent($node, $scope, $class);
 
         $classDeprecation = $class->getDeprecatedDescription();
-        if ($classDeprecation && !$this->isServiceConstructor($node, $class) && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
-            return [
-                RuleErrorBuilder::message(\sprintf(
-                    'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
-                    $class->getName(),
-                    $method->getName()
-                ))
-                    ->identifier('shopware.deprecatedClass')
-                    ->build(),
-            ];
-        }
-
         $methodDeprecation = $method->getDeprecatedDescription() ?? '';
+
+        if ($classDeprecation && !$this->isServiceConstructor($node, $class)) {
+            $errors = $this->checkDeprecationPatterns($node, $scope, $class, $classDeprecation, true, $methodContent);
+            if ($errors !== null && $errors !== []) {
+                return $errors;
+            }
+
+            if ($errors === null && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+                return [
+                    RuleErrorBuilder::message(\sprintf(
+                        'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
+                        $class->getName(),
+                        $method->getName()
+                    ))
+                        ->identifier('shopware.deprecatedClass')
+                        ->build(),
+                ];
+            }
+        }
 
         // by default deprecations from parent methods are also available on all implementing methods
         // we will copy the deprecation to the implementing method, if they also have an affect there
         $deprecationOfParentMethod = !str_contains($method->getDocComment() ?? '', $methodDeprecation) && !str_contains($method->getDocComment() ?? '', 'inheritdoc');
 
-        if (!$deprecationOfParentMethod && $methodDeprecation && !$this->handlesDeprecationCorrectly($methodDeprecation, $methodContent)) {
-            return [
-                RuleErrorBuilder::message(\sprintf(
-                    'Method "%s" of class "%s" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
-                    $method->getName(),
-                    $class->getName()
-                ))
-                    ->identifier('shopware.deprecatedMethod')
-                    ->build(),
-            ];
+        if (!$deprecationOfParentMethod && $methodDeprecation) {
+            $errors = $this->checkDeprecationPatterns($node, $scope, $class, $methodDeprecation, false, $methodContent);
+            if ($errors !== null) {
+                return $errors;
+            }
+
+            if (!$this->handlesDeprecationCorrectly($methodDeprecation, $methodContent)) {
+                return [
+                    RuleErrorBuilder::message(\sprintf(
+                        'Method "%s" of class "%s" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
+                        $method->getName(),
+                        $class->getName()
+                    ))
+                        ->identifier('shopware.deprecatedMethod')
+                        ->build(),
+                ];
+            }
         }
 
         return [];
@@ -158,6 +156,20 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         }
 
         return \str_contains($methodContent(), 'Feature::triggerDeprecationOrThrow(');
+    }
+
+    /**
+     * @return list<IdentifierRuleError>|null
+     */
+    private function checkDeprecationPatterns(ClassMethod $node, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation, \Closure $methodContent): ?array
+    {
+        foreach ($this->deprecationPatterns as $pattern) {
+            if ($pattern->isSupported($node, $scope, $class, $deprecation, $isClassDeprecation)) {
+                return $pattern->check($node, $scope, $class, $deprecation, $isClassDeprecation, $methodContent);
+            }
+        }
+
+        return null;
     }
 
     private function isTestClass(ClassReflection $class): bool

@@ -621,6 +621,7 @@ preserves the previous unlimited behavior.
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.
+
 ### An empty string can be saved on fields that allow one
 
 The changeset generator turned an empty string into `null` for every field. Fields flagged `Required` and `AllowEmptyString` reject `null` but accept an empty string, so clearing such a field in the Administration always failed with "This value should not be null." The generator now keeps the empty string for exactly those fields; every other field is unchanged.

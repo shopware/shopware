@@ -119,7 +119,7 @@
  * ═══════════════════════════════════════════════════════════════════════════════
  */
 
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { resetBlockIndex } from 'src/core/factory/twig-block-index';
 import '../../../../store/block-override.store';
 import createDataScopeFixture from '../sw-block-override.spec/test-utils/create-data-scope-fixture';
@@ -1225,6 +1225,55 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.default-content').exists()).toBeTruthy();
             expect(wrapper.find('.inner-content').exists()).toBeTruthy();
             expect(wrapper.find('.default-content + .inner-content').exists()).toBeTruthy();
+        });
+
+        it('applies a later legacy override to a {% block %} nested by an earlier legacy override', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_nested_chained %}
+                        {% block shim_nested_chained_inner %}
+                            <div class="inner-content"></div>
+                        {% endblock %}
+                    {% endblock %}
+                `,
+            });
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_nested_chained_inner %}
+                        {% parent %}
+                        <div class="inner-override"></div>
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({ blockName: 'shim_nested_chained' });
+
+            expect(wrapper.find('.inner-content + .inner-override').exists()).toBeTruthy();
+        });
+
+        it('applies a native <sw-block extends> to a {% block %} nested by a legacy override', async () => {
+            Shopware.Component.override('sw-product-detail', {
+                template: `
+                    {% block shim_nested_native %}
+                        {% block shim_nested_native_inner %}
+                            <div class="inner-content"></div>
+                        {% endblock %}
+                    {% endblock %}
+                `,
+            });
+
+            const wrapper = await createWrapper({
+                blockName: 'shim_nested_native',
+                nativeExtensions: `
+                    <sw-block extends="shim_nested_native_inner" sw-internal-component-name="sw-product-detail">
+                        <sw-block-parent />
+                        <div class="inner-override"></div>
+                    </sw-block>
+                `,
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.inner-content + .inner-override').exists()).toBeTruthy();
         });
 
         it('renders the default content innermost when {% parent %} is wrapped by outer HTML', async () => {

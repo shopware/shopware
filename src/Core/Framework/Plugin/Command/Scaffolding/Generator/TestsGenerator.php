@@ -30,6 +30,11 @@ class TestsGenerator implements ScaffoldingGenerator
         return '';
     }
 
+    public function getCommandOptionMode(): ?int
+    {
+        return null;
+    }
+
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,
         InputInterface $input,

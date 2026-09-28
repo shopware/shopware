@@ -55,7 +55,7 @@ class PluginCreateCommand extends Command
             $this->addOption(
                 $generator->getCommandOptionName(),
                 null,
-                null,
+                $generator->getCommandOptionMode(),
                 $generator->getCommandOptionDescription()
             );
         }

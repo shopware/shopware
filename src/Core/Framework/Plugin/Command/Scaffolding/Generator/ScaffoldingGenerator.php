@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -21,6 +22,13 @@ interface ScaffoldingGenerator
     public function getCommandOptionName(): string;
 
     public function getCommandOptionDescription(): string;
+
+    /**
+     * Mode of the command option, passed to Symfony's `addOption()`: `null` for a flag, or an `InputOption::VALUE_*` constant
+     *
+     * @return int-mask-of<InputOption::VALUE_*>|null
+     */
+    public function getCommandOptionMode(): ?int;
 
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,

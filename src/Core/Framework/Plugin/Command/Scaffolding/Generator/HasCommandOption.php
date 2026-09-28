@@ -24,4 +24,9 @@ trait HasCommandOption
     {
         return self::OPTION_DESCRIPTION;
     }
+
+    public function getCommandOptionMode(): ?int
+    {
+        return null;
+    }
 }

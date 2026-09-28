@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -31,6 +32,11 @@ EOL;
 
     public function __construct(private readonly ClockInterface $clock)
     {
+    }
+
+    public function getCommandOptionMode(): int
+    {
+        return InputOption::VALUE_REQUIRED;
     }
 
     public function addScaffoldConfig(

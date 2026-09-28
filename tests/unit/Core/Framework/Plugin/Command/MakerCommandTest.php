@@ -175,6 +175,11 @@ class DummyScaffoldingGenerator implements ScaffoldingGenerator
         return 'Plugin Name';
     }
 
+    public function getCommandOptionMode(): ?int
+    {
+        return null;
+    }
+
     public function addScaffoldConfig(PluginScaffoldConfiguration $config, InputInterface $input, SymfonyStyle $io): void
     {
         $config->addOption('foo', true);

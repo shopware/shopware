@@ -849,6 +849,8 @@ Webhooks created through the Admin API without an app (`POST /api/webhook` witho
 
 The owner is recorded from the session and cannot be set through the API. Deleting the owning user or integration also deletes its app-less webhooks — a webhook has no meaning once the owner whose privileges authorize it is gone. App webhooks go through the same check: their owner is the app's integration, so they are authorized against the app's role as before.
 
+Existing app-less webhooks have no recorded creator, so the update assigns them to the oldest admin user and they keep receiving every event they subscribe to. Audit these webhooks after updating: recreate any that should run with narrower privileges as the user or integration it belongs to. Deleting that admin user also deletes the webhooks assigned to it.
+
 ### Store API context token response header is restricted on cacheable reads
 
 Store API responses no longer echo the request `sw-context-token` header on cacheable reads when `CACHE_REWORK` or `v6.8.0.0` is active. The response header is returned by endpoints that provide or bootstrap shopper state, for example reading or switching context, login, logout, registration, password change, guest-order login, adding cart items, and context gateway login/register commands. Clients should keep using their existing token unless a response explicitly provides a `sw-context-token`.

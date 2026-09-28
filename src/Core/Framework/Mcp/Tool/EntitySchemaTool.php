@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 #[McpTool(
     name: 'shopware-entity-schema',
     title: 'Entity Schema',
-    description: 'Get the field and association schema of a Shopware entity definition: field names, types, and associations for building shopware-entity-search criteria. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.'
+    description: 'Get the field and association schema of a Shopware entity definition: field names, types, and associations for building shopware-entity-search criteria. Many-to-many associations also name their mappingEntity (e.g. product categories: entity "category", mappingEntity "product_category"); delete a mapping row with shopware-entity-delete to remove a link. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.'
 )]
 #[McpToolGroup('entity')]
 class EntitySchemaTool extends McpToolResponse
@@ -53,7 +53,7 @@ class EntitySchemaTool extends McpToolResponse
 
         foreach ($definition->getFields() as $field) {
             if ($field instanceof AssociationField) {
-                $associations[] = [
+                $association = [
                     'name' => $field->getPropertyName(),
                     'type' => match (true) {
                         $field instanceof ManyToManyAssociationField => 'many-to-many',
@@ -62,8 +62,19 @@ class EntitySchemaTool extends McpToolResponse
                         $field instanceof OneToOneAssociationField => 'one-to-one',
                         default => 'association',
                     },
-                    'entity' => $field->getReferenceDefinition()->getEntityName(),
+                    // For many-to-many the reference definition is the mapping entity, so name the
+                    // target entity here and the mapping entity separately. Links are added through
+                    // upsert and removed by deleting the mapping row, like the Admin API sync endpoint.
+                    'entity' => $field instanceof ManyToManyAssociationField
+                        ? $field->getToManyReferenceDefinition()->getEntityName()
+                        : $field->getReferenceDefinition()->getEntityName(),
                 ];
+
+                if ($field instanceof ManyToManyAssociationField) {
+                    $association['mappingEntity'] = $field->getMappingDefinition()->getEntityName();
+                }
+
+                $associations[] = $association;
 
                 continue;
             }

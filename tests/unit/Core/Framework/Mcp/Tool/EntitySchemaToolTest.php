@@ -84,6 +84,10 @@ class EntitySchemaToolTest extends TestCase
         static::assertSame('one-to-many', $assocMap['children']['type']);
         static::assertSame('many-to-many', $assocMap['tags']['type']);
         static::assertSame('one-to-one', $assocMap['detail']['type']);
+
+        static::assertArrayHasKey('mappingEntity', $assocMap['tags'], 'many-to-many associations name their mapping entity');
+        static::assertArrayNotHasKey('mappingEntity', $assocMap['parent']);
+        static::assertArrayNotHasKey('mappingEntity', $assocMap['children']);
     }
 
     public function testFieldWithoutRequiredFlagIsNotRequired(): void

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -154,9 +155,13 @@ class AclEnforcementTest extends TestCase
 
     public function testEntityDeleteToolAllowed(): void
     {
+        $definition = new ProductDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+        $registry->method('getByEntityName')->willReturn($definition);
 
         $tool = new EntityDeleteTool(
             $registry,

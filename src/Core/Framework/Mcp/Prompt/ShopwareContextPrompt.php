@@ -38,7 +38,7 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `shopware-entity-read`: entity (string), id (string UUID), criteria (string, optional)
 - `shopware-entity-aggregate`: entity (string), aggregations (string JSON), filters (string JSON, optional)
 - `shopware-entity-upsert`: entity (string), payload (string JSON), dryRun (bool, default true)
-- `shopware-entity-delete`: entity (string), ids (string JSON array), dryRun (bool, default true)
+- `shopware-entity-delete`: entity (string), ids (string JSON array of UUIDs, or of key objects for mapping entities), dryRun (bool, default true)
 - `shopware-system-config-read`: key (string), salesChannelId (string, optional)
 - `shopware-system-config-write`: key (string), value (string), salesChannelId (string, optional), dryRun (bool, default true)
 - `shopware-order-state`: orderNumber or orderId, orderAction / transactionAction / deliveryAction, dryRun (bool, default true)
@@ -59,6 +59,7 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - Entity IDs are UUIDs (32 hex chars, no dashes, lowercase).
 - `shopware-entity-search` accepts Admin API criteria JSON: filter, sort, limit, page, associations, aggregations, includes, fields.
 - All write tools default to dryRun=true. Always preview before committing.
+- Many-to-many links (product categories, product properties, ...) are rows of a mapping entity, as in the Admin API sync endpoint. `shopware-entity-upsert` can only ADD links. To REMOVE one, delete the mapping row with `shopware-entity-delete`; this removes only the link, never the category or option itself. There is no "remove" or "delete" flag inside an upsert payload: every field sent on an associated record is written to that record.
 - State transitions via `shopware-order-state` apply to the order, its transactions, and its deliveries independently.
 
 ## Common entity names
@@ -103,6 +104,12 @@ Field selection: `{"includes": {"product": ["id", "name", "productNumber", "pric
 2. Read `shopware://currencies` to find the currency ID
 3. `shopware-entity-upsert` on `product` with name, productNumber, stock, taxId, and price array: `[{"currencyId": "...", "gross": 29.99, "net": 25.20, "linked": true}]`
 4. dryRun=true first, then dryRun=false to persist
+
+### Add or remove a product category or property
+1. `shopware-entity-schema` on `product` shows the many-to-many association and its mapping entity (`categories` → `product_category`, `properties` → `product_property`)
+2. Add: `shopware-entity-upsert` on `product` with `{"id": "<productId>", "categories": [{"id": "<categoryId>"}]}`
+3. Remove: `shopware-entity-delete` on `product_category` with ids `[{"productId": "<productId>", "categoryId": "<categoryId>"}]` (for properties: `product_property` with `productId` and `optionId`)
+4. dryRun=true first, then dryRun=false
 
 ### Transition an order state
 1. `shopware-entity-search` on `order` to find the order and its current stateMachineState

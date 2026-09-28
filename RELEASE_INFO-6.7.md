@@ -91,12 +91,26 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 Each MCP server keeps a registry of its active sessions, which `tools/list_changed` broadcasts go to. It no longer uses `cache.system`. When a server stores its sessions in a cache pool (`session: {store: cache, cache_pool: ...}`), for example Redis, the registry uses the same pool, so broadcasts reach sessions on every server. With the default file store, the registry is a file cache next to the session files. If you overrode `shopware.mcp.session_registry_cache` or `mcp.store_api.session_registry_cache` to share the registry, you can remove that override. In multi-server setups, also configure `framework.lock` with a shared store, so concurrent registry updates on different servers don't lose sessions.
 ### Large MCP tool results from extensions are offloaded like core results
 
-MCP tools from plugins and bundles that extend `McpToolResponse` now store results larger than 100 KB in the tool-result cache on the Admin API endpoint, like core tools already did. The response then contains `_meta.resourceUri` instead of the full data, and the model reads the data with `resources/read`. Before, these results were always returned inline. On the Store API endpoint, results always stay inline, because it has no tool-result resource yet.
+MCP tools from plugins and bundles that extend `McpToolResponse` now store results larger than 100 KB in the tool-result cache on the Admin API endpoint, like core tools already did. The response then contains `_meta.resourceUri` instead of the full data, and the model reads the data with `resources/read`. Before, these results were always returned inline. The Store API endpoint offloads them too, see "Large MCP tool results are linked with `resource_link`" below.
 ### The MCP `discovery` tool group is reserved for the core discovery tools
 
 A fresh MCP session advertises the tools in the `discovery` group on every connection. That group is now limited to `shopware-tool-search`, `shopware-toolsets-list` and `shopware-toolset-enable`. A plugin or bundle tool that declares `#[McpToolGroup('discovery')]` is moved to the `other` toolset: it stays callable and can be enabled, but is no longer on the default surface. `bin/console debug:mcp` lists such tools, and the new PHPStan rule `shopware.mcpReservedToolGroup` reports them. To show your tools on the first `tools/list`, give them a group of their own and select it at connect time with `?toolsets=<group>`.
 
 ## API
+
+### MCP tool results carry `structuredContent` and `isError`
+
+Tool calls on `/api/_mcp` and `/store-api/_mcp` now return the result data as `structuredContent` next to the existing text block, so clients can read it without parsing JSON out of the text. A failed call sets `isError: true` and puts a stable code in `structuredContent.error.code`, for example `missing_privilege`, `invalid_arguments` or `tool_error`. The error envelope in the text block gains the same `code` key. Every result also carries `_meta["shopware/generatedAt"]`.
+
+The text block is unchanged, so clients that parse `{"success": ..., "data": ...}` keep working. Plugin tools that extend `McpToolResponse` get the new fields without any change. Tools can pass a stable code as the second argument of `McpToolResponse::error()`.
+
+With the `v6.8.0.0` feature flag, the text block holds the plain data or error message instead of the `success` envelope.
+
+### Large MCP tool results are linked with `resource_link` and work without a session
+
+A tool result larger than 100 KB is stored and linked instead of returned inline. The link is now a signed pointer for the caller: the integration or user on `/api/_mcp`, the sales channel and `sw-context-token` on `/store-api/_mcp`. It expires after an hour and can be read on any later request of the same caller, with or without an MCP session. Another caller gets "not found".
+
+The result keeps `_meta.resourceUri` in the text block and adds `_meta.expiresAt`. Clients on protocol 2025-06-18 or later also get the link as a `resource_link` content block. The Store API endpoint can now read these results with `resources/read`; before, its links could not be resolved. Store API clients have to send the same `sw-context-token` on the read, because a request without it gets a new anonymous context.
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
 

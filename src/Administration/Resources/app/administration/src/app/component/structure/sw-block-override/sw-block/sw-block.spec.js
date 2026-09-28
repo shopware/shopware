@@ -18,7 +18,7 @@ async function createWrapper({
         {
             template: `
             <div class="component-root">
-                <sw-block name="test-extension-point" :data="$dataScope">
+                <sw-block name="test-extension-point" sw-internal-component-name="sw-block-spec" :data="$dataScope">
                     ${defaultContent}
                 </sw-block>
             </div>
@@ -80,7 +80,7 @@ describe('sw-block', () => {
     it('renders the `block` overridden content without default content', async () => {
         const { wrapper } = await createWrapper({
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <div class="extension-content"></div>
                 </sw-block>
             `,
@@ -93,10 +93,10 @@ describe('sw-block', () => {
     it('renders content from last `block` override when there are multiple overrides and not `block-parent` is used', async () => {
         const { wrapper } = await createWrapper({
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <div class="extension-content-1"></div>
                 </sw-block>
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <div class="extension-content-2"></div>
                 </sw-block>
             `,
@@ -110,7 +110,7 @@ describe('sw-block', () => {
     it('renders content from the parent before the `block` override', async () => {
         const { wrapper } = await createWrapper({
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content"></div>
                 </sw-block>
@@ -123,7 +123,7 @@ describe('sw-block', () => {
     it('renders content from the parent after the `block` override', async () => {
         const { wrapper } = await createWrapper({
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <div class="extension-content"></div>
                     <sw-block-parent/>
                 </sw-block>
@@ -136,12 +136,12 @@ describe('sw-block', () => {
     it('renders parent content from multiple `block`s', async () => {
         const { wrapper } = await createWrapper({
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-1"></div>
                 </sw-block>
 
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-2"></div>
                 </sw-block>
@@ -158,7 +158,7 @@ describe('sw-block', () => {
         const { wrapper } = await createWrapper({
             renderExtensions: false,
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <div class="extension-content"></div>
                 </sw-block>
             `,
@@ -172,7 +172,7 @@ describe('sw-block', () => {
         const { wrapper, toggleExtensions } = await createWrapper({
             renderExtensions: false,
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content"></div>
                 </sw-block>
@@ -203,28 +203,28 @@ describe('sw-block', () => {
         const { wrapper } = await createWrapper({
             moreBlockExtensions: `
                 <div class="component-root-2">
-                    <sw-block  name="test-extension-point-2">
+                    <sw-block name="test-extension-point-2" sw-internal-component-name="sw-block-spec">
                         <div class="default-content-2"></div>
                     </sw-block >
                 </div>
             `,
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-1"></div>
                 </sw-block>
 
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-2"></div>
                 </sw-block>
 
-                <sw-block extends="test-extension-point-2">
+                <sw-block extends="test-extension-point-2" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-3"></div>
                 </sw-block>
 
-                <sw-block extends="test-extension-point-2">
+                <sw-block extends="test-extension-point-2" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-4"></div>
                 </sw-block>
@@ -245,7 +245,7 @@ describe('sw-block', () => {
     it('does not render anything if the `block` name to extend does not exist', async () => {
         const { wrapper } = await createWrapper({
             extensions: `
-                <sw-block extends="NOT-EXISTING-extension-point">
+                <sw-block extends="NOT-EXISTING-extension-point" sw-internal-component-name="sw-block-spec">
                      <sw-block-parent/>
                      <div class="extension-content"></div>
                 </sw-block>
@@ -260,26 +260,26 @@ describe('sw-block', () => {
         const { wrapper } = await createWrapper({
             defaultContent: `
                     <div class="default-content"></div>
-                    <sw-block name="test-extension-point-2">
+                    <sw-block name="test-extension-point-2" sw-internal-component-name="sw-block-spec">
                         <div class="default-content-2"></div>
 
-                        <sw-block name="test-extension-point-3">
+                        <sw-block name="test-extension-point-3" sw-internal-component-name="sw-block-spec">
                             <div class="default-content-3"></div>
                         </sw-block>
                     </sw-block>
             `,
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-1"></div>
                 </sw-block>
 
-                <sw-block extends="test-extension-point-2">
+                <sw-block extends="test-extension-point-2" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-2"></div>
                 </sw-block>
 
-                <sw-block extends="test-extension-point-3">
+                <sw-block extends="test-extension-point-3" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content-3"></div>
                 </sw-block>
@@ -311,7 +311,7 @@ describe('sw-block', () => {
             extraData: { label: 'initial' },
             defaultContent: '<div class="default-content">{{ label }}</div>',
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <div class="extension-content"></div>
                 </sw-block>
@@ -360,12 +360,12 @@ describe('sw-block', () => {
                 secondCount: 10,
             },
             extensions: `
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <p class="first-count">{{ firstCount }}</p>
                     <button class="first-increment" @click="firstCount += 1">Increment first</button>
                 </sw-block>
-                <sw-block extends="test-extension-point">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec">
                     <sw-block-parent/>
                     <p class="second-count">{{ secondCount }}</p>
                     <button class="second-increment" @click="secondCount += 1">Increment second</button>
@@ -402,7 +402,7 @@ describe('sw-block', () => {
                 },
             },
             extensions: `
-                <sw-block extends="test-extension-point" #default="{testData, testMethod, testComputed}">
+                <sw-block extends="test-extension-point" sw-internal-component-name="sw-block-spec" #default="{testData, testMethod, testComputed}">
                     <sw-block-parent/>
                     <div class="extension-content-1">{{testData}}</div>
                     <div class="extension-content-2">{{testMethod('param')}}</div>
@@ -438,7 +438,7 @@ describe('sw-block', () => {
             const wrapper = await mount(
                 {
                     template: `
-                        <sw-block :name="blockName" :data="$dataScope">
+                        <sw-block :name="blockName" sw-internal-component-name="sw-block-spec" :data="$dataScope">
                             <div class="content"></div>
                         </sw-block>
                     `,
@@ -468,7 +468,7 @@ describe('sw-block', () => {
             await mount(
                 {
                     template: `
-                        <sw-block :name="blockName" :data="$dataScope">
+                        <sw-block :name="blockName" sw-internal-component-name="sw-block-spec" :data="$dataScope">
                             <div class="content"></div>
                         </sw-block>
                     `,

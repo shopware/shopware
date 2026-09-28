@@ -72,7 +72,6 @@ jobs:
 
       - name: Run visual tests in Playwright container
         working-directory: tests/acceptance
-        continue-on-error: true
         env:
           # `changed` only rewrites snapshots that fail the comparison, so scheduled
           # runs stop rebaselining every screen with sub-perceptual antialiasing drift.

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core;
 
+use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
@@ -95,12 +95,9 @@ class KernelTest extends TestCase
         static::assertSame('/build-dir/fooBar', $kernel->getBuildDir());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRegisterBundlesAutoAddsTwigComponentBundleWhenMissingPreV68(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
-        $this->expectUserDeprecationMessageMatches('/TwigComponentBundle bundle should be added/');
-
         $kernel = $this->createKernel(projectDir: self::PROJECT_WITHOUT_TWIG_COMPONENT_BUNDLE);
 
         $bundles = iterator_to_array($kernel->registerBundles());
@@ -111,10 +108,9 @@ class KernelTest extends TestCase
         )));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRegisterBundlesDoesNotDuplicateTwigComponentBundleWhenConfiguredPreV68(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $kernel = $this->createKernel(projectDir: self::PROJECT_WITH_TWIG_COMPONENT_BUNDLE);
 
         $bundles = iterator_to_array($kernel->registerBundles());
@@ -242,7 +238,7 @@ class KernelTest extends TestCase
         return new KernelStub(
             $environment,
             true,
-            static::createStub(StaticKernelPluginLoader::class),
+            new StaticKernelPluginLoader(new ClassLoader()),
             'cacheId',
             '6.6.6',
             static::createStub(Connection::class),

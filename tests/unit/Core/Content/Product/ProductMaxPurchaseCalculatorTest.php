@@ -92,12 +92,22 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
             2,
         ];
 
-        yield 'digital product caps max at 1 regardless of configured maxPurchase' => [
+        yield 'digital product allows a configured maxPurchase above 1' => [
             [
                 'type' => ProductDefinition::TYPE_DIGITAL,
                 'maxPurchase' => 5,
             ],
-            1,
+            5,
+        ];
+
+        yield 'digital product with a maxPurchase above 1 is still limited by closeout stock' => [
+            [
+                'type' => ProductDefinition::TYPE_DIGITAL,
+                'maxPurchase' => 5,
+                'stock' => 2,
+                'isCloseout' => true,
+            ],
+            2,
         ];
 
         yield 'digital product caps max at 1 even when maxPurchase is null' => [
@@ -105,6 +115,23 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
                 'type' => ProductDefinition::TYPE_DIGITAL,
             ],
             1,
+        ];
+
+        yield 'digital product caps max at 1 instead of honouring a maxPurchase of 0' => [
+            [
+                'type' => ProductDefinition::TYPE_DIGITAL,
+                'maxPurchase' => 0,
+            ],
+            1,
+        ];
+
+        yield 'digital product without maxPurchase is out of stock when closeout stock is empty' => [
+            [
+                'type' => ProductDefinition::TYPE_DIGITAL,
+                'stock' => 0,
+                'isCloseout' => true,
+            ],
+            0,
         ];
 
         yield 'non-digital product with null maxPurchase falls back to system config' => [
@@ -115,35 +142,41 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, int|list<string>> $entityData
+     */
+    #[DataProvider('legacyDownloadStateCases')]
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testLegacyDownloadStateCapsMaxAtOneWhile68IsInactive(): void
+    public function testCalculateWithLegacyDownloadStateWhile68IsInactive(array $entityData, int $expected): void
     {
         $entity = new PartialEntity();
-        $entity->assign([
-            'maxPurchase' => 5,
-            'states' => [State::IS_DOWNLOAD],
-        ]);
+        $entity->assign($entityData);
 
-        static::assertSame(
-            1,
-            $this->service->calculate($entity, static::createStub(SalesChannelContext::class)),
-            'legacy IS_DOWNLOAD state must cap quantity to 1 while v6.8.0.0 is inactive'
-        );
+        static::assertSame($expected, $this->service->calculate($entity, static::createStub(SalesChannelContext::class)));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testNonDigitalProductWithoutDownloadStateSkipsLegacyFallbackWhile68IsInactive(): void
+    public static function legacyDownloadStateCases(): \Generator
     {
-        $entity = new PartialEntity();
-        $entity->assign([
-            'maxPurchase' => 5,
-            'states' => ['some-other-state'],
-        ]);
+        yield 'download state caps max at 1 when maxPurchase is null' => [
+            [
+                'states' => [State::IS_DOWNLOAD],
+            ],
+            1,
+        ];
 
-        static::assertSame(
+        yield 'download state allows a configured maxPurchase above 1' => [
+            [
+                'maxPurchase' => 5,
+                'states' => [State::IS_DOWNLOAD],
+            ],
             5,
-            $this->service->calculate($entity, static::createStub(SalesChannelContext::class)),
-            'non-download product must not be capped by the legacy state check'
-        );
+        ];
+
+        yield 'other states fall back to system config instead of the digital cap' => [
+            [
+                'states' => ['some-other-state'],
+            ],
+            10,
+        ];
     }
 }

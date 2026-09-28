@@ -26,8 +26,11 @@ class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
 
     public function calculate(Entity $product, SalesChannelContext $context): int
     {
-        if ($this->isDigitalProduct($product)) {
-            return 1;
+        $maxPurchase = $product->get('maxPurchase');
+
+        // digital products are sold as a single unit, unless their max purchase explicitly allows more
+        if ($this->isDigitalProduct($product) && ($maxPurchase ?? 1) <= 1) {
+            $maxPurchase = 1;
         }
 
         $fallback = $this->systemConfigService->getInt(
@@ -35,7 +38,7 @@ class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
             $context->getSalesChannelId()
         );
 
-        $max = $product->get('maxPurchase') ?? $fallback;
+        $max = $maxPurchase ?? $fallback;
 
         if ($product->get('isCloseout') && $product->get('stock') < $max) {
             $max = (int) $product->get('stock');

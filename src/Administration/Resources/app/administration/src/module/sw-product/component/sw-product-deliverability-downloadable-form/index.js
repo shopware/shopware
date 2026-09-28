@@ -53,6 +53,8 @@ export default {
             'deliveryTimeId',
             'isCloseout',
             'maxPurchase',
+            'purchaseSteps',
+            'minPurchase',
         ]),
     },
 

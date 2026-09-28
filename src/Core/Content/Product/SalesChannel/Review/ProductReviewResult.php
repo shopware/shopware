@@ -44,6 +44,8 @@ class ProductReviewResult extends EntitySearchResult
         ?string $parentId = null,
     ): self {
         $instance = self::createFrom($result);
+        // @deprecated tag:v6.8.0 - when the properties become readonly, set them in a constructor of this class and
+        // build the result here with `new self(...)`. The parent constructor can drop `final` once createNew() is removed
         $instance->matrix = $matrix;
         $instance->productId = $productId;
         $instance->totalReviewsInCurrentLanguage = $totalReviewsInCurrentLanguage;

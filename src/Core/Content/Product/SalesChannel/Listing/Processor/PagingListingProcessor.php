@@ -50,10 +50,16 @@ class PagingListingProcessor extends AbstractListingProcessor
 
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void
     {
-        $page = $this->getPage($request);
-        $limit = $result->getCriteria()->getLimit() ?? $this->getLimit($result->getCriteria(), $context, $request);
+        // Only a page requested with `p` is checked. A criteria paged another way, e.g. by the generic
+        // `page` parameter, keeps returning an empty result past the last page.
+        if ($this->getPage($request) === null) {
+            return;
+        }
 
-        if ($page === null || $page <= 1 || $limit <= 0) {
+        $page = $result->getPage();
+        $limit = $result->getLimit();
+
+        if ($page <= 1 || $limit === null || $limit <= 0) {
             return;
         }
 

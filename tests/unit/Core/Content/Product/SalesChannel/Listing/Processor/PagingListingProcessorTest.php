@@ -285,6 +285,43 @@ class PagingListingProcessorTest extends TestCase
         $processor->process($request, $result, $context);
     }
 
+    public function testProcessChecksThePageOfTheSearchedCriteria(): void
+    {
+        $request = new Request(['p' => 3, 'limit' => 24]);
+        $criteria = new Criteria();
+        $context = static::createStub(SalesChannelContext::class);
+
+        $processor = new PagingListingProcessor(new StaticSystemConfigService());
+        $processor->prepare($request, $criteria, $context);
+
+        // A criteria subscriber raises the limit after paging, so offset 48 is on page 2 of 2
+        $criteria->setLimit(48);
+
+        $result = new ProductListingResult('product', 60, new ProductCollection(), new AggregationResultCollection(), $criteria, Context::createDefaultContext());
+
+        $processor->process($request, $result, $context);
+
+        static::assertSame(2, $result->getPage());
+        static::assertSame(48, $result->getLimit());
+    }
+
+    public function testProcessDoesNotThrowWhenTheCriteriaIsPagedWithoutPageParameter(): void
+    {
+        // The Store API "page" parameter pages the criteria directly, without "p"
+        $criteria = (new Criteria())->setOffset(96)->setLimit(24);
+        $request = new Request();
+        $context = static::createStub(SalesChannelContext::class);
+
+        $processor = new PagingListingProcessor(new StaticSystemConfigService());
+        $processor->prepare($request, $criteria, $context);
+
+        $result = new ProductListingResult('product', 50, new ProductCollection(), new AggregationResultCollection(), $criteria, Context::createDefaultContext());
+
+        $processor->process($request, $result, $context);
+
+        static::assertSame(5, $result->getPage());
+    }
+
     public static function provideOutOfRangeBoundaryCases(): \Generator
     {
         yield 'p=lastPage is allowed (50 products / 24 limit -> lastPage=3)' => [

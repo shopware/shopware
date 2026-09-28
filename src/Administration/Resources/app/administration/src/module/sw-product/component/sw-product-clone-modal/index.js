@@ -21,6 +21,11 @@ export default {
             type: Object,
             required: true,
         },
+        productNumberPreview: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -51,8 +56,18 @@ export default {
             this.duplicate();
         },
 
-        duplicate() {
-            this.numberRangeService.reserve('product').then(this.cloneParent).then(this.verifyVariants);
+        async duplicate() {
+            if (this.productNumberPreview === this.product.productNumber) {
+                const number = await this.numberRangeService.reserve('product');
+                this.product.productNumber = number.number;
+            }
+
+            await this.repository.save(this.product);
+
+            const number = await this.numberRangeService.reserve('product');
+            const duplicate = await this.cloneParent(number);
+
+            this.verifyVariants(duplicate);
         },
 
         async cloneParent(number) {
@@ -74,7 +89,6 @@ export default {
                 },
             };
 
-            await this.repository.save(this.product);
             const clone = await this.repository.clone(this.product.id, behavior, Shopware.Context.api);
 
             return { id: clone.id, productNumber: number.number };

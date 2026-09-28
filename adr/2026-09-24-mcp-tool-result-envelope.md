@@ -88,7 +88,7 @@ Renderers pass them on where their format can express them, for example as cache
 - **Immutable and complete.** The object is a value object built by the `McpToolResponse` helpers (or a builder for richer results). The mapper only reads it, and nothing downstream depends on a tool having produced JSON.
 - **No transport concerns.** Size limits, offloading, pagination cursors of the protocol, and synchronous versus task-based delivery are not part of the object. They belong to the renderer and the protocol layer.
 
-`McpToolResponse::success()` and `::error()` return this object instead of a JSON string. Tools that use these helpers, which is almost all core and plugin tools, don't have to change. `::error()` accepts an optional error code, and the existing helpers such as `missingPrivilegesError()` set one. Tools declare `outputSchema` against the result data, not against a wire format.
+Tools declare `__invoke(): string` today, and PHP checks that return type before the mapper sees the value. So in phase 1, `McpToolResponse::success()` and `::error()` keep returning the legacy JSON string, and the mapper parses it into this object (see *Legacy input* below). That is why tools using these helpers, which is almost all core and plugin tools, don't have to change yet. Returning the object directly also needs the return declaration changed (`string|McpToolResult`, later the object alone), so it becomes the documented path in phase 2, together with the PHPStan rule. `::error()` accepts an optional error code, and the existing helpers such as `missingPrivilegesError()` set one. Tools declare `outputSchema` against the result data, not against a wire format.
 
 ### The output mapper
 
@@ -98,7 +98,7 @@ One mapper in core converts every tool result before the SDK sends it. It is the
 - **Every renderer handles every part.** A renderer maps each part type to the closest concept of its format. Where a format has no equivalent (for example images in a text-only format), the renderer falls back to a documented text form, never to silently dropping the part.
 - **Size limits per format.** The renderer applies the size limit of its format to the complete rendered result, including the text copy the MCP spec asks for. Anything too large is stored and sent as a link.
 - **Format version on the serialized form.** Results that leave PHP and are read back later or elsewhere carry a format version, an enum defined by core: stored large results in `mcp_tool_result_cache`, and responses from app tools. The mapper picks the matching parser for that version, so older stored results and apps built against an older format stay readable. The in-memory result object has no version field: inside PHP the class is the version, and the renderer is chosen by the output target, not by the result.
-- **Legacy input.** The mapper also accepts the legacy JSON string, so tools that still return a string and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result.
+- **Legacy input.** The mapper also accepts the legacy JSON string, so tools that still return a string, the phase 1 helpers and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result.
 
 For MCP today, the renderers fill `structuredContent`, `isError` and the text block, turn links to stored results into `resource_link` blocks, and respect era differences, for example that `structuredContent` must be an object on the handshake era.
 
@@ -110,7 +110,7 @@ The phases are renderers of the mapper, selected per request, not a tool-by-tool
 
 1. **Both formats (default until 6.8.0).** `structuredContent` contains the result data, a failed call sets `isError: true`, and the text block still contains the legacy `{"success": …}` string, so existing readers keep working. App tools keep their `{success, data}` responses and the mapper translates them.
 2. **Deprecation.** Release notes and upgrade notes announce the removal of the legacy string. A PHPStan rule reports tools that build JSON strings by hand instead of returning the result object.
-3. **Spec format only (6.8.0).** The text block contains the result data as plain JSON (or a short summary for the model), without the `success` wrapper. This mode is behind the `v6.8.0.0` feature flag, so developers, clients and the evaluation suite can switch to it early and test against it.
+3. **Spec format only (6.8.0).** The text block contains the result data as plain JSON, without the `success` wrapper. Whenever `structuredContent` is present, that JSON copy stays, because clients that pass only `content` to the model would otherwise lose the data. A summary, if the tool gives one, goes into an additional text block, never in place of the JSON. This mode is behind the `v6.8.0.0` feature flag, so developers, clients and the evaluation suite can switch to it early and test against it.
 
 The spec-only mode doesn't make results smaller than phase 1, because the specification itself asks for the text copy. Phase 1 replaces that copy with the legacy string, which is about the same size. Large results are kept in check by the size limit and `resource_link`, not by dropping one of the copies.
 

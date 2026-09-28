@@ -67,7 +67,7 @@ class DeleteCascadeAppsHandlerTest extends TestCase
 
         $handler = new DeleteCascadeAppsHandler(
             static::getContainer()->get('scheduled_task.repository'),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             $this->aclRoleRepo,
             $this->integrationRepo,
             new NativeClock(),

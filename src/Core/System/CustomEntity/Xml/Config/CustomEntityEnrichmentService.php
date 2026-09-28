@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
-use Shopware\Core\System\CustomEntity\Xml\Config\CmsAware\CmsAwareFields;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
@@ -23,30 +22,8 @@ class CustomEntityEnrichmentService
         CustomEntityXmlSchema $customEntityXmlSchema,
         ?AdminUiXmlSchema $adminUiXmlSchema
     ): CustomEntityXmlSchema {
-        // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
-        // $customEntityXmlSchema = $this->enrichCmsAware($customEntityXmlSchema);
-
         if ($adminUiXmlSchema !== null) {
             $customEntityXmlSchema = $this->enrichAdminUi($customEntityXmlSchema, $adminUiXmlSchema);
-        }
-
-        return $customEntityXmlSchema;
-    }
-
-    private function enrichCmsAware(CustomEntityXmlSchema $customEntityXmlSchema): CustomEntityXmlSchema
-    {
-        foreach ($customEntityXmlSchema->getEntities()?->getEntities() ?? [] as $entity) {
-            if ($entity->isCmsAware() !== true) {
-                continue;
-            }
-
-            $fields = $entity->getFields();
-            $fields = array_merge($fields, CmsAwareFields::getCmsAwareFields());
-            $entity->setFields($fields);
-
-            $flags = $entity->getFlags();
-            $flags = [...$flags, ...['cms-aware' => ['name' => $entity->getName()]]];
-            $entity->setFlags($flags);
         }
 
         return $customEntityXmlSchema;

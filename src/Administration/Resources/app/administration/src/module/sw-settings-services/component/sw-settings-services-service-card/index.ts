@@ -2,10 +2,25 @@
  * @sw-package framework
  */
 import type { PropType } from 'vue';
-import type { CategorizedPermissions, ServiceDescription } from '../../service/shopware-services.service';
+import type { CategorizedPermissions, ServiceDescription, ServiceState } from '../../service/shopware-services.service';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
+
+const STATUS_BY_STATE: Record<ServiceState, { color: string; label: string }> = {
+    active: {
+        color: 'green',
+        label: 'sw-settings-services.service-card.status-active',
+    },
+    pending_permissions: {
+        color: 'orange',
+        label: 'sw-settings-services.service-card.status-awaiting-permissions',
+    },
+    inactive: {
+        color: 'red',
+        label: 'sw-settings-services.service-card.status-inactive',
+    },
+};
 
 /**
  * @private
@@ -47,24 +62,8 @@ export default Shopware.Component.wrapComponentConfig({
             return assetFilter('/administration/administration/static/img/services/extension-icon-placeholder.svg');
         },
 
-        serviceStatus() {
-            if (!this.service.active) {
-                return 'red';
-            }
-
-            return this.service.requested_privileges.length === 0 ? 'green' : 'orange';
-        },
-
-        statusText() {
-            switch (this.serviceStatus) {
-                case 'green':
-                    return 'sw-settings-services.service-card.status-active';
-                case 'orange':
-                    return 'sw-settings-services.service-card.status-awaiting-permissions';
-                case 'red':
-                default:
-                    return 'sw-settings-services.service-card.status-inactive';
-            }
+        status() {
+            return STATUS_BY_STATE[this.service.state] ?? STATUS_BY_STATE.inactive;
         },
 
         updatedAt() {

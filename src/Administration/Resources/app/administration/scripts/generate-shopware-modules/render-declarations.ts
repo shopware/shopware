@@ -26,6 +26,24 @@ export const REGENERATE_COMMAND = 'composer admin:generate-shopware-modules';
  */
 const EXPERIMENTAL = '/** @experimental stableVersion:v6.8.0 */';
 
+/**
+ * The generated file's doc comment.
+ *
+ * A template literal rather than an array of lines: the annotation check reads the version up to the
+ * next whitespace, so a quote directly after it would fail the check.
+ */
+const FILE_HEADER = `/**
+ * @sw-package framework
+ *
+ * @experimental stableVersion:v6.8.0
+ *
+ * Types for the \`shopware:*\` modules, which expose the global \`Shopware\` object as ordinary
+ * imports. \`build/vite-plugins/virtual-shopware-modules\` generates their runtime counterpart from
+ * the same \`shopware-modules.json\`.
+ *
+ * Generated. Run \`${REGENERATE_COMMAND}\` after adding a utility, DAL class, mixin, or store.
+ */`;
+
 function block(specifier: string, body: string[]): string {
     return [
         EXPERIMENTAL,
@@ -102,17 +120,7 @@ export function renderDeclarations(registry: ModuleRegistry): string {
     );
 
     return [
-        '/**',
-        ' * @sw-package framework',
-        ' *',
-        ' * @experimental stableVersion:v6.8.0',
-        ' *',
-        ' * Types for the `shopware:*` modules, which expose the global `Shopware` object as ordinary',
-        ' * imports. `build/vite-plugins/virtual-shopware-modules` generates their runtime counterpart from',
-        ' * the same `shopware-modules.json`.',
-        ' *',
-        ` * Generated. Run \`${REGENERATE_COMMAND}\` after adding a utility, DAL class, mixin, or store.`,
-        ' */',
+        FILE_HEADER,
         '',
         '/* eslint-disable sw-deprecation-rules/private-feature-declarations -- Intentional public facade. */',
         '',

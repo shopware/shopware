@@ -12,6 +12,7 @@ import {
     memberExpression,
     parseSpecifier,
     type ModuleRegistry,
+    type ParsedSpecifier,
 } from './definitions';
 
 type Options = {

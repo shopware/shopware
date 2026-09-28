@@ -58,7 +58,7 @@ $services->set(LegacyService::class)
     ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 ```
 
-The compiler pass removes the service definition when the flag is active. `shopware.feature` has the inverse meaning: it removes the service while the flag is inactive. Changing `FEATURE_ALL` or an environment flag named like a major version (for example, `V6_8_0_0`) selects a separate container cache on the next kernel boot when the default build directory is used. With `APP_BUILD_DIR`, the caller must select a different build directory for each major mode. Already running kernels and workers keep their compiled container until they restart.
+The compiler pass removes the service definition when the flag is active. `shopware.feature` has the inverse meaning: it removes the service while the flag is inactive. Changing `FEATURE_ALL` or an environment flag named like a major version (for example, `V6_8_0_0`) selects a separate container cache on a fresh kernel boot or explicit reboot when the default build directory is used. With `APP_BUILD_DIR`, the caller must select a different build directory for each major mode. Already booted kernels keep their compiled container until they are rebooted or replaced.
 
 Symfony service aliases cannot be tagged. For an alias scheduled for removal, add an adjacent `// @deprecated tag:vX.Y.Z` comment and list its ID under the matching `vX.Y.Z.0` key in `FeatureFlagCompilerPass::ALIASES_TO_REMOVE`. The compiler pass removes listed aliases when the flag is active, and PHPStan checks that annotated aliases are listed under the correct flag. Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument is when the deprecation was introduced, not the removal version.
 

@@ -6,16 +6,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
-use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @extends EntitySearchResult<ProductReviewCollection>
  */
 #[Package('after-sales')]
-#[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntitySearchResult, but will keep extending Struct.', newParentClass: Struct::class)]
 class ProductReviewResult extends EntitySearchResult
 {
     #[BecomesReadonly(version: 'v6.8.0')]
@@ -34,7 +31,7 @@ class ProductReviewResult extends EntitySearchResult
     protected int $totalReviewsInCurrentLanguage;
 
     /**
-     * Construction entry point with a stable signature across the v6.8.0 cut. Callers that adopt this method now will keep working after the structural change.
+     * Sets every property at once. From v6.8.0 on, the properties are readonly and cannot be set afterwards.
      *
      * @param EntitySearchResult<ProductReviewCollection> $result
      */
@@ -47,6 +44,8 @@ class ProductReviewResult extends EntitySearchResult
         ?string $parentId = null,
     ): self {
         $instance = self::createFrom($result);
+        // @deprecated tag:v6.8.0 - when the properties become readonly, set them in a constructor of this class and
+        // build the result here with `new self(...)`. The parent constructor can drop `final` once createNew() is removed
         $instance->matrix = $matrix;
         $instance->productId = $productId;
         $instance->totalReviewsInCurrentLanguage = $totalReviewsInCurrentLanguage;

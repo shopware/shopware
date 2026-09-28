@@ -21,7 +21,7 @@ class StorefrontControllerGenerator implements ScaffoldingGenerator
     public const OPTION_NAME = 'create-storefront-controller';
     private const OPTION_TITLE = 'Storefront Controller';
     private const OPTION_DESCRIPTION = 'Create an example storefront controller';
-    private const OPTION_DESCRIPTION_LONG = 'A custom Storefront controller is a class that handles requests for a defined URL route in the Shopware storefront. Use one when your plugin needs to provide custom pages, endpoints, or dynamic content that is not covered by Shopware\'s existing routes.';
+    private const OPTION_DESCRIPTION_LONG = 'A custom Storefront controller is a class that handles requests for a defined URL route in the Shopware default storefront. Use one when your plugin needs to provide custom pages, endpoints, or dynamic content that is not covered by Shopware\'s existing routes. You can also combine it with a Store API Route to provide the most flexibility for users of your plugin';
     private const CLI_QUESTION = 'Do you want to create an example storefront controller?';
 
     private string $servicesPhpEntry = <<<'EOL'

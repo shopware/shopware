@@ -46,19 +46,55 @@ describe('src/app/service/customer-vat-id.service.ts', () => {
         Shopware.Store.get('error').resetApiErrors();
     });
 
-    it('drops empty VAT IDs and trims the others', () => {
+    it('drops empty VAT IDs and strips whitespace from the others', () => {
         const { service } = createService();
 
         expect(
             service.normalizeVatIds([
                 ' DE123456789 ',
+                'DE 123 456 789',
+                'DE\t123 456\n789',
                 '',
                 null,
                 '   ',
                 undefined,
             ]),
-        ).toEqual(['DE123456789']);
+        ).toEqual([
+            'DE123456789',
+            'DE123456789',
+            'DE123456789',
+        ]);
         expect(service.normalizeVatIds(null)).toEqual([]);
+    });
+
+    it('upper-cases VAT IDs', () => {
+        const { service } = createService();
+
+        expect(
+            service.normalizeVatIds([
+                'de123456789',
+                'atu 1234 5678',
+            ]),
+        ).toEqual([
+            'DE123456789',
+            'ATU12345678',
+        ]);
+    });
+
+    it('accepts a lower case VAT ID grouped with spaces', () => {
+        const { service } = createService();
+
+        expect(
+            service.getVatIdIssue(
+                true,
+                [
+                    'de 123 456 789',
+                    'atu12345678',
+                ],
+                germany,
+                euPatterns,
+            ),
+        ).toBeNull();
     });
 
     it('treats only the business account type as a business', () => {

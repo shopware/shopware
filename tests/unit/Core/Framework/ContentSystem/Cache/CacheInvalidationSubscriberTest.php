@@ -9,19 +9,29 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
+use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -194,6 +204,44 @@ class CacheInvalidationSubscriberTest extends TestCase
     }
 
     /**
+     * The assignment row is already gone when the written event fires for a delete, so the entity tag has to be
+     * resolved before the delete and only invalidated once it succeeded.
+     */
+    #[TestDox('invalidates the entity cache tag of a deleted assignment after the delete succeeded')]
+    public function testInvalidatesEntityCacheTagOfDeletedAssignmentOnSuccess(): void
+    {
+        $event = $this->createDeleteEvent(new ProductContentLayoutDefinition(), $this->ids->get('assignment'));
+
+        $this->connection->method('fetchFirstColumn')
+            ->willReturn(['entity-id']);
+
+        $this->definitionRegistry->method('get')
+            ->willReturn(static::createStub(EntityDefinition::class));
+
+        $this->cacheTagResolver->method('resolve')
+            ->willReturn('product-entity-id');
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with(['product-entity-id']);
+
+        $this->subscriber->beforeDelete($event);
+        $event->success();
+    }
+
+    #[TestDox('ignores deletes of entities other than entity assignments')]
+    public function testIgnoresDeleteOfUnrelatedEntity(): void
+    {
+        $event = $this->createDeleteEvent(new ContentLayoutDefinition(), $this->ids->get('layout'));
+
+        $this->cacheInvalidator->expects($this->never())
+            ->method('invalidate');
+
+        $this->subscriber->beforeDelete($event);
+        $event->success();
+    }
+
+    /**
      * @return \Generator<string, array{string, string}>
      */
     public static function invalidatesEntityAssignmentCacheTagProvider(): \Generator
@@ -210,6 +258,23 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         yield 'header section' => ['header_content_layout', ContentSection::HEADER];
         yield 'footer section' => ['footer_content_layout', ContentSection::FOOTER];
+    }
+
+    private function createDeleteEvent(EntityDefinition $definition, string $id): EntityDeleteEvent
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [$definition],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+
+        $command = new DeleteCommand(
+            $registry->getByEntityName($definition->getEntityName()),
+            ['id' => Uuid::fromHexToBytes($id)],
+            new EntityExistence($definition->getEntityName(), ['id' => $id], true, true, true, []),
+        );
+
+        return EntityDeleteEvent::create(WriteContext::createFromContext(Context::createDefaultContext()), [$command]);
     }
 
     private function createWrittenEvent(string $entityName, string $id): EntityWrittenContainerEvent

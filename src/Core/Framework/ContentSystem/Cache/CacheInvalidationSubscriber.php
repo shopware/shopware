@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,6 +41,43 @@ class CacheInvalidationSubscriber
         $this->invalidateEntityContentLayout($event, 'landing_page_content_layout', 'landing_page_id', LandingPageDefinition::class);
         $this->invalidateSectionContentLayout($event, 'header_content_layout', ContentSection::HEADER);
         $this->invalidateSectionContentLayout($event, 'footer_content_layout', ContentSection::FOOTER);
+    }
+
+    /**
+     * A deleted assignment row is gone by the time the written event fires, so the entity tags are resolved before
+     * the delete and invalidated once it succeeded.
+     */
+    public function beforeDelete(EntityDeleteEvent $event): void
+    {
+        $assignments = [
+            'product_content_layout' => ['product_id', ProductDefinition::class],
+            'category_content_layout' => ['category_id', CategoryDefinition::class],
+            'landing_page_content_layout' => ['landing_page_id', LandingPageDefinition::class],
+        ];
+
+        $tags = [];
+
+        foreach ($assignments as $entityName => [$column, $definitionClass]) {
+            $ids = array_values(array_filter($event->getIds($entityName), '\is_string'));
+
+            if ($ids === []) {
+                continue;
+            }
+
+            $definition = $this->definitionRegistry->get($definitionClass);
+
+            foreach ($this->fetchIdsFromAssignments($ids, $entityName, $column) as $entityId) {
+                $tags[] = $this->cacheTagResolver->resolve($definition, $entityId);
+            }
+        }
+
+        $tags = array_values(array_filter($tags));
+
+        if ($tags === []) {
+            return;
+        }
+
+        $event->addSuccess(fn () => $this->cacheInvalidator->invalidate($tags));
     }
 
     private function invalidateContentLayout(EntityWrittenContainerEvent $event): void

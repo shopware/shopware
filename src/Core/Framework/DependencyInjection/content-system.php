@@ -123,6 +123,7 @@ use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -279,7 +280,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(EntityCacheTagResolver::class),
             service(DefinitionInstanceRegistry::class),
         ])
-        ->tag('kernel.event_listener');
+        ->tag('kernel.event_listener')
+        ->tag('kernel.event_listener', ['event' => EntityDeleteEvent::class, 'method' => 'beforeDelete']);
 
     // Hydration Services
     $services->set(LoaderInputResolver::class);

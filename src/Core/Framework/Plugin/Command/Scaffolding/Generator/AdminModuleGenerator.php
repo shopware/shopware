@@ -19,7 +19,7 @@ class AdminModuleGenerator implements ScaffoldingGenerator
     public const OPTION_NAME = 'create-admin-module';
     private const OPTION_TITLE = 'Admin Module';
     private const OPTION_DESCRIPTION = 'Create an example admin module';
-    private const OPTION_DESCRIPTION_LONG = 'A custom Administration module is an app-provided interface that is embedded as an iframe in the Shopware Administration and added through the app manifest. Use one when your app needs its own management interface or menu entry within the Shopware backend.';
+    private const OPTION_DESCRIPTION_LONG = 'A custom Administration module is a self-contained feature area in Shopware’s admin interface, such as Products or Orders. It contains the screens, routes, components, and logic needed to manage that area.';
     private const CLI_QUESTION = 'Do you want to create an example admin module?';
 
     private string $mainJsEntry = <<<'EOL'

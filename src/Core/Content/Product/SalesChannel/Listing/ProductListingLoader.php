@@ -290,7 +290,8 @@ class ProductListingLoader
             new ProductListingPreviewCriteriaEvent($criteria, $context)
         );
 
-        // the parent is kept, as it represents all of its variants
+        // main variant is only used as preview if it matches the post filters
+        // parent is always kept, as it represents all of its variants
         if ($postFilters !== [] && $mainVariantIds !== []) {
             $matchesActiveFilters = new AndFilter($postFilters);
             $parentIds = array_values(array_unique(array_diff($mapping, $mainVariantIds)));
@@ -316,7 +317,7 @@ class ProductListingLoader
             // get access to main variant id over the fetched config mapping
             $main = $mapping[$id];
 
-            // main variant is configured but not active/available - keep old id
+            // main variant is configured but not active/available or does not match the post filters - keep old id
             if (!$available->has($main)) {
                 $remapped[$id] = $id;
 

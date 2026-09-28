@@ -22,15 +22,17 @@
                             "schema": {
                                 "required": [
                                     "email",
-                                    "contractNumber"
+                                    "contractNumber",
+                                    "firstName",
+                                    "lastName"
                                 ],
                                 "properties": {
                                     "firstName": {
-                                        "description": "First name. This field may be required depending on the system settings.",
+                                        "description": "First name. Required on a default installation, can be turned off with the `core.basicInformation.firstNameFieldRequired` setting.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Last name. This field may be required depending on the system settings.",
+                                        "description": "Last name. Required on a default installation, can be turned off with the `core.basicInformation.lastNameFieldRequired` setting.",
                                         "type": "string"
                                     },
                                     "email": {
@@ -71,7 +73,14 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Message sent successfully."
+                        "description": "Message sent successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevocationRequestRouteResponse"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "$ref": "#/components/responses/400",

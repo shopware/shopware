@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 
 /**
@@ -26,8 +26,6 @@ use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 #[Group('rules')]
 class LineItemDimensionVolumeRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemDimensionVolumeRule $rule;
 
     protected function setUp(): void
@@ -63,7 +61,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
 
         $lineItem = $this->createLineItemWithVolume($lineItemVolume * Rule::VOLUME_FACTOR);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = $this->createLineItem();
+            $lineItem = CartRuleFixture::createLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -125,19 +123,19 @@ class LineItemDimensionVolumeRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithVolume($lineItemVolume1 * Rule::VOLUME_FACTOR);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = self::createLineItem();
+            $lineItem1 = CartRuleFixture::createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithVolume($lineItemVolume2 * Rule::VOLUME_FACTOR);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = self::createLineItem();
+            $lineItem2 = CartRuleFixture::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -165,24 +163,24 @@ class LineItemDimensionVolumeRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithVolume($lineItemVolume1 * Rule::VOLUME_FACTOR);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = CartRuleFixture::createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithVolume($lineItemVolume2 * Rule::VOLUME_FACTOR);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = CartRuleFixture::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $containerLineItem = $this->createLineItem();
+        $containerLineItem = CartRuleFixture::createLineItem();
         if ($containerLineItemVolume !== null) {
             $containerLineItem = $this->createLineItemWithVolume($containerLineItemVolume * Rule::VOLUME_FACTOR);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -431,12 +429,12 @@ class LineItemDimensionVolumeRuleTest extends TestCase
     {
         $rule = new LineItemDimensionVolumeRule(Rule::OPERATOR_NEQ, 5.0);
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -454,6 +452,6 @@ class LineItemDimensionVolumeRuleTest extends TestCase
 
     private function createLineItemWithVolume(float $volume): LineItem
     {
-        return $this->createLineItemWithDeliveryInfo(false, 1, 50, $volume, 1, 1);
+        return CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50, $volume, 1, 1);
     }
 }

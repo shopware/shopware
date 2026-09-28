@@ -328,8 +328,7 @@ Previously, these routes could return unrelated records or fail because the unde
 
 ## Removal of deprecated `ConfigurationService` class
 
-The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed.
-Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
 
 ## `Feature` is final
 

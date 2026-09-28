@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Core\Test\Stub\Rule\CountingTrueRule;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -28,8 +28,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[CoversClass(Container::class)]
 class MatchAllLineItemsRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     public function testAndRuleNameIsStillTheSame(): void
     {
         static::assertSame('allLineItemsContainer', (new MatchAllLineItemsRule())->getName());
@@ -62,7 +60,7 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createLineItemWithCategories($categoryIdsProductB),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
@@ -160,10 +158,10 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createLineItemWithCategories($categoryIdsProductC),
         ]);
 
-        $promotionLineItem = $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A');
+        $promotionLineItem = CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A');
         $lineItemCollection->add($promotionLineItem);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
@@ -236,7 +234,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         $rule = new MatchAllLineItemsRule();
 
         $match = $rule->match(new CartRuleScope(
-            $this->createCart(new LineItemCollection()),
+            CartRuleFixture::createCart(new LineItemCollection()),
             static::createStub(SalesChannelContext::class)
         ));
 
@@ -257,8 +255,8 @@ class MatchAllLineItemsRuleTest extends TestCase
         $rule = new MatchAllLineItemsRule([], null, ['product']);
 
         $match = $rule->match(new CartRuleScope(
-            $this->createCart(new LineItemCollection([
-                $this->createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
+            CartRuleFixture::createCart(new LineItemCollection([
+                CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
             ])),
             static::createStub(SalesChannelContext::class)
         ));
@@ -273,14 +271,14 @@ class MatchAllLineItemsRuleTest extends TestCase
         $rule = new MatchAllLineItemsRule([$condition], null, null);
 
         $collection = new LineItemCollection([
-            $this->createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
-            $this->createLineItem(LineItem::DISCOUNT_LINE_ITEM, 1, 'DISCOUNT'),
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
+            CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
+            CartRuleFixture::createLineItem(LineItem::DISCOUNT_LINE_ITEM, 1, 'DISCOUNT'),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
         ]);
 
         $match = $rule->match(new CartRuleScope(
-            $this->createCart($collection),
+            CartRuleFixture::createCart($collection),
             static::createStub(SalesChannelContext::class)
         ));
 
@@ -295,13 +293,13 @@ class MatchAllLineItemsRuleTest extends TestCase
         $rule = new MatchAllLineItemsRule([$condition], null, ['discount', 'custom']);
 
         $collection = new LineItemCollection([
-            $this->createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
-            $this->createLineItem(LineItem::DISCOUNT_LINE_ITEM, 1, 'DISCOUNT'),
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
+            CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
+            CartRuleFixture::createLineItem(LineItem::DISCOUNT_LINE_ITEM, 1, 'DISCOUNT'),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
         ]);
 
         $match = $rule->match(new CartRuleScope(
-            $this->createCart($collection),
+            CartRuleFixture::createCart($collection),
             static::createStub(SalesChannelContext::class)
         ));
 
@@ -330,6 +328,6 @@ class MatchAllLineItemsRuleTest extends TestCase
      */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {
-        return $this->createLineItem()->setPayloadValue('categoryIds', $categoryIds);
+        return CartRuleFixture::createLineItem()->setPayloadValue('categoryIds', $categoryIds);
     }
 }

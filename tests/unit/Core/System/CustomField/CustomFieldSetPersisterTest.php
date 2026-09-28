@@ -101,6 +101,34 @@ class CustomFieldSetPersisterTest extends TestCase
         static::assertSame('TestApp', $upserts[1]['extensionName']);
     }
 
+    public function testSyncForAppAddsTranslationsForTheDefaultLocale(): void
+    {
+        $this->connection->method('fetchAllKeyValue')->willReturn([]);
+
+        $this->persister->sync($this->loadFixture(), Uuid::randomHex(), 'TestApp', Context::createDefaultContext(), 'de-AT');
+
+        $upserts = $this->setRepository->getPayloads(StaticEntityRepository::UPSERT);
+        static::assertSame(
+            ['en-GB' => 'Test Set', 'de-DE' => 'Test-Set', 'de-AT' => 'Test-Set'],
+            $upserts[0]['config']['label']
+        );
+        static::assertSame(
+            ['en-GB' => 'Int Field', 'de-AT' => 'Int Field'],
+            $upserts[0]['customFields'][0]['config']['label']
+        );
+    }
+
+    public function testSyncWithoutDefaultLocaleKeepsTranslationsAsDeclared(): void
+    {
+        $this->connection->method('fetchAllKeyValue')->willReturn([]);
+
+        $this->persister->sync($this->loadFixture(), null, 'TestPlugin', Context::createDefaultContext());
+
+        $upserts = $this->setRepository->getPayloads(StaticEntityRepository::UPSERT);
+        static::assertSame(['en-GB' => 'Test Set', 'de-DE' => 'Test-Set'], $upserts[0]['config']['label']);
+        static::assertSame(['en-GB' => 'Int Field'], $upserts[0]['customFields'][0]['config']['label']);
+    }
+
     public function testSyncEmptyDefinitionDeletesAllExistingSets(): void
     {
         $appId = Uuid::randomHex();

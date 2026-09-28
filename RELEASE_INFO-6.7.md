@@ -224,6 +224,12 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
 
+### App translations fall back to the closest language
+
+If an app doesn't provide a translation for the shop's default language, Shopware now uses the closest one the app provides: the main region of the same language (`de-DE` for `de-AT`, `en-GB` for `en-US`), then any other region of that language, then `en-GB`, then the first translation.
+
+This applies to all translated app texts, including flow actions and their configuration fields, Administration modules, custom fields, rule conditions and document types. Installing an app no longer fails when its `flow.xml` has no label in the shop's default language.
+
 # 6.7.15.0
 
 ## Features

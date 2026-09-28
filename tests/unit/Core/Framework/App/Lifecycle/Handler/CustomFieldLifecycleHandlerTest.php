@@ -57,7 +57,8 @@ class CustomFieldLifecycleHandlerTest extends TestCase
                 }),
                 'app-id-123',
                 'TestApp',
-                static::isInstanceOf(Context::class)
+                static::isInstanceOf(Context::class),
+                'en-GB'
             );
 
         $handler = new CustomFieldLifecycleHandler($sharedPersister);

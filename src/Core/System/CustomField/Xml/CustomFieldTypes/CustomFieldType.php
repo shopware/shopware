@@ -45,7 +45,7 @@ abstract class CustomFieldType extends XmlElement
     /**
      * @return CustomFieldTypeArray
      */
-    public function toEntityPayload(): array
+    public function toEntityPayload(?string $defaultLocale = null): array
     {
         $entityArray = [
             'name' => $this->name,
@@ -72,8 +72,16 @@ abstract class CustomFieldType extends XmlElement
             $entityArray['includeInSearch'] = true;
         }
 
+        $typeArray = $this->toEntityArray();
+
+        if ($defaultLocale !== null) {
+            $entityArray['config']['label'] = $this->ensureTranslationForDefaultLanguageExist($this->label, $defaultLocale);
+            $entityArray['config']['helpText'] = $this->ensureTranslationForDefaultLanguageExist($this->helpText, $defaultLocale);
+            $typeArray['config'] = $this->ensureTypeConfigTranslations($typeArray['config'], $defaultLocale);
+        }
+
         /** @phpstan-ignore-next-line because of the array method, PHPStan could not recognize the array shape correctly */
-        return array_merge_recursive($entityArray, $this->toEntityArray());
+        return array_merge_recursive($entityArray, $typeArray);
     }
 
     public function getName(): string
@@ -182,5 +190,29 @@ abstract class CustomFieldType extends XmlElement
         }
 
         return $values;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, mixed>
+     */
+    private function ensureTypeConfigTranslations(array $config, string $defaultLocale): array
+    {
+        if (\is_array($config['placeholder'] ?? null)) {
+            $config['placeholder'] = $this->ensureTranslationForDefaultLanguageExist($config['placeholder'], $defaultLocale);
+        }
+
+        if (\is_array($config['options'] ?? null)) {
+            $config['options'] = array_map(
+                fn (array $option): array => [
+                    ...$option,
+                    'label' => $this->ensureTranslationForDefaultLanguageExist($option['label'], $defaultLocale),
+                ],
+                $config['options']
+            );
+        }
+
+        return $config;
     }
 }

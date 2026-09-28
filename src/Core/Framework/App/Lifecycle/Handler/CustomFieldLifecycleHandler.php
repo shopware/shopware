@@ -49,7 +49,8 @@ class CustomFieldLifecycleHandler extends AbstractLifecycleHandler
             $customFields ?? CustomFields::fromArray([]),
             $context->app->getId(),
             $context->app->getName(),
-            $context->context
+            $context->context,
+            $context->defaultLocale
         );
     }
 }

@@ -42,7 +42,7 @@ class InputField extends XmlElement
     protected ?string $defaultValue = null;
 
     /**
-     * @var list<array<string, string>>|null
+     * @var list<array{value: string, label: array<string, string>}>|null
      */
     protected ?array $options = [];
 
@@ -90,7 +90,7 @@ class InputField extends XmlElement
     }
 
     /**
-     * @return list<array<string, string>>|null
+     * @return list<array{value: string, label: array<string, string>}>|null
      */
     public function getOptions(): ?array
     {
@@ -108,12 +108,18 @@ class InputField extends XmlElement
 
         return array_merge($data, [
             'name' => $this->getName(),
-            'label' => $this->getLabel(),
-            'placeHolder' => $this->getPlaceHolder(),
+            'label' => $this->ensureTranslationForDefaultLanguageExist($this->getLabel(), $defaultLocale),
+            'placeHolder' => $this->ensureTranslationForDefaultLanguageExist($this->getPlaceHolder(), $defaultLocale),
             'required' => $this->getRequired(),
-            'helpText' => $this->getHelpText(),
+            'helpText' => $this->ensureTranslationForDefaultLanguageExist($this->getHelpText(), $defaultLocale),
             'defaultValue' => $this->getDefaultValue(),
-            'options' => $this->getOptions() ?? [],
+            'options' => array_map(
+                fn (array $option): array => [
+                    ...$option,
+                    'label' => $this->ensureTranslationForDefaultLanguageExist($option['label'], $defaultLocale),
+                ],
+                $this->getOptions() ?? []
+            ),
             'type' => $this->getType(),
         ]);
     }
@@ -155,7 +161,7 @@ class InputField extends XmlElement
     }
 
     /**
-     * @return list<array<string, string>>
+     * @return list<array<string, mixed>>
      */
     private static function parseOptions(\DOMElement $element): array
     {
@@ -173,7 +179,7 @@ class InputField extends XmlElement
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     private static function parseOption(\DOMElement $element): array
     {

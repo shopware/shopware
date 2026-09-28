@@ -87,6 +87,20 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
 
+### `EntitySearchResult` is no longer `@final`
+
+`EntitySearchResult` can be extended. Its constructor stays `final`, so a subclass sets its own properties after `createFrom($searchResult)`.
+
+### `ProductListingResult` and `ProductReviewResult` keep extending `EntitySearchResult`
+
+6.7.13.0 announced that both classes leave the `EntitySearchResult` hierarchy in v6.8.0. That is cancelled.
+
+`ProductListingResult::fromSearchResult()` was added for that change. It is deprecated and removed in v6.8.0.0. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters instead.
+
+### `ProductListingResult::setPage()` and `setLimit()` are deprecated
+
+6.7.13.0 listed both as staying supported. That is withdrawn: they come from `EntitySearchResult` now and will be removed in v6.8.0.0. Page the criteria in `AbstractListingProcessor::prepare()` instead.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
@@ -551,19 +565,6 @@ Storefront snippet files (`Resources/snippet/storefront.*.json`) shipped by an a
 
 Changed snippets of an app reach the storefront on update: raise the manifest version and run `app:refresh` (or `app:update`). Apps installed before this release are written to the snapshot the first time their snippets are requested, which reads the app source once.
 
-### `EntitySearchResult` is no longer `@final`
-
-`EntitySearchResult` can be extended. Its constructor stays `final`, so a subclass sets its own properties after `createFrom($searchResult)`.
-
-### `ProductListingResult` and `ProductReviewResult` keep extending `EntitySearchResult`
-
-6.7.13.0 announced that both classes leave the `EntitySearchResult` hierarchy in v6.8.0. That is cancelled.
-
-`ProductListingResult::fromSearchResult()` was added for that change. It is deprecated and removed in v6.8.0.0. Build the result with `ProductListingResult::createFrom($searchResult)` and the setters instead.
-
-### `ProductListingResult::setPage()` and `setLimit()` are deprecated
-
-6.7.13.0 listed both as staying supported. That is withdrawn: they come from `EntitySearchResult` now and will be removed in v6.8.0.0. Page the criteria in `AbstractListingProcessor::prepare()` instead.
 ### `MailService` renders mails with the snippets of their sales channel
 
 `MailService` now configures the translator for the mail's sales channel while it renders the subject and content. Previously the Flow Builder mail action and `SendMailTemplate` did this before calling it; now it applies to every mail sent through `MailService`.

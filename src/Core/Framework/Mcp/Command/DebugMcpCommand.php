@@ -156,7 +156,7 @@ class DebugMcpCommand extends Command
         }
 
         $this->renderUnassigned($io);
-        $this->renderDemotedDiscoveryTools($io, array_keys($scopes));
+        $this->renderDemotedDiscoveryTools($io, $requestedScopes);
 
         $io->writeln('Run <comment>debug:mcp <name></comment> to see full details for a specific capability.');
         if (\count($scopes) > 1) {
@@ -203,7 +203,9 @@ class DebugMcpCommand extends Command
     /**
      * Tools that put themselves into the discovery group, which only the core discovery tools may use.
      * They were moved to the fallback toolset, so they are no longer on the default surface. Only the
-     * scopes being inspected are reported, so `--scope` does not list tools of the server it excluded.
+     * requested scopes are reported, so `--scope` does not list tools of the server it excluded. The
+     * requested scopes, not the ones that could be built, so a demotion is still reported for a server
+     * that is not available.
      *
      * @param list<string> $scopeIds
      */

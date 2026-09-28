@@ -18,8 +18,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
 {
-    private bool $useBuiltInPatterns = false;
-
     #[RunInSeparateProcess]
     public function testDeprecatedMethodsReportMissingDeprecationTrigger(): void
     {
@@ -53,15 +51,16 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
     #[RunInSeparateProcess]
     public function testDeprecatedServiceDecoratorsMustDelegateToTheInnerServiceWhenTheFeatureFlagIsActive(): void
     {
-        $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedDecorator.php'], $this->expectedDecoratorErrors());
-    }
-
-    #[RunInSeparateProcess]
-    public function testRuleUsesBuiltInPatternsWhenNoneArePassed(): void
-    {
-        $this->useBuiltInPatterns = true;
-
-        $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedDecorator.php'], $this->expectedDecoratorErrors());
+        $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedDecorator.php'], [
+            [
+                'Class decorator "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but method "doesNotDelegateToInner" does not call "Feature::triggerDeprecationOrThrow". Methods not declared by the decorated service need to trigger a deprecation warning.',
+                25,
+            ],
+            [
+                'Method "explicitlyDeprecatedMethod" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
+                56,
+            ],
+        ]);
     }
 
     protected function getRule(): Rule
@@ -71,31 +70,9 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
 
         /** @phpstan-ignore phpstanApi.method */
         $serviceMap = $factory->create();
-        $reflectionProvider = self::createReflectionProvider();
-
-        if ($this->useBuiltInPatterns) {
-            return new DeprecatedMethodsThrowDeprecationRule($serviceMap, reflectionProvider: $reflectionProvider);
-        }
 
         return new DeprecatedMethodsThrowDeprecationRule($serviceMap, [
-            new DeprecatedServiceDecoratorPattern($serviceMap, $reflectionProvider),
+            new DeprecatedServiceDecoratorPattern($serviceMap, self::createReflectionProvider()),
         ]);
-    }
-
-    /**
-     * @return list<array{0: string, 1: int}>
-     */
-    private function expectedDecoratorErrors(): array
-    {
-        return [
-            [
-                'Class decorator "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but method "doesNotDelegateToInner" does not call "Feature::triggerDeprecationOrThrow". Methods not declared by the decorated service need to trigger a deprecation warning.',
-                25,
-            ],
-            [
-                'Method "explicitlyDeprecatedMethod" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
-                56,
-            ],
-        ];
     }
 }

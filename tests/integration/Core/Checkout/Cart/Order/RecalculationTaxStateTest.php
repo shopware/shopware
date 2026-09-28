@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -88,6 +89,47 @@ class RecalculationTaxStateTest extends TestCase
         static::assertInstanceOf(OrderEntity::class, $order);
         static::assertNotSame(CartPrice::TAX_STATE_FREE, $order->getTaxStatus());
         static::assertGreaterThan(0.0, $order->getPrice()->getCalculatedTaxes()->getAmount());
+    }
+
+    public function testRecalculatingTwoOrdersWithTheSameAddressKeepsTheCustomerAddressesUntouched(): void
+    {
+        $austrianAddressId = Uuid::randomHex();
+        $germanAddressId = Uuid::randomHex();
+        $customerId = $this->createBusinessCustomer(
+            defaultAddress: $this->getAddressData($austrianAddressId, $this->austriaId, 'Getreidegasse 9', '5020', 'Salzburg'),
+            otherAddress: $this->getAddressData($germanAddressId, $this->germanyId, 'Ebbinghoff 10', '48624', 'Schöppingen'),
+        );
+        $firstOrderAddressId = Uuid::randomHex();
+        $secondOrderAddressId = Uuid::randomHex();
+        $orderIds = [
+            $this->createOrder($customerId, $this->getAddressData($firstOrderAddressId, $this->germanyId, 'Ebbinghoff 10', '48624', 'Schöppingen')),
+            $this->createOrder($customerId, $this->getAddressData($secondOrderAddressId, $this->germanyId, 'Ebbinghoff 10', '48624', 'Schöppingen')),
+        ];
+
+        static::getContainer()->get('customer_address.repository')->update([[
+            'id' => $germanAddressId,
+            'street' => 'Ebbinghoff 11',
+        ]], $this->context);
+
+        foreach ($orderIds as $orderId) {
+            $versionContext = $this->context->createWithVersionId($this->orderRepository->createVersion($orderId, $this->context));
+            static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+            $criteria = (new Criteria([$orderId]))->addAssociation('billingAddress');
+            $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
+            static::assertInstanceOf(OrderEntity::class, $order);
+            static::assertNotSame(CartPrice::TAX_STATE_FREE, $order->getTaxStatus());
+            static::assertSame('Ebbinghoff 10', $order->getBillingAddress()?->getStreet());
+        }
+
+        /** @var EntityRepository<CustomerAddressCollection> $customerAddressRepository */
+        $customerAddressRepository = static::getContainer()->get('customer_address.repository');
+        $customerAddresses = $customerAddressRepository
+            ->search((new Criteria())->addFilter(new EqualsFilter('customerId', $customerId)), $this->context)
+            ->getEntities();
+        static::assertEqualsCanonicalizing([$austrianAddressId, $germanAddressId], array_values($customerAddresses->getIds()));
+        static::assertSame('Ebbinghoff 11', $customerAddresses->get($germanAddressId)?->getStreet());
+        static::assertSame('Getreidegasse 9', $customerAddresses->get($austrianAddressId)?->getStreet());
     }
 
     /**

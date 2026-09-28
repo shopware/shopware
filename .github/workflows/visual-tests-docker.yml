@@ -100,7 +100,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/app" \
             -w /app/tests/acceptance \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
-            /bin/bash -c "npm config set npm config set fetch-retries=5 fetch-retry-mintimeout=20000 && \
+            /bin/bash -c "npm config set fetch-retries=5 fetch-retry-mintimeout=20000 && \
             npm ci && npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER""
       - name: Upload visual test results
         if: always()

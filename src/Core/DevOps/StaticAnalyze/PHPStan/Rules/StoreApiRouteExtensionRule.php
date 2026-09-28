@@ -32,10 +32,8 @@ class StoreApiRouteExtensionRule implements Rule
     /**
      * @param list<string> $legacyRouteMethods
      */
-    public function __construct(
-        private readonly array $legacyRouteMethods = [],
-        private readonly string $namespacePrefix = 'Shopware\\Core\\',
-    ) {
+    public function __construct(private readonly array $legacyRouteMethods = [])
+    {
     }
 
     public function getNodeType(): string
@@ -46,7 +44,7 @@ class StoreApiRouteExtensionRule implements Rule
     public function processNode(Node $node, Scope $scope): array
     {
         $class = $node->getClassReflection();
-        if (!str_starts_with($class->getName(), $this->namespacePrefix)) {
+        if (str_starts_with($class->getName(), 'Shopware\\Tests\\')) {
             return [];
         }
 

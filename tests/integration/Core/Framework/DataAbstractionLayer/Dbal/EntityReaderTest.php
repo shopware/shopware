@@ -292,7 +292,7 @@ class EntityReaderTest extends TestCase
 
         $result = $entityRepository->search($criteria, $context);
 
-        static::assertNotNull($result->getEntities()->get($ids->get('test')));
+        static::assertTrue($result->getEntities()->has($ids->get('test')));
     }
 
     private function createProduct(

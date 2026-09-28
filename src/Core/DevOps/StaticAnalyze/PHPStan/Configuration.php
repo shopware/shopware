@@ -56,4 +56,12 @@ final readonly class Configuration
     {
         return $this->parameters['featureSkipInUnitTestsEnabledNamespaces'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getKernelInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['kernelInUnitTestsEnabledNamespaces'] ?? [];
+    }
 }

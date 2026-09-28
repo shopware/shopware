@@ -77,6 +77,10 @@ parameters:
         # registering their unit namespace with the extension append it here
         featureSkipInUnitTestsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
+        # narrows NoKernelInUnitTestsRule to the suites that must not boot the kernel; the migration suite
+        # runs against a database on purpose
+        kernelInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -90,4 +94,5 @@ parametersSchema:
         allowedUnitTestClassNamespaces: list(string),
         createMockWithoutExpectationsEnabledNamespaces: list(string),
         featureSkipInUnitTestsEnabledNamespaces: list(string),
+        kernelInUnitTestsEnabledNamespaces: list(string),
 ])

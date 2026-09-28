@@ -5,10 +5,6 @@
         padding: 0;
     }
 
-    .sw-settings-listing-index__sorting-options-empty-state {
-        position: static;
-    }
-
     .sw-data-grid__cell-content span.is--truncate {
         @include truncate;
 

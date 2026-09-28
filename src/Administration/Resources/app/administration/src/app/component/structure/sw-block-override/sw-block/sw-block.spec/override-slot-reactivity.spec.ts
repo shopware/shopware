@@ -26,13 +26,13 @@ async function mountWithOverride({
     const swBlock = await wrapTestComponent('sw-block', { sync: true });
 
     const defaultBlock = `
-        <sw-block name="${name}" :data="$dataScope">
+        <sw-block name="${name}" sw-internal-component-name="override-slot-reactivity-spec" :data="$dataScope">
             <span class="default-label">default</span>
         </sw-block>`;
     const override = `
         <scoped-host ${unmountable ? 'v-if="showOverride"' : ''} :label="label">
             <template #default="{ label: scopedLabel }">
-                <sw-block extends="${name}">
+                <sw-block extends="${name}" sw-internal-component-name="override-slot-reactivity-spec">
                     <span class="override-label">{{ scopedLabel }}</span>
                 </sw-block>
             </template>

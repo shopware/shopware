@@ -29,7 +29,8 @@
         {% set isDigital = isDigital or (lineItem.states is defined and DOWNLOAD_STATE in lineItem.states) or quantityInformation.maxPurchase === 1 %}
     {% endif %}
 
-    {% set isQuantitySelectDisabled = isDigital and quantityInformation.maxPurchase <= 1 %}
+    {# `isDigital` locks the quantity controls, so digital products with a max. purchase above 1 stay editable #}
+    {% set isDigital = isDigital and quantityInformation.maxPurchase <= 1 %}
 
     {% block component_line_item_quantity_inner %}
         <div class="row line-item-quantity-row">
@@ -49,7 +50,7 @@
                                 autoFocus: false,
                             } %}
                             <form action="{{ formAction }}"
-                                  class="line-item-quantity-container {% if isQuantitySelectDisabled %}disabled{% endif %}"
+                                  class="line-item-quantity-container {% if isDigital %}disabled{% endif %}"
                                   method="post"
                                   {% if displayMode == 'default' %}
                                   autocomplete="off"
@@ -85,7 +86,7 @@
                                                 data-quantity-selector-options="{{ quantitySelectorOptions|json_encode }}"
                                             >
                                                 <button
-                                                    {% if isQuantitySelectDisabled %}disabled="disabled"{% endif %}
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
                                                     type="button"
                                                     class="btn btn-outline-light btn-minus js-btn-minus"
                                                     aria-label="{{ 'component.product.quantitySelect.decreaseOfProduct'|trans({ '%product%': lineItem.label })|striptags }}"
@@ -94,7 +95,7 @@
                                                     {% sw_icon 'minus' style {size: 'xs'} %}
                                                 </button>
                                                 <input
-                                                    {% if isQuantitySelectDisabled %}disabled="disabled"{% endif %}
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
                                                     type="number"
                                                     name="quantity"
                                                     class="form-control js-quantity-selector quantity-selector-group-input quantity-input-{{ lineItem.id }} {% if displayMode === 'offcanvas' %} js-offcanvas-cart-change-quantity-number{% endif %}"
@@ -106,7 +107,7 @@
                                                     data-focus-id="line-item-{{ displayMode }}-quantity-{{ lineItem.id }}"
                                                 />
                                                 <button
-                                                    {% if isQuantitySelectDisabled %}disabled="disabled"{% endif %}
+                                                    {% if isDigital %}disabled="disabled"{% endif %}
                                                     type="button"
                                                     class="btn btn-outline-light btn-plus js-btn-plus"
                                                     aria-label="{{ 'component.product.quantitySelect.increaseOfProduct'|trans({ '%product%': lineItem.label })|striptags }}"

@@ -156,7 +156,7 @@ class DebugMcpCommand extends Command
         }
 
         $this->renderUnassigned($io);
-        $this->renderDemotedDiscoveryTools($io);
+        $this->renderDemotedDiscoveryTools($io, array_keys($scopes));
 
         $io->writeln('Run <comment>debug:mcp <name></comment> to see full details for a specific capability.');
         if (\count($scopes) > 1) {
@@ -202,12 +202,19 @@ class DebugMcpCommand extends Command
 
     /**
      * Tools that put themselves into the discovery group, which only the core discovery tools may use.
-     * They were moved to the fallback toolset, so they are no longer on the default surface.
+     * They were moved to the fallback toolset, so they are no longer on the default surface. Only the
+     * scopes being inspected are reported, so `--scope` does not list tools of the server it excluded.
+     *
+     * @param list<string> $scopeIds
      */
-    private function renderDemotedDiscoveryTools(SymfonyStyle $io): void
+    private function renderDemotedDiscoveryTools(SymfonyStyle $io, array $scopeIds): void
     {
         $lines = [];
         foreach ($this->demotedDiscoveryTools as $scope => $tools) {
+            if (!\in_array($scope, $scopeIds, true)) {
+                continue;
+            }
+
             foreach ($tools as $name => $class) {
                 $lines[] = \sprintf('%s (%s, %s)', $name, $scope, $class);
             }

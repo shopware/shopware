@@ -1,11 +1,5 @@
 # 6.7.16.0 (upcoming)
 
-## Storefront
-
-### Preserve theme assets on S3-compatible storage
-
-Theme compilation now preserves current images and fonts on storage providers that apply deletions asynchronously. Obsolete theme assets are removed only after the replacement files have been uploaded successfully.
-
 ## Core
 
 ### `JsonField` supports typed properties with additional extension data
@@ -209,6 +203,10 @@ The group order in the permissions grid of Settings > Users & permissions follow
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
 ## Storefront
+
+### Preserve theme assets on S3-compatible storage
+
+Theme compilation now preserves current images and fonts on storage providers that apply deletions asynchronously. Obsolete theme assets are removed only after the replacement files have been uploaded successfully.
 
 ### Checkout form data is kept in the session storage
 

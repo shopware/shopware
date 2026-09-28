@@ -135,6 +135,111 @@ class HtmlSanitizerTest extends TestCase
         static::assertSame($expected, $sanitizer->sanitize($input));
     }
 
+    #[TestDox('Strips markup while keeping a lone "<", entities and line endings verbatim')]
+    #[DataProvider('stripTagsProvider')]
+    public function testStripTags(string $input, string $expected): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        static::assertSame($expected, $sanitizer->stripTags($input));
+    }
+
+    #[TestDox('Strips tags even when sanitizing is disabled, because plain text fields must never carry markup')]
+    public function testStripTagsIgnoresTheEnabledFlag(): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets, enabled: false);
+
+        static::assertSame('x', $sanitizer->stripTags('<b>x</b>'));
+    }
+
+    public static function stripTagsProvider(): \Generator
+    {
+        yield 'a "<" followed by a digit is text, not a tag' => [
+            'I <3 Kisses',
+            'I <3 Kisses',
+        ];
+
+        yield 'a "<" surrounded by spaces stays a comparison operator' => [
+            'a < b > c',
+            'a < b > c',
+        ];
+
+        yield 'a stray ">" is kept' => [
+            '5 > 3',
+            '5 > 3',
+        ];
+
+        yield 'known tags are removed but their text content is kept' => [
+            'John <b>Doe</b>',
+            'John Doe',
+        ];
+
+        yield 'script content is dropped instead of leaking as text' => [
+            '<script>alert(1)</script>x',
+            'x',
+        ];
+
+        yield 'an unknown tag is removed entirely' => [
+            '<test>',
+            '',
+        ];
+
+        yield 'an encoded "<" is kept verbatim instead of being decoded' => [
+            '&lt;3',
+            '&lt;3',
+        ];
+
+        yield 'an encoded ampersand is kept verbatim instead of being decoded' => [
+            'Tom &amp; Jerry',
+            'Tom &amp; Jerry',
+        ];
+
+        yield 'a literal ampersand is not encoded' => [
+            'Tom & Jerry',
+            'Tom & Jerry',
+        ];
+
+        yield 'an unclosed tag at the start swallows the rest of the text' => [
+            '<John',
+            '',
+        ];
+
+        yield 'an unclosed tag mid-text swallows everything after it' => [
+            'Mc<Donald',
+            'Mc',
+        ];
+
+        yield 'comments are removed' => [
+            '<!-- c -->x',
+            'x',
+        ];
+
+        yield 'a "<" followed by a letter starts a tag and is removed' => [
+            'x <y',
+            'x ',
+        ];
+
+        yield 'nested unclosed tags are removed together' => [
+            'a<b<c',
+            'a',
+        ];
+
+        yield 'a processing instruction is kept as text because "<?" cannot open a tag' => [
+            '<?php x ?>y',
+            '<?php x ?>y',
+        ];
+
+        yield 'CRLF line endings are not normalized' => [
+            "a\r\n<3",
+            "a\r\n<3",
+        ];
+
+        yield 'text without any "<" is returned unchanged' => [
+            'plain text',
+            'plain text',
+        ];
+    }
+
     public static function enabledFlagProvider(): \Generator
     {
         yield 'disabled keeps invalid tag' => [

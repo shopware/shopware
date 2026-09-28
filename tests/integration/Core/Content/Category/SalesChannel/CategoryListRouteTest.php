@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -111,6 +112,26 @@ class CategoryListRouteTest extends TestCase
         static::assertArrayHasKey('id', $response['elements'][0]);
         static::assertArrayHasKey('name', $response['elements'][0]);
         static::assertArrayNotHasKey('parentId', $response['elements'][0]);
+    }
+
+    public function testQueryParametersAreAppliedNextToCompressedCriteria(): void
+    {
+        $compressed = gzencode(json_encode(['includes' => ['category' => ['id', 'name']]], \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request(
+            'GET',
+            '/store-api/category',
+            [
+                'limit' => 1,
+                '_criteria' => Base64::urlEncode($compressed),
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['elements'], 'The limit of the query is applied');
+        static::assertSame(['name', 'id', 'apiAlias'], array_keys($response['elements'][0]), 'The includes of the compressed criteria are applied');
     }
 
     private function createData(): void

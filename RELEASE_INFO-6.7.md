@@ -72,6 +72,7 @@ A Store API `GET` request with `_criteria` now returns the same as the `POST` re
 Sending these fields as plain query parameters keeps working. If you send `_criteria`, check these changes:
 
 - A field in `_criteria` takes precedence over a query parameter of the same name. Before, a plain `limit` took precedence on the listing routes.
+- Query parameters that are not part of `_criteria` are applied next to it. Before, the criteria of a route were built from `_criteria` alone, so a plain `limit` or `filter` next to it was ignored.
 - An invalid `_criteria` value is answered with `400` on every Store API route. Routes without criteria ignored it before.
 - The `sw-include-search-info` header is respected together with `_criteria`.
 - `includes` and `excludes` that are not an array are answered with `400` instead of `500`.

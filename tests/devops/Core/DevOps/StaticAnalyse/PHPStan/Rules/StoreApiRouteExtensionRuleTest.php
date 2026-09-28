@@ -39,8 +39,13 @@ class StoreApiRouteExtensionRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/data/StoreApiRouteExtensionRule/test-route.php'], []);
     }
 
+    public function testIgnoresExtensionNamespaces(): void
+    {
+        $this->analyse([__DIR__ . '/data/StoreApiRouteExtensionRule/extension-route.php'], []);
+    }
+
     protected function getRule(): Rule
     {
-        return new StoreApiRouteExtensionRule(['StoreApiRouteExtensionRuleFixtures\\LegacyRoute::load']);
+        return new StoreApiRouteExtensionRule(['StoreApiRouteExtensionRuleFixtures\\LegacyRoute::load'], 'StoreApiRouteExtensionRuleFixtures\\');
     }
 }

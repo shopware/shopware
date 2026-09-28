@@ -26,12 +26,6 @@ export const REGENERATE_COMMAND = 'composer admin:generate-shopware-modules';
  */
 const EXPERIMENTAL = '/** @experimental stableVersion:v6.8.0 */';
 
-/**
- * The generated file's doc comment.
- *
- * A template literal rather than an array of lines: the annotation check reads the version up to the
- * next whitespace, so a quote directly after it would fail the check.
- */
 const FILE_HEADER = `/**
  * @sw-package framework
  *

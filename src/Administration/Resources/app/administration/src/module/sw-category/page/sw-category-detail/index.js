@@ -19,6 +19,7 @@ export default {
         'repositoryFactory',
         'seoUrlService',
         'systemConfigApiService',
+        'customFieldDataProviderService',
     ],
 
     mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
@@ -132,10 +133,12 @@ export default {
             return this.category ? this.category.cmsPageId : null;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -144,6 +147,7 @@ export default {
             return criteria;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetLandingPageCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -521,8 +525,8 @@ export default {
         loadCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository
-                .search(this.customFieldSetCriteria)
+            return this.customFieldDataProviderService
+                .getCustomFieldSets('category', false, null)
                 .then((customFieldSet) => {
                     Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
                 })
@@ -534,8 +538,8 @@ export default {
         loadLandingPageCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository
-                .search(this.customFieldSetLandingPageCriteria)
+            return this.customFieldDataProviderService
+                .getCustomFieldSets('landing_page', false, null)
                 .then((customFieldSet) => {
                     Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
                 })

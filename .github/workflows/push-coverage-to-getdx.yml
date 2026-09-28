@@ -1,0 +1,31 @@
+name: Push coverage to getDX
+
+# Independent of nightly.yml on purpose: php.yml/admin.yml/storefront.yml already upload
+# coverage to Codecov on every merge to trunk (pull_request and merge_group both run them),
+# so trunk's report is complete long before this runs. The schedule is just a heartbeat, not
+# a recomputation — running it more than once a day would only resend the same numbers.
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  push-coverage-to-getdx:
+    name: Push coverage to getDX
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: lts/*
+      - name: Push coverage to getDX
+        run: node ./.github/bin/js/push-coverage-to-getdx.ts
+        env:
+          CODECOV_API_TOKEN: ${{ secrets.CODECOV_API_TOKEN }}
+          DX_API_TOKEN: ${{ secrets.DX_API_TOKEN }}

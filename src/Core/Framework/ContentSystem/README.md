@@ -40,20 +40,6 @@ The pipeline is source-independent — specification sources translate entity ID
 
 See [docs/data-flow.md](docs/data-flow.md) for a diagram of this pipeline's data flow.
 
-## Key Classes
-
-Module root:
-- `ContentPipeline` - Orchestrates steps 3-5 of the rendering pipeline; receives the loaded `RenderableLayout` from the route
-- `RenderableLayout` - Loaded layout handed to the pipeline: a `LayoutReference` plus its `list<StoredElement>`
-- `LayoutReference` - Immutable layout identity: id, name, version
-- `ResolvedContentLayout` - Resolver output: layout ID plus the `RenderingSpecification`
-- `ContentSection` - Enum: HEADER, FOOTER, MAIN
-- `RenderingSpecification` - Data requirements, placeholders, request, target element, cache tags
-- `RenderingMode` - Enum: FULL (resolve data and context), SKELETON (structure only)
-- `PlaceholderValues` - Immutable placeholder value map
-- `SpecificationData` - Bundles data requirements (from the entity definition) with placeholder values (from the request path and query parameters), independent of layout assignment
-- `DraftLayoutChecker` - Draft-layout check for the preview action (runs the `LayoutDiagnostics` intrinsic subset)
-
 ## Extension Model
 
 Plugins extend the ContentSystem through six mechanisms, documented in [docs/extending.md](docs/extending.md).

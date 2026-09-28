@@ -69,6 +69,7 @@ class FeatureFlagVersionRule implements Rule
 
             foreach ($scope->getType($argument->value)->getConstantStrings() as $flag) {
                 $name = $flag->getValue();
+                // Accept names that do not start with v and a digit, and version flags with exactly four numeric parts.
                 if (\preg_match('/\Av\d/i', $name) !== 1 || \preg_match('/\Av\d+(?:[._]\d+){3}\z/i', $name) === 1) {
                     continue;
                 }

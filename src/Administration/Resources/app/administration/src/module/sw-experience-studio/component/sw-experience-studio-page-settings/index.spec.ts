@@ -55,7 +55,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-page-settin
                 },
             },
             layout: [
-                { id: 'element-a', component: 'Sw:Grid:Container', slots: { content: [{ id: 'element-nested', component: 'Sw:Content:Text' }] } },
+                {
+                    id: 'element-a',
+                    component: 'Sw:Grid:Container',
+                    slots: { content: [{ id: 'element-nested', component: 'Sw:Content:Text' }] },
+                },
             ],
         };
         const scrollNavigation = computed.scrollNavigation.call({ layout });

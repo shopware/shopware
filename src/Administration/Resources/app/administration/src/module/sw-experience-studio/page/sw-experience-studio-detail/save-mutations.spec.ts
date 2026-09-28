@@ -67,6 +67,7 @@ function createEditor(elements: ContentElementNode[]) {
         saveOpenLayout: methods.saveOpenLayout,
         reloadSavedLayout: methods.reloadSavedLayout,
         extractApiErrorDetail: methods.extractApiErrorDetail,
+        pruneStaleScrollNavigationAnchors: methods.pruneStaleScrollNavigationAnchors,
         syncActiveLayoutState: jest.fn(),
         createNotificationSuccess: jest.fn(),
         createNotificationError: jest.fn(),

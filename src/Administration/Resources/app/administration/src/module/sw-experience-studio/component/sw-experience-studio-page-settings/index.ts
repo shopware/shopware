@@ -83,7 +83,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         onScrollNavigationActiveChange(active: boolean): void {
-            this.emitScrollNavigation({ active: active === true });
+            this.emitScrollNavigation({ active });
         },
 
         onScrollNavigationModeChange(mode: unknown): void {

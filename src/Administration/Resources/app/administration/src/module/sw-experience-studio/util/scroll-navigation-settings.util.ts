@@ -38,11 +38,7 @@ export type ScrollNavigationSettings = {
     anchors: Record<string, ScrollNavigationAnchor>;
 };
 
-/**
- * @private
- * @sw-package discovery
- */
-export const SCROLL_NAVIGATION_SETTINGS_KEY = 'scrollNavigation';
+const SCROLL_NAVIGATION_SETTINGS_KEY = 'scrollNavigation';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -53,15 +49,24 @@ function readAnchors(stored: unknown): Record<string, ScrollNavigationAnchor> {
         return {};
     }
 
-    return Object.entries(stored).reduce<Record<string, ScrollNavigationAnchor>>((anchors, [elementId, anchor]) => {
-        if (!isRecord(anchor)) {
+    return Object.entries(stored).reduce<Record<string, ScrollNavigationAnchor>>(
+        (
+            anchors,
+            [
+                elementId,
+                anchor,
+            ],
+        ) => {
+            if (!isRecord(anchor)) {
+                return anchors;
+            }
+
+            anchors[elementId] = { label: typeof anchor.label === 'string' ? anchor.label : '' };
+
             return anchors;
-        }
-
-        anchors[elementId] = { label: typeof anchor.label === 'string' ? anchor.label : '' };
-
-        return anchors;
-    }, {});
+        },
+        {},
+    );
 }
 
 /**

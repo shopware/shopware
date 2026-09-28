@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Version-shaped feature flags have four parts (for example v6.8.0.0), while deprecation
- * labels use three (v6.8.0). A three-part flag silently misses the registered feature and
- * can make a runtime deprecation check throw early. Check constant flag arguments at call sites.
+ * labels use three (v6.8.0). A malformed version flag silently misses the registered feature
+ * and can make a runtime deprecation check throw early. Check constant flag arguments at call sites.
  *
  * @implements Rule<StaticCall>
  *
@@ -69,14 +69,13 @@ class FeatureFlagVersionRule implements Rule
 
             foreach ($scope->getType($argument->value)->getConstantStrings() as $flag) {
                 $name = $flag->getValue();
-                if (\preg_match('/^v\d+(?:[._]\d+){2}$/i', $name) !== 1) {
+                if (\preg_match('/\Av\d/i', $name) !== 1 || \preg_match('/\Av\d+(?:[._]\d+){3}\z/i', $name) === 1) {
                     continue;
                 }
 
                 $errors[] = RuleErrorBuilder::message(\sprintf(
-                    'Feature flag "%s" uses a three-part version. Use "%s.0" instead.',
+                    'Version-shaped feature flag "%s" must have four numeric parts (for example "v6.8.0.0").',
                     $name,
-                    \strtolower(\str_replace('_', '.', $name)),
                 ))
                     ->identifier('shopware.featureFlagVersion')
                     ->line($argument->getStartLine())

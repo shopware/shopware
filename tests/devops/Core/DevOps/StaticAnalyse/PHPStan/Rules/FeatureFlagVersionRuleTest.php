@@ -15,15 +15,20 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class FeatureFlagVersionRuleTest extends RuleTestCase
 {
-    public function testThreePartFeatureFlagsAreRejected(): void
+    public function testMalformedVersionShapedFeatureFlagsAreRejected(): void
     {
         $this->analyse([__DIR__ . '/data/FeatureFlagVersionRule/feature-flags.php'], [
-            ['Feature flag "v6.8.0" uses a three-part version. Use "v6.8.0.0" instead.', 12],
-            ['Feature flag "v6.8.0" uses a three-part version. Use "v6.8.0.0" instead.', 13],
-            ['Feature flag "v6.7.0" uses a three-part version. Use "v6.7.0.0" instead.', 14],
-            ['Feature flag "v6.8.0" uses a three-part version. Use "v6.8.0.0" instead.', 15],
-            ['Feature flag "v6.9.0" uses a three-part version. Use "v6.9.0.0" instead.', 16],
-            ['Feature flag "V6_8_0" uses a three-part version. Use "v6.8.0.0" instead.', 17],
+            ['Version-shaped feature flag "v6.8.0" must have four numeric parts (for example "v6.8.0.0").', 12],
+            ['Version-shaped feature flag "v6.8.0" must have four numeric parts (for example "v6.8.0.0").', 13],
+            ['Version-shaped feature flag "v6.7.0" must have four numeric parts (for example "v6.8.0.0").', 14],
+            ['Version-shaped feature flag "v6.8.0" must have four numeric parts (for example "v6.8.0.0").', 15],
+            ['Version-shaped feature flag "v6.9.0" must have four numeric parts (for example "v6.8.0.0").', 16],
+            ['Version-shaped feature flag "V6_8_0" must have four numeric parts (for example "v6.8.0.0").', 17],
+            ['Version-shaped feature flag "v6" must have four numeric parts (for example "v6.8.0.0").', 18],
+            ['Version-shaped feature flag "v6.8" must have four numeric parts (for example "v6.8.0.0").', 19],
+            ['Version-shaped feature flag "v6.8.0.0.1" must have four numeric parts (for example "v6.8.0.0").', 20],
+            ['Version-shaped feature flag "v6.8.x.0" must have four numeric parts (for example "v6.8.0.0").', 21],
+            ["Version-shaped feature flag \"v6.8.0.0\n\" must have four numeric parts (for example \"v6.8.0.0\").", 22],
         ]);
     }
 

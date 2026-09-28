@@ -15,8 +15,14 @@ function checkFeatureFlags(): void
     Feature::isActive(feature: 'v6.8.0');
     Feature::has(THREE_PART_FEATURE);
     Feature::withFeatureDisabled('V6_8_0', static fn (): null => null);
+    Feature::isActive('v6');
+    Feature::isActive('v6.8');
+    Feature::isActive('v6.8.0.0.1');
+    Feature::isActive('v6.8.x.0');
+    Feature::isActive("v6.8.0.0\n");
 
     Feature::isActive('v6.8.0.0');
+    Feature::isActive('V6_8_0_0');
     Feature::isActive('MY_FEATURE');
     Feature::deprecatedMethodMessage('Class', 'method', 'v6.8.0');
 }

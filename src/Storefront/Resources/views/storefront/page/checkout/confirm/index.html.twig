@@ -43,7 +43,6 @@
             <div class="confirm-tos">
                 <div class="card checkout-card">
                     <div class="card-body">
-
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
                                 {{ 'checkout.confirmTermsHeader'|trans|sw_sanitize }}
@@ -278,6 +277,8 @@
 
                         <div class="form-check mt-2 ">
                             {% block page_checkout_confirm_tos_auto_confirmed_checkbox_bottom %}
+                                {# The legacy checkout renders the other tos checkbox instead. #}
+                                {# ludtwig-ignore html-duplicate-id #}
                                 <input type="checkbox"
                                        class="checkout-confirm-tos-checkbox form-check-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
                                        required="required"
@@ -323,6 +324,8 @@
                 {% block page_checkout_confirm_revocation_section_control %}
                     <div class="form-check mt-2 mb-4">
                         {% block page_checkout_confirm_revocation_section_control_bottom %}
+                            {# The legacy checkout renders the other revocation checkbox instead. #}
+                            {# ludtwig-ignore html-duplicate-id #}
                             <input type="checkbox"
                                    class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
                                    required="required"
@@ -339,7 +342,6 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
-
             {% endif %}
         {% endif %}
     {% endblock %}

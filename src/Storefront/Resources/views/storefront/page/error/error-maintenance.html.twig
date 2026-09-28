@@ -4,7 +4,7 @@
 
 {% block error_maintenance_html %}
     {# @deprecated tag:v6.8.0 - WebPage microdata on <html> replaced by JSON-LD. Will be removed. #}
-    <html lang="{{ "meta.xmlLang"|trans|striptags }}"
+    <html lang="{{ 'meta.xmlLang'|trans|striptags }}"
           {% if not feature('JSON_LD_DATA') %}
           itemscope="itemscope"
           itemtype="https://schema.org/WebPage"
@@ -55,7 +55,7 @@
                             {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
                             <div class="{{ cmsPageClasses }}">
                                 {% block page_content_blocks %}
-                                    {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
+                                    {% sw_include '@Storefront/storefront/page/content/detail.html.twig' with {cmsPage: page.cmsPage} %}
 
                                 {% endblock %}
                             </div>
@@ -63,11 +63,11 @@
                             {% block error_maintenance_main_fallback %}
                                 <div class="container mt-5">
                                     <img src="{{ asset('assets/illustration/maintenance_mode.svg', 'theme') }}"
-                                         alt="{{ "general.maintenanceModeHeader"|trans|striptags }}"
+                                         alt="{{ 'general.maintenanceModeHeader'|trans|striptags }}"
                                          class="rounded mx-auto d-block w-75">
 
-                                    <h1 class="mt-4 text-center">{{ "general.maintenanceModeHeader"|trans }}</h1>
-                                    <p class="text-center">{{ "general.maintenanceModeDescription"|trans }}</p>
+                                    <h1 class="mt-4 text-center">{{ 'general.maintenanceModeHeader'|trans }}</h1>
+                                    <p class="text-center">{{ 'general.maintenanceModeDescription'|trans }}</p>
                                 </div>
                             {% endblock %}
                         {% endif %}
@@ -81,17 +81,17 @@
                         <div class="container mt-3 text-center">
                             {% if config('core.basicInformation.imprintPage') is not null %}
                                 <a href="{{ seoUrl('frontend.maintenance.singlepage', { id: config('core.basicInformation.imprintPage') }) }}"
-                                   title="{{ "general.imprintLink"|trans|sw_sanitize }}"
+                                   title="{{ 'general.imprintLink'|trans|sw_sanitize }}"
                                    class="ps-2 pe-2">
-                                    {{ "general.imprintLink"|trans|sw_sanitize }}
+                                    {{ 'general.imprintLink'|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
 
                             {% if config('core.basicInformation.privacyPage') is not null %}
                                 <a href="{{ seoUrl('frontend.maintenance.singlepage', { id: config('core.basicInformation.privacyPage') }) }}"
-                                   title="{{ "general.privacyLink"|trans|sw_sanitize }}"
+                                   title="{{ 'general.privacyLink'|trans|sw_sanitize }}"
                                    class="ps-2 pe-2">
-                                    {{ "general.privacyLink"|trans|sw_sanitize }}
+                                    {{ 'general.privacyLink'|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
                         </div>
@@ -117,17 +117,18 @@
                 {# Register the available viewport breakpoints the window.breakpoints object #}
                 <script>
                     {% set breakpoint = {
-                        'xs': theme_config('breakpoint.xs'),
-                        'sm': theme_config('breakpoint.sm'),
-                        'md': theme_config('breakpoint.md'),
-                        'lg': theme_config('breakpoint.lg'),
-                        'xl': theme_config('breakpoint.xl'),
-                        'xxl': theme_config('breakpoint.xxl')
+                        xs: theme_config('breakpoint.xs'),
+                        sm: theme_config('breakpoint.sm'),
+                        md: theme_config('breakpoint.md'),
+                        lg: theme_config('breakpoint.lg'),
+                        xl: theme_config('breakpoint.xl'),
+                        xxl: theme_config('breakpoint.xxl')
                     } %}
 
                     window.breakpoints = JSON.parse('{{ breakpoint|json_encode|escape('js') }}');
                 </script>
             {% endblock %}
+
             {% block error_maintenance_script_reload %}
                 <script>
                     setTimeout(function () {
@@ -138,4 +139,5 @@
         {% endblock %}
     </body>
 {% endblock %}
+
 </html>

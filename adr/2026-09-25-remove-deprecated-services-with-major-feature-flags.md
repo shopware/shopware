@@ -25,7 +25,7 @@ Removing a service is a decision made when the container is compiled, but the fe
 
 ## Consequences
 
-The service and alias list reflects the flag at compilation time. If the container was built with the flag inactive, turning it on at runtime leaves deprecated services available until a rebuild. If it was built with the flag active, turning it off at runtime cannot restore removed services or aliases; a rebuild is required before the old dependency graph can be used again.
+The service and alias list reflects the flag at compilation time. The kernel includes `FEATURE_ALL` and environment flags named like major versions in its container cache hash. Changing one of these values makes the next kernel boot select and, if needed, compile a container for the new mode. A configured `APP_BUILD_DIR` uses the same hash because Symfony loads compiled container code from that directory. An already running kernel keeps its compiled container: turning a flag on at runtime does not remove services from that instance, and turning it off cannot restore services removed from that instance. Long-running processes must restart to use the new container.
 
 The feature-active container lets tests verify that deprecated service definitions and aliases are absent, that the replacement service graph still compiles, and that callers no longer require removed services through constructor arguments, decorators, service lookups, or tagged-service discovery. A tagged console command whose service is removed also disappears from Symfony's command map; invoking its old name fails with a command-not-found error even while the command class remains in the codebase.
 
@@ -42,6 +42,6 @@ if (!Feature::isActive('v6.8.0.0')) {
 }
 ```
 
-The route collection is cached, so a flag change requires rebuilding it. Tests must check that the route is absent when the flag is active. A Symfony route condition can prevent a match, but the route remains in the collection and can still be used for URL generation. `Feature::triggerDeprecationOrThrow()` still throws when an active route calls it, but it does not remove the route from the collection.
+The route collection is cached with the container, so a new kernel boot after changing the major environment flag loads the route collection for that mode. Tests must check that the route is absent when the flag is active. A Symfony route condition can prevent a match, but the route remains in the collection and can still be used for URL generation. `Feature::triggerDeprecationOrThrow()` still throws when an active route calls it, but it does not remove the route from the collection.
 
 Adding a deprecated service now requires a removal tag; adding a deprecated service alias requires an annotation and an entry in the removal list. Code that depends on a removed service must also account for its absence when the flag is active. The explicit alias list needs maintenance until those aliases are permanently removed in the major release.

@@ -180,7 +180,7 @@ class Kernel extends HttpKernel
     public function getBuildDir(): string
     {
         if (EnvironmentHelper::hasVariable('APP_BUILD_DIR')) {
-            return EnvironmentHelper::getVariable('APP_BUILD_DIR') . '/' . $this->environment;
+            return EnvironmentHelper::getVariable('APP_BUILD_DIR') . '/' . $this->environment . '_h' . $this->getCacheHash();
         }
 
         return parent::getBuildDir();
@@ -325,10 +325,30 @@ class Kernel extends HttpKernel
 
         asort($plugins);
 
+        // The feature registry is initialized after the container cache is selected.
+        // Read version-shaped flags from the environment so a changed major mode gets a new container.
+        $majorFeatureFlags = [];
+        foreach (array_keys($_SERVER + $_ENV) as $name) {
+            if (\preg_match('/^V?\d+(?:_\d+){1,3}$/i', $name) !== 1) {
+                continue;
+            }
+
+            $name = Feature::normalizeName($name);
+            $value = EnvironmentHelper::hasVariable($name)
+                ? EnvironmentHelper::getVariable($name)
+                : EnvironmentHelper::getVariable(strtolower($name));
+            $value = (string) $value;
+            $majorFeatureFlags[$name] = (bool) $value && $value !== 'false';
+        }
+
+        ksort($majorFeatureFlags);
+
         return Hasher::hash([
             $this->cacheId,
             (string) $this->shopwareVersionRevision,
             $plugins,
+            (string) EnvironmentHelper::getVariable('FEATURE_ALL', ''),
+            $majorFeatureFlags,
         ]);
     }
 

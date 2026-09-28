@@ -108,7 +108,7 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
             static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
@@ -151,7 +151,7 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $mockGenerator,
             static::getContainer()->get('pdf.merger'),
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
             static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
@@ -218,7 +218,7 @@ class DocumentMergerTest extends TestCase
             static::getContainer()->get(MediaService::class),
             $this->documentGenerator,
             $mockFpdi,
-            $this->createMock(Filesystem::class),
+            static::createStub(Filesystem::class),
             static::getContainer()->get(DocumentFileNameBuilder::class),
         );
 
@@ -344,7 +344,7 @@ class DocumentMergerTest extends TestCase
         }
 
         // force zip creation
-        $mockFpdi = $this->createMock(Fpdi::class);
+        $mockFpdi = static::createStub(Fpdi::class);
         $mockFpdi->method('setSourceFile')
             ->willThrowException(new FpdiException('PDF merge failed'));
 

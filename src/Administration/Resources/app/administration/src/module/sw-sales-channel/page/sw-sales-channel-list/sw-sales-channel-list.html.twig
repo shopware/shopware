@@ -168,9 +168,10 @@
             <template v-if="!isLoading && !total">
                 <mt-empty-state
                     v-if="isValidTerm(term)"
-                    :style="{ minHeight: '200px' }"
+                    centered
                     :icon="$route.meta.$module.icon"
                     :headline="$t('sw-empty-state.messageNoResultTitle')"
+                    description=""
                     :link-text="$t('sw-empty-state.messageNoResultLink')"
                     :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
                 />
@@ -179,11 +180,26 @@
                 <mt-empty-state
                     v-else
                     class="sw-sales-channel-list__empty-state"
-                    :centered="true"
+                    centered
                     icon="regular-storefront"
                     :headline="$t('sw-sales-channel.list.emptyStateHeadline')"
                     :description="$t('sw-sales-channel.list.emptyStateDescription')"
-                />
+                >
+                    <template #button>
+                        <mt-button
+                            v-tooltip="{
+                                message: $t('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('sales_channel.creator'),
+                                showOnDisabledElements: true
+                            }"
+                            variant="primary"
+                            :disabled="!acl.can('sales_channel.creator')"
+                            @click="onAddSalesChannel"
+                        >
+                            {{ $t('sw-sales-channel.list.buttonAddSalesChannel') }}
+                        </mt-button>
+                    </template>
+                </mt-empty-state>
                 {% endblock %}
             </template>
             {% endblock %}

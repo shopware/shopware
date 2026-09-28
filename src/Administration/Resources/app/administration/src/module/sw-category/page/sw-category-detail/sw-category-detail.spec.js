@@ -45,6 +45,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                     'sw-empty-state': true,
                 },
                 provide: {
+                    customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                     cmsService: {
                         getEntityMappingTypes: () => {},
                     },

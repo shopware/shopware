@@ -97,6 +97,6 @@ class SitemapHandleTest extends TestCase
 
     private function getContext(): SalesChannelContext
     {
-        return $this->createMock(SalesChannelContext::class);
+        return static::createStub(SalesChannelContext::class);
     }
 }

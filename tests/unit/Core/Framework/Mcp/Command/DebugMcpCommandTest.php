@@ -829,12 +829,31 @@ class DebugMcpCommandTest extends TestCase
         static::assertStringContainsString('tools', $output);
     }
 
+    public function testToolsClaimingTheReservedDiscoveryGroupAreReported(): void
+    {
+        $command = new DebugMcpCommand(
+            Server::builder(),
+            new Registry(),
+            static::createStub(McpAllowlistProvider::class),
+            new McpCapabilityCatalog(null, $this->stubPrivilegeProvider()),
+            demotedDiscoveryTools: ['store-api' => ['create_cart' => 'Acme\\CartTool']],
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('These tools claim the "discovery" group', $output);
+        static::assertStringContainsString('create_cart (store-api, Acme\\CartTool)', $output);
+    }
+
     public function testNothingIsReportedWhenEveryCapabilityIsAssigned(): void
     {
         $tester = new CommandTester($this->makeCommand(new Registry()));
         $tester->execute([]);
 
         static::assertStringNotContainsString('exposed by no server', $tester->getDisplay());
+        static::assertStringNotContainsString('claim the "discovery" group', $tester->getDisplay());
     }
 
     private function makeCommand(

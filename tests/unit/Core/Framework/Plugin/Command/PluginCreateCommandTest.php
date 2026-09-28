@@ -18,6 +18,7 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -33,21 +34,18 @@ class PluginCreateCommandTest extends TestCase
     /**
      * @param array<string, string|true> $arguments
      * @param list<string> $inputs
-     * @param array<int, array<string, mixed>> $generators
+     * @param list<string|null> $generatorOptions option name per generator, null for a generator without option
      */
     #[DataProvider('commandProvider')]
     public function testSuccessfulCreateCommandWithArgumentsOrInputs(
         array $arguments,
         array $inputs,
-        array $generators = []
+        array $generatorOptions = []
     ): void {
         $generatorMocks = [];
-        foreach ($generators as $generator) {
-            /** @var MockObject&ScaffoldingGenerator $generatorMock */
+        foreach ($generatorOptions as $optionName) {
             $generatorMock = static::createStub(ScaffoldingGenerator::class);
-
-            $generatorMock->method('hasCommandOption')->willReturn($generator['hasCommandOption']);
-            $generatorMock->method('getCommandOptionName')->willReturn($generator['getCommandOptionName']);
+            $generatorMock->method('getCommandOption')->willReturn($optionName === null ? null : new InputOption($optionName));
 
             $generatorMocks[] = $generatorMock;
         }
@@ -92,12 +90,7 @@ class PluginCreateCommandTest extends TestCase
                 '--static' => true,
             ],
             'inputs' => [],
-            'generators' => [
-                [
-                    'hasCommandOption' => true,
-                    'getCommandOptionName' => 'test-option',
-                ],
-            ],
+            'generatorOptions' => ['test-option'],
         ];
 
         yield 'with generators but no option' => [
@@ -106,12 +99,7 @@ class PluginCreateCommandTest extends TestCase
                 'plugin-namespace' => 'Test',
             ],
             'inputs' => [],
-            'generators' => [
-                [
-                    'hasCommandOption' => false,
-                    'getCommandOptionName' => '',
-                ],
-            ],
+            'generatorOptions' => [null],
         ];
 
         yield 'with --no-scaffold skips optional generators' => [
@@ -121,12 +109,7 @@ class PluginCreateCommandTest extends TestCase
                 '--no-scaffold' => true,
             ],
             'inputs' => [],
-            'generators' => [
-                [
-                    'hasCommandOption' => true,
-                    'getCommandOptionName' => 'test-option',
-                ],
-            ],
+            'generatorOptions' => ['test-option'],
         ];
     }
 
@@ -171,13 +154,12 @@ class PluginCreateCommandTest extends TestCase
     {
         /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
         $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
-        $optionalGenerator->method('hasCommandOption')->willReturn(true);
-        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->method('getCommandOption')->willReturn(new InputOption('test-option'));
         $optionalGenerator->expects($this->never())->method('addScaffoldConfig');
 
         /** @var MockObject&ScaffoldingGenerator $requiredGenerator */
         $requiredGenerator = $this->createMock(ScaffoldingGenerator::class);
-        $requiredGenerator->method('hasCommandOption')->willReturn(false);
+        $requiredGenerator->method('getCommandOption')->willReturn(null);
         $requiredGenerator->expects($this->once())->method('addScaffoldConfig');
 
         $commandTester = $this->getCommandTester([$optionalGenerator, $requiredGenerator]);
@@ -195,8 +177,7 @@ class PluginCreateCommandTest extends TestCase
     {
         /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
         $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
-        $optionalGenerator->method('hasCommandOption')->willReturn(true);
-        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->method('getCommandOption')->willReturn(new InputOption('test-option'));
         $optionalGenerator->expects($this->never())->method('addScaffoldConfig');
 
         $commandTester = $this->getCommandTester([$optionalGenerator]);
@@ -214,8 +195,7 @@ class PluginCreateCommandTest extends TestCase
     {
         /** @var MockObject&ScaffoldingGenerator $optionalGenerator */
         $optionalGenerator = $this->createMock(ScaffoldingGenerator::class);
-        $optionalGenerator->method('hasCommandOption')->willReturn(true);
-        $optionalGenerator->method('getCommandOptionName')->willReturn('test-option');
+        $optionalGenerator->method('getCommandOption')->willReturn(new InputOption('test-option'));
         $optionalGenerator->expects($this->once())->method('addScaffoldConfig');
 
         $commandTester = $this->getCommandTester([$optionalGenerator]);

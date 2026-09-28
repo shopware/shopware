@@ -18,8 +18,6 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 #[Package('framework')]
 class EntityGenerator implements ScaffoldingGenerator
 {
-    use HasCommandOption;
-
     public const OPTION_NAME = 'entities';
     private const OPTION_DESCRIPTION = 'list of entities to generate (PascalCase, comma separated)';
 
@@ -34,9 +32,9 @@ EOL;
     {
     }
 
-    public function getCommandOptionMode(): int
+    public function getCommandOption(): InputOption
     {
-        return InputOption::VALUE_REQUIRED;
+        return new InputOption(self::OPTION_NAME, null, InputOption::VALUE_REQUIRED, self::OPTION_DESCRIPTION);
     }
 
     public function addScaffoldConfig(

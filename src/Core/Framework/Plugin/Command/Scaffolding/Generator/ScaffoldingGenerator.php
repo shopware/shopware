@@ -17,18 +17,10 @@ interface ScaffoldingGenerator
 {
     public const STUB_DIRECTORY = __DIR__ . '/../stubs';
 
-    public function hasCommandOption(): bool;
-
-    public function getCommandOptionName(): string;
-
-    public function getCommandOptionDescription(): string;
-
     /**
-     * Mode of the command option, passed to Symfony's `addOption()`: `null` for a flag, or an `InputOption::VALUE_*` constant
-     *
-     * @return int-mask-of<InputOption::VALUE_*>|null
+     * Option to register on `plugin:create` and the generator's `make:plugin:*` command, or null if the generator always runs
      */
-    public function getCommandOptionMode(): ?int;
+    public function getCommandOption(): ?InputOption;
 
     public function addScaffoldConfig(
         PluginScaffoldConfiguration $config,

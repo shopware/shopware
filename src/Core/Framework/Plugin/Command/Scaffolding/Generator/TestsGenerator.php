@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -15,22 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 class TestsGenerator implements ScaffoldingGenerator
 {
-    public function hasCommandOption(): bool
-    {
-        return false;
-    }
-
-    public function getCommandOptionName(): string
-    {
-        return '';
-    }
-
-    public function getCommandOptionDescription(): string
-    {
-        return '';
-    }
-
-    public function getCommandOptionMode(): ?int
+    public function getCommandOption(): ?InputOption
     {
         return null;
     }

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -26,10 +25,11 @@ class EntityGeneratorTest extends TestCase
     {
         $generator = new EntityGenerator(new MockClock());
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
-        static::assertSame(InputOption::VALUE_REQUIRED, $generator->getCommandOptionMode());
+        $option = $generator->getCommandOption();
+
+        static::assertSame(EntityGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
+        static::assertTrue($option->isValueRequired());
     }
 
     /**

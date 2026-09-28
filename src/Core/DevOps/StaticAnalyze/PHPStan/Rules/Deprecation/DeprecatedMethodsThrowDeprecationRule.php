@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -37,12 +38,32 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     ];
 
     /**
+     * @var list<DeprecationPattern>
+     */
+    private readonly array $deprecationPatterns;
+
+    /**
+     * Patterns are optional so PHPStan can construct this rule from a `rules:` entry outside this repository.
+     * An untyped iterable has no service to autowire, and without a default the container refuses to build the rule.
+     * An empty list selects the built-in patterns when a reflection provider is available.
+     *
      * @param iterable<DeprecationPattern> $deprecationPatterns
      */
     public function __construct(
         private readonly ServiceMap $serviceMap,
-        private readonly iterable $deprecationPatterns,
+        iterable $deprecationPatterns = [],
+        ?ReflectionProvider $reflectionProvider = null,
     ) {
+        $patterns = [];
+        foreach ($deprecationPatterns as $pattern) {
+            $patterns[] = $pattern;
+        }
+
+        if ($patterns === [] && $reflectionProvider !== null) {
+            $patterns[] = new DeprecatedServiceDecoratorPattern($this->serviceMap, $reflectionProvider);
+        }
+
+        $this->deprecationPatterns = $patterns;
     }
 
     public function getNodeType(): string

@@ -137,9 +137,11 @@ class SalesChannelContextRestorer
             ->addAssociation('billingAddress')
             ->addAssociation('transactions.stateMachineState');
 
-        Feature::silent('v6.8.0.0', function () use ($criteria, $context): void {
-            $this->eventDispatcher->dispatch(new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context));
-        });
+        $event = Feature::silent(
+            'v6.8.0.0',
+            static fn (): SalesChannelContextRestorerOrderCriteriaEvent => new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context),
+        );
+        $this->eventDispatcher->dispatch($event);
 
         return $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
     }

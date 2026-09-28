@@ -44,7 +44,7 @@ describe('build/vue-setup-transform override transforms', () => {
         // blank-line residue is not behaviour. The Vue round-trip below guards the token sequence.
         const expected = stripWhitespace`
             <template>
-                <sw-block extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: { suffix } }, headline }">
+                <sw-block sw-internal-component-name='sw-example' extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: { suffix } }, headline }">
                     <h1>{{ headline }} - {{ suffix }}</h1>
                 </sw-block>
             </template>

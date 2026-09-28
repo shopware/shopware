@@ -151,6 +151,19 @@
           "placeholderReleaseDate": "Erscheinungsdatum eingeben ..."
         }
       },
+      "guarantee": {
+        "cardTitle": "Garantie (GARAN Label)",
+        "guaranteeMonths": {
+          "changeLabel": "Ändern: Dauer der herstellerseitigen Garantie",
+          "helpText": "Zwischen 30 und 600 Monaten, in Schritten von 6.",
+          "placeholder": "z. B. 30, 36 oder 42 Monate ..."
+        },
+        "guaranteeConfirmed": {
+          "changeLabel": "Ändern: Label in der Storefront anzeigen",
+          "label": "Label in der Storefront anzeigen",
+          "helpText": "Das Garantie-Label wird nur angezeigt, wenn eine gültige Garantiedauer, ein Hersteller und die Hersteller-Produktnummer angegeben sind."
+        }
+      },
       "seo": {
         "cardTitle": "SEO",
         "metaTitle": {

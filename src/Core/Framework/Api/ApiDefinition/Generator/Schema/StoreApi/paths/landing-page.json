@@ -127,6 +127,9 @@
                     },
                     {
                         "x-parameter-group": "productListingCriteria"
+                    },
+                    {
+                        "$ref": "#/components/parameters/CompressedCriteria"
                     }
                 ],
                 "responses": {

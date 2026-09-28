@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Package('framework')]
 class ResponseFields
@@ -17,6 +19,17 @@ class ResponseFields
         protected ?array $excludes = null,
     ) {
         $this->validateFields();
+    }
+
+    /**
+     * Reads the `includes` and `excludes` parameters of the request.
+     */
+    public static function fromRequest(Request $request): self
+    {
+        return new self(
+            self::getFieldsParameter($request, 'includes'),
+            self::getFieldsParameter($request, 'excludes'),
+        );
     }
 
     public function isAllowed(string $type, string $property): bool
@@ -86,5 +99,21 @@ class ResponseFields
                 );
             }
         }
+    }
+
+    /**
+     * @return array<string, list<string>>|null
+     */
+    private static function getFieldsParameter(Request $request, string $name): ?array
+    {
+        $fields = RequestParamHelper::get($request, $name, []);
+
+        if ($fields !== null && !\is_array($fields)) {
+            throw SalesChannelException::invalidType(
+                \sprintf('The %s must be of the type array, %s given', $name, \gettype($fields))
+            );
+        }
+
+        return $fields;
     }
 }

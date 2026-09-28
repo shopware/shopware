@@ -75,17 +75,16 @@ class RequestCriteriaBuilder
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
-        if ($request->isMethod(Request::METHOD_GET)) {
-            // Check for _criteria parameter first
-            if ($request->query->has('_criteria')) {
-                $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
-
-                return $this->fromArray($payload, $criteria, $definition, $context);
-            }
-            $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
+        if (!$request->isMethod(Request::METHOD_GET)) {
+            $payload = $request->request->all();
+        } elseif ($request->query->has('_criteria')) {
+            // the _criteria parameter takes precedence over the individual query parameters
+            $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
         } else {
-            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
+            $payload = $request->query->all();
         }
+
+        $criteria = $this->fromArray($payload, $criteria, $definition, $context);
 
         // @deprecated tag:v6.8.0 - switch the default to 0
         if ($request->headers->get(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, '1') === '0') {

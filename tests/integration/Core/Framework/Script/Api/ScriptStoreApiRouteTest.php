@@ -77,6 +77,15 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('store_api_simple_script_response', $response['apiAlias']);
     }
 
+    public function testIncludesThatAreNotAnArrayAreRejected(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $this->browser->request('POST', '/store-api/script/simple-script', ['includes' => 'foo']);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+    }
+
     public function testRepositoryCall(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');

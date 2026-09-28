@@ -193,7 +193,7 @@ class SalesChannelException extends HttpException
     public static function invalidType(string $message): self
     {
         return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_BAD_REQUEST,
             self::INVALID_TYPE,
             $message
         );

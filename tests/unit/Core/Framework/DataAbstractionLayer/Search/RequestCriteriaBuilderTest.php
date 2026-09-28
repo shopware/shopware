@@ -1053,6 +1053,25 @@ class RequestCriteriaBuilderTest extends TestCase
         ];
     }
 
+    public function testIncludeSearchInfoHeaderIsReadWithCompressedCriteria(): void
+    {
+        $request = new Request([
+            '_criteria' => self::gzipAndBase64UrlEncode(json_encode(['limit' => 5], \JSON_THROW_ON_ERROR)),
+        ]);
+        $request->setMethod(Request::METHOD_GET);
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, '0');
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(5, $criteria->getLimit());
+        static::assertTrue($criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO));
+    }
+
     public function testCompressedCriteriaParameter(): void
     {
         $criteriaData = [

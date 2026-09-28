@@ -56,6 +56,28 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Store API reads every field of the compressed `_criteria` parameter
+
+A Store API `GET` request with `_criteria` now returns the same as the `POST` request with that body. Before, several routes ignored fields inside `_criteria`:
+
+| Route | Ignored fields |
+|---|---|
+| `/category/{navigationId}`, `/cms/{id}`, `/landing-page/{landingPageId}` | `limit`, `includes`, `excludes`, `slots` |
+| `/search` | `limit` |
+| `/product/{productId}` | `slots` |
+| `/navigation/{activeId}/{rootId}` | `depth`, `buildTree` |
+| `/media` | `ids`, `includes`, `excludes` |
+| `/product/{productId}/find-variant` | `options`, `switchedGroup` |
+
+Sending these fields as plain query parameters keeps working. If you send `_criteria`, check these changes:
+
+- A field in `_criteria` takes precedence over a query parameter of the same name. Before, a plain `limit` took precedence on the listing routes.
+- An invalid `_criteria` value is answered with `400` on every Store API route. Routes without criteria ignored it before.
+- The `sw-include-search-info` header is respected together with `_criteria`.
+- `includes` and `excludes` that are not an array are answered with `400` instead of `500`.
+
+The OpenAPI schema declares `_criteria` for `readCategoryGet`, `readCmsGet`, `readLandingPageGet`, `searchPageGet` and `searchSuggestGet`.
+
 ## Administration
 
 ### New extension points for the Shopping Experiences layout list

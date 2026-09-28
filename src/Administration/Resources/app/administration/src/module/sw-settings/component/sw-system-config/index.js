@@ -253,21 +253,16 @@ export default {
          * legacy config into the schema result to keep the compatibility layer intact.
          */
         async getSchemaForDomain() {
-            const getSchema = this.systemConfigApiService.getSchema?.bind(this.systemConfigApiService);
-            const getConfig = this.systemConfigApiService.getConfig?.bind(this.systemConfigApiService);
+            const getConfig = this.systemConfigApiService.getConfig;
             const defaultGetConfig = Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
 
-            if (typeof getSchema !== 'function') {
-                return [];
-            }
-
-            const schema = await getSchema(this.domain);
+            const schema = await this.systemConfigApiService.getSchema(this.domain);
 
             if (typeof getConfig !== 'function' || getConfig === defaultGetConfig) {
                 return schema;
             }
 
-            const config = await getConfig(this.domain);
+            const config = await getConfig.call(this.systemConfigApiService, this.domain);
 
             if (!Array.isArray(config)) {
                 return schema;

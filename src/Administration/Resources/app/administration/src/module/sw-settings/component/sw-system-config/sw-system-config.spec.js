@@ -23,7 +23,11 @@ let firstCardHasCssField = false;
 
 // @deprecated tag:v6.8.0 - The legacyConfig parameter will be removed together with the config data prop.
 async function createWrapper(defaultValues = {}, config = createConfig(), slots = {}, components = {}, legacyConfig = null) {
-    const systemConfigApiService = {
+    // @deprecated tag:v6.8.0 - Simulates the shared base prototype a real (non-decorated) service inherits getConfig from.
+    const systemConfigApiServicePrototype = {
+        getConfig: jest.fn(() => Promise.resolve([])),
+    };
+    const systemConfigApiService = Object.assign(Object.create(systemConfigApiServicePrototype), {
         getSchema: jest.fn(() => Promise.resolve(config)),
         getValues: jest.fn((domain, salesChannelId) => {
             if (defaultValues[domain] && defaultValues[domain][salesChannelId]) {
@@ -33,7 +37,7 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
             return Promise.resolve({});
         }),
         batchSave: jest.fn(() => Promise.resolve()),
-    };
+    });
 
     // @deprecated tag:v6.8.0 - Only simulates an extension still overriding the deprecated getConfig method.
     if (legacyConfig !== null) {
@@ -1921,6 +1925,16 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
     });
 
     // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should not call the inherited default getConfig implementation when it was not overridden', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const defaultGetConfig = Object.getPrototypeOf(wrapper.vm.systemConfigApiService).getConfig;
+
+        expect(defaultGetConfig).not.toHaveBeenCalled();
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it('should consider custom legacy getConfig overrides when loading the schema', async () => {
         numberOfTabs = 2;
 
@@ -1987,6 +2001,21 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.vm.schema[1].name).toBe('custom');
         const matchedCard = wrapper.vm.schema[1].cards.find((card) => card.title?.['en-GB'] === 'Custom card 1');
         expect(matchedCard.elements.map((element) => element.name)).toContain(newElement.name);
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
+    it('should fall back to the schema when a legacy getConfig override resolves to a non-array value', async () => {
+        const config = createConfig();
+
+        wrapper = await createWrapper({}, config, {}, {}, config.flatMap((tab) => tab.cards));
+        await flushPromises();
+
+        // Simulate a faulty extension override that forgot to return the (modified) card list
+        wrapper.vm.systemConfigApiService.getConfig = jest.fn(() => Promise.resolve(null));
+
+        const schema = await wrapper.vm.getSchemaForDomain();
+
+        expect(schema).toEqual(config);
     });
 
     // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.

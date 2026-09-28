@@ -14,8 +14,6 @@ class XmlParserUtils
 {
     private const FALLBACK_LOCALE = 'en-GB';
 
-    private const CANONICAL_LANGUAGE_MAP = ['en' => self::FALLBACK_LOCALE];
-
     /**
      * @return array<string, mixed>
      */
@@ -113,8 +111,8 @@ class XmlParserUtils
 
     /**
      * Adds the translation for the locale if it is missing, copied from the closest declared translation:
-     * the main region of the same language (en-GB for en, otherwise e.g. de-DE for de),
-     * any other region of that language, en-GB, and finally the first translation.
+     * the main region of the same language (e.g. de-DE for de-AT), any other region of that language,
+     * en-GB, and finally the first translation.
      *
      * @param array<string, string>|null $translations
      *
@@ -164,7 +162,7 @@ class XmlParserUtils
             return null;
         }
 
-        $mainRegion = mb_strtolower(self::CANONICAL_LANGUAGE_MAP[$language] ?? $language . '-' . $language);
+        $mainRegion = $language . '-' . $language;
         if (isset($declaredLocales[$mainRegion])) {
             return $declaredLocales[$mainRegion];
         }

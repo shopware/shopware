@@ -243,12 +243,6 @@ class XmlParserUtilsTest extends TestCase
             ['en-GB' => 'English', 'de-CH' => 'Swiss German', 'de-DE' => 'German', 'de-AT' => 'German'],
         ];
 
-        yield 'prefers en-GB as the main region of English over other English regions' => [
-            ['en-US' => 'American English', 'en-GB' => 'English'],
-            'en-AU',
-            ['en-US' => 'American English', 'en-GB' => 'English', 'en-AU' => 'English'],
-        ];
-
         yield 'uses another region of the language when its main region is not declared' => [
             ['en-GB' => 'English', 'sv-SE' => 'Swedish'],
             'sv-FI',

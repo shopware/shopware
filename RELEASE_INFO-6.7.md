@@ -86,6 +86,9 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 ### Creating a language no longer fails on a drifted Elasticsearch/OpenSearch mapping
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
+### MCP session registry follows the session store
+
+Each MCP server keeps a registry of its active sessions, which `tools/list_changed` broadcasts go to. It no longer uses `cache.system`. When a server stores its sessions in a cache pool (`session: {store: cache, cache_pool: ...}`), for example Redis, the registry uses the same pool, so broadcasts reach sessions on every server. With the default file store, the registry is a file cache next to the session files. If you overrode `shopware.mcp.session_registry_cache` or `mcp.store_api.session_registry_cache` to share the registry, you can remove that override. In multi-server setups, also configure `framework.lock` with a shared store, so concurrent registry updates on different servers don't lose sessions.
 
 ## API
 

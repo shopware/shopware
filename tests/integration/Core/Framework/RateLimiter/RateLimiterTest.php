@@ -11,6 +11,7 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
@@ -372,6 +373,67 @@ class RateLimiterTest extends TestCase
         }
     }
 
+    public function testRateLimitCartAddLineItemPerSalesChannel(): void
+    {
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $scopedChannelId = $this->ids->get('sales-channel');
+
+        $otherBrowser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel-2'),
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://localhost.second-channel',
+                ],
+            ],
+        ]);
+        $this->assignSalesChannelContext($otherBrowser);
+
+        $product = (new ProductBuilder($this->ids, 'rate-limited-product'))
+            ->price(10)
+            ->visibility($scopedChannelId)
+            ->visibility($this->ids->get('sales-channel-2'))
+            ->build();
+        static::getContainer()->get('product.repository')->create([$product], $this->context);
+        $productId = $this->ids->get('rate-limited-product');
+
+        // a single-entry time_backoff limit allows the configured number of attempts inside the
+        // interval, so a value of 1 allows one addition and throttles the second; the global
+        // value is pinned explicitly so ambient state cannot throttle the second channel
+        $systemConfig->set('core.cart.lineItemAddLimit', null);
+        $systemConfig->set('core.cart.lineItemAddLimit', self::TEST_THROTTLE_LIMIT, $scopedChannelId);
+
+        try {
+            for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
+                $this->addProductToCart($this->browser, $productId);
+
+                if ($i >= self::TEST_THROTTLE_LIMIT) {
+                    static::assertSame(429, $this->browser->getResponse()->getStatusCode());
+
+                    $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+                    static::assertArrayHasKey('errors', $response, print_r($response, true));
+                    static::assertSame(429, (int) $response['errors'][0]['status']);
+                    static::assertSame('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
+                } else {
+                    static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+                }
+            }
+
+            // same product and client ip on a second sales channel without an override: not throttled
+            for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
+                $this->addProductToCart($otherBrowser, $productId);
+
+                static::assertSame(200, $otherBrowser->getResponse()->getStatusCode(), (string) $otherBrowser->getResponse()->getContent());
+            }
+        } finally {
+            $systemConfig->set('core.cart.lineItemAddLimit', null, $scopedChannelId);
+            $systemConfig->set('core.cart.lineItemAddLimit', null);
+        }
+    }
+
     public function testRateLimitUserRecovery(): void
     {
         for ($i = 0; $i <= self::TEST_THROTTLE_LIMIT; ++$i) {
@@ -533,6 +595,26 @@ class RateLimiterTest extends TestCase
         }
 
         $this->getContainer()->get('newsletter_recipient.repository')->upsert($newsletterRecipients, $this->context);
+    }
+
+    private function addProductToCart(KernelBrowser $browser, string $productId): void
+    {
+        $browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'items' => [
+                    [
+                        'type' => 'product',
+                        'referencedId' => $productId,
+                        'quantity' => 1,
+                    ],
+                ],
+            ], \JSON_THROW_ON_ERROR)
+        );
     }
 
     private function overrideRateLimiters(): void

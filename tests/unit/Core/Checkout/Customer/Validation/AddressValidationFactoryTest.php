@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\Constraint\NoHtml;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -54,14 +55,14 @@ class AddressValidationFactoryTest extends TestCase
 
         $this->assertAddressDefinition($definition);
 
-        static::assertCount(9, $definition);
+        static::assertCount(13, $definition);
     }
 
     public function testDefinitionRulesUpdate(): void
     {
         $definition = $this->addressValidationFactory->update($this->salesChannelContext)->getProperties();
 
-        static::assertCount(10, $definition);
+        static::assertCount(14, $definition);
         static::assertArrayHasKey('id', $definition);
 
         static::assertCount(2, $definition['id']);
@@ -77,15 +78,19 @@ class AddressValidationFactoryTest extends TestCase
     private function assertAddressDefinition(array $definition): void
     {
         static::assertArrayHasKey('title', $definition);
+        static::assertCount(2, $definition['title']);
         static::assertInstanceOf(Length::class, $definition['title'][0]);
+        static::assertInstanceOf(NoHtml::class, $definition['title'][1]);
         static::assertArrayHasKey('zipcode', $definition);
         static::assertInstanceOf(Length::class, $definition['zipcode'][0]);
-        static::assertCount(2, $definition['firstName']);
+        static::assertCount(3, $definition['firstName']);
         static::assertInstanceOf(NotBlank::class, $definition['firstName'][0]);
         static::assertInstanceOf(Length::class, $definition['firstName'][1]);
-        static::assertCount(2, $definition['lastName']);
+        static::assertInstanceOf(NoHtml::class, $definition['firstName'][2]);
+        static::assertCount(3, $definition['lastName']);
         static::assertInstanceOf(NotBlank::class, $definition['lastName'][0]);
         static::assertInstanceOf(Length::class, $definition['lastName'][1]);
+        static::assertInstanceOf(NoHtml::class, $definition['lastName'][2]);
 
         static::assertArrayHasKey('salutationId', $definition);
         static::assertArrayHasKey('countryId', $definition);
@@ -106,10 +111,18 @@ class AddressValidationFactoryTest extends TestCase
         static::assertCount(1, $definition['countryStateId']);
         static::assertInstanceOf(EntityExists::class, $definition['countryStateId'][0]);
 
-        static::assertCount(1, $definition['city']);
+        static::assertCount(2, $definition['city']);
         static::assertInstanceOf(NotBlank::class, $definition['city'][0]);
+        static::assertInstanceOf(NoHtml::class, $definition['city'][1]);
 
-        static::assertCount(1, $definition['street']);
+        static::assertCount(2, $definition['street']);
         static::assertInstanceOf(NotBlank::class, $definition['street'][0]);
+        static::assertInstanceOf(NoHtml::class, $definition['street'][1]);
+
+        foreach (['company', 'department', 'additionalAddressLine1', 'additionalAddressLine2'] as $freeTextField) {
+            static::assertArrayHasKey($freeTextField, $definition);
+            static::assertCount(1, $definition[$freeTextField]);
+            static::assertInstanceOf(NoHtml::class, $definition[$freeTextField][0]);
+        }
     }
 }

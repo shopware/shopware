@@ -25,7 +25,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * The tree is not decoded here. The layout field serializer decoded it, admitted it through the write boundary
  * and left it on the write `Context` ({@see LayoutWriteContext}), so this gate judges the tree that is about to
  * be stored rather than a second decode of the same column. Reading the memo consumes it, on the skip path as
- * well as the checking path, so a write that reaches this subscriber leaves nothing behind.
+ * well as the checking path, so a write that reaches this subscriber leaves nothing behind. Only the memo this
+ * write opened is read: one left by an earlier write on the same `Context` counts as absent.
  *
  * @internal
  *
@@ -54,7 +55,9 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     {
         $context = $event->getContext();
         $extension = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
-        $memo = $extension instanceof LayoutWriteContext ? $extension : null;
+        $memo = $extension instanceof LayoutWriteContext && $extension->ownedBy($event->getWriteContext())
+            ? $extension
+            : null;
 
         if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
             $this->drain($memo, $event->getCommands());

@@ -554,6 +554,14 @@ class StoredTreeShapeConformanceTest extends TestCase
             '',
         ];
 
+        yield 'a broadcast provider carrying a keyed-only field' => [
+            self::forest(['providesContext' => [
+                'product' => ['type' => 'single', 'distribution' => 'broadcast', 'keyProperty' => 'sku'],
+            ]]),
+            self::REJECTED,
+            '',
+        ];
+
         yield 'a style option the registry does not know' => [
             self::forest(['style' => ['removed-plugin-option' => ['md' => 2]]]),
             self::DESCRIPTOR_ONLY,

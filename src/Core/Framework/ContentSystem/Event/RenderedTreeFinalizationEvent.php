@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Event;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\Rendering\RenderedElement;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
@@ -45,6 +46,7 @@ class RenderedTreeFinalizationEvent implements ShopwareSalesChannelEvent
         public readonly SalesChannelContext $salesChannelContext,
         public readonly RenderingCacheContext $cacheContext,
     ) {
+        $this->rejectForeignTree($tree);
     }
 
     /**
@@ -60,6 +62,8 @@ class RenderedTreeFinalizationEvent implements ShopwareSalesChannelEvent
      */
     public function replaceTree(array $tree): void
     {
+        $this->rejectForeignTree($tree);
+
         $this->tree = $tree;
     }
 
@@ -71,5 +75,39 @@ class RenderedTreeFinalizationEvent implements ShopwareSalesChannelEvent
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
+    }
+
+    /**
+     * The `list<RenderedElement>` the signature can only promise in a docblock, and the symmetric half of the
+     * guard {@see ContentTreePreparationEvent} carries. The one check the pipeline already runs on what this
+     * event hands back reads `id` and `slots`, which the stored model carries too, so it waves a forest of the
+     * wrong model through to the encoders rather than reporting it. Depth needs no walk here: every
+     * {@see RenderedElement} refuses a foreign slot child, so a list of rendered roots is a rendered forest.
+     *
+     * @param array<array-key, mixed> $tree
+     */
+    private function rejectForeignTree(array $tree): void
+    {
+        if (!array_is_list($tree)) {
+            throw ContentSystemException::invalidMapValue(
+                'Rendered content tree',
+                'tree',
+                'list<RenderedElement>',
+                'array with non-list keys'
+            );
+        }
+
+        foreach ($tree as $index => $element) {
+            if ($element instanceof RenderedElement) {
+                continue;
+            }
+
+            throw ContentSystemException::invalidMapValue(
+                'Rendered content tree',
+                (string) $index,
+                RenderedElement::class,
+                get_debug_type($element)
+            );
+        }
     }
 }

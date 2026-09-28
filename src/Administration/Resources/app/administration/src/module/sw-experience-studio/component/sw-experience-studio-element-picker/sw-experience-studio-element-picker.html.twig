@@ -1,64 +1,73 @@
 {% block sw_experience_studio_element_picker %}
-<div
-    v-if="open"
-    v-click-outside="() => $emit('close')"
+<mt-floating-ui
     class="sw-experience-studio-element-picker"
-    :style="flyoutStyle()"
+    :is-opened="open"
+    :anchor-element="anchorElement"
+    :floating-ui-options="floatingUiOptions"
+    :offset="8"
+    detached
+    @close="$emit('close')"
 >
-    <div class="sw-experience-studio-element-picker__header">
-        <span>{{ title }}</span>
+    <div class="sw-experience-studio-element-picker__panel">
+        <div class="sw-experience-studio-element-picker__header">
+            <span>{{ title }}</span>
 
-        <button
-            class="sw-experience-studio-element-picker__close"
-            type="button"
-            @click="$emit('close')"
-        >
-            <mt-icon
-                name="regular-times-xs"
-                size="12px"
-            />
-        </button>
-    </div>
-
-    <div class="sw-experience-studio-element-picker__content">
-        <mt-empty-state
-            v-if="elements.length === 0"
-            icon="regular-puzzle-piece"
-            :description="$t('sw-experience-studio.detail.elementPicker.noElements')"
-        />
-
-        <div
-            v-else
-            class="sw-experience-studio-element-picker__sections"
-        >
-            <div
-                v-for="group in groupedElements"
-                :key="group.key"
-                class="sw-experience-studio-element-picker__section"
+            <button
+                class="sw-experience-studio-element-picker__close"
+                type="button"
+                @click="$emit('close')"
             >
-                <div class="sw-experience-studio-element-picker__section-title">
-                    <span>{{ $t(group.headlineSnippetKey) }}</span>
-                </div>
+                <mt-icon
+                    name="regular-times-xs"
+                    size="12px"
+                />
+            </button>
+        </div>
 
-                <div class="sw-experience-studio-element-picker__grid">
-                    <button
-                        v-for="element in group.elements"
-                        :key="element.name"
-                        v-tooltip="itemTooltip(element)"
-                        class="sw-experience-studio-element-picker__item"
-                        type="button"
-                        @click="onSelect(element)"
-                    >
-                        <div class="sw-experience-studio-element-picker__icon-square">
-                            <mt-icon
-                                :name="element.icon || 'regular-square'"
-                                size="20px"
-                            />
-                        </div>
-                    </button>
+        <div class="sw-experience-studio-element-picker__content">
+            <mt-empty-state
+                v-if="elements.length === 0"
+                icon="regular-puzzle-piece"
+                :description="$t('sw-experience-studio.detail.elementPicker.noElements')"
+            />
+
+            <div
+                v-else
+                class="sw-experience-studio-element-picker__sections"
+            >
+                <div
+                    v-for="group in groupedElements"
+                    :key="group.key"
+                    class="sw-experience-studio-element-picker__section"
+                >
+                    <div class="sw-experience-studio-element-picker__section-title">
+                        <span>{{ $t(group.headlineSnippetKey) }}</span>
+                    </div>
+
+                    <div class="sw-experience-studio-element-picker__grid">
+                        <button
+                            v-for="element in group.elements"
+                            :key="element.name"
+                            v-tooltip="itemTooltip(element)"
+                            class="sw-experience-studio-element-picker__item"
+                            type="button"
+                            @click="onSelect(element)"
+                        >
+                            <div class="sw-experience-studio-element-picker__icon-square">
+                                <mt-icon
+                                    :name="element.icon || 'regular-square'"
+                                    size="20px"
+                                />
+                            </div>
+
+                            <span class="sw-experience-studio-element-picker__label">
+                                {{ element.label }}
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</mt-floating-ui>
 {% endblock %}

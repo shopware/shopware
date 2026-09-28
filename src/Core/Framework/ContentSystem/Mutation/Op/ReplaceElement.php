@@ -13,14 +13,16 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecification;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Swaps $elementId's component to $newType, keeping the same id. Carries over matching primitive
- * properties, wiring, and slot children; surfaces anything the new type cannot hold via
- * {@see orphaned()}, {@see droppedWiring()}, and {@see droppedProperties()}.
+ * Swaps $elementId's component to $newType, keeping the same id. Carries over properties whose key the new type
+ * declares with an enforceable type that admits the value ({@see carryProperties()}), wiring, and slot children;
+ * surfaces anything the new type cannot hold via {@see orphaned()}, {@see droppedWiring()}, and
+ * {@see droppedProperties()}.
  *
  * The new type's default binding specification, when it has exactly one, is fill-applied after wiring carryover
  * (zero defaults is a no-op; more than one throws): fill-only semantics guarantee carried wiring is never
@@ -98,14 +100,14 @@ final class ReplaceElement extends AbstractLayoutMutation
     }
 
     /**
-     * A stored property key survives the type swap two ways: it matches a new-type primitive property (the
-     * pre-existing rule), or it is one of the new type's default specification's `resolvedBy` storage keys and the
+     * A stored property key survives the type swap two ways: the new type declares it with an enforceable type
+     * that admits the value, or it is one of the new type's default specification's `resolvedBy` storage keys and the
      * stored value's shape matches that key's loader branch (a string for `entity`, a list of strings for
      * `entity_collection`) — deliberately stricter than the serve path's tolerant list filtering, so a partially
-     * valid stored list is dropped-and-reported here rather than silently shrunk downstream. Neither rule reuses
-     * {@see primitiveMatches()}: a storage key is undeclared by design, so it is never a new-type property, and
-     * coupling "declared string property" to "entity storage key" by shape coincidence would coincidentally match
-     * a declared string property with the same name as an unrelated storage key.
+     * valid stored list is dropped-and-reported here rather than silently shrunk downstream. The storage-key rule
+     * does not reuse {@see PropertyType::admits()}: a storage key is undeclared by design, so it is never a
+     * new-type property, and coupling "declared string property" to "entity storage key" by shape coincidence
+     * would coincidentally match a declared string property with the same name as an unrelated storage key.
      *
      * @param array<string, StoredValue> $properties
      * @param array<string, PropertySpecification> $newTypeProperties
@@ -133,9 +135,9 @@ final class ReplaceElement extends AbstractLayoutMutation
             }
 
             $type = $newTypeProperties[$key]->type();
-            $declaredType = $type->type();
 
-            if (!$type->isPrimitive() || !\is_string($declaredType) || !$this->primitiveMatches($value, $declaredType)) {
+            // Under `object` or an FQCN nothing can check the value's shape, so it drops rather than cross unexamined.
+            if ($type->enforceableTypes() === null || !$type->admits($value->jsonSerialize())) {
                 $this->droppedProperties[$key] = $value;
 
                 continue;
@@ -239,22 +241,5 @@ final class ReplaceElement extends AbstractLayoutMutation
         $this->orphaned = $orphaned;
 
         return $kept;
-    }
-
-    /**
-     * The declared primitive type judges the raw payload, so the stored value is unwrapped to compare against it.
-     * A list or map variant unwraps to an array and matches no primitive type, which is the intended answer.
-     */
-    private function primitiveMatches(StoredValue $value, string $declaredType): bool
-    {
-        $raw = $value->jsonSerialize();
-
-        return match ($declaredType) {
-            'string' => \is_string($raw),
-            'integer' => \is_int($raw),
-            'number' => \is_int($raw) || \is_float($raw),
-            'boolean' => \is_bool($raw),
-            default => false,
-        };
     }
 }

@@ -128,8 +128,17 @@ export function getPropertyControlType(property: ContentSystemElementTypePropert
  */
 export function getAdminUiProps(property: ContentSystemElementTypeProperty): Record<string, unknown> {
     const props = property.adminUI?.props;
+    const adminProps = typeof props === 'object' && props !== null ? props : {};
 
-    return typeof props === 'object' && props !== null ? props : {};
+    if (getPropertyControlType(property) !== 'number') {
+        return adminProps;
+    }
+
+    return {
+        digits: 0,
+        step: 1,
+        ...adminProps,
+    };
 }
 
 /**

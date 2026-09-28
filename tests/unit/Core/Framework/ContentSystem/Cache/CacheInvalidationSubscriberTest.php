@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
+use Shopware\Core\Content\LandingPage\Aggregate\LandingPageContentLayout\LandingPageContentLayoutDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\Cache\CacheInvalidationSubscriber;
@@ -40,6 +42,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(CacheInvalidationSubscriber::class)]
 class CacheInvalidationSubscriberTest extends TestCase
 {
+    private const HEADER_ASSIGNMENT = 'test_header_assignment';
+
+    private const FOOTER_ASSIGNMENT = 'test_footer_assignment';
+
     private CacheInvalidator&MockObject $cacheInvalidator;
 
     private Connection&Stub $connection;
@@ -65,6 +71,10 @@ class CacheInvalidationSubscriberTest extends TestCase
             $this->connection,
             $this->cacheTagResolver,
             $this->definitionRegistry,
+            [
+                self::HEADER_ASSIGNMENT => ContentSection::HEADER->value,
+                self::FOOTER_ASSIGNMENT => ContentSection::FOOTER->value,
+            ],
         );
     }
 
@@ -73,7 +83,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     {
         $layoutId = 'layout-id';
 
-        $event = $this->createWrittenEvent('content_layout', $layoutId);
+        $event = $this->createWrittenEvent(ContentLayoutDefinition::ENTITY_NAME, $layoutId);
 
         $this->cacheInvalidator->expects($this->once())
             ->method('invalidate')
@@ -137,9 +147,9 @@ class CacheInvalidationSubscriberTest extends TestCase
         $event = new EntityWrittenContainerEvent(
             Context::createDefaultContext(),
             new NestedEventCollection([
-                new EntityWrittenEvent('product_content_layout', [
-                    new EntityWriteResult($assignmentIdA, [], 'product_content_layout', EntityWriteResult::OPERATION_INSERT),
-                    new EntityWriteResult($assignmentIdB, [], 'product_content_layout', EntityWriteResult::OPERATION_INSERT),
+                new EntityWrittenEvent(ProductContentLayoutDefinition::ENTITY_NAME, [
+                    new EntityWriteResult($assignmentIdA, [], ProductContentLayoutDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
+                    new EntityWriteResult($assignmentIdB, [], ProductContentLayoutDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_INSERT),
                 ], Context::createDefaultContext()),
             ]),
             [],
@@ -167,7 +177,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('skips section invalidation when no layout IDs are found in database')]
     public function testSkipsSectionInvalidationWhenNoLayoutIdsFound(): void
     {
-        $event = $this->createWrittenEvent('header_content_layout', $this->ids->get('assignment'));
+        $event = $this->createWrittenEvent(self::HEADER_ASSIGNMENT, $this->ids->get('assignment'));
 
         $this->connection->method('fetchFirstColumn')
             ->willReturn([]);
@@ -192,7 +202,7 @@ class CacheInvalidationSubscriberTest extends TestCase
     #[TestDox('skips entity invalidation when no assignment IDs are found in database')]
     public function testSkipsEntityInvalidationWhenNoAssignmentIdsFound(): void
     {
-        $event = $this->createWrittenEvent('product_content_layout', $this->ids->get('assignment'));
+        $event = $this->createWrittenEvent(ProductContentLayoutDefinition::ENTITY_NAME, $this->ids->get('assignment'));
 
         $this->connection->method('fetchFirstColumn')
             ->willReturn([]);
@@ -201,6 +211,42 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->method('invalidate');
 
         ($this->subscriber)($event);
+    }
+
+    #[TestDox('ignores a section assignment table that no bundle registered')]
+    public function testIgnoresUnregisteredSectionAssignment(): void
+    {
+        $subscriber = new CacheInvalidationSubscriber(
+            $this->cacheInvalidator,
+            $this->connection,
+            $this->cacheTagResolver,
+            $this->definitionRegistry,
+            [],
+        );
+
+        $event = $this->createWrittenEvent(self::HEADER_ASSIGNMENT, $this->ids->get('assignment'));
+
+        $this->cacheInvalidator->expects($this->never())
+            ->method('invalidate');
+
+        $subscriber($event);
+    }
+
+    #[TestDox('rejects a section assignment map naming an unknown section')]
+    public function testRejectsUnknownSection(): void
+    {
+        $this->cacheInvalidator->expects($this->never())
+            ->method('invalidate');
+
+        static::expectException(\ValueError::class);
+
+        new CacheInvalidationSubscriber(
+            $this->cacheInvalidator,
+            $this->connection,
+            $this->cacheTagResolver,
+            $this->definitionRegistry,
+            ['sidebar_content_layout' => 'sidebar'],
+        );
     }
 
     /**
@@ -246,9 +292,9 @@ class CacheInvalidationSubscriberTest extends TestCase
      */
     public static function invalidatesEntityAssignmentCacheTagProvider(): \Generator
     {
-        yield 'product assignment' => ['product_content_layout', 'product-'];
-        yield 'category assignment' => ['category_content_layout', 'category-route-'];
-        yield 'landing page assignment' => ['landing_page_content_layout', 'landing-page-route-'];
+        yield 'product assignment' => [ProductContentLayoutDefinition::ENTITY_NAME, 'product-'];
+        yield 'category assignment' => [CategoryContentLayoutDefinition::ENTITY_NAME, 'category-route-'];
+        yield 'landing page assignment' => [LandingPageContentLayoutDefinition::ENTITY_NAME, 'landing-page-route-'];
     }
 
     /**
@@ -256,8 +302,8 @@ class CacheInvalidationSubscriberTest extends TestCase
      */
     public static function invalidatesSectionCacheTagProvider(): \Generator
     {
-        yield 'header section' => ['header_content_layout', ContentSection::HEADER];
-        yield 'footer section' => ['footer_content_layout', ContentSection::FOOTER];
+        yield 'header section' => [self::HEADER_ASSIGNMENT, ContentSection::HEADER];
+        yield 'footer section' => [self::FOOTER_ASSIGNMENT, ContentSection::FOOTER];
     }
 
     private function createDeleteEvent(EntityDefinition $definition, string $id): EntityDeleteEvent

@@ -121,5 +121,13 @@ return [
         // that used it have published versions using the new webhooks instead
         preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::missingAppSecretInfo() was removed', '/'),
+
+        // The content system is unreleased (absent from every release tag) and its extension surface,
+        // listed in InternalClassRule::CONTENT_SYSTEM_PUBLIC_SURFACE, carries no @experimental marker yet,
+        // so a rename on it is not auto-skipped the way the MCP and DocumentV2 surfaces are. StoredTree
+        // sits on that list while validate() returned list<Violation>, and Violation is @internal: callers
+        // were permitted to call the method and not to use what it returned. It is duplicateElementIds():
+        // list<string> now. Marking the surface @experimental removes the need for entries like this one.
+        preg_quote('REMOVED: Method Shopware\Core\Framework\ContentSystem\Layout\StoredTree#validate() was removed', '/'),
     ],
 ];

@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\ContentSystem\Event;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\LayoutReference;
 use Shopware\Core\Framework\ContentSystem\RenderingSpecification;
 use Shopware\Core\Framework\Context;
@@ -36,6 +38,7 @@ class ContentTreePreparationEvent implements ShopwareSalesChannelEvent
         public readonly SalesChannelContext $salesChannelContext,
         public readonly RenderingCacheContext $cacheContext,
     ) {
+        $this->rejectForeignTree($tree);
     }
 
     /**
@@ -51,6 +54,8 @@ class ContentTreePreparationEvent implements ShopwareSalesChannelEvent
      */
     public function replaceTree(array $tree): void
     {
+        $this->rejectForeignTree($tree);
+
         $this->tree = $tree;
     }
 
@@ -62,5 +67,40 @@ class ContentTreePreparationEvent implements ShopwareSalesChannelEvent
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
+    }
+
+    /**
+     * The `list<StoredElement>` the signature can only promise in a docblock. A listener that hands the
+     * rendered model back instead reaches the preparation steps: the FULL path dies on the parameter type of a
+     * closure inside {@see StoredTreePreparer}, and the SKELETON path walks on to read `contextDefinitions` off
+     * an element that declares none, so what gets reported names a core internal rather than the listener that
+     * caused it. Depth needs no walk: every {@see StoredElement} refuses a foreign slot child, so a list of
+     * stored roots is a stored forest.
+     *
+     * @param array<array-key, mixed> $tree
+     */
+    private function rejectForeignTree(array $tree): void
+    {
+        if (!array_is_list($tree)) {
+            throw ContentSystemException::invalidMapValue(
+                'Stored content tree',
+                'tree',
+                'list<StoredElement>',
+                'array with non-list keys'
+            );
+        }
+
+        foreach ($tree as $index => $element) {
+            if ($element instanceof StoredElement) {
+                continue;
+            }
+
+            throw ContentSystemException::invalidMapValue(
+                'Stored content tree',
+                (string) $index,
+                StoredElement::class,
+                get_debug_type($element)
+            );
+        }
     }
 }

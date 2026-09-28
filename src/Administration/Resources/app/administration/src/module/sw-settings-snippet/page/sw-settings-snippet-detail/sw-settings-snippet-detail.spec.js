@@ -191,22 +191,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     });
 
     it.each([
-        [
-            '',
-            'snippet.viewer',
-        ],
-        [
-            undefined,
-            'snippet.viewer, snippet.editor',
-        ],
-        [
-            undefined,
-            'snippet.viewer, snippet.editor, snippet.creator',
-        ],
-        [
-            undefined,
-            'snippet.viewer, snippet.editor, snippet.deleter',
-        ],
+        ['', 'snippet.viewer'],
+        [undefined, 'snippet.viewer, snippet.editor'],
+        [undefined, 'snippet.viewer, snippet.editor, snippet.creator'],
+        [undefined, 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should only have disabled inputs', async (state, role) => {
         Shopware.Store.get('session').setCurrentUser({
             username: 'testUser',
@@ -220,10 +208,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         });
         await flushPromises();
 
-        const [
-            firstInput,
-            secondInput,
-        ] = wrapper.findAll('input[aria-label="sw-settings-snippet.detail.labelContent"]');
+        const [firstInput, secondInput] = wrapper.findAll('input[aria-label="sw-settings-snippet.detail.labelContent"]');
 
         expect(firstInput.attributes('disabled')).toBe(state);
         expect(secondInput.attributes('disabled')).toBe(state);
@@ -239,11 +224,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     });
 
     it('should change translationKey while saving', async () => {
-        const wrapper = await createWrapper([
-            'snippet.viewer',
-            'snippet.editor',
-            'snippet.creator',
-        ]);
+        const wrapper = await createWrapper(['snippet.viewer', 'snippet.editor', 'snippet.creator']);
         await flushPromises();
 
         await wrapper.setData({

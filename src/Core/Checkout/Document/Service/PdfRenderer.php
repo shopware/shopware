@@ -12,16 +12,26 @@ use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: AbstractDocumentRenderer::class,
+    description: 'DocumentV2 ships its own HTML, PDF and ZUGFeRD renderers. Implement AbstractDocumentRenderer to add a custom output format.',
+)]
 class PdfRenderer extends AbstractDocumentTypeRenderer
 {
     public const FILE_EXTENSION = FileTypes::PDF;
 
     public const FILE_CONTENT_TYPE = FileTypes::PDF_CONTENT_TYPE;
+
+    private const PAGE_COUNT_PLACEHOLDER = 'DOMPDF_PAGE_COUNT_PLACEHOLDER';
 
     /**
      * @internal
@@ -122,14 +132,27 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
     }
 
     /**
-     * Replace a predefined placeholder with the total page count in the whole PDF document
+     * Replace a predefined placeholder with the total page count in the whole PDF document.
+     *
+     * Unicode TrueType fonts encode text in the CPDF stream as UTF-16BE (null-byte padded),
+     * while built-in standard 14 AFM fonts (such as Helvetica, when external fonts are blocked
+     * or fallback is used) encode text as single-byte strings. Both encodings are replaced.
      */
     private function injectPageCount(Dompdf $dompdf): void
     {
         /** @var CPDF $canvas */
         $canvas = $dompdf->getCanvas();
-        $search = $this->insertNullByteBeforeEachCharacter('DOMPDF_PAGE_COUNT_PLACEHOLDER');
-        $replace = $this->insertNullByteBeforeEachCharacter((string) $canvas->get_page_count());
+        $pageCount = (string) $canvas->get_page_count();
+
+        $search = [
+            $this->insertNullByteBeforeEachCharacter(self::PAGE_COUNT_PLACEHOLDER),
+            self::PAGE_COUNT_PLACEHOLDER,
+        ];
+        $replace = [
+            $this->insertNullByteBeforeEachCharacter($pageCount),
+            $pageCount,
+        ];
+
         $pdf = $canvas->get_cpdf();
 
         foreach ($pdf->objects as &$o) {

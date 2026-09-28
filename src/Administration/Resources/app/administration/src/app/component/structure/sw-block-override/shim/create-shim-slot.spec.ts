@@ -139,10 +139,7 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
                         isStartingCondition: true,
                     },
                 ],
-                shimExtensionCases: [
-                    undefined,
-                    undefined,
-                ],
+                shimExtensionCases: [undefined, undefined],
                 nativeExtensionCases: [],
                 keepShimResultsForNextReservation: false,
             });

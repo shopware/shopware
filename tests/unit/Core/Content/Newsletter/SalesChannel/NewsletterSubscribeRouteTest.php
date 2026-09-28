@@ -207,6 +207,52 @@ class NewsletterSubscribeRouteTest extends TestCase
         static::assertSame(NewsletterSubscribeRoute::STATUS_DIRECT, $response->getStatus());
     }
 
+    public function testConfirmSubscribeCannotBypassDoubleOptIn(): void
+    {
+        $this->salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $requestData = new RequestDataBag();
+        $requestData->add([
+            'email' => 'confirm-subscribe-probe@example.com',
+            'option' => 'confirmSubscribe',
+            'storefrontUrl' => 'http://localhost',
+        ]);
+
+        $recipient = new NewsletterRecipientEntity();
+        $recipient->setId(Uuid::randomHex());
+        $recipient->setEmail('confirm-subscribe-probe@example.com');
+        $recipient->setStatus(NewsletterSubscribeRoute::STATUS_NOT_SET);
+
+        $entityRepository = new StaticEntityRepository([
+            [],
+            new NewsletterRecipientCollection([$recipient]),
+        ]);
+
+        $systemConfig = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.newsletter.doubleOptIn' => true,
+            ],
+        ]);
+
+        $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
+            $entityRepository,
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            $systemConfig,
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+        );
+
+        $response = $newsletterSubscribeRoute->subscribeWithResponse($requestData, $this->salesChannelContext, false);
+        $upserts = $entityRepository->getPayloads(StaticEntityRepository::UPSERT);
+
+        static::assertCount(1, $upserts);
+        static::assertSame(NewsletterSubscribeRoute::STATUS_NOT_SET, $upserts[0]['status']);
+        static::assertSame(NewsletterSubscribeRoute::STATUS_NOT_SET, $response->getStatus());
+    }
+
     /**
      * @param array<string, string> $data
      * @param array<string, string> $properties

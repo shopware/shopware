@@ -14,14 +14,9 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     props: {
         /**
@@ -39,10 +34,12 @@ export default Component.wrapComponentConfig({
             return this.repositoryFactory.create('unit');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository(): Repository<'custom_field_set'> {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria(): Criteria {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'unit'));
@@ -50,10 +47,7 @@ export default Component.wrapComponentConfig({
             return criteria;
         },
 
-        ...mapPropertyErrors('unit', [
-            'name',
-            'shortCode',
-        ]),
+        ...mapPropertyErrors('unit', ['name', 'shortCode']),
     },
 
     data(): {
@@ -87,8 +81,16 @@ export default Component.wrapComponentConfig({
     },
 
     created() {
-        this.customFieldSetRepository
-            .search(this.customFieldSetCriteria)
+        const customFieldDataProviderService = this.customFieldDataProviderService as {
+            getCustomFieldSets(
+                entityName: string,
+                forceReload: boolean,
+                limit: number | null,
+            ): Promise<Entity<'custom_field_set'>[]>;
+        };
+
+        customFieldDataProviderService
+            .getCustomFieldSets('unit', false, null)
             .then((result) => {
                 this.customFieldSets = result;
 

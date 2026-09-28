@@ -124,10 +124,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
         expect(result).toEqual({
             outcome: 'skipped',
-            reasons: [
-                "no composable registered for mixin 'sw-form-field'",
-                "unsupported mixins entry 'swListMixin'",
-            ],
+            reasons: ["no composable registered for mixin 'sw-form-field'", "unsupported mixins entry 'swListMixin'"],
             sfc: null,
         });
     });
@@ -190,26 +187,14 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
     });
 
     it.each([
-        [
-            'sw-mixin-override',
-            "component redefines 'createNotificationSuccess' from the 'notification' mixin",
-        ],
+        ['sw-mixin-override', "component redefines 'createNotificationSuccess' from the 'notification' mixin"],
         [
             'sw-mixin-internal-override',
             "component redefines 'createNotification', which the 'notification' composable calls internally",
         ],
-        [
-            'sw-mixin-unmapped',
-            "'salutationFilter' is read but the 'salutation' composable does not provide it",
-        ],
-        [
-            'sw-mixin-cms-element-service',
-            "'cmsService' is read but the 'cms-element' composable does not provide it",
-        ],
-        [
-            'sw-mixin-template-collision',
-            "'salutation' is read in the template and its binding name is already taken",
-        ],
+        ['sw-mixin-unmapped', "'salutationFilter' is read but the 'salutation' composable does not provide it"],
+        ['sw-mixin-cms-element-service', "'cmsService' is read but the 'cms-element' composable does not provide it"],
+        ['sw-mixin-template-collision', "'salutation' is read in the template and its binding name is already taken"],
     ])('skips %s, whose mixin members the composable cannot stand in for', async (name, reason) => {
         const result = await convertFixture(name);
 
@@ -335,10 +320,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
                 'sw-mixin-emits-object',
                 "emits is not a plain list of event names, so the 'media-sidebar-modal' mixin's events cannot be merged",
             ],
-            [
-                'sw-mixin-missing-prop',
-                "component does not declare the 'item' prop the 'video-cover' mixin reads",
-            ],
+            ['sw-mixin-missing-prop', "component does not declare the 'item' prop the 'video-cover' mixin reads"],
             [
                 'sw-mixin-missing-callback',
                 "component does not define 'selectableItems', which the 'media-grid-listener' composable calls",
@@ -423,10 +405,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         });
 
         it.each([
-            [
-                'sw-mixin-listing-no-get-list',
-                "component does not define 'getList', which the 'listing' composable calls",
-            ],
+            ['sw-mixin-listing-no-get-list', "component does not define 'getList', which the 'listing' composable calls"],
             [
                 'sw-mixin-listing-wrapped-get-list',
                 "'getList' is declared in a shape that cannot be handed to the 'listing' composable",

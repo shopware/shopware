@@ -8,10 +8,7 @@ import './sw-category-entry-point-overwrite-modal.scss';
 export default {
     template,
 
-    emits: [
-        'cancel',
-        'confirm',
-    ],
+    emits: ['cancel', 'confirm'],
 
     props: {
         salesChannels: {

@@ -85,26 +85,13 @@ async function createWrapper() {
 
 describe('module/sw-order/component/sw-order-line-items-grid/add-line-item', () => {
     beforeEach(() => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-            'orders.create_discounts',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor', 'orders.create_discounts'];
     });
 
     it.each([
-        [
-            'product',
-            '.sw-order-line-items-grid__actions-container-add-product-btn',
-        ],
-        [
-            'custom',
-            '.sw-order-line-items-grid__create-custom-item',
-        ],
-        [
-            'credit',
-            '.sw-order-line-items-grid__can-create-discounts-button',
-        ],
+        ['product', '.sw-order-line-items-grid__actions-container-add-product-btn'],
+        ['custom', '.sw-order-line-items-grid__create-custom-item'],
+        ['credit', '.sw-order-line-items-grid__can-create-discounts-button'],
     ])('opens the inline edit of a newly added %s item', async (type, selector) => {
         const wrapper = await createWrapper();
 

@@ -53,7 +53,7 @@ The feature flag can be used in PHP to make specific code parts only executable 
 When there is no option via the container you can use additional helper functions:
 ```php
 use Shopware\Core\Framework\Feature;
- 
+
 class ApiController
 {
 
@@ -74,7 +74,7 @@ class ApiController
 You can also do it in a callback:
 ```php
 use Shopware\Core\Framework\Feature;
- 
+
 class ApiController
 {
   public function indexAction(Request $request)
@@ -91,7 +91,7 @@ class ApiController
 And you can use it for conditions:
 ```php
 use Shopware\Core\Framework\Feature;
- 
+
 class ApiController
 {
   public function indexAction(Request $request)
@@ -110,7 +110,7 @@ Putting the old behaviuor inside the if block makes it easier to remove the feat
 And you can use it simply to throw exceptions:
 ```php
 use Shopware\Core\Framework\Feature;
- 
+
 /**
  * @deprecated tag:v6.5.0 - Class is deprecated, use ... instead
  */
@@ -122,6 +122,36 @@ class ApiController
   }
 }
 ```
+
+### Announcing a deprecation before its replacement is stable
+
+A deprecation whose replacement only ships behind a major flag would warn about something that
+cannot be migrated to yet. Announce it anyway and mark it with `silentUntil`, naming the flag that
+makes the replacement available:
+
+```php
+use Shopware\Core\Framework\Feature;
+
+/**
+ * @deprecated tag:v6.9.0 - Remove with the legacy document implementation
+ */
+public function getDocumentMediaFile(): ?MediaEntity
+{
+    Feature::triggerDeprecationOrThrow(
+        'v6.9.0.0',
+        Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getDocumentFiles()'),
+        silentUntil: 'v6.8.0.0',
+    );
+
+    return $this->documentMediaFile;
+}
+```
+
+Until `v6.8.0.0` is active the call returns without doing anything, so there is no need to exclude
+the method from `DeprecatedMethodsThrowDeprecationRule` via a `reason:*` annotation. Once the flag
+is active the deprecation is emitted, and it throws as usual as soon as `v6.9.0.0` is active. A
+marked deprecation may name a major flag that is not registered yet, it only warns until that flag
+exists.
 
 ## Planning public API changes
 
@@ -149,6 +179,32 @@ legitimate calls.
 Use a `vX.Y.Z` version, parameter names without `$`, `::class` for class references, and the
 actual default value for `NewOptionalParameter`. PHPStan validates these conventions and rejects
 attributes that do not describe a real future change.
+
+### Moving a class
+
+Use `#[ClassMoved]` when a supported class keeps its implementation but moves to a new fully qualified class name:
+
+```php
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+
+#[ClassMoved(
+    version: 'v6.8.0',
+    previousClassName: 'Shopware\OldNamespace\ExampleClass',
+)]
+class ExampleClass
+{
+}
+```
+
+Move the implementation to the canonical namespace and register the previous and canonical names in `ClassAliasRegistry::ALIASES`.
+Use a string literal for `previousClassName`: the previous name is compatibility metadata and must not become a new Core source reference.
+Update all Core callers to the canonical name.
+
+When the moved class is a dependency-injection service, keep the previous class name as a deprecated service alias of the canonical service.
+Add release information for the available replacement and an upgrade entry for removing the alias in the announced version.
+
+Do not retain a compatibility subclass or duplicate the implementation. `class_alias()` preserves one runtime class identity.
+PHPStan validates the attribute, runtime alias, optional service alias, and canonical Core references.
 
 ### Using flags in tests
 In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
@@ -192,7 +248,7 @@ Also in the JavaScript code of the administration the flags can be used in vario
 ### Using flags for modules
 You can also hide complete admin modules behind a flag:
 ```javascript
- 
+
 Module.register('sw-awesome', {
     flag: 'v6.5.0.0',
     ...

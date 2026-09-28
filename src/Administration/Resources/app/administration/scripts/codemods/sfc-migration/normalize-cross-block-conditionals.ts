@@ -189,10 +189,7 @@ function walkElement(node: ElementNode, chain: ConditionChain | null, context: N
         return condition.name === 'else'
             ? null
             : {
-                  conditions: [
-                      ...chain.conditions,
-                      condition.expression,
-                  ],
+                  conditions: [...chain.conditions, condition.expression],
                   crossedBlock: chain.crossedBlock,
               };
     }

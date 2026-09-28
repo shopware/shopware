@@ -7,10 +7,7 @@ import { mount } from '@vue/test-utils';
 // Turn off known errors
 import { unknownOptionError } from 'test/_helper_/allowedErrors';
 
-global.allowedErrors = [
-    ...global.allowedErrors,
-    unknownOptionError,
-];
+global.allowedErrors = [...global.allowedErrors, unknownOptionError];
 
 const defaultSalesChannel = {
     name: 'Headless',
@@ -41,11 +38,7 @@ async function createWrapper(props = defaultProps) {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve(
-                                    createEntityCollection([
-                                        ...props.salesChannels,
-                                    ]),
-                                );
+                                return Promise.resolve(createEntityCollection([...props.salesChannels]));
                             },
                         }),
                     },

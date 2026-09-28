@@ -1114,8 +1114,6 @@ class EntityReader implements EntityReaderInterface
         EntityCollection $collection,
         Criteria $fieldCriteria
     ): array {
-        $sortings = $fieldCriteria->getSorting();
-
         $query = new QueryBuilder($this->connection);
         $query->addState(self::TO_MANY_ASSOCIATION_LIMIT_QUERY);
 
@@ -1143,12 +1141,35 @@ class EntityReader implements EntityReaderInterface
         $primaryKeyAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id';
 
         $orderByParts = $query->getOrderByParts();
+        $scoreExpression = null;
+
+        if ($query->hasState(Criteria::SCORE_FIELD)) {
+            foreach ($query->getSelectParts() as $select) {
+                if (!str_ends_with($select, ' as ' . Criteria::SCORE_FIELD)) {
+                    continue;
+                }
+
+                $scoreExpression = substr($select, 0, -\strlen(' as ' . Criteria::SCORE_FIELD));
+
+                break;
+            }
+
+            \assert($scoreExpression !== null, 'A query with the _score state must select the _score expression.');
+        }
+
+        $windowOrderByParts = $orderByParts;
+        if ($scoreExpression !== null) {
+            $windowOrderByParts = array_map(
+                static fn (string $sorting): string => str_replace(Criteria::SCORE_FIELD, $scoreExpression, $sorting),
+                $orderByParts
+            );
+        }
 
         // Always end the window ordering with the reference primary key so ROW_NUMBER() produces a deterministic
         // total order within each partition. The criteria sortings may be absent or non-unique (e.g. sorting by a
         // shared `name`); without a unique tie-breaker the row numbering is undefined within a parent and paginated
         // reads (limit/offset) of the association can return overlapping rows across separate queries.
-        $windowOrderBy = implode(', ', [...$orderByParts, $primaryKeyAccessor]);
+        $windowOrderBy = implode(', ', [...$windowOrderByParts, $primaryKeyAccessor]);
 
         // ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) guarantees that rows are numbered in the declared sort
         // order within each parent entity, regardless of how the database engine executes the surrounding query, which
@@ -1164,7 +1185,16 @@ class EntityReader implements EntityReaderInterface
             $primaryKeyAccessor,
         );
 
+        if ($scoreExpression !== null) {
+            $query->addSelect($scoreExpression . ' as ' . Criteria::SCORE_FIELD);
+            $query->addGroupBy($primaryKeyAccessor);
+        }
+
         foreach ($orderByParts as $i => $sorting) {
+            if ($scoreExpression !== null) {
+                $sorting = str_replace(Criteria::SCORE_FIELD, $scoreExpression, $sorting);
+            }
+
             // Strip the ASC/DESC at the end of the sort
             $query->addSelect(\sprintf('%s as sort_%d', substr((string) $sorting, 0, -4), $i));
         }
@@ -1178,8 +1208,8 @@ class EntityReader implements EntityReaderInterface
             'LOWER(HEX(child.id)) as child_id',
         );
 
-        foreach ($sortings as $i => $sorting) {
-            $wrapper->addOrderBy(\sprintf('sort_%s', $i), $sorting->getDirection());
+        foreach ($orderByParts as $i => $sorting) {
+            $wrapper->addOrderBy(\sprintf('sort_%s', $i), trim(substr((string) $sorting, -4)));
         }
 
         $wrapper->from($root, $root);

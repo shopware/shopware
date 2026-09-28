@@ -12,9 +12,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
@@ -40,10 +38,7 @@ export default {
         },
 
         hasNavigationArrows() {
-            return [
-                'inside',
-                'outside',
-            ].includes(this.element.config.navigationArrows.value);
+            return ['inside', 'outside'].includes(this.element.config.navigationArrows.value);
         },
 
         classes() {

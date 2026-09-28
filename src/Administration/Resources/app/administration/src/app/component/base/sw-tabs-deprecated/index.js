@@ -336,12 +336,7 @@ export default {
         },
 
         scrollTo(direction) {
-            if (
-                ![
-                    'left',
-                    'right',
-                ].includes(direction)
-            ) {
+            if (!['left', 'right'].includes(direction)) {
                 return;
             }
 

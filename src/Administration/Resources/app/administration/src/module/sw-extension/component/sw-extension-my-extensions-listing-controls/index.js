@@ -15,10 +15,7 @@ export default {
         },
     },
 
-    emits: [
-        'update:active-state',
-        'update:sorting-option',
-    ],
+    emits: ['update:active-state', 'update:sorting-option'],
 
     data() {
         return {

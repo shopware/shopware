@@ -432,6 +432,29 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
             expect(googleReCaptchaBasePlugin._form.submit).not.toHaveBeenCalled();
             expect(googleReCaptchaBasePlugin._formSubmitting).toBe(false);
         });
+
+        test('submits only once per submit cycle when called twice (fix for #20329)', () => {
+            // Simulate the invisible reCAPTCHA v2 race: both Google's callback and the execute()
+            // promise call _submitInvisibleForm() for the same token.
+            googleReCaptchaBasePlugin._submitInvisibleForm();
+            googleReCaptchaBasePlugin._submitInvisibleForm();
+
+            expect(googleReCaptchaBasePlugin._form.submit).toHaveBeenCalledTimes(1);
+        });
+
+        test('a new submit cycle allows the form to be submitted again', () => {
+            googleReCaptchaBasePlugin._submitInvisibleForm();
+            googleReCaptchaBasePlugin._submitInvisibleForm();
+            expect(googleReCaptchaBasePlugin._form.submit).toHaveBeenCalledTimes(1);
+
+            // A fresh submit cycle resets the guard via _onFormSubmitCallback.
+            googleReCaptchaBasePlugin.onFormSubmit = jest.fn();
+            googleReCaptchaBasePlugin._formSubmitting = false;
+            googleReCaptchaBasePlugin._onFormSubmitCallback(new Event('submit'));
+
+            googleReCaptchaBasePlugin._submitInvisibleForm();
+            expect(googleReCaptchaBasePlugin._form.submit).toHaveBeenCalledTimes(2);
+        });
     });
 
     describe('_getForm', () => {

@@ -35,8 +35,6 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
 {
     public function testExceptionInNormalizationIsThrownIfDataIsNotArray(): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
-
         new StaticDefinitionInstanceRegistry(
             [
                 TestCustomerDefinition::class => $customerDefinition = new TestCustomerDefinition(),
@@ -58,6 +56,8 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
             '/0',
             new WriteCommandQueue()
         );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
 
         $serializer->normalize(
             $field,
@@ -68,8 +68,6 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
 
     public function testExceptionInEncodeIsThrownIfDataIsNotArray(): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
-
         new StaticDefinitionInstanceRegistry(
             [
                 TestCustomerDefinition::class => $customerDefinition = new TestCustomerDefinition(),
@@ -91,6 +89,8 @@ class OneToOneAssociationFieldSerializerTest extends TestCase
             '/0',
             new WriteCommandQueue()
         );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/recoveryCustomer'));
 
         $serializer->encode(
             $field,

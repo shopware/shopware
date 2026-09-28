@@ -283,11 +283,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'tab.two' });
 
         await tabs.vm.$emit('new-item-active', 'tab.three');
-        expect(wrapper.emitted('new-item-active')).toEqual([
-            [
-                'tab.three',
-            ],
-        ]);
+        expect(wrapper.emitted('new-item-active')).toEqual([['tab.three']]);
 
         expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
     });

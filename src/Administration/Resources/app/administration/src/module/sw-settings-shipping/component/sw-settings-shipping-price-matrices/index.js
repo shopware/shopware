@@ -15,15 +15,9 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'ruleConditionDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'ruleConditionDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         disabled: {

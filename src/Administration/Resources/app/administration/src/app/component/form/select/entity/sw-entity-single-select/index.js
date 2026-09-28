@@ -15,10 +15,7 @@ const { debounce, get } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'update:value',
@@ -28,10 +25,7 @@ export default {
         'search-term-change',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error'), Mixin.getByName('notification')],
 
     props: {
         // null is a common value here, e.g. passed by the inheritance system.
@@ -54,10 +48,7 @@ export default {
             default: '',
         },
         labelProperty: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'name',
         },
@@ -108,17 +99,9 @@ export default {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-                'left',
-            ],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         allowEntityCreation: {
@@ -292,10 +275,7 @@ export default {
                     this.value,
                     { ...this.context, inheritance: true },
                     this.criteria,
-                    this.getCacheOptions([
-                        'selected',
-                        this.value,
-                    ]),
+                    this.getCacheOptions(['selected', this.value]),
                 )
                 .then((item) => {
                     if (!item && !this.disabled) {
@@ -402,10 +382,7 @@ export default {
                 .search(
                     this.criteria,
                     { ...this.context, inheritance: true },
-                    this.getCacheOptions([
-                        'search',
-                        this.criteria.parse(),
-                    ]),
+                    this.getCacheOptions(['search', this.criteria.parse()]),
                 )
                 .then((result) => {
                     this.displaySearch(result);
@@ -422,10 +399,7 @@ export default {
             }
 
             return {
-                cacheKey: [
-                    ...this.cacheKey,
-                    ...key,
-                ],
+                cacheKey: [...this.cacheKey, ...key],
                 ttl: this.cacheTtl,
             };
         },
@@ -439,10 +413,7 @@ export default {
 
             const criteria = new Criteria(1, this.resultLimit);
             criteria.addIncludes({
-                [this.entity]: [
-                    'id',
-                    'name',
-                ],
+                [this.entity]: ['id', 'name'],
             });
             criteria.addFilter(Criteria.equals('name', term));
 

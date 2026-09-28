@@ -44,17 +44,12 @@ async function createWrapper(
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -286,9 +281,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be able to save own user', async () => {
-        const wrapper = await createWrapper([
-            'user.update_profile',
-        ]);
+        const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
         await wrapper.setData({

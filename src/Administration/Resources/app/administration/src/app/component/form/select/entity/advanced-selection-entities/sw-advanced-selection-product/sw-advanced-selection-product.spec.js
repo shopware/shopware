@@ -398,10 +398,7 @@ describe('components/sw-advanced-selection-product', () => {
     });
 
     it('should return true if product has variants', async () => {
-        const [
-            ,
-            product,
-        ] = getProductData(mockCriteria());
+        const [, product] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(true);

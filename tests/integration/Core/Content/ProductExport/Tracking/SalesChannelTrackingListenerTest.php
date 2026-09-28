@@ -152,7 +152,7 @@ class SalesChannelTrackingListenerTest extends TestCase
         static::getContainer()->get(RequestStack::class)->push($request);
 
         $event = new ControllerEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             static fn () => new \stdClass(),
             $request,
             HttpKernelInterface::MAIN_REQUEST,

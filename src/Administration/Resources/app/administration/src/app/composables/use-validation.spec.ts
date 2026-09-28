@@ -52,12 +52,7 @@ describe('src/app/composables/use-validation', () => {
 
     it('accepts an array of rules and booleans', () => {
         expect(createComposable(['required']).validate('value')).toBe(true);
-        expect(
-            createComposable([
-                'required',
-                'email',
-            ]).validate('value'),
-        ).toBe(false);
+        expect(createComposable(['required', 'email']).validate('value')).toBe(false);
         expect(createComposable([false]).validate('value')).toBe(false);
         expect(createComposable([{ nested: true }] as unknown as ValidationRules).validate('value')).toBe(false);
     });

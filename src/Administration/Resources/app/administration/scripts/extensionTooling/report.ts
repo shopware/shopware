@@ -164,18 +164,9 @@ function renderProjectDetail(project: ExtensionToolingProject): string[] {
 function renderProjectDrifts(project: ExtensionToolingProject): string[] {
     const lines: string[] = [];
 
-    for (const [
-        tool,
-        drift,
-    ] of [
-        [
-            'TypeScript',
-            firstDrift(project, 'tsconfig'),
-        ],
-        [
-            'ESLint',
-            firstDrift(project, 'eslintConfig'),
-        ],
+    for (const [tool, drift] of [
+        ['TypeScript', firstDrift(project, 'tsconfig')],
+        ['ESLint', firstDrift(project, 'eslintConfig')],
     ] as Array<['TypeScript' | 'ESLint', OwnedConfig | null]>) {
         if (!drift?.detail) {
             continue;
@@ -328,10 +319,7 @@ function renderChanges(result: SetupExtensionToolingResult, checkOnly: boolean, 
         }
     }
 
-    for (const [
-        fileClass,
-        count,
-    ] of counts) {
+    for (const [fileClass, count] of counts) {
         lines.push(colors.dim(`    ${count} ${OWNERSHIP[fileClass].note}`));
     }
 
@@ -342,12 +330,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     const { projects } = result.manifest;
     const checkOnly = options.checkOnly === true;
     const commands = options.commands ?? DEFAULT_TOOLING_COMMANDS;
-    const stateOf: StateMap = new Map(
-        projects.map((project) => [
-            project.name,
-            deriveExtensionState(project),
-        ]),
-    );
+    const stateOf: StateMap = new Map(projects.map((project) => [project.name, deriveExtensionState(project)]));
     const own = projects.filter((project) => stateOf.get(project.name) !== 'platform');
     const created = result.writes.filter((write) => write.state === 'created');
     const freshlyBridged = new Set(
@@ -384,18 +367,9 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
     lines.push(...renderRootProjection(result, own));
     lines.push('', ...renderChanges(result, checkOnly, commands));
 
-    for (const [
-        name,
-        state,
-    ] of [
-        [
-            'tsconfig.json',
-            result.manifest.rootConfigs.tsconfig,
-        ],
-        [
-            'eslint.config.mjs',
-            result.manifest.rootConfigs.eslintConfig,
-        ],
+    for (const [name, state] of [
+        ['tsconfig.json', result.manifest.rootConfigs.tsconfig],
+        ['eslint.config.mjs', result.manifest.rootConfigs.eslintConfig],
     ] as const) {
         if (state === 'conflict') {
             lines.push(colors.yellow(`  ⚠ root ${name} is user-owned — integration steps below`));
@@ -406,12 +380,7 @@ export function renderSetupReport(result: SetupExtensionToolingResult, options: 
         lines.push(colors.yellow(`  ⚠ ${warning.message}`));
     }
 
-    lines.push(
-        ...result.instructions.flatMap((instruction) => [
-            '',
-            ...instruction.split('\n').map((line) => `  ${line}`),
-        ]),
-    );
+    lines.push(...result.instructions.flatMap((instruction) => ['', ...instruction.split('\n').map((line) => `  ${line}`)]));
 
     if (options.showFlagHint) {
         lines.push(colors.dim(`  Options need "--": ${commands.setup} -- --check | --help`));

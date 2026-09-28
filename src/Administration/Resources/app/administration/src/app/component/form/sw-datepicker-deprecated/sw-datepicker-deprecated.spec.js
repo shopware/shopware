@@ -209,9 +209,7 @@ describe('src/app/component/form/sw-datepicker', () => {
         // can't test with DOM because of the flatpickr dependency
         wrapper.vm.timezoneFormattedValue = '2023-03-22T00:00:00.000+00:00';
 
-        expect(wrapper.emitted('update:value')[0]).toEqual([
-            '2023-03-22T00:00:00.000+00:00',
-        ]);
+        expect(wrapper.emitted('update:value')[0]).toEqual(['2023-03-22T00:00:00.000+00:00']);
     });
 
     it('should not convert the date when a timezone is set and dateType is time', async () => {
@@ -242,9 +240,7 @@ describe('src/app/component/form/sw-datepicker', () => {
         // can't test with DOM because of the flatpickr dependency
         wrapper.vm.timezoneFormattedValue = '2023-03-22T00:00:00.000+00:00';
 
-        expect(wrapper.emitted('update:value')[0]).toEqual([
-            '2023-03-22T00:00:00.000+00:00',
-        ]);
+        expect(wrapper.emitted('update:value')[0]).toEqual(['2023-03-22T00:00:00.000+00:00']);
     });
 
     it('should convert the date when a timezone is set and dateType is dateTime', async () => {
@@ -274,9 +270,7 @@ describe('src/app/component/form/sw-datepicker', () => {
         // can't test with DOM because of the flatpickr dependency
         wrapper.vm.timezoneFormattedValue = '2023-03-22T00:00:00.000+00:00';
 
-        expect(wrapper.emitted('update:value')[0]).toEqual([
-            '2023-03-21T23:00:00.000Z',
-        ]);
+        expect(wrapper.emitted('update:value')[0]).toEqual(['2023-03-21T23:00:00.000Z']);
     });
 
     it('should emit a date when is typed', async () => {

@@ -29,10 +29,7 @@ describe('majorFeatureFlags', () => {
     });
 
     it('leaves out the majors arriving after the targeted one', () => {
-        expect(getMajorFeatureFlags(config, 'v6.8.0.0')).toEqual([
-            'V6_8_0_0',
-            'MAJOR_FEATURE_NEXT',
-        ]);
+        expect(getMajorFeatureFlags(config, 'v6.8.0.0')).toEqual(['V6_8_0_0', 'MAJOR_FEATURE_NEXT']);
     });
 
     it('returns every major up to and including the targeted one', () => {

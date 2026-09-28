@@ -172,7 +172,7 @@ class ShippingMethodRuleTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId($shippingMethodId);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         $ruleScope = new CartRuleScope(
@@ -191,7 +191,7 @@ class ShippingMethodRuleTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId('965a0713093841ceb86b0f83edd7dab4');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getShippingMethod')->willReturn($shippingMethod);
 
         $ruleScope = new CartRuleScope(

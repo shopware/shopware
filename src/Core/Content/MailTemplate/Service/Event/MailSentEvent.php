@@ -41,7 +41,7 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
     {
         return (new EventDataCollection())
             ->add(FlowMailVariables::SUBJECT, new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add(FlowMailVariables::CONTENTS, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(FlowMailVariables::CONTENTS, new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true])
             ->add(FlowMailVariables::RECIPIENTS, new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)));
     }
 

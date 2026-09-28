@@ -46,11 +46,7 @@ export default {
         view: (currentComponent) => `${currentComponent.view}`,
     },
 
-    inject: [
-        'feature',
-        'appActionButtonService',
-        'extensionSdkService',
-    ],
+    inject: ['feature', 'appActionButtonService', 'extensionSdkService'],
 
     mixins: [Mixin.getByName('notification')],
 

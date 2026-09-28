@@ -12,14 +12,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -82,11 +77,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Promise.all([
-                this.fetchProductSortingEntity(),
-                this.fetchCustomFields(),
-                this.fetchDefaultSorting(),
-            ]);
+            Promise.all([this.fetchProductSortingEntity(), this.fetchCustomFields(), this.fetchDefaultSorting()]);
         },
 
         async fetchProductSortingEntity() {

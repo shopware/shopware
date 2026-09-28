@@ -12,12 +12,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -146,6 +152,83 @@ class VersionManagerTest extends TestCase
         );
     }
 
+    public function testCloneFailsForCloneProtectedRootEntity(): void
+    {
+        $entityReader = $this->createMock(EntityReaderInterface::class);
+        $entityReader->expects($this->never())->method('read');
+
+        $this->versionManager = $this->createVersionManager(['entityReader' => $entityReader]);
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CloneProtectedVersionManagerTestDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+
+        $this->expectExceptionObject(DataAbstractionLayerException::cloneProtected('clone_protected', Context::CRUD_API_SCOPE));
+
+        Context::createDefaultContext()->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($registry): void {
+            $this->versionManager->clone(
+                $registry->getByEntityName('clone_protected'),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                WriteContext::createFromContext($context),
+                new CloneBehavior(),
+            );
+        });
+    }
+
+    public function testCloneSkipsCloneProtectedAssociation(): void
+    {
+        $entityReader = static::createStub(EntityReaderInterface::class);
+        $entityReader->method('read')->willReturn(new EntityCollection([
+            (new Entity())->assign(['_uniqueIdentifier' => Uuid::randomHex()]),
+        ]));
+        $serializer = static::createStub(SerializerInterface::class);
+        $serializer->method('serialize')->willReturn(json_encode([
+            'id' => Uuid::randomHex(),
+            'children' => [['id' => Uuid::randomHex()]],
+        ], \JSON_THROW_ON_ERROR));
+        $entityWriter = $this->createMock(EntityWriterInterface::class);
+        $entityWriter->expects($this->once())->method('insert')->with(
+            static::isInstanceOf(VersionManagerRootTestDefinition::class),
+            static::callback(static fn (array $data): bool => !isset($data[0]['children'])),
+            static::anything(),
+        )->willReturn(['clone_root' => []]);
+
+        $this->versionManager = $this->createVersionManager([
+            'entityReader' => $entityReader,
+            'entityWriter' => $entityWriter,
+            'serializer' => $serializer,
+        ]);
+        $registry = new StaticDefinitionInstanceRegistry(
+            [VersionManagerRootTestDefinition::class, CloneProtectedVersionManagerChildTestDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+        $context = Context::createDefaultContext();
+        $contextWithDisabledAuditLog = Context::createDefaultContext();
+        $contextWithDisabledAuditLog->addState(VersionManager::DISABLE_AUDIT_LOG);
+        $writeContext = static::createStub(WriteContext::class);
+        $writeContextWithVersionId = static::createStub(WriteContext::class);
+        $writeContext->method('getContext')->willReturn($context);
+        $writeContext->method('createWithVersionId')->willReturn($writeContextWithVersionId);
+        $writeContextWithVersionId->method('getContext')->willReturn($contextWithDisabledAuditLog);
+        $writeContextWithVersionId->method('scope')->willReturnCallback(static function (string $scope, callable $callback) use ($writeContextWithVersionId): void {
+            static::assertSame(Context::SYSTEM_SCOPE, $scope);
+            $callback($writeContextWithVersionId);
+        });
+
+        $this->versionManager->clone(
+            $registry->getByEntityName('clone_root'),
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            $writeContext,
+            new CloneBehavior(),
+        );
+    }
+
     public function testMergeEntityWithLockedVersion(): void
     {
         $lockFactory = $this->createMock(LockFactory::class);
@@ -217,6 +300,28 @@ class VersionManagerTest extends TestCase
         array $expectedData
     ): void {
         $this->assertCloneOverwriteResult($definitionClass, $entityName, $originalData, $overwriteData, $expectedData);
+    }
+
+    public function testCloneOmitsFieldsMarkedAsResetOnClone(): void
+    {
+        $this->assertCloneOverwriteResult(
+            VersionManagerResetOnCloneTestDefinition::class,
+            'reset_on_clone_test',
+            ['name' => 'Original', 'resetValue' => 'Derived from original'],
+            [],
+            ['name' => 'Original']
+        );
+    }
+
+    public function testCloneAllowsExplicitOverwriteForResetOnCloneField(): void
+    {
+        $this->assertCloneOverwriteResult(
+            VersionManagerResetOnCloneTestDefinition::class,
+            'reset_on_clone_test',
+            ['name' => 'Original', 'resetValue' => 'Derived from original'],
+            ['resetValue' => 'Explicit overwrite'],
+            ['name' => 'Original', 'resetValue' => 'Explicit overwrite']
+        );
     }
 
     /**
@@ -589,6 +694,85 @@ class VersionManagerTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerResetOnCloneTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'reset_on_clone_test';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new StringField('name', 'name'),
+            (new StringField('reset_value', 'resetValue'))->addFlags(new ResetOnClone()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CloneProtectedVersionManagerTestDefinition extends VersionManagerTestDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_protected';
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new CloneProtection()]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerRootTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_root';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new OneToManyAssociationField('children', CloneProtectedVersionManagerChildTestDefinition::class, 'parent_id'))->addFlags(new CascadeDelete()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class CloneProtectedVersionManagerChildTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'clone_protected_child';
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new CloneProtection()]);
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new FkField('parent_id', 'parentId', VersionManagerRootTestDefinition::class),
         ]);
     }
 }

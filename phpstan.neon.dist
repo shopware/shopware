@@ -136,6 +136,10 @@ parameters:
         - identifier: typePerfect.noArrayAccessOnObject
           path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
 
+        # deprecated for 6.8 and unused since its replacement ArrayValues, remove together with the trait
+        - identifier: trait.unused
+          path: src/Core/Framework/Test/Api/Serializer/AssertValuesTrait.php
+
         # DefaultsTest explicitly tests that the default values are not changed
         - identifier: staticMethod.alreadyNarrowedType
           path: tests/devops/Core/DefaultsTest.php

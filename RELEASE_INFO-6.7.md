@@ -2,6 +2,12 @@
 
 ## Core
 
+### Filtered listings show the main variant only if it matches the active filters
+
+Filtered product listings now show the configured main variant of a variant product only if it matches all active listing filters, including price, manufacturer and rating filters, not only property filters; otherwise a matching variant is shown. A product configured to display its parent still shows the parent. The "Preview best matching variant in search results" setting (`core.listing.findBestVariant`) affects search results only again, not filtered listings.
+
+Extensions that replace the preview resolution via `LoadPreviewExtension` can read the active post filters from the new `postFilters` property to apply the same rule.
+
 ### `JsonField` supports typed properties with additional extension data
 
 `JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:

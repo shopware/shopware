@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutCartRuleLoaderExtension;
@@ -90,7 +89,13 @@ class CartRuleLoader implements ResetInterface
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $new): RuleLoaderResult
     {
         return Profiler::trace('cart-rule-loader', function () use ($context, $cart, $behaviorContext, $new) {
-            $deferredErrorIds = Feature::isActive('DEFERRED_CART_ERRORS') ? $cart->getErrors()->getKeys() : [];
+            // If the processing starts with deferred errors already in the cart, the cart MUST be persisted
+            // to remove the errors from the stored cart
+            $hasDeferredErrors = $cart->getErrors()->count() > 0;
+
+            if (!Feature::isActive('DEFERRED_CART_ERRORS')) {
+                $hasDeferredErrors = false;
+            }
 
             $timestamps = $cart->getLineItems()->fmap(static fn (LineItem $lineItem) => $lineItem->getDataTimestamp()?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
             $dataHashes = $cart->getLineItems()->fmap(static fn (LineItem $lineItem) => $lineItem->getDataContextHash());
@@ -108,19 +113,10 @@ class CartRuleLoader implements ResetInterface
             // save the cart if errors exist, so the errors get persisted
             if ($this->updated($cart, $timestamps, $dataHashes)
                 || $cart->getErrorHash() !== $cart->getErrors()->getUniqueHash()
-                || $deferredErrorIds !== []
+                || $hasDeferredErrors
             ) {
-                $errors = $cart->getErrors();
-                if ($deferredErrorIds !== []) {
-                    $cart->setErrors($errors->filter(static fn (Error $error): bool => !\in_array($error->getId(), $deferredErrorIds, true)));
-                }
-
                 $cart->setErrorHash($cart->getErrors()->getUniqueHash());
-                try {
-                    $this->cartPersister->save($cart, $context);
-                } finally {
-                    $cart->setErrors($errors);
-                }
+                $this->cartPersister->save($cart, $context);
             }
 
             return $result;

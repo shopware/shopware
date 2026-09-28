@@ -115,6 +115,11 @@ describe('module/sw-customer/page/sw-customer-detail/vat-id-validation', () => {
             ]),
             saved: ['DE123456789'],
         },
+        {
+            label: 'a lower case VAT ID grouped with spaces',
+            customer: businessCustomer(['de 123 456 789']),
+            saved: ['DE123456789'],
+        },
         { label: 'a VAT ID of another member state', customer: businessCustomer(['ATU12345678']), saved: ['ATU12345678'] },
         {
             label: 'a malformed VAT ID without format check',

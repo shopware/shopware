@@ -84,7 +84,9 @@ export default class CustomerVatIdService {
     }
 
     normalizeVatIds(vatIds: VatIds): string[] {
-        return (vatIds ?? []).map((vatId) => (vatId ?? '').trim()).filter((vatId) => vatId.length > 0);
+        return (vatIds ?? [])
+            .map((vatId) => (vatId ?? '').replace(/\s+/gu, '').toUpperCase())
+            .filter((vatId) => vatId.length > 0);
     }
 
     isBusinessAccount(customer: Pick<VatIdCustomer, 'accountType'> | null | undefined): boolean {

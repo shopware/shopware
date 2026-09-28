@@ -6,9 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -21,25 +19,6 @@ class OrderConversionContextTest extends TestCase
     public function testDefault(): void
     {
         static::assertTrue((new OrderConversionContext())->shouldIncludePersistentData());
-    }
-
-    /**
-     * @deprecated tag:v6.8.0 - remove with the legacy includeOrderDate methods
-     */
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testLegacyOrderDateMethodsWorkWhenDeprecationEmissionIsDisabled(): void
-    {
-        $context = new OrderConversionContext();
-        $previous = Feature::$emitDeprecations;
-        Feature::$emitDeprecations = false;
-
-        try {
-            static::assertTrue($context->shouldIncludeOrderDate());
-            static::assertSame($context, $context->setIncludeOrderDate(false));
-            static::assertFalse($context->shouldIncludeOrderDate());
-        } finally {
-            Feature::$emitDeprecations = $previous;
-        }
     }
 
     #[TestDox('assign() maps the legacy includeOrderDate option onto includePersistentData')]

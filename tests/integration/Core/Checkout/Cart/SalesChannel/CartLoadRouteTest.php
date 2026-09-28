@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -86,6 +87,19 @@ class CartLoadRouteTest extends TestCase
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(0, $response['price']['totalPrice']);
         static::assertEmpty($response['errors']);
+    }
+
+    public function testCompressedCriteriaDoesNotAddRequestParameters(): void
+    {
+        $compressed = gzencode(json_encode(['includes' => ['cart' => ['token']]], \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/checkout/cart', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('price', $response, 'The cart is not a cacheable read route, so the compressed criteria is not read');
+        static::assertArrayHasKey('lineItems', $response);
     }
 
     /**

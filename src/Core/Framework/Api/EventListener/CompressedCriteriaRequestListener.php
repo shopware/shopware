@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
@@ -14,9 +15,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Copies the fields of the compressed `_criteria` parameter into the query parameters,
- * so a Store API GET request is read the same way as a POST request with that body.
+ * so a cacheable Store API GET request is read the same way as a POST request with that body.
  *
  * @internal
+ *
+ * @phpstan-import-type CacheAttributeType from CacheAttribute
  */
 #[Package('framework')]
 class CompressedCriteriaRequestListener implements EventSubscriberInterface
@@ -46,8 +49,7 @@ class CompressedCriteriaRequestListener implements EventSubscriberInterface
             return;
         }
 
-        $scopes = (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
-        if (!\in_array(StoreApiRouteScope::ID, $scopes, true)) {
+        if (!$this->isCacheableStoreApiRoute($request)) {
             return;
         }
 
@@ -63,5 +65,21 @@ class CompressedCriteriaRequestListener implements EventSubscriberInterface
             // the compressed criteria wins over a plain query parameter of the same name
             $request->query->set($field, $value);
         }
+    }
+
+    /**
+     * The compressed criteria exists to make read routes cacheable, every other route keeps reading its plain parameters only.
+     */
+    private function isCacheableStoreApiRoute(Request $request): bool
+    {
+        $scopes = (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        if (!\in_array(StoreApiRouteScope::ID, $scopes, true)) {
+            return false;
+        }
+
+        /** @var CacheAttributeType|null $cache */
+        $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+
+        return CacheAttribute::fromAttributeValue($cache) !== null;
     }
 }

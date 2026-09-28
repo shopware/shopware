@@ -106,7 +106,7 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### Store API reads every field of the compressed `_criteria` parameter
 
-A Store API `GET` request with `_criteria` now returns the same as the `POST` request with that body. Before, several routes ignored fields inside `_criteria`:
+On the cacheable Store API read routes, a `GET` request with `_criteria` now returns the same as the `POST` request with that body. Before, several routes ignored fields inside `_criteria`:
 
 | Route | Ignored fields |
 |---|---|
@@ -121,11 +121,13 @@ Sending these fields as plain query parameters keeps working. If you send `_crit
 
 - A field in `_criteria` takes precedence over a query parameter of the same name. Before, a plain `limit` took precedence on the listing routes.
 - Query parameters that are not part of `_criteria` are applied next to it. Before, the criteria of a route were built from `_criteria` alone, so a plain `limit` or `filter` next to it was ignored.
-- An invalid `_criteria` value is answered with `400` on every Store API route. Routes without criteria ignored it before.
+- An invalid `_criteria` value is answered with `400` on every cacheable Store API read route. Routes without criteria ignored it before.
 - The `sw-include-search-info` header is respected together with `_criteria`.
 - `includes` and `excludes` that are not an array are answered with `400` instead of `500`.
 
-The OpenAPI schema declares `_criteria` for `readCategoryGet`, `readCmsGet`, `readLandingPageGet`, `searchPageGet` and `searchSuggestGet`.
+Routes that are not marked as cacheable, such as the cart or the custom script endpoints, do not read other fields from `_criteria`.
+
+The OpenAPI schema declares `_criteria` for `readCategoryGet`, `readCmsGet`, `readLandingPageGet`, `searchPageGet`, `searchSuggestGet`, `readMediaGet` and `searchProductVariantIdsGet`.
 
 ## Administration
 

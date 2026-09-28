@@ -101,16 +101,29 @@ class CompressedCriteriaRequestListenerTest extends TestCase
         static::assertSame('second', $request->query->get('1'));
     }
 
+    public function testRouteWithCacheSettingsIsHandled(): void
+    {
+        $request = self::createStoreApiRequest(['_criteria' => self::compress(['limit' => 2])]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, ['sharedMaxAge' => 60]);
+
+        $this->listener->expandCompressedCriteria(self::createEvent($request));
+
+        static::assertSame(2, $request->query->getInt('limit'));
+    }
+
     /**
      * @param array<string, mixed> $query
      * @param list<string> $scopes
      */
     #[DataProvider('untouchedRequestProvider')]
-    public function testRequestIsLeftUntouched(string $method, array $query, array $scopes): void
+    public function testRequestIsLeftUntouched(string $method, array $query, array $scopes, bool $cacheable): void
     {
         $request = new Request($query);
         $request->setMethod($method);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, $scopes);
+        if ($cacheable) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
+        }
 
         $this->listener->expandCompressedCriteria(self::createEvent($request));
 
@@ -118,7 +131,7 @@ class CompressedCriteriaRequestListenerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{method: string, query: array<string, mixed>, scopes: list<string>}>
+     * @return iterable<string, array{method: string, query: array<string, mixed>, scopes: list<string>, cacheable: bool}>
      */
     public static function untouchedRequestProvider(): iterable
     {
@@ -126,24 +139,35 @@ class CompressedCriteriaRequestListenerTest extends TestCase
             'method' => Request::METHOD_POST,
             'query' => ['_criteria' => self::compress(['limit' => 2])],
             'scopes' => [StoreApiRouteScope::ID],
+            'cacheable' => true,
         ];
 
         yield 'GET request without compressed criteria' => [
             'method' => Request::METHOD_GET,
             'query' => ['limit' => '2'],
             'scopes' => [StoreApiRouteScope::ID],
+            'cacheable' => true,
+        ];
+
+        yield 'Store API route that is not marked as cacheable, such as the cart' => [
+            'method' => Request::METHOD_GET,
+            'query' => ['_criteria' => self::compress(['token' => 'other-cart', 'includes' => ['cart' => ['token']]])],
+            'scopes' => [StoreApiRouteScope::ID],
+            'cacheable' => false,
         ];
 
         yield 'only Store API routes are handled' => [
             'method' => Request::METHOD_GET,
             'query' => ['_criteria' => self::compress(['limit' => 2])],
             'scopes' => [ApiRouteScope::ID],
+            'cacheable' => true,
         ];
 
         yield 'route without a scope' => [
             'method' => Request::METHOD_GET,
             'query' => ['_criteria' => self::compress(['limit' => 2])],
             'scopes' => [],
+            'cacheable' => true,
         ];
     }
 
@@ -167,6 +191,7 @@ class CompressedCriteriaRequestListenerTest extends TestCase
         $request = new Request($query);
         $request->setMethod(Request::METHOD_GET);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
 
         return $request;
     }

@@ -106,12 +106,14 @@ class SalesChannelExceptionTest extends TestCase
             'errorCode' => SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE,
             'message' => 'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
         ];
+    }
 
-        yield 'a wrong type in the request is a client error' => [
-            'exception' => SalesChannelException::invalidType('The includes for type "product" must be of the type array, string given'),
-            'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => SalesChannelException::INVALID_TYPE,
-            'message' => 'The includes for type "product" must be of the type array, string given',
-        ];
+    public function testWrongTypeInTheRequestIsAClientError(): void
+    {
+        $exception = SalesChannelException::invalidType('The includes must be of the type array, string given');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SalesChannelException::INVALID_TYPE, $exception->getErrorCode());
+        static::assertSame('The includes must be of the type array, string given', $exception->getMessage());
     }
 }

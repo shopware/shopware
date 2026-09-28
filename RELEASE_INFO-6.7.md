@@ -89,6 +89,14 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 
 ## API
 
+### MCP tool results carry `structuredContent` and `isError`
+
+Tool calls on `/api/_mcp` and `/store-api/_mcp` now return the result data as `structuredContent` next to the existing text block, so clients can read it without parsing JSON out of the text. A failed call sets `isError: true` and puts a stable code in `structuredContent.error.code`, for example `missing_privilege`, `invalid_arguments` or `tool_error`. The error envelope in the text block gains the same `code` key. Every result also carries `_meta["shopware/generatedAt"]`.
+
+The text block is unchanged, so clients that parse `{"success": ..., "data": ...}` keep working. Plugin tools that extend `McpToolResponse` get the new fields without any change. Tools can pass a stable code as the second argument of `McpToolResponse::error()`.
+
+With the `v6.8.0.0` feature flag, the text block holds the plain data or error message instead of the `success` envelope.
+
 ### HTML in customer name and address fields is rejected with a dedicated violation
 
 Registration and address routes now reject HTML in `firstName`, `lastName`, `title`, `company`, `department`, `street`, `additionalAddressLine1`, `additionalAddressLine2` and `city` with the violation code `VIOLATION::CONTAINS_HTML_ERROR` and a source pointer to the offending field. Previously such input was emptied while being sanitized and then surfaced as a generic error that the storefront could not attach to a field, so a first name like `<John` failed registration with "Something went wrong".

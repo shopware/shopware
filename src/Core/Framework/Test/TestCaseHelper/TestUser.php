@@ -40,8 +40,8 @@ class TestUser
             'id' => $avatarId,
             'mime_type' => 'image/png',
             'file_size' => 1024,
-            'uploaded_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'uploaded_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $connection->insert('user', [
@@ -55,7 +55,7 @@ class TestUser
             'active' => 1,
             'admin' => 0,
             'avatar_id' => $avatarId,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $roleId = self::buildRole($permissions, $connection);
@@ -65,7 +65,7 @@ class TestUser
                 [
                     'user_id' => $userId,
                     'acl_role_id' => $roleId,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
         }
@@ -157,7 +157,7 @@ class TestUser
         $connection->insert('acl_role', [
             'id' => $roleId,
             'name' => $roleName,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'privileges' => json_encode($permissions, \JSON_THROW_ON_ERROR),
         ]);
 

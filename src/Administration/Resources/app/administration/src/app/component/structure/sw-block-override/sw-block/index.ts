@@ -21,6 +21,21 @@ import reduceToSingleRoot from '../reduce-to-single-root';
 import useLegacyConditionContext from '../shim/legacy-condition-context';
 
 /**
+ * Builds the key under which a block registers and resolves its slots.
+ *
+ * Native `<sw-block>` identifies a block by `componentName + blockName`, mirroring Twig, so that block
+ * `foo` in one component never resolves overrides meant for block `foo` in another. The owning component
+ * name reaches this component through the required `sw-internal-component-name` attribute that the Shopware
+ * setup transform stamps onto every `<sw-block>` when it lowers the SFC.
+ *
+ * @example
+ * componentBlockKey('sw-product-detail', 'sw_product_detail_base'); // 'sw-product-detail sw_product_detail_base'
+ */
+function componentBlockKey(componentName: string, blockName: string): string {
+    return `${componentName} ${blockName}`;
+}
+
+/**
  * @private
  *
  * @component sw-block
@@ -78,6 +93,10 @@ export default Shopware.Component.wrapComponentConfig({
         extends: {
             type: String,
         },
+        swInternalComponentName: {
+            type: String,
+            required: true,
+        },
         data: {
             type: Object as PropType<ComponentInternalInstance['proxy']>,
             default: null,
@@ -89,7 +108,7 @@ export default Shopware.Component.wrapComponentConfig({
         const instance = getCurrentInstance();
 
         if (props.extends) {
-            const extendedBlockName = props.extends;
+            const extendsKey = componentBlockKey(props.swInternalComponentName, props.extends);
 
             if (slots.default) {
                 // Vue reassigns `slots.default` whenever the surrounding slot scope changes.
@@ -97,17 +116,17 @@ export default Shopware.Component.wrapComponentConfig({
                 // `removeBlock` with a reference that no longer matches anything, so register a
                 // stable wrapper that resolves the current slot function on every call instead.
                 const overrideSlot: Slot = (data?: unknown) => slots.default?.(data) ?? [];
-                addBlock(extendedBlockName, overrideSlot);
+                addBlock(extendsKey, overrideSlot);
 
                 // The block rendering this override has no reactive link to the scope this
                 // override lives in. Vue has already swapped in the new slot function when this
                 // hook runs, so this is the moment to make the rendering block pick it up.
                 onBeforeUpdate(() => {
-                    invalidateBlock(extendedBlockName);
+                    invalidateBlock(extendsKey);
                 });
 
                 onBeforeUnmount(() => {
-                    removeBlock(extendedBlockName, overrideSlot);
+                    removeBlock(extendsKey, overrideSlot);
                 });
             }
 
@@ -130,8 +149,8 @@ export default Shopware.Component.wrapComponentConfig({
         // multiple simultaneous instances of <sw-block name="foo"> each maintain
         // their own isolated shim slots and cannot double-render each other's content.
         const shimSlots: Slot[] =
-            props.name && hasBlockEntries(props.name)
-                ? getBlockEntries(props.name).map((entry) => {
+            props.name && hasBlockEntries(props.swInternalComponentName, props.name)
+                ? getBlockEntries(props.swInternalComponentName, props.name).map((entry) => {
                       // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
                       const shimSlot = createShimSlot(entry, props.name!);
 
@@ -179,7 +198,7 @@ export default Shopware.Component.wrapComponentConfig({
             // at boot time) are positioned below native <sw-block extends> overrides
             // (registered at mount time), matching the expected stacking order:
             //   default → shim (legacy plugin) → native (newer plugin or core extension)
-            const nativeBlocks = getBlocks(props.name);
+            const nativeBlocks = getBlocks(componentBlockKey(props.swInternalComponentName, props.name));
             const blocksAndParent = [slots.default ?? (() => []), ...shimSlots, ...nativeBlocks];
             const blocksNodes = blocksAndParent.map((block) => block?.(props.data));
 

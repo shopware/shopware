@@ -5,7 +5,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceFeatureTagRule;
 use Shopware\Core\Framework\Log\Package;
 
@@ -17,7 +16,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DeprecatedServiceFeatureTagRuleTest extends RuleTestCase
 {
-    #[RunInSeparateProcess]
     public function testDeprecatedServicesNeedMatchingInactiveFeatureTags(): void
     {
         $directory = __DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule';

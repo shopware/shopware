@@ -63,7 +63,6 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         ]);
     }
 
-    #[RunInSeparateProcess]
     public function testInactiveFeatureServicesStillNeedClassDeprecationTriggers(): void
     {
         $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/TaggedDeprecatedClass.php'], [

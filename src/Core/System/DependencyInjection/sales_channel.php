@@ -346,10 +346,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextPersister::class),
             service('event_dispatcher'),
             service(SalesChannelContextService::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ContextRoute::class)
-        ->public();
+        ->public()
+        ->args([
+            service(ExtensionDispatcher::class),
+        ]);
 
     $services->set(SalesChannelDefinitionInstanceRegistry::class)
         ->public()
@@ -437,6 +441,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(AppContextGateway::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ContextGatewayCommandValidator::class)

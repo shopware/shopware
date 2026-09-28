@@ -87,6 +87,19 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
 
+### Every Store API route publishes an extension event
+
+All Store API routes in core now publish an extension event, so you can extend a route with a subscriber instead of decorating its abstract route class. Each route has a `<Route>Extension` in the `Extension` namespace of its domain that carries the route's input parameters, for example `Shopware\Core\Content\Product\Extension\ProductSearchRouteExtension`:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [ProductSearchRouteExtension::onPre() => 'addFilter'];
+}
+```
+
+Use `onPre()` to adjust inputs or replace the result, `onPost()` to change the result, and `onError()` to provide a fallback. Decorating the abstract route classes keeps working. A decorator wraps the whole route: it runs before `onPre()` and after `onPost()` listeners, and a decorator that does not call the decorated route skips the extension events.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

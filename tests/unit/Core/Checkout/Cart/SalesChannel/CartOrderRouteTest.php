@@ -14,12 +14,14 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Extension\CartOrderRouteExtension;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutPlaceOrderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\OrderPlaceResult;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRouteResponse;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
@@ -434,6 +436,25 @@ class CartOrderRouteTest extends TestCase
         $this->expectExceptionObject(CartException::invalidPaymentOrderNotStored(Uuid::randomHex()));
 
         $route->order($cart, $context, new RequestDataBag());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $data = new RequestDataBag();
+        $response = new CartOrderRouteResponse(new OrderEntity());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('cart-order-route.order.pre', function (CartOrderRouteExtension $extension) use ($cart, $data, $response): void {
+            static::assertSame(['cart' => $cart, 'context' => $this->context, 'data' => $data], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = $this->buildRoute(extensions: new ExtensionDispatcher($dispatcher));
+
+        static::assertSame($response, $route->order($cart, $this->context, $data));
     }
 
     /**

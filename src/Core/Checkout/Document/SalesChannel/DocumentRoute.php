@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -54,6 +56,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         private readonly RateLimiter $rateLimiter,
         private readonly GuestAuthenticator $guestAuthenticator,
         private readonly iterable $renderers,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -69,6 +72,66 @@ final class DocumentRoute extends AbstractDocumentRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => DocumentDefinition::ENTITY_NAME]
     )]
     public function download(
+        string $documentId,
+        Request $request,
+        SalesChannelContext $context,
+        string $deepLinkCode = '',
+        ?string $fileType = null,
+        ?string $format = null,
+    ): Response {
+        return $this->extensions->publish(
+            name: DocumentRouteExtension::NAME,
+            extension: new DocumentRouteExtension($documentId, $request, $context, $deepLinkCode, $fileType, $format),
+            function: $this->_download(...),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function resolveRequest(Request $request, ?string $fileType): array
+    {
+        $supportedTypesMapping = $this->getSupportedFileTypes();
+
+        /*
+         * handle param fileType
+         */
+        if ($fileType !== null) {
+            if (!Feature::isActive('v6.8.0.0')) {
+                return [$fileType];
+            }
+
+            if (!isset($supportedTypesMapping[$fileType])) {
+                throw DocumentException::documentFileTypeNotSupported($fileType);
+            }
+
+            return [$fileType];
+        }
+
+        /*
+         * handle Accept header
+         */
+        $this->registerFileTypes($supportedTypesMapping, $request);
+
+        $requestedTypesMapping = $this->getRequestedFileTypes($request);
+
+        $supportedRequestedFormats = array_filter(
+            $requestedTypesMapping,
+            static fn (string $fileType) => isset($supportedTypesMapping[$fileType]),
+            \ARRAY_FILTER_USE_KEY
+        );
+
+        if ($supportedRequestedFormats === []) {
+            throw DocumentException::documentAcceptHeaderMimeTypesNotSupported(
+                array_values($requestedTypesMapping),
+                array_values($supportedTypesMapping)
+            );
+        }
+
+        return array_keys($supportedRequestedFormats);
+    }
+
+    private function _download(
         string $documentId,
         Request $request,
         SalesChannelContext $context,
@@ -128,51 +191,6 @@ final class DocumentRoute extends AbstractDocumentRoute
             $download,
             $document->getContentType()
         );
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function resolveRequest(Request $request, ?string $fileType): array
-    {
-        $supportedTypesMapping = $this->getSupportedFileTypes();
-
-        /*
-         * handle param fileType
-         */
-        if ($fileType !== null) {
-            if (!Feature::isActive('v6.8.0.0')) {
-                return [$fileType];
-            }
-
-            if (!isset($supportedTypesMapping[$fileType])) {
-                throw DocumentException::documentFileTypeNotSupported($fileType);
-            }
-
-            return [$fileType];
-        }
-
-        /*
-         * handle Accept header
-         */
-        $this->registerFileTypes($supportedTypesMapping, $request);
-
-        $requestedTypesMapping = $this->getRequestedFileTypes($request);
-
-        $supportedRequestedFormats = array_filter(
-            $requestedTypesMapping,
-            static fn (string $fileType) => isset($supportedTypesMapping[$fileType]),
-            \ARRAY_FILTER_USE_KEY
-        );
-
-        if ($supportedRequestedFormats === []) {
-            throw DocumentException::documentAcceptHeaderMimeTypesNotSupported(
-                array_values($requestedTypesMapping),
-                array_values($supportedTypesMapping)
-            );
-        }
-
-        return array_keys($supportedRequestedFormats);
     }
 
     private function createResponse(string $filename, string $content, bool $forceDownload, string $contentType): Response

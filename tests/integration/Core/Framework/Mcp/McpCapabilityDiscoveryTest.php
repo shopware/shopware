@@ -168,6 +168,11 @@ class McpCapabilityDiscoveryTest extends TestCase
         static::assertNotContains('shopware-entity-delete', $tools);
         static::assertNotContains('shopware-system-config-read', $tools);
         static::assertNotContains('shopware-order-state', $tools);
+
+        // shopware-toolsets-list takes no parameters. Its empty `properties` must reach the client
+        // as a JSON object, or strict clients reject the whole tools/list (#18722).
+        static::assertStringContainsString('"properties":{}', $content);
+        static::assertStringNotContainsString('"properties":[]', $content);
     }
 
     public function testEnablingToolsetDeliversToolsListChangedNotification(): void
@@ -255,6 +260,11 @@ class McpCapabilityDiscoveryTest extends TestCase
             $this->jsonRpcMethods((string) $drainResponse->getContent()),
             'client never received tools/list_changed after enabling a toolset',
         );
+
+        // The batch is re-encoded message by message on its way to SSE; that must not turn the
+        // empty `properties` of a parameterless tool into `[]` (#18722).
+        static::assertStringContainsString('"properties":{}', (string) $drainResponse->getContent());
+        static::assertStringNotContainsString('"properties":[]', (string) $drainResponse->getContent());
     }
 
     /**

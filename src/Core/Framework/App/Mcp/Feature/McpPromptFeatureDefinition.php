@@ -44,22 +44,12 @@ class McpPromptFeatureDefinition extends AppFeatureDefinition
         $prompts = Mcp::createFromXmlFile($appFilesystem->path(self::FILE))->getPrompts()?->getPrompts() ?? [];
 
         return array_map(
-            static function (McpPrompt $prompt) use ($defaultLocale): McpPromptConfig {
-                // toArray() fills the default locale translation when it is missing,
-                // matching what the app expects to be shown for the shop's default language
-                $data = $prompt->toArray($defaultLocale);
-                /** @var array<string, string> $label */
-                $label = $data['label'];
-                /** @var array<string, string> $description */
-                $description = $data['description'];
-
-                return new McpPromptConfig(
-                    $prompt->getName(),
-                    $prompt->getUrl(),
-                    new TranslatedString($label),
-                    new TranslatedString($description),
-                );
-            },
+            static fn (McpPrompt $prompt): McpPromptConfig => new McpPromptConfig(
+                $prompt->getName(),
+                $prompt->getUrl(),
+                new TranslatedString($prompt->getLabel()),
+                new TranslatedString($prompt->getDescription()),
+            ),
             $prompts,
         );
     }

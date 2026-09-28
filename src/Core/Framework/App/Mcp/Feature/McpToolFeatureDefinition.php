@@ -47,24 +47,14 @@ class McpToolFeatureDefinition extends AppFeatureDefinition
         $tools = Mcp::createFromXmlFile($appFilesystem->path(self::FILE))->getTools()?->getTools() ?? [];
 
         return array_map(
-            static function (McpTool $tool) use ($defaultLocale): McpToolConfig {
-                // toArray() fills the default locale translation when it is missing,
-                // matching what the app expects to be shown for the shop's default language
-                $data = $tool->toArray($defaultLocale);
-                /** @var array<string, string> $label */
-                $label = $data['label'];
-                /** @var array<string, string> $description */
-                $description = $data['description'];
-
-                return new McpToolConfig(
-                    $tool->getName(),
-                    $tool->getUrl(),
-                    $tool->getRequiredPrivileges(),
-                    $tool->getInputSchema(),
-                    new TranslatedString($label),
-                    new TranslatedString($description),
-                );
-            },
+            static fn (McpTool $tool): McpToolConfig => new McpToolConfig(
+                $tool->getName(),
+                $tool->getUrl(),
+                $tool->getRequiredPrivileges(),
+                $tool->getInputSchema(),
+                new TranslatedString($tool->getLabel()),
+                new TranslatedString($tool->getDescription()),
+            ),
             $tools,
         );
     }

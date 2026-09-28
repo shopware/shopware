@@ -44,24 +44,14 @@ class McpResourceFeatureDefinition extends AppFeatureDefinition
         $resources = Mcp::createFromXmlFile($appFilesystem->path(self::FILE))->getResources()?->getResources() ?? [];
 
         return array_map(
-            static function (McpResource $resource) use ($defaultLocale): McpResourceConfig {
-                // toArray() fills the default locale translation when it is missing,
-                // matching what the app expects to be shown for the shop's default language
-                $data = $resource->toArray($defaultLocale);
-                /** @var array<string, string> $label */
-                $label = $data['label'];
-                /** @var array<string, string> $description */
-                $description = $data['description'];
-
-                return new McpResourceConfig(
-                    $resource->getName(),
-                    $resource->getUri(),
-                    $resource->getUrl(),
-                    $resource->getMimeType(),
-                    new TranslatedString($label),
-                    new TranslatedString($description),
-                );
-            },
+            static fn (McpResource $resource): McpResourceConfig => new McpResourceConfig(
+                $resource->getName(),
+                $resource->getUri(),
+                $resource->getUrl(),
+                $resource->getMimeType(),
+                new TranslatedString($resource->getLabel()),
+                new TranslatedString($resource->getDescription()),
+            ),
             $resources,
         );
     }

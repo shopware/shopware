@@ -56,19 +56,6 @@ class McpPromptFeatureDefinitionTest extends TestCase
         static::assertSame('Context for orders', $config->description->forLocale('en-GB'));
     }
 
-    public function testFromAppFillsMissingDefaultLocaleTranslationFromFallback(): void
-    {
-        $configs = $this->definition->fromApp(
-            static::createStub(Manifest::class),
-            new Filesystem(__DIR__ . '/../../_fixtures'),
-            'fr-FR',
-        );
-
-        static::assertCount(1, $configs);
-        static::assertSame('Order Context', $configs[0]->label->forLocale('fr-FR'));
-        static::assertSame('Context for orders', $configs[0]->description->forLocale('fr-FR'));
-    }
-
     public function testPayloadRoundTrip(): void
     {
         $declared = new McpPromptConfig(

@@ -11,9 +11,4 @@ use Shopware\Core\Framework\Log\Package;
 interface McpCapabilityItem
 {
     public function getName(): string;
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function toArray(string $defaultLocale): array;
 }

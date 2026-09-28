@@ -68,19 +68,6 @@ class McpToolFeatureDefinitionTest extends TestCase
         static::assertSame('Syncs orders', $config->description->forLocale('en-GB'));
     }
 
-    public function testFromAppFillsMissingDefaultLocaleTranslationFromFallback(): void
-    {
-        $configs = $this->definition->fromApp(
-            static::createStub(Manifest::class),
-            new Filesystem(__DIR__ . '/../../_fixtures'),
-            'fr-FR',
-        );
-
-        static::assertCount(1, $configs);
-        static::assertSame('Sync Orders', $configs[0]->label->forLocale('fr-FR'));
-        static::assertSame('Syncs orders', $configs[0]->description->forLocale('fr-FR'));
-    }
-
     public function testValidatePassesWhenManifestGrantsRequiredPrivileges(): void
     {
         $this->expectNotToPerformAssertions();

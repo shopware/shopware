@@ -81,24 +81,6 @@ class McpToolTest extends TestCase
         static::assertSame([], $tool->getDescription());
     }
 
-    public function testToArrayContainsTranslations(): void
-    {
-        $tool = McpTool::fromArray([
-            'name' => 'my-tool',
-            'url' => 'https://example.com/mcp',
-            'label' => ['en-GB' => 'My Tool', 'de-DE' => 'Mein Werkzeug'],
-            'description' => ['en-GB' => 'Desc'],
-        ]);
-
-        $data = $tool->toArray('en-GB');
-
-        static::assertSame('my-tool', $data['name']);
-        static::assertSame('https://example.com/mcp', $data['url']);
-        static::assertSame('My Tool', $data['label']['en-GB']);
-        static::assertSame('Mein Werkzeug', $data['label']['de-DE']);
-        static::assertSame('Desc', $data['description']['en-GB']);
-    }
-
     public function testFromXmlParsesRequiredPrivileges(): void
     {
         $mcp = Mcp::createFromXmlFile(__DIR__ . '/../_fixtures/mcp.xml');

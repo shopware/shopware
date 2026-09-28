@@ -99,6 +99,8 @@ export default Component.wrapComponentConfig({
             this.ssoLoading = true;
             window.sessionStorage.setItem('redirectFromLogin', 'true');
             window.sessionStorage.setItem('sw-sso-session', 'true');
+            // The router guard restores the previously requested route once the SSO login returns
+            window.sessionStorage.setItem('sw-sso-restore-previous-route', 'true');
             this._navigateTo(this.loginConfig.url);
         },
 

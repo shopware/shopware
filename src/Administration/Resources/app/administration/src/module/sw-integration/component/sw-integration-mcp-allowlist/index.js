@@ -14,8 +14,8 @@ export default {
 
     props: {
         /**
-         * null = all capabilities unrestricted (primary toggle on)
-         * {tools, resources, prompts} = per-type allowlists (null per type = unrestricted)
+         * null = nothing was ever selected. Whether that means everything or nothing depends on
+         * `unrestrictedWhenUnset`.
          */
         allowlist: {
             type: Object,
@@ -36,6 +36,12 @@ export default {
             type: Array,
             default: () => [],
         },
+
+        /** True for administrator users, the only principals that bypass the allowlist when unset. */
+        unrestrictedWhenUnset: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     emits: ['update:allowlist'],
@@ -55,26 +61,41 @@ export default {
     computed: {
         allCapabilitiesEnabled: {
             get() {
-                return this.allowlist === null;
+                if (this.unrestrictedWhenUnset) {
+                    return this.allowlist === null;
+                }
+
+                // No bypass means no "unrestricted" state to read off.
+                const populated = this.typeConfigs.filter((tc) => tc.available.length > 0);
+                return (
+                    populated.length > 0 && populated.every((tc) => this.typeSelectedCount(tc.key) === tc.available.length)
+                );
             },
             set(enabled) {
-                this.$emit('update:allowlist', enabled ? null : { tools: null, resources: null, prompts: null });
+                if (this.unrestrictedWhenUnset) {
+                    this.$emit('update:allowlist', enabled ? null : this.emptySelection());
+                    return;
+                }
+
+                this.$emit('update:allowlist', enabled ? this.fullSelection() : this.emptySelection());
             },
         },
 
         toolsAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.tools ?? null;
+            return this.selectionForType('tools');
         },
 
         resourcesAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.resources ?? null;
+            return this.selectionForType('resources');
         },
 
         promptsAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.prompts ?? null;
+            return this.selectionForType('prompts');
+        },
+
+        /** No selection and no bypass: the endpoint grants nothing beyond the discovery meta-tools. */
+        hasNoEffectiveCapabilities() {
+            return !this.unrestrictedWhenUnset && this.allowlist === null;
         },
 
         toolGroups() {
@@ -240,8 +261,38 @@ export default {
                 });
         },
 
+        /** Resolves null to an empty selection without the bypass, so the editor shows what the server grants. */
+        selectionForType(type) {
+            const fallback = this.unrestrictedWhenUnset ? null : [];
+
+            if (this.allowlist === null) return fallback;
+
+            return this.allowlist[type] ?? fallback;
+        },
+
+        emptySelection() {
+            return { tools: [], resources: [], prompts: [] };
+        },
+
+        fullSelection() {
+            return {
+                tools: this.availableTools.map((t) => t.name),
+                resources: this.availableResources.map((r) => r.uri),
+                prompts: this.availablePrompts.map((p) => p.name),
+            };
+        },
+
+        allNamesForType(type) {
+            if (type === 'tools') return this.availableTools.map((t) => t.name);
+            if (type === 'resources') return this.availableResources.map((r) => r.uri);
+            if (type === 'prompts') return this.availablePrompts.map((p) => p.name);
+            return [];
+        },
+
         emitUpdated(patch) {
-            const current = this.allowlist ?? { tools: null, resources: null, prompts: null };
+            const current =
+                this.allowlist ??
+                (this.unrestrictedWhenUnset ? { tools: null, resources: null, prompts: null } : this.emptySelection());
             this.$emit('update:allowlist', { ...current, ...patch });
         },
 
@@ -328,7 +379,13 @@ export default {
         },
 
         onToggleTypeAll(type, enabled) {
-            this.emitUpdated({ [type]: enabled ? null : [] });
+            if (!enabled) {
+                this.emitUpdated({ [type]: [] });
+                return;
+            }
+
+            // Without the bypass a null per-type value grants nothing, so "all" must be explicit.
+            this.emitUpdated({ [type]: this.unrestrictedWhenUnset ? null : this.allNamesForType(type) });
         },
 
         // Tools
@@ -501,20 +558,16 @@ export default {
             return humanizeCommonPrefix(items.map((item) => item.name));
         },
 
+        /**
+         * Counts distinct available capabilities, not entries: the save endpoints accept duplicates,
+         * and counting those would make a partial selection look complete.
+         */
         typeSelectedCount(type) {
-            if (type === 'tools') {
-                if (this.toolsAllowlist === null) return this.availableTools.length;
-                return this.toolsAllowlist.filter((n) => this.availableTools.some((t) => t.name === n)).length;
-            }
-            if (type === 'resources') {
-                if (this.resourcesAllowlist === null) return this.availableResources.length;
-                return this.resourcesAllowlist.filter((u) => this.availableResources.some((r) => r.uri === u)).length;
-            }
-            if (type === 'prompts') {
-                if (this.promptsAllowlist === null) return this.availablePrompts.length;
-                return this.promptsAllowlist.filter((n) => this.availablePrompts.some((p) => p.name === n)).length;
-            }
-            return 0;
+            const selection = this.selectionForType(type);
+            if (selection === null) return this.typeTotal(type);
+
+            const selected = new Set(selection);
+            return this.allNamesForType(type).filter((name) => selected.has(name)).length;
         },
 
         isFlatType(type) {
@@ -570,10 +623,10 @@ export default {
         },
 
         typeAllEnabled(type) {
-            if (type === 'tools') return this.toolsAllowlist === null;
-            if (type === 'resources') return this.resourcesAllowlist === null;
-            if (type === 'prompts') return this.promptsAllowlist === null;
-            return true;
+            if (this.selectionForType(type) === null) return true;
+
+            const total = this.typeTotal(type);
+            return total > 0 && this.typeSelectedCount(type) === total;
         },
     },
 };

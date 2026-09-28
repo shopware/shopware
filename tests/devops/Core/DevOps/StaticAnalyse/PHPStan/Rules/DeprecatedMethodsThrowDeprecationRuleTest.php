@@ -47,6 +47,17 @@ class DeprecatedMethodsThrowDeprecationRuleTest extends RuleTestCase
         ]);
     }
 
+    #[RunInSeparateProcess]
+    public function testDeprecatedServiceDecoratorsDoNotNeedToTriggerClassDeprecations(): void
+    {
+        $this->analyse([__DIR__ . '/data/DeprecatedMethodsThrowDeprecationRule/DeprecatedDecorator.php'], [
+            [
+                'Method "explicitlyDeprecatedMethod" of class "Shopware\\Core\\DevOps\\MyFakeNamespace\\DeprecatedDecorator" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
+                17,
+            ],
+        ]);
+    }
+
     protected function getRule(): Rule
     {
         /** @phpstan-ignore phpstanApi.constructor */

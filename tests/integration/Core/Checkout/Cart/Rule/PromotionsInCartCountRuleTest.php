@@ -156,7 +156,7 @@ class PromotionsInCartCountRuleTest extends TestCase
         $rule = new PromotionsInCartCountRule();
         $rule->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
-        static::assertTrue($rule->match(new CartRuleScope($this->createCart(new LineItemCollection()), $this->createMock(SalesChannelContext::class))));
+        static::assertTrue($rule->match(new CartRuleScope($this->createCart(new LineItemCollection()), static::createStub(SalesChannelContext::class))));
     }
 
     public function testRuleMatchesWithTwoLineItems(): void
@@ -170,7 +170,7 @@ class PromotionsInCartCountRuleTest extends TestCase
         ]);
         $cart = $this->createCart($lineItemCollection);
 
-        static::assertTrue($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
+        static::assertTrue($rule->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class))));
     }
 
     public function testRuleDoesNotMatchOnUnequalsWithTwoLineItems(): void
@@ -184,7 +184,7 @@ class PromotionsInCartCountRuleTest extends TestCase
         ]);
         $cart = $this->createCart($lineItemCollection);
 
-        static::assertFalse($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
+        static::assertFalse($rule->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class))));
     }
 
     public function testRuleMatchesOnLowerThanCondition(): void
@@ -194,7 +194,7 @@ class PromotionsInCartCountRuleTest extends TestCase
 
         $cart = $this->createCart(new LineItemCollection());
 
-        static::assertTrue($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
+        static::assertTrue($rule->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class))));
     }
 
     public function testRuleIsNotWorkingWithWrongScope(): void
@@ -202,6 +202,6 @@ class PromotionsInCartCountRuleTest extends TestCase
         $rule = new PromotionsInCartCountRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        static::assertFalse($rule->match($this->createMock(RuleScope::class)));
+        static::assertFalse($rule->match(static::createStub(RuleScope::class)));
     }
 }

@@ -180,6 +180,32 @@ Use a `vX.Y.Z` version, parameter names without `$`, `::class` for class referen
 actual default value for `NewOptionalParameter`. PHPStan validates these conventions and rejects
 attributes that do not describe a real future change.
 
+### Moving a class
+
+Use `#[ClassMoved]` when a supported class keeps its implementation but moves to a new fully qualified class name:
+
+```php
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+
+#[ClassMoved(
+    version: 'v6.8.0',
+    previousClassName: 'Shopware\OldNamespace\ExampleClass',
+)]
+class ExampleClass
+{
+}
+```
+
+Move the implementation to the canonical namespace and register the previous and canonical names in `ClassAliasRegistry::ALIASES`.
+Use a string literal for `previousClassName`: the previous name is compatibility metadata and must not become a new Core source reference.
+Update all Core callers to the canonical name.
+
+When the moved class is a dependency-injection service, keep the previous class name as a deprecated service alias of the canonical service.
+Add release information for the available replacement and an upgrade entry for removing the alias in the announced version.
+
+Do not retain a compatibility subclass or duplicate the implementation. `class_alias()` preserves one runtime class identity.
+PHPStan validates the attribute, runtime alias, optional service alias, and canonical Core references.
+
 ### Using flags in tests
 In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
 

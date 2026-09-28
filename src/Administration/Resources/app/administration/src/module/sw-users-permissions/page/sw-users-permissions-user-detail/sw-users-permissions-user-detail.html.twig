@@ -338,6 +338,7 @@
                         :allowlist="user.mcpAllowlist"
                         :disabled="!acl.can('users_and_permissions.editor') || !$route.params.id"
                         :is-admin="user.admin"
+                        :unrestricted-when-unset="user.admin"
                         :granted-privileges="mcpGrantedPrivileges"
                         @update:allowlist="onMcpAllowlistUpdate"
                     />

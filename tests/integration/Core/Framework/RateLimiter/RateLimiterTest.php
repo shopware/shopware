@@ -322,11 +322,11 @@ class RateLimiterTest extends TestCase
 
     public function testResetRateLimitOauth(): void
     {
-        $psrFactory = $this->createMock(PsrHttpFactory::class);
-        $psrFactory->method('createRequest')->willReturn($this->createMock(ServerRequest::class));
-        $psrFactory->method('createResponse')->willReturn($this->createMock(ResponseInterface::class));
+        $psrFactory = static::createStub(PsrHttpFactory::class);
+        $psrFactory->method('createRequest')->willReturn(static::createStub(ServerRequest::class));
+        $psrFactory->method('createResponse')->willReturn(static::createStub(ResponseInterface::class));
 
-        $authorizationServer = $this->createMock(AuthorizationServer::class);
+        $authorizationServer = static::createStub(AuthorizationServer::class);
         $authorizationServer->method('respondToAccessTokenRequest')->willReturn(new Response());
 
         $controller = new AdminAuthController(
@@ -401,7 +401,7 @@ class RateLimiterTest extends TestCase
 
     public function testResetRateLimtitUserRecovery(): void
     {
-        $recoveryService = $this->createMock(UserRecoveryService::class);
+        $recoveryService = static::createStub(UserRecoveryService::class);
         $userEntity = new UserEntity();
         $userEntity->setUsername('admin');
         $userEntity->setEmail('test@test.de');
@@ -445,9 +445,9 @@ class RateLimiterTest extends TestCase
         $factory = new RateLimiterFactory(
             $config,
             new CacheStorage(new ArrayAdapter()),
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             new NativeClock(),
-            $this->createMock(LockFactory::class),
+            static::createStub(LockFactory::class),
         );
 
         static::assertInstanceOf(NoLimiter::class, $factory->create('example'));

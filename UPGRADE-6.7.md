@@ -1,3 +1,30 @@
+# 6.7.16.0
+
+## Existing MCP integrations and non-admin users need an explicit MCP allowlist
+
+`user.mcp_allowlist` and `integration.mcp_allowlist` changed meaning when they are unset: this used to grant unrestricted MCP access, it now grants none. Only administrator users still bypass the allowlist, integrations never do. Affected credentials still authenticate, but the capability lists return only the discovery meta-tools and a `tools/call` for a domain tool is rejected.
+
+A per-type entry that is missing or explicitly `null` counts as an empty selection too, so an allowlist stored as `{"tools": ["shopware-entity-search"], "resources": null, "prompts": null}` keeps its tool and loses every resource and prompt. If you used the per-type "All" switch in the Administration, re-save the allowlist.
+
+Note which capabilities each integration actually uses before updating, then grant them under Settings > System > Integrations, on the user detail page, or through the API:
+
+```
+POST /api/_action/integration/{integrationId}/mcp-allowlist
+POST /api/_action/user/{userId}/mcp-allowlist
+
+{
+  "allowlist": {
+    "tools": ["shopware-entity-search", "shopware-entity-schema"],
+    "resources": ["shopware://entities"],
+    "prompts": []
+  }
+}
+```
+
+An empty array blocks a type. There is no value meaning "everything" for a principal without the administrator bypass, by design.
+
+Both routes now also require the matching entity privilege, `user:update` and `integration:update` respectively, and answer `403` without it. `users_and_permissions.editor` already grants `user:update`; a custom role carrying only the action privilege has to be extended.
+
 # 6.7.15.0
 
 ## Document generation v1 marked for replacement
@@ -172,7 +199,7 @@ The following components are fully deprecated including their registration, temp
 
 ## `Feature` becomes final
 
-`Shopware\Core\Framework\Feature` carries `#[BecomesFinal(version: 'v6.8.0')]` and cannot be extended from Shopware 6.8. It is a static utility class, call it directly instead of subclassing it.
+`Shopware\Core\Framework\Feature` becomes `final` with Shopware 6.8 and cannot be extended from then on. It is a static utility class, call its methods directly instead of subclassing it.
 
 # 6.7.14.0
 

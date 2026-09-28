@@ -30,6 +30,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\ReferencedDocumentResolver;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
@@ -55,6 +56,7 @@ use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentType;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -1102,6 +1104,7 @@ class DocumentV2ControllerTest extends TestCase
                 new StaticDocumentRenderer(DocumentFormat::PDF),
                 new StaticDocumentRenderer(DocumentFormat::HTML),
             ]),
+            new DocumentFileNameBuilder(new MockClock()),
         );
     }
 

@@ -18,6 +18,7 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Symfony\ServiceMap;
 use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
@@ -108,8 +110,17 @@ class BCChangeAttributeUsageRule implements Rule
         'Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\ProductReviewResult' => true,
     ];
 
-    public function __construct(private readonly ReflectionProvider $reflectionProvider)
-    {
+    /**
+     * @var array<string, true>|null
+     */
+    private ?array $deprecatedServiceAliases = null;
+
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+        private readonly ServiceMap $serviceMap,
+        private readonly ?string $containerXmlPath,
+        private readonly ClassAliasMap $classAliasMap,
+    ) {
     }
 
     public function getNodeType(): string
@@ -154,11 +165,16 @@ class BCChangeAttributeUsageRule implements Rule
             if ($specific === [] && $attribute->getName() === ClassHierarchyChange::class) {
                 $specific = $this->validateClassHierarchyChange($attribute, $node->getClassReflection(), $methodNodes, $classLine);
             }
+            if ($specific === [] && $attribute->getName() === ClassMoved::class) {
+                $specific = $this->validateClassMoved($attribute, $class, $classLine);
+            }
             if ($specific === [] && $classIsFinal) {
                 $specific = $this->validateExtenderOnlyOnFinal($attribute, $class->getShortName(), 'class', $classLine);
             }
             $errors = [...$errors, ...$specific];
         }
+
+        $errors = [...$errors, ...$this->validateRegisteredClassAliases($class, $classLine)];
 
         foreach ($class->getMethods() as $method) {
             if ($method->getDeclaringClass()->getName() !== $class->getName()) {
@@ -323,6 +339,105 @@ class BCChangeAttributeUsageRule implements Rule
         }
 
         return [];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateClassMoved(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionClass $class, int $line): array
+    {
+        $previousClassName = $this->argument($attribute, 'previousClassName', 1);
+        $symbol = $class->getShortName();
+
+        if (!\is_string($previousClassName) || $previousClassName === '') {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": previousClassName must be a non-empty class name.',
+                $symbol
+            ))];
+        }
+
+        $currentClassName = $class->getName();
+        if ($this->classAliasMap->canonicalClassName($previousClassName) !== $currentClassName) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": register the class alias "%s" => "%s" in ClassAliasRegistry::ALIASES.',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
+        }
+
+        $currentService = $this->serviceMap->getService($currentClassName);
+        $effectiveCurrentServiceId = $currentService?->getAlias() ?? $currentClassName;
+
+        if ($currentService !== null
+            && ($this->serviceMap->getService($previousClassName)?->getAlias() !== $effectiveCurrentServiceId
+                || !$this->isDeprecatedServiceAlias($previousClassName))
+        ) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": register the deprecated service alias "%s" => "%s".',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateRegisteredClassAliases(\ReflectionClass $class, int $line): array
+    {
+        $declaredAliases = [];
+        foreach ($class->getAttributes(ClassMoved::class) as $attribute) {
+            $previousClassName = $attribute->newInstance()->previousClassName;
+            $declaredAliases[\strtolower($previousClassName)] = true;
+        }
+
+        $currentClassName = $class->getName();
+        $errors = [];
+        foreach ($this->classAliasMap->aliasesForCanonicalClassName($currentClassName) as $registeredAlias) {
+            if (isset($declaredAliases[\strtolower($registeredAlias)])) {
+                continue;
+            }
+
+            $errors[] = $this->error($line, \sprintf(
+                'Class alias registry entry "%s" => "%s" must be declared with #[ClassMoved(previousClassName: "%s")] on "%s".',
+                $registeredAlias,
+                $currentClassName,
+                $registeredAlias,
+                $class->getShortName()
+            ));
+        }
+
+        return $errors;
+    }
+
+    private function isDeprecatedServiceAlias(string $serviceId): bool
+    {
+        if ($this->deprecatedServiceAliases === null) {
+            $this->deprecatedServiceAliases = [];
+            $content = $this->containerXmlPath === null ? false : @file_get_contents($this->containerXmlPath);
+            $container = $content === false ? false : @simplexml_load_string($content);
+
+            if ($container !== false) {
+                foreach ($container->services->service as $service) {
+                    $attributes = $service->attributes();
+                    if ($attributes === null || !isset($attributes['id'], $attributes['alias']) || !isset($service->deprecated)) {
+                        continue;
+                    }
+
+                    $this->deprecatedServiceAliases[(string) $attributes['id']] = true;
+                }
+            }
+        }
+
+        return isset($this->deprecatedServiceAliases[$serviceId]);
     }
 
     /**

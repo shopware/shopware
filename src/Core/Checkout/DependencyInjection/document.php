@@ -40,6 +40,7 @@ use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry as DocumentV2RendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
@@ -199,6 +200,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentGenerator::class),
             service('pdf.merger'),
             service(Filesystem::class),
+            service(DocumentFileNameBuilder::class),
         ]);
 
     $services->set(DocumentController::class)

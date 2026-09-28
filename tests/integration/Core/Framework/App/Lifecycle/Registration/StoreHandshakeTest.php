@@ -83,7 +83,7 @@ class StoreHandshakeTest extends TestCase
 
     public function testThrowsIfSbpRespondsWithUnauthorized(): void
     {
-        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient = static::createStub(StoreClient::class);
         $json = \json_encode(['code' => 'ShopwarePlatformException-1']);
 
         static::assertNotFalse($json);

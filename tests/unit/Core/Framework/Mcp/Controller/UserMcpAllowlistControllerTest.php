@@ -13,8 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -112,6 +114,31 @@ class UserMcpAllowlistControllerTest extends TestCase
         $response = $this->controller->save($this->userId, $this->makeRequest(['allowlist' => $allowlist]), $this->context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testRouteRequiresBothTheActionAndTheEntityPrivilege(): void
+    {
+        $this->repository->expects($this->never())->method('update');
+
+        // The allowlist decides what a principal may reach over MCP, so writing an arbitrary
+        // {userId} is a permission change and needs the entity privilege, not just the action one.
+        $route = (new AttributeRouteControllerLoader())->load(UserMcpAllowlistController::class)->get('api.action.user.mcp-allowlist');
+
+        static::assertNotNull($route);
+        static::assertSame(['api_action_user_mcp-allowlist', 'user:update'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
+    }
+
+    public function testObjectShapedPerTypeValueIsRejected(): void
+    {
+        $this->repository->expects($this->never())->method('update');
+
+        // A JSON object here would be stored but read back as an empty selection, so reject it
+        // instead of silently persisting something that grants nothing.
+        $request = $this->makeRequest(['allowlist' => ['tools' => ['x' => 'shopware-entity-delete']]]);
+
+        $response = $this->controller->save($this->userId, $request, $this->context);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testAllowlistWithSubsetOfKnownKeysIsAccepted(): void

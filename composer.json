@@ -611,7 +611,8 @@
     },
     "autoload": {
         "files": [
-            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "src/Core/Framework/Deprecation/class_aliases.php"
         ],
         "psr-4": {
             "Shopware\\": "src/"

@@ -211,7 +211,7 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 ### Quantity controls for digital products
 
-For digital products with a `calculatedMaxPurchase` above `1`, the product detail page shows the quantity selector and the cart enables its quantity controls. Themes that override the quantity blocks of `component/line-item/element/quantity.html.twig` should disable the controls with the new `isQuantitySelectDisabled` variable instead of `isDigital`.
+For digital products with a `calculatedMaxPurchase` above `1`, the product detail page shows the quantity selector and the cart enables its quantity controls. To support this, themes that override the quantity blocks of `component/line-item/element/quantity.html.twig` can disable the controls with the new `isQuantitySelectDisabled` variable instead of `isDigital`.
 
 ## App system
 

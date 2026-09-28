@@ -26,9 +26,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_search_keyword:update',
                 'system:clear:cache',
             ],
-            dependencies: [
-                'product_search_config.viewer',
-            ],
+            dependencies: ['product_search_config.viewer'],
         },
         creator: {
             privileges: [
@@ -37,10 +35,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_search_keyword:create',
                 'system:clear:cache',
             ],
-            dependencies: [
-                'product_search_config.viewer',
-                'product_search_config.editor',
-            ],
+            dependencies: ['product_search_config.viewer', 'product_search_config.editor'],
         },
         deleter: {
             privileges: [
@@ -50,9 +45,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_search_config:update',
                 'system:clear:cache',
             ],
-            dependencies: [
-                'product_search_config.viewer',
-            ],
+            dependencies: ['product_search_config.viewer'],
         },
     },
 });

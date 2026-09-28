@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Template;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -20,6 +22,8 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentSource;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Extension\CoreExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Loader\ArrayLoader;
@@ -96,6 +100,7 @@ class DocumentTemplateRendererTest extends TestCase
             $env,
             $translator,
             $contextFactory,
+            new EventDispatcher(),
             'rootDir',
         );
 
@@ -164,6 +169,7 @@ class DocumentTemplateRendererTest extends TestCase
             $env,
             $translator,
             $contextFactory,
+            new EventDispatcher(),
             'rootDir',
         );
 
@@ -210,8 +216,89 @@ class DocumentTemplateRendererTest extends TestCase
         static::assertSame('UTC', $twig->getExtension(CoreExtension::class)->getTimezone()->getName());
     }
 
-    private function createRenderer(TwigEnvironment $twig, ?string $businessTimeZone): DocumentTemplateRenderer
+    public function testRenderDispatchesTheV1ParameterEventWithTheTemplateScope(): void
     {
+        $captured = null;
+        $sequence = [];
+
+        $translator = static::createStub(AbstractTranslator::class);
+        $translator->method('injectSettings')
+            ->willReturnCallback(function () use (&$sequence): void {
+                $sequence[] = 'injectSettings';
+            });
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            DocumentTemplateRendererParameterEvent::class,
+            static function (DocumentTemplateRendererParameterEvent $event) use (&$captured, &$sequence): void {
+                $captured = $event->getParameters();
+                $sequence[] = 'listener';
+            },
+        );
+
+        $renderer = $this->createRenderer($this->createTwig('rendered'), null, $eventDispatcher, $translator);
+        $input = $this->createRenderInput();
+
+        $renderer->render(
+            'view',
+            $input,
+            Context::createDefaultContext(),
+            ['pagination' => 'counter'],
+        );
+
+        static::assertIsArray($captured);
+        static::assertSame($input->order, $captured['order']);
+        static::assertSame('12345', $captured['documentNumber']);
+        static::assertSame('rootDir', $captured['rootDir']);
+        static::assertSame('counter', $captured['pagination']);
+        static::assertInstanceOf(SalesChannelContext::class, $captured['context']);
+        static::assertSame(['injectSettings', 'listener'], $sequence);
+    }
+
+    public function testRenderPassesExtensionsFromTheV1ParameterEventIntoTheTemplate(): void
+    {
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            DocumentTemplateRendererParameterEvent::class,
+            static function (DocumentTemplateRendererParameterEvent $event): void {
+                $event->addExtension('badge', new ArrayStruct(['label' => 'paid via invoice']));
+            },
+        );
+
+        $renderer = $this->createRenderer(
+            $this->createTwig('{{ extensions.badge.get(\'label\') }}'),
+            null,
+            $eventDispatcher,
+        );
+
+        $result = $renderer->render(
+            'view',
+            $this->createRenderInput(),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('paid via invoice', $result);
+    }
+
+    public function testRenderPassesAnEmptyExtensionListWhenNobodySubscribes(): void
+    {
+        $renderer = $this->createRenderer($this->createTwig('{{ extensions|length }}'), null);
+
+        $result = $renderer->render(
+            'view',
+            $this->createRenderInput(),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame('0', $result);
+    }
+
+    private function createRenderer(
+        TwigEnvironment $twig,
+        ?string $businessTimeZone,
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?AbstractTranslator $translator = null,
+    ): DocumentTemplateRenderer {
         $templateFinder = static::createStub(TemplateFinder::class);
         $templateFinder->method('find')->willReturnArgument(0);
 
@@ -227,8 +314,9 @@ class DocumentTemplateRendererTest extends TestCase
         return new DocumentTemplateRenderer(
             $templateFinder,
             $twig,
-            static::createStub(AbstractTranslator::class),
+            $translator ?? static::createStub(AbstractTranslator::class),
             $contextFactory,
+            $eventDispatcher ?? new EventDispatcher(),
             'rootDir',
         );
     }

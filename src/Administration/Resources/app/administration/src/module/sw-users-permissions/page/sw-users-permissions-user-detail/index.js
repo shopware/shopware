@@ -26,10 +26,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -61,7 +58,7 @@ export default {
             mediaDefaultFolderId: null,
             showMediaModal: false,
             // Only edited for the own user — the theme select is hidden otherwise.
-            userTheme: useTheme().theme.value,
+            userThemeSelection: null,
         };
     },
 
@@ -72,6 +69,15 @@ export default {
     },
 
     computed: {
+        userTheme: {
+            get() {
+                return this.userThemeSelection ?? useTheme().theme.value;
+            },
+            set(theme) {
+                this.userThemeSelection = theme;
+            },
+        },
+
         ...mapPropertyErrors('user', [
             'firstName',
             'lastName',
@@ -219,6 +225,9 @@ export default {
 
     methods: {
         createdComponent() {
+            // Create the theme singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
+            useTheme();
+
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-users-permissions-user-detail__currentUser',
                 path: 'currentUser',
@@ -427,6 +436,7 @@ export default {
                     }
                     await this.updateCurrentUser();
                     await useTheme().saveUserTheme(this.userTheme);
+                    this.userThemeSelection = null;
                 }
 
                 this.createdComponent();

@@ -17,9 +17,9 @@ use Twig\Template;
 class SwTwigFunction
 {
     /**
-     * Used in {@see MacroOverrideNode::compile()}
+     * @var array<int, array{returned: bool, value: mixed}>
      */
-    public static mixed $macroResult = null;
+    private static array $macroReturnStack = [];
 
     /**
      * Resolved getter names by class and accessed item, empty string when the
@@ -28,6 +28,34 @@ class SwTwigFunction
      * @var array<class-string, array<string, string>>
      */
     private static array $getterCache = [];
+
+    /**
+     * @param \Closure(): mixed $macro
+     */
+    public static function callMacro(\Closure $macro): mixed
+    {
+        $stackIndex = \count(self::$macroReturnStack);
+        self::$macroReturnStack[$stackIndex] = ['returned' => false, 'value' => null];
+
+        try {
+            $result = $macro();
+            $return = self::$macroReturnStack[$stackIndex];
+        } finally {
+            unset(self::$macroReturnStack[$stackIndex]);
+        }
+
+        return $return['returned'] ? $return['value'] : $result;
+    }
+
+    public static function returnFromMacro(mixed $value): void
+    {
+        $stackIndex = array_key_last(self::$macroReturnStack);
+        if ($stackIndex === null) {
+            return;
+        }
+
+        self::$macroReturnStack[$stackIndex] = ['returned' => true, 'value' => $value];
+    }
 
     /**
      * Wrapper around {@see CoreExtension::getAttribute()}

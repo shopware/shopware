@@ -24,7 +24,7 @@ describe('extensions.store', () => {
             version: '1.0.0',
             type: 'app',
             sourceType: undefined,
-            integrationId: '123',
+            integrationId: '123' as EntityKey<'integration'>,
             active: true,
         });
 
@@ -35,7 +35,7 @@ describe('extensions.store', () => {
             version: '1.0.0',
             type: 'app',
             sourceType: undefined,
-            integrationId: '123',
+            integrationId: '123' as EntityKey<'integration'>,
             active: true,
         });
     });
@@ -50,7 +50,7 @@ describe('extensions.store', () => {
             permissions: {},
             version: '1.0.0',
             type: 'app',
-            integrationId: '123',
+            integrationId: '123' as EntityKey<'integration'>,
             active: true,
         });
 
@@ -67,7 +67,7 @@ describe('extensions.store', () => {
             permissions: {},
             version: '1.0.0',
             type: 'app',
-            integrationId: '123',
+            integrationId: '123' as EntityKey<'integration'>,
             active: true,
         });
 
@@ -79,7 +79,7 @@ describe('extensions.store', () => {
                 version: '1.0.0',
                 type: 'app',
                 sourceType: undefined,
-                integrationId: '123',
+                integrationId: '123' as EntityKey<'integration'>,
                 active: true,
             },
         ]);

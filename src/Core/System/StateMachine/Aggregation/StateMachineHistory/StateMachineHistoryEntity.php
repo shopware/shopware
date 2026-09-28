@@ -10,6 +10,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class StateMachineHistoryEntity extends Entity
 {

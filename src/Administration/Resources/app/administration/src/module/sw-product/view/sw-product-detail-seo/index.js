@@ -8,11 +8,7 @@ import template from './sw-product-detail-seo.html.twig';
 export default {
     template,
 
-    inject: [
-        'feature',
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['feature', 'acl', 'repositoryFactory'],
 
     data() {
         return {

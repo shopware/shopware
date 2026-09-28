@@ -20,7 +20,7 @@ export default Shopware.Mixin.register(
              * Returns a new position value using the the current max position + 1
              * starting with 1
              */
-            getNewPosition<EntityName extends keyof EntitySchema.Entities>(
+            getNewPosition<EntityName extends keyof EntitySchema.EntityKeys>(
                 repository: Repository<EntityName>,
                 criteria: Criteria,
                 context: typeof Shopware.Context.api,
@@ -43,9 +43,9 @@ export default Shopware.Mixin.register(
             /**
              * Lowers the position value bye swapping with the next entity
              */
-            lowerPositionValue<EntityName extends keyof EntitySchema.Entities>(
+            lowerPositionValue<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
-                selectedItem: EntitySchema.Entities[EntityName],
+                selectedItem: Entity<EntityName>,
                 field = 'position',
             ) {
                 return this.changePosition(collection, selectedItem, field, 'ASC');
@@ -60,9 +60,9 @@ export default Shopware.Mixin.register(
              *
              * @returns {EntityCollection}
              */
-            raisePositionValue<EntityName extends keyof EntitySchema.Entities>(
+            raisePositionValue<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
-                selectedItem: EntitySchema.Entities[EntityName],
+                selectedItem: Entity<EntityName>,
                 field = 'position',
             ) {
                 return this.changePosition(collection, selectedItem, field, 'DESC');
@@ -78,9 +78,9 @@ export default Shopware.Mixin.register(
              *
              * @returns {EntityCollection}
              */
-            changePosition<EntityName extends keyof EntitySchema.Entities>(
+            changePosition<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
-                selectedItem: EntitySchema.Entities[EntityName],
+                selectedItem: Entity<EntityName>,
                 field = 'position',
                 direction = 'ASC',
             ) {
@@ -129,9 +129,9 @@ export default Shopware.Mixin.register(
              *
              * @returns {int}
              */
-            getSiblingIndex<EntityName extends keyof EntitySchema.Entities>(
+            getSiblingIndex<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
-                selectedItem: EntitySchema.Entities[EntityName],
+                selectedItem: Entity<EntityName>,
                 field = 'position',
                 direction = 'ASC',
             ) {
@@ -163,9 +163,9 @@ export default Shopware.Mixin.register(
              *
              * @returns {Entity|null}
              */
-            getSibling<EntityName extends keyof EntitySchema.Entities>(
+            getSibling<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
-                selectedItem: EntitySchema.Entities[EntityName],
+                selectedItem: Entity<EntityName>,
                 field = 'position',
                 direction = 'ASC',
             ) {
@@ -190,7 +190,7 @@ export default Shopware.Mixin.register(
              *
              * @returns {EntityCollection}
              */
-            renumberPositions<EntityName extends keyof EntitySchema.Entities>(
+            renumberPositions<EntityName extends keyof EntitySchema.EntityKeys>(
                 collection: EntityCollection<EntityName>,
                 startIndex = 0,
                 field = 'position',

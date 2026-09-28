@@ -32,8 +32,9 @@ class Migration1773829000MigrateLineItemProductStatesRuleCondition extends Migra
         // so running this conversion in update() breaks blue-green deployments where 6.6
         // pods are still running while the 6.7 DB migration has already been applied.
         //
-        // The conversion is performed in updateDestructive(), which runs after the 6.6/6.7
-        // blue-green window has definitively closed.
+        // The conversion remains in updateDestructive() for the 6.7 contract phase. Shops
+        // that still need this conversion during the regular 6.8 update path are handled by
+        // \Shopware\Core\Migration\V6_8\Migration1785810496ConvertLineItemProductStatesRuleCondition.
     }
 
     public function updateDestructive(Connection $connection): void

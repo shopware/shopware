@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\Struct\ResolvedDocumentFile;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -57,7 +58,12 @@ final class DocumentFileResolver
             return null;
         }
 
-        foreach ([$document->getDocumentMediaFile(), $document->getDocumentA11yMediaFile()] as $media) {
+        $legacyMedia = Feature::silent(
+            'v6.9.0.0',
+            static fn (): array => [$document->getDocumentMediaFile(), $document->getDocumentA11yMediaFile()],
+        );
+
+        foreach ($legacyMedia as $media) {
             if ($media?->getFileExtension() === null || strcasecmp($media->getFileExtension(), $fileExtension) !== 0) {
                 continue;
             }
@@ -97,6 +103,6 @@ final class DocumentFileResolver
 
     private function isLegacyEmbeddedDocument(DocumentEntity $document): bool
     {
-        return str_contains(strtolower($document->getDocumentType()?->getTechnicalName() ?? ''), 'embedded');
+        return str_contains(strtolower($document->getTypeName() ?? ''), 'embedded');
     }
 }

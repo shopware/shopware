@@ -21,11 +21,7 @@ export default {
         'filterFactory',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing'), Mixin.getByName('placeholder')],
 
     data() {
         const data = {
@@ -299,10 +295,7 @@ export default {
         },
 
         productTypes() {
-            return [
-                'physical',
-                'digital',
-            ];
+            return ['physical', 'digital'];
         },
     },
 
@@ -341,11 +334,7 @@ export default {
             // Clone product query to its variant
             const variantCriteria = cloneDeep(criteria);
             criteria.addFilter(Criteria.equals('product.parentId', null));
-            variantCriteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('product.parentId', null),
-                ]),
-            );
+            variantCriteria.addFilter(Criteria.not('AND', [Criteria.equals('product.parentId', null)]));
 
             this.activeFilterNumber = criteria.filters.length - 1;
 
@@ -383,11 +372,7 @@ export default {
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
                     this.repositoryFactory.create('currency').search(currencyCriteria, Shopware.Context.api, {
-                        cacheKey: [
-                            'shared-data',
-                            'currencies',
-                            Shopware.Context.api.languageId ?? 'default',
-                        ],
+                        cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
                         ttl: 5 * 60 * 1000,
                     }),
                 ]);
@@ -452,10 +437,7 @@ export default {
                     return filter;
                 }
 
-                return Criteria.multi('OR', [
-                    filter,
-                    Criteria.equalsAny('product.streams.categories.id', categoryIds),
-                ]);
+                return Criteria.multi('OR', [filter, Criteria.equalsAny('product.streams.categories.id', categoryIds)]);
             });
         },
 

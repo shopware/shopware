@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */
@@ -89,6 +90,15 @@ class DocumentV2Exception extends HttpException
     public const NO_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_CREDIT_LINE_ITEMS';
 
     public const NO_UNPROCESSED_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_LINE_ITEMS';
+
+    public const DOCUMENT_TYPE_ALREADY_REGISTERED = 'DOCUMENT_V2__DOCUMENT_TYPE_ALREADY_REGISTERED';
+
+    public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'DOCUMENT_V2__DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
+
+    /**
+     * @deprecated tag:v6.9.0 - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     */
+    public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -180,6 +190,45 @@ class DocumentV2Exception extends HttpException
             self::INVALID_DOCUMENT_TYPE,
             'Invalid document type "{{ documentType }}". A document type must only contain lowercase letters, digits and underscores.',
             ['documentType' => $documentType],
+        );
+    }
+
+    public static function documentTypeAlreadyRegistered(string $identifier, string $owningApp): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_ALREADY_REGISTERED,
+            'The document type "{{ identifier }}" is already registered by app "{{ owningApp }}".',
+            ['identifier' => $identifier, 'owningApp' => $owningApp],
+        );
+    }
+
+    public static function documentTypeShadowsCoreType(string $identifier): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_SHADOWS_CORE_TYPE,
+            'The document type "{{ identifier }}" shadows a core document type and cannot be registered by an app.',
+            ['identifier' => $identifier],
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
+     */
+    public static function documentTypeReservedIdentifier(string $identifier): self
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.9.0.0',
+            'documentTypeReservedIdentifier() is removed with the legacy document implementation',
+            silentUntil: 'v6.8.0.0',
+        );
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_TYPE_RESERVED_IDENTIFIER,
+            'The document type "{{ identifier }}" is a reserved technical name and cannot be registered by an app.',
+            ['identifier' => $identifier],
         );
     }
 

@@ -49,10 +49,7 @@ function findComposableDescriptor(name: string): ComposableDescriptor | undefine
 function composableCallbacks(descriptor: ComposableDescriptor): ComposableCallback[] {
     const iocMember = descriptor.scaffold?.iocMember;
 
-    return [
-        ...(descriptor.callbackArgs ?? []),
-        ...(iocMember ? [{ name: iocMember, kind: 'callback' as const }] : []),
-    ];
+    return [...(descriptor.callbackArgs ?? []), ...(iocMember ? [{ name: iocMember, kind: 'callback' as const }] : [])];
 }
 
 /**

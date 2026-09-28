@@ -36,9 +36,7 @@ describe('src/app/composables/use-module-icon-colors.ts', () => {
         await useModuleIconColors().loadUserModuleIconColors();
 
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([
-            USER_MODULE_ICON_COLORS_CONFIG_KEY,
-        ]);
+        expect(Shopware.Service('userConfigService').search).toHaveBeenCalledWith([USER_MODULE_ICON_COLORS_CONFIG_KEY]);
         expect(useModuleIconColors().enabled.value).toBe(true);
     });
 

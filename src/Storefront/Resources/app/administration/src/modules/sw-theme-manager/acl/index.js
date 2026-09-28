@@ -36,28 +36,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'custom_field_set_relation:read',
                 Shopware.Service('privileges').getPrivileges('media.creator'),
             ],
-            dependencies: [
-                'theme.viewer',
-            ],
+            dependencies: ['theme.viewer'],
         },
         creator: {
-            privileges: [
-                'theme:create',
-                'theme_child:create',
-            ],
-            dependencies: [
-                'theme.viewer',
-                'theme.editor',
-            ],
+            privileges: ['theme:create', 'theme_child:create'],
+            dependencies: ['theme.viewer', 'theme.editor'],
         },
         deleter: {
-            privileges: [
-                'theme:delete',
-                'theme_child:delete',
-            ],
-            dependencies: [
-                'theme.viewer',
-            ],
+            privileges: ['theme:delete', 'theme_child:delete'],
+            dependencies: ['theme.viewer'],
         },
     },
 });

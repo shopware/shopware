@@ -2,18 +2,14 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Controller;
 
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
-use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
-use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -22,10 +18,8 @@ use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,7 +32,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -55,20 +49,16 @@ final class DocumentV2Controller extends AbstractController
      * @internal
      *
      * @param EntityRepository<DocumentCollection> $documentRepository
-     * @param EntityRepository<DocumentFileCollection> $documentFileRepository
-     * @param EntityRepository<DocumentTypeCollection> $documentTypeRepository
      */
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
-        private readonly DocumentRendererRegistry $documentRendererRegistry,
+        private readonly DocumentReader $documentReader,
         private readonly DocumentTypeRegistry $documentTypeRegistry,
         private readonly DocumentArchiveGenerator $documentArchiveGenerator,
         private readonly EntityRepository $documentRepository,
-        private readonly EntityRepository $documentFileRepository,
-        private readonly EntityRepository $documentTypeRepository,
+        private readonly DocumentPersister $documentPersister,
         private readonly MediaService $mediaService,
         private readonly FileNameProvider $fileNameProvider,
-        private readonly DocumentFileResolver $documentFileResolver,
     ) {
     }
 
@@ -83,9 +73,17 @@ final class DocumentV2Controller extends AbstractController
         $documentTypes = [];
 
         foreach ($this->documentTypeRegistry->getTechnicalNames() as $documentType) {
-            $documentTypes[$documentType] = [
+            $entry = [
                 'formats' => $this->documentTypeRegistry->getSupportedFormats($documentType),
             ];
+
+            $label = $this->documentTypeRegistry->getAppLabel($documentType);
+
+            if ($label !== []) {
+                $entry['label'] = $label;
+            }
+
+            $documentTypes[$documentType] = $entry;
         }
 
         return new JsonResponse([
@@ -154,8 +152,6 @@ final class DocumentV2Controller extends AbstractController
 
         $this->documentTypeRegistry->validateFormats($documentType, [$format]);
 
-        $documentId = Uuid::randomHex();
-        $deepLinkCode = Random::getAlphanumericString(32);
         $mediaId = $payload->getString('mediaId');
         $documentNumber = $payload->getString('documentNumber');
 
@@ -182,36 +178,20 @@ final class DocumentV2Controller extends AbstractController
             );
         }
 
-        $document = [
-            'id' => $documentId,
-            'orderId' => $this->requirePayloadString($payload, 'orderId'),
-            'orderVersionId' => $this->requirePayloadString($payload, 'orderVersionId'),
-            'documentTypeId' => $this->getDocumentTypeId($documentType, $context),
-            'documentMediaFileId' => $mediaId,
-            'static' => true,
-            'deepLinkCode' => $deepLinkCode,
-            'config' => ['documentNumber' => $documentNumber],
-        ];
-
-        if ($documentNumber === '') {
-            // Omit an empty document number so the generated document_number column stays NULL
-            $document['config'] = [];
-        }
-
-        $this->documentRepository->create([$document], $context);
-
-        $this->documentFileRepository->create([
-            [
-                'id' => Uuid::randomHex(),
-                'documentId' => $documentId,
-                'documentFormat' => $format,
-                'mediaId' => $mediaId,
-            ],
-        ], $context);
+        $document = $this->documentPersister->persistUploaded(
+            $documentType,
+            $this->requirePayloadString($payload, 'orderId'),
+            $this->requirePayloadString($payload, 'orderVersionId'),
+            $documentNumber,
+            $format,
+            $mediaId,
+            $payload->getString('referencedDocumentId') ?: null,
+            $context,
+        );
 
         return new JsonResponse([
-            'documentId' => $documentId,
-            'deepLinkCode' => $deepLinkCode,
+            'documentId' => $document->getId(),
+            'deepLinkCode' => $document->getDeepLinkCode(),
             'formats' => [$format],
         ]);
     }
@@ -227,36 +207,12 @@ final class DocumentV2Controller extends AbstractController
         string $format,
         Context $context,
     ): Response {
-        $document = $this->loadDocument($documentId, $context);
-
-        if (!$document instanceof DocumentEntity) {
-            throw DocumentV2Exception::documentNotFound($documentId);
-        }
-
-        $resolvedFile = $this->documentFileResolver->resolve($document, $format);
-        if ($resolvedFile === null) {
-            throw DocumentV2Exception::documentFormatUnavailable($documentId, $format);
-        }
-
-        $fileExtension = $resolvedFile->fileExtension;
-        if ($fileExtension === '') {
-            $fileExtension = $this->documentRendererRegistry->getFileExtension($format);
-            if ($fileExtension === null) {
-                throw DocumentV2Exception::documentFileExtensionUnavailable($documentId, $format);
-            }
-        }
-
-        $content = $context->scope(
-            Context::SYSTEM_SCOPE,
-            fn (Context $scopedContext): string => $this->mediaService->loadFile($resolvedFile->media->getId(), $scopedContext),
-        );
-
-        $fileName = $resolvedFile->fileName . '.' . $fileExtension;
+        $document = $this->documentReader->read($documentId, $context, format: $format);
 
         return $this->createResponse(
-            $fileName,
-            $content,
-            $resolvedFile->mimeType,
+            $document->getName(),
+            $document->getContent(),
+            $document->getContentType(),
             HeaderUtils::DISPOSITION_ATTACHMENT,
         );
     }
@@ -308,16 +264,6 @@ final class DocumentV2Controller extends AbstractController
         );
     }
 
-    private function loadDocument(string $documentId, Context $context): ?DocumentEntity
-    {
-        $criteria = (new Criteria([$documentId]))
-            ->addAssociations(self::DOCUMENT_FILE_ASSOCIATIONS);
-
-        $document = $this->documentRepository->search($criteria, $context)->getEntities()->first();
-
-        return $document instanceof DocumentEntity ? $document : null;
-    }
-
     /**
      * @param list<string> $documentIds
      */
@@ -352,21 +298,6 @@ final class DocumentV2Controller extends AbstractController
         $fileName = $payload->getString('fileName') ?: $payload->getString('documentNumber');
 
         return $fileName !== '' ? $fileName : Uuid::randomHex();
-    }
-
-    private function getDocumentTypeId(string $documentType, Context $context): string
-    {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('technicalName', $documentType))
-            ->setLimit(1);
-
-        $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
-
-        if ($documentTypeId === null) {
-            throw DocumentV2Exception::documentTypeNotFound($documentType);
-        }
-
-        return $documentTypeId;
     }
 
     private function createResponse(

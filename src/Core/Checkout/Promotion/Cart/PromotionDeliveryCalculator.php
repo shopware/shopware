@@ -73,7 +73,7 @@ class PromotionDeliveryCalculator
 
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
-        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
+        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems, $toCalculate, $context);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -91,7 +91,15 @@ class PromotionDeliveryCalculator
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$this->isAutomaticDiscount($discountItem)) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $toCalculate);
+                    $name = $discountItem->getLabel() ?? $discountItem->getId();
+                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                    } else {
+                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                            : [];
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                    }
                 }
 
                 continue;
@@ -204,9 +212,10 @@ class PromotionDeliveryCalculator
      * If fixed price discount lineItems are in collection:
      * a collection with only one lineItem is returned.
      * if there are more than one fixed price lineItems the lowest fixed price discount lineItem is returned
+     * fixed price lineItems that do not apply to the current cart are ignored when picking that lowest one
      * if no fixed price discount lineItems are in collection all discounts are returned
      */
-    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems): LineItemCollection
+    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): LineItemCollection
     {
         // filter all discountLineItems by scope delivery and type fixed price
         $fixedPricesDiscountLineItems = $discountLineItems->filter(static function (LineItem $discountLineItem) {
@@ -218,14 +227,19 @@ class PromotionDeliveryCalculator
                 return false;
             }
 
-            if ($discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT) {
-                return true;
-            }
-
-            return false;
+            return $discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT;
         });
 
         // if there are no fixed price lineItems we may return all discount line items and calculate them
+        if ($fixedPricesDiscountLineItems->count() === 0) {
+            return $discountLineItems;
+        }
+
+        $fixedPricesDiscountLineItems = $fixedPricesDiscountLineItems->filter(
+            fn (LineItem $discountLineItem) => $this->isRequirementValid($discountLineItem, $toCalculate, $context)
+        );
+
+        // none of them applies, so the remaining discounts keep their chance and the calculation loop reports the errors
         if ($fixedPricesDiscountLineItems->count() === 0) {
             return $discountLineItems;
         }

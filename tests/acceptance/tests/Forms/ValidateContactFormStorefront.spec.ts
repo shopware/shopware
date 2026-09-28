@@ -1,6 +1,45 @@
 import { expect, test } from '@fixtures/AcceptanceTest';
 
 test(
+    'As a customer, the contact form only asks me to acknowledge the privacy policy.',
+    {
+        tag: [
+            '@Form',
+            '@Contact',
+            '@Storefront',
+        ],
+    },
+    async ({ ShopCustomer, StorefrontHome, StorefrontContactForm, TestDataService }) => {
+        const openContactForm = async (requireDataProtectionCheckbox: boolean) => {
+            await TestDataService.setSystemConfig({
+                'core.loginRegistration.requireDataProtectionCheckbox': requireDataProtectionCheckbox,
+            });
+            await ShopCustomer.goesTo(
+                `${StorefrontHome.url()}?privacy-checkbox=${requireDataProtectionCheckbox ? 'enabled' : 'disabled'}`,
+            );
+            await ShopCustomer.presses(StorefrontHome.contactFormLink);
+        };
+
+        const privacyNotice = StorefrontContactForm.page.locator('#cms-form-contact .privacy-notice');
+        const dataProtectionCheckbox = privacyNotice.locator('input[name="acceptedDataProtection"]');
+
+        await test.step('Shows a passive privacy-only notice without a checkbox', async () => {
+            await openContactForm(false);
+            await expect(privacyNotice).not.toContainText(/general terms and conditions|AGB/i);
+            await expect(dataProtectionCheckbox).toHaveCount(0);
+            await expect(privacyNotice).toContainText(/Please note|Bitte beachten/i);
+        });
+
+        await test.step('Shows a privacy-only checkbox when the checkbox is required', async () => {
+            await openContactForm(true);
+            await expect(privacyNotice).not.toContainText(/general terms and conditions|AGB/i);
+            await expect(dataProtectionCheckbox).toBeVisible();
+            await expect(privacyNotice).not.toContainText(/Please note|Bitte beachten/i);
+        });
+    },
+);
+
+test(
     'As a customer, I want to fill out and submit the contact form.',
     {
         tag: [

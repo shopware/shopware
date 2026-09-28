@@ -4,12 +4,18 @@
  * Which admin menu entry is active, derived from Vue Router's resolved `$route.matched` chain.
  */
 
+import type { ModuleManifest, ModuleTypes } from 'src/core/factory/module.factory';
+
+type ModuleNavigationPath = Pick<Exclude<ModuleManifest['navigation'], undefined>[number], 'path'>;
+
 type RouteLike = {
     name?: string;
     matched?: Array<{ name?: string }>;
     params?: Record<string, unknown>;
     meta?: {
         parentPath?: string;
+        // Written for every module route by `addModuleInfoToTarget`, see core/factory/router.factory
+        $module?: { type?: ModuleTypes; navigation?: ModuleNavigationPath[] };
     };
 };
 
@@ -23,6 +29,27 @@ type MenuEntryLike = {
     params?: Record<string, unknown>;
     children?: MenuEntryLike[];
 };
+
+/**
+ * Stand-in for a missing `parentPath`: the menu entries the route's own module contributes.
+ *
+ * Extensions cannot be asked to declare `parentPath` retroactively, so an ambiguous set is used as-is
+ * and highlights the module's entries. Core modules declare it, so there the ambiguity is declined.
+ */
+function ownModuleMenuPaths(route: RouteLike | undefined, activeNames: Set<string>): string[] {
+    const module = route?.meta?.$module;
+    const menuPaths = (module?.navigation ?? []).map((entry) => entry.path).filter((path): path is string => !!path);
+
+    if (menuPaths.some((path) => activeNames.has(path))) {
+        return [];
+    }
+
+    if (menuPaths.length > 1 && module?.type === 'core') {
+        return [];
+    }
+
+    return menuPaths;
+}
 
 /**
  * Route names counting as "current": the `matched` chain plus everything reachable via `parentPath`.
@@ -44,12 +71,24 @@ export function getActiveRouteNames(route?: RouteLike, router?: RouterLike): Set
 
     const findRoute = (name: string) => router?.getRoutes?.().find((candidate) => candidate.name === name) ?? null;
     const visited = new Set<string>();
-    let parentPath = route?.meta?.parentPath;
+    // An explicit `parentPath` wins; the module's own entries fill in for routes that declare none.
+    const pending = route?.meta?.parentPath ? [route.meta.parentPath] : ownModuleMenuPaths(route, names);
 
-    while (parentPath && !visited.has(parentPath)) {
+    while (pending.length) {
+        const parentPath = pending.shift() as string;
+
+        if (visited.has(parentPath)) {
+            continue;
+        }
+
         visited.add(parentPath);
         names.add(parentPath);
-        parentPath = findRoute(parentPath)?.meta?.parentPath ?? undefined;
+
+        const grandParentPath = findRoute(parentPath)?.meta?.parentPath;
+
+        if (grandParentPath) {
+            pending.push(grandParentPath);
+        }
     }
 
     return names;

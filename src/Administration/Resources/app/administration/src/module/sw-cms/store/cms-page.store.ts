@@ -105,7 +105,7 @@ const cmsPageStore = Shopware.Store.register({
             this.pageEntityName = 'cms_page';
         },
 
-        setDefaultMediaFolderId(folderId: string) {
+        setDefaultMediaFolderId(folderId: EntityKey<'media_folder'>) {
             this.defaultMediaFolderId = folderId;
         },
 

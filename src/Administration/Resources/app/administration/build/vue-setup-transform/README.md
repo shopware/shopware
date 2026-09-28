@@ -42,7 +42,10 @@ developers working on the transform itself.
   independent state, but forwarded to an override slot scope when the template references it. Base mode
   has no runtime input aliases - its body is native, so there is nothing to alias.
 - **Marker macro** — `swDefinePublic({...})` / `swDefineOverride({...})`. Compile-time only; removed
-  from the generated output after their entries are extracted.
+  from the generated output after their entries are extracted. `swDefinePublic()`'s entries feed the
+  base footer twice: as the `public` state map, and as the generated `defineExpose()` that gives a
+  parent holding a template ref the same bindings an override may replace, spread over the props
+  `Shopware.Component.getExposedProps()` reads off the instance.
 - **Author alias** — the `__swSetupAuthor_<name>` name every top-level base runtime binding is renamed
   to, so the generated footer can re-declare the original name from `attachOverrides(...)`.
 - **Public entries / override entries** — the shorthand binding names extracted from the markers.

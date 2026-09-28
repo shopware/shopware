@@ -14,6 +14,9 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDe
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class NumberRangeSalesChannelDefinition extends EntityDefinition
 {

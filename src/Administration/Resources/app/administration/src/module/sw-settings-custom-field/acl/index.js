@@ -7,11 +7,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     key: 'custom_field',
     roles: {
         viewer: {
-            privileges: [
-                'custom_field_set:read',
-                'custom_field_set_relation:read',
-                'custom_field:read',
-            ],
+            privileges: ['custom_field_set:read', 'custom_field_set_relation:read', 'custom_field:read'],
             dependencies: [],
         },
         editor: {
@@ -21,27 +17,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'custom_field:create',
                 'custom_field:delete',
             ],
-            dependencies: [
-                'custom_field.viewer',
-            ],
+            dependencies: ['custom_field.viewer'],
         },
         creator: {
-            privileges: [
-                'custom_field_set:create',
-                'custom_field_set_relation:create',
-            ],
-            dependencies: [
-                'custom_field.viewer',
-                'custom_field.editor',
-            ],
+            privileges: ['custom_field_set:create', 'custom_field_set_relation:create'],
+            dependencies: ['custom_field.viewer', 'custom_field.editor'],
         },
         deleter: {
-            privileges: [
-                'custom_field_set:delete',
-            ],
-            dependencies: [
-                'custom_field.viewer',
-            ],
+            privileges: ['custom_field_set:delete'],
+            dependencies: ['custom_field.viewer'],
         },
     },
 });

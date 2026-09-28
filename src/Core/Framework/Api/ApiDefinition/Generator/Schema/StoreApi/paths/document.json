@@ -30,6 +30,22 @@
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "description": "Technical name of the document v2 format to return. Defaults to `pdf` Ignored for v1 documents.",
+                        "schema": {
+                            "type": "string",
+                            "default": "pdf",
+                            "examples": [
+                                "pdf",
+                                "html",
+                                "zugferd_xml",
+                                "zugferd_embedded_pdf"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -152,6 +168,22 @@
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "description": "Technical name of the document v2 format to return. Defaults to `pdf` Ignored for v1 documents.",
+                        "schema": {
+                            "type": "string",
+                            "default": "pdf",
+                            "examples": [
+                                "pdf",
+                                "html",
+                                "zugferd_xml",
+                                "zugferd_embedded_pdf"
+                            ]
+                        }
                     }
                 ],
                 "responses": {

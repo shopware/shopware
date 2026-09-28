@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -22,6 +23,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPage;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
@@ -34,11 +36,14 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\Store\InMemoryStore;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -384,6 +389,12 @@ class RegisterControllerTest extends TestCase
         $customerRepository = static::createStub(EntityRepository::class);
         $domainRepository = static::createStub(EntityRepository::class);
 
+        $doubleSubmitGuard = new DoubleSubmitGuard(
+            new LockFactory(new InMemoryStore()),
+            new ArrayAdapter(),
+            new NullLogger(),
+        );
+
         return new RegisterControllerTestClass(
             $accountLoginPageLoader ?? $this->accountLoginPageLoader,
             $registerRoute ?? $this->registerRoute,
@@ -396,6 +407,7 @@ class RegisterControllerTest extends TestCase
             $domainRepository,
             static::createStub(HeaderPageletLoaderInterface::class),
             static::createStub(FooterPageletLoaderInterface::class),
+            $doubleSubmitGuard,
         );
     }
 

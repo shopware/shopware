@@ -21,7 +21,7 @@ interface UserConfigRepository {
 }
 
 interface CurrentUser {
-    id?: string | null;
+    id?: EntityKey<'user'> | null;
 }
 
 /**

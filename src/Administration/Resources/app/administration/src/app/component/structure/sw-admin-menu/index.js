@@ -1,4 +1,5 @@
 import { createFocusTrap } from 'focus-trap';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-admin-menu.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
@@ -29,9 +30,16 @@ export default {
         'systemConfigApiService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
+
+    shortcuts: {
+        S: {
+            active(event) {
+                return !this.isMobileViewport && !(event?.ctrlKey || event?.altKey || event?.metaKey);
+            },
+            method: 'onToggleSidebar',
+        },
+    },
 
     data() {
         return {
@@ -140,6 +148,26 @@ The admin menu only supports up to three levels of nesting.`,
             return tree.convertToTree();
         },
 
+        flyoutModuleColor() {
+            // The flyout is teleported to the body, so it cannot inherit the color from the hovered row
+            if (!useModuleIconColors().enabled.value) {
+                return undefined;
+            }
+
+            return this.activeEntry?.entry?.color;
+        },
+
+        flyoutContentClass() {
+            return {
+                'is--closing': this.isFlyoutClosing,
+                'is--module-colored': !!this.flyoutModuleColor,
+            };
+        },
+
+        flyoutContentStyle() {
+            return this.flyoutModuleColor ? { '--sw-admin-menu-module-color': this.flyoutModuleColor } : null;
+        },
+
         scrollbarOffsetStyle() {
             return {
                 right: this.scrollbarOffset,
@@ -167,12 +195,7 @@ The admin menu only supports up to three levels of nesting.`,
 
         userActionsAriaLabel() {
             // The collapsed sidebar hides the visible user name, leaving the avatar button unnamed
-            return [
-                this.userName,
-                this.userTitle,
-            ]
-                .filter(Boolean)
-                .join(', ');
+            return [this.userName, this.userTitle].filter(Boolean).join(', ');
         },
 
         avatarUrl() {
@@ -821,9 +844,16 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             const activeNames = getActiveRouteNames(this.$route, this.$router);
-            const owner = this.mainMenuEntries.find(
-                (entry) => (entry.children?.length ?? 0) > 0 && isEntryOnActiveRoute(entry, this.$route, activeNames),
+            const activeEntries = this.mainMenuEntries.filter((entry) =>
+                isEntryOnActiveRoute(entry, this.$route, activeNames),
             );
+
+            // Pages the menu does not list at all own no branch — leave the tree as the user left it
+            if (!activeEntries.length) {
+                return;
+            }
+
+            const owner = activeEntries.find((entry) => (entry.children?.length ?? 0) > 0);
             const ownerKey = owner ? (owner.id ?? owner.path) : null;
 
             // The cached owner may have been collapsed manually
@@ -831,7 +861,7 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
-            // Branches only stay open while they own the active item.
+            // Branches only stay open while they own the active item, or while nothing in the menu does.
             this.collapseInactiveBranches(owner);
             this.activeBranchKey = ownerKey;
 

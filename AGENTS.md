@@ -85,6 +85,10 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 
 **MANDATORY**: All code must follow the guidelines in `coding-guidelines/`.
 
+## Snippets & Translations
+
+German snippets differ in register between the two UIs. The Administration addresses the user informally ("Du"), the Storefront formally ("Sie"). Keep each domain consistent when adding or editing `de` snippets.
+
 ## File Linting
 
 **MANDATORY**: All code must be linted according to the following table.

@@ -34,7 +34,7 @@ interface OrderDeleteDocument {
 }
 
 interface DocumentGenerationFailedItem {
-    orderId: string;
+    orderId: EntityKey<'order'>;
     documentType: string;
     errorCode?: string;
     detail?: string;
@@ -180,22 +180,12 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
     getters: {
         documentTypeConfigs(state) {
             return Object.entries(state.orderDocuments)
-                .filter(
-                    ([
-                        key,
-                        value,
-                    ]) => key !== 'download' && key !== 'delete' && value.isChanged === true,
-                )
-                .map(
-                    ([
-                        key,
-                        value,
-                    ]) => ({
-                        fileType: 'pdf',
-                        type: key,
-                        config: value.value,
-                    }),
-                );
+                .filter(([key, value]) => key !== 'download' && key !== 'delete' && value.isChanged === true)
+                .map(([key, value]) => ({
+                    fileType: 'pdf',
+                    type: key,
+                    config: value.value,
+                }));
         },
     },
 });

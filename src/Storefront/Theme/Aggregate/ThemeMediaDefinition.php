@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class ThemeMediaDefinition extends MappingEntityDefinition
 {

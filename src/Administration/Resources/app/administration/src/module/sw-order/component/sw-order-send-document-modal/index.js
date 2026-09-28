@@ -1,6 +1,6 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 const { Filter } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
@@ -35,19 +35,11 @@ export const DOCUMENT_MAIL_TEMPLATE_MAPPING = {
 export default {
     template,
 
-    inject: [
-        'mailService',
-        'repositoryFactory',
-    ],
+    inject: ['mailService', 'repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'document-sent',
-    ],
+    emits: ['modal-close', 'document-sent'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         document: {

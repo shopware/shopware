@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -236,6 +237,7 @@ class EntityRepositoryTest extends TestCase
     {
         $product = new PartialEntity();
         $product->setUniqueIdentifier('test');
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $reader = static::createStub(EntityReaderInterface::class);
         $reader
@@ -248,8 +250,11 @@ class EntityRepositoryTest extends TestCase
             $event = $inner;
         });
 
+        $definition = static::createStub(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('product');
+
         $repo = new EntityRepository(
-            static::createStub(EntityDefinition::class),
+            $definition,
             $reader,
             static::createStub(VersionManager::class),
             static::createStub(EntitySearcherInterface::class),

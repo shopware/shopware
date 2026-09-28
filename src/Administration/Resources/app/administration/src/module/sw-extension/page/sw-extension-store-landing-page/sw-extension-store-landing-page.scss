@@ -7,54 +7,13 @@
     width: 100%;
     height: 100%;
 
+    // reserves the previous fixed card height so the checkout modal keeps its size while activation states swap
     .sw-extension-store-landing-page__wrapper {
         display: flex;
         justify-content: center;
-        background-color: var(--color-elevation-surface-raised);
-        border: 1px solid var(--color-border-secondary-default);
-        border-radius: var(--border-radius-card);
-        text-align: center;
-        padding: 44px;
-        width: 960px;
-        max-width: 100%;
-        height: 500px;
-        max-height: 100%;
-
-        .sw-loader {
-            position: relative;
-            height: unset;
-            width: unset;
-            margin: 0 0 24px;
-        }
-    }
-
-    .sw-extension-store-landing-page__wrapper-content {
-        max-width: 480px;
-        display: flex;
-        justify-content: center;
         align-items: center;
-        flex-direction: column;
-
-        h2 {
-            font-size: var(--font-size-m);
-        }
-
-        p {
-            padding-bottom: 24px;
-        }
-    }
-
-    .sw-extension-store-landing-page__wrapper-label {
-        color: var(--color-text-positive-default);
-        background-color: var(--color-background-positive-default);
-        border-radius: $border-radius-default;
-        font-size: var(--font-size-xs);
-        padding: 3px 5px;
-        margin-bottom: 12px;
-    }
-
-    img {
-        margin-bottom: 24px;
+        width: 100%;
+        min-height: 500px;
     }
 
     .sw-extension-store-landing-page__wrapper-loading {
@@ -62,29 +21,13 @@
         justify-content: center;
         align-items: center;
         flex-direction: column;
-    }
+        text-align: center;
 
-    .sw-extension-store-landing-page__wrapper-activated {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-
-        .sw-label {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 72px;
-            height: 72px;
-            margin-bottom: 24px;
-        }
-
-        h2 {
-            margin-bottom: 12px;
-        }
-
-        .mt-button {
-            margin-top: 24px;
+        .sw-loader {
+            position: relative;
+            height: unset;
+            width: unset;
+            margin: 0 0 24px;
         }
     }
 }

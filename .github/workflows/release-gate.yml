@@ -19,14 +19,14 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  actions: read
   contents: read
-  id-token: write
-  pull-requests: read
-  security-events: write
 
 jobs:
   acceptance:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
     uses: ./.github/workflows/acceptance.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
@@ -34,16 +34,26 @@ jobs:
       profile: release
       currents: false
   integration:
+    permissions:
+      contents: read
+      security-events: write
     uses: ./.github/workflows/integration.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
       profile: release
   admin:
+    permissions:
+      contents: read
+      pull-requests: read
     uses: ./.github/workflows/admin.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
   php:
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: read
     uses: ./.github/workflows/php.yml
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'

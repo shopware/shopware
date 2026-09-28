@@ -15,9 +15,7 @@ const CMS_ELEMENT_DESCRIPTOR: ComposableDescriptor = {
     },
     members: {
         ...CMS_STATE_MEMBERS,
-        ...refMembers([
-            'cmsElements',
-        ]),
+        ...refMembers(['cmsElements']),
         ...methodMembers([
             'initElementConfig',
             'initBaseConfig',
@@ -36,13 +34,8 @@ const CMS_ELEMENT_DESCRIPTOR: ComposableDescriptor = {
         'applyContentOverride',
     ],
     // The service the mixin injected, which the composable resolves itself.
-    unmappedMembers: [
-        'cmsService',
-    ],
-    propArgs: [
-        'element',
-        'defaultConfig',
-    ],
+    unmappedMembers: ['cmsService'],
+    propArgs: ['element', 'defaultConfig'],
     // `disabled` is the third prop the mixin declared, which its own logic never read.
     providedProps: [
         { name: 'element', definition: '{\ntype: Object,\nrequired: true,\n}' },

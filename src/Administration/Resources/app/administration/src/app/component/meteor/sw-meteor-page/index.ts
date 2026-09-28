@@ -37,9 +37,7 @@ type VNodeChildrenWithDefaultSlot = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     props: {
         fullWidth: {

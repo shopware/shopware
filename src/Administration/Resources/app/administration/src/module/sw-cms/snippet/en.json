@@ -5,6 +5,7 @@
       "mainMenuItemGeneral": "Shopping Experiences",
       "moduleTitle": "Shopping Experiences",
       "greeting": "Layouts",
+      "switchLayoutListMode": "Switch between grid and list view",
       "createNewLayout": "Create new layout",
       "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
       "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
@@ -374,7 +375,7 @@
             "descriptionTextUseFilterByProperties": "Properties that are set to not filterable are not displayed here. You can change this in the <a href=\"#/sw/property/index\" target=\"_blank\">properties</a> module.",
             "gridHeaderStatus": "Status",
             "gridHeaderName": "Name",
-            "gridEmptyStateLabel": "No properties found.",
+            "gridEmptyStateLabel": "No properties found",
             "gridEmptyStateHint": "Try another search term"
           }
         }

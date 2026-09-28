@@ -49,29 +49,19 @@ export default function useCmsElement(options: UseCmsElementOptions): UseCmsElem
         const resolved = cloneDeep(element.config ?? {});
         const defaults = merge({}, cmsElements.value[element.type ?? '']?.defaultConfig, options.defaultConfig?.());
 
-        Object.entries(defaults).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                if (key in resolved) {
-                    return;
-                }
+        Object.entries(defaults).forEach(([key, value]) => {
+            if (key in resolved) {
+                return;
+            }
 
-                set(resolved, key, get(element, `translated.config.${key}`, value));
-            },
-        );
+            set(resolved, key, get(element, `translated.config.${key}`, value));
+        });
 
         const override = element.id ? cmsState.inheritedSlotConfig.value?.[element.id] : null;
 
-        Object.entries(override ?? {}).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                set(resolved, key, cloneDeep(value));
-            },
-        );
+        Object.entries(override ?? {}).forEach(([key, value]) => {
+            set(resolved, key, cloneDeep(value));
+        });
 
         return resolved;
     });

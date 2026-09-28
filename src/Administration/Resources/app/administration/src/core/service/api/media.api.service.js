@@ -75,10 +75,7 @@ class MediaApiService extends ApiService {
         const tagListener = this.hasListeners(uploadTag) ? this.$listeners[uploadTag] : [];
         const defaultListeners = this.hasDefaultListeners() ? this.$listeners.default : [];
 
-        return [
-            ...tagListener,
-            ...defaultListeners,
-        ];
+        return [...tagListener, ...defaultListeners];
     }
 
     _createUploadEvent(action, uploadTag, payload) {
@@ -337,10 +334,7 @@ class MediaApiService extends ApiService {
         const criteria = new Criteria(1, 1).addFilter(Criteria.equals('entity', entity));
 
         const items = await defaultFolderRepository.search(criteria, {
-            cacheKey: [
-                'media-default-folder',
-                entity,
-            ],
+            cacheKey: ['media-default-folder', entity],
         });
 
         if (items.length !== 1) {

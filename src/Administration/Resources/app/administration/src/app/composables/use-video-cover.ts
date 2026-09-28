@@ -9,7 +9,7 @@ import useNotification from './use-notification';
 
 /** @private */
 export type VideoCoverMedia = {
-    id?: string;
+    id?: EntityKey<'media'>;
     isLoading?: boolean;
     mediaType?: { name?: string } | null;
     mimeType?: string | null;

@@ -46,10 +46,12 @@
                     v-show="activeTab === 'options'"
                     :disabled="!customer || undefined"
                     :disabled-auto-promotion="disabledAutoPromotion"
+                    :send-order-confirmation-mail="sendOrderConfirmationMail"
                     :promotion-codes="promotionCodes"
                     :context="context"
                     @promotions-change="updatePromotion"
                     @auto-promotion-toggle="updateAutoPromotionToggle"
+                    @send-order-confirmation-mail-toggle="updateSendOrderConfirmationMail"
                     @shipping-cost-change="updateShippingCost"
                 />
                 {% endblock %}
@@ -126,10 +128,12 @@
                             v-show="active === 'options'"
                             :disabled="!customer || undefined"
                             :disabled-auto-promotion="disabledAutoPromotion"
+                            :send-order-confirmation-mail="sendOrderConfirmationMail"
                             :promotion-codes="promotionCodes"
                             :context="context"
                             @promotions-change="updatePromotion"
                             @auto-promotion-toggle="updateAutoPromotionToggle"
+                            @send-order-confirmation-mail-toggle="updateSendOrderConfirmationMail"
                             @shipping-cost-change="updateShippingCost"
                         />
                     {% endblock %}

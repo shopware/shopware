@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import EntityCollection from 'src/core/data/entity-collection.data';
 import component from './index';
 
 /**
@@ -21,53 +20,6 @@ const orderFixture = {
     versionId: 'order-version-id',
 };
 
-const documentTypeFixture = [
-    {
-        id: 'delivery-note',
-        name: 'Delivery note',
-        technicalName: 'delivery_note',
-        translated: {
-            name: 'Delivery note',
-        },
-    },
-    {
-        id: 'invoice',
-        name: 'Invoice',
-        technicalName: 'invoice',
-        translated: {
-            name: 'Invoice',
-        },
-    },
-    {
-        id: 'storno',
-        name: 'Cancellation invoice',
-        technicalName: 'storno',
-        translated: {
-            name: 'Cancellation invoice',
-        },
-    },
-    {
-        id: 'credit-note',
-        name: 'Credit note',
-        technicalName: 'credit_note',
-        translated: {
-            name: 'Credit note',
-        },
-    },
-];
-
-function getCollection(entity, collection) {
-    return new EntityCollection(
-        `/${entity}`,
-        entity,
-        null,
-        { isShopwareContext: true },
-        collection,
-        collection.length,
-        null,
-    );
-}
-
 async function createWrapper(props = {}) {
     const {
         order = orderFixture,
@@ -82,10 +34,7 @@ async function createWrapper(props = {}) {
                 ],
             },
             storno: {
-                formats: [
-                    'pdf',
-                    'html',
-                ],
+                formats: ['pdf', 'html'],
             },
         },
     } = props;
@@ -113,7 +62,7 @@ async function createWrapper(props = {}) {
                     getDocumentNumberRangeType: (documentType) => documentType,
                     sortFileFormats: (formats) => formats,
                     getFileFormatSnippet: (format) => `${format}--snippet`,
-                    getDocumentTypeSnippet: (technicalName) => `${technicalName}--type-snippet`,
+                    getDocumentTypeLabel: (technicalName) => `${technicalName}--type-snippet`,
                     getDocumentNumbersByTypes: (documents, types) =>
                         documents
                             .filter((document) => types.some((type) => document.type === type))
@@ -122,23 +71,6 @@ async function createWrapper(props = {}) {
                 },
                 numberRangeService: {
                     reserve: numberRangeReserveMock,
-                },
-                repositoryFactory: {
-                    create: (entity) => {
-                        if (entity === 'document_type') {
-                            return {
-                                search: jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture)),
-                            };
-                        }
-
-                        if (entity === 'document') {
-                            return {
-                                searchIds: jest.fn().mockResolvedValue(getCollection('document', [])),
-                            };
-                        }
-
-                        return null;
-                    },
                 },
             },
         },
@@ -211,10 +143,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             },
         );
 
-        expect(documentFormatCancellationInvoiceListElementsText).toEqual([
-            'pdf--snippet',
-            'html--snippet',
-        ]);
+        expect(documentFormatCancellationInvoiceListElementsText).toEqual(['pdf--snippet', 'html--snippet']);
     });
 
     it('does not preselect file formats after selecting a document type', async () => {
@@ -301,7 +230,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             .trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--credit-note').trigger('click');
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--credit_note').trigger('click');
         await flushPromises();
 
         expect(
@@ -334,7 +263,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             .trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--credit-note').trigger('click');
+        await wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--credit_note').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.referencedDocumentNumberErrorMessage).toEqual({
@@ -397,10 +326,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
             documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            requestedFileFormats: ['html', 'pdf'],
         });
     });
 
@@ -486,10 +412,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
             documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            requestedFileFormats: ['html', 'pdf'],
         });
 
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
@@ -528,10 +451,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
             documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            requestedFileFormats: ['html', 'pdf'],
         });
 
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('pdf');
@@ -588,5 +508,34 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
                 .find('.sw-order-create-document-modal__referenced-document-number .mt-select-selection-list__input')
                 .attributes('value'),
         ).toBeUndefined();
+    });
+
+    it('lists app-provided document types from the registry as selectable', async () => {
+        const wrapper = await createWrapper({
+            supportedDocumentTypes: {
+                invoice: { formats: ['pdf'] },
+                swag_warranty: {
+                    formats: ['pdf', 'html'],
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-selection-list__input')
+            .trigger('click');
+        await flushPromises();
+
+        expect(
+            wrapper.find('.sw-order-create-document-modal__document-type .mt-select-option--swag_warranty').exists(),
+        ).toBe(true);
+
+        await wrapper
+            .find('.sw-order-create-document-modal__document-type .mt-select-option--swag_warranty')
+            .trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted()['update:documentType']).toBeTruthy();
+        expect(wrapper.emitted()['update:documentType'].at(-1)[0]).toStrictEqual({ technicalName: 'swag_warranty' });
     });
 });

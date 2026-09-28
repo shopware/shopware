@@ -119,13 +119,12 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             ->addFilter(new EqualsAnyFilter('foreignKey', $ids))
             ->addFilter(new EqualsAnyFilter('routeName', [self::ROUTE_NAME, self::HEADLESS_ROUTE_NAME]));
 
-        $ids = $this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds();
-
+        $ids = $this->seoUrlRepository->searchIds($criteria, $event->getContext())->getPrimaryKeyData();
         if ($ids === []) {
             return;
         }
 
-        $this->seoUrlRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), $event->getContext());
+        $this->seoUrlRepository->delete($ids, $event->getContext());
     }
 
     /**

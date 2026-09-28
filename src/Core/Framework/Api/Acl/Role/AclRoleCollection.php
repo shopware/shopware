@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<AclRoleEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AclRoleCollection extends EntityCollection

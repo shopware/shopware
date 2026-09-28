@@ -12,10 +12,7 @@ const NOTIFICATION_TRANSLATION_DESCRIPTOR: ComposableDescriptor = {
         source: 'src/app/composables/use-notification-translation',
         name: 'useNotificationTranslation',
     },
-    members: methodMembers([
-        'getTranslatedTitle',
-        'getTranslatedMessage',
-    ]),
+    members: methodMembers(['getTranslatedTitle', 'getTranslatedMessage']),
 };
 
 export default NOTIFICATION_TRANSLATION_DESCRIPTOR;

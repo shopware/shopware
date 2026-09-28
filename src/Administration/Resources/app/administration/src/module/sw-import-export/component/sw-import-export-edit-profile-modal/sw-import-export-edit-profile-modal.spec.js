@@ -71,9 +71,7 @@ async function createWrapper(
                     'sw-tabs-item': true,
                     'mt-tabs': {
                         name: 'mt-tabs',
-                        emits: [
-                            'new-item-active',
-                        ],
+                        emits: ['new-item-active'],
                         props: {
                             defaultItem: {
                                 type: String,

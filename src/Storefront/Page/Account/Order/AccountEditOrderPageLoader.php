@@ -84,9 +84,12 @@ class AccountEditOrderPageLoader
             throw OrderException::orderAlreadyPaid($order->getId());
         }
 
+        $paymentMethods = $this->getPaymentMethods($salesChannelContext, $request, $order);
+
         $page->setOrder($order);
         $page->setPaymentChangeable($this->isPaymentChangeable($orderRouteResponse, $page));
-        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext, $request, $order));
+        $page->setPaymentMethods($paymentMethods);
+        $page->setSelectedPaymentMethodId($this->getSelectedPaymentMethodId($request, $order, $paymentMethods));
         $page->setDeepLinkCode($request->query->get('deepLinkCode'));
 
         $this->eventDispatcher->dispatch(
@@ -189,6 +192,23 @@ class AccountEditOrderPageLoader
         $paymentMethods->sortPaymentMethodsByPreference($context);
 
         return $paymentMethods;
+    }
+
+    private function getSelectedPaymentMethodId(Request $request, OrderEntity $order, PaymentMethodCollection $paymentMethods): ?string
+    {
+        $requestedPaymentMethodId = $request->query->get('paymentMethodId');
+
+        if (\is_string($requestedPaymentMethodId) && $paymentMethods->has($requestedPaymentMethodId)) {
+            return $requestedPaymentMethodId;
+        }
+
+        $transaction = $order->getPrimaryOrderTransaction();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $transaction = $order->getTransactions()?->last();
+        }
+
+        return $transaction?->getPaymentMethodId();
     }
 
     private function isOrderCancelled(OrderEntity $order): bool

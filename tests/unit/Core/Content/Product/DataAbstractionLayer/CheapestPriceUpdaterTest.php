@@ -156,7 +156,10 @@ class CheapestPriceUpdaterTest extends TestCase
         $this->queryBuilder->method('executeQuery')->willReturnOnConsecutiveCalls($result1, $result2);
 
         $this->connection->method('fetchAllAssociative')
-            ->willReturn($visibilityResults);
+            ->willReturnCallback(
+                // the accessor pre-load query has its own row shape; only the visibility query gets rows
+                static fn (string $sql): array => str_contains($sql, 'cheapest_price_accessor') ? [] : $visibilityResults
+            );
 
         return new CheapestPriceUpdater(
             $this->connection,

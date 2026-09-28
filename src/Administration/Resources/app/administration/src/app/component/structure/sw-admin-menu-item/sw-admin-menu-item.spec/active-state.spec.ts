@@ -3,6 +3,7 @@
  */
 
 import createWrapper from './create-wrapper';
+import catalogues from './catalogues';
 
 type MenuItemVm = { rowActive: boolean; childRouteActive: boolean; collapsibleOpen: boolean };
 
@@ -76,6 +77,17 @@ const appModuleEntry = (withOwnRoute = false) => ({
         },
     ],
 });
+
+// A plugin route that is not itself a menu target and declares no parentPath: the menu entry
+// is only reachable through the module manifest the router guard put on the route.
+const pluginEntry = (id: string) => catalogues.children.find((child) => child.id === id);
+
+const pluginDetailRoute = {
+    name: 'sw.foo.detail',
+    matched: [{ name: 'sw.foo.detail' }],
+    params: { id: 'abc' },
+    meta: { $module: { navigation: [{ path: 'sw.foo.index' }] } },
+};
 
 describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
     beforeEach(() => {
@@ -167,17 +179,14 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
         const wrapper = await createWrapper({
             route: {
                 name: 'sw.product.detail.base',
-                matched: [
-                    { name: 'sw.product.detail' },
-                    { name: 'sw.product.detail.base' },
-                ],
+                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
                 meta: { parentPath: 'sw.product.index' },
             },
             routerRoutes: [{ name: 'sw.product.index', meta: {} }],
             props: {
                 entry: {
                     id: 'sw-catalogue',
-                    label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+                    label: 'global.sw-admin-menu.navigation.mainMenuItemProducts',
                     icon: 'regular-products',
                     level: 1,
                     children: [
@@ -198,6 +207,67 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
         await flushPromises();
 
         expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
+    });
+
+    it('should keep a plugin entry active on its detail page without a declared parentPath', async () => {
+        const wrapper = await createWrapper({
+            route: pluginDetailRoute,
+            props: {
+                entry: pluginEntry('sw-foo'),
+                menuDepth: 2,
+            },
+        });
+
+        await flushPromises();
+
+        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
+    });
+
+    it('should mark the catalogue branch child-active on a plugin detail page', async () => {
+        const wrapper = await createWrapper({
+            route: pluginDetailRoute,
+            props: {
+                entry: catalogues,
+                sidebarExpanded: true,
+                isExpanded: true,
+            },
+        });
+
+        await flushPromises();
+
+        const vm = wrapper.vm as unknown as MenuItemVm;
+
+        expect(vm.collapsibleOpen).toBe(true);
+        expect(vm.rowActive).toBe(false);
+        expect(vm.childRouteActive).toBe(true);
+    });
+
+    it('should mark the catalogue branch active on a plugin detail page when the sidebar is collapsed', async () => {
+        const wrapper = await createWrapper({
+            route: pluginDetailRoute,
+            props: {
+                entry: catalogues,
+                sidebarExpanded: false,
+            },
+        });
+
+        await flushPromises();
+
+        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(true);
+    });
+
+    it('should not light a plugin entry from another module detail page', async () => {
+        const wrapper = await createWrapper({
+            route: pluginDetailRoute,
+            props: {
+                entry: pluginEntry('sw-bar'),
+                menuDepth: 2,
+            },
+        });
+
+        await flushPromises();
+
+        expect((wrapper.vm as unknown as MenuItemVm).rowActive).toBe(false);
     });
 
     it('should hand the highlight to the active app child inside the collapsed flyout', async () => {

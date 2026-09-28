@@ -4,7 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
@@ -27,7 +27,7 @@ class CartRestorer
         private readonly AbstractSalesChannelContextFactory $factory,
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly CartService $cartService,
-        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly CartCalculator $cartCalculator,
         private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly RequestStack $requestStack,
@@ -48,7 +48,7 @@ class CartRestorer
             $currentContext->getSalesChannelId(),
         );
 
-        if ($customerPayload === [] || !empty($customerPayload['permissions'])) {
+        if ($customerPayload === [] || ($customerPayload['permissions'] ?? []) !== []) {
             return $this->replaceContextToken($customerId, $currentContext, $token);
         }
 
@@ -73,7 +73,7 @@ class CartRestorer
             $customerId
         );
 
-        if ($customerPayload === [] || !empty($customerPayload['permissions']) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
+        if ($customerPayload === [] || ($customerPayload['permissions'] ?? []) !== [] || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
             return $this->replaceContextToken($customerId, $currentContext);
         }
 
@@ -172,7 +172,7 @@ class CartRestorer
             $customerContext->setImitatingUserId($currentContext->getImitatingUserId());
         }
 
-        $this->cartRuleLoader->loadByToken($customerContext, $customerContext->getToken());
+        $this->cartCalculator->calculateByToken($customerContext->getToken(), $customerContext);
 
         return $customerContext;
     }
@@ -239,9 +239,7 @@ class CartRestorer
         $this->updateRequestState($customerContext);
 
         $errors = $restoredCart->getErrors();
-        $result = $this->cartRuleLoader->loadByToken($customerContext, $restoredCart->getToken());
-
-        $cartWithErrors = $result->getCart();
+        $cartWithErrors = $this->cartCalculator->calculateByToken($restoredCart->getToken(), $customerContext);
         $cartWithErrors->setErrors($errors);
         $this->cartService->setCart($cartWithErrors);
 

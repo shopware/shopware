@@ -125,6 +125,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
 
         $criteria = new Criteria();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addAssociation('options.group');
 
         try {
             $productStreamBuilder = $this->productStreamBuilder;

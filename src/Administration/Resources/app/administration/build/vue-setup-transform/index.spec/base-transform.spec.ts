@@ -69,7 +69,9 @@ describe('build/vue-setup-transform base transforms', () => {
 
         const result = transformOrFail(source, 'base-deeper-child-named-slot.vue').code;
 
-        expect(result).toContain('<sw-block :data="$dataScope" name="sw_example_component_body">');
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='base-deeper-child-named-slot' :data="$dataScope" name="sw_example_component_body">`,
+        );
     });
 
     it('pins the whole generated output for a base component with props, private state and an <sw-block>', () => {
@@ -108,13 +110,14 @@ describe('build/vue-setup-transform base transforms', () => {
         // The one end-to-end assertion for base lowering: the author body stays native (macros in place,
         // `declare global` untouched, every binding renamed to its __swSetupAuthor_ alias), the template
         // keeps its content with a generated `:data="$dataScope"` added to the <sw-block>, and a single
-        // footer re-declares the original names by destructuring attachOverrides().
+        // footer re-declares the original names by destructuring attachOverrides() and hands the props
+        // and the public ones to defineExpose().
         //
         // Whitespace-insensitive on both sides, because the transform does not beautify its output - the
         // Vue round-trip below is what guarantees the result is still valid code.
         const expected = stripWhitespace`
             <template>
-                <sw-block :data="$dataScope" name="sw_example_headline">
+                <sw-block sw-internal-component-name='sw-example' :data="$dataScope" name="sw_example_headline">
                     <h1>{{ title }}</h1>
                     <p>{{ doubled }}</p>
                 </sw-block>
@@ -154,6 +157,13 @@ describe('build/vue-setup-transform base transforms', () => {
                     internalNote: __swSetupAuthor_internalNote,
                 },
             });
+
+            defineExpose({
+                ...Shopware.Component.getExposedProps(),
+                title,
+                count,
+                doubled,
+            });
             </script>
         `;
 
@@ -178,6 +188,40 @@ describe('build/vue-setup-transform base transforms', () => {
         expect(result).toContain("import ChildComponent from './child.vue';");
         expect(result).toContain('public: {},');
         expect(result).toContain('private: {},');
+        // A component with nothing public still exposes its props, so a template ref keeps resolving
+        // them after the switch from the instance proxy to the exposed proxy.
+        expect(result).toContain('defineExpose({\n    ...Shopware.Component.getExposedProps(),\n});');
+    });
+
+    it('exposes the public entries to a parent and keeps private bindings out of the generated defineExpose()', () => {
+        const source = stripIndent`
+            <template><div>{{ opened }}</div></template>
+            <script setup>
+            import { ref } from 'vue';
+
+            const opened = ref(false);
+            const internalNote = ref('secret');
+
+            function openTreeItem() {
+                opened.value = true;
+            }
+
+            swDefinePublic({
+                opened,
+                openTreeItem,
+            });
+            </script>
+        `;
+
+        const result = transformOrFail(source, 'base-expose-surface.vue').code;
+
+        // swDefinePublic() is the whole parent-facing surface: the generated call sits after the
+        // destructure, so it hands out the override-aware bindings rather than the author aliases.
+        expect(result).toContain(
+            'defineExpose({\n    ...Shopware.Component.getExposedProps(),\n    opened,\n    openTreeItem,\n});',
+        );
+        expect(result).not.toContain('internalNote,\n});');
+        expectVueCompilerScriptToCompile(result, 'base-expose-surface.vue');
     });
 
     it('supports macro-only script setup blocks with empty state', () => {
@@ -219,7 +263,9 @@ describe('build/vue-setup-transform base transforms', () => {
 
         const result = transformOrFail(source, 'base-sw-block-data.vue').code;
 
-        expect(result).toContain('<sw-block :data="$dataScope" name="sw_example_component_headline">');
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='base-sw-block-data' :data="$dataScope" name="sw_example_component_headline">`,
+        );
     });
 
     it('returns destructured runtime declarations as setup bindings', () => {
@@ -302,16 +348,18 @@ describe('build/vue-setup-transform base transforms', () => {
 
         const result = transformOrFail(source, 'base-nested-sw-block-data.vue').code;
 
-        expect(result).toContain('<sw-block :data="$dataScope" name="outer">');
-        expect(result).toContain('<sw-block :data="$dataScope" name="inner" />');
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='base-nested-sw-block-data' :data="$dataScope" name="outer">`,
+        );
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='base-nested-sw-block-data' :data="$dataScope" name="inner" />`,
+        );
     });
 
-    it.each([
-        'data="scope"',
-        ':data="scope"',
-        'v-bind:data="scope"',
-    ])('rejects the authored data binding %s on base sw-block declarations', (dataBinding) => {
-        const source = stripIndent`
+    it.each(['data="scope"', ':data="scope"', 'v-bind:data="scope"'])(
+        'rejects the authored data binding %s on base sw-block declarations',
+        (dataBinding) => {
+            const source = stripIndent`
             <template>
             <sw-block name="sw_example_component_body" ${dataBinding}>
                 <p>{{ body }}</p>
@@ -327,10 +375,11 @@ describe('build/vue-setup-transform base transforms', () => {
             </script>
         `;
 
-        expect(() => transformShopwareSetupSfc(source, 'sw-authored-data.vue')).toThrow(
-            'The data binding of <sw-block> is generated by the Shopware setup transform and must not be authored.',
-        );
-    });
+            expect(() => transformShopwareSetupSfc(source, 'sw-authored-data.vue')).toThrow(
+                'The data binding of <sw-block> is generated by the Shopware setup transform and must not be authored.',
+            );
+        },
+    );
 
     it('rejects a <sw-block extends> in a base component', () => {
         const source = stripIndent`
@@ -371,10 +420,7 @@ describe('build/vue-setup-transform base transforms', () => {
 
         const result = transformOrFail(source, 'base-owned-blocks.vue');
 
-        expect(result.ownedBlockNames).toEqual([
-            'sw_outer',
-            'sw_inner',
-        ]);
+        expect(result.ownedBlockNames).toEqual(['sw_outer', 'sw_inner']);
     });
 
     it('rejects v-bind objects on base sw-block declarations', () => {

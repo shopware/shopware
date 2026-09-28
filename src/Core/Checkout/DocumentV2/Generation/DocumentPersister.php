@@ -7,10 +7,15 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
+use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
+use Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\DocumentMetaRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -20,9 +25,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Persists a generated document and one document_file per requested format.
+ * Persists a document and one document_file per requested format, either freshly generated
+ * ({@see self::persist()}) or uploaded by a user ({@see self::persistUploaded()}), plus the
+ * accessible html version whenever it was rendered as a dependency of a requested format.
  *
  * One document row represents the shared document number and order snapshot, while each
  * requested output format is stored as a separate document_file linked to the same document.
@@ -46,7 +54,9 @@ final readonly class DocumentPersister
         private EntityRepository $documentFileRepository,
         private EntityRepository $documentTypeRepository,
         private MediaService $mediaService,
+        private DocumentTypeRegistry $documentTypeRegistry,
         private FileNameProvider $fileNameProvider,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -70,27 +80,11 @@ final readonly class DocumentPersister
 
         $persistedFiles = $this->writeMediaFiles(
             $state,
-            $requestedFormats,
+            $this->withAccessibleHtml($requestedFormats, $state),
             $context,
         );
 
-        $documentData = [
-            'id' => $documentId,
-            'orderId' => $generationRequest->orderId,
-            'orderVersionId' => $input->order->getVersionId(),
-            'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context), // remove with v6.9.0
-            'typeName' => $generationRequest->documentType,
-            'documentMediaFileId' => $persistedFiles[DocumentFormat::PDF->value] ?? (array_values($persistedFiles)[0] ?? null),
-            'documentA11yMediaFileId' => $persistedFiles[DocumentFormat::HTML->value] ?? null,
-            'referencedDocumentId' => $resolvedReference?->id,
-            'deepLinkCode' => Random::getAlphanumericString(32),
-            'config' => [
-                'documentNumber' => $input->documentNumber,
-            ],
-        ];
-
-        $this->documentRepository->create([$documentData], $context);
-
+        $meta = $input->requireData(DocumentMetaProvider::KEY, DocumentMetaRenderData::class);
         $documentFiles = [];
 
         foreach ($persistedFiles as $format => $mediaId) {
@@ -102,18 +96,146 @@ final readonly class DocumentPersister
             ];
         }
 
+        return $this->writeDocument(
+            [
+                'id' => $documentId,
+                'orderId' => $generationRequest->orderId,
+                'orderVersionId' => $input->order->getVersionId(),
+                'documentTypeId' => $this->getDocumentTypeId($generationRequest->documentType, $context), // remove with v6.9.0
+                'typeName' => $generationRequest->documentType,
+                'documentMediaFileId' => $this->resolvePrimaryMediaId($persistedFiles), // remove with v6.9.0
+                'documentA11yMediaFileId' => $persistedFiles[DocumentFormat::HTML->value] ?? null, // remove with v6.9.0
+                'referencedDocumentId' => $resolvedReference?->id,
+                'deepLinkCode' => Random::getAlphanumericString(32),
+                'config' => [
+                    'documentNumber' => $input->documentNumber,
+                    'displayInCustomerAccount' => (bool) ($meta->legacyConfig['displayInCustomerAccount'] ?? false),
+                ],
+            ],
+            $documentFiles,
+            $generationRequest->documentType,
+            $input->documentNumber,
+            $context,
+        );
+    }
+
+    /**
+     * Persists a user-uploaded document, bypassing rendering. The uploaded file is used as-is for the single
+     * requested format.
+     *
+     * @throws DocumentV2Exception
+     */
+    public function persistUploaded(
+        string $documentType,
+        string $orderId,
+        string $orderVersionId,
+        string $documentNumber,
+        string $format,
+        string $mediaId,
+        ?string $referencedDocumentId,
+        Context $context,
+    ): DocumentEntity {
+        $documentId = Uuid::randomHex();
+
+        return $this->writeDocument(
+            [
+                'id' => $documentId,
+                'orderId' => $orderId,
+                'orderVersionId' => $orderVersionId,
+                'documentTypeId' => $this->getDocumentTypeId($documentType, $context),
+                'documentMediaFileId' => $mediaId,
+                'referencedDocumentId' => $referencedDocumentId,
+                'static' => true,
+                'deepLinkCode' => Random::getAlphanumericString(32),
+                // Omit an empty document number so the generated document_number column stays NULL
+                'config' => $documentNumber === '' ? [] : ['documentNumber' => $documentNumber],
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'documentId' => $documentId,
+                    'documentFormat' => $format,
+                    'mediaId' => $mediaId,
+                ],
+            ],
+            $documentType,
+            $documentNumber,
+            $context,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $documentData
+     * @param list<array<string, mixed>> $documentFiles
+     *
+     * @throws DocumentV2Exception
+     */
+    private function writeDocument(
+        array $documentData,
+        array $documentFiles,
+        string $documentType,
+        string $documentNumber,
+        Context $context
+    ): DocumentEntity {
+        $this->documentRepository->create([$documentData], $context);
         $this->documentFileRepository->create($documentFiles, $context);
 
         $document = $this->documentRepository->search(
-            (new Criteria([$documentId]))->addAssociation('documentFiles.media'),
+            (new Criteria([$documentData['id']]))->addAssociation('documentFiles.media'),
             $context,
         )->getEntities()->first();
 
         if (!$document instanceof DocumentEntity) {
-            throw DocumentV2Exception::documentNotPersisted($input->documentNumber);
+            throw DocumentV2Exception::documentNotPersisted($documentNumber);
         }
 
+        $this->eventDispatcher->dispatch(new DocumentGeneratedEvent(
+            $document->getId(),
+            $document->getOrderId(),
+            $document->getOrderVersionId(),
+            $documentType,
+            $documentNumber,
+            $context,
+        ));
+
         return $document;
+    }
+
+    /**
+     * v1 surfaces attach and download the primary file by default, so html is only used when the document has no other file
+     *
+     * @param array<string, string> $persistedFiles map<format, mediaId>
+     *
+     * @deprecated tag:v6.9.0 - Will be removed once `document.document_media_file_id` is removed
+     */
+    private function resolvePrimaryMediaId(array $persistedFiles): ?string
+    {
+        if (isset($persistedFiles[DocumentFormat::PDF->value])) {
+            return $persistedFiles[DocumentFormat::PDF->value];
+        }
+
+        $htmlMediaId = $persistedFiles[DocumentFormat::HTML->value] ?? null;
+
+        unset($persistedFiles[DocumentFormat::HTML->value]);
+
+        return array_values($persistedFiles)[0] ?? $htmlMediaId;
+    }
+
+    /**
+     * html is the document's accessible version, so it is persisted even when it was
+     * only rendered as a dependency of a requested format.
+     *
+     * @param list<string> $requestedFormats
+     *
+     * @return list<string>
+     */
+    private function withAccessibleHtml(array $requestedFormats, RenderState $state): array
+    {
+        if (\in_array(DocumentFormat::HTML->value, $requestedFormats, true) || !$state->has(DocumentFormat::HTML->value)) {
+            return $requestedFormats;
+        }
+
+        return [...$requestedFormats, DocumentFormat::HTML->value];
     }
 
     /**
@@ -180,20 +302,31 @@ final readonly class DocumentPersister
      *
      * @deprecated tag:v6.9.0 - Will be removed once `document.document_type_id` is removed
      */
-    private function getDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
+    private function getDocumentTypeId(string $documentType, Context $context): string
     {
-        $documentType = $generationRequest->documentType;
-
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $documentType))
             ->setLimit(1);
 
-        $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
+        $id = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
 
-        if ($documentTypeId === null) {
-            throw DocumentV2Exception::documentTypeNotFound($documentType);
+        if ($id !== null) {
+            return $id;
         }
 
-        return $documentTypeId;
+        if (!$this->documentTypeRegistry->supports($documentType)) {
+            throw DocumentV2Exception::invalidDocumentType($documentType);
+        }
+
+        $sentinelId = $this->documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', DocumentType::APP_PROVIDED->value))->setLimit(1),
+            $context,
+        )->firstId();
+
+        if ($sentinelId === null) {
+            throw DocumentV2Exception::invalidDocumentType($documentType);
+        }
+
+        return $sentinelId;
     }
 }

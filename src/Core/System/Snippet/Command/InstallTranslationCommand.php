@@ -5,8 +5,9 @@ namespace Shopware\Core\System\Snippet\Command;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\Util\TranslationCommandHelper;
-use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
+use Shopware\Core\System\Snippet\DataTransfer\TranslationUpdate\TranslationInstallPlan;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
+use Shopware\Core\System\Snippet\Service\TranslationUpdater;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -28,23 +29,29 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class InstallTranslationCommand extends Command
 {
     public function __construct(
-        private readonly AbstractTranslationLoader $translationLoader,
         private readonly TranslationConfig $config,
         private readonly TranslationMetadataStore $metadataStore,
+        private readonly TranslationUpdater $translationUpdater,
     ) {
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this->addOption('all', null, InputOption::VALUE_NONE, 'Fetch all available translations');
-        $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Fetch translations for specific locale codes comma separated, e.g. "de-DE,en-US"');
+        $this->addOption('all', null, InputOption::VALUE_NONE, 'Install all available translations');
+        $this->addOption('locales', null, InputOption::VALUE_OPTIONAL, 'Install translations for specific locale codes comma separated, e.g. "es-ES,en-US"');
         $this->addOption('skip-activation', null, InputOption::VALUE_NONE, 'Skip activation of created languages');
+        $this->addOption('offline', null, InputOption::VALUE_NONE, 'Install from translation files that are already on the filesystem, without contacting the translation repository');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locales = $this->getLocales($input, $output);
+        $activate = !$input->getOption('skip-activation');
+
+        if ($input->getOption('offline')) {
+            return $this->installOffline($locales, $activate, (bool) $input->getOption('all'), $output);
+        }
 
         try {
             $metadata = $this->metadataStore->getUpdatedLocalMetadata($locales);
@@ -54,32 +61,89 @@ class InstallTranslationCommand extends Command
             return self::FAILURE;
         }
 
-        $localesRequiringUpdate = $metadata->getLocalesRequiringUpdate();
-        if ($localesRequiringUpdate === []) {
+        $plan = $this->translationUpdater->planInstall($locales, $metadata);
+
+        if ($plan->nothingCanBeInstalled()) {
+            throw SnippetException::translationsUnavailable($plan->unavailableLocales);
+        }
+
+        if ($plan->unavailableLocales !== []) {
+            TranslationCommandHelper::printUnavailableLocales($output, $plan->unavailableLocales);
+        }
+
+        // Not "nothing requires an update": a locale whose metadata is current is still fetched when its files are gone
+        if ($plan->localesToDownload === []) {
             TranslationCommandHelper::printNoTranslationsToUpdate($output);
-
-            return self::SUCCESS;
         }
 
-        $localesDiff = array_diff($locales, $localesRequiringUpdate);
-        if ($localesDiff !== []) {
-            TranslationCommandHelper::printSkippedLocales($output, $localesDiff);
+        if ($plan->localesToLink !== []) {
+            TranslationCommandHelper::printLocalesInstalledFromExistingFiles($output, $plan->localesToLink);
         }
 
-        $context = Context::createCLIContext();
-        $activate = !$input->getOption('skip-activation');
+        $this->installWithProgressBar($plan, $activate, $output);
 
-        TranslationCommandHelper::executeLoadWithProgressBar(
-            $localesRequiringUpdate,
-            $output,
-            fn (string $locale) => $this->translationLoader->load($locale, $context, $activate),
-        );
-
-        $output->write(\PHP_EOL);
-
-        TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataStore->save($metadata), $output);
+        if ($metadata->getLocalesRequiringUpdate() !== []) {
+            TranslationCommandHelper::handleSavingMetadataCLIOutput(fn () => $this->metadataStore->save($metadata), $output);
+        }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The metadata store is deliberately left untouched here. Reading it would contact the
+     * translation repository, which is the one thing this mode promises not to do, and writing
+     * it would make a later run believe every locale is current and skip creating the
+     * languages it is being asked for.
+     *
+     * @param list<string> $locales
+     */
+    private function installOffline(array $locales, bool $activate, bool $allRequested, OutputInterface $output): int
+    {
+        $plan = $this->translationUpdater->planOfflineInstall($locales);
+
+        if ($this->offlineInstallMustFail($plan, $allRequested)) {
+            throw SnippetException::translationsUnavailable($plan->unavailableLocales);
+        }
+
+        if ($plan->unavailableLocales !== []) {
+            TranslationCommandHelper::printLocalesWithoutFiles($output, $plan->unavailableLocales);
+        }
+
+        $this->installWithProgressBar($plan, $activate, $output);
+
+        return self::SUCCESS;
+    }
+
+    private function installWithProgressBar(TranslationInstallPlan $plan, bool $activate, OutputInterface $output): void
+    {
+        $progressBar = TranslationCommandHelper::createProgressBar(
+            $output,
+            \count($plan->localesToDownload) + \count($plan->localesToLink),
+            'Installing translations',
+        );
+
+        $this->translationUpdater->install(
+            $plan,
+            Context::createCLIContext(),
+            $activate,
+            static function (string $locale) use ($progressBar): void {
+                $progressBar->setMessage($locale);
+                $progressBar->advance();
+            },
+        );
+
+        $progressBar->finish();
+        $output->write(\PHP_EOL);
+    }
+
+    private function offlineInstallMustFail(TranslationInstallPlan $plan, bool $allRequested): bool
+    {
+        if ($plan->unavailableLocales === []) {
+            return false;
+        }
+
+        // --locales is a contract and fails as a unit; --all installs whatever is provisioned, unless nothing is
+        return !$allRequested || $plan->localesToLink === [];
     }
 
     /**
@@ -88,7 +152,7 @@ class InstallTranslationCommand extends Command
     private function getLocales(InputInterface $input, OutputInterface $output): array
     {
         if ($input->getOption('all')) {
-            return $this->config->locales;
+            return $this->localesWithoutPseudo();
         }
 
         $locales = $input->getOption('locales');
@@ -106,6 +170,14 @@ class InstallTranslationCommand extends Command
         $this->config->assertLocalesAreConfigured($locales);
 
         return $locales;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function localesWithoutPseudo(): array
+    {
+        return array_values(array_diff($this->config->locales, $this->config->pseudoLocales));
     }
 
     /**

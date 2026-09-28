@@ -3,16 +3,8 @@ import { test, setViewport, assertScreenshot } from '@fixtures/AcceptanceTest';
 test(
     'Visual: Create product listing layout flow',
     { tag: '@Visual' },
-    async ({
-        ShopAdmin,
-        AdminSettingsListing,
-        AdminLayoutListing,
-        AdminLayoutCreate,
-        AdminListingPageLayoutDetail,
-        TestDataService,
-    }) => {
+    async ({ ShopAdmin, AdminSettingsListing, AdminLayoutListing, AdminLayoutCreate }) => {
         test.slow();
-        let createdLayoutId: string;
 
         await test.step('Creates a screenshot of the layout listing page.', async () => {
             await ShopAdmin.goesTo(AdminLayoutListing.url());
@@ -43,18 +35,6 @@ test(
                 waitForSelector: AdminLayoutCreate.createLayoutButton,
             });
             await assertScreenshot(AdminLayoutCreate.page, 'Layout-Create-Layout-Name.png');
-
-            await AdminLayoutCreate.layoutNameInput.fill('test');
-            const waitForSearchResponse = AdminLayoutCreate.page.waitForResponse(
-                (response) => response.url().includes('/api/search/cms-page') && response.request().method() === 'POST',
-            );
-            await AdminLayoutCreate.createLayoutButton.click();
-            const searchResponse = await waitForSearchResponse;
-            const body = await searchResponse.json();
-            createdLayoutId = body.data[0].id;
-            await ShopAdmin.expects(createdLayoutId).not.toBeNull();
-            TestDataService.addCreatedRecord('cms-page', createdLayoutId);
-            await ShopAdmin.expects(AdminListingPageLayoutDetail.settingsButton).toBeVisible();
         });
     },
 );

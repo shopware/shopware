@@ -65,7 +65,7 @@ async function createWrapper() {
                     getAvailableDocumentTypes: jest.fn().mockResolvedValue({
                         invoice: { formats: ['pdf'] },
                     }),
-                    getDocumentTypeSnippet: (technicalName) =>
+                    getDocumentTypeLabel: (technicalName) =>
                         `sw-order.components.createDocumentModal.documentTypes.${technicalName}`,
                 },
             },

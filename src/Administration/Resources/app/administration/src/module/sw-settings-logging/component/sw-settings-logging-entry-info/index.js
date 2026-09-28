@@ -8,9 +8,7 @@ import template from './sw-settings-logging-entry-info.html.twig';
 export default {
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     emits: ['close'],
 

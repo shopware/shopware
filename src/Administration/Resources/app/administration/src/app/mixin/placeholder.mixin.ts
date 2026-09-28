@@ -16,7 +16,7 @@ export default Shopware.Mixin.register(
     'placeholder',
     defineComponent({
         methods: {
-            placeholder<EntityName extends keyof EntitySchema.Entities>(
+            placeholder<EntityName extends keyof EntitySchema.EntityKeys>(
                 entity: Entity<EntityName>,
                 field: keyof Entity<EntityName>,
                 fallbackSnippet: string,

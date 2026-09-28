@@ -1,12 +1,14 @@
 .sw-product-detail-layout {
-    &__no-config.sw-card {
-        text-align: center;
+    &__assignment .mt-card__header {
+        gap: 0;
+    }
+
+    &__no-config.mt-card {
         font-size: var(--font-size-xs);
     }
 
     &__content-info {
         color: var(--color-text-secondary-default);
         font-size: var(--font-size-xs);
-        margin-top: var(--scale-size-16);
     }
 }

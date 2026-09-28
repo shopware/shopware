@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -155,6 +156,57 @@ class ProductStreamIndexerTest extends TestCase
         static::assertSame($productId, $queries[1]['value']);
 
         static::assertFalse($entity->isInvalid());
+    }
+
+    public function testFullIndexBuildsMappingsForNewProductStreams(): void
+    {
+        $productId = Uuid::randomHex();
+        $this->productRepo->create([
+            [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'active' => true,
+                'name' => 'Test',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['taxRate' => 19, 'name' => 'without id'],
+            ],
+        ], $this->context);
+
+        $streamId = Uuid::randomHex();
+        $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->connection->insert('product_stream', [
+            'id' => Uuid::fromHexToBytes($streamId),
+            'api_filter' => null,
+            'invalid' => 1,
+            'created_at' => $createdAt,
+        ]);
+        $this->connection->insert('product_stream_translation', [
+            'product_stream_id' => Uuid::fromHexToBytes($streamId),
+            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            'name' => 'Active products',
+            'created_at' => $createdAt,
+        ]);
+        $this->connection->insert('product_stream_filter', [
+            'id' => Uuid::randomBytes(),
+            'type' => 'equals',
+            'field' => 'active',
+            'value' => '1',
+            'position' => 1,
+            'product_stream_id' => Uuid::fromHexToBytes($streamId),
+            'created_at' => $createdAt,
+        ]);
+
+        static::getContainer()->get(EntityIndexerRegistry::class)->index(false);
+
+        static::assertSame(1, (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM product_stream_mapping WHERE product_id = :productId AND product_stream_id = :streamId',
+            [
+                'productId' => Uuid::fromHexToBytes($productId),
+                'streamId' => Uuid::fromHexToBytes($streamId),
+            ],
+        ));
     }
 
     public function testWithChildren(): void

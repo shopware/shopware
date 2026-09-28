@@ -72,6 +72,15 @@ class CartPersister extends AbstractCartPersister
         return $cart;
     }
 
+    public function exists(string $token, SalesChannelContext $context): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            '#cart-persister::exists
+            SELECT 1 FROM cart WHERE `token` = :token',
+            ['token' => $token]
+        );
+    }
+
     /**
      * @throws InvalidUuidException
      */

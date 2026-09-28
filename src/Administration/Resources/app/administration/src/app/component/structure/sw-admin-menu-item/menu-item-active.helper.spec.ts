@@ -20,11 +20,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
             };
 
             expect(getActiveRouteNames(route)).toEqual(
-                new Set([
-                    'core',
-                    'sw.extension.my-extensions',
-                    'sw.extension.my-extensions.listing',
-                ]),
+                new Set(['core', 'sw.extension.my-extensions', 'sw.extension.my-extensions.listing']),
             );
         });
 
@@ -43,12 +39,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 ],
             };
 
-            expect(getActiveRouteNames(route)).toEqual(
-                new Set([
-                    'core',
-                    'sw.product.index',
-                ]),
-            );
+            expect(getActiveRouteNames(route)).toEqual(new Set(['core', 'sw.product.index']));
         });
 
         it('bridges sibling detail pages to their owning nav route via the parentPath chain (multi-hop)', () => {
@@ -72,6 +63,103 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
             expect(names.has('sw.settings.index')).toBe(true);
         });
 
+        it('bridges a module route to its own menu entry when no parentPath is declared', () => {
+            // A plugin detail route sits next to the nav target instead of below it, so `matched` cannot reach it
+            const route = {
+                name: 'sw.foo.detail',
+                matched: [{ name: 'sw.foo.detail' }],
+                meta: { $module: { navigation: [{ path: 'sw.foo.index' }] } },
+            };
+
+            expect(getActiveRouteNames(route)).toEqual(new Set(['sw.foo.detail', 'sw.foo.index']));
+        });
+
+        it('continues the parentPath walk from the module navigation entry', () => {
+            const route = {
+                name: 'sw.foo.detail',
+                matched: [{ name: 'sw.foo.detail' }],
+                meta: { $module: { navigation: [{ path: 'sw.foo.index' }] } },
+            };
+            const router = { getRoutes: () => [{ name: 'sw.foo.index', meta: { parentPath: 'sw.settings.index' } }] };
+
+            const names = getActiveRouteNames(route, router);
+
+            // The detail page has to reach the same ancestors as the module's own list page
+            expect(names.has('sw.foo.index')).toBe(true);
+            expect(names.has('sw.settings.index')).toBe(true);
+        });
+
+        it('prefers a declared parentPath over the module navigation entry', () => {
+            const route = {
+                name: 'sw.foo.detail',
+                matched: [{ name: 'sw.foo.detail' }],
+                meta: {
+                    parentPath: 'sw.foo.overview',
+                    $module: { navigation: [{ path: 'sw.foo.index' }] },
+                },
+            };
+
+            expect(getActiveRouteNames(route)).toEqual(new Set(['sw.foo.detail', 'sw.foo.overview']));
+        });
+
+        it('does not guess for a core module contributing several menu entries', () => {
+            // sw-extension contributes both "Store" and "My extensions"; core declares parentPath instead
+            const route = {
+                name: 'sw.extension.module',
+                matched: [{ name: 'sw.extension.module' }],
+                meta: {
+                    $module: {
+                        type: 'core' as const,
+                        navigation: [{ path: 'sw.extension.store' }, { path: 'sw.extension.my-extensions' }],
+                    },
+                },
+            };
+
+            expect(getActiveRouteNames(route)).toEqual(new Set(['sw.extension.module']));
+        });
+
+        it('bridges an extension module contributing several menu entries', () => {
+            // An extension cannot be asked to add parentPath after the fact, so its entries are used as-is
+            const route = {
+                name: 'sw.foo.detail',
+                matched: [{ name: 'sw.foo.detail' }],
+                meta: {
+                    $module: {
+                        navigation: [{ path: 'sw.foo.index' }, { path: 'sw.foo.reports' }],
+                    },
+                },
+            };
+
+            expect(getActiveRouteNames(route)).toEqual(new Set(['sw.foo.detail', 'sw.foo.index', 'sw.foo.reports']));
+        });
+
+        it('does not add sibling menu entries to a route the matched chain already anchors', () => {
+            // sw-product-reviews contributes five entries and every route is one of them
+            const route = {
+                name: 'sw.product.reviews.pending',
+                matched: [{ name: 'sw.product.reviews.pending' }],
+                meta: {
+                    $module: {
+                        navigation: [{ path: 'sw.product.reviews.index' }, { path: 'sw.product.reviews.pending' }],
+                    },
+                },
+            };
+
+            expect(getActiveRouteNames(route)).toEqual(new Set(['sw.product.reviews.pending']));
+        });
+
+        it('tolerates a module without a usable navigation entry', () => {
+            const withoutPath = {
+                name: 'sw.foo.detail',
+                matched: [{ name: 'sw.foo.detail' }],
+                meta: { $module: { navigation: [{ path: undefined }] } },
+            };
+
+            expect(getActiveRouteNames({ name: 'a', meta: { $module: {} } })).toEqual(new Set(['a']));
+            expect(getActiveRouteNames({ name: 'a', meta: { $module: { navigation: [] } } })).toEqual(new Set(['a']));
+            expect(getActiveRouteNames(withoutPath)).toEqual(new Set(['sw.foo.detail']));
+        });
+
         it('does not loop on a cyclic parentPath chain', () => {
             const route = { name: 'a', matched: [{ name: 'a' }], meta: { parentPath: 'b' } };
             const router = {
@@ -81,12 +169,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
                 ],
             };
 
-            expect(getActiveRouteNames(route, router)).toEqual(
-                new Set([
-                    'a',
-                    'b',
-                ]),
-            );
+            expect(getActiveRouteNames(route, router)).toEqual(new Set(['a', 'b']));
         });
     });
 
@@ -123,10 +206,7 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
         it('lights a path-less parent when a descendant route is in the matched chain', () => {
             // The reported bug: a path-less parent above an ancestor of the deep route
             const route = {
-                matched: [
-                    { name: 'sw.extension.my-extensions' },
-                    { name: 'sw.extension.my-extensions.listing' },
-                ],
+                matched: [{ name: 'sw.extension.my-extensions' }, { name: 'sw.extension.my-extensions.listing' }],
                 params: {},
             };
             const extensions = {
@@ -160,13 +240,27 @@ describe('src/app/component/structure/sw-admin-menu-item/menu-item-active.helper
             expect(isEntryOnActiveRoute(entryB, route)).toBe(false);
         });
 
+        it('lights a plugin leaf and its path-less group through the module navigation entry', () => {
+            const route = {
+                name: 'sw.foo.detail',
+                matched: [{ name: 'sw.foo.detail' }],
+                meta: { $module: { navigation: [{ path: 'sw.foo.index' }] } },
+                params: {},
+            };
+            const catalogue = {
+                id: 'sw-catalogue',
+                children: [{ id: 'sw-foo', path: 'sw.foo.index', children: [] }],
+            };
+            const activeNames = getActiveRouteNames(route);
+
+            expect(isEntryOnActiveRoute(catalogue.children[0], route, activeNames)).toBe(true);
+            expect(isEntryOnActiveRoute(catalogue, route, activeNames)).toBe(true);
+        });
+
         it('lights a leaf reachable only through the parentPath bridge', () => {
             const route = {
                 name: 'sw.product.detail.base',
-                matched: [
-                    { name: 'sw.product.detail' },
-                    { name: 'sw.product.detail.base' },
-                ],
+                matched: [{ name: 'sw.product.detail' }, { name: 'sw.product.detail.base' }],
                 meta: { parentPath: 'sw.product.index' },
                 params: {},
             };

@@ -51,6 +51,47 @@ class AppFeatureLifecycleHandlerTest extends TestCase
         ));
     }
 
+    public function testPersistValidatesBeforeWritingAndNotifiesAfter(): void
+    {
+        $config = new class implements AppFeatureConfig {
+            public function getName(): string
+            {
+                return 'thing';
+            }
+        };
+
+        $calls = [];
+
+        $definition = $this->createMock(AppFeatureDefinition::class);
+        $definition->method('getType')->willReturn('stub');
+        $definition->method('getConfigClass')->willReturn($config::class);
+        $definition->method('fromApp')->willReturn([$config]);
+        $definition->method('toPayload')->willReturn(['k' => 'v']);
+        $definition->expects($this->once())->method('validate')->with([$config])
+            ->willReturnCallback(function () use (&$calls): void {
+                $calls[] = 'validate';
+            });
+        $definition->expects($this->once())->method('persisted')->with([$config])
+            ->willReturnCallback(function () use (&$calls): void {
+                $calls[] = 'persisted';
+            });
+
+        $storage = $this->createMock(AppFeatureStorage::class);
+        $storage->method('forApp')->willReturn([]);
+        $storage->expects($this->once())->method('syncForApp')
+            ->willReturnCallback(function () use (&$calls): void {
+                $calls[] = 'sync';
+            });
+
+        $handler = new AppFeatureLifecycleHandler(new AppFeatureDefinitionRegistry([$definition]), $storage);
+        $handler->update(AppFixture::createInstallContext(
+            AppFixture::createAppEntity('app-name', 'app-id'),
+            static::createStub(Manifest::class),
+        ));
+
+        static::assertSame(['validate', 'sync', 'persisted'], $calls);
+    }
+
     public function testUninstallKeepingUserDataLeavesTheFeatures(): void
     {
         $storage = $this->createMock(AppFeatureStorage::class);

@@ -22,9 +22,6 @@ use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class CustomerEntity extends Entity implements \Stringable
 {

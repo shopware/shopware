@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -202,6 +203,7 @@ class GenerateThumbnailsCommandTest extends TestCase
     private function createMediaEntity(): MediaEntity
     {
         $media = new MediaEntity();
+        $media->internalSetEntityData(TestEntityDefinition::ENTITY_NAME, new FieldVisibility([]));
         $media->setId(Uuid::randomHex());
         $media->setFileName('test');
         $media->setMimeType('image/png');

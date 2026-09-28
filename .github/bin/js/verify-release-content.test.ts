@@ -153,6 +153,30 @@ test('extractHeadings spans multiple sections sharing the prefix', () => {
     assert.deepEqual(extractHeadings(content, VERSION), ['### First patch', '### Second patch']);
 });
 
+test('extractHeadings ignores headings inside fenced code blocks', () => {
+    const content = [
+        '# 6.7.11.0',
+        '### Before the block',
+        '',
+        '```yaml',
+        '# config/packages/shopware.yaml',
+        'shopware:',
+        '  foo: bar',
+        '```',
+        '',
+        '### After the block',
+        '',
+    ].join('\n');
+
+    assert.deepEqual(extractHeadings(content, VERSION), ['### Before the block', '### After the block']);
+});
+
+test('extractHeadings does not treat a fenced ### line as an entry', () => {
+    const content = '# 6.7.11.0\n### Real entry\n\n~~~md\n### Example from the docs\n~~~\n';
+
+    assert.deepEqual(extractHeadings(content, VERSION), ['### Real entry']);
+});
+
 test('consoleReport shows only the OK line when everything is confirmed', () => {
     const report = consoleReport({ total: 3, confirmed: 3, missing: [], warnings: [] }, FILE);
 

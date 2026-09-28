@@ -60,12 +60,7 @@ function initVuexModules(
     },
     state: FullState,
 ) {
-    Object.entries(modules).forEach(
-        ([
-            moduleName,
-            module,
-        ]) => {
-            state.registerModule(moduleName, module);
-        },
-    );
+    Object.entries(modules).forEach(([moduleName, module]) => {
+        state.registerModule(moduleName, module);
+    });
 }

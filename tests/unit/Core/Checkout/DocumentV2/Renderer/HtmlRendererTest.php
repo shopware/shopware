@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -191,6 +192,7 @@ class HtmlRendererTest extends TestCase
                 $env,
                 static::createStub(AbstractTranslator::class),
                 static::createStub(AbstractSalesChannelContextFactory::class),
+                new EventDispatcher(),
                 'rootDir',
             ),
         );

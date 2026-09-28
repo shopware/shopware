@@ -69,10 +69,12 @@
                                         {% block component_line_item_quantity_select_input %}
                                             <legend class="form-label visually-hidden">
                                                 {{ 'component.product.quantitySelect.legend'|trans|striptags }}
+                                                {{ 'component.product.quantitySelect.cartUpdateHint'|trans|striptags }}
                                             </legend>
 
                                             {% set quantitySelectorOptions = {
                                                 ariaLiveUpdateMode: 'onload',
+                                                submitOnFinish: true,
                                             } %}
                                             <div
                                                 id="line-item-quantity-group-{{ lineItem.id }}"

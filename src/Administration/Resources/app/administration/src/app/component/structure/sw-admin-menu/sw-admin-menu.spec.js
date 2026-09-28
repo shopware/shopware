@@ -2,108 +2,11 @@
  * @sw-package framework
  */
 
-import { mount, config, DOMWrapper } from '@vue/test-utils';
-import { createRouter, createWebHashHistory } from 'vue-router';
-import createMenuService from 'src/app/service/menu.service';
+import { config, DOMWrapper } from '@vue/test-utils';
+import createWrapper, { registerAdminModules } from './sw-admin-menu.spec/create-wrapper';
 
 /** fixtures */
-import adminModules from '../../../service/_mocks/adminModules.json';
 import testApps from '../../../service/_mocks/testApps.json';
-
-const menuService = createMenuService(Shopware.Module);
-Shopware.Service().register('menuService', () => menuService);
-
-async function createWrapper(options = {}) {
-    const router = createRouter({
-        routes: [
-            ...Shopware.Module.getModuleRoutes(),
-            {
-                path: '/sw/custom/entity/index',
-                name: 'sw.custom.entity.index',
-                type: 'core',
-                components: { default: 'sw-index' },
-                isChildren: false,
-                routeKey: 'index',
-            },
-        ],
-        route: {
-            meta: {
-                $module: {
-                    name: '',
-                },
-            },
-        },
-        history: createWebHashHistory(),
-    });
-
-    router.resolve = jest.fn(() => {
-        return {};
-    });
-
-    return mount(await wrapTestComponent('sw-admin-menu', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-version': true,
-                'sw-admin-menu-item': await wrapTestComponent('sw-admin-menu-item'),
-                'mt-loader': true,
-                'sw-avatar': true,
-                'sw-shortcut-overview': true,
-                'router-link': {
-                    template: '<a class="router-link" href="#"><slot /></a>',
-                },
-                'mt-link': true,
-                'mt-icon': true,
-                'mt-floating-ui': {
-                    template: '<div class="mt-floating-ui"><slot v-if="isOpened" /></div>',
-                    props: ['isOpened'],
-                },
-            },
-            provide: {
-                menuService,
-                loginService: {
-                    notifyOnLoginListener: () => {},
-                },
-                userService: {
-                    getUser: () => Promise.resolve({ data: { password: '' } }),
-                },
-                appModulesService: {
-                    fetchAppModules: () => Promise.resolve([]),
-                },
-                systemConfigApiService: {
-                    getValues: () => Promise.resolve({}),
-                },
-                acl: {
-                    can: (privilege) => {
-                        return privilege !== 'shouldReturnFalse';
-                    },
-                },
-                customEntityDefinitionService: {
-                    getMenuEntries: () => {
-                        const entityName = 'customEntityName';
-                        return [
-                            {
-                                id: `custom-entity/${entityName}`,
-                                label: `${entityName}.moduleTitle`,
-                                moduleType: 'plugin',
-                                path: 'sw.custom.entity.index',
-                                params: {
-                                    entityName: entityName,
-                                },
-                                position: 100,
-                                parent: 'sw.second.top.level',
-                            },
-                        ];
-                    },
-                },
-            },
-            mocks: {
-                $route: { meta: { $module: { name: '' } } },
-                $router: router,
-            },
-        },
-        ...options,
-    });
-}
 
 describe('src/app/component/structure/sw-admin-menu', () => {
     let wrapper;
@@ -112,10 +15,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.Store.get('session').currentLocale = 'en-GB';
         Shopware.Context.app.fallbackLocale = 'en-GB';
 
-        Shopware.Module.getModuleRegistry().clear();
-        adminModules.forEach((adminModule) => {
-            Shopware.Module.register(adminModule.name, adminModule);
-        });
+        registerAdminModules();
     });
 
     beforeEach(async () => {
@@ -167,10 +67,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
         expect(branches.length).toBeGreaterThanOrEqual(2);
 
-        const [
-            activeBranch,
-            otherBranch,
-        ] = branches;
+        const [activeBranch, otherBranch] = branches;
 
         wrapper.vm.$route.name = activeBranch.children[0].path;
         Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
@@ -185,10 +82,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should close a branch without an active child when another branch is opened', async () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
 
-        const [
-            branchA,
-            branchB,
-        ] = branches;
+        const [branchA, branchB] = branches;
 
         wrapper.vm.$route.name = undefined;
         Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
@@ -203,10 +97,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should close the previous branch when the active item moves to another branch', async () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
 
-        const [
-            branchA,
-            branchB,
-        ] = branches;
+        const [branchA, branchB] = branches;
 
         Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
         wrapper.vm.activeBranchKey = null;
@@ -226,10 +117,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should re-expand the branch owning the active route after it was collapsed manually', async () => {
         const branches = wrapper.vm.mainMenuEntries.filter((entry) => (entry.children?.length ?? 0) > 0);
 
-        const [
-            branchA,
-            branchB,
-        ] = branches;
+        const [branchA, branchB] = branches;
 
         Shopware.Store.get('adminMenu').clearExpandedMenuEntries();
         wrapper.vm.activeBranchKey = null;
@@ -293,9 +181,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         Shopware.Store.get('session').setCurrentUser({
             admin: false,
             title: null,
-            aclRoles: [
-                { name: 'Copyreader' },
-            ],
+            aclRoles: [{ name: 'Copyreader' }],
         });
 
         await wrapper.vm.$nextTick();

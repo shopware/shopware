@@ -11,9 +11,7 @@ const productMock = {
     deliveryTime: {
         name: '1-3 days',
     },
-    price: [
-        { gross: 100 },
-    ],
+    price: [{ gross: 100 }],
 };
 
 async function createWrapper() {

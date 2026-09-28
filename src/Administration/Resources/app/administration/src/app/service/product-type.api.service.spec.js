@@ -8,10 +8,7 @@ describe('app/service/product-type.api.service.js', () => {
         const httpClientMock = {
             get: jest.fn(() =>
                 Promise.resolve({
-                    data: [
-                        'digital',
-                        'physical',
-                    ],
+                    data: ['digital', 'physical'],
                 }),
             ),
         };
@@ -26,9 +23,6 @@ describe('app/service/product-type.api.service.js', () => {
 
         expect(httpClientMock.get).toHaveBeenCalledWith('/_action/product/types', expect.any(Object));
 
-        expect(result).toStrictEqual([
-            'digital',
-            'physical',
-        ]);
+        expect(result).toStrictEqual(['digital', 'physical']);
     });
 });

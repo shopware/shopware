@@ -71,7 +71,7 @@
                     "Newsletter"
                 ],
                 "summary": "Create or remove a newsletter subscription",
-                "description": "This route is used to create/remove/confirm a newsletter subscription.\n\nThe `option` property controls what should happen:\n* `direct`: The subscription is directly active and does not need a confirmation.\n* `subscribe`: An email will be send to the provided email address containing a link to the /newsletter/confirm route.\nThe subscription is only successful, if the /newsletter/confirm route is called with the generated hashes.\n* `unsubscribe`: The email address will be removed from the newsletter subscriptions.\n* `confirmSubscribe`: Confirms the newsletter subscription for the provided email address.",
+                "description": "This route is used to create/remove/confirm a newsletter subscription.\n\nThe `option` property controls what should happen:\n* `direct`: The subscription is directly active and does not need a confirmation.\n* `subscribe`: An email will be send to the provided email address containing a link to the /newsletter/confirm route.\nThe subscription is only successful, if the /newsletter/confirm route is called with the generated hashes.\n* `unsubscribe`: The email address will be removed from the newsletter subscriptions.\n* `confirmSubscribe`: Confirms the newsletter subscription for the provided email address.\n\nIf double opt-in is enabled for the sales channel, `direct` and `confirmSubscribe` behave like `subscribe`.",
                 "operationId": "subscribeToNewsletter",
                 "requestBody": {
                     "required": true,
@@ -93,7 +93,7 @@
                                         "type": "string"
                                     },
                                     "storefrontUrl": {
-                                        "description": "Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email.",
+                                        "description": "Url of the storefront of the shop. This will be used for generating the link to the /newsletter/confirm inside the confirm email. The value has to match one of the domains configured for the sales channel, otherwise the request is rejected. When the `core.newsletter.doubleOptInDomain` setting is filled, the sent value is replaced by that domain and not validated.",
                                         "type": "string"
                                     },
                                     "salutationId": {

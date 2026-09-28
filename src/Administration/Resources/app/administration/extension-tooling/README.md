@@ -113,6 +113,17 @@ generated configs.
 - A bridge that cannot be written (a read-only vendor directory, say) degrades to
   a warning — those sources stay covered by the root `tsconfig.json`.
 
+## Native-setup components
+
+Native-setup authoring works out of the box — no extra config to copy. The
+generated ESLint config declares the compile-time macro globals (`swDefinePublic`,
+`swDefineOverride`, `useSwPreviousState`, `useSwProps`, `useSwContext`) and turns on
+the two native-setup guards (`sw-core-rules/valid-shopware-setup`,
+`sw-core-rules/native-setup-filename`), and the type surface (`admin-types.d.ts`)
+carries the macro declarations so they type-check. Both flow through the same
+package resolution as the rest of the preset, so a dependency bump can never leave
+a stale hand-copied path behind.
+
 ## Own path aliases (`tsconfig.aliases.json`)
 
 TypeScript replaces `paths` **wholesale** across `extends`, so declaring

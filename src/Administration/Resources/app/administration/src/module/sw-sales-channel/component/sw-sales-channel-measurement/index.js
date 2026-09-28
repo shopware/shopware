@@ -33,14 +33,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    emits: [
-        'measurement-system-change',
-    ],
+    emits: ['measurement-system-change'],
 
     data() {
         return {

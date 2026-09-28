@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
@@ -60,7 +61,7 @@ class SsoUserInvitationMailServiceTest extends TestCase
         $mailTemplateTypeEntity->setId(Uuid::randomHex());
         $mailTemplateTypeRepository = new StaticEntityRepository([
             new MailTemplateTypeCollection([$mailTemplateTypeEntity]),
-        ], new MailTemplateDefinition());
+        ], new MailTemplateTypeDefinition());
 
         $userEntity = new UserEntity();
         $userEntity->setUniqueIdentifier(Uuid::randomHex());

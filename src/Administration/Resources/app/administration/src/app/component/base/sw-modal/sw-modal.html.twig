@@ -9,6 +9,7 @@
     <div
         class="sw-modal"
         :class="modalClasses"
+        :style="{ zIndex: zIndex ?? undefined }"
         @mousedown="closeModalOnClickOutside"
         @keyup.esc="closeModalOnEscapeKey"
     >

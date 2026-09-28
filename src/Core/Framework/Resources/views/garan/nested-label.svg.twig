@@ -1,3 +1,5 @@
+{# The width is the distance from the text anchor to the calendar symbol beside it: 70.87 - 10.39. #}
+{%- set guaranteeTextLength = guarantee|sw_garan_label_duration_text_length(60.48, 41.56, -0.02) -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368.5 56.69">
     <defs>
@@ -42,6 +44,9 @@
             fill: #fff200;
             }
         </style>
+        <clipPath id="garan-nested-clippath-guarantee">
+            <rect x="10.39" y="4" width="60.48" height="50"/>
+        </clipPath>
     </defs>
     <g id="Layer_3" data-name="Layer 3">
         <rect class="garan-nested-cls-bg" x=".5" y=".5" width="367.5" height="55.69"/>
@@ -76,7 +81,7 @@
             <path class="garan-nested-cls-3" d="M291.18,43.11s-1.05,1.2-1.41,1.58c-.25.26-.57.73-.96.93-1.02.52-1.22.5-2.24.24-.43-.11-.83-.43-1.16-.73l-6.81-6.08c-.82-.74-.27-2.1.83-2.06l4.27.16c.52.02,1.02.23,1.4.58l6.09,5.36Z"/>
             <path class="garan-nested-cls-3" d="M283.68,43.59l2.04,1.82c1.19.84,2.62.87,3.66-.28l12.06-13.48c.69-.78.19-2.02-.88-2.14l-2.02-.24c-.92-.11-1.83.22-2.44.88l-12.42,13.45Z"/>
         </g>
-        <text class="garan-nested-cls-1" transform="translate(10.39 46.65)"><tspan x="0" y="0">{{ guarantee }}</tspan></text>
+        <g clip-path="url(#garan-nested-clippath-guarantee)"><text class="garan-nested-cls-1" transform="translate(10.39 46.65)"><tspan x="0" y="0"{% if guaranteeTextLength %} textLength="{{ guaranteeTextLength }}" lengthAdjust="spacingAndGlyphs"{% endif %}>{{ guarantee }}</tspan></text></g>
         <g>
             <rect class="garan-nested-cls-5" x="70.87" y="34.81" width="13.7" height="11.78" rx="1.66" ry="1.66"/>
             <rect class="garan-nested-cls-3" x="74.42" y="33.22" width="1.62" height="3.22" rx=".54" ry=".54"/>

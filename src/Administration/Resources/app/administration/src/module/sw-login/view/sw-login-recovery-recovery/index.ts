@@ -13,18 +13,11 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'userRecoveryService',
-    ],
+    inject: ['userRecoveryService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
-    emits: [
-        'is-loading',
-        'is-not-loading',
-    ],
+    emits: ['is-loading', 'is-not-loading'],
 
     props: {
         hash: {
@@ -35,7 +28,7 @@ export default Component.wrapComponentConfig({
 
     data(): {
         user: {
-            id: string;
+            id: EntityKey<'user'>;
             getEntityName: () => string;
         };
         newPassword: string;
@@ -45,7 +38,7 @@ export default Component.wrapComponentConfig({
         return {
             // Mock an empty user so that we can send out the error
             user: {
-                id: this.hash,
+                id: this.hash as EntityKey<'user'>,
                 getEntityName: () => 'user',
             },
             newPassword: '',
@@ -55,9 +48,7 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        ...mapPropertyErrors('user', [
-            'password',
-        ]),
+        ...mapPropertyErrors('user', ['password']),
     },
 
     watch: {

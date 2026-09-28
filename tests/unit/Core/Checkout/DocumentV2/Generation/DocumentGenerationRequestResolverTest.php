@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequestResolver;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -28,6 +29,16 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(DocumentGenerationRequestResolver::class)]
 class DocumentGenerationRequestResolverTest extends TestCase
 {
+    private AppFeatureStorage $appFeatureStorage;
+
+    protected function setUp(): void
+    {
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+
+        $this->appFeatureStorage = $storage;
+    }
+
     public function testResolveBuildsDocumentGenerationRequest(): void
     {
         $request = $this->createRequest([
@@ -163,7 +174,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
             $request,
             new DocumentTypeRegistry([
                 new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
-            ]),
+            ], $this->appFeatureStorage),
         );
     }
 
@@ -186,7 +197,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
             $request,
             new DocumentTypeRegistry([
                 new StaticDocumentType(DocumentType::INVOICE->value, [DocumentFormat::HTML->value]),
-            ]),
+            ], $this->appFeatureStorage),
         );
     }
 
@@ -231,7 +242,7 @@ class DocumentGenerationRequestResolverTest extends TestCase
                     DocumentFormat::HTML->value,
                     DocumentFormat::PDF->value,
                 ]),
-            ]),
+            ], $this->appFeatureStorage),
         );
     }
 

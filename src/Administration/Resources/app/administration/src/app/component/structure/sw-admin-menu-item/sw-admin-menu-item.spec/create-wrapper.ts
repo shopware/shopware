@@ -25,7 +25,7 @@ type CreateWrapperOptions = {
         matched?: { name?: string }[];
         meta?: Record<string, unknown>;
     };
-    routerRoutes?: { name?: string; meta?: { privilege?: string } }[] | null;
+    routerRoutes?: { name?: string; meta?: { privilege?: string; parentPath?: string } }[] | null;
 };
 
 async function createWrapper({ props = {}, privileges = [], route = {}, routerRoutes = null }: CreateWrapperOptions = {}) {
@@ -34,10 +34,7 @@ async function createWrapper({ props = {}, privileges = [], route = {}, routerRo
             return [];
         }
 
-        return [
-            ...(entry.children ?? []).flatMap((child) => collectRoutes(child)),
-            entry,
-        ];
+        return [...(entry.children ?? []).flatMap((child) => collectRoutes(child)), entry];
     };
 
     const $router = {

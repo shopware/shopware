@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -129,7 +129,7 @@ describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw
         await languageField.find('.sw-single-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-users-permissions-sso-modal-save-button').trigger('click');
@@ -157,7 +157,7 @@ describe('module/sw-users-permissions/components/sw-user-sso-invitation-modal/sw
         await languageField.find('.sw-single-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--1').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-users-permissions-sso-modal-save-button').trigger('click');

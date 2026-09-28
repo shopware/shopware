@@ -7,10 +7,7 @@ import template from './sw-bulk-edit-save-modal-error.html.twig';
 export default {
     template,
 
-    emits: [
-        'title-set',
-        'buttons-update',
-    ],
+    emits: ['title-set', 'buttons-update'],
 
     created() {
         this.createdComponent();

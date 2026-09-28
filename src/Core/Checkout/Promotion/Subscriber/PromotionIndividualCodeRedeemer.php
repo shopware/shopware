@@ -81,7 +81,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             $code = $item->getPayload()['code'] ?? '';
 
             foreach ($promotions as $promotion) {
-                if (strtolower($code) !== strtolower($promotion->getCode())) {
+                if (mb_strtolower($code) !== mb_strtolower($promotion->getCode())) {
                     continue;
                 }
 

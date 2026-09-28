@@ -27,6 +27,7 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
+import type OAuthAuthorizeApiService from 'src/core/service/api/oauth-authorize.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type ShopIdChangeService from 'src/core/service/api/shop-id-change.service';
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
@@ -163,7 +164,7 @@ export interface SubContainer<ContainerName extends string> {
 
 type SalutationFilterEntityType = {
     salutation: {
-        id: string;
+        id: EntityKey<'salutation'>;
         salutationKey: string;
         displayName: string;
     };
@@ -216,6 +217,7 @@ declare global {
      */
     const Shopware: ShopwareClass & CustomShopwareProperties;
 
+    type EntityKey<K extends keyof EntitySchema.EntityKeys> = EntitySchema.EntityKeys[K];
     type Entity<EntityName extends keyof EntitySchema.Entities> = EntitySchema.Entity<EntityName>;
     type EntityCollection<EntityName extends keyof EntitySchema.Entities> = EntitySchema.EntityCollection<EntityName>;
 
@@ -282,6 +284,7 @@ declare global {
         mediaService: MediaService;
         menuService: $TSFixMe;
         numberRangeService: $TSFixMe;
+        oauthAuthorizeApiService: OAuthAuthorizeApiService;
         orderStateMachineService: OrderStateMachineApiService;
         privileges: PrivilegesService;
         productStreamConditionService: $TSFixMe;

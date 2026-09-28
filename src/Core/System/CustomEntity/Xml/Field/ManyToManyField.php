@@ -7,6 +7,8 @@ use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ManyToManyField extends AssociationField

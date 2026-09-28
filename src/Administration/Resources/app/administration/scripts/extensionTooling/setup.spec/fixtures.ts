@@ -53,10 +53,7 @@ export function writeDefaultFixtures(projectRoot: string): string {
     // Multi-bundle suite sharing one composer root.
     writeFile(path.join(projectRoot, 'custom/plugins/Suite/composer.json'), '{}\n');
 
-    for (const bundleName of [
-        'BundleA',
-        'BundleB',
-    ]) {
+    for (const bundleName of ['BundleA', 'BundleB']) {
         writeFile(
             path.join(projectRoot, 'custom/plugins/Suite/src', bundleName, 'Resources/app/administration/src/main.ts'),
             ['export {};'],

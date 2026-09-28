@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -28,8 +29,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('rules')]
 class LineItemDimensionWeightRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemDimensionWeightRule $rule;
 
     protected function setUp(): void
@@ -65,7 +64,7 @@ class LineItemDimensionWeightRuleTest extends TestCase
 
         $lineItem = $this->createLineItemWithWeight($lineItemWeight);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = $this->createLineItem();
+            $lineItem = CartRuleFixture::createLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -129,19 +128,19 @@ class LineItemDimensionWeightRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithWeight($lineItemWeight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = CartRuleFixture::createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithWeight($lineItemWeight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = CartRuleFixture::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -169,24 +168,24 @@ class LineItemDimensionWeightRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithWeight($lineItemWeight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = CartRuleFixture::createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithWeight($lineItemWeight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = CartRuleFixture::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $containerLineItem = $this->createLineItem();
+        $containerLineItem = CartRuleFixture::createLineItem();
         if ($containerLineItemWeight !== null) {
             $containerLineItem = $this->createLineItemWithWeight($containerLineItemWeight);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -454,34 +453,34 @@ class LineItemDimensionWeightRuleTest extends TestCase
         static::assertSame(RuleConfig::UNIT_WEIGHT, $result->getData()['fields']['amount']['config']['unit']);
     }
 
-    #[DataProvider('lineItemTypeProvider')]
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
     public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemDimensionWeightRule(Rule::OPERATOR_NEQ, 5.0);
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
 
-    #[DataProvider('nonProductLineItemTypeProvider')]
+    #[DataProviderExternal(CartRuleFixture::class, 'nonProductLineItemTypeProvider')]
     public function testNonProductLineItemWithWeightMatchesEqualRule(string $type): void
     {
         $rule = new LineItemDimensionWeightRule(Rule::OPERATOR_EQ, 5.0);
 
-        $lineItem = self::createLineItem($type)->setDeliveryInformation($this->createLineItemWithWeight(5.0)->getDeliveryInformation());
-        $scope = new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), static::createStub(SalesChannelContext::class));
+        $lineItem = CartRuleFixture::createLineItem($type)->setDeliveryInformation($this->createLineItemWithWeight(5.0)->getDeliveryInformation());
+        $scope = new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), static::createStub(SalesChannelContext::class));
 
         static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithWeight(?float $weight): LineItem
     {
-        return $this->createLineItemWithDeliveryInfo(false, 1, $weight);
+        return CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, $weight);
     }
 }

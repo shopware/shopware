@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -13,7 +14,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -24,8 +25,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemPromotedRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private const PAYLOAD_KEY = 'markAsTopseller';
 
     private LineItemPromotedRule $rule;
@@ -103,7 +102,7 @@ class LineItemPromotedRuleTest extends TestCase
             $this->createLineItemWithTopsellerMarker($itemValue),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -120,8 +119,8 @@ class LineItemPromotedRuleTest extends TestCase
         $lineItemCollection = new LineItemCollection([
             $this->createLineItemWithTopsellerMarker(true),
         ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -145,7 +144,7 @@ class LineItemPromotedRuleTest extends TestCase
             $this->createLineItemWithTopsellerMarker(false),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -165,30 +164,30 @@ class LineItemPromotedRuleTest extends TestCase
         $this->rule->assign(['isPromoted' => true]);
 
         $scope = new LineItemScope(
-            $this->createLineItem(),
+            CartRuleFixture::createLineItem(),
             static::createStub(SalesChannelContext::class)
         );
 
         static::assertFalse($this->rule->match($scope));
     }
 
-    #[DataProvider('lineItemTypeProvider')]
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
     public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemPromotedRule(false);
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
 
     private function createLineItemWithTopsellerMarker(bool $markAsTopseller): LineItem
     {
-        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
+        return CartRuleFixture::createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
     }
 }

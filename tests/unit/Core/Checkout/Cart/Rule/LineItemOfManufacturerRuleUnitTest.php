@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -22,18 +22,16 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[CoversClass(LineItemOfManufacturerRule::class)]
 class LineItemOfManufacturerRuleUnitTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     public function testCustomProductOptionsDoNotMatchNotEqualManufacturerRule(): void
     {
         $manufacturerId = '019fa77183677a04ba9eaff57eed9627';
 
-        $productLineItem = self::createLineItem()
+        $productLineItem = CartRuleFixture::createLineItem()
             ->setPayloadValue('manufacturerId', $manufacturerId);
-        $optionLineItem = self::createLineItem('customized-products-option')
-            ->setChildren(new LineItemCollection([self::createLineItem('option-values')]));
+        $optionLineItem = CartRuleFixture::createLineItem('customized-products-option')
+            ->setChildren(new LineItemCollection([CartRuleFixture::createLineItem('option-values')]));
 
-        $customizedProductLineItem = self::createLineItem('customized-products')
+        $customizedProductLineItem = CartRuleFixture::createLineItem('customized-products')
             ->setGood(false)
             ->setChildren(new LineItemCollection([$productLineItem, $optionLineItem]));
 
@@ -43,7 +41,7 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         );
 
         $matches = $rule->match(new CartRuleScope(
-            self::createCart(new LineItemCollection([$customizedProductLineItem])),
+            CartRuleFixture::createCart(new LineItemCollection([$customizedProductLineItem])),
             static::createStub(SalesChannelContext::class),
         ));
 
@@ -60,7 +58,7 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         );
 
         $hasMatch = $rule->match(new LineItemScope(
-            self::createLineItem('customized-products-option'),
+            CartRuleFixture::createLineItem('customized-products-option'),
             static::createStub(SalesChannelContext::class),
         ));
 
@@ -73,28 +71,28 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
 
         $rule = new LineItemOfManufacturerRule(Rule::OPERATOR_EQ, [$manufacturerId]);
 
-        $pluginLineItem = self::createLineItem('my-plugin-item')
+        $pluginLineItem = CartRuleFixture::createLineItem('my-plugin-item')
             ->setPayloadValue('manufacturerId', $manufacturerId);
 
         $matches = $rule->match(new CartRuleScope(
-            self::createCart(new LineItemCollection([$pluginLineItem])),
+            CartRuleFixture::createCart(new LineItemCollection([$pluginLineItem])),
             static::createStub(SalesChannelContext::class),
         ));
 
         static::assertTrue($matches);
     }
 
-    #[DataProvider('lineItemTypeProvider')]
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
     public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemOfManufacturerRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }

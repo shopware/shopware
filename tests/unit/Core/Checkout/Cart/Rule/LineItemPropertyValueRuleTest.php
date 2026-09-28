@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -19,7 +20,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -29,8 +30,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[Group('rules')]
 class LineItemPropertyValueRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemPropertyValueRule $rule;
 
     protected function setUp(): void
@@ -135,7 +134,7 @@ class LineItemPropertyValueRuleTest extends TestCase
         ], $configData['operatorSet']);
     }
 
-    #[DataProvider('lineItemTypeProvider')]
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
     public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemPropertyValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);

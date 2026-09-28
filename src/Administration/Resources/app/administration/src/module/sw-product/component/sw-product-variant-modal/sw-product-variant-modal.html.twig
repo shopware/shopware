@@ -500,8 +500,10 @@
     {% block sw_product_variant_modal_body_empty_state %}
     <mt-empty-state
         v-else
+        centered
         :icon="$route.meta.$module.icon"
         :headline="$t('sw-product.list.variantGridEmptyStateSubline')"
+        description=""
     />
     {% endblock %}
 

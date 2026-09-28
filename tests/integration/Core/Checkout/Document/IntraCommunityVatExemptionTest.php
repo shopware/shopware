@@ -132,6 +132,16 @@ class IntraCommunityVatExemptionTest extends TestCase
         );
     }
 
+    public function testTheTaxFreeInvoiceShowsAZeroVatRateInsteadOfEmptyCells(): void
+    {
+        $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19]));
+
+        $invoice = $this->render(static::getContainer()->get(InvoiceRenderer::class), $orderId);
+
+        // The product row and the shipping costs row
+        static::assertSame(2, substr_count($invoice, '<td class="align-right">0 %</td>'));
+    }
+
     public function testAVatIdOfNoMemberStateKeepsTheOrderTaxedAndTheNoteOff(): void
     {
         $this->setVatIds([self::SWISS_VAT_ID]);

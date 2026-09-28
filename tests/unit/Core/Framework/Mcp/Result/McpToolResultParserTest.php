@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultLink;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
 
 /**
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
 #[CoversClass(McpToolResultParser::class)]
 #[CoversClass(McpToolResult::class)]
 #[CoversClass(McpToolError::class)]
+#[CoversClass(McpToolResultLink::class)]
 class McpToolResultParserTest extends TestCase
 {
     public function testParsesASuccessEnvelopeWithMeta(): void
@@ -37,6 +39,27 @@ class McpToolResultParserTest extends TestCase
         static::assertInstanceOf(McpToolResult::class, $result);
         static::assertNull($result->data);
         static::assertSame([], $result->meta);
+    }
+
+    public function testTurnsTheStoredResultPointerIntoALink(): void
+    {
+        $result = (new McpToolResultParser())->parse('{"success":true,"data":null,"_meta":{"resourceUri":"shopware://tool-result/abc","expiresAt":"2026-09-28T11:00:00+00:00","responseSize":123456,"note":"Too large."}}');
+
+        static::assertInstanceOf(McpToolResult::class, $result);
+        static::assertCount(1, $result->links);
+        static::assertEquals(new McpToolResultLink('shopware://tool-result/abc', 'tool-result', 'Too large.', 'application/json', 123456), $result->links[0]);
+        static::assertSame('Too large.', $result->summary);
+        static::assertSame('2026-09-28T11:00:00+00:00', $result->expiresAt?->format(\DateTimeInterface::ATOM));
+    }
+
+    public function testAPointerWithoutExpiryOrSizeStillBecomesALink(): void
+    {
+        $result = (new McpToolResultParser())->parse('{"success":true,"data":null,"_meta":{"resourceUri":"shopware://tool-result/abc","expiresAt":"tomorrow"}}');
+
+        static::assertInstanceOf(McpToolResult::class, $result);
+        static::assertEquals(new McpToolResultLink('shopware://tool-result/abc', 'tool-result', null, 'application/json'), $result->links[0]);
+        static::assertNull($result->expiresAt);
+        static::assertNull($result->summary);
     }
 
     public function testParsesAStringErrorWithItsCode(): void

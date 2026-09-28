@@ -10,7 +10,7 @@
     },
     "product": {
       "textTitle": "Bulk edit: {productTotal} product | Bulk edit: {productTotal} products",
-      "messageEmptyTitle": "No products selected for bulk edit",
+      "messageEmptyTitle": "No products selected",
       "messageEmptySubline": "Please go back and select some products",
       "alertInheritance": {
         "message": "These variants have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."

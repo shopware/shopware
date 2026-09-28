@@ -43,11 +43,12 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
         static::assertTrue(TableHelper::columnExists($this->connection, 'webhook', 'owner_integration_id'));
     }
 
-    public function testMigrationDeactivatesAppLessWebhooksWithoutOwner(): void
+    public function testMigrationAssignsAppLessWebhooksWithoutOwnerToOldestAdmin(): void
     {
         (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
 
-        $userId = $this->createUser();
+        $userId = $this->createUser(admin: false);
+        $oldestAdminId = $this->createUser(admin: true, createdAt: new \DateTime('2000-01-01'));
         $ownerlessId = Uuid::randomBytes();
         $ownedByUserId = Uuid::randomBytes();
 
@@ -57,12 +58,15 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
         try {
             (new Migration1787220016AddOwnerToWebhook())->update($this->connection);
 
-            static::assertFalse($this->fetchActive($ownerlessId));
+            static::assertSame($oldestAdminId, $this->fetchOwnerUserId($ownerlessId));
+            static::assertTrue($this->fetchActive($ownerlessId));
+            static::assertSame($userId, $this->fetchOwnerUserId($ownedByUserId));
             static::assertTrue($this->fetchActive($ownedByUserId));
         } finally {
             $this->connection->delete('webhook', ['id' => $ownerlessId]);
             $this->connection->delete('webhook', ['id' => $ownedByUserId]);
             $this->connection->delete('user', ['id' => Uuid::fromHexToBytes($userId)]);
+            $this->connection->delete('user', ['id' => Uuid::fromHexToBytes($oldestAdminId)]);
         }
     }
 
@@ -84,7 +88,14 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
         return (bool) $this->connection->fetchOne('SELECT active FROM webhook WHERE id = :id', ['id' => $id]);
     }
 
-    private function createUser(): string
+    private function fetchOwnerUserId(string $id): ?string
+    {
+        $ownerUserId = $this->connection->fetchOne('SELECT LOWER(HEX(owner_user_id)) FROM webhook WHERE id = :id', ['id' => $id]);
+
+        return \is_string($ownerUserId) ? $ownerUserId : null;
+    }
+
+    private function createUser(bool $admin, \DateTime $createdAt = new \DateTime()): string
     {
         $userId = Uuid::randomHex();
         $localeId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1');
@@ -98,8 +109,8 @@ class Migration1787220016AddOwnerToWebhookTest extends TestCase
             'password' => password_hash('shopware', \PASSWORD_BCRYPT),
             'locale_id' => Uuid::fromHexToBytes($localeId),
             'active' => 1,
-            'admin' => 0,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => (int) $admin,
+            'created_at' => $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         return $userId;

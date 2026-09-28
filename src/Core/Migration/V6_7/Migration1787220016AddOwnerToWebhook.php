@@ -29,8 +29,10 @@ class Migration1787220016AddOwnerToWebhook extends MigrationStep
             $connection->executeStatement('ALTER TABLE `webhook` ADD CONSTRAINT `fk.webhook.owner_integration_id` FOREIGN KEY (`owner_integration_id`) REFERENCES `integration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE');
         }
 
+        // the creator of existing app-less webhooks is unknown, so hand them to the oldest admin to keep them delivering
         $connection->executeStatement(
-            'UPDATE `webhook` SET `active` = 0
+            'UPDATE `webhook`
+             SET `owner_user_id` = (SELECT `id` FROM `user` WHERE `admin` = 1 ORDER BY `created_at` ASC LIMIT 1)
              WHERE `app_id` IS NULL
                AND `owner_user_id` IS NULL
                AND `owner_integration_id` IS NULL'

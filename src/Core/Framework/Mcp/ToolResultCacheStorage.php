@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -13,11 +14,27 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * Persists large tool results in the DB for the duration of an MCP session.
  * Each stored result is scoped to a session ID so it cannot be read by other sessions.
- * Rows are removed when the MCP session ends (DELETE /api/_mcp).
+ * Rows are removed when the MCP session ends (DELETE /api/_mcp), and by the periodic
+ * age-based McpToolResultCacheCleanupTask when a client disconnects without DELETE
+ * (or when the modern era answers DELETE with 405 and there is no session store).
  */
 #[Package('framework')]
 class ToolResultCacheStorage
 {
+    /**
+     * How long a cached oversized tool result may remain after `created_at`.
+     * Results are only read during the call that produced them and the model's immediate
+     * follow-up `resources/read`, so a fixed age is safe, unlike mcp_toolset_session,
+     * which must wait for session-store liveness.
+     */
+    public const DEFAULT_TTL_SECONDS = 86400;
+
+    /**
+     * Bounded DELETE batch size for TTL GC. Matches CleanupCustomerRecoveryTaskHandler.
+     * Keeps lock / undo / replication pressure finite when the first run drains a backlog.
+     */
+    private const CLEANUP_BATCH_SIZE = 1000;
+
     /**
      * @internal
      */
@@ -79,5 +96,34 @@ class ToolResultCacheStorage
             'DELETE FROM `mcp_tool_result_cache` WHERE `session_id` = :sessionId',
             ['sessionId' => $sessionId],
         );
+    }
+
+    /**
+     * Deletes rows older than `$threshold` (inclusive of equality at the boundary).
+     * Used by the scheduled TTL GC. Does not consult session stores.
+     * Deletes in bounded LIMIT batches to avoid one unbounded transaction on backlog.
+     *
+     * @return int Number of deleted rows
+     */
+    public function deleteOlderThan(\DateTimeInterface $threshold): int
+    {
+        $formattedThreshold = $threshold->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $deleted = 0;
+
+        do {
+            $result = (int) $this->connection->executeStatement(
+                'DELETE FROM `mcp_tool_result_cache` WHERE `created_at` <= :threshold LIMIT :limit',
+                [
+                    'threshold' => $formattedThreshold,
+                    'limit' => self::CLEANUP_BATCH_SIZE,
+                ],
+                [
+                    'limit' => ParameterType::INTEGER,
+                ],
+            );
+            $deleted += $result;
+        } while ($result >= self::CLEANUP_BATCH_SIZE);
+
+        return $deleted;
     }
 }

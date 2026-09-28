@@ -74,7 +74,8 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 - `Context/` -- Context bridging (`McpContextProvider`, `StoreApiMcpContextProvider`)
 - `Controller/` -- HTTP endpoints for MCP protocol (`McpServerController` admin, `StoreApiMcpServerController` store)
 - `RateLimit/` -- `McpRateLimiter` wrapper around the core `RateLimiter` (per-scope keys + throttle translation)
-- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes tool-result cache on session DELETE)
+- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes tool-result cache and toolset rows on session DELETE)
+- `ScheduledTask/` -- Periodic GC: `McpToolsetSessionCleanupTask` (session-store liveness for `mcp_toolset_session`), `McpToolResultCacheCleanupTask` (age TTL for `mcp_tool_result_cache`; does not require a session store)
 - `Tool/` -- Individual MCP tool implementations
 - `Prompt/` -- System prompts for AI context
 - `Resource/` -- Static MCP resources

@@ -90,6 +90,56 @@ class ConfigurationTest extends TestCase
         ]]);
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidParentMajorDataProvider(): iterable
+    {
+        yield 'incomplete version' => ['v6.8.0'];
+        yield 'patch version' => ['v6.8.1.0'];
+        yield 'environment variable name' => ['V6_8_0_0'];
+    }
+
+    #[DataProvider('invalidParentMajorDataProvider')]
+    public function testFeatureRejectsInvalidParentMajor(string $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'JSON_LD_DATA', 'major' => $major],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testFeatureCannotBeItsOwnParentMajor(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testMajorVersionFlagCannotBeAnotherMajorSubFeature(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.9.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+    }
+
     public function testCdnPathCacheBusterDefaultsToTrue(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [['cdn' => []]]);

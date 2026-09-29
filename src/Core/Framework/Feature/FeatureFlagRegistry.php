@@ -21,6 +21,11 @@ class FeatureFlagRegistry
     public const STORAGE_KEY = 'feature.flags';
 
     /**
+     * @var array<string, FeatureFlagConfig>
+     */
+    private readonly array $staticFeatureFlags;
+
+    /**
      * @param array<string, FeatureFlagConfig> $staticFeatureFlags
      *
      * @internal
@@ -28,9 +33,15 @@ class FeatureFlagRegistry
     public function __construct(
         private readonly AbstractKeyValueStorage $keyValueStorage,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly array $staticFeatureFlags = [],
+        array $staticFeatureFlags = [],
         private readonly bool $enabledFeatureToggle = false
     ) {
+        $normalized = [];
+        foreach ($staticFeatureFlags as $name => $flag) {
+            $normalized[Feature::normalizeName($name)] = $flag;
+        }
+
+        $this->staticFeatureFlags = $normalized;
     }
 
     public function register(): void

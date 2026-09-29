@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 #[Package('framework')]
 class Configuration implements ConfigurationInterface
@@ -661,7 +662,12 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
-                        ->stringNode('major')->cannotBeEmpty()->end()
+                        ->stringNode('major')->cannotBeEmpty()
+                            ->validate()
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/', $major))
+                                ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
+                            ->end()
+                        ->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
@@ -676,6 +682,17 @@ class Configuration implements ConfigurationInterface
                                 $flags[] = [
                                     'name' => $flag,
                                 ];
+                            }
+                        }
+
+                        return $flags;
+                    })
+                    ->end()
+                ->validate()
+                    ->always()->then(static function (array $flags): array {
+                        foreach ($flags as $name => $flag) {
+                            if (isset($flag['major']) && Feature::isMajorVersionFlag((string) $name)) {
+                                throw new InvalidConfigurationException(\sprintf('Major version flag "%s" cannot declare a parent major.', $name));
                             }
                         }
 

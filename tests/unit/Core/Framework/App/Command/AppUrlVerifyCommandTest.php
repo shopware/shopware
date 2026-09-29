@@ -35,14 +35,13 @@ class AppUrlVerifyCommandTest extends TestCase
         $verifier = $this->createMock(AppUrlVerifier::class);
         $verifier->expects($this->once())
             ->method('forceVerify')
-            ->with($shopId);
-
-        $verifier->method('getCurrentState')->willReturn(new VerificationState(
-            VerificationStatus::PASS,
-            1,
-            new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
-            null,
-        ));
+            ->with($shopId)
+            ->willReturn(new VerificationState(
+                VerificationStatus::PASS,
+                1,
+                new \DateTimeImmutable('2025-01-01 12:00:00', new \DateTimeZone('UTC')),
+                null,
+            ));
 
         $printer = new AppUrlVerificationPrinter($shopIdProvider);
         $command = new AppUrlVerifyCommand($shopIdProvider, $verifier, $printer);
@@ -63,10 +62,6 @@ class AppUrlVerifyCommandTest extends TestCase
             ->willReturn($shopId);
 
         $verifier = $this->createMock(AppUrlVerifier::class);
-        $verifier->expects($this->once())
-            ->method('forceVerify')
-            ->with($shopId);
-
         $state = new VerificationState(
             VerificationStatus::HARD_FAIL,
             1,
@@ -74,7 +69,10 @@ class AppUrlVerifyCommandTest extends TestCase
             'Unexpected response from APP_URL verification endpoint: HTTP 404. not found',
         );
 
-        $verifier->method('getCurrentState')->willReturn($state);
+        $verifier->expects($this->once())
+            ->method('forceVerify')
+            ->with($shopId)
+            ->willReturn($state);
 
         $printer = new AppUrlVerificationPrinter($shopIdProvider);
         $command = new AppUrlVerifyCommand($shopIdProvider, $verifier, $printer);

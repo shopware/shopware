@@ -27,6 +27,17 @@ import type { OverrideLocalState } from './data-scope-helper';
 type AnyRecord = Record<string, unknown>;
 type SetupResult = AnyRecord | undefined;
 
+/**
+ * The component's own state, as Vue's instance proxy resolves it minus `setupState`, where the
+ * override results live. Read and write follow the same order, so a write lands where the base
+ * component's own `this.x = …` would have landed without any override.
+ */
+type BaseState = {
+    read: (key: string) => unknown;
+    isWritable: (key: string) => boolean;
+    write: (key: string, value: unknown) => void;
+};
+
 // Hands the object created in setup() over to created(). Keyed per instance because the config is
 // shared by every instance of the component.
 const bags = new WeakMap<ComponentInternalInstance, AnyRecord>();
@@ -34,6 +45,163 @@ const bags = new WeakMap<ComponentInternalInstance, AnyRecord>();
 // The read-only refs previousState hands out. They report writes instead of rejecting them, so
 // isReadonly() cannot tell them apart from a writable ref.
 const previousStateRefs = new WeakSet<object>();
+
+/**
+ * Whether `value` is one of the read-only refs `previousState` hands out, e.g. when an override
+ * passes `previousState.x` straight through.
+ */
+function isPreviousStateRef(value: unknown): boolean {
+    return typeof value === 'object' && value !== null && previousStateRefs.has(value);
+}
+
+/**
+ * Creates the base state of `instance`: data, props, then ctx (computed, methods, inject).
+ *
+ * @example
+ * const base = createBaseState(instance);
+ * base.read('isLoading'); // data.isLoading
+ * base.write('currentValue', 'x'); // runs the computed's setter
+ */
+function createBaseState(instance: ComponentInternalInstance): BaseState {
+    const data = instance.data as AnyRecord;
+    const props = instance.props as AnyRecord;
+    const ctx = (instance as unknown as { ctx: AnyRecord }).ctx;
+
+    return {
+        read(key) {
+            if (key in data) {
+                return data[key];
+            }
+
+            if (key in props) {
+                return props[key];
+            }
+
+            return ctx[key];
+        },
+        // What a base `this.x = …` changes when no override is in the way: data, or a computed's setter.
+        isWritable(key) {
+            return key in data || !!Object.getOwnPropertyDescriptor(ctx, key)?.set;
+        },
+        write(key, value) {
+            if (key in data) {
+                data[key] = value;
+                return;
+            }
+
+            ctx[key] = value;
+        },
+    };
+}
+
+/**
+ * Creates the `previousState` one override receives: `installed` first, which holds the component's
+ * own setup() result and everything earlier overrides returned, then the base state.
+ *
+ * Every key except functions is served as a read-only ref, plain values and refs alike. That is what
+ * createDataScope() hands to overrides of migrated components (toRefs semantics), so an override reads
+ * `previousState.x.value` without knowing whether the component was migrated. Functions stay callable
+ * as `previousState.x()`. A write attempt - to `.value` or to the key itself - is reported and dropped;
+ * values change through the override's return value.
+ *
+ * @example
+ * const previousState = createPreviousState('sw-product-list', { ...bag }, base);
+ * previousState.isLoading.value; // read-only
+ * previousState.getList(); // the replaced method's original
+ */
+function createPreviousState(componentName: string, installed: AnyRecord, base: BaseState): AnyRecord {
+    const reportWrite = (key: string): void => {
+        console.error(
+            `[${componentName}] previousState is read-only. Return "${key}" from the override instead of assigning to previousState.${key}.`,
+        );
+    };
+
+    const read = (key: string): unknown => (Object.hasOwn(installed, key) ? installed[key] : base.read(key));
+
+    // One wrapper per key, so `previousState.x === previousState.x` holds and passing the same ref to
+    // several watch() sources does not create a new object on every access.
+    const wrapperCache = new Map<string, unknown>();
+
+    const createWrapper = (key: string): unknown => {
+        const current = read(key);
+
+        if (typeof current === 'function') {
+            return current;
+        }
+
+        const wrapper = customRef(() => ({
+            get: () => unref(read(key)),
+            set: () => reportWrite(key),
+        }));
+
+        previousStateRefs.add(wrapper);
+
+        return wrapper;
+    };
+
+    return new Proxy({} as AnyRecord, {
+        get: (_target, key) => {
+            // Vue probes objects with `__v_isRef`, `__v_raw` & co and with symbol keys. Answering those
+            // with an accessor would make the proxy itself look like a ref.
+            if (typeof key !== 'string' || key.startsWith('__v_') || isOverrideLocalStateKey(key)) {
+                return undefined;
+            }
+
+            if (!wrapperCache.has(key)) {
+                wrapperCache.set(key, createWrapper(key));
+            }
+
+            return wrapperCache.get(key);
+        },
+        // Without this trap the assignment would land in the empty target and vanish silently.
+        // Returning false would throw in strict mode, so the write is reported and swallowed.
+        set: (_target, key) => {
+            reportWrite(String(key));
+
+            return true;
+        },
+    });
+}
+
+/**
+ * Installs one key of an override result into the setup state, where it outranks data and computed.
+ *
+ * Reads through `this` then return the override's value. Writes through `this` still reach the base
+ * state, so an override deriving from `previousState.x` follows the base's own `this.x = …`. The
+ * exception is a writable ref the override returns: the override owns that state, and a v-model in its
+ * template has to reach it.
+ *
+ * @example
+ * installOverrideValue(instance, bag, 'isLoading', computed(() => previousState.isLoading.value), base);
+ * // this.isLoading = true now writes data.isLoading, and the override's computed follows it
+ */
+function installOverrideValue(
+    instance: ComponentInternalInstance,
+    bag: AnyRecord,
+    key: string,
+    value: unknown,
+    base: BaseState,
+): void {
+    if (isOverrideLocalStateKey(key)) {
+        mergeOverrideState(getOverrideLocalState(bag), value as OverrideLocalState);
+        return;
+    }
+
+    const ownedByOverride = isRef(value) && !isReadonly(value) && !isPreviousStateRef(value);
+
+    bag[key] =
+        ownedByOverride || !base.isWritable(key)
+            ? value
+            : computed({
+                  get: () => unref(value),
+                  set: (newValue) => base.write(key, newValue),
+              });
+
+    // Vue memoises which bucket a key resolved from on first access. Anything that read the key
+    // earlier - an immediate watcher, a preceding created hook - pinned it to `data`, and setupState
+    // would never be consulted again.
+    delete (instance as unknown as { accessCache: Record<string, unknown> }).accessCache[key];
+}
 
 /**
  * @private
@@ -87,107 +255,7 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 return;
             }
 
-            // Deliberately skips `setupState`: what an earlier override or the component's own setup()
-            // put there is served from the per-override snapshot below. Mirrors Vue's own order minus
-            // that first step.
-            const readBaseState = (key: string): unknown => {
-                const data = instance.data as AnyRecord;
-
-                if (data && key in data) {
-                    return data[key];
-                }
-
-                if (instance.props && key in instance.props) {
-                    return (instance.props as AnyRecord)[key];
-                }
-
-                return (instance as unknown as { ctx: AnyRecord }).ctx[key];
-            };
-
-            // Resolves `installed` first, then the base state - the same order Vue's instance proxy uses,
-            // with `installed` standing in for setupState. A proxy avoids having to enumerate data,
-            // computed and methods upfront.
-            //
-            // Every key except functions is served as a read-only ref, plain values and refs alike. That is
-            // what createDataScope() hands to overrides of migrated components (toRefs semantics), so an
-            // override reads `previousState.x.value` without knowing whether the component was migrated.
-            // Functions stay callable as `previousState.x()`. Writes go through the override's return
-            // value; a write attempt - to `.value` or to the key itself - is reported and dropped instead
-            // of reaching data, ctx or an earlier override's ref behind Vue's back. Wrapping refs as well
-            // means an override returning `{ x: previousState.x }` installs the read-only wrapper, not the
-            // original ref.
-            const createPreviousState = (installed: AnyRecord): AnyRecord => {
-                const reportWrite = (key: string): void => {
-                    console.error(
-                        `[${componentName}] previousState is read-only. Return "${key}" from the override instead of assigning to previousState.${key}.`,
-                    );
-                };
-
-                // One wrapper per key, so `previousState.x === previousState.x` holds and passing the same
-                // ref to several watch() sources does not create a new object on every access.
-                const wrapperCache = new Map<string, unknown>();
-
-                const read = (key: string): unknown => (Object.hasOwn(installed, key) ? installed[key] : readBaseState(key));
-
-                return new Proxy({} as AnyRecord, {
-                    get: (_target, key) => {
-                        // Vue probes objects with `__v_isRef`, `__v_raw` & co and with symbol keys.
-                        // Answering those with an accessor would make the proxy itself look like a ref.
-                        if (typeof key !== 'string' || key.startsWith('__v_') || isOverrideLocalStateKey(key)) {
-                            return undefined;
-                        }
-
-                        if (!wrapperCache.has(key)) {
-                            const current = read(key);
-
-                            if (typeof current === 'function') {
-                                wrapperCache.set(key, current);
-                            } else {
-                                const wrapper = customRef(() => ({
-                                    get: () => unref(read(key)),
-                                    set: () => reportWrite(key),
-                                }));
-
-                                previousStateRefs.add(wrapper);
-                                wrapperCache.set(key, wrapper);
-                            }
-                        }
-
-                        return wrapperCache.get(key);
-                    },
-                    // Without this trap the assignment would land in the empty target and vanish silently.
-                    // Returning false would throw in strict mode, so the write is reported and swallowed.
-                    set: (_target, key) => {
-                        reportWrite(String(key));
-
-                        return true;
-                    },
-                });
-            };
-
-            // The base component keeps writing `this.x = …`, and Vue sends that to setupState before data.
-            // For a data-backed key the write would land on the override's value: a read-only ref warns and
-            // drops it, a plain value is replaced. Either way data never changes, and an override deriving
-            // from previousState.x stays stuck on the old value. Migrated components do not have this
-            // problem because their script writes to its own local ref, so the write is sent back to data.
-            // A writable ref the override returns keeps receiving writes: the override owns that state, and
-            // a v-model in its template has to reach it.
-            const routeBaseWritesToData = (key: string, value: unknown): unknown => {
-                const data = instance.data as AnyRecord;
-                const ownsState = isRef(value) && !isReadonly(value) && !previousStateRefs.has(value);
-
-                if (!data || !(key in data) || ownsState) {
-                    return value;
-                }
-
-                return computed({
-                    get: () => unref(value),
-                    set: (newValue) => {
-                        data[key] = newValue;
-                    },
-                });
-            };
-
+            const base = createBaseState(instance);
             const context = {
                 attrs: instance.attrs,
                 slots: instance.slots,
@@ -198,28 +266,16 @@ export function attachSetupOverrideShim(componentName: string, config: Component
             // Vue activates the component's effect scope around lifecycle hooks, so watchers and
             // computeds the overrides create here are disposed on unmount without further handling.
             _overridesMap[componentName].forEach((override) => {
-                // Snapshot per override: the bag already holds the component's own setup() result and
-                // everything earlier overrides installed, so override N sees N-1 - but not its own
-                // result, which is only written after the call. That keeps the read from looping.
-                const previousState = createPreviousState({ ...bag });
+                // Snapshot per override, so override N sees N-1 but not its own result, which is only
+                // installed after the call. That keeps the read from looping.
+                const previousState = createPreviousState(componentName, { ...bag }, base);
                 const result = override(previousState as never, instance.props as never, context) as AnyRecord;
 
-                if (result === undefined) {
-                    return;
-                }
-
-                Object.keys(result).forEach((key) => {
-                    if (isOverrideLocalStateKey(key)) {
-                        mergeOverrideState(getOverrideLocalState(bag), result[key] as OverrideLocalState);
-                        return;
-                    }
-
-                    bag[key] = routeBaseWritesToData(key, result[key]);
-                    // Vue memoises which bucket a key resolved from on first access. Anything that read the
-                    // key earlier - an immediate watcher, a preceding created hook - pinned it to `data`,
-                    // and setupState would never be consulted again.
-                    delete (instance as unknown as { accessCache: Record<string, unknown> }).accessCache[key];
-                });
+                Object.entries(result ?? {}).forEach(
+                    ([key, value]) => {
+                        installOverrideValue(instance, bag, key, value, base);
+                    },
+                );
             });
         },
     };

@@ -131,4 +131,48 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim - 
         expect(wrapper.text()).toBe('true');
         expect((wrapper.vm as unknown as BaseVm).$data.isLoading).toBe(false);
     });
+
+    it('lets the base write a writable computed an override derives from previousState', async () => {
+        type FieldVm = { onInput: (value: string) => void };
+
+        _overridesMap['sw-shim-base-write-computed-setter'] = [
+            (previousState: PreviousState) => ({
+                currentValue: computed(() => String(previousState.currentValue.value).trim()),
+            }),
+        ] as never;
+
+        // The shape of most Twig form fields: a v-model computed whose setter emits to the parent.
+        const config = {
+            template: '<p>{{ currentValue }}</p>',
+            props: { value: { type: String, default: '' } },
+            emits: ['update:value'],
+            computed: {
+                currentValue: {
+                    get(this: { value: string }) {
+                        return this.value;
+                    },
+                    set(this: { $emit: (event: string, value: string) => void }, value: string) {
+                        this.$emit('update:value', value);
+                    },
+                },
+            },
+            methods: {
+                onInput(this: { currentValue: string }, value: string) {
+                    this.currentValue = value;
+                },
+            },
+        } as unknown as ComponentConfig;
+
+        attachSetupOverrideShim('sw-shim-base-write-computed-setter', config);
+
+        const wrapper = mount(config as never, { props: { value: ' base ' } as never });
+        await flushPromises();
+        expect(wrapper.text()).toBe('base');
+
+        (wrapper.vm as unknown as FieldVm).onInput(' typed ');
+        await flushPromises();
+
+        expect(wrapper.emitted('update:value')).toEqual([[' typed ']]);
+        expect(warnSpy).not.toHaveBeenCalled();
+    });
 });

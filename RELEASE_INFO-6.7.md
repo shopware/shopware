@@ -240,6 +240,12 @@ Component.register('sw-example', {
 
 That error is thrown while the component is created, so Vue handles it: a development build aborts the mount, a production build logs it and keeps rendering.
 
+### Administration deprecation notices go through the feature lifecycle
+
+The hand-rolled deprecation warnings in the Administration now use the guard, so they throw once their major flag is active instead of staying a console message forever. This covers `$tc`, `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items` prop of `sw-entity-listing` and the Options API compatibility shim.
+
+A new `sw-deprecation-rules/no-manual-deprecation-notices` ESLint rule rejects new ones. Where a removal version genuinely does not exist yet, such as the legacy Twig override shim and deprecated extension position identifiers, the notice stays a warning and records why on the line.
+
 ## Storefront
 
 ### Preserve theme assets on S3-compatible storage

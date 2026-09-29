@@ -65,8 +65,11 @@ export default Shopware.Component.wrapComponentConfig({
                     ];
                     // @ts-expect-error
                     if (process.env !== 'prod') {
+                        // A position identifier carries no removal version, so there is no flag to guard with.
+                        // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices
                         Shopware.Utils.debug.error(...debugArgs);
                     } else {
+                        // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices
                         Shopware.Utils.debug.warn(...debugArgs);
                     }
                 });

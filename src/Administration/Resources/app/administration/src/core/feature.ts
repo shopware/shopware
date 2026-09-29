@@ -59,6 +59,8 @@ export function reportDeprecation(isMajorActive: boolean, message: string): void
     // A deprecated computed property is read on every render, so warn only once per message.
     if (!warnedDeprecations.has(message)) {
         warnedDeprecations.add(message);
+        // The one emitter every other deprecation notice routes through
+        // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices
         warn('Deprecation', message);
     }
 }

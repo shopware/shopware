@@ -17,9 +17,8 @@ export default Shopware.Component.wrapComponentConfig({
                 return true;
             }
 
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-skeleton-bar',
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
                 'The old usage of "sw-skeleton-bar" is deprecated and will be removed in v6.8.0.0. Please use "mt-skeleton-bar" instead.',
             );
 

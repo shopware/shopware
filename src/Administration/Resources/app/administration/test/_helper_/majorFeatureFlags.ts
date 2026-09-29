@@ -71,7 +71,5 @@ export default function getMajorFeatureFlags(
         return flags.filter((flag) => isTrue(environment[normalizeName(flag.name)])).map(({ name }) => normalizeName(name));
     }
 
-    return flags
-        .filter(active)
-        .map(({ name }) => normalizeName(name));
+    return flags.filter(active).map(({ name }) => normalizeName(name));
 }

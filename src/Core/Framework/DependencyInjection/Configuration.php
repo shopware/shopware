@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 #[Package('framework')]
 class Configuration implements ConfigurationInterface
@@ -689,15 +688,16 @@ class Configuration implements ConfigurationInterface
                     })
                     ->end()
                 ->validate()
-                    ->always()->then(static function (array $flags): array {
+                    ->ifTrue(static function (array $flags): bool {
                         foreach ($flags as $name => $flag) {
                             if (isset($flag['major']) && Feature::isMajorVersionFlag((string) $name)) {
-                                throw new InvalidConfigurationException(\sprintf('Major version flag "%s" cannot declare a parent major.', $name));
+                                return true;
                             }
                         }
 
-                        return $flags;
+                        return false;
                     })
+                    ->thenInvalid('A major version flag cannot declare a parent major.')
                     ->end()
             ->end();
 

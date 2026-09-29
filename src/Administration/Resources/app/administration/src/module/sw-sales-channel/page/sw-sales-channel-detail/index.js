@@ -243,6 +243,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.customFieldRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 

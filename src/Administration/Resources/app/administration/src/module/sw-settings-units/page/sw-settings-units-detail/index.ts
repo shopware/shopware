@@ -36,11 +36,21 @@ export default Component.wrapComponentConfig({
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository(): Repository<'custom_field_set'> {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-units-detail.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria(): Criteria {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-units-detail.customFieldSetCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'unit'));
 

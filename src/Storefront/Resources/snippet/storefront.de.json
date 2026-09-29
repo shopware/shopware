@@ -102,6 +102,7 @@
     "VIOLATION::VAT_ID_FORMAT_NOT_CORRECT": "Die eingegebene USt-IdNr. entspricht nicht der erwarteten Struktur.",
     "VIOLATION::ZIP_CODE_INVALID": "Die eingegebene Postleitzahl hat nicht das richtige Format.",
     "VIOLATION::INVALID_FORMAT_ERROR": "Die Eingabe entspricht nicht der erwarteten Struktur.",
+    "VIOLATION::CONTAINS_HTML_ERROR": "Bitte verwenden Sie kein HTML.",
     "VIOLATION::INVALID_EMAIL_FORMAT_ERROR": "Ungültige E-Mail-Adresse. Die E-Mail benötigt das Format \"nutzer@beispiel.de\".",
     "VIOLATION::NOT_EQUAL_ERROR": "Ihre Eingaben sind nicht identisch.",
     "VIOLATION::FIRST_NAME_IS_BLANK_ERROR": "Bitte tragen Sie Ihren Vornamen ein.",

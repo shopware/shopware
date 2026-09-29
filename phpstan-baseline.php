@@ -851,18 +851,6 @@ $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
     'count' => 1,
-    'path' => __DIR__ . '/src/Core/System/SystemConfig/SymfonySystemConfigService.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/System/SystemConfig/SystemConfigLoader.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
-    'count' => 1,
     'path' => __DIR__ . '/src/Core/Test/Integration/Helper/MailEventListener.php',
 ];
 $ignoreErrors[] = [

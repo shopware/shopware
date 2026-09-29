@@ -503,6 +503,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.shopware_version'),
             service(ClockInterface::class),
             service('logger'),
+            service(AppUrlVerifier::class),
+            service(SecureUrlValidator::class),
         ]);
 
     $services->set(AppSecretRotationService::class)

@@ -21,6 +21,8 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -226,7 +228,7 @@ class AppRegistrationServiceTest extends TestCase
             $shopIdProviderMock,
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            new NativeClock(),
         );
 
         $shopIdMock = $this->createMock(ShopIdProvider::class);
@@ -243,6 +245,8 @@ class AppRegistrationServiceTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             new NativeClock(),
             new NullLogger(),
+            static::getContainer()->get(AppUrlVerifier::class),
+            static::getContainer()->get(SecureUrlValidator::class),
         );
 
         static::expectException(AppRegistrationException::class);

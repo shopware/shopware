@@ -99,7 +99,6 @@ const EXPECTED_CONDITION_TYPES = [
     'customerBirthday',
     'customerCreatedByAdmin',
     'customerSalutation',
-    'cartLineItemProductStates',
     'cartLineItemProductType',
     'orderTag',
     'orderTrackingCode',
@@ -142,8 +141,8 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
     it('should register exactly the expected rule conditions', () => {
         const registered = Object.keys(service.$store);
         const expected = Shopware.Feature.isActive('v6.8.0.0')
-            ? EXPECTED_CONDITION_TYPES.filter((type) => type !== 'cartLineItemProductStates')
-            : EXPECTED_CONDITION_TYPES;
+            ? EXPECTED_CONDITION_TYPES
+            : [...EXPECTED_CONDITION_TYPES, 'cartLineItemProductStates'];
 
         expect(registered).toHaveLength(expected.length);
         expect([...registered].sort()).toEqual([...expected].sort());

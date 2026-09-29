@@ -33,7 +33,11 @@ use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry as DocumentV2RendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
@@ -61,6 +65,34 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(DocumentTypeTranslationDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->alias(
+        'Shopware\Core\Checkout\Document\DocumentDefinition',
+        DocumentDefinition::class,
+    )
+        ->public()
+        ->deprecate('shopware/core', '6.7.16.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.9.0. Use Shopware\Core\Checkout\DocumentV2\DocumentDefinition instead.');
+
+    $services->alias(
+        'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition',
+        DocumentBaseConfigDefinition::class,
+    )
+        ->public()
+        ->deprecate('shopware/core', '6.7.16.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.9.0. Use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition instead.');
+
+    $services->alias(
+        'Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition',
+        DocumentBaseConfigSalesChannelDefinition::class,
+    )
+        ->public()
+        ->deprecate('shopware/core', '6.7.16.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.9.0. Use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition instead.');
+
+    $services->alias(
+        'Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute',
+        DocumentRoute::class,
+    )
+        ->public()
+        ->deprecate('shopware/core', '6.7.16.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.9.0. Use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute instead.');
 
     $services->set(DocumentTemplateRenderer::class)
         ->args([

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutCartAddOrderLineItemsExtension;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartCollectOrderLineItemsExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
@@ -26,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Test\Generator;
@@ -40,14 +40,37 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CartOrderLineItemsAddRoute::class)]
 class CartOrderLineItemsAddRouteTest extends TestCase
 {
-    public function testGetDecoratedThrows(): void
+    public function testTheRouteIsPublishedAsAnExtension(): void
     {
-        static::expectExceptionObject(new DecorationPatternException(CartOrderLineItemsAddRoute::class));
+        $orderId = Uuid::randomHex();
+        $request = new Request();
+        $cart = new Cart('token');
+        $context = Generator::generateSalesChannelContext();
 
-        $this->createRoute(
-            static::createStub(AbstractOrderRoute::class),
-            static::createStub(AbstractCartItemAddRoute::class)
-        )->getDecorated();
+        $seen = null;
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            CheckoutCartAddOrderLineItemsExtension::onPre(),
+            static function (CheckoutCartAddOrderLineItemsExtension $extension) use (&$seen): void {
+                $seen = $extension;
+                $extension->result = new CartResponse(new Cart('replaced'));
+                $extension->stopPropagation();
+            }
+        );
+
+        $orderRoute = static::createMock(AbstractOrderRoute::class);
+        $orderRoute->expects($this->never())->method('load');
+
+        $response = $this->createRoute($orderRoute, static::createStub(AbstractCartItemAddRoute::class), $dispatcher)
+            ->add($orderId, $request, $cart, $context);
+
+        static::assertInstanceOf(CheckoutCartAddOrderLineItemsExtension::class, $seen);
+        static::assertSame($orderId, $seen->orderId);
+        static::assertSame($request, $seen->request);
+        static::assertSame($cart, $seen->cart);
+        static::assertSame($context, $seen->context);
+        static::assertSame('replaced', $response->getCart()->getToken());
     }
 
     public function testUnknownOrderThrows(): void
@@ -177,8 +200,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            CheckoutCartAddOrderLineItemsExtension::onPost(),
-            static function (CheckoutCartAddOrderLineItemsExtension $extension) use ($own): void {
+            CheckoutCartCollectOrderLineItemsExtension::onPost(),
+            static function (CheckoutCartCollectOrderLineItemsExtension $extension) use ($own): void {
                 $extension->result = [...$extension->result, $own];
             }
         );
@@ -200,8 +223,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            CheckoutCartAddOrderLineItemsExtension::onPre(),
-            static function (CheckoutCartAddOrderLineItemsExtension $extension) use ($own): void {
+            CheckoutCartCollectOrderLineItemsExtension::onPre(),
+            static function (CheckoutCartCollectOrderLineItemsExtension $extension) use ($own): void {
                 $extension->result = [$own];
                 $extension->stopPropagation();
             }
@@ -220,8 +243,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            CheckoutCartAddOrderLineItemsExtension::onPre(),
-            static fn (CheckoutCartAddOrderLineItemsExtension $extension) => $extension->stopPropagation()
+            CheckoutCartCollectOrderLineItemsExtension::onPre(),
+            static fn (CheckoutCartCollectOrderLineItemsExtension $extension) => $extension->stopPropagation()
         );
 
         $order = $this->createOrder($orderId, new OrderLineItemCollection([

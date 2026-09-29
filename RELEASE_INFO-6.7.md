@@ -114,7 +114,7 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, and the `checkout.cart.add-order-line-items` extension lets you add or drop items before they reach the cart
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-order-line-items` extension lets you add or drop items before they reach the cart
 
 ## Administration
 

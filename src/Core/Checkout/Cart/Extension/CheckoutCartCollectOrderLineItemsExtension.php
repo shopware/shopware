@@ -3,21 +3,21 @@
 namespace Shopware\Core\Checkout\Cart\Extension;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @codeCoverageIgnore
  *
- * @extends Extension<CartResponse>
+ * @extends Extension<list<LineItem>>
  */
 #[Package('checkout')]
-final class CheckoutCartAddOrderLineItemsExtension extends Extension
+final class CheckoutCartCollectOrderLineItemsExtension extends Extension
 {
-    public const NAME = 'checkout.cart.add-order-line-items';
+    public const NAME = 'checkout.cart.collect-order-line-items';
 
     /**
      * @internal
@@ -26,21 +26,16 @@ final class CheckoutCartAddOrderLineItemsExtension extends Extension
         /**
          * @public
          *
-         * @description Allows you to access the id of the order that is re-added
+         * @description Allows you to access the order that is re-added. The collected line items are built from
+         * scratch and carry no persisted payload, so this is where you read your own data to rebuild your line
+         * item types
          */
-        public readonly string $orderId,
+        public readonly OrderEntity $order,
 
         /**
          * @public
          *
-         * @description Allows you to access to the current request
-         */
-        public readonly Request $request,
-
-        /**
-         * @public
-         *
-         * @description Allows you to access to the cart the products are added to
+         * @description Allows you to access to the cart the collected line items are added to
          */
         public readonly Cart $cart,
 

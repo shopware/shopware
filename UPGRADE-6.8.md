@@ -11,15 +11,15 @@
 - `page_account_order_item_context_menu_reorder_form_line_items_input`
 - `page_account_order_item_context_menu_reorder_form_line_item_input`
 
-Overriding them never had an effect after 6.7. To change what a reorder adds, listen to the `checkout.cart.add-order-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
+Overriding them never had an effect after 6.7. To change what a reorder adds, listen to the `checkout.cart.collect-order-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
 
 ```php
 public static function getSubscribedEvents(): array
 {
-    return [CheckoutCartAddOrderLineItemsExtension::onPost() => 'addMyLineItems'];
+    return [CheckoutCartCollectOrderLineItemsExtension::onPost() => 'addMyLineItems'];
 }
 
-public function addMyLineItems(CheckoutCartAddOrderLineItemsExtension $extension): void
+public function addMyLineItems(CheckoutCartCollectOrderLineItemsExtension $extension): void
 {
     $extension->result = [...$extension->result, $myLineItem];
 }

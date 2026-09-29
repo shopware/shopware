@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
-use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderLineItemsAddRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderLineItemsAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -48,7 +48,7 @@ class CartLineItemController extends StorefrontController
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly AbstractProductListRoute $productListRoute,
         private readonly LineItemFactoryRegistry $lineItemFactoryRegistry,
-        private readonly AbstractCartOrderLineItemsAddRoute $cartOrderLineItemsAddRoute
+        private readonly CartOrderLineItemsAddRoute $cartOrderLineItemsAddRoute
     ) {
     }
 

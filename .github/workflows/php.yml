@@ -380,11 +380,11 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
-  phpunit-12:
-    # PHPUnit 12 gate: runs the unit, migration and devops suites on PHPUnit 12 and
-    # tolerates no PHPUnit notices/warnings; plain PHP notices and warnings stay tolerated.
+  phpunit-13:
+    # PHPUnit 13 gate: runs the unit, migration and devops suites on PHPUnit 13 and
+    # tolerates no PHPUnit notices, warnings or deprecations; plain PHP ones stay tolerated.
     # Coverage stays on the PHPUnit 11 `phpunit` job above; this job gates the upgrade.
-    name: "PHPUnit 12 for ${{ matrix.suite }}"
+    name: "PHPUnit 13 for ${{ matrix.suite }}"
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
@@ -429,11 +429,11 @@ jobs:
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
-          # PHPUnit 12 requires PHP 8.3+
+          # PHPUnit 13 requires PHP 8.4.1+
           php-version: "8.5"
           keep-composer-tools: "true"
           migration-coverage: ${{ matrix.suite == 'migration' }}
-          force-phpunit-12: "true"
+          phpunit-version: "^13.3"
       - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
         if: ${{ matrix.suite == 'unit' }}
         run: composer install -d vendor-bin/danger-php --no-interaction
@@ -445,12 +445,12 @@ jobs:
           # coverage is collected but not uploaded: PHPUnit only validates #[CoversClass] targets
           # ("is not a valid target for code coverage" PHPUnit warnings) while coverage is active
           coverage: "true"
-          phpunit-options: "--display-phpunit-notices --fail-on-phpunit-notice --fail-on-phpunit-warning"
+          phpunit-options: "--display-phpunit-notices --display-phpunit-deprecations --fail-on-phpunit-notice --fail-on-phpunit-warning --fail-on-phpunit-deprecation"
       - name: Upload junit report for the failure tracking issue
         if: failure() && github.event_name == 'schedule'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: junit-phpunit-12-${{ matrix.suite }}
+          name: junit-phpunit-13-${{ matrix.suite }}
           path: junit.xml
           # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
           if-no-files-found: ignore
@@ -523,7 +523,7 @@ jobs:
       - phpstan
       - openapi-lint
       - phpunit
-      - phpunit-12
+      - phpunit-13
       - license-check
       - composer-audit
       - bc-checker
@@ -534,5 +534,5 @@ jobs:
         uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
         with:
           # allowed-failures: docs, linters
-          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, phpunit-12, license-check, composer-audit, bc-checker' || '' }}
+          allowed-skips: ${{ needs.markdown-only-changes.outputs.docs_only == 'true' && 'lint, phpstan, rector, openapi-lint, phpunit, phpunit-13, license-check, composer-audit, bc-checker' || '' }}
           jobs: ${{ toJSON(needs) }}

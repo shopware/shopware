@@ -4,23 +4,24 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\FilesystemReader;
-use League\Flysystem\StorageAttributes;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Deletes theme directories that are no longer referenced by any sales channel/theme mapping.
  *
- * A directory is only removed when its files have not been modified within the grace period,
- * so that recently compiled themes still referenced by cached responses are kept long enough
- * to be served.
+ * An unused directory is first marked as retired and only deleted once the grace period has
+ * passed since that marking. Cached responses may still reference the directory of the
+ * previously active theme, so its files have to stay available for a while after the switch.
+ * The age of the compiled files themselves says nothing about when the switch happened.
  *
  * @internal
  */
 #[Package('discovery')]
 class UnusedThemeDirectoryDeleter
 {
+    public const RETIRED_MARKER_FILE = '.retired';
+
     private const GRACE_PERIOD_HOURS = 24;
 
     public function __construct(
@@ -38,27 +39,41 @@ class UnusedThemeDirectoryDeleter
     {
         $usedThemePaths = $this->getUsedThemePaths();
 
-        $themeDirectories = $this->themeFileSystem->listContents('theme')->filter(function (StorageAttributes $themeDirectory) use ($usedThemePaths) {
-            if (\in_array($themeDirectory->path(), $usedThemePaths, true)) {
-                return false;
-            }
-
-            $modifiedTimestampOfFirstFile = $this->getModifiedTimestampOfFirstFile($themeDirectory);
-
-            if ($modifiedTimestampOfFirstFile === null) {
-                return true;
-            }
-
-            $graceBoundary = $this->clock->now()
-                ->modify(\sprintf('-%d hours', self::GRACE_PERIOD_HOURS))
-                ->getTimestamp();
-
-            return $graceBoundary > $modifiedTimestampOfFirstFile;
-        });
+        $now = $this->clock->now()->getTimestamp();
+        $graceBoundary = $this->clock->now()
+            ->modify(\sprintf('-%d hours', self::GRACE_PERIOD_HOURS))
+            ->getTimestamp();
 
         $deletedCount = 0;
-        foreach ($themeDirectories as $themeDirectory) {
-            $this->themeFileSystem->deleteDirectory($themeDirectory->path());
+        foreach ($this->themeFileSystem->listContents('theme') as $themeDirectory) {
+            if (!$themeDirectory->isDir()) {
+                continue;
+            }
+
+            $themePath = $themeDirectory->path();
+            $markerPath = $themePath . \DIRECTORY_SEPARATOR . self::RETIRED_MARKER_FILE;
+
+            if (\in_array($themePath, $usedThemePaths, true)) {
+                // A theme can become active again, e.g. via `theme:change --no-compile`
+                if ($this->themeFileSystem->fileExists($markerPath)) {
+                    $this->themeFileSystem->delete($markerPath);
+                }
+
+                continue;
+            }
+
+            $retiredAt = $this->getRetiredAt($markerPath);
+            if ($retiredAt === null) {
+                $this->themeFileSystem->write($markerPath, (string) $now);
+
+                continue;
+            }
+
+            if ($retiredAt > $graceBoundary) {
+                continue;
+            }
+
+            $this->themeFileSystem->deleteDirectory($themePath);
             ++$deletedCount;
         }
 
@@ -90,21 +105,14 @@ class UnusedThemeDirectoryDeleter
         return $themePaths;
     }
 
-    private function getModifiedTimestampOfFirstFile(StorageAttributes $themeDirectory): ?int
+    private function getRetiredAt(string $markerPath): ?int
     {
-        foreach ($this->themeFileSystem->listContents($themeDirectory->path(), FilesystemReader::LIST_DEEP) as $file) {
-            if (!$file->isFile()) {
-                continue;
-            }
-
-            $lastModified = $file->lastModified();
-            if ($lastModified === null) {
-                continue;
-            }
-
-            return $lastModified;
+        if (!$this->themeFileSystem->fileExists($markerPath)) {
+            return null;
         }
 
-        return null;
+        $content = trim($this->themeFileSystem->read($markerPath));
+
+        return ctype_digit($content) ? (int) $content : null;
     }
 }

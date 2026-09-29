@@ -245,6 +245,12 @@ Existing `Shopware.*` access remains supported. Use `Shopware.Store.get()` and
 
 Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.
 
+### Unused theme directories are kept for 24 hours after the switch
+
+After a theme recompile, the previously active `public/theme/<hash>` directory was deleted as soon as its files were older than 24 hours. That age is measured from the compilation, not from the moment the sales channel switched to the new directory, so a theme compiled weeks ago was removed by the next cleanup right after the recompile. Pages still served from an HTTP cache or CDN then referenced CSS and JS files that returned 404.
+
+The cleanup (`theme.delete_files` scheduled task, `theme:compile` and `theme:change`) now marks an unused directory with a `.retired` file on first sight and deletes it only once that marker is at least 24 hours old. A directory that becomes active again, for example via `theme:change --no-compile`, loses the marker and stays. Directories from before this change are covered as well: they receive the marker on the next cleanup run and are deleted 24 hours later.
+
 ### Preserve theme assets on S3-compatible storage
 
 Theme compilation now preserves current images and fonts on storage providers that apply deletions asynchronously. Obsolete theme assets are removed only after the replacement files have been uploaded successfully.

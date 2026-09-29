@@ -205,6 +205,12 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
         },
     );
 
+    it.activeFeatureFlags(['v6.8.0.0'])('removes the legacy product states condition with the 6.8 major flag', () => {
+        const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+
+        expect(conditionService.$store).not.toHaveProperty('cartLineItemProductStates');
+    });
+
     it.each(CONDITIONS.filter((condition) => Boolean(condition.removedInFeature)))(
         'should register a deprecation for $type with version $removedInFeature',
         ({ type, removedInFeature, label, replacement }) => {

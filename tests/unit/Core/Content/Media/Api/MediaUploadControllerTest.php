@@ -27,6 +27,11 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(MediaUploadController::class)]
 class MediaUploadControllerTest extends TestCase
 {
+    /**
+     * @var list<string>
+     */
+    public static array $createdTempFiles = [];
+
     private FileSaver&MockObject $fileSaver;
 
     private MediaService&MockObject $mediaService;
@@ -37,10 +42,20 @@ class MediaUploadControllerTest extends TestCase
 
     protected function setUp(): void
     {
+        self::$createdTempFiles = [];
         $this->fileSaver = $this->createMock(FileSaver::class);
         $this->mediaService = $this->createMock(MediaService::class);
         $this->fileNameProvider = $this->createMock(FileNameProvider::class);
         $this->responseFactory = $this->createMock(ResponseFactoryInterface::class);
+    }
+
+    protected function tearDown(): void
+    {
+        foreach (self::$createdTempFiles as $tempFile) {
+            if (\is_file($tempFile)) {
+                \unlink($tempFile);
+            }
+        }
     }
 
     public function testRemoveNonPrintingCharactersInFileNameBeforeUpload(): void
@@ -194,6 +209,17 @@ class MediaUploadControllerTest extends TestCase
         );
     }
 
+    public function testUploadDoesNotLeaveTempFileOnInvalidUtf8FileName(): void
+    {
+        try {
+            $this->createController()->upload(new Request(['fileName' => "\xFF\xFE"]), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
+            static::fail('Expected MediaException for an invalid UTF-8 file name');
+        } catch (MediaException) {
+        }
+
+        static::assertSame([], array_values(array_filter(self::$createdTempFiles, 'is_file')));
+    }
+
     public function testUploadThrowsOnInvalidUtf8FileName(): void
     {
         $this->expectException(MediaException::class);
@@ -228,4 +254,19 @@ class MediaUploadControllerTest extends TestCase
             new EventDispatcher()
         );
     }
+}
+
+namespace Shopware\Core\Content\Media\Api;
+
+use Shopware\Tests\Unit\Core\Content\Media\Api\MediaUploadControllerTest;
+
+function tempnam(string $dir, string $prefix): string|false
+{
+    $tempFile = \tempnam($dir, $prefix);
+
+    if (\is_string($tempFile)) {
+        MediaUploadControllerTest::$createdTempFiles[] = $tempFile;
+    }
+
+    return $tempFile;
 }

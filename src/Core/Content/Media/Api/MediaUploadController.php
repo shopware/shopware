@@ -38,17 +38,17 @@ class MediaUploadController extends AbstractController
     #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-
-        if (!$tempFile) {
-            throw MediaException::cannotCreateTempFile();
-        }
-
         $fileName = $request->query->getString('fileName', $mediaId);
         $destination = preg_replace('/[\x00-\x1F\x7F\p{Cf}]/u', '', $fileName);
 
         if (!\is_string($destination)) {
             throw MediaException::illegalFileName($fileName, 'Filename encoding is invalid');
+        }
+
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+
+        if (!$tempFile) {
+            throw MediaException::cannotCreateTempFile();
         }
 
         try {

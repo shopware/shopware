@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
@@ -32,6 +33,7 @@ class EntityLayoutContextFactory
         private readonly EntityLayoutResolver $layoutResolver,
         private readonly RootContextMapper $rootContextMapper,
         private readonly SystemConfigService $systemConfigService,
+        private readonly CacheTagCollector $cacheTagCollector,
     ) {
     }
 
@@ -141,6 +143,9 @@ class EntityLayoutContextFactory
         if ($configKey === null) {
             return null;
         }
+
+        // Tagged before the read, so a page cached without a default (legacy CMS fallback) is invalidated once one is set
+        $this->cacheTagCollector->addTag(SystemConfigService::buildName($configKey));
 
         $layoutId = $this->systemConfigService->getString($configKey, $context->getSalesChannelId());
 

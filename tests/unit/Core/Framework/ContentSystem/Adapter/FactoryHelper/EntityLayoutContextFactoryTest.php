@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
@@ -42,11 +43,7 @@ class EntityLayoutContextFactoryTest extends TestCase
     {
         $this->layoutResolver = static::createStub(EntityLayoutResolver::class);
         $this->systemConfigService = new StaticSystemConfigService();
-        $this->factory = new EntityLayoutContextFactory(
-            $this->layoutResolver,
-            static::createStub(RootContextMapper::class),
-            $this->systemConfigService,
-        );
+        $this->factory = $this->createFactory(static::createStub(CacheTagCollector::class));
         $this->ids = new IdsCollection();
     }
 
@@ -211,6 +208,55 @@ class EntityLayoutContextFactoryTest extends TestCase
         static::assertSame(['product-' . $entityId], $result);
     }
 
+    /**
+     * The tag is added even when no default is set, so a legacy CMS page cached in that state is invalidated once a
+     * default layout is configured.
+     */
+    #[TestDox('tags the request with the default layout config key when falling back to the default layout')]
+    public function testResolveLayoutIdTagsDefaultLayoutConfigKeyOnFallback(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn(null);
+
+        $cacheTagCollector = static::createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->once())
+            ->method('addTag')
+            ->with('config.' . self::DEFAULT_LAYOUT_CONFIG_KEY);
+
+        $this->expectException(ContentSystemException::class);
+
+        $this->createFactory($cacheTagCollector)->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            Generator::generateSalesChannelContext(),
+            $this->createRepository(),
+            $definition,
+        );
+    }
+
+    #[TestDox('does not tag the request with the default layout config key when an explicit assignment exists')]
+    public function testResolveLayoutIdDoesNotTagDefaultLayoutConfigKeyForExplicitAssignment(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn($this->ids->get('explicit-layout'));
+
+        $cacheTagCollector = static::createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->never())
+            ->method('addTag');
+
+        $this->createFactory($cacheTagCollector)->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            Generator::generateSalesChannelContext(),
+            $this->createRepository(),
+            $definition,
+        );
+    }
+
     #[TestDox('throws when no layout assignment found')]
     public function testResolveLayoutIdThrowsWhenNoAssignment(): void
     {
@@ -264,6 +310,16 @@ class EntityLayoutContextFactoryTest extends TestCase
     {
         yield 'an element id present in the request query' => [['elementId' => 'elem-42'], 'elem-42'];
         yield 'no element id in the request query' => [[], null];
+    }
+
+    private function createFactory(CacheTagCollector $cacheTagCollector): EntityLayoutContextFactory
+    {
+        return new EntityLayoutContextFactory(
+            $this->layoutResolver,
+            static::createStub(RootContextMapper::class),
+            $this->systemConfigService,
+            $cacheTagCollector,
+        );
     }
 
     /**

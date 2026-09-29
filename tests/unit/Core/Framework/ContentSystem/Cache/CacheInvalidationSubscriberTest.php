@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -285,6 +286,27 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $this->subscriber->beforeDelete($event);
         $event->success();
+    }
+
+    #[TestDox('invalidates the default layout config key tag when a default layout changes')]
+    public function testInvalidatesDefaultLayoutTagOnDefaultChange(): void
+    {
+        $key = ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT;
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with(['config.' . $key]);
+
+        $this->subscriber->invalidateDefaultLayout(new SystemConfigChangedEvent($key, $this->ids->get('layout'), null));
+    }
+
+    #[TestDox('ignores system config changes of other keys')]
+    public function testIgnoresUnrelatedSystemConfigChange(): void
+    {
+        $this->cacheInvalidator->expects($this->never())
+            ->method('invalidate');
+
+        $this->subscriber->invalidateDefaultLayout(new SystemConfigChangedEvent('core.basicInformation.shopName', 'Shop', null));
     }
 
     /**

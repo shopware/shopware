@@ -18,6 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
@@ -97,6 +99,24 @@ class CacheInvalidationSubscriber
         }
 
         $event->addSuccess(fn () => $this->cacheInvalidator->invalidate($tags));
+    }
+
+    /**
+     * Every page of the type carries the default layout key tag, because a default change applies to all sales channels
+     * inheriting it; the event fires regardless of the silent flag.
+     */
+    public function invalidateDefaultLayout(SystemConfigChangedEvent $event): void
+    {
+        $defaultLayoutKeys = [
+            ProductContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT,
+            CategoryContentLayoutDefinition::CONFIG_KEY_DEFAULT_CONTENT_LAYOUT,
+        ];
+
+        if (!\in_array($event->getKey(), $defaultLayoutKeys, true)) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate([SystemConfigService::buildName($event->getKey())]);
     }
 
     private function invalidateContentLayout(EntityWrittenContainerEvent $event): void

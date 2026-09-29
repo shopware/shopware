@@ -51,13 +51,14 @@
                 >
                     <sw-description-list
                         class="sw-order-detail__summary"
-                        grid="1fr 1fr"
+                        grid="1fr 1fr auto"
                     >
 
                         {% block sw_order_detail_general_line_items_summary_entries %}
                         {% block sw_order_detail_general_line_items_summary_amount %}
                         <dt>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</dt>
                         <dd>{{ currencyFilter(order.positionPrice, currency.isoCode, order.totalRounding.decimals) }}</dd>
+                        <dd class="sw-order-detail__summary-actions-cell"></dd>
                         {% endblock %}
 
                         {% block sw_order_detail_general_line_items_summary_shipping_cost %}
@@ -87,6 +88,7 @@
                                     {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}
                                 </sw-order-saveable-field>
                             </dd>
+                            <dd class="sw-order-detail__summary-actions-cell"></dd>
                         </template>
 
                         <template
@@ -99,13 +101,37 @@
                             <dd>
                                 {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}
                             </dd>
+                            <dd class="sw-order-detail__summary-actions-cell"></dd>
                         </template>
+                        {% endblock %}
+
+                        {% block sw_order_detail_general_line_items_summary_price_modifiers %}
+                        <sw-order-modification-summary
+                            :order="order"
+                            :context="versionContext"
+                            :editable="acl.can('order.editor')"
+                            @save-and-recalculate="saveAndRecalculate"
+                            @recalculate-and-reload="recalculateAndReload"
+                        />
                         {% endblock %}
 
                         {% block sw_order_detail_general_line_items_summary_amount_without_tax %}
                         <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                            <dt>
+                                <strong>{{ $t('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong>
+                                <mt-icon
+                                    v-if="order.priceModifications && order.priceModifications.some((modification) => modification.taxRules === null)"
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: $t('sw-order.detailBase.summaryHintNetAmount')
+                                    }"
+                                    class="sw-order-detail__summary-hint-icon"
+                                    name="regular-info-circle"
+                                    size="12px"
+                                />
+                            </dt>
                             <dd><strong>{{ currencyFilter(order.amountNet, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
+                            <dd class="sw-order-detail__summary-actions-cell"></dd>
                         </template>
                         {% endblock %}
 
@@ -121,6 +147,7 @@
                                 <dd>
                                     {{ currencyFilter(calculatedTax.tax, currency.isoCode, order.totalRounding.decimals) }}
                                 </dd>
+                                <dd class="sw-order-detail__summary-actions-cell"></dd>
                             </template>
                         </template>
                         {% endblock %}
@@ -129,9 +156,11 @@
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
                             <dd><strong>{{ currencyFilter(orderTotal, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
+                            <dd class="sw-order-detail__summary-actions-cell"></dd>
                             <template v-if="displayRounded">
                                 <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
                                 <dd><strong>{{ currencyFilter(order.price.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
+                                <dd class="sw-order-detail__summary-actions-cell"></dd>
                             </template>
                         </template>
                         {% endblock %}
@@ -140,6 +169,7 @@
                         <template v-if="taxStatus === 'tax-free'">
                             <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
                             <dd><strong>{{ currencyFilter(order.price.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
+                            <dd class="sw-order-detail__summary-actions-cell"></dd>
                         </template>
                         {% endblock %}
                     {% endblock %}

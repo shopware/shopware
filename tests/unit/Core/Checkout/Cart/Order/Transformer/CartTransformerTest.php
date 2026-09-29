@@ -16,6 +16,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\PriceModifier\PriceModifier;
+use Shopware\Core\Checkout\PriceModifier\PriceModifierAbsolutePriceDefinition;
+use Shopware\Core\Checkout\PriceModifier\PriceModifierCalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
@@ -81,6 +84,24 @@ class CartTransformerTest extends TestCase
         static::assertEquals($this->getExpectedBaseData($stateId, $salesChannelContext), $cartTransformer);
     }
 
+    public function testPriceModifierPayloadIsCarriedOverToTheOrder(): void
+    {
+        $cart = $this->createCart();
+        $cart->getPriceModifiers()->add(new PriceModifier(
+            label: 'Voucher',
+            price: new PriceModifierCalculatedPrice(-10.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            priceDefinition: new PriceModifierAbsolutePriceDefinition(-10.0),
+            type: 'SwagVoucher',
+            referencedId: 'voucher',
+            payload: ['code' => 'SUMMER-2026'],
+        ));
+
+        $data = CartTransformer::transform($cart, Generator::generateSalesChannelContext(), Uuid::randomHex(), false);
+
+        static::assertCount(1, $data['priceModifications']);
+        static::assertSame(['code' => 'SUMMER-2026'], $data['priceModifications'][0]['payload']);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -107,6 +128,7 @@ class CartTransformerTest extends TestCase
             'affiliateCode' => 'AffiliateCodeTest',
             'campaignCode' => 'campaignCodeTest',
             'source' => 'sourceTest',
+            'priceModifications' => [],
             'itemRounding' => json_decode(Json::encode($salesChannelContext->getItemRounding()), true, 512, \JSON_THROW_ON_ERROR),
             'totalRounding' => json_decode(Json::encode($salesChannelContext->getTotalRounding()), true, 512, \JSON_THROW_ON_ERROR),
         ];

@@ -82,6 +82,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\RemoteAddressFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StateMachineStateFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TaxFreeConfigFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TaxRuleCollectionFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TimeZoneFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslatedFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TranslationsAssociationFieldSerializer;
@@ -555,6 +556,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.field_serializer');
 
     $services->set(TaxFreeConfigFieldSerializer::class)
+        ->args([
+            service('validator'),
+            service(DefinitionInstanceRegistry::class),
+        ])
+        ->tag('shopware.field_serializer');
+
+    $services->set(TaxRuleCollectionFieldSerializer::class)
         ->args([
             service('validator'),
             service(DefinitionInstanceRegistry::class),

@@ -34,7 +34,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Cms\SalesChannel\CmsRoute;
@@ -223,11 +222,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CartLineItemController::class)
         ->args([
             service(CartService::class),
-            service(PromotionItemBuilder::class),
             service(ProductLineItemFactory::class),
             service(HtmlSanitizer::class),
             service(ProductListRoute::class),
             service(LineItemFactoryRegistry::class),
+            service('logger'),
+            tagged_iterator('shopware.cart.code_claim_handler'),
         ])
         ->call('setContainer', [service('service_container')]);
 

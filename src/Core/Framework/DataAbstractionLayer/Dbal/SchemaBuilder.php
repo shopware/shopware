@@ -63,6 +63,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TaxFreeConfigField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TaxRuleCollectionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeBreadcrumbField;
@@ -114,6 +115,7 @@ class SchemaBuilder
         CashRoundingConfigField::class => Types::JSON,
         ObjectField::class => Types::JSON,
         TaxFreeConfigField::class => Types::JSON,
+        TaxRuleCollectionField::class => Types::JSON,
         TreeBreadcrumbField::class => Types::JSON,
         VariantListingConfigField::class => Types::JSON,
         VersionDataPayloadField::class => Types::JSON,

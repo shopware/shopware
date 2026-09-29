@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Event\BeforeCartMergeEvent;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\PriceModifier\PriceModifierIdExtension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
@@ -222,6 +223,29 @@ class CartRestorer
         $guestCart = $this->cartService->getCart($token, $currentContext);
         $customerCart = $this->cartService->getCart($customerContext->getToken(), $customerContext);
         $cartsAreIdentical = $token === $customerContext->getToken();
+
+        // Cart::$extensions (unlike Cart::$errors, which is deliberately stripped from persistence and
+        // handled separately below) survives serialization and every future recalculation as-is (see
+        // PriceModifierIdExtension's own docblock), so merging it into $customerCart here, before
+        // either branch below runs, is enough for it to flow through naturally — no separate
+        // capture-and-reapply step, and no extra recalculation. Merges into whatever the customer cart
+        // already has active, rather than overwriting it, since either cart could independently have ids
+        // the other doesn't.
+        $guestModifierIds = $guestCart->getExtension(PriceModifierIdExtension::KEY);
+
+        if ($guestModifierIds instanceof PriceModifierIdExtension && $guestModifierIds->getIds() !== []) {
+            $customerModifierIds = $customerCart->getExtension(PriceModifierIdExtension::KEY);
+
+            if (!$customerModifierIds instanceof PriceModifierIdExtension) {
+                $customerModifierIds = new PriceModifierIdExtension();
+            }
+
+            foreach ($guestModifierIds->getIds() as $id) {
+                $customerModifierIds->add($id);
+            }
+
+            $customerCart->addExtension(PriceModifierIdExtension::KEY, $customerModifierIds);
+        }
 
         if ($guestCart->getLineItems()->count() > 0 && !$cartsAreIdentical) {
             $restoredCart = $this->mergeCart($customerCart, $guestCart, $customerContext);

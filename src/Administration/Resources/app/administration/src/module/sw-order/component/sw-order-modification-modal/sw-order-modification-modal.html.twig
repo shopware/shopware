@@ -1,0 +1,86 @@
+{% block sw_order_modification_modal %}
+<sw-modal
+    class="sw-order-modification-modal"
+    :title="isNew ? $t('sw-order.detailBase.modificationModalTitleAdd') : $t('sw-order.detailBase.modificationModalTitleEdit')"
+    variant="small"
+    @modal-close="$emit('modal-close')"
+>
+    {% block sw_order_modification_modal_label %}
+    <mt-text-field
+        v-model="modification.label"
+        :label="$t('sw-order.detailBase.modificationFieldLabel')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_order_modification_modal_description %}
+    <mt-textarea
+        v-model="modification.description"
+        :label="$t('sw-order.detailBase.modificationFieldDescription')"
+    />
+    {% endblock %}
+
+    {% block sw_order_modification_modal_direction %}
+    <sw-radio-field
+        v-model:value="direction"
+        :label="$t('sw-order.detailBase.modificationFieldDirection')"
+        :options="directionOptions"
+    />
+    {% endblock %}
+
+    {% block sw_order_modification_modal_amount %}
+    <mt-number-field
+        v-model="magnitude"
+        :label="$t('sw-order.detailBase.modificationFieldAmount')"
+        :help-text="$t('sw-order.detailBase.modificationFieldAmountHelpText')"
+        :min="0"
+        :max="maxMagnitude"
+        :digits="2"
+        number-type="float"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_order_modification_modal_tax_treatment %}
+    <mt-switch
+        v-model="taxExempt"
+        :disabled="isLocked"
+        :label="$t('sw-order.detailBase.modificationFieldTaxExempt')"
+        :help-text="isLocked ? $t('sw-order.detailBase.modificationFieldTaxLockedHelpText') : $t('sw-order.detailBase.modificationFieldTaxExemptHelpText')"
+    />
+    {% endblock %}
+
+    {% block sw_order_modification_modal_tax_rate_selection %}
+    <sw-multi-select
+        v-if="showTaxRateSelection"
+        v-model:value="selectedTaxRates"
+        :label="$t('sw-order.detailBase.modificationFieldTaxRateSelection')"
+        :help-text="$t('sw-order.detailBase.modificationFieldTaxRateSelectionHelpText')"
+        :options="taxRateOptions"
+    />
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_order_modification_modal_footer_cancel %}
+        <mt-button
+            size="small"
+            variant="secondary"
+            @click="$emit('modal-close')"
+        >
+            {{ $t('global.default.cancel') }}
+        </mt-button>
+        {% endblock %}
+
+        {% block sw_order_modification_modal_footer_save %}
+        <mt-button
+            size="small"
+            variant="primary"
+            :disabled="!isValid"
+            @click="onSave"
+        >
+            {{ $t('global.default.save') }}
+        </mt-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

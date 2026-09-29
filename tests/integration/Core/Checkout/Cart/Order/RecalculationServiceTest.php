@@ -30,6 +30,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEnt
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderPriceModification\OrderPriceModificationCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -1125,6 +1126,94 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(19.0, $firstTax->getTaxRate());
         static::assertNotNull($lastTax);
         static::assertSame(5.0, $lastTax->getTaxRate());
+    }
+
+    /**
+     * The core promise of order_price_modification: an admin's add/edit/delete survives every
+     * future recalculation exactly as persisted (OrderPriceModificationCollector/
+     * OrderPriceModificationProcessor reapply the persisted row, they never recompute their own
+     * defaults) -- as opposed to OrderPriceModificationProcessorTest's unit-level coverage of the
+     * arithmetic in isolation.
+     */
+    public function testPriceModificationAddEditDeleteSurvivesRecalculation(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $baseline = $this->persistCart($cart);
+        $orderId = $baseline['orderId'];
+        $baselineTotal = $baseline['total'];
+
+        // create version of order (the admin's in-progress draft)
+        $versionId = $this->createVersionedOrder($orderId);
+        $versionContext = $this->context->createWithVersionId($versionId);
+
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->getEntities()->get($orderId);
+        static::assertNotNull($order);
+        $baselineNetPrice = $order->getPrice()->getNetPrice();
+        $baselineTaxes = $order->getPrice()->getCalculatedTaxes();
+
+        /** @var EntityRepository<OrderPriceModificationCollection> $priceModificationRepository */
+        $priceModificationRepository = static::getContainer()->get('order_price_modification.repository');
+
+        $modificationId = Uuid::randomHex();
+
+        // Admin adds a manual, tax-exempt reduction directly, exactly as the Admin API's
+        // order_price_modification CRUD endpoint would.
+        $priceModificationRepository->create([[
+            'id' => $modificationId,
+            'versionId' => $versionId,
+            'orderId' => $orderId,
+            'orderVersionId' => $versionId,
+            'label' => 'Goodwill discount',
+            'price' => -10.0,
+            'position' => 0,
+        ]], $versionContext);
+
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->getEntities()->get($orderId);
+        static::assertNotNull($order);
+        static::assertSame($baselineTotal - 10.0, $order->getPrice()->getTotalPrice());
+        static::assertSame($baselineTotal - 10.0, $order->getAmountTotal());
+        // A tax-exempt adjustment never touches net/tax -- only the amount still due moves.
+        static::assertSame($baselineNetPrice, $order->getPrice()->getNetPrice());
+        static::assertEquals($baselineTaxes, $order->getPrice()->getCalculatedTaxes());
+
+        $modification = $priceModificationRepository->search(new Criteria([$modificationId]), $versionContext)->getEntities()->get($modificationId);
+        static::assertNotNull($modification);
+        static::assertSame('Goodwill discount', $modification->getLabel());
+        static::assertSame(-10.0, $modification->getPrice());
+
+        // Admin edits the amount and label of the same row.
+        $priceModificationRepository->update([[
+            'id' => $modificationId,
+            'label' => 'Adjusted goodwill discount',
+            'price' => -25.0,
+        ]], $versionContext);
+
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->getEntities()->get($orderId);
+        static::assertNotNull($order);
+        static::assertSame($baselineTotal - 25.0, $order->getPrice()->getTotalPrice());
+        static::assertSame($baselineNetPrice, $order->getPrice()->getNetPrice());
+
+        $modification = $priceModificationRepository->search(new Criteria([$modificationId]), $versionContext)->getEntities()->get($modificationId);
+        static::assertNotNull($modification);
+        static::assertSame('Adjusted goodwill discount', $modification->getLabel());
+        static::assertSame(-25.0, $modification->getPrice());
+
+        // Admin deletes the row entirely.
+        $priceModificationRepository->delete([['id' => $modificationId]], $versionContext);
+
+        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $versionContext)->getEntities()->get($orderId);
+        static::assertNotNull($order);
+        static::assertSame($baselineTotal, $order->getPrice()->getTotalPrice());
+        static::assertSame($baselineNetPrice, $order->getPrice()->getNetPrice());
+
+        static::assertNull($priceModificationRepository->search(new Criteria([$modificationId]), $versionContext)->getEntities()->get($modificationId));
     }
 
     public function testDeleteLineItemsAfterRecalculateOrderWitchInactiveProducts(): void

@@ -191,7 +191,8 @@
           "fixed_unit": "Fester Stückpreis von {value} auf jeden Artikel in der Set-Gruppe {groupId}",
           "fixed": "Festpreis von {value} auf die Set-Gruppe {groupId}"
         }
-      }
+      },
+      "summaryHintNetAmount": "Netto und MwSt. beziehen sich auf den vollen Wert der gelieferten Ware/Leistung. Wurde ein Teil des Betrags bereits durch einen vorausbezahlten, MwSt.-neutralen Wertgutschein beglichen, ist die Gesamtsumme unten niedriger als Netto zzgl. MwSt."
     },
     "detailBase": {
       "cardTitleDetails": "Details",
@@ -269,7 +270,28 @@
       "textConvertedProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Bitte sei besonders vorsichtig beim Bearbeiten der Bestellung.",
       "textDeleteLineItemConfirm": "Möchten Sie die Position ({label}) wirklich löschen?",
       "helpTextCustomerComment": "Dieser Kommentar wird von Kunden hinterlassen und Änderungen sind für sie sichtbar.",
-      "helpTextInternalComment": "Dieser Kommentar ist nur für interne Zwecke und wird Kunden nicht angezeigt."
+      "helpTextInternalComment": "Dieser Kommentar ist nur für interne Zwecke und wird Kunden nicht angezeigt.",
+      "modificationEditLabel": "Änderung bearbeiten",
+      "modificationDeleteLabel": "Änderung löschen",
+      "modificationAddButton": "Änderung hinzufügen",
+      "modificationDeleteConfirmText": "Diese Änderung löschen? Die Gesamtsumme wird neu berechnet.",
+      "modificationModalTitleAdd": "Änderung hinzufügen",
+      "modificationModalTitleEdit": "Änderung bearbeiten",
+      "modificationFieldLabel": "Bezeichnung",
+      "modificationFieldDescription": "Beschreibung",
+      "modificationFieldDirection": "Richtung",
+      "modificationDirectionReduction": "Reduktion",
+      "modificationDirectionSurcharge": "Aufschlag",
+      "modificationFieldAmount": "Betrag",
+      "modificationFieldAmountHelpText": "Positiven Betrag eingeben — zusammen mit der Richtung oben wird er von der Gesamtsumme abgezogen oder hinzugefügt.",
+      "modificationFieldTaxExempt": "Steuerfrei",
+      "modificationFieldTaxExemptHelpText": "Aus: Ändert Preis und MwSt. proportional — für einen vom Händler gewährten Rabatt, einen eingelösten Einzweck-Gutschein oder einen gewöhnlich besteuerten Aufschlag. An: Ändert nur den Preis, MwSt. bleibt auf dem ursprünglichen Betrag — für einen eingelösten Mehrzweck-Gutschein, der bereits bezahlt und beim Kauf versteuert wurde.",
+      "modificationFieldTaxLockedHelpText": "Diese Änderung wurde automatisch während des Checkouts erstellt. Ihre steuerliche Behandlung kann hier nicht mehr geändert werden.",
+      "modificationFieldTaxRateSelection": "Steuersätze",
+      "modificationFieldTaxRateSelectionHelpText": "Keine Auswahl wendet die Änderung proportional auf alle Steuersätze der Bestellung an.",
+      "modificationTypeLine": "Typ: {type}",
+      "modificationReferencedIdLine": "Referenz-ID: {referencedId}",
+      "summaryHintNetAmount": "Netto und MwSt. beziehen sich auf den vollen Wert der gelieferten Ware/Leistung. Wurde ein Teil des Betrags bereits durch einen vorausbezahlten, MwSt.-neutralen Wertgutschein beglichen, ist die Gesamtsumme unten niedriger als Netto zzgl. MwSt."
     },
     "lineItemType": {
       "credit": "Gutschrift",

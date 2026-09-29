@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderPriceModification\OrderPriceModificationDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
@@ -40,6 +41,8 @@ use Shopware\Core\Checkout\Order\Subscriber\OrderSalutationSubscriber;
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
+use Shopware\Core\Checkout\PriceModifier\Order\OrderPriceModificationTaxLockValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TaxRuleCollectionFieldSerializer;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -81,6 +84,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.entity.definition');
 
     $services->set(OrderLineItemDownloadDefinition::class)
+        ->tag('shopware.entity.definition');
+
+    $services->set(OrderPriceModificationDefinition::class)
         ->tag('shopware.entity.definition');
 
     $services->set(OrderTagDefinition::class)
@@ -221,6 +227,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(OrderSalutationSubscriber::class)
         ->args([
             service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(OrderPriceModificationTaxLockValidator::class)
+        ->args([
+            service(Connection::class),
+            service(TaxRuleCollectionFieldSerializer::class),
         ])
         ->tag('kernel.event_subscriber');
 

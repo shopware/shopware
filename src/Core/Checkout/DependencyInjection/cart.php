@@ -101,6 +101,8 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
+use Shopware\Core\Checkout\PriceModifier\Order\OrderPriceModificationCollector;
+use Shopware\Core\Checkout\PriceModifier\Order\OrderPriceModificationProcessor;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -508,11 +510,29 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Validator::class),
             service(AmountCalculator::class),
+            service(CashRounding::class),
             service(TransactionProcessor::class),
             tagged_iterator('shopware.cart.processor'),
             tagged_iterator('shopware.cart.collector'),
             service(ScriptExecutor::class),
+            tagged_iterator('shopware.cart.price_collector'),
+            tagged_iterator('shopware.cart.price_processor'),
         ]);
+
+    $services->set(OrderPriceModificationCollector::class)
+        ->args([
+            service('order_price_modification.repository'),
+        ])
+        ->tag('shopware.cart.price_collector', ['priority' => 500]);
+
+    $services->set(OrderPriceModificationProcessor::class)
+        ->args([
+            service(AbsolutePriceCalculator::class),
+            service(QuantityPriceCalculator::class),
+            service(PercentageTaxRuleBuilder::class),
+            service(CashRounding::class),
+        ])
+        ->tag('shopware.cart.price_processor', ['priority' => 500]);
 
     $services->set(ProductCartProcessor::class)
         ->args([

@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use Shopware\Core\Checkout\Cart\CartCodeClaimHandlerInterface;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
@@ -15,6 +16,8 @@ use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Type\AbstractDocumentType;
 use Shopware\Core\Checkout\Gateway\Command\Handler\AbstractCheckoutGatewayCommandHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
+use Shopware\Core\Checkout\PriceModifier\PriceCollectorInterface;
+use Shopware\Core\Checkout\PriceModifier\PriceProcessorInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
@@ -84,8 +87,11 @@ return [
             'shopware.api.cors_header_provider' => CorsHeaderProviderInterface::class,
             'shopware.api.enum_provider' => FieldEnumProviderInterface::class,
             'shopware.app_script.twig.extension' => ExtensionInterface::class,
+            'shopware.cart.code_claim_handler' => CartCodeClaimHandlerInterface::class,
             'shopware.cart.collector' => CartDataCollectorInterface::class,
             'shopware.cart.line_item.factory' => LineItemFactoryInterface::class,
+            'shopware.cart.price_collector' => PriceCollectorInterface::class,
+            'shopware.cart.price_processor' => PriceProcessorInterface::class,
             'shopware.cart.processor' => CartProcessorInterface::class,
             'shopware.cart.validator' => CartValidatorInterface::class,
             'shopware.checkout.gateway.command' => AbstractCheckoutGatewayCommandHandler::class,

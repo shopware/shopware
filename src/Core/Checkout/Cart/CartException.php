@@ -30,6 +30,7 @@ class CartException extends HttpException
     public const CART_DELIVERY_DATE_NOT_SUPPORTED_UNIT = 'CHECKOUT__CART_DELIVERY_DATE_NOT_SUPPORTED_UNIT';
     public const CART_DELIVERY_NOT_FOUND_CODE = 'CHECKOUT__CART_DELIVERY_POSITION_NOT_FOUND';
     public const CART_INVALID_CODE = 'CHECKOUT__CART_INVALID';
+    public const CART_AMBIGUOUS_CODE_CLAIM_CODE = 'CHECKOUT__CART_AMBIGUOUS_CODE_CLAIM';
     public const CART_INVALID_LINE_ITEM_PAYLOAD_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_PAYLOAD';
     public const CART_INVALID_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY';
     public const CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY';
@@ -186,6 +187,22 @@ class CartException extends HttpException
             self::CART_INVALID_CODE,
             'The cart is invalid, got {{ errorCount }} error(s): {{ errors }}',
             ['errorCount' => $errors->count(), 'errors' => implode(\PHP_EOL, $message)]
+        );
+    }
+
+    public static function ambiguousCodeClaim(
+        string $code,
+        CartCodeClaimHandlerInterface $existingClaimant,
+        CartCodeClaimHandlerInterface $conflictingClaimant
+    ): self {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_AMBIGUOUS_CODE_CLAIM_CODE,
+            'Code {{ code }} was claimed by a minimum of 2 handlers: {{ claimants }}. Exactly one handler must claim a given code.',
+            [
+                'code' => $code,
+                'claimants' => implode(', ', [$existingClaimant::class, $conflictingClaimant::class]),
+            ]
         );
     }
 

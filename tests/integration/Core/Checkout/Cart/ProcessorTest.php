@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
@@ -121,6 +122,7 @@ class ProcessorTest extends TestCase
         $processor = new Processor(
             new Validator([]),
             static::createStub(AmountCalculator::class),
+            new CashRounding(),
             static::createStub(TransactionProcessor::class),
             [
                 new class implements CartProcessorInterface {
@@ -384,6 +386,7 @@ class ProcessorTest extends TestCase
         $processor = new Processor(
             static::getContainer()->get(Validator::class),
             static::getContainer()->get(AmountCalculator::class),
+            static::getContainer()->get(CashRounding::class),
             static::getContainer()->get(TransactionProcessor::class),
             [$processorMock],
             [$collector],

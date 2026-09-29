@@ -42,6 +42,19 @@ All blocks of this template are available in the template which renders this tem
                             {% endfor %}
                         {% endblock %}
 
+                        {% block document_sum_price_modifiers %}
+                            {% for modifier in order.priceModifiers %}
+                                <tr>
+                                    {% block document_sum_price_modifier_label %}
+                                        <td class="align-right">{{ modifier.label }}</td>
+                                    {% endblock %}
+                                    {% block document_sum_price_modifier_amount %}
+                                        <td class="align-right">{% if modifier.amount < 0 %}&minus;{% endif %}{{ modifier.amount|abs|currency(currencyIsoCode, languageId) }}</td>
+                                    {% endblock %}
+                                </tr>
+                            {% endfor %}
+                        {% endblock %}
+
                         {% block document_sum_total %}
                             {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
 

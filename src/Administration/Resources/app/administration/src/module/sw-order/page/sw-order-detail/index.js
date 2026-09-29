@@ -181,7 +181,10 @@ export default {
                 .addAssociation('currency')
                 .addAssociation('orderCustomer.customer')
                 .addAssociation('orderCustomer.salutation')
-                .addAssociation('language');
+                .addAssociation('language')
+                .addAssociation('priceModifications');
+
+            criteria.getAssociation('priceModifications').addSorting(Criteria.sort('position', 'ASC'));
 
             criteria
                 .getAssociation('lineItems')

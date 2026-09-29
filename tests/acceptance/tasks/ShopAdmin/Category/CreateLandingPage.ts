@@ -21,6 +21,12 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                 await AdminLandingPageCreate.filtersResultPopoverItemList
                     .filter({ hasText: landingPageData.salesChannel })
                     .click();
+                await AdminLandingPageCreate.page.keyboard.press('Escape');
+                await ShopAdmin.expects(
+                    AdminLandingPageCreate.filtersResultPopoverItemList.filter({
+                        hasText: landingPageData.salesChannel,
+                    }),
+                ).not.toBeVisible();
                 await ShopAdmin.fillsIn(AdminLandingPageCreate.seoUrlInput, landingPageData.seoUrl);
 
                 if (layoutName) {
@@ -54,7 +60,9 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                     }
                 }
                 await AdminLandingPageCreate.saveLandingPageButton.click();
-                await AdminLandingPageCreate.loadingSpinner.waitFor({ state: 'hidden' });
+                await AdminLandingPageCreate.loadingSpinner.waitFor({
+                    state: 'hidden',
+                });
                 // Wait until landing page is saved via API
                 const response = await AdminLandingPageCreate.page.waitForResponse(
                     `${process.env['APP_URL']}api/search/landing-page`,

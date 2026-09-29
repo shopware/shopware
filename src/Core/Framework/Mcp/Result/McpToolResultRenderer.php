@@ -76,7 +76,7 @@ class McpToolResultRenderer
     }
 
     /**
-     * The text blocks of the spec-only format. The data always comes first as plain JSON, because it is
+     * The text blocks of the spec-only format. The data comes first as plain JSON, because it is
      * the copy of `structuredContent` the spec asks for, and clients that only pass `content` to the
      * model would otherwise lose it. A summary is an additional block, never a replacement.
      *
@@ -93,7 +93,11 @@ class McpToolResultRenderer
             return [$result->error->message];
         }
 
-        $texts = [Json::encode($result->data)];
+        $texts = [];
+        // A result without data, such as one stored behind a link, has no `structuredContent` to copy.
+        if ($result->data !== null) {
+            $texts[] = Json::encode($result->data);
+        }
         if ($result->summary !== null) {
             $texts[] = $result->summary;
         }
@@ -101,7 +105,7 @@ class McpToolResultRenderer
             $texts[] = Json::encode(['_meta' => $result->meta]);
         }
 
-        return $texts;
+        return $texts === [] ? [Json::encode(null)] : $texts;
     }
 
     private function structuredContent(McpToolResult $result, ProtocolVersion $protocolVersion): mixed

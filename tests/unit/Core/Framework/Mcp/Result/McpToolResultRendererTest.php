@@ -152,6 +152,16 @@ class McpToolResultRendererTest extends TestCase
         static::assertCount(1, $failure->content);
     }
 
+    public function testSpecOnlyModeSendsNoDataBlockForAResultWithoutData(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $result = $this->renderer()->render(new McpToolResult(summary: 'Stored as a resource.'), ProtocolVersion::latestHandshake());
+
+        static::assertSame('Stored as a resource.', $this->text($result->content[0]));
+        static::assertCount(1, $result->content);
+    }
+
     private function renderer(): McpToolResultRenderer
     {
         return new McpToolResultRenderer(new MockClock(self::NOW));

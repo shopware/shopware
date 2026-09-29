@@ -82,7 +82,7 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(Criteria.equals('customFieldSetId', this.set.id));
-            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             if (this.term) {
                 criteria.setTerm(this.term);

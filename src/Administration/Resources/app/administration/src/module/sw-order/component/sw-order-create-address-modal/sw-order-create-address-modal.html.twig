@@ -92,14 +92,15 @@
                 v-if="!isLoading && !addresses.length"
                 class="sw-order-create-address-modal__card is--empty"
             >
-                <sw-empty-state
-                    :title="$t('sw-order.addressSelection.emptySearchResults')"
-                    :icon="'regular-book-user'"
-                >
-                    {% block sw_order_create_address_modal_empty_state_content %}
-                    <span></span>
-                    {% endblock %}
-                </sw-empty-state>
+                <mt-empty-state
+                    centered
+                    icon="regular-book-user"
+                    :headline="$t('sw-order.addressSelection.emptySearchResults')"
+                    description=""
+                />
+
+                {# @deprecated tag:v6.8.0 - Kept as extension anchor, the description became an mt-empty-state prop. #}
+                {% block sw_order_create_address_modal_empty_state_content %}{% endblock %}
             </div>
             <div
                 v-for="(address, index) in addresses"

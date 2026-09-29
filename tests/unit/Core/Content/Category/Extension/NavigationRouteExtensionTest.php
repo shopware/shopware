@@ -10,7 +10,8 @@ use Shopware\Core\Content\Category\Extension\NavigationRouteExtension;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRouteResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Generator;
 use Shopware\Tests\Examples\NavigationRouteExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,8 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(NavigationRouteExtension::class)]
-#[CoversClass(NavigationRouteExample::class)]
 class NavigationRouteExtensionTest extends TestCase
 {
     public function testSubscriberResolvesNavigation(): void
@@ -34,7 +35,7 @@ class NavigationRouteExtensionTest extends TestCase
                 'active-id',
                 'root-id',
                 new Request(),
-                $this->createMock(SalesChannelContext::class),
+                Generator::generateSalesChannelContext(),
                 new Criteria(),
             ),
             function: static function () use (&$coreCalled): NavigationRouteResponse {
@@ -47,7 +48,6 @@ class NavigationRouteExtensionTest extends TestCase
         );
 
         static::assertFalse($coreCalled, 'The core navigation loading must be skipped when a subscriber resolves it.');
-        static::assertInstanceOf(NavigationRouteResponse::class, $result);
         static::assertSame(['example-category'], array_values($result->getCategories()->getIds()));
     }
 }

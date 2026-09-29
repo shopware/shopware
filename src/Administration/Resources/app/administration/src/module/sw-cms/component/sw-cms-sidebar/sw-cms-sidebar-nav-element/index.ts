@@ -8,10 +8,7 @@ import './sw-cms-sidebar-nav-element.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: [
-        'block-duplicate',
-        'block-delete',
-    ],
+    emits: ['block-duplicate', 'block-delete'],
 
     props: {
         block: {

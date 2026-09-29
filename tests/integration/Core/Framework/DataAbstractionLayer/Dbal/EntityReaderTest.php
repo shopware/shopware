@@ -281,7 +281,7 @@ class EntityReaderTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('test')]);
 
         $criteria->getAssociation('children')
             ->addSorting(new FieldSorting('purchaseUnit'))
@@ -292,7 +292,7 @@ class EntityReaderTest extends TestCase
 
         $result = $entityRepository->search($criteria, $context);
 
-        static::assertSame($ids->get('test'), $result->getEntities()->first()?->getId());
+        static::assertTrue($result->getEntities()->has($ids->get('test')));
     }
 
     private function createProduct(

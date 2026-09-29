@@ -106,11 +106,9 @@ function getBindingPatternSources(directive: DirectiveNode | undefined): Templat
     if (directive.name === 'for') {
         const parseResult = directive.forParseResult;
 
-        return [
-            parseResult?.value,
-            parseResult?.key,
-            parseResult?.index,
-        ].filter((expression) => Boolean(expression?.content)) as TemplateExpression[];
+        return [parseResult?.value, parseResult?.key, parseResult?.index].filter((expression) =>
+            Boolean(expression?.content),
+        ) as TemplateExpression[];
     }
 
     return directive.exp?.content ? [directive.exp] : [];

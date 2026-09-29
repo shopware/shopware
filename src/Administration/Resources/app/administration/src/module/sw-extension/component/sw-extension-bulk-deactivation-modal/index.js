@@ -8,10 +8,7 @@ import './sw-extension-bulk-deactivation-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'confirm',
-    ],
+    emits: ['modal-close', 'confirm'],
 
     props: {
         extensions: {

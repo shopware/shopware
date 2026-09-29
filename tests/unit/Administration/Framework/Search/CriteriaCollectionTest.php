@@ -5,10 +5,10 @@ namespace Shopware\Tests\Unit\Administration\Framework\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Search\CriteriaCollection;
-use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Notification\NotificationEntity;
 
 /**
  * @internal
@@ -24,9 +24,12 @@ class CriteriaCollectionTest extends TestCase
         $collection->add(new Criteria());
 
         $this->expectExceptionObject(FrameworkException::collectionElementInvalidType(Criteria::class, NotificationEntity::class));
-        /** @phpstan-ignore argument.type (for test purpose) */
-        $collection->add(new NotificationEntity());
 
-        static::assertCount(1, $collection);
+        try {
+            /** @phpstan-ignore argument.type (for test purpose) */
+            $collection->add(new NotificationEntity());
+        } finally {
+            static::assertCount(1, $collection);
+        }
     }
 }

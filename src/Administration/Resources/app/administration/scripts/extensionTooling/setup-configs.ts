@@ -39,11 +39,7 @@ const SOURCE_EXTENSIONS = [
  * that adds jest types. The committed runtime config excludes these suffixes;
  * the generated spec tsconfig (setup-bridge) includes exactly them.
  */
-export const SPEC_FILE_SUFFIXES = [
-    'spec.ts',
-    'spec.tsx',
-    'spec.js',
-];
+export const SPEC_FILE_SUFFIXES = ['spec.ts', 'spec.tsx', 'spec.js'];
 
 /** Collapses a multi-line fix into one warning sentence — the indentation only reads in the report's tree. */
 function flattenFix(fix: string[]): string {
@@ -60,13 +56,7 @@ function settingsFragment(settings: Record<string, unknown>): string[] {
     const entries = Object.entries(settings);
 
     return entries.map(
-        (
-            [
-                name,
-                value,
-            ],
-            index,
-        ) => `    "${name}": ${JSON.stringify(value)}${index < entries.length - 1 ? ',' : ''}`,
+        ([name, value], index) => `    "${name}": ${JSON.stringify(value)}${index < entries.length - 1 ? ',' : ''}`,
     );
 }
 
@@ -74,10 +64,7 @@ function settingsFragment(settings: Record<string, unknown>): string[] {
 function nestKeys(settings: Record<string, unknown>): Record<string, unknown> {
     const nested: Record<string, unknown> = {};
 
-    for (const [
-        dottedKey,
-        value,
-    ] of Object.entries(settings)) {
+    for (const [dottedKey, value] of Object.entries(settings)) {
         const segments = dottedKey.split('.');
         let cursor = nested;
 

@@ -16,7 +16,7 @@
                                 },
                                 "aggregations": {
                                     "description": "aggregation result",
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/EntitySearchResult/properties/aggregations"
                                 },
                                 "elements": {
                                     "type": "array",

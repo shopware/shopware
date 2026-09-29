@@ -70,19 +70,13 @@ export function getTabItemsFromSlotContent(slotContent: VNode[], handlers: TabIt
         if (isFragment(item)) {
             const children = Array.isArray(item.children) ? (item.children as VNode[]) : [];
 
-            return [
-                ...items,
-                ...getTabItemsFromSlotContent(children, handlers),
-            ];
+            return [...items, ...getTabItemsFromSlotContent(children, handlers)];
         }
 
         if (!handlers.isTabItem(item)) {
             return items;
         }
 
-        return [
-            ...items,
-            handlers.createTabItem(item),
-        ];
+        return [...items, handlers.createTabItem(item)];
     }, []);
 }

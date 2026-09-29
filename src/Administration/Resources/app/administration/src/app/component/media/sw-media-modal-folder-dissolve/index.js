@@ -17,14 +17,9 @@ export default {
 
     inject: ['mediaFolderService'],
 
-    emits: [
-        'media-folder-dissolve-modal-close',
-        'media-folder-dissolve-modal-dissolve',
-    ],
+    emits: ['media-folder-dissolve-modal-close', 'media-folder-dissolve-modal-dissolve'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         itemsToDissolve: {

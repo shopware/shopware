@@ -15,10 +15,7 @@ Shopware.Service().register('timezoneService', () => ({
 
 const datepickerStub = {
     name: 'mt-datepicker',
-    props: [
-        'modelValue',
-        'name',
-    ],
+    props: ['modelValue', 'name'],
     emits: ['update:modelValue'],
     template: `
         <div :class="['mt-datepicker-stub', name]" :data-model-value="modelValue ?? ''">

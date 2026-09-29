@@ -86,10 +86,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.dismissedNotices = [
-                ...this.dismissedNotices,
-                notice,
-            ];
+            this.dismissedNotices = [...this.dismissedNotices, notice];
 
             await this.userConfigService.upsert({
                 [USER_CONFIG_KEY]: this.dismissedNotices,

@@ -21,7 +21,7 @@ Static resources have a fixed URI. Resource templates use a URI pattern with pla
 
 Templates are registered with the `mcp.resource_template` DI tag (not `mcp.resource`) and use the `#[McpResourceTemplate(uriTemplate: ..., name: ..., description: ..., mimeType: ...)]` attribute. The template name must match `[a-zA-Z0-9_-]+` and the URI template must contain at least one placeholder.
 
-`debug:mcp` lists templates in a separate **Resource Templates** section. MCP clients discover them via `resources/templates/list` (not `resources/list`).
+`debug:mcp --native` lists templates in a separate **Resource Templates** section (`debug:mcp` itself lists tools only). MCP clients discover them via `resources/templates/list` (not `resources/list`).
 
 ## Adding a resource
 1. Create a class with `#[McpResource(uri: '...', name: '...', description: '...')]` on the class

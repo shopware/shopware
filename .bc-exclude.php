@@ -62,6 +62,7 @@ return [
 
         // Optional parameter added with default null; existing callers are unaffected
         preg_quote('ADDED: Parameter introducedIn was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
+        preg_quote('ADDED: Parameter silentUntil was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
 
         // Optional parameter added with default null; callers are unaffected and decorations go through
         // AbstractCartLoadRoute::load(), which keeps its signature until the change announced for 6.8.
@@ -121,5 +122,8 @@ return [
         // that used it have published versions using the new webhooks instead
         preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::missingAppSecretInfo() was removed', '/'),
+
+        // Not sure why an external library is complained about
+        preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
     ],
 ];

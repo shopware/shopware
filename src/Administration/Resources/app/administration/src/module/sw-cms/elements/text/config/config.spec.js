@@ -52,22 +52,14 @@ async function createWrapper(additionalStubs = {}) {
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
                 'sw-text-editor': {
                     props: ['value'],
-                    emits: [
-                        'blur',
-                        'update:value',
-                        'change',
-                    ],
+                    emits: ['blur', 'update:value', 'change'],
                     template:
                         '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                 },
                 'mt-select': {
                     template:
                         '<select class="mt-select" :value="modelValue" @change="$emit(`update:modelValue`, $event.target.value)"></select>',
-                    props: [
-                        'modelValue',
-                        'options',
-                        'disabled',
-                    ],
+                    props: ['modelValue', 'options', 'disabled'],
                 },
                 'sw-select-field': true,
                 'sw-extension-component-section': true,
@@ -165,29 +157,29 @@ describe('src/module/sw-cms/elements/text/config', () => {
         expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
     });
 
-    it.activeFeatureFlags([
-        'v6.8.0.0',
-        'METEOR_TEXT_EDITOR',
-    ])('should emits element-update when trigger @input event', async () => {
-        const wrapper = await createWrapper({
-            'mt-text-editor': {
-                props: ['modelValue'],
-                emits: ['update:modelValue'],
-                template:
-                    '<input class="mt-text-editor-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
-            },
-        });
+    it.activeFeatureFlags(['v6.8.0.0', 'METEOR_TEXT_EDITOR'])(
+        'should emits element-update when trigger @input event',
+        async () => {
+            const wrapper = await createWrapper({
+                'mt-text-editor': {
+                    props: ['modelValue'],
+                    emits: ['update:modelValue'],
+                    template:
+                        '<input class="mt-text-editor-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
+                },
+            });
 
-        const updatedContent = 'Updated content';
-        const input = wrapper.get('.mt-text-editor-input');
+            const updatedContent = 'Updated content';
+            const input = wrapper.get('.mt-text-editor-input');
 
-        await input.setValue(updatedContent);
-        await flushPromises();
+            await input.setValue(updatedContent);
+            await flushPromises();
 
-        expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
-        expect(wrapper.emitted('element-update')).toBeTruthy();
-        expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
-    });
+            expect(wrapper.vm.element.config.content.value).toBe(updatedContent);
+            expect(wrapper.emitted('element-update')).toBeTruthy();
+            expect(wrapper.emitted()['element-update'][0][0]).toEqual(wrapper.vm.element);
+        },
+    );
 
     // Covers the default major-suite combination: the v6.8 meteor tabs still render the legacy
     // sw-text-editor because METEOR_TEXT_EDITOR is a separate, non-major flag. Remove with sw-text-editor.
@@ -265,44 +257,44 @@ describe('src/module/sw-cms/elements/text/config', () => {
             expect(result).toBe(true);
         });
 
-        it.activeFeatureFlags([
-            'v6.8.0.0',
-            'METEOR_TEXT_EDITOR',
-        ])('should delegate to textEditor.validate and return true on success', async () => {
-            const mockValidate = jest.fn(() => Promise.resolve(true));
+        it.activeFeatureFlags(['v6.8.0.0', 'METEOR_TEXT_EDITOR'])(
+            'should delegate to textEditor.validate and return true on success',
+            async () => {
+                const mockValidate = jest.fn(() => Promise.resolve(true));
 
-            const wrapper = await createWrapper({
-                'mt-text-editor': {
-                    template: '<div></div>',
-                    methods: { validate: mockValidate },
-                },
-            });
-            await flushPromises();
+                const wrapper = await createWrapper({
+                    'mt-text-editor': {
+                        template: '<div></div>',
+                        methods: { validate: mockValidate },
+                    },
+                });
+                await flushPromises();
 
-            const result = await wrapper.vm.handleUpdateContent();
+                const result = await wrapper.vm.handleUpdateContent();
 
-            expect(mockValidate).toHaveBeenCalledTimes(1);
-            expect(result).toBe(true);
-        });
+                expect(mockValidate).toHaveBeenCalledTimes(1);
+                expect(result).toBe(true);
+            },
+        );
 
-        it.activeFeatureFlags([
-            'v6.8.0.0',
-            'METEOR_TEXT_EDITOR',
-        ])('should return false when textEditor.validate reports invalid content', async () => {
-            const mockValidate = jest.fn(() => Promise.resolve(false));
+        it.activeFeatureFlags(['v6.8.0.0', 'METEOR_TEXT_EDITOR'])(
+            'should return false when textEditor.validate reports invalid content',
+            async () => {
+                const mockValidate = jest.fn(() => Promise.resolve(false));
 
-            const wrapper = await createWrapper({
-                'mt-text-editor': {
-                    template: '<div></div>',
-                    methods: { validate: mockValidate },
-                },
-            });
-            await flushPromises();
+                const wrapper = await createWrapper({
+                    'mt-text-editor': {
+                        template: '<div></div>',
+                        methods: { validate: mockValidate },
+                    },
+                });
+                await flushPromises();
 
-            const result = await wrapper.vm.handleUpdateContent();
+                const result = await wrapper.vm.handleUpdateContent();
 
-            expect(mockValidate).toHaveBeenCalledTimes(1);
-            expect(result).toBe(false);
-        });
+                expect(mockValidate).toHaveBeenCalledTimes(1);
+                expect(result).toBe(false);
+            },
+        );
     });
 });

@@ -27,10 +27,7 @@ function mergeEmptyAndExistingLineItems(emptyLineItems: LineItem[], lineItems: L
     // Reverse the lineItems so the newly added are at the top for better UX
     reverseLineItems(lineItems);
 
-    return [
-        ...emptyLineItems,
-        ...lineItems,
-    ];
+    return [...emptyLineItems, ...lineItems];
 }
 
 interface SwOrderState {

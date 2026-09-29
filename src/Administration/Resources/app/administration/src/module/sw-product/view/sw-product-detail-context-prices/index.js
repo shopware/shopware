@@ -12,15 +12,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         isSetDefaultPrice: {
@@ -205,10 +199,7 @@ export default {
                 },
             ];
 
-            return [
-                ...priceColumns,
-                ...this.currencyColumns,
-            ];
+            return [...priceColumns, ...this.currencyColumns];
         },
 
         emptyStateDescription() {
@@ -263,19 +254,13 @@ export default {
             );
 
             if (this.canSetLoadingRules) {
-                Shopware.Store.get('swProductDetail').setLoading([
-                    'rules',
-                    true,
-                ]);
+                Shopware.Store.get('swProductDetail').setLoading(['rules', true]);
             }
             this.ruleRepository.search(ruleCriteria).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                Shopware.Store.get('swProductDetail').setLoading([
-                    'rules',
-                    false,
-                ]);
+                Shopware.Store.get('swProductDetail').setLoading(['rules', false]);
             });
 
             this.isInherited = this.isChild && !this.product.prices.total;
@@ -556,9 +541,7 @@ export default {
         },
 
         getPriceRuleGroupClass(number) {
-            return [
-                `context-price-group-${number}`,
-            ];
+            return [`context-price-group-${number}`];
         },
 
         restoreInheritance() {

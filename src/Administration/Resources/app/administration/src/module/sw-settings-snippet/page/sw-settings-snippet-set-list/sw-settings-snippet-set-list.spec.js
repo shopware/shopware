@@ -129,22 +129,10 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
     }
 
     it.each([
-        [
-            true,
-            'snippet.viewer',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor',
-        ],
-        [
-            false,
-            'snippet.viewer, snippet.editor, snippet.creator',
-        ],
-        [
-            true,
-            'snippet.viewer, snippet.editor, snippet.deleter',
-        ],
+        [true, 'snippet.viewer'],
+        [true, 'snippet.viewer, snippet.editor'],
+        [false, 'snippet.viewer, snippet.editor, snippet.creator'],
+        [true, 'snippet.viewer, snippet.editor, snippet.deleter'],
     ])('should have a create snippet set button with a disabled state of %p when having role: %s', async (state, role) => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
@@ -196,10 +184,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
     });
 
     it('should activate inline edit after creating a snippet set', async () => {
-        const wrapper = await createWrapper([
-            'snippet.creator',
-            'snippet.editor',
-        ]);
+        const wrapper = await createWrapper(['snippet.creator', 'snippet.editor']);
         await flushPromises();
 
         const toggleSpy = jest.spyOn(wrapper.vm, 'toggleInlineEdit');

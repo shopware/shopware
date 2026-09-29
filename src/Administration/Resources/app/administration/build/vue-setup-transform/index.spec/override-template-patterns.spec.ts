@@ -133,8 +133,12 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         // The nested block is its own extension point with its own generated scope, so `info` belongs to
         // it. The outer block must not claim the reference too - it would rewrite the same range twice.
-        expect(result).toContain('<sw-block extends="sw_example_component_body">');
-        expect(result).toContain('<sw-block extends="sw_example_component_footer" #default="__swSetupScope">');
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='nested-extends' extends="sw_example_component_body">`,
+        );
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='nested-extends' extends="sw_example_component_footer" #default="__swSetupScope">`,
+        );
         expect(result).toContain('<p>{{ __swSetupScope.__swOverride[__swSetupNamespace].info }}</p>');
     });
 

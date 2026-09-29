@@ -3,14 +3,8 @@
  */
 import { mount } from '@vue/test-utils';
 
-const selectedOrderIds = [
-    'order-id-1',
-    'order-id-2',
-];
-const documentIds = [
-    'document-id-1',
-    'document-id-2',
-];
+const selectedOrderIds = ['order-id-1', 'order-id-2'];
+const documentIds = ['document-id-1', 'document-id-2'];
 
 const deleteDocumentTypesFixtures = [
     {
@@ -444,10 +438,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 failedItems: [],
             });
 
-        Shopware.Store.get('swBulkEdit').selectedIds = [
-            'orderId',
-            'orderId2',
-        ];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['orderId', 'orderId2'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'invoice',
             isChanged: true,
@@ -551,10 +542,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                     config: {
                         documentDate: 'documentDate',
                         documentComment: 'documentComment',
-                        fileFormats: [
-                            'pdf',
-                            'html',
-                        ],
+                        fileFormats: ['pdf', 'html'],
                     },
                     fileType: 'pdf',
                     orderId: 'orderId',
@@ -576,10 +564,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
                 1,
                 'orderId',
                 'invoice',
-                [
-                    'pdf',
-                    'html',
-                ],
+                ['pdf', 'html'],
                 undefined,
                 'documentDate',
                 'documentComment',

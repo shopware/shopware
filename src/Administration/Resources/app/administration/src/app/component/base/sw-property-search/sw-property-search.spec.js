@@ -13,9 +13,7 @@ Shopware.Utils.debounce = function debounce(fn) {
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-property-search', { sync: true }), {
         props: {
-            options: [
-                {},
-            ],
+            options: [{}],
         },
         global: {
             renderStubDefaultSlot: true,

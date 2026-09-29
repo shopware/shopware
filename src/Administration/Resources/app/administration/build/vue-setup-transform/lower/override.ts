@@ -33,10 +33,7 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePriv
         return 'return {};';
     }
 
-    const lines = [
-        'return {',
-        ...analysis.overrideEntries.map((property) => `    ${property},`),
-    ];
+    const lines = ['return {', ...analysis.overrideEntries.map((property) => `    ${property},`)];
 
     if (privateBindings.length > 0) {
         lines.push(
@@ -111,6 +108,20 @@ function toSlotScopeEdits(scope: OverrideSlotScope): SourceEdit[] {
         },
         ...scope.rewrites.map(toReferenceRewriteEdit),
     ];
+}
+
+/**
+ * The generated attribute that binds an override `<sw-block extends>` to the component it overrides.
+ *
+ * Carries the target component name so the override registers against `componentName + blockName`, matching
+ * the base block's own component name and mirroring how Twig identifies a `{% block %}` by its component.
+ */
+function toComponentNameEdit(at: number, componentName: string): SourceEdit {
+    return {
+        start: at,
+        end: at,
+        replacement: ` sw-internal-component-name='${escapeSingleQuoted(componentName)}'`,
+    };
 }
 
 /**
@@ -204,6 +215,7 @@ function buildOverrideScript(
 
     return [
         ...registrationTemplate,
+        ...templateAnalysis.componentNameInsertions.map((at) => toComponentNameEdit(at, block.componentName)),
         ...templateAnalysis.slotScopes.flatMap(toSlotScopeEdits),
         {
             start: block.contentStart,

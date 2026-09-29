@@ -5,12 +5,7 @@
  */
 class InAppPurchase {
     public flattened(): string[] {
-        return Object.entries(this.all()).flatMap(
-            ([
-                key,
-                values,
-            ]) => values.map((value: string) => `${key}-${value}`),
-        );
+        return Object.entries(this.all()).flatMap(([key, values]) => values.map((value: string) => `${key}-${value}`));
     }
 
     public all(): Record<string, string[]> {

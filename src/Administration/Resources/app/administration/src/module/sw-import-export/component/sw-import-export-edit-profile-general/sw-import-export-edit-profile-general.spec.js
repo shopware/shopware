@@ -83,10 +83,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
         expect(objectSelect.classes()).toContain('is--disabled');
     });
 
-    it.each([
-        'import-export',
-        'import',
-    ])('should disable export forbidden entity when type is %s', async (type) => {
+    it.each(['import-export', 'import'])('should disable export forbidden entity when type is %s', async (type) => {
         const profile = getProfileMock();
         profile.type = type;
 

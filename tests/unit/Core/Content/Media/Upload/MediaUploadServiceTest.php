@@ -21,9 +21,9 @@ use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -257,6 +257,26 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame('test', $createdMedia['fileName']);
         static::assertSame('jpg', $createdMedia['fileExtension']);
         static::assertSame('image/jpeg', $createdMedia['mimeType']);
+    }
+
+    public function testLinkURLAppliesConfiguredMaximumDuration(): void
+    {
+        $url = 'https://example.com/image.jpg';
+        $params = new MediaUploadParameters(fileName: 'test.jpg', mimeType: 'image/jpeg');
+
+        $capturedOptions = [];
+        $httpClient = new MockHttpClient(function (string $method, string $requestUrl, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
+
+            return new MockResponse('', ['response_headers' => ['content-length' => '1024']]);
+        });
+
+        $this->buildService(httpClient: $httpClient, externalLinkTimeout: 2.5)
+            ->linkURL($url, $this->context, $params);
+
+        static::assertSame(0, $capturedOptions['max_redirects']);
+        static::assertSame(['example.com' => '93.184.216.34'], $capturedOptions['resolve']);
+        static::assertSame(2.5, $capturedOptions['max_duration']);
     }
 
     public function testLinkURLWithoutMimeType(): void
@@ -567,10 +587,9 @@ class MediaUploadServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Remove this test when validateExternalUrl() is removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedValidateExternalUrlThrowsForInvalidFormat(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $this->expectExceptionObject(MediaException::invalidUrl('not-a-valid-url'));
 
         MediaUploadService::validateExternalUrl('not-a-valid-url');
@@ -722,6 +741,7 @@ class MediaUploadServiceTest extends TestCase
         ?HttpClientInterface $httpClient = null,
         ?FileUrlValidatorInterface $fileUrlValidator = null,
         ?TrustedUrlResolver $trustedUrlResolver = null,
+        float $externalLinkTimeout = 0.0,
     ): MediaUploadService {
         $service = new MediaUploadService(
             $this->mediaRepository,
@@ -733,6 +753,7 @@ class MediaUploadServiceTest extends TestCase
             $this->mediaThumbnailSizeRepository,
             $fileUrlValidator ?? $this->fileUrlValidator,
             $trustedUrlResolver ?? $this->trustedUrlResolver,
+            externalLinkTimeout: $externalLinkTimeout,
         );
 
         $this->mediaUploadService = $service;

@@ -21,10 +21,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['feature', 'repositoryFactory'],
 
     // Grant access to some variables to the child form render components
     provide() {
@@ -36,16 +33,9 @@ export default {
         };
     },
 
-    emits: [
-        'process-finish',
-        'save',
-        'change-active-selection',
-    ],
+    emits: ['process-finish', 'save', 'change-active-selection'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('placeholder')],
 
     props: {
         sets: {
@@ -65,18 +55,12 @@ export default {
             type: String,
             required: false,
             default: 'tabs',
-            validValues: [
-                'tabs',
-                'media-collapse',
-            ],
+            validValues: ['tabs', 'media-collapse'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'tabs',
-                    'media-collapse',
-                ].includes(value);
+                return ['tabs', 'media-collapse'].includes(value);
             },
         },
         disabled: {
@@ -158,7 +142,7 @@ export default {
 
             criteria.addFilter(Criteria.equals('relations.entityName', this.entity.getEntityName()));
             criteria.addFilter(Criteria.equals('global', 0));
-            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.addSorting(Criteria.sort('position', 'ASC'));
 
             return criteria;
         },
@@ -298,11 +282,7 @@ export default {
         },
 
         getTranslatedInheritanceLoadKey() {
-            return [
-                this.entity.getEntityName(),
-                this.entity.id,
-                this.translatedInheritanceSourceLanguageId,
-            ].join(':');
+            return [this.entity.getEntityName(), this.entity.id, this.translatedInheritanceSourceLanguageId].join(':');
         },
 
         getTranslatedInheritanceContext() {
@@ -535,7 +515,7 @@ export default {
         customFieldSetCriteriaById() {
             const criteria = new Criteria(1, 1);
 
-            criteria.getAssociation('customFields').addSorting(Criteria.naturalSorting('config.customFieldPosition'));
+            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             return criteria;
         },

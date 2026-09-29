@@ -190,6 +190,12 @@ class InfoController extends AbstractController
             $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
         }
 
+        // Resolve the private extension whitelist ONCE: getMimeTypesByExtension() internally
+        // calls getAllowedExtensions(), which dispatches MediaFileExtensionWhitelistEvent.
+        // Calling both would dispatch that event twice per request; the array keys are exactly
+        // the allowed extensions (see MediaFileExtensionListProvider::normalizeExtensions()).
+        $privateMimeTypesByExtension = $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context);
+
         $config = [
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
@@ -204,8 +210,8 @@ class InfoController extends AbstractController
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
-                'private_allowed_extensions' => $this->mediaFileExtensionListProvider->getAllowedExtensions(true, $context),
-                'private_allowed_mime_types_by_extension' => $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context),
+                'private_allowed_extensions' => array_keys($privateMimeTypesByExtension),
+                'private_allowed_mime_types_by_extension' => $privateMimeTypesByExtension,
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),

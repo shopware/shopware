@@ -27,10 +27,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('reads both the object and the key of a computed optional chain', () => {
-        expect(getReferences('source?.[dynamicKey]')).toEqual([
-            'dynamicKey',
-            'source',
-        ]);
+        expect(getReferences('source?.[dynamicKey]')).toEqual(['dynamicKey', 'source']);
     });
 
     it('looks through TS as-casts', () => {
@@ -38,9 +35,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('lets callback parameters shadow outer names', () => {
-        expect(getReferences('items.map(({ info, label: localLabel }) => info + localLabel).join(",")')).toEqual([
-            'items',
-        ]);
+        expect(getReferences('items.map(({ info, label: localLabel }) => info + localLabel).join(",")')).toEqual(['items']);
     });
 
     it('does not let a named function-expression id suppress a same-named sibling read', () => {
@@ -54,10 +49,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('reads default values inside callback parameters', () => {
-        expect(getReferences('items.map(({ label = fallbackLabel }) => label)')).toEqual([
-            'fallbackLabel',
-            'items',
-        ]);
+        expect(getReferences('items.map(({ label = fallbackLabel }) => label)')).toEqual(['fallbackLabel', 'items']);
     });
 
     it('lets earlier parameters shadow reads in later defaults', () => {
@@ -69,35 +61,21 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
     });
 
     it('excludes template-scope names', () => {
-        expect(
-            getReferences('info + label', [
-                'info',
-            ]),
-        ).toEqual(['label']);
+        expect(getReferences('info + label', ['info'])).toEqual(['label']);
     });
 
     it('handles inline-handler statements, scoping local declarations', () => {
         // Not a single expression, so it parses as statements: `doubled` is declared locally and does
         // not read from setup, while `count` and `emit` do.
-        expect(getReferences('const doubled = count * 2; emit(doubled)')).toEqual([
-            'count',
-            'emit',
-        ]);
+        expect(getReferences('const doubled = count * 2; emit(doubled)')).toEqual(['count', 'emit']);
     });
 
     it('scopes block-statement declarations', () => {
-        expect(getReferences('if (visible) { const local = count; log(local) }')).toEqual([
-            'count',
-            'log',
-            'visible',
-        ]);
+        expect(getReferences('if (visible) { const local = count; log(local) }')).toEqual(['count', 'log', 'visible']);
     });
 
     it('scopes catch-clause parameters', () => {
-        expect(getReferences('try { risky() } catch (error) { report(error) }')).toEqual([
-            'report',
-            'risky',
-        ]);
+        expect(getReferences('try { risky() } catch (error) { report(error) }')).toEqual(['report', 'risky']);
     });
 
     it('scopes a named function expression and its parameters', () => {
@@ -107,11 +85,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
 
     describe('occurrences', () => {
         it('reports the range of every read, in source order', () => {
-            expect(getOccurrences('count + count * factor')).toEqual([
-                'count@0-5',
-                'count@8-13',
-                'factor@16-22',
-            ]);
+            expect(getOccurrences('count + count * factor')).toEqual(['count@0-5', 'count@8-13', 'factor@16-22']);
         });
 
         it('reports a write target like any other read, so a rewrite covers it', () => {
@@ -121,18 +95,11 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
         });
 
         it('marks a shorthand object property so the key survives the rewrite', () => {
-            expect(getOccurrences('({ info, label: caption })')).toEqual([
-                'info@3-7:shorthand-property',
-                'caption@16-23',
-            ]);
+            expect(getOccurrences('({ info, label: caption })')).toEqual(['info@3-7:shorthand-property', 'caption@16-23']);
         });
 
         it('reports no occurrence for a shadowed or template-scoped name', () => {
-            expect(
-                getOccurrences('items.map((info) => info + label)', [
-                    'items',
-                ]),
-            ).toEqual(['label@27-32']);
+            expect(getOccurrences('items.map((info) => info + label)', ['items'])).toEqual(['label@27-32']);
         });
 
         it('reports binding-pattern reads relative to the pattern text', () => {
@@ -140,10 +107,7 @@ describe('build/vue-setup-transform/flow-analysis references', () => {
                 collectPatternOccurrences('{ label = fallbackLabel, [key]: value }', new Set()).map(
                     (occurrence) => `${occurrence.name}@${occurrence.start}-${occurrence.end}`,
                 ),
-            ).toEqual([
-                'fallbackLabel@10-23',
-                'key@26-29',
-            ]);
+            ).toEqual(['fallbackLabel@10-23', 'key@26-29']);
         });
 
         it('reports nothing for an unparseable binding pattern', () => {

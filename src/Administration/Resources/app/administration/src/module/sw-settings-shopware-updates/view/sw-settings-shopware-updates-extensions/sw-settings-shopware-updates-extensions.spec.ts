@@ -43,10 +43,7 @@ async function createWrapper(props: Record<string, unknown> = {}, routerPush: je
             },
             stubs: {
                 'mt-card': {
-                    props: [
-                        'title',
-                        'isLoading',
-                    ],
+                    props: ['title', 'isLoading'],
                     template: `
                         <div class="mt-card" :data-is-loading="String(isLoading)" :data-title="title">
                             <slot></slot>
@@ -55,10 +52,7 @@ async function createWrapper(props: Record<string, unknown> = {}, routerPush: je
                     `,
                 },
                 'sw-data-grid': {
-                    props: [
-                        'dataSource',
-                        'columns',
-                    ],
+                    props: ['dataSource', 'columns'],
                     template: `
                         <div class="sw-data-grid">
                             <div

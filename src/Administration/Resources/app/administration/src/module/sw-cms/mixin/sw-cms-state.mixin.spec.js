@@ -8,9 +8,7 @@ function createWrapper(routeName = '') {
     return mount(
         {
             template: '<div></div>',
-            mixins: [
-                Shopware.Mixin.getByName('cms-state'),
-            ],
+            mixins: [Shopware.Mixin.getByName('cms-state')],
         },
         {
             global: {

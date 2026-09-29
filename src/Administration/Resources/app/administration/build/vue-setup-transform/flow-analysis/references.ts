@@ -68,9 +68,7 @@ type ExpressionOccurrence = {
  */
 type ReferenceVisitor = (identifier: Identifier, parent: BabelNode | null) => void;
 
-const EXPRESSION_PLUGINS: ParserPlugin[] = [
-    'typescript',
-];
+const EXPRESSION_PLUGINS: ParserPlugin[] = ['typescript'];
 
 /**
  * Parses one template JS snippet into a Babel node.
@@ -162,15 +160,7 @@ function forEachPatternReference(
     }
 
     if (pattern.type === 'AssignmentPattern') {
-        forEachBabelReference(
-            pattern.right,
-            [
-                patternScope,
-                ...outerScopes,
-            ],
-            visit,
-            pattern,
-        );
+        forEachBabelReference(pattern.right, [patternScope, ...outerScopes], visit, pattern);
         forEachPatternReference(pattern.left, outerScopes, visit, patternScope);
         return;
     }
@@ -188,15 +178,7 @@ function forEachPatternReference(
             }
 
             if (property.computed) {
-                forEachBabelReference(
-                    property.key,
-                    [
-                        patternScope,
-                        ...outerScopes,
-                    ],
-                    visit,
-                    property,
-                );
+                forEachBabelReference(property.key, [patternScope, ...outerScopes], visit, property);
             }
 
             forEachPatternReference(property.value, outerScopes, visit, patternScope);
@@ -259,10 +241,7 @@ function forEachBabelReference(
 
     if (node.type === 'BlockStatement') {
         const blockScope = new Set<string>();
-        const nextScopes = [
-            blockScope,
-            ...scopes,
-        ];
+        const nextScopes = [blockScope, ...scopes];
 
         node.body.forEach((statement) => forEachBabelReference(statement, nextScopes, visit, node));
         return;
@@ -295,15 +274,7 @@ function forEachBabelReference(
             forEachBabelReference(node.key, scopes, visit, node);
         }
 
-        forEachBabelReference(
-            node.body,
-            [
-                functionScope,
-                ...scopes,
-            ],
-            visit,
-            node,
-        );
+        forEachBabelReference(node.body, [functionScope, ...scopes], visit, node);
         return;
     }
 
@@ -318,15 +289,7 @@ function forEachBabelReference(
         }
 
         forEachBabelReference(node.superClass, scopes, visit, node);
-        forEachBabelReference(
-            node.body,
-            [
-                classScope,
-                ...scopes,
-            ],
-            visit,
-            node,
-        );
+        forEachBabelReference(node.body, [classScope, ...scopes], visit, node);
         return;
     }
 
@@ -352,15 +315,7 @@ function forEachBabelReference(
     if (node.type === 'CatchClause') {
         const catchScope = new Set<string>();
         addPatternNames(node.param, catchScope);
-        forEachBabelReference(
-            node.body,
-            [
-                catchScope,
-                ...scopes,
-            ],
-            visit,
-            node,
-        );
+        forEachBabelReference(node.body, [catchScope, ...scopes], visit, node);
         return;
     }
 
@@ -384,12 +339,8 @@ function collectExpressionOccurrences(expression: string | undefined, templateSc
 
     const occurrences: ExpressionOccurrence[] = [];
 
-    forEachBabelReference(
-        parseTemplateExpression(expression),
-        [
-            new Set(templateScope),
-        ],
-        (identifier, parent) => occurrences.push(toOccurrence(identifier, parent, 0)),
+    forEachBabelReference(parseTemplateExpression(expression), [new Set(templateScope)], (identifier, parent) =>
+        occurrences.push(toOccurrence(identifier, parent, 0)),
     );
 
     return occurrences;
@@ -408,12 +359,8 @@ function collectPatternOccurrences(patternSource: string, templateScope: Set<str
     try {
         const { pattern, offset } = parseBindingPattern(patternSource);
 
-        forEachPatternReference(
-            pattern,
-            [
-                new Set(templateScope),
-            ],
-            (identifier, parent) => occurrences.push(toOccurrence(identifier, parent, offset)),
+        forEachPatternReference(pattern, [new Set(templateScope)], (identifier, parent) =>
+            occurrences.push(toOccurrence(identifier, parent, offset)),
         );
     } catch {
         // Invalid or unsupported patterns are handled by Vue's own template parser/compiler.

@@ -341,8 +341,6 @@ SVG;
 
     public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void
     {
-        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('pngFileWithExtension', 'png'));
-
         $context = Context::createDefaultContext();
 
         $this->setFixtureContext($context);
@@ -356,6 +354,8 @@ SVG;
         $fileSize = filesize($tempFile);
         static::assertIsInt($fileSize);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
+
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('pngFileWithExtension', 'png'));
 
         try {
             $this->mediaRepository->create(
@@ -774,12 +774,15 @@ SVG;
         $mediaPath = $png->getPath();
         $this->getPublicFilesystem()->write($mediaPath, 'test file');
 
-        $fileSaverWithFailingRepository->renameMedia($png->getId(), 'new file name', $context);
-        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
+        try {
+            $fileSaverWithFailingRepository->renameMedia($png->getId(), 'new file name', $context);
+        } finally {
+            $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->getEntities()->get($png->getId());
 
-        static::assertInstanceOf(MediaEntity::class, $updatedMedia);
-        static::assertSame($png->getFileName(), $updatedMedia->getFileName());
-        static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
+            static::assertInstanceOf(MediaEntity::class, $updatedMedia);
+            static::assertSame($png->getFileName(), $updatedMedia->getFileName());
+            static::assertTrue($this->getPublicFilesystem()->has($mediaPath));
+        }
     }
 
     public function testMaliciousFileExtension(): void

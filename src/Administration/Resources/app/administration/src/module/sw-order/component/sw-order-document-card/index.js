@@ -41,16 +41,9 @@ export default {
         'acl',
     ],
 
-    emits: [
-        'update-loading',
-        'document-save',
-    ],
+    emits: ['update-loading', 'document-save'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         order: {
@@ -435,12 +428,7 @@ export default {
                 document.documentA11yMediaFile?.fileExtension,
             ].filter((fileType) => fileType);
 
-            return [
-                ...new Set([
-                    ...v2Formats,
-                    ...legacyFormats,
-                ]),
-            ];
+            return [...new Set([...v2Formats, ...legacyFormats])];
         },
 
         getDocumentActionFormats(document) {

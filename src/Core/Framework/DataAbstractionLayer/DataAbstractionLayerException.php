@@ -51,6 +51,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_CRITERIA_IDS = 'FRAMEWORK__INVALID_CRITERIA_IDS';
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
     public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
+    public const CLONE_PROTECTED = 'FRAMEWORK__CLONE_PROTECTED';
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
     public const VERSION_MERGE_SAME_VERSION = 'FRAMEWORK__VERSION_MERGE_SAME_VERSION';
     public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
@@ -325,6 +326,19 @@ class DataAbstractionLayerException extends HttpException
             self::CANNOT_CREATE_NEW_VERSION,
             'Cannot create new version. {{ entity }} by id {{ id }} not found.',
             ['entity' => $entity, 'id' => $id]
+        );
+    }
+
+    public static function cloneProtected(string $entity, string $scope): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::CLONE_PROTECTED,
+            'The entity "{{ entity }}" is clone protected for your scope "{{ scope }}".',
+            [
+                'entity' => $entity,
+                'scope' => $scope,
+            ],
         );
     }
 
@@ -1008,13 +1022,13 @@ class DataAbstractionLayerException extends HttpException
     public static function invalidIdentifier(string $identifier): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            return new \InvalidArgumentException('Backtick not allowed in identifier');
+            return new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier');
         }
 
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DBAL_INVALID_IDENTIFIER,
-            'Backtick not allowed in identifier "{{ identifier }}"',
+            'Backtick, question mark, colon, or control character not allowed in identifier "{{ identifier }}"',
             ['identifier' => $identifier]
         );
     }

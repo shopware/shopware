@@ -37,29 +37,21 @@ async function createWrapper({
             stubs: {
                 'sw-modal': {
                     template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
-                    props: [
-                        'title',
-                    ],
+                    props: ['title'],
                 },
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot></slot><slot name="content"></slot></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<button class="sw-tabs-item" type="button"><slot></slot></button>',
-                    props: [
-                        'active',
-                    ],
+                    props: ['active'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
-                    emits: [
-                        'new-item-active',
-                    ],
+                    emits: ['new-item-active'],
                     template: '<div class="mt-tabs"></div>',
                     props: {
                         defaultItem: {

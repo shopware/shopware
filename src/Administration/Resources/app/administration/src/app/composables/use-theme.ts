@@ -28,11 +28,7 @@ export const DEFAULT_THEME: Theme = 'light';
  *
  * @private
  */
-export const THEMES: readonly Theme[] = [
-    'light',
-    'dark',
-    'system',
-];
+export const THEMES: readonly Theme[] = ['light', 'dark', 'system'];
 
 /**
  * Snippet keys of the theme preference names.

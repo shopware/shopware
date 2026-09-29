@@ -38,7 +38,9 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         // The whole data scope arrives under one name and every reference reads through it: a declared
         // override binding directly, an override-local one under this file's namespace.
-        expect(result).toContain(`<sw-block extends="sw_example_component_body" #default="__swSetupScope">`);
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='sw-example-component' extends="sw_example_component_body" #default="__swSetupScope">`,
+        );
         expect(result).toContain('<p>{{ __swSetupScope.body }}</p>');
         expect(result).toContain('<small>{{ __swSetupScope.__swOverride[__swSetupNamespace].info }}</small>');
         expect(stripWhitespace(result)).toContain(stripWhitespace`
@@ -72,7 +74,9 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         const result = transformOrFail(source, 'override-sw-block-data.override.vue').code;
 
-        expect(result).toContain('<sw-block extends="sw_example_component_headline" #default="__swSetupScope">');
+        expect(result).toContain(
+            `<sw-block sw-internal-component-name='override-sw-block-data' extends="sw_example_component_headline" #default="__swSetupScope">`,
+        );
         expect(result).toContain('<h2>{{ __swSetupScope.headline }}</h2>');
         expect(result).not.toContain(':data="$dataScope"');
     });
@@ -282,10 +286,7 @@ describe('build/vue-setup-transform override template forwarding', () => {
 
         const result = transformOrFail(source, 'extended-names.override.vue');
 
-        expect(result.extendedBlockNames).toEqual([
-            'sw_example_component_headline',
-            'sw_example_component_body',
-        ]);
+        expect(result.extendedBlockNames).toEqual(['sw_example_component_headline', 'sw_example_component_body']);
         expect(result.ownedBlockNames).toEqual([]);
     });
 

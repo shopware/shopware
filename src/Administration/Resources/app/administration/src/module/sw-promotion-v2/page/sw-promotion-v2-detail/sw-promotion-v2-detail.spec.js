@@ -72,9 +72,7 @@ async function createWrapper({
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot></slot></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
@@ -150,9 +148,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
         await createWrapper({ promotionId: 'promotionId' });
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            'promotionId',
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['promotionId']);
     });
 
     it('should select the new promotion for app action buttons when navigating to another promotion', async () => {
@@ -162,9 +158,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
         await wrapper.setProps({ promotionId: 'otherPromotionId' });
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            'otherPromotionId',
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['otherPromotionId']);
     });
 
     it('should deselect the promotion for app action buttons when creating a new promotion', async () => {

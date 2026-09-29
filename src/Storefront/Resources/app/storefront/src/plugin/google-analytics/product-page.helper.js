@@ -94,6 +94,41 @@ export default class ProductPageHelper {
     }
 
     /**
+     * The GA4 category properties of a product the page does not carry a path for.
+     *
+     * On the product detail page the breadcrumb is the path of the product itself. Anywhere else,
+     * such as a listing, a slider or a Shopping Experience page, the breadcrumb describes the page,
+     * so the path is requested from the storefront, which resolves it through the Store API
+     * breadcrumb route. Product boxes do not carry it, because loading every category of every
+     * product would slow down each render for an event that only fires on a click. The
+     * breadcrumb is only used as a fallback when that request fails.
+     *
+     * @param {string} productId
+     * @returns {Promise<Object>}
+     */
+    static async resolveCategories(productId) {
+        const url = window.router?.['frontend.analytics.product-categories'];
+
+        if (window.activeRoute === 'frontend.detail.page' || !url || !productId) {
+            return ProductPageHelper.getCategories();
+        }
+
+        try {
+            const response = await fetch(`${url}?productId=${encodeURIComponent(productId)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+
+            if (!response.ok) {
+                return ProductPageHelper.getCategories();
+            }
+
+            return ProductPageHelper.mapCategories(await response.json());
+        } catch {
+            return ProductPageHelper.getCategories();
+        }
+    }
+
+    /**
      * Maps a category path, ordered from the top level down, to the GA4 category properties.
      * @param {string[]|undefined} names
      * @returns {Object}

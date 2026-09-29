@@ -45,7 +45,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             return;
         }
 
-        this._sendEvent(productId, form);
+        return this._sendEvent(productId, form);
     }
 
     _onProductRemoved(event) {
@@ -58,7 +58,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             return;
         }
 
-        this._sendEvent(productId);
+        return this._sendEvent(productId);
     }
 
     /**
@@ -79,7 +79,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
      * @param {HTMLFormElement|null} form
      * @private
      */
-    _sendEvent(productId, form = null) {
+    async _sendEvent(productId, form = null) {
         // Try to get product data from product detail/listing page first
         let productData = ProductPageHelper.getProductData(productId, form);
         let categories = productData.categories ?? {};
@@ -91,10 +91,9 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             categories = lineItemData.categories || {};
         }
 
-        // Last resort: the breadcrumb describes the page rather than the product, so it is only
-        // correct on the product detail page
+        // a product box on a listing, a slider or a Shopping Experience page carries no path
         if (Object.keys(categories).length === 0) {
-            categories = ProductPageHelper.getCategories();
+            categories = await ProductPageHelper.resolveCategories(productId);
         }
 
         this.pushEvent('remove_from_wishlist', {

@@ -18,7 +18,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
         };
     }
 
-    _onProductAdded(event) {
+    async _onProductAdded(event) {
         if (!this.active) {
             return;
         }
@@ -41,10 +41,9 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
             }
         }
 
-        // Last resort: the breadcrumb describes the page rather than the product, so it is only
-        // correct on the product detail page
+        // a product box on a listing, a slider or a Shopping Experience page carries no path
         if (Object.keys(categories).length === 0) {
-            categories = ProductPageHelper.getCategories();
+            categories = await ProductPageHelper.resolveCategories(productId);
         }
 
         this.pushEvent('add_to_wishlist', {

@@ -114,6 +114,7 @@ use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\HtmlPurifierConfigProvider;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Validation\Constraint\NoHtmlValidator;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -172,8 +173,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'lowercase' => false,
     ]);
 
-    // Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes
+    // Populated by RouteScopeCompilerPass with all route prefixes from the registered RouteScopes,
+    // and with the prefixes of the RouteScopes that depend on an API context
     $parameters->set('shopware.routing.registered_api_prefixes', []);
+    $parameters->set('shopware.routing.api_context_route_prefixes', []);
 
     // Migration config
     $parameters->set('core.migration.directories', []);
@@ -856,6 +859,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(HtmlPurifierConfigProvider::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(NoHtmlValidator::class)
+        ->args([
+            service(HtmlSanitizer::class),
+        ])
+        ->tag('validator.constraint_validator');
 
     $services->set(ExcludeExceptionHandler::class)
         ->decorate('monolog.handler.main', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)

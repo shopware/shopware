@@ -14,7 +14,7 @@ inputs:
     description: "Run with cobertura coverage (written to coverage.xml for ./.github/actions/phpunit-upload)"
   phpunit-options:
     default: ""
-    description: "Extra CLI options appended to the PHPUnit call (preview: `--display-phpunit-notices` on the PHPUnit 12 arm; PHPUnit 11 does not know the flag)"
+    description: "Extra CLI options appended to the PHPUnit call (e.g. `--display-phpunit-notices` on the PHPUnit 13 gate; PHPUnit 11 does not know the flag)"
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
 # inherit it, so this action stays flag-agnostic. Environment setup (PHP, database, webserver, test install)

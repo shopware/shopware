@@ -18,9 +18,9 @@ inputs:
   migration-coverage:
     default: "false"
     description: "Rewrite phpunit.xml.dist to scope coverage to the */Migration directories (migration suite)"
-  force-phpunit-12:
-    default: "false"
-    description: "Force PHPUnit 12 via `composer update phpunit/phpunit:^12.4` after the test install (12.4 ships --fail-on-phpunit-notice/-warning). Used by the phpunit-12 gate job."
+  phpunit-version:
+    default: ""
+    description: "Composer constraint PHPUnit is forced to after the test install (e.g. `^13.3`); empty keeps the locked PHPUnit. Used by the phpunit-13 gate job."
 
 # Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the steps below
 # inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
@@ -97,9 +97,11 @@ runs:
       shell: bash
       run: php src/Core/TestBootstrap.php
 
-    - name: Force PHPUnit 12
-      if: ${{ inputs.force-phpunit-12 == 'true' }}
+    - name: Force PHPUnit ${{ inputs.phpunit-version }}
+      if: ${{ inputs.phpunit-version != '' }}
       shell: bash
       # composer require rewrites the root constraint for this run only, so every other job
-      # keeps resolving PHPUnit 11 (a shared ||-constraint made composer pick 12 everywhere)
-      run: composer require --dev --update-with-all-dependencies phpunit/phpunit:^12.4
+      # keeps resolving the locked PHPUnit (a shared ||-constraint made composer pick the newer one everywhere)
+      env:
+        PHPUNIT_VERSION: ${{ inputs.phpunit-version }}
+      run: composer require --dev --update-with-all-dependencies "phpunit/phpunit:${PHPUNIT_VERSION}"

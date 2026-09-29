@@ -234,6 +234,15 @@ class UrlEncodingTwigFilterTest extends TestCase
         );
     }
 
+    public function testItKeepsEncodedPathSeparatorsInsideASegment(): void
+    {
+        $filter = new UrlEncodingTwigFilter();
+        static::assertSame(
+            'https://cdn.example.com/media/object%2Fid%20%C3%84.jpg',
+            $filter->encodeUrl('https://cdn.example.com/media/object%2Fid Ä.jpg')
+        );
+    }
+
     public function testItKeepsTheAuthorityUntouched(): void
     {
         $filter = new UrlEncodingTwigFilter();

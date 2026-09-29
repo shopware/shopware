@@ -34,10 +34,10 @@ class UrlEncodingTwigFilter extends AbstractExtension
             return null;
         }
 
-        $segments = explode('/', rawurldecode($uri->getPath()));
+        $segments = explode('/', $uri->getPath());
 
         foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode($segment);
+            $segments[$index] = rawurlencode(rawurldecode($segment));
         }
 
         return (string) $uri->withPath(implode('/', $segments))->withFragment('');

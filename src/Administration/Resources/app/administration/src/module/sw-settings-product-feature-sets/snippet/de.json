@@ -29,13 +29,14 @@
       "labelCreateNew": "Werte hinzufügen"
     },
     "valuesCard": {
+      "emptyStateTitle": "Noch keine Werte",
       "createStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind.",
       "labelCreateNew": "Feld hinzufügen",
       "cardTitle": "Werte",
       "labelValue": "Wert",
       "labelType": "Typ",
       "labelPosition": "Position",
-      "emptyStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind.."
+      "emptyStateDescription": "Füge Werte hinzu, um wesentliche Merkmale zu definieren, die auf Dein Produktsortiment zugeschnitten sind."
     },
     "modal": {
       "textPropertyLabel": "Eigenschaft",

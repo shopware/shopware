@@ -153,8 +153,10 @@
                     <mt-empty-state
                         v-if="properties.length <= 0"
                         class="sw-product-properties__empty-state has--no-search-result"
-                        :icon="$route.meta.$module.icon"
+                        centered
+                        icon="regular-eye-dropper"
                         :headline="$t('sw-product.properties.titleEmptyStateList')"
+                        description=""
                     >
                         <!-- @deprecated tag:v6.8.0 - block will be removed -->
                         {% block sw_product_properties_filled_state_body_empty_state_image %}
@@ -173,7 +175,8 @@
             <mt-empty-state
                 v-if="!productHasProperties"
                 class="sw-product-properties__empty-state has--no-properties"
-                :icon="$route.meta.$module.icon"
+                centered
+                icon="regular-eye-dropper"
                 :headline="emptyStateTitle || $t('sw-product.properties.titleEmptyState')"
                 :description="emptyStateDescription || $t('sw-product.properties.descriptionEmptyState')"
             >

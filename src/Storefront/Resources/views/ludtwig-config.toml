@@ -39,6 +39,7 @@ active-rules = [
     "html-attribute-name-kebab-case",
     "twig-logic-and",
     "twig-logic-or",
+    "twig-no-break",
     "twig-string-quotation",
     "html-string-quotation",
     "twig-hash-key-no-quotes",

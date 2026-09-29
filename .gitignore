@@ -188,7 +188,6 @@ install.lock
 
 vendor-bin/**/vendor
 vendor-bin/**/composer.lock
-.uniqueid.txt
 
 http-client.private.env.json
 

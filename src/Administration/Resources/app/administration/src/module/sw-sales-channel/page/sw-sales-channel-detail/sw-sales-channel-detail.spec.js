@@ -11,6 +11,7 @@ const mockGet = jest.fn();
 const mockCreateRepository = jest.fn();
 const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
 const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
+const mockGetCustomFieldSets = jest.fn(() => Promise.resolve([]));
 
 const defaultSalesChannelResponse = {
     id: '1a2b3c4d',
@@ -150,6 +151,9 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                     getValues: mockGetSystemConfigValues,
                     batchSave: () => Promise.resolve(),
                 },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: mockGetCustomFieldSets,
+                },
             },
             mocks: {
                 $route: {
@@ -187,7 +191,14 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         mockCreateRepository.mockClear();
         mockGetSystemConfig.mockClear();
         mockGetSystemConfigValues.mockClear();
+        mockGetCustomFieldSets.mockClear();
         Shopware.Store.get('error').resetApiErrors();
+    });
+
+    it('loads custom field sets through the shared provider', async () => {
+        await createWrapper();
+
+        expect(mockGetCustomFieldSets).toHaveBeenCalledWith('sales_channel', false, 100);
     });
 
     it('should disable the save button when privilege does not exist', async () => {

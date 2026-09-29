@@ -123,7 +123,7 @@ routes: {
 navigation: [
     {
         id: 'sw-catalogue',
-        label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+        label: 'global.sw-admin-menu.navigation.mainMenuItemProducts',
         color: '#57D9A3',
         icon: 'regular-products',
         position: 20

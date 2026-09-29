@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel;
+namespace Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel;
 
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;

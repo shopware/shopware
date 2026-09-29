@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig;
+namespace Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig;
 
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;

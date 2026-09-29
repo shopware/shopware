@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel;
+namespace Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel;
 
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Feature;

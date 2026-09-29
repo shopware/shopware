@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Document\Renderer;
+namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Document\SalesChannel;
+namespace Shopware\Core\Checkout\DocumentV2\SalesChannel;
 
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;

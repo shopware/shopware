@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig;
+namespace Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;

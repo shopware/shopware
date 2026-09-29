@@ -51,9 +51,13 @@ class AnalyticsController extends StorefrontController
             return $this->json([]);
         }
 
+        // the Store API route reads the product from the `id` attribute and the kind from `type`
+        $breadcrumbRequest = $request->duplicate(['type' => 'product']);
+        $breadcrumbRequest->attributes->set('id', $productId);
+
         try {
             $breadcrumb = $this->breadcrumbRoute
-                ->load(new Request(['type' => 'product'], [], ['id' => $productId]), $context)
+                ->load($breadcrumbRequest, $context)
                 ->getBreadcrumbCollection();
         } catch (ShopwareHttpException) {
             // a product without a category available in the sales channel has no breadcrumb

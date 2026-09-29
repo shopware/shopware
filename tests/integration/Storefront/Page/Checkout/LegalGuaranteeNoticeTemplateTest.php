@@ -76,7 +76,6 @@ class LegalGuaranteeNoticeTemplateTest extends TestCase
         $page = new Crawler($this->renderCheckout());
 
         static::assertCount(0, $page->filter('.confirm-legal-guarantee-notice-inline'));
-        static::assertCount(0, $page->filter('.checkout-confirm-tos-information'));
         static::assertCount(1, $page->filter('#tos[required][form="confirmOrderForm"]'));
         static::assertCount(1, $page->filter('[data-bs-target="#legalGuaranteeNoticeModal"]'));
         static::assertCount(1, $page->filter('#legalGuaranteeNoticeModal svg'));

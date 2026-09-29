@@ -107,14 +107,15 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                           }
                         : {}),
                     'mt-switch': {
-                        // Like the real mt-switch, an inherited switch shows its inheritedValue and ignores modelValue.
+                        // Like the real mt-switch, an inherited switch shows its inheritedValue, ignores modelValue
+                        // and locks its input, while only the disabled prop greys out the whole switch.
                         template: `
-                            <div class="mt-switch">
+                            <div class="mt-switch" :class="{ 'mt-switch--disabled': disabled }">
                                 <label>{{ label }}</label>
                                 <input
                                     type="checkbox"
                                     :checked="isInherited ? inheritedValue : modelValue"
-                                    :disabled="disabled"
+                                    :disabled="disabled || isInherited"
                                     @change="$emit('update:model-value', $event.target.checked)"
                                 />
                             </div>`,
@@ -171,6 +172,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         await flushPromises();
 
         expect(wrapper.find('.mt-switch input').element.checked).toBe(true);
+        expect(wrapper.find('.mt-switch').classes()).not.toContain('mt-switch--disabled');
     });
 
     it('should only offer valid guarantee durations in the stepper', async () => {

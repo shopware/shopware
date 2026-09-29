@@ -1,8 +1,11 @@
 parameters:
-    # Endpoints that publish no extension event on purpose: infrastructure and test routes.
+    # Endpoints that publish no extension event on purpose: infrastructure and test routes,
+    # and routes whose ResolvedCriteria decorator publishes it before the criteria are resolved.
     # New store-api routes must follow the ADR, do not add them here.
     shopwareLegacyStoreApiRouteMethods:
         - Shopware\Core\Content\ProductExport\SalesChannel\ExportController::index
+        - Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute::load
+        - Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute::load
         - Shopware\Core\Content\Test\TestNavigationSeoUrlRoute::route
         - Shopware\Core\Content\Test\TestProductSeoUrlRoute::route
         - Shopware\Core\Framework\App\Api\AppJWTGenerateRoute::generate
@@ -80,8 +83,6 @@ parameters:
         - Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute::readProductsPurchaseLimit
         - Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute::load
         - Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute::save
-        - Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute::load
-        - Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute::load
         - Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute::request
         - Shopware\Core\Content\Seo\SalesChannel\SeoUrlRoute::load
         - Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute::load

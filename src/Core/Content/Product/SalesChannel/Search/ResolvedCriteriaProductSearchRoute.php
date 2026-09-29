@@ -4,10 +4,12 @@ namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchResultEvent;
+use Shopware\Core\Content\Product\Extension\ProductSearchRouteExtension;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +27,8 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     public function __construct(
         private readonly AbstractProductSearchRoute $decorated,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly CompositeListingProcessor $processor
+        private readonly CompositeListingProcessor $processor,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -35,6 +38,15 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
     }
 
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductSearchRouteExtension::NAME,
+            extension: new ProductSearchRouteExtension($request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         $criteria->addState(self::STATE);
 

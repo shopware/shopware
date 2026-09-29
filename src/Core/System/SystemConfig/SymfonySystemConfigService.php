@@ -80,13 +80,11 @@ readonly class SymfonySystemConfigService
             return $merged;
         }
 
-        $emptyOverrides = [];
-
         foreach ($specific as $key => $value) {
             $keys = \explode('.', (string) $key);
 
             if ($value === []) {
-                $emptyOverrides[] = $keys;
+                $merged = $this->getSubArray($merged, $keys, []);
             }
 
             if (\count($keys) === 1) {
@@ -101,10 +99,6 @@ readonly class SymfonySystemConfigService
         }
 
         $merged = array_replace_recursive($merged, $specific);
-
-        foreach ($emptyOverrides as $keys) {
-            $merged = $this->getSubArray($merged, $keys, []);
-        }
 
         return $merged;
     }

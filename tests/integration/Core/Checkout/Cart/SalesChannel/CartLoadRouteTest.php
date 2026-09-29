@@ -89,7 +89,7 @@ class CartLoadRouteTest extends TestCase
         static::assertEmpty($response['errors']);
     }
 
-    public function testCompressedCriteriaDoesNotAddRequestParameters(): void
+    public function testIncludesOfTheCompressedCriteriaAreApplied(): void
     {
         $compressed = gzencode(json_encode(['includes' => ['cart' => ['token']]], \JSON_THROW_ON_ERROR));
         static::assertNotFalse($compressed, 'Gzip compressing failed');
@@ -98,8 +98,8 @@ class CartLoadRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertArrayHasKey('price', $response, 'The cart is not a cacheable read route, so the compressed criteria is not read');
-        static::assertArrayHasKey('lineItems', $response);
+        static::assertArrayHasKey('token', $response);
+        static::assertArrayNotHasKey('price', $response, 'The includes of the compressed criteria are applied');
     }
 
     /**

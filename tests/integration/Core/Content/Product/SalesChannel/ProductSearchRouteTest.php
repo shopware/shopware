@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1775460999AddParentNameToProductSearchConfig;
 use Shopware\Core\PlatformRequest;
@@ -153,6 +154,42 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame(0, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(0, $response['elements']);
+    }
+
+    public function testLimitOfTheCompressedCriteriaIsApplied(): void
+    {
+        $browser = self::$browser;
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], Context::createDefaultContext());
+
+        $browser->request('GET', '/store-api/search', [
+            'limit' => 10,
+            '_criteria' => self::compress(['search' => 'Test-Product', 'limit' => 2]),
+        ]);
+
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(15, $response['total']);
+        static::assertCount(2, $response['elements'], 'The limit of the compressed criteria wins over the plain query parameter');
+    }
+
+    public function testSearchTermOfTheCompressedCriteriaIsReadBySuggest(): void
+    {
+        $browser = self::$browser;
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
+        ], Context::createDefaultContext());
+
+        $browser->request('GET', '/store-api/search-suggest', [
+            '_criteria' => self::compress(['search' => 'Test-Product']),
+        ]);
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        $response = \json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(15, $response['total']);
     }
 
     public function testMissingSearchTermWithFilter(): void
@@ -866,6 +903,17 @@ class ProductSearchRouteTest extends TestCase
         sort($resultProductName);
 
         static::assertSame($expected, $resultProductName);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private static function compress(array $payload): string
+    {
+        $compressed = gzencode(json_encode($payload, \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        return Base64::urlEncode($compressed);
     }
 
     private function createNavigationCategory(IdsCollection $ids): void

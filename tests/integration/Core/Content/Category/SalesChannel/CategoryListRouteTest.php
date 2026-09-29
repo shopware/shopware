@@ -131,7 +131,7 @@ class CategoryListRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $response['elements'], 'The limit of the query is applied');
-        static::assertSame(['name', 'id', 'apiAlias'], array_keys($response['elements'][0]), 'The includes of the compressed criteria are applied');
+        static::assertEqualsCanonicalizing(['id', 'name', 'apiAlias'], array_keys($response['elements'][0]), 'The includes of the compressed criteria are applied');
     }
 
     private function createData(): void

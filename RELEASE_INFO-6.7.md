@@ -106,28 +106,32 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### Store API reads every field of the compressed `_criteria` parameter
 
-On the Store API read routes listed below, a `GET` request with `_criteria` now returns the same as the `POST` request with that body. Before, they ignored fields inside `_criteria`:
+On every Store API `GET` route, `_criteria` is now a compressed form of the query string: its fields are read like query parameters. So a `GET` request with `_criteria` reads the same fields as the `POST` request with that body. Before, only the criteria were read from `_criteria`, and routes ignored other fields inside it, for example:
 
 | Route | Ignored fields |
 |---|---|
 | `/category/{navigationId}`, `/cms/{id}`, `/landing-page/{landingPageId}` | `limit`, `includes`, `excludes`, `slots` |
 | `/search` | `limit` |
+| `/search-suggest` | `search` |
 | `/product/{productId}` | `slots` |
 | `/navigation/{activeId}/{rootId}` | `depth`, `buildTree` |
 | `/media` | `ids`, `includes`, `excludes` |
-| `/product/{productId}/find-variant` | `options`, `switchedGroup` |
+| `/product/{productId}/find-variant` | `options`, `switchedGroup`, `includes`, `excludes` |
+| `/payment-method`, `/shipping-method` | `onlyAvailable` |
+| `/checkout/cart` | `includes`, `excludes` |
+
+A field that a route reads from the `POST` body only is not read from `_criteria`, the same as from a plain query parameter. This concerns the filter flags of the listing routes, such as `manufacturer-filter` or `property-whitelist`. App scripts of `/store-api/script/{hook}` find the fields of `_criteria` in the query as well.
 
 Sending these fields as plain query parameters keeps working. If you send `_criteria`, check these changes:
 
 - A field in `_criteria` takes precedence over a query parameter of the same name. Before, a plain `limit` took precedence on the listing routes.
-- Query parameters that are not part of `_criteria` are applied next to it. Before, the criteria of a route were built from `_criteria` alone, so a plain `limit` or `filter` next to it was ignored.
-- An invalid `_criteria` value is answered with `400` on these routes. Routes without criteria ignored it before.
-- The `sw-include-search-info` header is respected together with `_criteria`.
-- `includes` and `excludes` that are not an array are answered with `400` instead of `500`.
+- Query parameters that are not part of `_criteria` are applied next to it. Before, the criteria were built from `_criteria` alone, so a plain `filter` next to it was ignored. This also applies to the `GET` list and detail routes of the Admin API.
+- The `sw-include-search-info` header is respected together with `_criteria`, on the Admin API as well.
+- An invalid `_criteria` value is answered with `400` on every Store API `GET` route. Before, routes without criteria, such as `/media` or `/checkout/cart`, ignored it.
 
-This applies to every cacheable Store API route that accepts `GET` and `POST`. Routes that only accept `GET`, such as `/snippet`, and routes that are not cacheable, such as the cart, read nothing but the criteria from `_criteria`.
+`includes` and `excludes` that are not an array are answered with `400` instead of `500`. On the Admin API this applies to the fields of a single entity, such as `includes[product]=name`.
 
-The OpenAPI schema declares `_criteria` for `readCategoryGet`, `readCmsGet`, `readLandingPageGet`, `searchPageGet`, `searchSuggestGet`, `readMediaGet` and `searchProductVariantIdsGet`.
+The OpenAPI schema declares `_criteria` for `readCategoryGet`, `readCmsGet`, `readLandingPageGet`, `searchPageGet`, `searchSuggestGet`, `readMediaGet`, `searchProductVariantIdsGet` and `readProductCrossSellingsGet`.
 
 ## Administration
 

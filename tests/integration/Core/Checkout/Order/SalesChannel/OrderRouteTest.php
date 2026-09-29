@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -32,6 +33,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryCollection;
@@ -251,6 +253,62 @@ class OrderRouteTest extends TestCase
             );
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
+    }
+
+    #[DataProvider('guestCredentialsProvider')]
+    public function testGuestCredentialsAreReadFromTheCompressedCriteria(string $zipcode, int $expectedStatus): void
+    {
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', '');
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addAssociation('orderCustomer');
+
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->getEntities()->get($this->orderId);
+
+        static::assertNotNull($order);
+        static::assertNotNull($order->getOrderCustomer());
+
+        $this->customerRepository->update([
+            [
+                'id' => $order->getOrderCustomer()->getCustomerId(),
+                'guest' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
+
+        $compressed = gzencode(json_encode(
+            \array_merge(
+                $this->requestCriteriaBuilder->toArray($criteria),
+                [
+                    'email' => 'test@example.com',
+                    'zipcode' => $zipcode,
+                ]
+            ),
+            \JSON_THROW_ON_ERROR
+        ));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/order', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        static::assertSame($expectedStatus, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+    }
+
+    /**
+     * @return iterable<string, array{zipcode: string, expectedStatus: int}>
+     */
+    public static function guestCredentialsProvider(): iterable
+    {
+        yield 'the order is returned for the right credentials' => [
+            'zipcode' => '59438-0403',
+            'expectedStatus' => Response::HTTP_OK,
+        ];
+
+        yield 'a wrong zipcode is rejected the same as a plain query parameter' => [
+            'zipcode' => '00000',
+            'expectedStatus' => Response::HTTP_FORBIDDEN,
+        ];
     }
 
     public function testGetOrderGuestNoOrder(): void

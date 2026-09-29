@@ -124,10 +124,13 @@ class SnippetRouteTest extends TestCase
         static::assertSame($set['snippets'], $setWithTrailingDot['snippets']);
     }
 
-    public function testCompressedCriteriaDoesNotAddRequestParameters(): void
+    public function testPrefixesAreReadFromTheCompressedCriteria(): void
     {
         $this->createSnippet('myPrefix.inside.key', 'Inside');
         $this->createSnippet('myPrefixOther.key', 'Outside');
+
+        $this->browser->request('GET', '/store-api/snippet?prefixes=myPrefix');
+        $expected = $this->getJsonResponse()['sets'][0];
 
         $compressed = gzencode(json_encode(['prefixes' => 'myPrefix'], \JSON_THROW_ON_ERROR));
         static::assertNotFalse($compressed, 'Gzip compressing failed');
@@ -136,9 +139,9 @@ class SnippetRouteTest extends TestCase
 
         $set = $this->getJsonResponse()['sets'][0];
 
-        // the route has no POST form and does not opt in, so the prefixes are not read from the compressed criteria
         static::assertSame('Inside', $set['snippets']['myPrefix.inside.key'] ?? null);
-        static::assertSame('Outside', $set['snippets']['myPrefixOther.key'] ?? null);
+        static::assertArrayNotHasKey('myPrefixOther.key', $set['snippets']);
+        static::assertSame($expected['snippets'], $set['snippets'], 'The compressed criteria is read like the query string');
     }
 
     public function testEtagRevalidationReturnsNotModified(): void

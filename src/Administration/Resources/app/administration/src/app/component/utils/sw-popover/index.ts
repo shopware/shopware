@@ -53,7 +53,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created() {
-        if (this.useMeteorComponent && this.resizeWidth === true) {
+        if (this.resizeWidth === true) {
             Shopware.Feature.triggerDeprecationOrThrow(
                 'V6_8_0_0',
                 'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',

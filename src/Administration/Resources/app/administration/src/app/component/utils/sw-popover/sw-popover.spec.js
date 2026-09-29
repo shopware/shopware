@@ -35,7 +35,7 @@ describe('src/app/component/base/sw-popover', () => {
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should pass the "resizeWidth" prop to the "matchReferenceWidth" property in mt-floating-ui with true',
         async () => {
-            const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+            const guardSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
 
             const wrapper = await createWrapper({
                 props: {
@@ -46,7 +46,7 @@ describe('src/app/component/base/sw-popover', () => {
             const floatingUi = wrapper.findComponent({ name: 'mt-floating-ui' });
             expect(floatingUi.attributes('match-reference-width')).toBe('true');
 
-            warnSpy.mockRestore();
+            guardSpy.mockRestore();
         },
     );
 
@@ -65,7 +65,7 @@ describe('src/app/component/base/sw-popover', () => {
     );
 
     it.activeFeatureFlags(['v6.8.0.0'])('should show deprecation warning when resizeWidth is used', async () => {
-        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+        const guardSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
 
         await createWrapper({
             props: {
@@ -73,16 +73,16 @@ describe('src/app/component/base/sw-popover', () => {
             },
         });
 
-        expect(warnSpy).toHaveBeenCalledWith(
-            'sw-popover',
+        expect(guardSpy).toHaveBeenCalledWith(
+            'V6_8_0_0',
             'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
         );
 
-        warnSpy.mockRestore();
+        guardSpy.mockRestore();
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should not show deprecation warning when resizeWidth is false', async () => {
-        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+        const guardSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
 
         await createWrapper({
             props: {
@@ -90,12 +90,12 @@ describe('src/app/component/base/sw-popover', () => {
             },
         });
 
-        expect(warnSpy).not.toHaveBeenCalledWith(
-            'sw-popover',
+        expect(guardSpy).not.toHaveBeenCalledWith(
+            'V6_8_0_0',
             'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
         );
 
-        warnSpy.mockRestore();
+        guardSpy.mockRestore();
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should prefer match-reference-width attribute over resizeWidth prop', async () => {

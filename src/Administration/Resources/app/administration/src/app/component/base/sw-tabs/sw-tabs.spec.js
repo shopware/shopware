@@ -19,23 +19,17 @@ async function createWrapper(additionalOptions = {}) {
 
 describe('src/app/component/base/sw-tabs', () => {
     it('should render the deprecated tabs by default', async () => {
-        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+        const guardSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('sw-tabs-deprecated');
         expect(wrapper.html()).not.toContain('mt-tabs');
-        expect(warnSpy.mock.calls).toEqual(
-            Shopware.Feature.isActive('V6_8_0_0')
-                ? [
-                      [
-                          'sw-tabs',
-                          'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
-                      ],
-                  ]
-                : [],
+        expect(guardSpy).toHaveBeenCalledWith(
+            'V6_9_0_0',
+            'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
         );
 
-        warnSpy.mockRestore();
+        guardSpy.mockRestore();
     });
 
     it('should render the mt-tabs with an opt-in before the v6.8.0.0 feature flag is active', async () => {
@@ -123,11 +117,7 @@ describe('src/app/component/base/sw-tabs', () => {
                     // Keep the real component name so the fragment branch recognizes the items.
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
-                        props: [
-                            'name',
-                            'title',
-                            'route',
-                        ],
+                        props: ['name', 'title', 'route'],
                         template: '<div class="sw-tabs-item"><slot /></div>',
                     },
                 },

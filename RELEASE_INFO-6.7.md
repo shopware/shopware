@@ -92,6 +92,9 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 Shopware now requires `symfony/mcp-bundle` 0.14.1, still on `mcp/sdk` 0.8. The extension tags and the registration described for 6.7.15.0 are unchanged.
 
 One behaviour changes for extensions: a `%` in MCP metadata, for example a tool description or schema such as "discount in %", is now kept as written. Before, the bundle read it as a container parameter placeholder, which either broke the container build ("non-existent parameter") or changed the text. If your extension worked around that by writing `%%`, remove the workaround, or the description now shows `%%`.
+### Digital products follow their max. order quantity again
+
+Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
 
 ## API
 
@@ -100,6 +103,10 @@ One behaviour changes for extensions: a `%` in MCP metadata, for example a tool 
 Registration and address routes now reject HTML in `firstName`, `lastName`, `title`, `company`, `department`, `street`, `additionalAddressLine1`, `additionalAddressLine2` and `city` with the violation code `VIOLATION::CONTAINS_HTML_ERROR` and a source pointer to the offending field. Previously such input was emptied while being sanitized and then surfaced as a generic error that the storefront could not attach to a field, so a first name like `<John` failed registration with "Something went wrong".
 
 Input that only looks like markup, for example `I <3 you` or `5 > 3`, still passes. The check is available as the reusable constraint `Shopware\Core\Framework\Validation\Constraint\NoHtml` for your own validation definitions.
+
+### A required birthday is enforced by the Store API
+
+When `core.loginRegistration.birthdayFieldRequired` is active, `POST /store-api/account/register` and `POST /store-api/account/change-profile` now reject a request without `birthdayDay`, `birthdayMonth` or `birthdayYear` with a `VIOLATION::IS_BLANK_ERROR` on the missing field. Previously the customer was saved without a birthday. Headless frontends must send the birthday when the setting is active.
 
 ### Store API OpenAPI schema matches the actual responses
 
@@ -209,6 +216,10 @@ The group order in the permissions grid of Settings > Users & permissions follow
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
 ## Storefront
+
+### Preserve theme assets on S3-compatible storage
+
+Theme compilation now preserves current images and fonts on storage providers that apply deletions asynchronously. Obsolete theme assets are removed only after the replacement files have been uploaded successfully.
 
 ### Checkout form data is kept in the session storage
 

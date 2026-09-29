@@ -68,20 +68,6 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             const entityTitle = entityRow.find('.sw-users-permissions-detailed-permissions-grid__title');
             expect(entityTitle.text()).toBe(entityName);
 
-            // skip default values
-            if (
-                [
-                    'currency',
-                    'country',
-                    'language',
-                    'log_entry',
-                    'locale',
-                    'message_queue_stats',
-                ].includes(entityName)
-            ) {
-                return;
-            }
-
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
             const entityUpdateInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_update input');
             const entityDeleteInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_create input');
@@ -107,15 +93,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         });
     });
 
-    it('should render default user privileges as selected and disabled', async () => {
-        const wrapper = await createWrapper();
+    it('should render default user privileges as selectable detailed privileges', async () => {
+        const wrapper = await createWrapper({
+            detailedPrivileges: ['locale:read'],
+        });
 
-        ['currency', 'language', 'locale'].forEach((entityName) => {
+        const localeReadInput = wrapper.find(
+            '.sw-users-permissions-detailed-permissions-grid__entry_locale .sw-users-permissions-detailed-permissions-grid__role_read input',
+        );
+        expect(localeReadInput.attributes().disabled).toBeUndefined();
+        expect(localeReadInput.element.checked).toBe(true);
+
+        ['currency', 'language'].forEach((entityName) => {
             const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
             const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
 
-            expect(entityReadInput.attributes().disabled).toBeDefined();
-            expect(entityReadInput.element.checked).toBe(true);
+            expect(entityReadInput.attributes().disabled).toBeUndefined();
+            expect(entityReadInput.element.checked).toBe(false);
         });
     });
 

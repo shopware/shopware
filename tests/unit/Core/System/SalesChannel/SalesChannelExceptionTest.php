@@ -17,6 +17,13 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SalesChannelException::class)]
 class SalesChannelExceptionTest extends TestCase
 {
+    public function testMcpToolResultNotFoundMatchesTheAdminApiServer(): void
+    {
+        $e = SalesChannelException::mcpToolResultNotFound('abc');
+
+        static::assertSame('Tool result "abc" not found. It may have expired or been stored by another caller.', $e->uri);
+    }
+
     #[DataProvider('exceptionDataProvider')]
     public function testExceptions(ShopwareHttpException|SalesChannelException $exception, int $statusCode, string $errorCode, string $message): void
     {

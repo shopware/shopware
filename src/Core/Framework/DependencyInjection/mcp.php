@@ -60,6 +60,7 @@ use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultPointerSigner;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTaskHandler;
@@ -82,6 +83,7 @@ use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
 use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\System\SalesChannel\Mcp\Resource\StoreApiToolResultResource;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolSearchTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetEnableTool;
@@ -325,8 +327,11 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpToolResultParser::class);
 
+    $services->set(McpToolResultPointerSigner::class)
+        ->args([param('kernel.secret'), service(ClockInterface::class)]);
+
     $services->set(ToolResultCacheStorage::class)
-        ->args([service(Connection::class), service(ClockInterface::class)]);
+        ->args([service(Connection::class), service(ClockInterface::class), service(McpToolResultPointerSigner::class)]);
 
     $services->set(ToolSearch::class);
 
@@ -542,7 +547,11 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.resource');
 
     $services->set(ToolResultResource::class)
-        ->args([service(ToolResultCacheStorage::class)])
+        ->args([service(ToolResultCacheStorage::class), service('request_stack')])
+        ->tag('mcp.resource_template');
+
+    $services->set(StoreApiToolResultResource::class)
+        ->args([service(ToolResultCacheStorage::class), service('request_stack')])
         ->tag('mcp.resource_template');
 
     // App MCP Tool pipeline

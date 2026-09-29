@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp\Result;
 
+use Mcp\Schema\Content\ResourceLink;
 use Mcp\Schema\Content\TextContent;
 use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\Result\CallToolResult;
@@ -51,7 +52,10 @@ class McpToolResultRenderer
         $texts = $specOnly ? $this->specTexts($result) : [$legacyText ?? $this->legacyEnvelope($result)];
 
         return new CallToolResult(
-            array_map(static fn (string $text): TextContent => new TextContent($text), $texts),
+            [
+                ...array_map(static fn (string $text): TextContent => new TextContent($text), $texts),
+                ...$this->links($result, $protocolVersion),
+            ],
             isError: $result->isError(),
             structuredContent: \strlen($texts[0]) <= self::MAX_STRUCTURED_TEXT_BYTES ? $this->structuredContent($result, $protocolVersion) : null,
             meta: $this->meta($result, $specOnly),
@@ -73,6 +77,25 @@ class McpToolResultRenderer
         }
 
         return Json::encode($envelope);
+    }
+
+    /**
+     * @return list<ResourceLink>
+     */
+    private function links(McpToolResult $result, ProtocolVersion $protocolVersion): array
+    {
+        // `resource_link` content blocks exist since 2025-06-18; older clients read the legacy text.
+        if (!$protocolVersion->isAtLeast(ProtocolVersion::V2025_06_18)) {
+            return [];
+        }
+
+        return array_map(static fn (McpToolResultLink $link): ResourceLink => new ResourceLink(
+            $link->uri,
+            $link->name,
+            description: $link->description,
+            mimeType: $link->mimeType,
+            size: $link->size,
+        ), $result->links);
     }
 
     /**

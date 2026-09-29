@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultPrincipal;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Util\Json;
@@ -84,11 +85,13 @@ abstract class McpToolResponse
 
         if ($this->toolResultCache !== null && $this->requestStack !== null) {
             $request = $this->requestStack->getCurrentRequest();
-            $sessionId = $request?->headers->get('Mcp-Session-Id') ?? '';
+            $principal = $request !== null ? McpToolResultPrincipal::fromRequest($request) : null;
 
-            if ($sessionId !== '' && $request !== null) {
-                $uuid = $this->toolResultCache->store($sessionId, $json);
-                $resourceUri = 'shopware://tool-result/' . $uuid;
+            if ($principal !== null && $request !== null) {
+                // The pointer is signed for the principal, so it works without an MCP session. The
+                // session id is only recorded for the cleanup when a handshake session ends.
+                $pointer = $this->toolResultCache->storeFor($principal, $json, $request->headers->get('Mcp-Session-Id') ?? '');
+                $resourceUri = $pointer->uri();
 
                 $this->mcpLogger?->debug('MCP tool response stored as resource (oversized)', [
                     'tool' => static::class,
@@ -98,6 +101,7 @@ abstract class McpToolResponse
 
                 $oversizedMeta = array_merge($meta, [
                     'resourceUri' => $resourceUri,
+                    'expiresAt' => $pointer->expiresAt->format(\DateTimeInterface::ATOM),
                     'responseSize' => $size,
                     'note' => 'Response too large for inline delivery. '
                         . 'Prefer re-running the tool with tighter "includes" or a lower "limit" to get a smaller inline result. '
@@ -117,7 +121,7 @@ abstract class McpToolResponse
             }
         }
 
-        // Fallback when no active session (e.g. CLI or test context): return inline as-is.
+        // Fallback without an authenticated principal (e.g. CLI or test context): return inline as-is.
         return $json;
     }
 

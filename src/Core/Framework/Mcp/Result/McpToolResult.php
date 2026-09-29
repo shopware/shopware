@@ -21,6 +21,7 @@ final readonly class McpToolResult
      * @param array<string, mixed> $meta well-known metadata (for example `responseSize`, `dryRun`) and extension values under their own prefix
      * @param \DateTimeImmutable|null $generatedAt when the data was produced; the renderer uses the current time when null
      * @param \DateTimeImmutable|null $expiresAt until when the result is valid, when that is known
+     * @param list<McpToolResultLink> $links data the client fetches separately, for example a stored large result
      */
     public function __construct(
         public mixed $data = null,
@@ -29,6 +30,7 @@ final readonly class McpToolResult
         public array $meta = [],
         public ?\DateTimeImmutable $generatedAt = null,
         public ?\DateTimeImmutable $expiresAt = null,
+        public array $links = [],
     ) {
     }
 

@@ -28,10 +28,39 @@ class McpToolResultParser
         $meta = isset($decoded->_meta) && $decoded->_meta instanceof \stdClass ? $this->toArray($decoded->_meta) : [];
 
         if ($decoded->success) {
-            return new McpToolResult(data: $decoded->data ?? null, meta: $meta);
+            return $this->success($decoded->data ?? null, $meta);
         }
 
         return new McpToolResult(error: $this->error($decoded), meta: $meta);
+    }
+
+    /**
+     * @param array<string, mixed> $meta
+     */
+    private function success(mixed $data, array $meta): McpToolResult
+    {
+        // A result too large to return inline: McpToolResponse stored it and put the pointer in `_meta`.
+        $uri = $meta['resourceUri'] ?? null;
+        if (!\is_string($uri) || $uri === '') {
+            return new McpToolResult(data: $data, meta: $meta);
+        }
+
+        $note = \is_string($meta['note'] ?? null) ? $meta['note'] : null;
+        $expiresAt = \is_string($meta['expiresAt'] ?? null) ? \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $meta['expiresAt']) : false;
+
+        return new McpToolResult(
+            data: $data,
+            summary: $note,
+            meta: $meta,
+            expiresAt: $expiresAt ?: null,
+            links: [new McpToolResultLink(
+                $uri,
+                'tool-result',
+                $note,
+                'application/json',
+                \is_int($meta['responseSize'] ?? null) ? $meta['responseSize'] : null,
+            )],
+        );
     }
 
     private function error(\stdClass $envelope): McpToolError

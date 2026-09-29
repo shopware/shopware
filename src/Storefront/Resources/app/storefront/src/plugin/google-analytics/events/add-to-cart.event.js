@@ -33,12 +33,22 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         const formData = event.detail;
         const formElement = event.target;
         let productId = null;
+        let isLineItemForm = false;
 
         formData.forEach((value, key) => {
+            if (key.startsWith('lineItems[')) {
+                isLineItemForm = true;
+            }
+
             if (key.endsWith('[id]')) {
                 productId = value;
             }
         });
+
+        // reorder posts no line items, the route resolves them from the order, so there is nothing to report here
+        if (!isLineItemForm) {
+            return;
+        }
 
         if (!productId) {
             console.warn('[Google Analytics Plugin] Product ID could not be fetched. Skipping.');

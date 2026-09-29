@@ -283,7 +283,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(OrderRoute::class),
             service(CartItemAddRoute::class),
-            service('event_dispatcher'),
+            service(LineItemFactoryRegistry::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartOrderRoute::class)

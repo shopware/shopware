@@ -681,6 +681,8 @@ class AccountOrderControllerTest extends TestCase
         static::assertStringContainsString('/checkout/line-item/order/' . $partlyAvailableOrderId, $content);
         // nothing buyable left, so no form at all
         static::assertStringNotContainsString('/checkout/line-item/order/' . $unavailableOrderId, $content);
+        // the route resolves the products from the order, so nothing is posted any more
+        static::assertStringNotContainsString('lineItems[', $content);
     }
 
     public function testReorderAddsTheOrderProductsToTheCartThroughTheStorefrontRoute(): void

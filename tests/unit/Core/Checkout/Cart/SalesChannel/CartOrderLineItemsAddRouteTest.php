@@ -6,8 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartAddOrderLineItemsExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
+use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderLineItemsAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
@@ -21,13 +24,14 @@ use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -40,21 +44,19 @@ class CartOrderLineItemsAddRouteTest extends TestCase
     {
         static::expectExceptionObject(new DecorationPatternException(CartOrderLineItemsAddRoute::class));
 
-        (new CartOrderLineItemsAddRoute(
+        $this->createRoute(
             static::createStub(AbstractOrderRoute::class),
-            static::createStub(AbstractCartItemAddRoute::class),
-            static::createStub(EventDispatcherInterface::class)
-        ))->getDecorated();
+            static::createStub(AbstractCartItemAddRoute::class)
+        )->getDecorated();
     }
 
     public function testUnknownOrderThrows(): void
     {
         $orderId = Uuid::randomHex();
 
-        $route = new CartOrderLineItemsAddRoute(
+        $route = $this->createRoute(
             $this->createOrderRoute(new OrderCollection()),
-            static::createStub(AbstractCartItemAddRoute::class),
-            new EventDispatcher()
+            static::createStub(AbstractCartItemAddRoute::class)
         );
 
         static::expectExceptionObject(CartException::orderNotFound($orderId));
@@ -66,15 +68,9 @@ class CartOrderLineItemsAddRouteTest extends TestCase
     {
         $orderId = Uuid::randomHex();
 
-        $order = new OrderEntity();
-        $order->setUniqueIdentifier($orderId);
-        $order->setId($orderId);
-        $order->setLineItems(new OrderLineItemCollection());
-
-        $route = new CartOrderLineItemsAddRoute(
-            $this->createOrderRoute(new OrderCollection([$order])),
-            static::createStub(AbstractCartItemAddRoute::class),
-            new EventDispatcher()
+        $route = $this->createRoute(
+            $this->createOrderRoute(new OrderCollection([$this->createOrder($orderId, new OrderLineItemCollection())])),
+            static::createStub(AbstractCartItemAddRoute::class)
         );
 
         static::expectExceptionObject(CartException::lineItemNotFound($orderId));
@@ -82,63 +78,68 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $route->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
     }
 
-    public function testOnlyProductLineItemsAreAddedAndAreStrippedOfTheOriginalId(): void
+    public function testOnlyProductsAreRebuiltFromTheOrder(): void
     {
         $orderId = Uuid::randomHex();
         $productId = Uuid::randomHex();
 
-        $order = new OrderEntity();
-        $order->setUniqueIdentifier($orderId);
-        $order->setId($orderId);
-        $order->setLineItems(new OrderLineItemCollection([
-            $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, 1),
-            $this->createOrderLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 2),
-            $this->createOrderLineItem(LineItem::CREDIT_LINE_ITEM_TYPE, Uuid::randomHex(), 3),
+        $order = $this->createOrder($orderId, new OrderLineItemCollection([
+            $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, 2, 1),
+            $this->createOrderLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1, 2),
+            $this->createOrderLineItem(LineItem::CREDIT_LINE_ITEM_TYPE, Uuid::randomHex(), 1, 3),
         ]));
 
-        $cartItemAddRoute = static::createMock(AbstractCartItemAddRoute::class);
-        $cartItemAddRoute
-            ->expects($this->once())
-            ->method('add')
-            ->with(
-                static::isInstanceOf(Request::class),
-                static::isInstanceOf(Cart::class),
-                static::anything(),
-                static::callback(static function (?array $items): bool {
-                    static::assertIsArray($items);
-                    static::assertCount(1, $items, 'only product line items may be re-added');
+        $items = $this->capture($order, $orderId);
 
-                    $item = $items[0];
-                    static::assertInstanceOf(LineItem::class, $item);
-                    static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
-                    static::assertTrue($item->isStackable());
-                    static::assertFalse(
-                        $item->hasExtension(OrderConverter::ORIGINAL_ID),
-                        'the original order line item id must not leak into the cart'
-                    );
+        static::assertCount(1, $items, 'only product line items may be re-added');
 
-                    return true;
-                })
-            )
-            ->willReturn(new CartResponse(new Cart('token')));
+        $item = $items[0];
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
+        static::assertSame($productId, $item->getId(), 'the cart id must be the product id, as a normal add to cart posts it');
+        static::assertSame($productId, $item->getReferencedId());
+        static::assertSame(2, $item->getQuantity());
+        static::assertTrue($item->isStackable());
+        static::assertTrue($item->isRemovable());
+        static::assertSame([], $item->getPayload(), 'the persisted order payload must not travel into the cart');
+        static::assertCount(0, $item->getChildren(), 'persisted children must not travel into the cart');
+    }
 
-        $route = new CartOrderLineItemsAddRoute(
-            $this->createOrderRoute(new OrderCollection([$order])),
-            $cartItemAddRoute,
-            new EventDispatcher()
-        );
+    public function testQuantitiesOfTheSameProductAreAggregated(): void
+    {
+        $orderId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
 
-        $route->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
+        $order = $this->createOrder($orderId, new OrderLineItemCollection([
+            $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, 2, 1),
+            $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, 3, 2),
+        ]));
+
+        $items = $this->capture($order, $orderId);
+
+        static::assertCount(1, $items);
+        static::assertSame(5, $items[0]->getQuantity());
+    }
+
+    public function testLineItemsWithoutAReferencedIdAreSkipped(): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $deleted = $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1, 1);
+        $deleted->setReferencedId(null);
+
+        $order = $this->createOrder($orderId, new OrderLineItemCollection([
+            $deleted,
+            $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 1, 2),
+        ]));
+
+        static::assertCount(1, $this->capture($order, $orderId));
     }
 
     public function testCriteriaIsScopedToTheOrderAndItsLineItems(): void
     {
         $orderId = Uuid::randomHex();
 
-        $order = new OrderEntity();
-        $order->setUniqueIdentifier($orderId);
-        $order->setId($orderId);
-        $order->setLineItems(new OrderLineItemCollection([
+        $order = $this->createOrder($orderId, new OrderLineItemCollection([
             $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex()),
         ]));
 
@@ -165,12 +166,130 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $cartItemAddRoute = static::createStub(AbstractCartItemAddRoute::class);
         $cartItemAddRoute->method('add')->willReturn(new CartResponse(new Cart('token')));
 
-        $route = new CartOrderLineItemsAddRoute($orderRoute, $cartItemAddRoute, new EventDispatcher());
-
-        $route->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
+        $this->createRoute($orderRoute, $cartItemAddRoute)
+            ->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
     }
 
-    private function createOrderLineItem(string $type, string $productId, int $position = 1): OrderLineItemEntity
+    public function testAListenerCanAppendItsOwnLineItemsOnPost(): void
+    {
+        $orderId = Uuid::randomHex();
+        $own = new LineItem(Uuid::randomHex(), 'my-own-type');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            CheckoutCartAddOrderLineItemsExtension::onPost(),
+            static function (CheckoutCartAddOrderLineItemsExtension $extension) use ($own): void {
+                $extension->result = [...$extension->result, $own];
+            }
+        );
+
+        $order = $this->createOrder($orderId, new OrderLineItemCollection([
+            $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex()),
+        ]));
+
+        $items = $this->capture($order, $orderId, $dispatcher);
+
+        static::assertCount(2, $items);
+        static::assertSame($own, $items[1]);
+    }
+
+    public function testAListenerCanReplaceTheWholeListOnPre(): void
+    {
+        $orderId = Uuid::randomHex();
+        $own = new LineItem(Uuid::randomHex(), 'my-own-type');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            CheckoutCartAddOrderLineItemsExtension::onPre(),
+            static function (CheckoutCartAddOrderLineItemsExtension $extension) use ($own): void {
+                $extension->result = [$own];
+                $extension->stopPropagation();
+            }
+        );
+
+        $order = $this->createOrder($orderId, new OrderLineItemCollection([
+            $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex()),
+        ]));
+
+        static::assertSame([$own], $this->capture($order, $orderId, $dispatcher));
+    }
+
+    public function testStoppingWithoutAResultAddsNothingInsteadOfReadingTheRequest(): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            CheckoutCartAddOrderLineItemsExtension::onPre(),
+            static fn (CheckoutCartAddOrderLineItemsExtension $extension) => $extension->stopPropagation()
+        );
+
+        $order = $this->createOrder($orderId, new OrderLineItemCollection([
+            $this->createOrderLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex()),
+        ]));
+
+        static::assertSame([], $this->capture($order, $orderId, $dispatcher));
+    }
+
+    /**
+     * @return list<LineItem>
+     */
+    private function capture(OrderEntity $order, string $orderId, ?EventDispatcher $dispatcher = null): array
+    {
+        $captured = null;
+
+        $cartItemAddRoute = static::createMock(AbstractCartItemAddRoute::class);
+        $cartItemAddRoute
+            ->expects($this->once())
+            ->method('add')
+            ->with(
+                static::isInstanceOf(Request::class),
+                static::isInstanceOf(Cart::class),
+                static::anything(),
+                static::callback(static function (?array $items) use (&$captured): bool {
+                    $captured = $items;
+
+                    return true;
+                })
+            )
+            ->willReturn(new CartResponse(new Cart('token')));
+
+        $this->createRoute($this->createOrderRoute(new OrderCollection([$order])), $cartItemAddRoute, $dispatcher)
+            ->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
+
+        static::assertIsArray($captured, 'the add route must never be handed null');
+
+        return array_values($captured);
+    }
+
+    private function createRoute(
+        AbstractOrderRoute $orderRoute,
+        AbstractCartItemAddRoute $cartItemAddRoute,
+        ?EventDispatcher $dispatcher = null
+    ): CartOrderLineItemsAddRoute {
+        return new CartOrderLineItemsAddRoute(
+            $orderRoute,
+            $cartItemAddRoute,
+            new LineItemFactoryRegistry(
+                [new ProductLineItemFactory(new PriceDefinitionFactory())],
+                static::createStub(DataValidator::class),
+                new EventDispatcher()
+            ),
+            new ExtensionDispatcher($dispatcher ?? new EventDispatcher())
+        );
+    }
+
+    private function createOrder(string $orderId, OrderLineItemCollection $lineItems): OrderEntity
+    {
+        $order = new OrderEntity();
+        $order->setUniqueIdentifier($orderId);
+        $order->setId($orderId);
+        $order->setLineItems($lineItems);
+
+        return $order;
+    }
+
+    private function createOrderLineItem(string $type, string $productId, int $quantity = 2, int $position = 1): OrderLineItemEntity
     {
         $lineItem = new OrderLineItemEntity();
         $id = Uuid::randomHex();
@@ -181,10 +300,11 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $lineItem->setProductId($productId);
         $lineItem->setType($type);
         $lineItem->setLabel('line item');
-        $lineItem->setQuantity(2);
+        $lineItem->setQuantity($quantity);
         $lineItem->setGood(true);
         $lineItem->setRemovable(true);
         $lineItem->setStackable(false);
+        $lineItem->setPayload(['bundleId' => Uuid::randomHex()]);
         $lineItem->setPosition($position);
 
         return $lineItem;

@@ -34,6 +34,12 @@ Description {{ lineItem.label|u.wordwrap(80) }},
 {{ referencePriceFeature.value.purchaseUnit }} {{ referencePriceFeature.value.unitName }}({{ referencePriceFeature.value.price|currency(currencyIsoCode) }} per {{ referencePriceFeature.value.referenceUnit }} {{ referencePriceFeature.value.unitName }}),
 {% endif %}
 {% endif %}
+{% if lineItem.productId is defined and lineItem.productId %}
+{% set garanLabel = lineItem.productId|sw_garan_label_mail(context) %}
+{% if garanLabel %}
+Commercial guarantee of durability (GARAN) {{ garanLabel.duration|replace({',': '.'}) }} years,
+{% endif %}
+{% endif %}
 Quantity {{ lineItem.quantity }},
 Price {{ lineItem.unitPrice|currency(currencyIsoCode) }},
 Total {{ lineItem.totalPrice|currency(currencyIsoCode) }},

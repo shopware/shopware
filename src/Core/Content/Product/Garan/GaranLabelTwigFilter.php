@@ -23,6 +23,7 @@ class GaranLabelTwigFilter extends AbstractExtension
         private readonly GaranLabelDurationFormatter $durationFormatter,
         private readonly EntityRepository $productRepository,
         private readonly GaranLabelResolver $resolver,
+        private readonly GaranLabelInlineImage $inlineImage,
     ) {
     }
 
@@ -39,6 +40,7 @@ class GaranLabelTwigFilter extends AbstractExtension
             new TwigFilter('sw_garan_label_nested_uri', $this->renderNestedAsDataUri(...)),
             new TwigFilter('sw_garan_label_text_length', $this->fitTextLength(...)),
             new TwigFilter('sw_garan_label_duration_text_length', $this->fitDurationTextLength(...)),
+            new TwigFilter('sw_garan_label_mail', $this->resolveMailLabel(...)),
         ];
     }
 
@@ -107,6 +109,34 @@ class GaranLabelTwigFilter extends AbstractExtension
         }
 
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    }
+
+    /**
+     * Returns the reference of the inline label image and the formatted duration for mail templates.
+     * `cid` is null for durations without an image, so the template can fall back to the duration text.
+     *
+     * @return array{cid: string|null, duration: string}|null
+     */
+    public function resolveMailLabel(?string $productId, Context $context): ?array
+    {
+        $product = $this->loadProduct($productId, $context);
+
+        if ($product === null) {
+            return null;
+        }
+
+        $duration = $this->resolver->resolveDuration($product);
+
+        if ($duration === null) {
+            return null;
+        }
+
+        $name = $this->inlineImage->getName((int) $product->getGuaranteeMonths());
+
+        return [
+            'cid' => $name !== null ? 'cid:' . $name : null,
+            'duration' => $duration,
+        ];
     }
 
     private function loadProduct(?string $productId, Context $context): ?ProductEntity

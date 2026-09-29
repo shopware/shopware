@@ -217,4 +217,60 @@ describe('plugin/google-analytics/product-page.helper', () => {
             expect(ProductPageHelper.getProductCardData('product-123')).toEqual({});
         });
     });
+
+    describe('resolveCategories', () => {
+        const breadcrumb = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Listing</span>
+            </nav>
+        `;
+
+        beforeEach(() => {
+            window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = breadcrumb;
+        });
+
+        afterEach(() => {
+            delete window.router;
+            delete window.activeRoute;
+            delete global.fetch;
+        });
+
+        test('requests the path of the product instead of using the breadcrumb of a listing', async () => {
+            global.fetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(['Damen', 'Schuhe']) });
+
+            await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({
+                item_category: 'Damen',
+                item_category2: 'Schuhe',
+            });
+            expect(global.fetch).toHaveBeenCalledWith(
+                '/widgets/analytics/product-categories?productId=product-123',
+                expect.objectContaining({ headers: { 'X-Requested-With': 'XMLHttpRequest' } }),
+            );
+        });
+
+        test('reports no category for a product without one, rather than the listing', async () => {
+            global.fetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) });
+
+            await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({});
+        });
+
+        test('uses the breadcrumb on the product detail page without a request', async () => {
+            window.activeRoute = 'frontend.detail.page';
+            global.fetch = jest.fn();
+
+            await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({ item_category: 'Listing' });
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        test.each([
+            ['the request fails', () => Promise.reject(new Error('offline'))],
+            ['the response is an error', () => Promise.resolve({ ok: false })],
+        ])('falls back to the breadcrumb when %s', async (label, response) => {
+            global.fetch = jest.fn(response);
+
+            await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({ item_category: 'Listing' });
+        });
+    });
 });

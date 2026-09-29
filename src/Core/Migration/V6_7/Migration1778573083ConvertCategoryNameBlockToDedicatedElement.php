@@ -28,7 +28,7 @@ class Migration1778573083ConvertCategoryNameBlockToDedicatedElement extends Migr
             ['name' => 'Category name', 'type' => 'text']
         );
 
-        if (\count($blocks) === 0) {
+        if ($blocks === []) {
             return;
         }
 

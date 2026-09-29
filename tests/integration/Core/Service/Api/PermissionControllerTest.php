@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Service\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Service\Permission\PermissionsConsent;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class PermissionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

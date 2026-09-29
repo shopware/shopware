@@ -10,7 +10,7 @@ use Shopware\Core\System\Snippet\Command\UpdateTranslationCommand;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -22,12 +22,12 @@ class UpdateTranslationCommandTest extends TestCase
 {
     private TranslationLoader&MockObject $translationLoader;
 
-    private TranslationMetadataLoader&MockObject $metadataLoader;
+    private TranslationMetadataStore&MockObject $metadataStore;
 
     protected function setUp(): void
     {
         $this->translationLoader = $this->createMock(TranslationLoader::class);
-        $this->metadataLoader = $this->createMock(TranslationMetadataLoader::class);
+        $this->metadataStore = $this->createMock(TranslationMetadataStore::class);
     }
 
     public function testExecuteUpdatesAllInstalledTranslations(): void
@@ -61,7 +61,7 @@ class UpdateTranslationCommandTest extends TestCase
                 static::assertTrue(\in_array($locale, $expectedLocales, true));
             });
 
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('save')
             ->with($metadataCollection);
 
@@ -69,8 +69,8 @@ class UpdateTranslationCommandTest extends TestCase
         $tester->assertCommandIsSuccessful();
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('1/2 -- Fetching translations for locale: pl-PL', $output);
-        static::assertStringContainsString('2/2 -- Fetching translations for locale: es-ES', $output);
+        static::assertStringContainsString('1/2 -- Updating translations for locale: pl-PL', $output);
+        static::assertStringContainsString('2/2 -- Updating translations for locale: es-ES', $output);
         static::assertStringContainsString('Saving translation metadata...', $output);
         static::assertStringContainsString('Translation metadata saved successfully.', $output);
     }
@@ -99,7 +99,7 @@ class UpdateTranslationCommandTest extends TestCase
         $this->translationLoader->expects($this->never())
             ->method('load');
 
-        $this->metadataLoader->expects($this->never())
+        $this->metadataStore->expects($this->never())
             ->method('save');
 
         $tester->execute([]);
@@ -141,7 +141,7 @@ class UpdateTranslationCommandTest extends TestCase
             ->method('load')
             ->with('pl-PL');
 
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('save')
             ->with($metadataCollection);
 
@@ -150,19 +150,19 @@ class UpdateTranslationCommandTest extends TestCase
 
         $output = $tester->getDisplay();
         static::assertStringContainsString('The following locales are already up to date and will be skipped: es-ES, fr-FR', $output);
-        static::assertStringContainsString('1/1 -- Fetching translations for locale: pl-PL', $output);
+        static::assertStringContainsString('1/1 -- Updating translations for locale: pl-PL', $output);
         static::assertStringContainsString('Saving translation metadata...', $output);
         static::assertStringContainsString('Translation metadata saved successfully.', $output);
     }
 
     private function getCommand(): UpdateTranslationCommand
     {
-        return new UpdateTranslationCommand($this->translationLoader, $this->metadataLoader);
+        return new UpdateTranslationCommand($this->translationLoader, $this->metadataStore);
     }
 
     private function initMetadataLoader(MetadataCollection $collection): void
     {
-        $this->metadataLoader->expects($this->once())
+        $this->metadataStore->expects($this->once())
             ->method('getUpdatedLocalMetadata')
             ->willReturn($collection);
     }

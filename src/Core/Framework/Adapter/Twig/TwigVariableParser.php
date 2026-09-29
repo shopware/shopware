@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -14,10 +15,8 @@ use Twig\Node\ForNode;
 use Twig\Node\Node;
 use Twig\Node\SetNode;
 
-/**
- * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class TwigVariableParser
 {
     /**
@@ -71,7 +70,7 @@ class TwigVariableParser
 
             if ($node instanceof ConstantExpression && $nodes instanceof GetAttrExpression) {
                 $value = $node->getAttribute('value');
-                if (!empty($value) && \is_string($value)) {
+                if (\is_string($value) && $value !== '') {
                     $variables[$value] = $value;
                 }
 

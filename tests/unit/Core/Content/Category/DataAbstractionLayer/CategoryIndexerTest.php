@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -36,23 +36,23 @@ class CategoryIndexerTest extends TestCase
     private CategoryIndexer $indexer;
 
     /**
-     * @var Connection&MockObject
+     * @var Connection&Stub
      */
     private Connection $connectionMock;
 
     protected function setUp(): void
     {
-        $this->connectionMock = $this->createMock(Connection::class);
+        $this->connectionMock = static::createStub(Connection::class);
 
         $this->indexer = new CategoryIndexer(
             $this->connectionMock,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ChildCountUpdater::class),
-            $this->createMock(TreeUpdater::class),
-            $this->createMock(CategoryBreadcrumbUpdater::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(MessageBusInterface::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ChildCountUpdater::class),
+            static::createStub(TreeUpdater::class),
+            static::createStub(CategoryBreadcrumbUpdater::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(MessageBusInterface::class),
         );
     }
 
@@ -80,7 +80,7 @@ class CategoryIndexerTest extends TestCase
         }
 
         static::assertNotNull($message);
-        static::assertEqualsCanonicalizing($expectedSkips, $message->getSkip());
+        static::assertEqualsCanonicalizing(array_values($expectedSkips), array_values($message->getSkip()));
     }
 
     /**
@@ -129,6 +129,44 @@ class CategoryIndexerTest extends TestCase
             'categoryOperation' => EntityWriteResult::OPERATION_DELETE,
             'expectedSkips' => [],
         ];
+    }
+
+    public function testParentIsNotHandedToTheRecursiveTreeUpdater(): void
+    {
+        $treeUpdateIds = [];
+        $treeUpdater = static::createStub(TreeUpdater::class);
+        $treeUpdater->method('batchUpdate')->willReturnCallback(
+            function (array $ids) use (&$treeUpdateIds): void {
+                $treeUpdateIds = array_merge($treeUpdateIds, $ids);
+            }
+        );
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([]);
+        $connection->method('getTransactionNestingLevel')->willReturn(0);
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure($connection));
+
+        $indexer = new CategoryIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ChildCountUpdater::class),
+            $treeUpdater,
+            static::createStub(CategoryBreadcrumbUpdater::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(MessageBusInterface::class),
+        );
+
+        $parentId = 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4';
+        $event = $this->createCategoryWrittenEvent(['parentId' => $parentId], EntityWriteResult::OPERATION_INSERT);
+
+        $message = $indexer->update($event);
+        static::assertNotNull($message);
+        $indexer->handle($message);
+
+        // The parent is required only for child-count recomputation; handing it to
+        // the recursive tree updater would walk its entire subtree of siblings.
+        static::assertNotContains($parentId, $treeUpdateIds, 'Parent id leaked into the tree updater.');
     }
 
     /**

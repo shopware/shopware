@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Demodata\Command\DemodataCommand;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DemodataCompilerPass::class)]
 class DemodataCompilerPassTest extends TestCase
 {

@@ -11,8 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(ShopIdChangeStrategyNotFoundException::class)]
 #[Package('framework')]
+#[CoversClass(ShopIdChangeStrategyNotFoundException::class)]
 class ShopIdChangeStrategyNotFoundExceptionTest extends TestCase
 {
     public function testException(): void

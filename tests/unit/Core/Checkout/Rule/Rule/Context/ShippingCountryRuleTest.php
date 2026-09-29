@@ -39,7 +39,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -59,7 +59,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-1');
@@ -79,7 +79,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
@@ -99,7 +99,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
@@ -126,7 +126,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
@@ -148,7 +148,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
@@ -176,7 +176,7 @@ class ShippingCountryRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId('SWAG-AREA-COUNTRY-ID-2');
@@ -284,7 +284,7 @@ class ShippingCountryRuleTest extends TestCase
     public function testRuleMatching(string $operator, bool $isMatching, string $countryId): void
     {
         $countryIds = ['kyln123', 'kyln456'];
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $country = new CountryEntity();
         $country->setId($countryId);

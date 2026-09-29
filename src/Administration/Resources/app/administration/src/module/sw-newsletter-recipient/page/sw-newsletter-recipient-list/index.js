@@ -16,14 +16,13 @@ const {
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
+
+    shortcuts: {
+        OF: 'openFilterSidebar',
+    },
 
     data() {
         return {
@@ -32,7 +31,7 @@ export default {
             total: 0,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            filterSidebarIsOpen: false,
+            filterSidebarItem: null,
             languageFilters: [],
             languageFilterValue: [],
             salesChannelFilters: [],
@@ -114,11 +113,7 @@ export default {
 
             const criteria = new Criteria(1, 100);
             try {
-                const [
-                    languages,
-                    salesChannels,
-                    tags,
-                ] = await Promise.all([
+                const [languages, salesChannels, tags] = await Promise.all([
                     this.repositoryFactory.create('language').search(criteria, Shopware.Context.api),
                     this.salesChannelRepository.search(criteria),
                     this.tagRepository.search(criteria),
@@ -216,16 +211,16 @@ export default {
             await this.getList();
         },
 
-        closeContent() {
-            if (this.filterSidebarIsOpen) {
-                this.$refs.filterSideBar.closeContent();
-                this.filterSidebarIsOpen = false;
+        registerFilterSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+        },
 
+        openFilterSidebar() {
+            if (!this.filterSidebarItem?.openContent) {
                 return;
             }
 
-            this.$refs.filterSideBar.openContent();
-            this.filterSidebarIsOpen = true;
+            this.filterSidebarItem.openContent();
         },
 
         getColumns() {

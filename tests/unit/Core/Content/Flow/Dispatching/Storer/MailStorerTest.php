@@ -37,7 +37,7 @@ class MailStorerTest extends TestCase
 
     public function testStoreWithAware(): void
     {
-        $event = $this->createMock(OrderStateMachineStateChangeEvent::class);
+        $event = static::createStub(OrderStateMachineStateChangeEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayHasKey(MailAware::MAIL_STRUCT, $stored);
@@ -46,7 +46,7 @@ class MailStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(TestFlowBusinessEvent::class);
+        $event = static::createStub(TestFlowBusinessEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(MailAware::MAIL_STRUCT, $stored);

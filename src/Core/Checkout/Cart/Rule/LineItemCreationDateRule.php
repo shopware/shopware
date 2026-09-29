@@ -73,7 +73,7 @@ class LineItemCreationDateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_DATE)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, false, true)
             ->dateTimeField('lineItemCreationDate');
     }
 
@@ -84,6 +84,10 @@ class LineItemCreationDateRule extends Rule
      */
     private function matchesCreationDate(LineItem $lineItem, string|array $ruleValue): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         /** @var string|null $itemCreatedString */
         $itemCreatedString = $lineItem->getPayloadValue('createdAt');
 

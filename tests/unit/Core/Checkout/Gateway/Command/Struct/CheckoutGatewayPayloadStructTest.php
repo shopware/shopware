@@ -14,8 +14,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayPayloadStruct::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayPayloadStruct::class)]
 class CheckoutGatewayPayloadStructTest extends TestCase
 {
     public function testConstruct(): void

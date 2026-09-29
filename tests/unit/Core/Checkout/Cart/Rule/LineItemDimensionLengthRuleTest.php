@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -28,8 +28,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('rules')]
 class LineItemDimensionLengthRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemDimensionLengthRule $rule;
 
     protected function setUp(): void
@@ -65,12 +63,12 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
         $lineItem = $this->createLineItemWithLength($lineItemAmount);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = $this->createLineItem();
+            $lineItem = CartRuleFixture::createLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -130,12 +128,12 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithLength($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = CartRuleFixture::createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithLength($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = CartRuleFixture::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -143,11 +141,11 @@ class LineItemDimensionLengthRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -171,12 +169,12 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithLength($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = CartRuleFixture::createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithLength($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = CartRuleFixture::createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -184,16 +182,16 @@ class LineItemDimensionLengthRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        $containerLineItem = $this->createLineItem();
+        $containerLineItem = CartRuleFixture::createLineItem();
         if ($containerLineItemAmount !== null) {
             $containerLineItem = $this->createLineItemWithLength($containerLineItemAmount);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -441,7 +439,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
     public function testMatchWithUnsupportedScopeShouldReturnFalse(): void
     {
-        $scope = new TestRuleScope($this->createMock(SalesChannelContext::class));
+        $scope = new TestRuleScope(static::createStub(SalesChannelContext::class));
 
         $lineItemDimensionLengthRule = new LineItemDimensionLengthRule();
 
@@ -471,8 +469,34 @@ class LineItemDimensionLengthRuleTest extends TestCase
         static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
     }
 
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemDimensionLengthRule(Rule::OPERATOR_NEQ, 5.0);
+
+        $lineItem = CartRuleFixture::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+    }
+
     private function createLineItemWithLength(?float $length): LineItem
     {
-        return $this->createLineItemWithDeliveryInfo(false, 1, 50.0, null, null, $length);
+        return CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, null, null, $length);
     }
 }

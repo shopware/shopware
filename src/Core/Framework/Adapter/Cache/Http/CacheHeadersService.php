@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtens
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -39,12 +40,7 @@ class CacheHeadersService
         $response->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageId());
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
 
-        $newVaryArray = array_merge($response->getVary(), [
-            PlatformRequest::HEADER_ACCESS_KEY,
-            PlatformRequest::HEADER_LANGUAGE_ID,
-            PlatformRequest::HEADER_CURRENCY_ID,
-            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
-        ]);
+        $newVaryArray = array_merge($response->getVary(), HttpCacheVariantHeaders::HEADERS);
         $newVaryArray = array_unique(array_map(static fn (string $v) => \trim($v), $newVaryArray));
 
         $response->setVary($newVaryArray);
@@ -99,10 +95,15 @@ class CacheHeadersService
             HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
-            HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
             HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ];
+
+        // Storefront language is already encoded in the resolved domain URL, while Store API
+        // can serve different languages for the same URL through the sw-language-id header.
+        if ($this->isStoreApi($request)) {
+            $parts[HttpCacheCookieEvent::LANGUAGE_ID] = $context->getLanguageId();
+        }
 
         foreach ($this->cookies as $cookie) {
             if ($request->cookies->has($cookie)) {
@@ -133,6 +134,37 @@ class CacheHeadersService
             return true;
         }
 
+        // Visitor can patch context with values that change the response for the cacheable routes
+        // (tax state, country, payment method, shipping method conditioned rules)
+        if ($salesChannelContext->getShippingLocation()->getCountry()->getId()
+            !== $salesChannelContext->getSalesChannel()->getCountryId()
+        ) {
+            return true;
+        }
+
+        if ($salesChannelContext->getPaymentMethod()->getId()
+            !== $salesChannelContext->getSalesChannel()->getPaymentMethodId()
+        ) {
+            return true;
+        }
+
+        if ($salesChannelContext->getShippingMethod()->getId()
+            !== $salesChannelContext->getSalesChannel()->getShippingMethodId()
+        ) {
+            return true;
+        }
+
+        // Storefront language is already encoded in the resolved domain URL, while Store API can serve different
+        // languages for the same URL through a language persisted via the context switch route or
+        // dynamically defined in the sw-language-id header. The header language override is part of the cache key/vary header,
+        // so only persisted context language should influence the hash.
+        if ($this->isStoreApi($request)
+            && $salesChannelContext->getLanguageId() !== $salesChannelContext->getSalesChannel()->getLanguageId()
+            && $salesChannelContext->getLanguageId() !== (string) $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '')
+        ) {
+            return true;
+        }
+
         // check if cache relevant cookies are set
         foreach ($this->cookies as $cookie) {
             if ($request->cookies->has($cookie)) {
@@ -141,5 +173,14 @@ class CacheHeadersService
         }
 
         return false;
+    }
+
+    private function isStoreApi(Request $request): bool
+    {
+        return \in_array(
+            StoreApiRouteScope::ID,
+            $request->attributes->all(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE),
+            true
+        );
     }
 }

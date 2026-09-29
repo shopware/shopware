@@ -5,11 +5,13 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -23,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[Group('store-api')]
 class ProductDetailRouteTest extends TestCase
 {
@@ -387,7 +390,11 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
 
-        $expected = (string) file_get_contents(__DIR__ . '/_fixtures/recursion_encoding_with_layout_result.json');
+        $expected = str_replace(
+            '__stream-1__',
+            $this->ids->get('stream-1'),
+            (string) file_get_contents(__DIR__ . '/_fixtures/recursion_encoding_with_layout_result.json')
+        );
 
         $expected = json_decode($expected, true, 512, \JSON_THROW_ON_ERROR);
 
@@ -502,6 +509,7 @@ class ProductDetailRouteTest extends TestCase
             'productNumber' => 'translated-parent-product',
             'stock' => 10,
             'active' => true,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
@@ -547,6 +555,7 @@ class ProductDetailRouteTest extends TestCase
                 'productNumber' => 'translated-variant-product',
                 'stock' => 10,
                 'active' => true,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'options' => [],
                 'price' => [
                     ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],

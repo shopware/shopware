@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -31,6 +32,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class CmsSlotsDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -72,10 +74,7 @@ class CmsSlotsDataResolverTest extends TestCase
         $slots = new CmsSlotCollection();
         $slots->add($slot);
 
-        $resolver = $this->getContainer()->get(CmsSlotsDataResolver::class);
-        $result = $resolver->resolve($slots, $resolverContext);
-
-        $productSliderData = $result->first()?->getData() ?? null;
+        $productSliderData = $this->getContainer()->get(CmsSlotsDataResolver::class)->resolve($slots, $resolverContext)->first()?->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $productSliderData);
 
         $product = $productSliderData->getProducts()?->get($this->ids->get('product-1'));

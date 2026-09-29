@@ -37,7 +37,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
     {
         $rule = new CartTotalPurchasePriceRule();
 
-        static::assertFalse($rule->match($this->createMock(RuleScope::class)));
+        static::assertFalse($rule->match(static::createStub(RuleScope::class)));
     }
 
     /**
@@ -49,7 +49,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
         $cart = new Cart('test-token');
         $cart->setLineItems(new LineItemCollection(array_map(fn (float $price): LineItem => $this->createLineItem($price), $prices)));
 
-        $ruleScope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $ruleScope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         $rule = new CartTotalPurchasePriceRule();
         $rule->assign([
@@ -153,7 +153,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
             new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex()),
         ]));
 
-        $ruleScope = new CartRuleScope($cart, static::createMock(SalesChannelContext::class));
+        $ruleScope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         $rule = new CartTotalPurchasePriceRule();
         $rule->assign([

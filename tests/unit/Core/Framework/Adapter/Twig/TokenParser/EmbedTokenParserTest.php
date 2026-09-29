@@ -38,7 +38,7 @@ class EmbedTokenParserTest extends TestCase
     {
         static::assertSame(
             'sw_embed',
-            (new EmbedTokenParser($this->createMock(TemplateFinder::class)))->getTag(),
+            (new EmbedTokenParser(static::createStub(TemplateFinder::class)))->getTag(),
         );
     }
 

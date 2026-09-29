@@ -3,10 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
@@ -31,12 +34,9 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->never())->method('delete');
 
-        $middleware = new ShopSecretInvalidMiddleware(
-            $connection,
-            $systemConfigService
-        );
+        $middleware = new ShopSecretInvalidMiddleware($connection, $systemConfigService);
 
-        $handledResponse = $middleware($response, $request);
+        $handledResponse = $this->invoke($middleware, $response, $request);
 
         static::assertSame($response, $handledResponse);
     }
@@ -52,12 +52,9 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->never())->method('delete');
 
-        $middleware = new ShopSecretInvalidMiddleware(
-            $connection,
-            $systemConfigService
-        );
+        $middleware = new ShopSecretInvalidMiddleware($connection, $systemConfigService);
 
-        $handledResponse = $middleware($response, $request);
+        $handledResponse = $this->invoke($middleware, $response, $request);
 
         static::assertSame($response, $handledResponse);
         static::assertSame('{"payload":"data"}', (string) $handledResponse->getBody());
@@ -69,20 +66,26 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $request = new Request('GET', '/');
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('executeStatement');
+        $connection->expects($this->once())->method('executeStatement');
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->once())
             ->method('delete')
             ->with(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET);
 
-        $middleware = new ShopSecretInvalidMiddleware(
-            $connection,
-            $systemConfigService
-        );
+        $middleware = new ShopSecretInvalidMiddleware($connection, $systemConfigService);
 
         $this->expectExceptionObject(StoreException::shopSecretInvalid());
-        $middleware($response, $request);
+        $this->invoke($middleware, $response, $request);
+    }
+
+    private function invoke(ShopSecretInvalidMiddleware $middleware, Response $response, Request $request): mixed
+    {
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
+
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
+
+        return $promise->wait();
     }
 }

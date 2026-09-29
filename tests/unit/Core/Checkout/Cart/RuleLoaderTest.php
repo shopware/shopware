@@ -20,14 +20,13 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 /**
  * @internal
  */
-#[CoversClass(RuleLoader::class)]
 #[Package('checkout')]
+#[CoversClass(RuleLoader::class)]
 class RuleLoaderTest extends TestCase
 {
     public function testDecorated(): void
     {
         $this->expectExceptionObject(new DecorationPatternException(RuleLoader::class));
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([], new RuleDefinition());
         $ruleLoader = new RuleLoader($ruleRepository);
         $ruleLoader->getDecorated();
@@ -35,7 +34,6 @@ class RuleLoaderTest extends TestCase
 
     public function testLoad(): void
     {
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository(
             [
                 function (Criteria $criteria): RuleCollection {
@@ -61,7 +59,6 @@ class RuleLoaderTest extends TestCase
 
     public function testLoadWithoutSecondResult(): void
     {
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository(
             [
                 function (Criteria $criteria): RuleCollection {

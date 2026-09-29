@@ -10,9 +10,12 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -31,7 +34,7 @@ class PromotionProcessorTest extends TestCase
     public function testProcess(): void
     {
         $promotionCalculatorMock = $this->createMock(PromotionCalculator::class);
-        $groupBuilderMock = $this->createMock(LineItemGroupBuilder::class);
+        $groupBuilderMock = static::createStub(LineItemGroupBuilder::class);
 
         $promotionProcessor = new PromotionProcessor($promotionCalculatorMock, $groupBuilderMock);
 
@@ -41,7 +44,7 @@ class PromotionProcessorTest extends TestCase
         $toCalculateCart = new Cart('test');
         $toCalculateCart->setPrice(new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $behavior = new CartBehavior();
 
         $data = new CartDataCollection();
@@ -66,10 +69,75 @@ class PromotionProcessorTest extends TestCase
         $promotionProcessor->process($data, $originalCart, $toCalculateCart, $context, $behavior);
     }
 
+    public function testPinnedRestoredSetPromotionKeepsHistoricalPrice(): void
+    {
+        $promotionCalculator = $this->createMock(PromotionCalculator::class);
+        $promotionProcessor = new PromotionProcessor($promotionCalculator, static::createStub(LineItemGroupBuilder::class));
+
+        $promotion = $this->createRestoredSetPromotion();
+
+        $original = new Cart('original');
+        $original->add($promotion);
+
+        $calculated = new Cart('calculated');
+        $calculated->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
+
+        $data = new CartDataCollection();
+        $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection([$promotion]));
+
+        $promotionCalculator->expects($this->once())
+            ->method('calculate')
+            ->willReturnCallback(static function (LineItemCollection $items, Cart $original, Cart $calculated): void {
+                static::assertTrue($items->has('promotion'));
+                static::assertSame($original->get('promotion'), $calculated->get('promotion'));
+            });
+
+        $promotionProcessor->process(
+            $data,
+            $original,
+            $calculated,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior([CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS => true]),
+        );
+
+        static::assertSame(-10.0, $calculated->get('promotion')?->getPrice()?->getTotalPrice());
+    }
+
+    public function testUnpinnedRestoredSetPromotionIsRecalculated(): void
+    {
+        $promotionCalculator = $this->createMock(PromotionCalculator::class);
+        $promotionProcessor = new PromotionProcessor($promotionCalculator, static::createStub(LineItemGroupBuilder::class));
+        $promotion = $this->createRestoredSetPromotion();
+
+        $original = new Cart('original');
+        $original->add($promotion);
+
+        $calculated = new Cart('calculated');
+        $calculated->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
+
+        $data = new CartDataCollection();
+        $data->set(PromotionProcessor::DATA_KEY, new LineItemCollection([$promotion]));
+
+        $promotionCalculator->expects($this->once())
+            ->method('calculate')
+            ->willReturnCallback(static function (LineItemCollection $items, Cart $original, Cart $calculated): void {
+                static::assertTrue($items->has('promotion'));
+                static::assertNull($calculated->get('promotion'));
+            });
+
+        $promotionProcessor->process(
+            $data,
+            $original,
+            $calculated,
+            static::createStub(SalesChannelContext::class),
+            new CartBehavior(),
+        );
+    }
+
     public function testProcessWithCartZeroPriceAndPromotionIsGlobal(): void
     {
         $promotionCalculatorMock = $this->createMock(PromotionCalculator::class);
-        $groupBuilderMock = $this->createMock(LineItemGroupBuilder::class);
+        $groupBuilderMock = static::createStub(LineItemGroupBuilder::class);
 
         $promotionProcessor = new PromotionProcessor($promotionCalculatorMock, $groupBuilderMock);
 
@@ -79,7 +147,7 @@ class PromotionProcessorTest extends TestCase
         $toCalculateCart = new Cart('test');
         $toCalculateCart->setPrice(new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $behavior = new CartBehavior();
 
         $data = new CartDataCollection();
@@ -99,7 +167,7 @@ class PromotionProcessorTest extends TestCase
     public function testProcessWithCartZeroPriceAndPromotionIsNotGlobal(): void
     {
         $promotionCalculatorMock = $this->createMock(PromotionCalculator::class);
-        $groupBuilderMock = $this->createMock(LineItemGroupBuilder::class);
+        $groupBuilderMock = static::createStub(LineItemGroupBuilder::class);
 
         $promotionProcessor = new PromotionProcessor($promotionCalculatorMock, $groupBuilderMock);
 
@@ -109,7 +177,7 @@ class PromotionProcessorTest extends TestCase
         $toCalculateCart = new Cart('test');
         $toCalculateCart->setPrice(new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $behavior = new CartBehavior();
 
         $data = new CartDataCollection();
@@ -125,5 +193,15 @@ class PromotionProcessorTest extends TestCase
 
         static::assertCount(1, $toCalculateCart->getErrors());
         static::assertInstanceOf(PromotionsOnCartPriceZeroError::class, $toCalculateCart->getErrors()->first());
+    }
+
+    private function createRestoredSetPromotion(): LineItem
+    {
+        return (new LineItem('promotion', PromotionProcessor::LINE_ITEM_TYPE))
+            ->setPayload([
+                'discountScope' => PromotionDiscountEntity::SCOPE_SET,
+                'setGroups' => [['rules' => [['id' => Uuid::randomHex()]]]],
+            ])
+            ->setPrice(new CalculatedPrice(-10, -10, new CalculatedTaxCollection(), new TaxRuleCollection()));
     }
 }

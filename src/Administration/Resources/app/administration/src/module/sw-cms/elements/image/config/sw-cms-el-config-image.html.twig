@@ -79,7 +79,7 @@
                 :help-text="$t('sw-cms.elements.general.config.helpText.displayMode')"
                 :options="displayModeOptions"
                 :disabled="isInherited"
-                @update:model-value="emitUpdate"
+                @update:model-value="onChangeDisplayMode"
             />
         </template>
     </sw-cms-inherit-wrapper>
@@ -91,13 +91,14 @@
             field="minHeight"
             :element="element"
             :label="$t('sw-cms.elements.image.config.label.minHeight')"
-            @update:value="onChangeMinHeight"
         >
             <template #default="{ isInherited }">
                 <mt-text-field
                     v-model:model-value="element.config.minHeight.value"
                     :placeholder="$t('sw-cms.elements.image.config.placeholder.enterMinHeight')"
+                    :help-text="$t('sw-cms.elements.image.config.helpText.minHeight')"
                     :disabled="isInherited"
+                    @change="onChangeMinHeight"
                 />
             </template>
         </sw-cms-inherit-wrapper>

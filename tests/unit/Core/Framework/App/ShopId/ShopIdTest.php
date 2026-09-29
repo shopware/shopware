@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-import-type ShopIdV1Config from ShopId
  * @phpstan-import-type ShopIdV2Config from ShopId
  */
-#[CoversClass(ShopId::class)]
 #[Package('framework')]
+#[CoversClass(ShopId::class)]
 class ShopIdTest extends TestCase
 {
     public function testCreatesShopIdFromValidV1Config(): void

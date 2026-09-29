@@ -29,6 +29,9 @@
         {% set isDigital = isDigital or (lineItem.states is defined and DOWNLOAD_STATE in lineItem.states) or quantityInformation.maxPurchase === 1 %}
     {% endif %}
 
+    {# `isDigital` locks the quantity controls, so digital products with a max. purchase above 1 stay editable #}
+    {% set isDigital = isDigital and quantityInformation.maxPurchase <= 1 %}
+
     {% block component_line_item_quantity_inner %}
         <div class="row line-item-quantity-row">
             {% block component_line_item_quantity_label %}
@@ -69,10 +72,12 @@
                                         {% block component_line_item_quantity_select_input %}
                                             <legend class="form-label visually-hidden">
                                                 {{ 'component.product.quantitySelect.legend'|trans|striptags }}
+                                                {{ 'component.product.quantitySelect.cartUpdateHint'|trans|striptags }}
                                             </legend>
 
                                             {% set quantitySelectorOptions = {
                                                 ariaLiveUpdateMode: 'onload',
+                                                submitOnFinish: true,
                                             } %}
                                             <div
                                                 id="line-item-quantity-group-{{ lineItem.id }}"

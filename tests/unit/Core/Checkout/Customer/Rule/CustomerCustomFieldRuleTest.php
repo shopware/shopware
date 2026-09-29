@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -24,8 +23,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[Group('rules')]
 class CustomerCustomFieldRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private const CUSTOM_FIELD_NAME = 'custom_test';
 
     private Stub $customer;
@@ -70,7 +67,7 @@ class CustomerCustomFieldRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $rule = new CustomerCustomFieldRule();
         $match = $rule->match($scope);
@@ -80,7 +77,7 @@ class CustomerCustomFieldRuleTest extends TestCase
 
     public function testMatchWithoutCustomer(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
         $scope = new CheckoutRuleScope($context);

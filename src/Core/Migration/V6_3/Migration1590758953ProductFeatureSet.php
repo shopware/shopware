@@ -193,7 +193,7 @@ SQL;
     /**
      * @param list<string> $localeCodes
      *
-     * @return array{0?: string}
+     * @return list<string>
      */
     private function fetchLanguageIds(Connection $connection, array $localeCodes): array
     {
@@ -209,10 +209,6 @@ SQL;
             ['locale_codes' => $localeCodes],
             ['locale_codes' => ArrayParameterType::STRING]
         );
-
-        if (\is_array($languageId)) {
-            return $languageId;
-        }
 
         return $languageId === false ? [] : [$languageId];
     }

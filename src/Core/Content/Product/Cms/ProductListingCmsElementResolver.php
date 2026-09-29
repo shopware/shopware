@@ -112,7 +112,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             $defaultSortingValue = $config['defaultSorting']['value'];
             $criteria = new Criteria([$defaultSortingValue]);
 
-            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
+            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->getEntities()->first()?->get('key'));
 
             return;
         }
@@ -120,7 +120,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         // if we have no specific order given at this point, set the order to the highest priority available sorting
         $availableSortings = RequestParamHelper::get($request, 'availableSortings');
         if ($availableSortings) {
-            arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
+            arsort($availableSortings);
             $sortingId = array_key_first($availableSortings);
             if (!\is_string($sortingId)) {
                 return;
@@ -128,7 +128,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
             $criteria = new Criteria([$sortingId]);
 
-            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
+            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->getEntities()->first()?->get('key'));
         }
     }
 

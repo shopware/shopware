@@ -29,8 +29,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(PromotionItemBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderPayloadTest extends TestCase
 {
     private PromotionEntity $promotion;
@@ -107,6 +107,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
             'limitedRedemptions' => true,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => true,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -161,7 +164,10 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'individual',
-            'limitedRedemptions' => false,
+            'limitedRedemptions' => true,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -216,6 +222,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
             'limitedRedemptions' => false,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -320,6 +329,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'global',
             'limitedRedemptions' => false,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());

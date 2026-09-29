@@ -38,8 +38,8 @@ class DeliveryNoteRendererTest extends TestCase
         $context = Context::createDefaultContext();
 
         $documentConfigLoaderMock = new DocumentConfigLoader(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class)
         );
 
         $order = $this->createOrder();
@@ -78,10 +78,10 @@ class DeliveryNoteRendererTest extends TestCase
         $deliveryNoteRenderer = new DeliveryNoteRenderer(
             $orderRepositoryMock,
             $documentConfigLoaderMock,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $connectionMock,
-            $this->createMock(DocumentFileRendererRegistry::class),
+            static::createStub(DocumentFileRendererRegistry::class),
             new NativeClock()
         );
 

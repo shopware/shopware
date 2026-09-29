@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Validation\ValidatorFactory;
 /**
  * @internal
  */
-#[CoversClass(DecodedPurchaseStruct::class)]
 #[Package('checkout')]
+#[CoversClass(DecodedPurchaseStruct::class)]
 class DecodedPurchaseStructTest extends TestCase
 {
     public function testWithAdditionalFieldsAllowed(): void

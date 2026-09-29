@@ -9,10 +9,12 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\Subscriber\VerifyAppUrlListener;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VerifyAppUrlListener::class)]
 class VerifyAppUrlListenerTest extends TestCase
 {

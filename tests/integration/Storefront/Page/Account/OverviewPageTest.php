@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class OverviewPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,6 +42,13 @@ class OverviewPageTest extends TestCase
             ],
         ], $context->getContext());
 
+        static::getContainer()->get('order.repository')->update([
+            [
+                'id' => $orderId,
+                'primaryOrderTransactionId' => self::LAST_TRANSACTION_ID,
+            ],
+        ], $context->getContext());
+
         $event = null;
         $this->catchEvent(AccountOverviewPageLoadedEvent::class, $event);
 
@@ -46,12 +56,19 @@ class OverviewPageTest extends TestCase
 
         $order = $page->getNewestOrder();
         static::assertInstanceOf(OrderEntity::class, $order);
-        $transactions = $order->getTransactions();
-        static::assertNotNull($transactions);
-        static::assertCount(2, $transactions);
-        $transaction = $transactions->last();
-        static::assertNotNull($transaction);
-        static::assertSame(self::LAST_TRANSACTION_ID, $transaction->getId());
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $transaction = $order->getPrimaryOrderTransaction();
+            static::assertNotNull($transaction);
+            static::assertSame(self::LAST_TRANSACTION_ID, $transaction->getId());
+        } else {
+            $transactions = $order->getTransactions();
+            static::assertNotNull($transactions);
+            static::assertCount(2, $transactions);
+            $transaction = $transactions->last();
+            static::assertNotNull($transaction);
+            static::assertSame(self::LAST_TRANSACTION_ID, $transaction->getId());
+        }
         self::assertPageEvent(AccountOverviewPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

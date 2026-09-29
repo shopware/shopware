@@ -56,26 +56,15 @@ Service('privileges').addPrivilegeMappingEntry({
                 'promotion_setgroup_rule:create',
                 Shopware.Service('privileges').getPrivileges('rule.creator'),
             ],
-            dependencies: [
-                'promotion.viewer',
-            ],
+            dependencies: ['promotion.viewer'],
         },
         creator: {
-            privileges: [
-                'promotion:create',
-            ],
-            dependencies: [
-                'promotion.viewer',
-                'promotion.editor',
-            ],
+            privileges: ['promotion:create'],
+            dependencies: ['promotion.viewer', 'promotion.editor'],
         },
         deleter: {
-            privileges: [
-                'promotion:delete',
-            ],
-            dependencies: [
-                'promotion.viewer',
-            ],
+            privileges: ['promotion:delete'],
+            dependencies: ['promotion.viewer'],
         },
     },
 });

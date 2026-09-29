@@ -12,12 +12,8 @@ const { Criteria } = Shopware.Data;
  */
 export default {
     template,
-    inject: ['repositoryFactory'],
 
-    emits: [
-        'update-prices',
-        'modal-close',
-    ],
+    emits: ['update-prices', 'modal-close'],
 
     props: {
         currencies: {
@@ -114,11 +110,18 @@ export default {
         },
 
         loadCurrencies() {
-            this.repositoryFactory
+            const criteria = new Criteria(1, 500);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            Shopware.Service('repositoryFactory')
                 .create('currency')
-                .search(new Criteria(1, 25))
-                .then((response) => {
-                    this.currencyCollection = response;
+                .search(criteria, Shopware.Context.api, {
+                    cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((currencies) => {
+                    this.currencyCollection = [...currencies];
                     this.sortCurrencies();
                 });
         },

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
@@ -40,12 +41,11 @@ class NestedEventCollection extends Collection
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return string
-     *
      * @return TEvent
      *
      * @phpstan-ignore return.phpDocType (Does not work as expected. See https://github.com/phpstan/phpstan/discussions/13728)
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     protected function getExpectedClass(): ?string
     {
         return NestedEvent::class;

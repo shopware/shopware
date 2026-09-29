@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
@@ -38,7 +38,8 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly TranslationConfig $config,
         private readonly AbstractTranslationLoader $translationLoader,
-        private readonly Filesystem $translationReader,
+        private readonly FilesystemOperator $translationReader,
+        private readonly StorefrontSnippetStorage $snippetStorage,
     ) {
     }
 
@@ -85,7 +86,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
             // Check if the path matches the expected structure. If not, the directory was modified and the file should be skipped.
             $validityCheck = \array_intersect_key($pathComponents, array_fill_keys(['locale', 'component'], true));
-            if (\count($validityCheck) !== 2 || empty($pathComponents['locale']) || empty($pathComponents['component'])) {
+            if (\count($validityCheck) !== 2 || $pathComponents['locale'] === '' || $pathComponents['component'] === '') {
                 continue;
             }
 
@@ -176,8 +177,13 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
     private function loadAppSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
-            $snippetFiles = $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
-            foreach ($snippetFiles as $snippetFile) {
+            $directory = $this->snippetStorage->directory($app['name'], $app['version']);
+
+            if ($directory === null) {
+                continue;
+            }
+
+            foreach ($this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $directory, true) as $snippetFile) {
                 $snippetFile->setTechnicalName($app['name']);
                 $snippetFileCollection->add($snippetFile);
             }

@@ -87,17 +87,19 @@ readonly class SymfonyBearerTokenValidator
 
     private function validateAccessTokenIssuedAt(\DateTimeImmutable $tokenIssuedAt, string $userId): void
     {
-        $lastUpdatedPasswordAt = $this->connection->createQueryBuilder()
-            ->select('last_updated_password_at')
+        $user = $this->connection->createQueryBuilder()
+            ->select('last_updated_password_at', 'active')
             ->from('user')
             ->where('id = :userId')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))
             ->executeQuery()
-            ->fetchOne();
+            ->fetchAssociative();
 
-        if ($lastUpdatedPasswordAt === false) {
+        if ($user === false || !(bool) $user['active']) {
             throw OAuthServerException::accessDenied('Access token is invalid');
         }
+
+        $lastUpdatedPasswordAt = $user['last_updated_password_at'];
 
         if ($lastUpdatedPasswordAt === null) {
             return;

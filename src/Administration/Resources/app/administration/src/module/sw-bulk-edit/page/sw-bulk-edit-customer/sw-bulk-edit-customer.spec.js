@@ -24,9 +24,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-customer', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
@@ -104,8 +102,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'mt-switch': true,
                 },
                 provide: {
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([{ id: 'field-set-id-1' }]),
+                    },
                     validationService: {},
                     orderDocumentApiService: {},
+                    documentV2Service: {},
                     repositoryFactory: {
                         create: () => {
                             return {
@@ -283,9 +285,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             },
         });
 
-        Shopware.Store.get('swBulkEdit').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('swBulkEdit').selectedIds = [Shopware.Utils.createId()];
     });
 
     it('should show all form fields', async () => {
@@ -474,7 +474,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--color-pumpkin-500)');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--sw-color-module-orange-default)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-users');
 
         wrapper.vm.setRouteMetaModule.mockRestore();

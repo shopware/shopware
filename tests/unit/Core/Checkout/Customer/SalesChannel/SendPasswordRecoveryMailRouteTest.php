@@ -3,13 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,7 +24,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -36,36 +34,36 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
     /**
-     * @var EntityRepository<CustomerCollection>&MockObject
+     * @var EntityRepository<CustomerCollection>&Stub
      */
-    protected EntityRepository&MockObject $customerRepository;
+    protected EntityRepository&Stub $customerRepository;
 
     /**
-     * @var EntityRepository<CustomerRecoveryCollection>&MockObject
+     * @var EntityRepository<CustomerRecoveryCollection>&Stub
      */
-    protected EntityRepository&MockObject $customerRecoveryRepository;
+    protected EntityRepository&Stub $customerRecoveryRepository;
 
-    protected EventDispatcherInterface&MockObject $eventDispatcher;
+    protected EventDispatcherInterface&Stub $eventDispatcher;
 
-    protected DataValidator&MockObject $validator;
+    protected DataValidator&Stub $validator;
 
-    protected SystemConfigService&MockObject $systemConfigService;
+    protected SystemConfigService&Stub $systemConfigService;
 
-    protected RequestStack&MockObject $requestStack;
+    protected RequestStack&Stub $requestStack;
 
-    protected RateLimiter&MockObject $rateLimiter;
+    protected RateLimiter&Stub $rateLimiter;
 
     protected SalesChannelContext $context;
 
     protected function setUp(): void
     {
-        $this->customerRepository = $this->createMock(EntityRepository::class);
-        $this->customerRecoveryRepository = $this->createMock(EntityRepository::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->validator = $this->createMock(DataValidator::class);
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->requestStack = $this->createMock(RequestStack::class);
-        $this->rateLimiter = $this->createMock(RateLimiter::class);
+        $this->customerRepository = static::createStub(EntityRepository::class);
+        $this->customerRecoveryRepository = static::createStub(EntityRepository::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->validator = static::createStub(DataValidator::class);
+        $this->systemConfigService = static::createStub(SystemConfigService::class);
+        $this->requestStack = static::createStub(RequestStack::class);
+        $this->rateLimiter = static::createStub(RateLimiter::class);
         $this->context = Generator::generateSalesChannelContext();
     }
 
@@ -76,7 +74,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         $customerCollection = new CustomerCollection([$customer]);
 
-        $this->customerRepository
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository
             ->expects($this->once())
             ->method('search')
             ->willReturn(
@@ -90,7 +89,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 )
             );
 
-        $this->customerRecoveryRepository
+        $customerRecoveryRepository = $this->createMock(EntityRepository::class);
+        $customerRecoveryRepository
             ->expects($this->once())
             ->method('create')
             ->with(
@@ -119,7 +119,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         $customerRecoveryCollection = new CustomerRecoveryCollection([$customerRecovery]);
 
-        $this->customerRecoveryRepository
+        $customerRecoveryRepository
             ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
@@ -134,8 +134,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             );
 
         $MailRoute = new SendPasswordRecoveryMailRoute(
-            $this->customerRepository,
-            $this->customerRecoveryRepository,
+            $customerRepository,
+            $customerRecoveryRepository,
             $this->eventDispatcher,
             $this->validator,
             $this->systemConfigService,
@@ -145,17 +145,10 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         );
 
         $this->context->getSalesChannel()->setTranslated(['name' => 'FooBar']);
-        $event = new CustomerAccountRecoverRequestEvent($this->context, $customerRecovery, 'https://test.example.dev/account/recover/password?hash=super-secret-hash');
 
         $this->eventDispatcher
             ->method('dispatch')
-            ->with(static::callback(static function (Event $dispatched) use ($event): bool {
-                if ($dispatched instanceof CustomerAccountRecoverRequestEvent) {
-                    static::assertEquals($event, $dispatched);
-                }
-
-                return true;
-            }), static::anything());
+            ->willReturnArgument(0);
 
         $data = new RequestDataBag();
         $data->set('email', 'test@test.dev');

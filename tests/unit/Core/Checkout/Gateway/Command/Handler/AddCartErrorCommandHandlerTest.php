@@ -17,8 +17,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(AddCartErrorCommandHandler::class)]
 #[Package('checkout')]
+#[CoversClass(AddCartErrorCommandHandler::class)]
 class AddCartErrorCommandHandlerTest extends TestCase
 {
     public function testSupportedCommands(): void

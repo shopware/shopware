@@ -12,7 +12,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
  *
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('discovery')]
 final class DeleteThemeFilesTask extends ScheduledTask
 {
     public static function getTaskName(): string

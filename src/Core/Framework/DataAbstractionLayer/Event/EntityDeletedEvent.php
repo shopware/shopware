@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
  * @template IDStructure of string|array<string, string> = string
  *
  * @extends EntityWrittenEvent<IDStructure>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class EntityDeletedEvent extends EntityWrittenEvent

@@ -476,7 +476,7 @@ class StoreClient
     }
 
     /**
-     * @param list<array{name: string, version: ?string}> $extensionList
+     * @param list<array{name: string, version: ?string, inAppFeatures: string}> $extensionList
      *
      * @return StoreUpdateStruct[]
      */

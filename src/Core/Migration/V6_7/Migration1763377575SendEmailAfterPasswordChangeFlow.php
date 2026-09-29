@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 class Migration1763377575SendEmailAfterPasswordChangeFlow extends MigrationStep
 {
     public function getCreationTimestamp(): int

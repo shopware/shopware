@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HookableEntityWrittenEvent::class)]
 class HookableEntityWrittenEventTest extends TestCase
 {

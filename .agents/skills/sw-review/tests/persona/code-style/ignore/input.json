@@ -1,0 +1,20 @@
+{
+  "persona": "code-style",
+  "tier": "cheap",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-style-ignore",
+    "title": "chore(deps): bump symfony/console",
+    "body": "Bumps symfony/console patch version.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/style-ignore",
+    "additions": 1,
+    "deletions": 1,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": ["composer.json"]
+}

@@ -22,8 +22,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Package('after-sales')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-#[Package('framework')]
 class DocumentController extends StorefrontController
 {
     /**
@@ -52,10 +52,13 @@ class DocumentController extends StorefrontController
     )]
     public function downloadDocument(Request $request, SalesChannelContext $context, string $documentId): Response
     {
-        $fileType = $request->attributes->get('fileType') ?? $request->query->getString('fileType', PdfRenderer::FILE_EXTENSION);
+        // {fileType} is a file extension for the legacy v1 flow and a DocumentFormat name for document v2
+        $format = $request->attributes->get('fileType') ?? ($request->query->has('fileType') ? $request->query->getString('fileType') : null);
+        $fileType = $format ?? PdfRenderer::FILE_EXTENSION;
 
         try {
-            return $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType);
+            // @phpstan-ignore arguments.count (format is hidden on AbstractDocumentRoute::download() via NewOptionalParameter to avoid a BC break for decorators; DocumentRoute's final implementation reads this 6th argument for real)
+            return $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType, $format);
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             if ($context->getCustomer() !== null) {
                 $this->logoutRoute->logout($context, new RequestDataBag([]));

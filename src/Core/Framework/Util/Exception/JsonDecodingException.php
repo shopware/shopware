@@ -1,0 +1,14 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Util\Exception;
+
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\UtilException;
+
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('framework')]
+class JsonDecodingException extends UtilException
+{
+}

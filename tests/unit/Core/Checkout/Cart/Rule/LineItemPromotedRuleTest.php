@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -24,8 +24,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemPromotedRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private const PAYLOAD_KEY = 'markAsTopseller';
 
     private LineItemPromotedRule $rule;
@@ -84,7 +82,7 @@ class LineItemPromotedRuleTest extends TestCase
 
         $scope = new LineItemScope(
             $this->createLineItemWithTopsellerMarker($itemValue),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($expected, $this->rule->match($scope));
@@ -103,11 +101,11 @@ class LineItemPromotedRuleTest extends TestCase
             $this->createLineItemWithTopsellerMarker($itemValue),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -120,12 +118,12 @@ class LineItemPromotedRuleTest extends TestCase
         $lineItemCollection = new LineItemCollection([
             $this->createLineItemWithTopsellerMarker(true),
         ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
@@ -145,11 +143,11 @@ class LineItemPromotedRuleTest extends TestCase
             $this->createLineItemWithTopsellerMarker(false),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertTrue($match);
@@ -165,15 +163,41 @@ class LineItemPromotedRuleTest extends TestCase
         $this->rule->assign(['isPromoted' => true]);
 
         $scope = new LineItemScope(
-            $this->createLineItem(),
-            $this->createMock(SalesChannelContext::class)
+            CartRuleFixture::createLineItem(),
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertFalse($this->rule->match($scope));
     }
 
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemPromotedRule(false);
+
+        $lineItem = CartRuleFixture::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+    }
+
     private function createLineItemWithTopsellerMarker(bool $markAsTopseller): LineItem
     {
-        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
+        return CartRuleFixture::createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
     }
 }

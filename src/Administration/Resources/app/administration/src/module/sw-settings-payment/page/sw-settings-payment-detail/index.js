@@ -13,22 +13,12 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
-            active() {
-                return this.acl.can('payment.editor');
-            },
             method: 'onSave',
         },
         ESCAPE: 'onCancel',
@@ -75,13 +65,6 @@ export default {
         },
 
         tooltipSave() {
-            if (!this.acl.can('payment.editor')) {
-                return {
-                    message: this.$t('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('payment.editor'),
-                    showOnDisabledElements: true,
-                };
-            }
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -142,10 +125,7 @@ export default {
             return !!this.paymentMethod?.pluginId || !!this.paymentMethod?.appPaymentMethod?.id;
         },
 
-        ...mapPropertyErrors('paymentMethod', [
-            'name',
-            'technicalName',
-        ]),
+        ...mapPropertyErrors('paymentMethod', ['name', 'technicalName']),
     },
 
     watch: {

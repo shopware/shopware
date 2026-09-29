@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Factory::class)]
 class FactoryTest extends TestCase
 {
@@ -17,9 +19,7 @@ class FactoryTest extends TestCase
 
     public function testCreateComposer(): void
     {
-        if (isset($_SERVER['COMPOSER_ROOT_VERSION'])) {
-            static::markTestSkipped('This test is not compatible with the COMPOSER_ROOT_VERSION environment variable');
-        }
+        $this->setEnvVars(['COMPOSER_ROOT_VERSION' => null]);
 
         $composer = Factory::createComposer(__DIR__ . '/../_fixtures/core');
 

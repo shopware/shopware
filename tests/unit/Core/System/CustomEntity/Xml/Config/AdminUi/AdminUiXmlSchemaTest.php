@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdminUiXmlSchema::class)]
 #[CoversClass(AdminUi::class)]
 #[CoversClass(Card::class)]

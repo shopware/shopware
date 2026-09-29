@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
@@ -28,12 +29,13 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(OffcanvasCartPageLoader::class)]
 class OffcanvasCartPageLoaderTest extends TestCase
 {
     public function testOffcanvasCartPageReturned(): void
     {
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn(new Page());
@@ -42,7 +44,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
 
         $this->createLoader(pageLoader: $pageLoader)->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 
@@ -51,14 +53,14 @@ class OffcanvasCartPageLoaderTest extends TestCase
         $page = new OffcanvasCartPage();
         $page->setMetaInformation(new MetaInformation());
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn($page);
 
         $page = $this->createLoader(pageLoader: $pageLoader)->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertNotNull($page->getMetaInformation());
@@ -69,14 +71,14 @@ class OffcanvasCartPageLoaderTest extends TestCase
     {
         $page = new OffcanvasCartPage();
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn($page);
 
         $page = $this->createLoader(pageLoader: $pageLoader)->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertNull($page->getMetaInformation());
@@ -100,15 +102,14 @@ class OffcanvasCartPageLoaderTest extends TestCase
             )
         );
 
-        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute = static::createStub(ShippingMethodRoute::class);
         $shippingMethodRoute
             ->method('load')
-            ->withAnyParameters()
             ->willReturn($shippingMethodResponse);
 
         $page = $this->createLoader(shippingMethodRoute: $shippingMethodRoute)->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($shippingMethods, $page->getShippingMethods());
@@ -124,7 +125,7 @@ class OffcanvasCartPageLoaderTest extends TestCase
 
         $this->createLoader(eventDispatcher: $eventDispatcher)->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
     }
 
@@ -149,10 +150,10 @@ class OffcanvasCartPageLoaderTest extends TestCase
         ?ShippingMethodRoute $shippingMethodRoute = null,
     ): OffcanvasCartPageLoader {
         return new OffcanvasCartPageLoader(
-            $eventDispatcher ?? $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $pageLoader ?? $this->createMock(GenericPageLoader::class),
-            $shippingMethodRoute ?? $this->createMock(ShippingMethodRoute::class),
+            $eventDispatcher ?? static::createStub(EventDispatcher::class),
+            static::createStub(StorefrontCartFacade::class),
+            $pageLoader ?? static::createStub(GenericPageLoader::class),
+            $shippingMethodRoute ?? static::createStub(ShippingMethodRoute::class),
         );
     }
 }

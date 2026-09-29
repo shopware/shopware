@@ -46,8 +46,8 @@ class MediaCreationSubscriberTest extends TestCase
     {
         new StaticDefinitionInstanceRegistry(
             [$definition = new MediaDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         return $definition;
@@ -65,7 +65,7 @@ class MediaCreationSubscriberTest extends TestCase
             $definition,
             ['path' => 'media/Bildschirm­fotö 2023-06-24 um 16.30.36.png'],
             ['id' => $this->ids->getBytes('media-1')],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -91,7 +91,7 @@ class MediaCreationSubscriberTest extends TestCase
             $definition,
             ['path' => 'media/Bildschirm­foto 2023-06-24 um 16.30.36.png'],
             ['id' => $this->ids->getBytes('media-1')],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -117,7 +117,7 @@ class MediaCreationSubscriberTest extends TestCase
             $definition,
             ['path' => 'media/Bildschirmfoto 2023-06-24 um 16.30.36.png'],
             ['id' => $this->ids->getBytes('media-1')],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 

@@ -299,7 +299,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
         $addresses = $order->getAddresses();
         static::assertNotNull($addresses);
@@ -339,7 +339,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
 
         // Check that the billing address has been updated
@@ -393,7 +393,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
         $addresses = $order->getAddresses();
         static::assertNotNull($addresses);
@@ -434,7 +434,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
 
@@ -488,7 +488,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
         $addresses = $order->getAddresses();
         static::assertNotNull($addresses);
@@ -532,7 +532,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
 
@@ -584,7 +584,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
         $addresses = $order->getAddresses();
         static::assertNotNull($addresses);
@@ -633,7 +633,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
 
@@ -694,7 +694,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
         $addresses = $order->getAddresses();
         static::assertNotNull($addresses);
@@ -743,7 +743,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
 
@@ -803,7 +803,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
         $addresses = $order->getAddresses();
         static::assertNotNull($addresses);
@@ -870,7 +870,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
 
@@ -936,7 +936,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
         $addresses = $order->getAddresses();
         static::assertNotNull($addresses);
@@ -982,7 +982,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
 
@@ -1036,7 +1036,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
         $addresses = $order->getAddresses();
         static::assertNotNull($addresses);
@@ -1077,7 +1077,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
         static::assertNotNull($order);
 
         // Check that the first shipping address has been updated
@@ -1135,7 +1135,7 @@ class OrderAddressServiceTest extends TestCase
         $criteria->addAssociation('billingAddress');
         $criteria->addAssociation('addresses');
 
-        $order = $this->orderRepository->search($criteria, $context)->first();
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertNotNull($order);
 

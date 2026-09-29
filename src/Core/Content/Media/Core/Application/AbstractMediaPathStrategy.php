@@ -18,6 +18,14 @@ use Shopware\Core\Framework\Util\Hasher;
 abstract class AbstractMediaPathStrategy
 {
     /**
+     * @internal
+     */
+    public function __construct(
+        private readonly bool $pathCacheBuster = true,
+    ) {
+    }
+
+    /**
      * The function has to generate the path for the provided locations
      *
      * Called when the media was uploaded or when the media will be renamed.
@@ -70,6 +78,10 @@ abstract class AbstractMediaPathStrategy
 
     protected function cacheBuster(MediaLocationStruct|ThumbnailLocationStruct $location): ?string
     {
+        if (!$this->pathCacheBuster) {
+            return null;
+        }
+
         $media = $location instanceof MediaLocationStruct ? $location : $location->media;
 
         return $media->uploadedAt ? (string) $media->uploadedAt->getTimestamp() : null;

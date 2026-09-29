@@ -1,0 +1,9 @@
+diff --git a/src/Administration/Resources/app/administration/src/app/assets/scss/variables.scss b/src/Administration/Resources/app/administration/src/app/assets/scss/variables.scss
+index aaaaaaa..bbbbbbb 100644
+--- a/src/Administration/Resources/app/administration/src/app/assets/scss/variables.scss
++++ b/src/Administration/Resources/app/administration/src/app/assets/scss/variables.scss
+@@ -42,7 +42,7 @@
+ // Brand colors
+-$color-brand-primary: #1f8aff;
++$color-brand-primary: #1c84f3;
+ $color-brand-secondary: #758ca3;

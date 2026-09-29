@@ -16,6 +16,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  *     update: WriteOperation,
  *     delete: WriteOperation
  * }
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class BeforeVersionMergeEvent extends Event

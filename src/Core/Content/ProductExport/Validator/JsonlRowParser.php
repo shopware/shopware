@@ -3,9 +3,12 @@
 namespace Shopware\Core\Content\ProductExport\Validator;
 
 use Shopware\Core\Content\ProductExport\ProductExportException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @deprecated tag:v6.8.0 - Will be removed and is going to be part of SwagAgenticCommerce
+ *
  * @internal
  */
 #[Package('discovery')]
@@ -18,6 +21,8 @@ class JsonlRowParser
      */
     public function parse(string $content): array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', 'Will be part of SwagAgenticCommerce'));
+
         $lines = preg_split('/\R/', $content);
         \assert($lines !== false);
 

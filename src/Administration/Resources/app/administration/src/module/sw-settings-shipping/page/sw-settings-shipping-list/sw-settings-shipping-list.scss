@@ -1,8 +1,3 @@
-@import "~scss/variables";
-
-$sw-settings-shipping-list-color-error: var(--color-icon-critical-default);
-$sw-settings-shipping-list-color-success: var(--color-icon-positive-default);
-
 .sw-settings-shipping-list {
     &__content {
         width: 100%;
@@ -19,11 +14,11 @@ $sw-settings-shipping-list-color-success: var(--color-icon-positive-default);
 
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
         .is--inactive {
-            color: $sw-settings-shipping-list-color-error;
+            color: var(--color-icon-critical-default);
         }
 
         .is--active {
-            color: $sw-settings-shipping-list-color-success;
+            color: var(--color-icon-positive-default);
         }
     }
 }

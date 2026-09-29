@@ -66,7 +66,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = $this->rule->match($scope);
 
@@ -79,7 +79,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
         $scope = new FlowRuleScope(
             $order,
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $match = $rule->match($scope);

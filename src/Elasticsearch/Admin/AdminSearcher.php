@@ -46,35 +46,53 @@ class AdminSearcher
     /**
      * @param array<string> $entities
      *
-     * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>, indexer: string, index: string}>
+     * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>, indexer?: string, index?: string}>
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
         $indexes = [];
+        $notIndexed = [];
 
-        $term = $this->extractTerm($term);
+        $term = mb_substr(trim($term), 0, $this->termMaxLength);
+        $esTerm = $this->extractTerm($term);
 
         foreach ($entities as $entityName) {
             if (!$context->isAllowed($entityName . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
                 continue;
             }
 
-            try {
-                $indexes = array_merge($indexes, $this->buildSearchPayload($entityName, $term, $limit));
-            } catch (ElasticsearchException) {
+            if (!$this->registry->hasIndexer($entityName)) {
+                $notIndexed[] = $entityName;
+
                 continue;
+            }
+
+            try {
+                $indexes = array_merge($indexes, $this->buildSearchPayload($entityName, $esTerm, $limit));
+            } catch (ElasticsearchException) {
+                $notIndexed[] = $entityName;
             }
         }
 
-        if ($indexes === []) {
-            return [];
+        $mapped = [];
+        if ($notIndexed !== []) {
+            $mapped = $this->searchWithoutIndex($notIndexed, $term, $context, $limit);
         }
 
-        $responses = $this->client->msearch(['body' => $indexes]);
+        if ($indexes === []) {
+            return $mapped;
+        }
+
+        try {
+            $responses = $this->client->msearch(['body' => $indexes]);
+        } catch (\Throwable $e) {
+            $this->adminEsHelper->logAndThrowException($e);
+
+            return $mapped;
+        }
 
         $result = $this->parseResponse($responses);
 
-        $mapped = [];
         foreach ($result as $index => $values) {
             $entityName = $values['hits'][0]['entityName'];
             $indexer = $this->registry->getIndexer($entityName);
@@ -143,6 +161,40 @@ class AdminSearcher
         $ids->addState(ElasticsearchEntitySearcher::RESULT_STATE);
 
         return $ids;
+    }
+
+    /**
+     * @param list<string> $entities
+     *
+     * @return array<string, array{total: int, data: EntityCollection<covariant \Shopware\Core\Framework\DataAbstractionLayer\Entity>}>
+     */
+    private function searchWithoutIndex(array $entities, string $term, Context $context, int $limit): array
+    {
+        $result = [];
+
+        foreach ($entities as $entityName) {
+            if (!$this->definitionInstanceRegistry->has($entityName)) {
+                continue;
+            }
+
+            $criteria = new Criteria();
+            $criteria->setTerm($term);
+            $criteria->setLimit($limit);
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+            $search = $this->definitionInstanceRegistry->getRepository($entityName)->search($criteria, $context);
+
+            if ($search->getTotal() === 0) {
+                continue;
+            }
+
+            $result[$entityName] = [
+                'total' => $search->getTotal(),
+                'data' => $search->getEntities(),
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -237,7 +289,15 @@ class AdminSearcher
     /**
      * @param array<mixed> $rawResponse
      *
-     * @return array<string, array{total: int, hits: array<int, array{id: string, score: float, parameters: array<string, mixed>, entityName: string }>}>
+     * @return array<string, array{
+     *     total: int,
+     *     hits: list<array{
+     *         id: string,
+     *         score: float,
+     *         parameters: array<string, mixed>,
+     *         entityName: string
+     *     }>
+     * }>
      */
     private function parseResponse(array $rawResponse): array
     {
@@ -256,21 +316,23 @@ class AdminSearcher
                 continue;
             }
 
-            $index = $response['hits']['hits'][0]['_index'];
-
-            $result[$index] = [
-                'total' => $response['hits']['total']['value'],
-                'hits' => [],
-            ];
+            $index = (string) $response['hits']['hits'][0]['_index'];
+            $total = (int) $response['hits']['total']['value'];
+            $hits = [];
 
             foreach ($response['hits']['hits'] as $hit) {
-                $result[$index]['hits'][] = [
-                    'id' => $hit['_id'],
-                    'score' => $hit['_score'],
+                $hits[] = [
+                    'id' => (string) $hit['_id'],
+                    'score' => (float) $hit['_score'],
                     'parameters' => $hit['_source']['parameters'],
-                    'entityName' => $hit['_source']['entityName'],
+                    'entityName' => (string) $hit['_source']['entityName'],
                 ];
             }
+
+            $result[$index] = [
+                'total' => $total,
+                'hits' => $hits,
+            ];
         }
 
         return $result;

@@ -18,9 +18,7 @@ export default {
 
     inject: ['acl'],
 
-    mixins: [
-        Mixin.getByName('ruleContainer'),
-    ],
+    mixins: [Mixin.getByName('ruleContainer')],
 
     created() {
         this.createdComponent();

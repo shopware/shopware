@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware;
 use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,6 +17,7 @@ use Symfony\Component\Messenger\Middleware\ValidationMiddleware;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MessengerMiddlewareCompilerPass::class)]
 class MessengerMiddlewareCompilerPassTest extends TestCase
 {

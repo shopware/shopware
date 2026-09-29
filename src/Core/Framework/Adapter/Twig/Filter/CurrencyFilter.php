@@ -6,15 +6,14 @@ use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-/**
- * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
- */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class CurrencyFilter extends AbstractExtension
 {
     /**
@@ -35,7 +34,7 @@ class CurrencyFilter extends AbstractExtension
     }
 
     /**
-     * @deprecated tag:v6.8.0 - arguments will be type-hinted - reason:becomes-internal
+     * The arguments will be natively type-hinted in v6.8.0.
      *
      * @param array<string, mixed> $twigContext
      * @param float|null $price

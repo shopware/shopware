@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 /**
  * @deprecated tag:v6.8.0 - Will be removed, use SystemConfigException::invalidDomain() instead

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Examples\ProductListingCriteriaExtensionExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -15,8 +16,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductListingCriteriaExtension::class)]
-#[CoversClass(ProductListingCriteriaExtensionExample::class)]
 class ProductListingCriteriaExtensionTest extends TestCase
 {
     public function testProductListingCriteriaExample(): void
@@ -28,7 +29,7 @@ class ProductListingCriteriaExtensionTest extends TestCase
 
         $extension = new ProductListingCriteriaExtension(
             new Criteria(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'categoryId'
         );
 

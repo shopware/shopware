@@ -15,8 +15,8 @@ use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
 /**
  * @internal
  */
-#[CoversClass(ZipCodeRuleTypeFilter::class)]
 #[Package('checkout')]
+#[CoversClass(ZipCodeRuleTypeFilter::class)]
 class ZipCodeRuleTypeFilterTest extends TestCase
 {
     public function testMatchesNotWithWrongType(): void

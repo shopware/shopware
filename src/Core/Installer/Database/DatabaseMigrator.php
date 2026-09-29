@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Installer\Requirements\IniConfigReader;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
 /**
@@ -18,6 +19,7 @@ class DatabaseMigrator
         private readonly SetupDatabaseAdapter $adapter,
         private readonly MigrationCollectionFactory $migrationFactory,
         private readonly string $version,
+        private readonly IniConfigReader $iniConfigReader,
         private readonly ClockInterface $clock
     ) {
     }
@@ -37,8 +39,9 @@ class DatabaseMigrator
             $coreMigrations->sync();
         }
 
-        // use 7 s as max execution time, so the UI stays responsive
-        $maxExecutionTime = min(\ini_get('max_execution_time'), 7);
+        // Use 7s as request cap so the UI stays responsive; 0/-1 mean unlimited PHP runtime.
+        $configuredMaxExecutionTime = (int) $this->iniConfigReader->get('max_execution_time');
+        $maxExecutionTime = $configuredMaxExecutionTime <= 0 ? 7 : min($configuredMaxExecutionTime, 7);
         $startTime = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
         $executedMigrations = $offset;
 

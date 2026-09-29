@@ -15,8 +15,8 @@
         display: flex;
         gap: var(--scale-size-20);
         padding: var(--scale-size-20) var(--scale-size-24);
-        background-color: var(--color-background-secondary-default);
-        border-bottom: 1px solid var(--color-border-primary-default);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
         .sw-simple-search-field {
             width: 100%;

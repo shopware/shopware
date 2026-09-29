@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(LineItemTransformer::class)]
 #[Package('checkout')]
+#[CoversClass(LineItemTransformer::class)]
 class LineItemTransformerTest extends TestCase
 {
     private int $position = 1;

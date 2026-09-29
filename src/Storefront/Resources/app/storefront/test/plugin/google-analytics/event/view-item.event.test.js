@@ -1,8 +1,10 @@
+import Feature from 'src/helper/feature.helper';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
 
 describe('plugin/google-analytics/events/view-item.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
+        Feature.init({ JSON_LD_DATA: false });
     });
 
     afterEach(() => {
@@ -53,8 +55,48 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         });
     });
 
+    test('fires view_item event with JSON-LD product data', () => {
+        Feature.init({ JSON_LD_DATA: true });
+
+        const productData = {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: 'JSON-LD Product',
+            sku: 'product-456',
+            brand: {
+                '@type': 'Brand',
+                name: 'JSON-LD Brand',
+            },
+            offers: {
+                '@type': 'Offer',
+                priceCurrency: 'USD',
+                price: '49.99',
+            },
+        };
+
+        document.body.innerHTML = `
+            <script type="application/ld+json">${JSON.stringify(productData)}</script>
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Category 1</span>
+            </nav>
+        `;
+
+        new ViewItemEvent().execute();
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'view_item', {
+            'items': [{
+                'id': 'product-456',
+                'name': 'JSON-LD Product',
+                'brand': 'JSON-LD Brand',
+                'item_category': 'Category 1',
+            }],
+            'currency': 'USD',
+            'value': '49.99',
+        });
+    });
+
     test('does not fire event when product itemtype is missing', () => {
-        document.body.innerHTML = `<div>No product here</div>`;
+        document.body.innerHTML = '<div>No product here</div>';
 
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
         new ViewItemEvent().execute();
@@ -79,4 +121,3 @@ describe('plugin/google-analytics/events/view-item.event', () => {
         consoleSpy.mockRestore();
     });
 });
-

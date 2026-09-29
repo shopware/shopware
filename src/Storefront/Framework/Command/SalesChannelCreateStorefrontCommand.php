@@ -19,11 +19,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @final
  */
+#[Package('discovery')]
 #[AsCommand(
     name: 'sales-channel:create:storefront',
     description: 'Creates a new storefront sales channel',
 )]
-#[Package('framework')]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
     /**

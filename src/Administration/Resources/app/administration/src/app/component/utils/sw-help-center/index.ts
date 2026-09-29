@@ -1,8 +1,12 @@
 import template from './sw-help-center.html.twig';
 import './sw-help-center.scss';
 
+type ShortcutModal = {
+    onOpenShortcutOverviewModal: () => void;
+};
+
 /**
- * @description Displays an icon and a link to the help sidebar
+ * @description Displays an icon and an action menu with the help center content
  *
  * @sw-package framework
  *
@@ -22,28 +26,20 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        showShortcutModal(value) {
-            const shortcutModal = this.$refs.shortcutModal as {
-                onOpenShortcutOverviewModal: () => void;
-            };
-
-            if (!shortcutModal) {
+        showShortcutModal(value: boolean): void {
+            if (!value) {
                 return;
             }
 
-            if (value === false) {
-                this.setFocusToSidebar();
+            const shortcutModal = this.$refs.shortcutModal as ShortcutModal | undefined;
 
-                return;
-            }
-
-            shortcutModal.onOpenShortcutOverviewModal();
+            shortcutModal?.onOpenShortcutOverviewModal();
         },
     },
 
     methods: {
-        openHelpSidebar(): void {
-            Shopware.Store.get('adminHelpCenter').showHelpSidebar = true;
+        onVisibilityChange(isOpened: boolean): void {
+            Shopware.Store.get('adminHelpCenter').showHelpSidebar = isOpened;
         },
 
         openShortcutModal(): void {
@@ -52,18 +48,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         closeShortcutModal(): void {
             Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
-        },
-
-        setFocusToSidebar(): void {
-            const helpSidebar = this.$refs.helpSidebar as {
-                setFocusToSidebar: () => void;
-            };
-
-            if (!helpSidebar) {
-                return;
-            }
-
-            helpSidebar.setFocusToSidebar();
         },
     },
 });

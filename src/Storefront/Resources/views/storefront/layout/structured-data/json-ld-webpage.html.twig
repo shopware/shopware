@@ -1,8 +1,8 @@
 {% block layout_structured_data_webpage %}
     {% set metaInformation = page.metaInformation %}
     {% set basicConfig = config('core.basicInformation') %}
-    {% set maxLength = config('seo.descriptionMaxLength') %}
-    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength ?? 255, '…') %}
+    {% set maxLength = 255 %}
+    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength, '…') %}
     {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
     {% set webPageType = jsonLdWebPageType is defined ? jsonLdWebPageType : 'WebPage' %}
     {% set pageUrl = (page.metaInformation.canonical is defined and page.metaInformation.canonical) ? page.metaInformation.canonical : app.request.uri %}

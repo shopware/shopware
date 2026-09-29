@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[Package('fundamentals@discovery')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(CurrencyRule::class)]
 class CurrencyRuleTest extends TestCase
 {
@@ -91,7 +91,7 @@ class CurrencyRuleTest extends TestCase
                     Rule::OPERATOR_EQ,
                     Rule::OPERATOR_NEQ,
                 ],
-                'isMatchAny' => true,
+                'isMatchAny' => false,
             ],
             'fields' => [
                 'currencyIds' => [
@@ -218,7 +218,7 @@ class CurrencyRuleTest extends TestCase
         $context = Context::createDefaultContext();
         $context->assign(['currencyId' => $currencyId]);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext
             ->method('getContext')
             ->willReturn($context);

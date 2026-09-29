@@ -16,8 +16,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(FingerprintGenerator::class)]
 #[Package('framework')]
+#[CoversClass(FingerprintGenerator::class)]
 class FingerprintGeneratorTest extends TestCase
 {
     private FingerprintGenerator $fingerprintGenerator;

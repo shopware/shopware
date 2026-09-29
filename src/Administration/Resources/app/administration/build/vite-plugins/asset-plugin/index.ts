@@ -61,11 +61,10 @@ export default function viteAssetPlugin(isProd: boolean, adminDir: string, exten
                 }
 
                 // Add a custom route for sw-plugin-dev.json
+                // Read from Resources/ (not public/administration/), since a parallel
+                // production build empties public/administration and would delete the file.
                 if (originalUrl.endsWith('sw-plugin-dev.json')) {
-                    const pluginDevContent = fs.readFileSync(
-                        path.resolve(adminDir, '../../public/administration/sw-plugin-dev.json'),
-                        'utf8',
-                    );
+                    const pluginDevContent = fs.readFileSync(path.resolve(adminDir, '../../sw-plugin-dev.json'), 'utf8');
 
                     res.writeHead(200, {
                         'Content-Type': 'application/json',

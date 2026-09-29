@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_6\Migration1736824370MigrationMailTemplateForDocument;
@@ -16,6 +17,7 @@ use Shopware\Core\Migration\V6_6\Migration1736824370MigrationMailTemplateForDocu
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(Migration1736824370MigrationMailTemplateForDocument::class)]
 class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
 {

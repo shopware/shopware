@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class WishlistPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -37,10 +39,10 @@ class WishlistPageTest extends TestCase
 
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
-        $this->expectException(CustomerException::class);
-
         $customer = $context->getCustomer();
         static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        $this->expectExceptionObject(CustomerException::customerWishlistNotActivated());
 
         $this->getPageLoader()->load($request, $context, $customer);
     }

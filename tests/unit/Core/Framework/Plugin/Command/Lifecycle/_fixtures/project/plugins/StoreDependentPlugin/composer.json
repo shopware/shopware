@@ -1,0 +1,12 @@
+{
+    "name": "a-vendor/store-dependent-plugin",
+    "description": "Plugin install command test fixture",
+    "version": "1.0.0",
+    "type": "shopware-platform-plugin",
+    "require": {
+        "store.shopware.com/store-dependency-plugin": "*"
+    },
+    "extra": {
+        "shopware-plugin-class": "StoreDependentPlugin\\StoreDependentPlugin"
+    }
+}

@@ -33,13 +33,16 @@ class RemoteThumbnailLoader implements ResetInterface
 
     /**
      * @internal
+     *
+     * @param list<array{width: int, height: int}> $fallbackThumbnailSizes
      */
     public function __construct(
         private readonly AbstractMediaUrlGenerator $generator,
         private readonly Connection $connection,
         private readonly FilesystemOperator $filesystem,
         private readonly ExtensionDispatcher $extensions,
-        private readonly string $pattern = ''
+        private readonly string $pattern = '',
+        private readonly array $fallbackThumbnailSizes = []
     ) {
     }
 
@@ -75,7 +78,7 @@ class RemoteThumbnailLoader implements ResetInterface
             $mediaFolderId = $mediaEntity->get('mediaFolderId');
             $thumbnailSizes = $mediaThumbnailSizes[$mediaFolderId] ?? [];
 
-            if (empty($thumbnailSizes)) {
+            if ($thumbnailSizes === []) {
                 $mediaEntity->assign(['thumbnails' => new MediaThumbnailCollection()]);
 
                 continue;
@@ -125,7 +128,7 @@ class RemoteThumbnailLoader implements ResetInterface
         $mapped = [];
 
         foreach ($entities as $entity) {
-            if (!$entity->has('path') || empty($entity->get('path'))) {
+            if (!$entity->has('path') || (string) $entity->get('path') === '') {
                 continue;
             }
             // don't generate private urls
@@ -148,32 +151,57 @@ class RemoteThumbnailLoader implements ResetInterface
             return $this->mediaFolderThumbnailSizes;
         }
 
-        $entities = $this->connection->fetchAllAssociative(
+        /** @var list<array{configuration_id: string, media_thumbnail_size_id: string, width: string, height: string}> $sizes */
+        $sizes = $this->connection->fetchAllAssociative(
             '
             SELECT
-                LOWER(HEX(mf.id)) as media_folder_id,
-                LOWER(HEX(mts.id)) as media_thumbnail_size_id,
+                LOWER(HEX(mfcmts.media_folder_configuration_id)) AS configuration_id,
+                LOWER(HEX(mts.id)) AS media_thumbnail_size_id,
                 mts.width,
                 mts.height
-            FROM media_folder mf
-            INNER JOIN media_folder_configuration mfc ON mf.media_folder_configuration_id = mfc.id
-            INNER JOIN media_folder_configuration_media_thumbnail_size mfcmts ON mfcmts.media_folder_configuration_id = mfc.id
+            FROM media_folder_configuration_media_thumbnail_size mfcmts
             INNER JOIN media_thumbnail_size mts ON mfcmts.media_thumbnail_size_id = mts.id'
         );
 
-        if ($entities === []) {
-            return [];
+        if ($sizes === [] && $this->fallbackThumbnailSizes === []) {
+            return $this->mediaFolderThumbnailSizes = [];
         }
 
-        $grouped = [];
-
-        /** @var array{media_folder_id: string, media_thumbnail_size_id: string, width: string, height: string} $entity */
-        foreach ($entities as $entity) {
-            $grouped[$entity['media_folder_id']][] = [
-                'media_thumbnail_size_id' => $entity['media_thumbnail_size_id'],
-                'width' => $entity['width'],
-                'height' => $entity['height'],
+        $configurationSizes = [];
+        foreach ($sizes as $size) {
+            $configurationSizes[$size['configuration_id']][] = [
+                'media_thumbnail_size_id' => $size['media_thumbnail_size_id'],
+                'width' => $size['width'],
+                'height' => $size['height'],
             ];
+        }
+
+        /** @var list<array{folder_id: string, configuration_id: string, create_thumbnails: string}> $folderConfigurations */
+        $folderConfigurations = $this->connection->fetchAllAssociative(
+            'SELECT
+                LOWER(HEX(mf.id)) AS folder_id,
+                LOWER(HEX(mf.media_folder_configuration_id)) AS configuration_id,
+                mfc.create_thumbnails
+            FROM media_folder mf
+            INNER JOIN media_folder_configuration mfc ON mf.media_folder_configuration_id = mfc.id'
+        );
+
+        $grouped = [];
+        foreach ($folderConfigurations as $folderConfiguration) {
+            if (!$folderConfiguration['create_thumbnails']) {
+                $grouped[$folderConfiguration['folder_id']] = [];
+
+                continue;
+            }
+
+            $grouped[$folderConfiguration['folder_id']] = $configurationSizes[$folderConfiguration['configuration_id']] ?? \array_map(
+                static fn (array $size): array => [
+                    'media_thumbnail_size_id' => Uuid::fromStringToHex(\sprintf('remote-thumbnail-fallback-%dx%d', $size['width'], $size['height'])),
+                    'width' => (string) $size['width'],
+                    'height' => (string) $size['height'],
+                ],
+                $this->fallbackThumbnailSizes
+            );
         }
 
         return $this->mediaFolderThumbnailSizes = $grouped;

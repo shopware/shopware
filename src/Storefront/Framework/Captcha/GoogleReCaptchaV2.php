@@ -6,8 +6,10 @@ use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('framework')]
+#[Package('discovery')]
 class GoogleReCaptchaV2 extends AbstractCaptcha
 {
     final public const CAPTCHA_NAME = 'googleReCaptchaV2';
@@ -21,12 +23,35 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
     {
     }
 
-    public function isValid(Request $request, array $captchaConfig): bool
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
         if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
-            return false;
+            return new ConstraintViolationList([$this->createViolation(CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION)]);
         }
 
+        if ($this->verify($request, $captchaConfig)) {
+            return new ConstraintViolationList();
+        }
+
+        return new ConstraintViolationList([$this->createViolation(CaptchaException::INVALID_CAPTCHA_ERROR)]);
+    }
+
+    // reCAPTCHA failures carry a customer-facing violation, so they are shown, not thrown.
+    public function shouldBreak(): bool
+    {
+        return false;
+    }
+
+    public function getName(): string
+    {
+        return self::CAPTCHA_NAME;
+    }
+
+    /**
+     * @param array<string, mixed> $captchaConfig
+     */
+    private function verify(Request $request, array $captchaConfig): bool
+    {
         $secretKey = $captchaConfig['config']['secretKey'] ?? null;
         if (!\is_string($secretKey) || $secretKey === '') {
             return false;
@@ -56,8 +81,8 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
         }
     }
 
-    public function getName(): string
+    private function createViolation(string $code): ConstraintViolation
     {
-        return self::CAPTCHA_NAME;
+        return new ConstraintViolation('', '', [], '', '', '', null, $code);
     }
 }

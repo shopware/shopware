@@ -14,6 +14,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\CoreExtension;
+use Twig\Markup;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Expression\BlockReferenceExpression;
 use Twig\Node\Node;
@@ -102,7 +103,7 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
         bool $withContext = true,
         bool $ignoreMissing = false,
         bool $sandboxed = false
-    ): string {
+    ): string|Markup {
         // sw-fix-start
         if (\is_array($template)) {
             foreach ($template as &$value) {

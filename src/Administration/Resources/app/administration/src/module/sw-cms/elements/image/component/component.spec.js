@@ -132,6 +132,33 @@ describe('src/module/sw-cms/elements/image/component', () => {
         );
     });
 
+    it('should not apply a min-height in the preview when display mode is not cover', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.element.config.displayMode.value = 'standard';
+        wrapper.vm.element.config.minHeight.value = '340px';
+
+        expect(wrapper.vm.styles['min-height']).toBeUndefined();
+    });
+
+    it('should fall back to 340px min-height in the preview when in cover mode without a value', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.element.config.displayMode.value = 'cover';
+        wrapper.vm.element.config.minHeight.value = '';
+
+        expect(wrapper.vm.styles['min-height']).toBe('340px');
+    });
+
+    it('should apply the configured min-height in the preview when in cover mode', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.element.config.displayMode.value = 'cover';
+        wrapper.vm.element.config.minHeight.value = '500px';
+
+        expect(wrapper.vm.styles['min-height']).toBe('500px');
+    });
+
     it('should resolve mapped media ids from custom fields', async () => {
         Shopware.Store.get('cmsPage').setCurrentDemoEntity({
             customFields: {

@@ -26,6 +26,12 @@ describe('pseudo-modal.util tests', () => {
             document.body.appendChild(html);
         });
 
+        window.focusHandler = {
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
+        };
+
         jest.useFakeTimers();
         pseudoModal = initialModal();
     });

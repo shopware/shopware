@@ -42,7 +42,7 @@ class UserConfigControllerTest extends TestCase
         $this->userConfigRepository = new StaticEntityRepository([], new UserConfigDefinition());
         $this->userConfigController = new UserConfigController(
             $this->userConfigRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new NativeClock()
         );
         $this->context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
@@ -69,10 +69,7 @@ class UserConfigControllerTest extends TestCase
     {
         $this->expectExceptionObject(new InvalidContextSourceException(AdminApiSource::class, SystemSource::class));
 
-        $response = $this->userConfigController->getConfigMe(Context::createDefaultContext(), new Request());
-
-        static::assertNotFalse($response->getContent());
-        static::assertJsonStringEqualsJsonString('{"data":[]}', $response->getContent());
+        $this->userConfigController->getConfigMe(Context::createDefaultContext(), new Request());
     }
 
     public function testGetConfigMeReturnsDataWithKeys(): void

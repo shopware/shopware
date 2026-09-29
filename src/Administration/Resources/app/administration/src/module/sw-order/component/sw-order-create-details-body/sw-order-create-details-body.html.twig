@@ -30,7 +30,7 @@
                     data-analytics-id="sw-order-create-details-body.edit-billing-address"
                     @click="onEditBillingAddress"
                 >
-                    {{ $t('sw-order.detailBase.buttonEditAddress') }}
+                    {{ $t('global.default.edit') }}
                 </mt-button>
             </p>
             <sw-address :address="billingAddress" />
@@ -73,7 +73,7 @@
                         data-analytics-id="sw-order-create-details-body.edit-identical-shipping-address"
                         @click="onEditShippingAddress"
                     >
-                        {{ $t('sw-order.detailBase.buttonEditAddress') }}
+                        {{ $t('global.default.edit') }}
                     </mt-button>
                 </p>
                 <div class="sw-order-create-details-body__address-identical">
@@ -93,7 +93,7 @@
                         data-analytics-id="sw-order-create-details-body.edit-shipping-address"
                         @click="onEditShippingAddress"
                     >
-                        {{ $t('sw-order.detailBase.buttonEditAddress') }}
+                        {{ $t('global.default.edit') }}
                     </mt-button>
                 </p>
                 <sw-address :address="shippingAddress" />

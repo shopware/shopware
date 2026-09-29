@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
 #[Package('framework')]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS)]
 final class DisabledFeatures
 {
     /**

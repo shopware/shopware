@@ -1,0 +1,136 @@
+--- a/bin/roave-backward-compatibility-check.php
++++ b/bin/roave-backward-compatibility-check.php
+@@ -82,6 +82,40 @@
+         }
+     }
+ 
++    /**
++     * @final classes are not supported extension points in Shopware (mirrored by the
++     * PHPStan rules), so checks that only protect subclasses are skipped for them,
++     * like for native final classes. Caller-facing checks (return type covariance,
++     * parameter contravariance, method removal, ...) still apply.
++     */
++    class SkipSubclassOnlyChecksOnFinalClasses implements ClassBased\ClassBased, MethodBased\MethodBased, FunctionBased\FunctionBased
++    {
++        public function __construct(private $check)
++        {
++        }
++
++        public function __invoke($from, $to): \Roave\BackwardCompatibility\Changes
++        {
++            $class = $from instanceof \Roave\BetterReflection\Reflection\ReflectionMethod
++                ? $from->getDeclaringClass()
++                : $from;
++
++            if ($class instanceof \Roave\BetterReflection\Reflection\ReflectionClass
++                && ($class->isFinal() || $this->isFinalDocComment($class->getDocComment()))
++            ) {
++                return \Roave\BackwardCompatibility\Changes::empty();
++            }
++
++            return ($this->check)($from, $to);
++        }
++
++        private function isFinalDocComment(string|null $comment): bool
++        {
++            return $comment !== null
++                && \Psl\Regex\matches($comment, '/\s@final[\s\*\/]/');
++        }
++    }
++
+     $application = new Application('roave/backward-compatibility-check', Versions::getVersion('roave/backward-compatibility-check'));
+     $helperSet   = $application->getHelperSet();
+     $input       = new ArgvInput();
+@@ -118,7 +153,7 @@
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameAbstract()),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameInterface()),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameTrait()),
+-                    new ClassBased\SkipClassBasedErrors(new ClassBased\ClassBecameFinal()),
++                    new ClassBased\SkipClassBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new ClassBased\ClassBecameFinal())),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\ConstantRemoved()),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\PropertyRemoved()),
+                     new ClassBased\SkipClassBasedErrors(new ClassBased\MethodRemoved()),
+@@ -169,7 +204,7 @@
+                                 new MethodBased\SkipMethodBasedErrors(new ExcludeExperimental(new MethodBased\ExcludeInternalMethod(new MethodBased\MultipleChecksOnAMethod(
+                                     new MethodBased\SkipMethodBasedErrors(new MethodBased\OnlyPublicMethodChanged(
+                                         new MethodBased\MultipleChecksOnAMethod(
+-                                            new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodBecameFinal()),
++                                            new MethodBased\SkipMethodBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new MethodBased\MethodBecameFinal())),
+                                             new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodConcretenessChanged()),
+                                             new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodScopeChanged()),
+                                             new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodVisibilityReduced()),
+@@ -182,9 +217,9 @@
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
+-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
++                                                    new FunctionBased\SkipFunctionBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new FunctionBased\ReturnTypeChanged())),
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
++                                                    new FunctionBased\SkipFunctionBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new FunctionBased\ParameterTypeChanged())),
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
+                                                 ),
+                                             )),
+@@ -192,7 +227,7 @@
+                                     )),
+                                     new MethodBased\SkipMethodBasedErrors(new MethodBased\OnlyProtectedMethodChanged(
+                                         new MethodBased\MultipleChecksOnAMethod(
+-                                            new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodBecameFinal()),
++                                            new MethodBased\SkipMethodBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new MethodBased\MethodBecameFinal())),
+                                             new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodConcretenessChanged()),
+                                             new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodScopeChanged()),
+                                             new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodVisibilityReduced()),
+@@ -205,9 +240,9 @@
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
+-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
++                                                    new FunctionBased\SkipFunctionBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new FunctionBased\ReturnTypeChanged())),
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+-                                                    new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
++                                                    new FunctionBased\SkipFunctionBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new FunctionBased\ParameterTypeChanged())),
+                                                     new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
+                                                 ),
+                                             )),
+@@ -241,7 +276,7 @@
+                             new ClassBased\SkipClassBasedErrors(new ClassBased\MethodChanged(
+                                 new MethodBased\SkipMethodBasedErrors(new MethodBased\OnlyPublicMethodChanged(new ExcludeExperimental(new MethodBased\ExcludeInternalMethod(
+                                     new MethodBased\MultipleChecksOnAMethod(
+-                                        new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodBecameFinal()),
++                                        new MethodBased\SkipMethodBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new MethodBased\MethodBecameFinal())),
+                                         new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodConcretenessChanged()),
+                                         new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodScopeChanged()),
+                                         new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodParameterAdded()),
+@@ -289,9 +324,9 @@
+                                         new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                         new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+                                         new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
+-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
++                                        new FunctionBased\SkipFunctionBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new FunctionBased\ReturnTypeChanged())),
+                                         new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+-                                        new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
++                                        new FunctionBased\SkipFunctionBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new FunctionBased\ParameterTypeChanged())),
+                                         new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
+                                     ),
+                                 )),
+@@ -321,7 +356,7 @@
+                         new ClassBased\SkipClassBasedErrors(new ClassBased\MethodChanged(
+                             new MethodBased\MultipleChecksOnAMethod(
+                                 new MethodBased\MultipleChecksOnAMethod(
+-                                    new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodBecameFinal()),
++                                    new MethodBased\SkipMethodBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new MethodBased\MethodBecameFinal())),
+                                     new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodConcretenessChanged()),
+                                     new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodScopeChanged()),
+                                     new MethodBased\SkipMethodBasedErrors(new MethodBased\MethodVisibilityReduced()),
+@@ -334,9 +369,9 @@
+                                             new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\RequiredParameterAmountIncreased()),
+                                             new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterDefaultValueChanged()),
+                                             new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeCovarianceChanged(new TypeIsCovariant())),
+-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ReturnTypeChanged()),
++                                            new FunctionBased\SkipFunctionBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new FunctionBased\ReturnTypeChanged())),
+                                             new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeContravarianceChanged(new TypeIsContravariant())),
+-                                            new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterTypeChanged()),
++                                            new FunctionBased\SkipFunctionBasedErrors(new SkipSubclassOnlyChecksOnFinalClasses(new FunctionBased\ParameterTypeChanged())),
+                                             new FunctionBased\SkipFunctionBasedErrors(new FunctionBased\ParameterNameChanged()),
+                                         ),
+                                     )),

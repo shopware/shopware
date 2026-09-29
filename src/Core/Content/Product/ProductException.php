@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -106,9 +107,7 @@ class ProductException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function reviewNotActive(): self|ReviewNotActiveExeption
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -155,9 +154,7 @@ class ProductException extends HttpException
         return new VariantNotFoundException($productId, $options);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingRequestParameter(string $name): self|RoutingException
     {
         if (!Feature::isActive('v6.8.0.0')) {

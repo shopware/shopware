@@ -14,8 +14,8 @@ use Shopware\Core\Test\Stub\Rule\TrueRule;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(XorRule::class)]
-#[Package('checkout')]
 class XorRuleTest extends TestCase
 {
     public function testSingleTrueRule(): void
@@ -29,7 +29,7 @@ class XorRuleTest extends TestCase
         static::assertTrue(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );
@@ -45,7 +45,7 @@ class XorRuleTest extends TestCase
         static::assertFalse(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );
@@ -62,7 +62,7 @@ class XorRuleTest extends TestCase
         static::assertFalse(
             $rule->match(
                 new CheckoutRuleScope(
-                    $this->createMock(SalesChannelContext::class)
+                    static::createStub(SalesChannelContext::class)
                 )
             )
         );

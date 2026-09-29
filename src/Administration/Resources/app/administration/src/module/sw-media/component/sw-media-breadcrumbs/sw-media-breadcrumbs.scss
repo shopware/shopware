@@ -1,4 +1,3 @@
-@import "~scss/variables";
 @import "~scss/mixins";
 
 .sw-media-breadcrumbs {
@@ -12,8 +11,16 @@
         cursor: pointer;
     }
 
+    // The breadcrumb folder images have no intrinsic layout size of their
+    // own — pin them to the former artwork size (28x24).
+    .sw-media-breadcrumbs__button-back-to-root img,
+    .sw-media-breadcrumbs__button-back-to-root .sw-media-folder-thumbnail {
+        width: 28px;
+        display: block;
+    }
+
     .sw-media-breadcrumbs__entry {
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
         display: flex;
         align-items: center;
         margin-top: 5px;
@@ -39,6 +46,6 @@
     }
 
     &.is--small .sw-media-breadcrumbs__entry {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 }

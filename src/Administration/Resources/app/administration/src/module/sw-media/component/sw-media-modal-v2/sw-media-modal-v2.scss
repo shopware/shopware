@@ -36,6 +36,17 @@ $sw-media-modal-v2-non-grid-margin: 0 24px;
         }
     }
 
+    .sw-media-modal-v2__tabs--meteor {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        min-height: 0;
+    }
+
+    .sw-media-modal-v2__tabs-navigation.mt-tabs {
+        margin: 0 24px 40px;
+        max-width: unset;
+    }
+
     .sw-tabs .sw-tabs__custom-content {
         height: 100%;
     }

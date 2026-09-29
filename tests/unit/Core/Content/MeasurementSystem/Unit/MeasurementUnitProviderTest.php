@@ -168,6 +168,8 @@ class MeasurementUnitProviderTest extends TestCase
 
     public function testGetDecorated(): void
     {
+        $this->repository->expects($this->never())->method('search');
+
         static::expectException(DecorationPatternException::class);
 
         $this->provider->getDecorated();

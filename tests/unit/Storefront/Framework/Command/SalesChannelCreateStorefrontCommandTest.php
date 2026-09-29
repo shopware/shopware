@@ -34,8 +34,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         array $idsSearchResult = [],
         ?string $exception = null
     ): void {
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
-        $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
+        $snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, $idsSearchResult);
 
         $foundSnippetSetId = $snippetSetId;
         if (!$foundSnippetSetId) {
@@ -106,7 +105,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
             ]
         );
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')
             ->willReturn(...$inputs);
 
@@ -127,8 +126,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         array $idsSearchResult,
         \Exception $exception
     ): void {
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
-        $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
+        $snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, $idsSearchResult);
 
         $mockSalesChannelCreator = static::createStub(SalesChannelCreator::class);
 
@@ -156,7 +154,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
             'name',
         ];
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')
             ->willReturn(...$inputs);
 

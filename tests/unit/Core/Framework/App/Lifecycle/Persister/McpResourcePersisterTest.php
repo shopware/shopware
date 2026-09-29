@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceEntity;
 use Shopware\Core\Framework\App\Lifecycle\Persister\AbstractMcpCapabilityPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
@@ -21,9 +22,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(McpResourcePersister::class)]
 #[CoversClass(AbstractMcpCapabilityPersister::class)]
-#[Package('framework')]
 class McpResourcePersisterTest extends TestCase
 {
     /**
@@ -53,7 +54,7 @@ class McpResourcePersisterTest extends TestCase
 
         $collection = new AppMcpResourceCollection([$existingEntity]);
         $searchResult = new EntitySearchResult(
-            AppMcpResourceEntity::class,
+            AppMcpResourceDefinition::ENTITY_NAME,
             1,
             $collection,
             null,
@@ -85,7 +86,7 @@ class McpResourcePersisterTest extends TestCase
 
         $collection = new AppMcpResourceCollection([$existingEntity]);
         $searchResult = new EntitySearchResult(
-            AppMcpResourceEntity::class,
+            AppMcpResourceDefinition::ENTITY_NAME,
             1,
             $collection,
             null,
@@ -130,7 +131,7 @@ class McpResourcePersisterTest extends TestCase
     public function testUpdateResourcesWithNewResourceCallsUpsertWithoutId(): void
     {
         $searchResult = new EntitySearchResult(
-            AppMcpResourceEntity::class,
+            AppMcpResourceDefinition::ENTITY_NAME,
             0,
             new AppMcpResourceCollection([]),
             null,
@@ -174,7 +175,7 @@ class McpResourcePersisterTest extends TestCase
 
     private function createMcpWithResources(McpResources $mcpResources): Mcp
     {
-        $mcp = $this->createMock(Mcp::class);
+        $mcp = static::createStub(Mcp::class);
         $mcp->method('getResources')->willReturn($mcpResources);
 
         return $mcp;

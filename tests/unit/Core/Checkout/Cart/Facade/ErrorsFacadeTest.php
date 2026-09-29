@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(ErrorsFacade::class)]
 #[Package('checkout')]
+#[CoversClass(ErrorsFacade::class)]
 class ErrorsFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

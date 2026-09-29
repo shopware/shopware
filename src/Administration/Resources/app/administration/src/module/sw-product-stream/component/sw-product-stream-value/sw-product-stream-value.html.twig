@@ -18,7 +18,6 @@
         <sw-single-select
             ref="product-stream-value-select-boolean"
             class="sw-product-stream-value__select"
-            size="medium"
             :options="booleanOptions"
             :value="condition.value"
             :disabled="disabled"
@@ -35,7 +34,6 @@
             v-model:value="emptyValue"
             name="sw-field--emptyValue"
             class="sw-product-stream-value__select"
-            size="medium"
             :options="reversedEmptyOptions"
             :disabled="disabled"
             show-clearable-button
@@ -45,21 +43,16 @@
 
     <template v-else>
         {% block sw_product_stream_value_operator_select %}
-        <sw-arrow-field
+        <sw-single-select
             ref="product-stream-value-operator-select"
+            v-model:value="filterType"
+            name="sw-field--filterType"
             class="sw-product-stream-value__operator-select"
-            :disabled="!acl.can('product_stream.editor')"
-        >
-            <sw-single-select
-                v-model:value="filterType"
-                name="sw-field--filterType"
-                size="medium"
-                :options="operators"
-                :placeholder="$t('sw-product-stream.filter.placeholderOperatorSelect')"
-                :disabled="disabled"
-                show-clearable-button
-            />
-        </sw-arrow-field>
+            :options="operators"
+            :placeholder="$t('sw-product-stream.filter.placeholderOperatorSelect')"
+            :disabled="disabled"
+            show-clearable-button
+        />
         {% endblock %}
 
         <template v-if="!feature.isActive('v6.8.0.0') && fieldType === 'product_state_list'">
@@ -86,7 +79,6 @@
                 v-if="!isMultiSelectValue"
                 ref="product-stream-value-select-custom-field"
                 v-model:value="actualCondition.value"
-                size="medium"
                 :entity="getCustomFieldEntityName(fieldName)"
                 :criteria="isProductEntity ? productCriteria : customFieldCriteria"
                 :context="context"
@@ -112,7 +104,6 @@
                 v-else-if="isMultiSelectValue"
                 ref="product-stream-value-select-entity-multi-id-select"
                 v-model:value="multiValue"
-                size="medium"
                 :repository="entityCustomFieldRepository"
                 :criteria="customFieldCriteria"
                 :context="context"
@@ -148,7 +139,6 @@
                 v-if="definition.entity === 'product' && actualCondition.type === 'equals'"
                 ref="product-stream-value-select-single-value"
                 v-model:value="actualCondition.value"
-                size="medium"
                 show-clearable-button
                 :entity="definition.entity"
                 :criteria="productCriteria"
@@ -197,7 +187,6 @@
                 v-else-if="definition.entity === 'property_group_option' && actualCondition.type === 'equals'"
                 ref="product-stream-value-select-group-option"
                 v-model:value="actualCondition.value"
-                size="medium"
                 :entity="definition.entity"
                 :criteria="propertyCriteria"
                 :context="context"
@@ -231,7 +220,6 @@
                 v-else-if="definition.entity === 'product_visibility' && actualCondition.type === 'equals'"
                 ref="product-stream-value-select-value-visibilities"
                 v-model:value="actualCondition.value"
-                size="medium"
                 :entity="definition.entity"
                 :criteria="visibilitiesCriteria"
                 :label-callback="visibilitiesLabelCallback"
@@ -246,7 +234,6 @@
                 v-else-if="actualCondition.type === 'equals'"
                 ref="product-stream-value-select-equals-uuid"
                 v-model:value="actualCondition.value"
-                size="medium"
                 :entity="definition.entity"
                 :context="context"
                 :disabled="disabled"
@@ -274,7 +261,6 @@
                 v-else-if="definition.entity === 'property_group_option' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
                 ref="product-stream-value-select-multi-value"
                 v-model:value="multiValue"
-                size="medium"
                 :repository="repository"
                 :criteria="propertyCriteria"
                 :context="context"
@@ -315,7 +301,6 @@
                 v-else-if="definition.entity === 'product' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
                 ref="product-stream-value-select-multi-value-equals"
                 v-model:value="multiValue"
-                size="medium"
                 :repository="repository"
                 :criteria="productCriteria"
                 :context="context"
@@ -357,7 +342,6 @@
                 v-else-if="definition.entity === 'product_visibility' && (actualCondition.type === 'equalsAny' || actualCondition.type === 'equalsAll')"
                 ref="product-stream-value-select-multi-value-visibilities"
                 v-model:value="multiValue"
-                size="medium"
                 :repository="repository"
                 :criteria="visibilitiesCriteria"
                 :context="context"
@@ -388,7 +372,6 @@
                 v-else-if="isMultiSelectValue"
                 ref="product-stream-value-select-multi-id-select-value"
                 v-model:value="multiValue"
-                size="medium"
                 description-position="bottom"
                 :repository="repository"
                 :context="context"
@@ -424,18 +407,13 @@
             {% block sw_product_stream_value_range_value %}
             <template v-if="filterType === 'range'">
                 {% block sw_product_stream_value_range_from_value %}
-                <sw-arrow-field
-                    ref="product-stream-value-range-from-arrow-field"
+                <component
+                    :is="inputComponent"
+                    ref="product-stream-value-range-from-value-component"
+                    v-model:value="gte"
                     :disabled="disabled"
-                >
-                    <component
-                        :is="inputComponent"
-                        v-model:value="gte"
-                        size="medium"
-                        :disabled="disabled"
-                        :step="1"
-                    />
-                </sw-arrow-field>
+                    :step="1"
+                />
                 {% endblock %}
 
                 {% block sw_product_stream_value_range_to_value %}
@@ -443,7 +421,6 @@
                     :is="inputComponent"
                     ref="product-stream-value-range-to-value-component"
                     v-model:value="lte"
-                    size="medium"
                     :disabled="disabled"
                     :step="1"
                 />
@@ -456,7 +433,6 @@
                     :is="inputComponent"
                     ref="product-stream-value-range-one-limit-component"
                     v-model:value="currentParameter"
-                    size="medium"
                     :disabled="disabled"
                     :step="1"
                 />
@@ -471,25 +447,19 @@
             <sw-tagged-field
                 ref="product-stream-value-multi-value-tagged-field"
                 v-model:value="multiValue"
-                size="medium"
             />
             {% endblock %}
         </template>
 
         <template v-else-if="filterType === 'since' || filterType === 'until'">
             {% block sw_product_stream_value_relative_time_operator %}
-            <sw-arrow-field
-                ref="product-stream-value-relative-time-arrow-field"
+            <sw-single-select
+                ref="product-stream-value-relative-time-operator"
+                v-model:value="operator"
+                :options="relativeTimeOperators"
+                :placeholder="$t('sw-product-stream.filter.placeholderOperatorSelect')"
                 :disabled="disabled"
-            >
-                <sw-single-select
-                    v-model:value="operator"
-                    size="medium"
-                    :options="relativeTimeOperators"
-                    :placeholder="$t('sw-product-stream.filter.placeholderOperatorSelect')"
-                    :disabled="disabled"
-                />
-            </sw-arrow-field>
+            />
             {% endblock %}
 
             {% block sw_product_stream_value_relative_time_value %}
@@ -497,7 +467,6 @@
                 ref="product-stream-value-relative-time-number-field"
                 v-model="stringValue"
                 class="sw-product-stream-value__time-input"
-                size="medium"
                 number-type="int"
                 :min="0"
                 :step="1"
@@ -516,7 +485,6 @@
                 :is="inputComponent"
                 ref="product-stream-value-single-value-component"
                 v-model:value="stringValue"
-                size="medium"
                 :disabled="disabled"
                 :step="1"
             />

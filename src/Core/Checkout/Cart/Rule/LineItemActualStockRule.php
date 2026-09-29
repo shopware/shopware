@@ -62,7 +62,7 @@ class LineItemActualStockRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, false, true)
             ->intField('stock');
     }
 
@@ -77,6 +77,10 @@ class LineItemActualStockRule extends Rule
                 throw new UnsupportedValueException(\gettype($this->stock), self::class);
             }
             throw CartException::unsupportedValue(\gettype($this->stock), self::class);
+        }
+
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
         }
 
         $actualStock = $lineItem->getPayloadValue('stock');

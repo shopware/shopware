@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Test\Framework\Routing\Helper\ExpectedRequest;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @phpstan-type SalesChannel array{id: string, name: string, active: bool, languages: array{id: string}[], domains: array{id: string, url: string, languageId: string, currencyId: string, snippetSetId: string}[]}
  */
+#[Package('discovery')]
 class RequestTransformerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -297,6 +300,80 @@ class RequestTransformerTest extends TestCase
         $resolved = $this->requestTransformer->transform($request);
 
         static::assertSame('http://base.test' . $resolvedUrl, $resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK));
+    }
+
+    public function testCanonicalSeoUrlWithQueryParameterDoesNotSetCanonicalLink(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $domainId = Uuid::randomHex();
+
+        $this->createSalesChannels([
+            self::getGermanSalesChannel($salesChannelId, $domainId, 'http://base.test'),
+        ]);
+
+        $con = static::getContainer()->get(Connection::class);
+        $con->insert(
+            'seo_url',
+            [
+                'id' => Uuid::randomBytes(),
+                'language_id' => Uuid::fromHexToBytes($this->deLanguageId),
+                'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+                'foreign_key' => Uuid::randomBytes(),
+                'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                'path_info' => '/detail/87a78cf58f114d5587ae23c140825694',
+                'seo_path_info' => 'Main-product/SWDEMO10001?test=123',
+                'is_canonical' => 1,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $request = Request::create('http://base.test/Main-product/SWDEMO10001?test=123');
+
+        $resolved = $this->requestTransformer->transform($request);
+
+        static::assertSame(
+            '/detail/87a78cf58f114d5587ae23c140825694',
+            $resolved->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI)
+        );
+
+        // Matching canonical SEO URL should not set a canonical link (no redirect loop)
+        static::assertNull($resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK));
+    }
+
+    public function testPlainCanonicalSeoUrlWithRequestQueryParameterDoesNotSetCanonicalLink(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $domainId = Uuid::randomHex();
+
+        $this->createSalesChannels([
+            self::getGermanSalesChannel($salesChannelId, $domainId, 'http://base.test'),
+        ]);
+
+        $con = static::getContainer()->get(Connection::class);
+        $con->insert(
+            'seo_url',
+            [
+                'id' => Uuid::randomBytes(),
+                'language_id' => Uuid::fromHexToBytes($this->deLanguageId),
+                'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+                'foreign_key' => Uuid::randomBytes(),
+                'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                'path_info' => '/detail/87a78cf58f114d5587ae23c140825694',
+                'seo_path_info' => 'Main-product/SWDEMO10001',
+                'is_canonical' => 1,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $request = Request::create('http://base.test/Main-product/SWDEMO10001?utm=123');
+
+        $resolved = $this->requestTransformer->transform($request);
+
+        static::assertSame(
+            '/detail/87a78cf58f114d5587ae23c140825694',
+            $resolved->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI)
+        );
+        static::assertNull($resolved->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK));
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoException;
@@ -40,7 +41,7 @@ class SeoUrlUpdaterTest extends TestCase
 
     private SeoUrlPersister&MockObject $seoUrlPersister;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     /**
      * @var StaticEntityRepository<SalesChannelCollection>
@@ -51,22 +52,23 @@ class SeoUrlUpdaterTest extends TestCase
     {
         $this->seoUrlGenerator = $this->createMock(SeoUrlGenerator::class);
         $this->seoUrlPersister = $this->createMock(SeoUrlPersister::class);
-        $this->connection = $this->createMock(Connection::class);
+        $this->connection = static::createStub(Connection::class);
     }
 
     public function testUpdateWithoutDomain(): void
     {
-        $seoUrlUpdater = $this->createSeoUrlUpdater();
+        $seoUrlUpdater = $this->createSeoUrlUpdater([], [], [new ProductPageSeoUrlRoute(new ProductDefinition())]);
 
         $this->connection->method('fetchAllAssociative')->willReturn([]);
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
-        $seoUrlUpdater->update('test', []);
+        $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
     }
 
     public function testUpdateWithoutDefaultTemplates(): void
     {
-        $seoUrlUpdater = $this->createSeoUrlUpdater();
+        $seoUrlUpdater = $this->createSeoUrlUpdater([], [], [new ProductPageSeoUrlRoute(new ProductDefinition())]);
 
         $this->connection->method('fetchAllAssociative')->willReturn([
             [
@@ -76,10 +78,11 @@ class SeoUrlUpdaterTest extends TestCase
         ]);
         $this->connection->method('fetchAllKeyValue')->willReturn([]);
 
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
         $this->expectExceptionObject(new \RuntimeException('Default templates not configured'));
-        $seoUrlUpdater->update('test', []);
+        $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
     }
 
     public function testUpdateWithoutRoute(): void
@@ -99,6 +102,7 @@ class SeoUrlUpdaterTest extends TestCase
             ]
         );
 
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
         $this->expectExceptionObject(SeoException::seoUrlRouteNotFound('test'));
 
@@ -132,9 +136,10 @@ class SeoUrlUpdaterTest extends TestCase
             ]
         );
 
+        $this->seoUrlGenerator->expects($this->never())->method('generate');
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
-        $seoUrlUpdater->update('frontend.detail.page', []);
+        $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
     }
 
     public function testUpdateGetPersisted(): void
@@ -177,7 +182,7 @@ class SeoUrlUpdaterTest extends TestCase
         $this->seoUrlGenerator->expects($this->once())->method('generate');
         $this->seoUrlPersister->expects($this->once())->method('updateSeoUrls');
 
-        $seoUrlUpdater->update('frontend.detail.page', []);
+        $seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, []);
     }
 
     /**

@@ -10,9 +10,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     data() {
         return {
@@ -40,7 +38,6 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.Store.get('adminMenu').collapseSidebar();
             this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;

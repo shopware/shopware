@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerStatusAction;
@@ -22,15 +22,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ChangeCustomerStatusActionTest extends TestCase
 {
     /**
-     * @var MockObject&EntityRepository<CustomerCollection>
+     * @var Stub&EntityRepository<CustomerCollection>
      */
-    private MockObject&EntityRepository $repository;
+    private Stub&EntityRepository $repository;
 
     private ChangeCustomerStatusAction $action;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository = static::createStub(EntityRepository::class);
         $this->action = new ChangeCustomerStatusAction($this->repository);
     }
 
@@ -55,20 +55,22 @@ class ChangeCustomerStatusActionTest extends TestCase
         ]);
         $flow->setConfig(['active' => true]);
 
-        $this->repository->expects($this->once())
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->once())
             ->method('update')
             ->with([['id' => $customerId, 'active' => true]]);
 
-        $this->action->handleFlow($flow);
+        $this->createAction($repository)->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects($this->never())->method('update');
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('update');
 
-        $this->action->handleFlow($flow);
+        $this->createAction($repository)->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
@@ -77,8 +79,17 @@ class ChangeCustomerStatusActionTest extends TestCase
             CustomerAware::CUSTOMER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects($this->never())->method('update');
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('update');
 
-        $this->action->handleFlow($flow);
+        $this->createAction($repository)->handleFlow($flow);
+    }
+
+    /**
+     * @param EntityRepository<CustomerCollection>|null $repository
+     */
+    private function createAction(?EntityRepository $repository = null): ChangeCustomerStatusAction
+    {
+        return new ChangeCustomerStatusAction($repository ?? $this->repository);
     }
 }

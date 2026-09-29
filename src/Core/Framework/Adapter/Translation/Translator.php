@@ -61,6 +61,13 @@ class Translator extends AbstractTranslator
      */
     private array $snippets = [];
 
+    private readonly string $defaultLocale;
+
+    /**
+     * @var non-empty-list<string>
+     */
+    private array $defaultFallbackLocales = ['en_GB', 'en'];
+
     /**
      * @internal
      */
@@ -75,6 +82,20 @@ class Translator extends AbstractTranslator
         private readonly SnippetService $snippetService,
         private readonly CacheTagCollector $cacheTagCollector,
     ) {
+        $this->defaultLocale = $translator->getLocale();
+
+        if (!$translator instanceof SymfonyTranslator) {
+            return;
+        }
+
+        $defaultFallbackLocales = array_filter(array_map(
+            static fn (string $fallbackLocale): ?string => locale_canonicalize($fallbackLocale),
+            $translator->getFallbackLocales()
+        ));
+
+        if ($defaultFallbackLocales !== []) {
+            $this->defaultFallbackLocales = array_values($defaultFallbackLocales);
+        }
     }
 
     public static function buildName(string $id): string
@@ -205,11 +226,11 @@ class Translator extends AbstractTranslator
         $this->salesChannelId = null;
         $this->localeBeforeInject = null;
         $this->locale = null;
+        $this->translator->setLocale($this->defaultLocale);
         if ($this->translator instanceof SymfonyTranslator) {
             // Reset FallbackLocale in memory cache of symfony implementation
             // set fallback values from Framework/Resources/config/translation.yaml
-            $this->translator->setFallbackLocales(['en_GB', 'en']);
-            $this->translator->setLocale('en-GB');
+            $this->translator->setFallbackLocales($this->defaultFallbackLocales);
         }
     }
 

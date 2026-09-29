@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Doctrine\FakeConnection;
@@ -17,6 +18,7 @@ use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AbstractAdminIndexer::class)]
 class AbstractAdminIndexerTest extends TestCase
 {

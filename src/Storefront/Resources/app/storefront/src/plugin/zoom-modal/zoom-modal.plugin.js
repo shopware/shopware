@@ -72,12 +72,12 @@ export default class ZoomModalPlugin extends Plugin {
     };
 
     init() {
-        this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
-        this._triggersCanvas = this.el.querySelectorAll(this.options.triggerSelectorCanvas);
         this._clickInterrupted = false;
         this._pixelsMoved = 0;
         this._mouseDown = false;
+
         this._registerEvents();
+        this._registerViewportChangeEvent();
     }
 
     /**
@@ -85,6 +85,11 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
+        this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
+        this._triggersCanvas = this.el.querySelectorAll(
+            this.options.triggerSelectorCanvas,
+        );
+
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
 
         if (!this._boundOnClick) {
@@ -130,6 +135,15 @@ export default class ZoomModalPlugin extends Plugin {
             element.removeEventListener('pointermove', this._boundOnPointerMove);
             element.addEventListener('pointermove', this._boundOnPointerMove);
         });
+    }
+
+    _registerViewportChangeEvent() {
+        if (!this._boundOnViewportHasChanged) {
+            this._boundOnViewportHasChanged = this._registerEvents.bind(this);
+        }
+
+        document.removeEventListener('Viewport/hasChanged', this._boundOnViewportHasChanged);
+        document.addEventListener('Viewport/hasChanged', this._boundOnViewportHasChanged);
     }
 
     /**

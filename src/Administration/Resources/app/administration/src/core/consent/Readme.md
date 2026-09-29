@@ -106,7 +106,7 @@ Shopware.Utils.EventBus.off('consent', eventHandler);
     timestamp: Date;
 }
 ```
-- **consent_modal_decision** (internal): This event is dispatched when the `sw-settings-usage-data-consent-modal` component is closed with a click on the buttons of its footer. The event payload contains the consents that were accepted and declined in the modal.
+- **consent_modal_decision** (internal): This event is dispatched when the `sw-settings-usage-data-consent-modal` component is closed with a click on the buttons of its footer. The event payload contains the visible consents that were accepted and declined in the modal.
 ```ts
 {
     eventName: 'consent_modal_decision';
@@ -115,7 +115,7 @@ Shopware.Utils.EventBus.off('consent', eventHandler);
             status: ConsentAction;
             changed: boolean;
         };
-        product_analytics: {
+        product_analytics?: {
             status: ConsentAction;
             changed: boolean;
         };

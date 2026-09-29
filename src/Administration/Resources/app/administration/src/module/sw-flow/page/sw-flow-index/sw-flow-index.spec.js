@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 /**
  * @sw-package after-sales
  */
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], routeName = 'sw.flow.index.flows') {
     return mount(
         await wrapTestComponent('sw-flow-index', {
             sync: true,
@@ -12,6 +12,7 @@ async function createWrapper(privileges = []) {
             global: {
                 mocks: {
                     $route: {
+                        name: routeName,
                         query: {
                             page: 1,
                             limit: 25,
@@ -84,9 +85,7 @@ async function createWrapper(privileges = []) {
 
 describe('module/sw-flow/page/sw-flow-index', () => {
     it('should be able to create a flow', async () => {
-        const wrapper = await createWrapper([
-            'flow.creator',
-        ]);
+        const wrapper = await createWrapper(['flow.creator']);
 
         const createButton = wrapper.find('.sw-flow-list__create');
 
@@ -105,5 +104,17 @@ describe('module/sw-flow/page/sw-flow-index', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-page__smart-bar-amount').text()).toBe('(20)');
+    });
+
+    it('should search flows on the flows tab', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.searchType).toBe('flow');
+    });
+
+    it('should search flow templates on the templates tab', async () => {
+        const wrapper = await createWrapper([], 'sw.flow.index.templates');
+
+        expect(wrapper.vm.searchType).toBe('flow_template');
     });
 });

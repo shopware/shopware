@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
 
 #[Package('framework')]
 final class Json
@@ -16,13 +17,13 @@ final class Json
     }
 
     /**
-     * @throws UtilException when the JSON is invalid, not an array or not an object with sequential keys
+     * @throws JsonDecodingException when the JSON is invalid, not an array or not an object with sequential keys
      *
      * @return list<mixed>
      */
-    public static function decodeToList(string $value): array
+    public static function decodeToList(string $value, bool $allowEmpty = true): array
     {
-        if ($value === '') {
+        if ($value === '' && $allowEmpty) {
             return [];
         }
 
@@ -37,5 +38,25 @@ final class Json
         }
 
         throw UtilException::invalidJsonNotList();
+    }
+
+    /**
+     * @throws JsonDecodingException when the JSON is invalid or cannot be decoded to an array
+     *
+     * @return array<array-key, mixed>
+     */
+    public static function decodeToArray(string $value): array
+    {
+        try {
+            $result = json_decode($value, true, flags: \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw UtilException::invalidJson($e);
+        }
+
+        if (\is_array($result)) {
+            return $result;
+        }
+
+        throw UtilException::invalidJsonNotArray();
     }
 }

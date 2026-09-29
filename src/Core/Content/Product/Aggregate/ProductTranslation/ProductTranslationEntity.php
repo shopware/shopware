@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductTranslationEntity extends TranslationEntity
 {
@@ -24,6 +27,8 @@ class ProductTranslationEntity extends TranslationEntity
 
     protected ?string $description = null;
 
+    protected ?string $descriptionTeaser = null;
+
     protected ?string $metaTitle = null;
 
     protected ?string $packUnit = null;
@@ -33,7 +38,7 @@ class ProductTranslationEntity extends TranslationEntity
     protected ?ProductEntity $product = null;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
 
@@ -86,6 +91,16 @@ class ProductTranslationEntity extends TranslationEntity
         $this->description = $description;
     }
 
+    public function getDescriptionTeaser(): ?string
+    {
+        return $this->descriptionTeaser;
+    }
+
+    public function setDescriptionTeaser(?string $descriptionTeaser): void
+    {
+        $this->descriptionTeaser = $descriptionTeaser;
+    }
+
     public function getMetaTitle(): ?string
     {
         return $this->metaTitle;
@@ -127,7 +142,7 @@ class ProductTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -135,7 +150,7 @@ class ProductTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @param array<string, mixed> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {

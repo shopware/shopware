@@ -1,12 +1,8 @@
-@import "~scss/variables";
-
-$sw-payment-card_content-gap: 20px;
-
 .sw-payment-card {
     .sw-payment-card_content {
         display: flex;
         align-items: center;
-        column-gap: $sw-payment-card_content-gap;
+        column-gap: 20px;
     }
 
     .sw-payment-card__preview {

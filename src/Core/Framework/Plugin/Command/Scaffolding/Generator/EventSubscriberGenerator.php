@@ -20,13 +20,12 @@ class EventSubscriberGenerator implements ScaffoldingGenerator
     private const OPTION_DESCRIPTION = 'Create an example event subscriber';
     private const CLI_QUESTION = 'Do you want to create an example event subscriber?';
 
-    private string $servicesXmlEntry = <<<'EOL'
+    private string $servicesPhpEntry = <<<'EOL'
 
-            <service id="{{ namespace }}\Subscriber\MySubscriber">
-                <tag name="kernel.event_subscriber"/>
-            </service>
+    $services->set(\{{ namespace }}\Subscriber\MySubscriber::class)
+        ->tag('kernel.event_subscriber');
 
-    EOL;
+EOL;
 
     public function generateStubs(
         PluginScaffoldConfiguration $configuration,
@@ -39,11 +38,11 @@ class EventSubscriberGenerator implements ScaffoldingGenerator
         $stubCollection->add($this->createSubscriber($configuration));
 
         $stubCollection->append(
-            'src/Resources/config/services.xml',
+            'src/Resources/config/services.php',
             str_replace(
                 '{{ namespace }}',
                 $configuration->namespace,
-                $this->servicesXmlEntry
+                $this->servicesPhpEntry
             )
         );
     }

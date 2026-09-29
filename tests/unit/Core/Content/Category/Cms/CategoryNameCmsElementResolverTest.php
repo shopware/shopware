@@ -14,6 +14,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CategoryNameCmsElementResolver::class)]
 class CategoryNameCmsElementResolverTest extends TestCase
 {
@@ -145,13 +147,13 @@ class CategoryNameCmsElementResolverTest extends TestCase
 
     private function createResolverContext(): ResolverContext
     {
-        return new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        return new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
     }
 
     private function createResolverContextWithCategory(CategoryEntity $category): EntityResolverContext
     {
         return new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
             new CategoryDefinition(),
             $category

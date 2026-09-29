@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Service;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
+#[Package('framework')]
 class PermissionsServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -111,9 +113,13 @@ class PermissionsServiceTest extends TestCase
         $invalidRevision = 'invalid-date';
 
         $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
-        $this->permissionsService->grant($invalidRevision, $this->context);
-        $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
-        static::assertSame('', $storedRevision);
+
+        try {
+            $this->permissionsService->grant($invalidRevision, $this->context);
+        } finally {
+            $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
+            static::assertSame('', $storedRevision);
+        }
     }
 
     public function testMultipleGrantPermissionsCallsOverridesPrevious(): void

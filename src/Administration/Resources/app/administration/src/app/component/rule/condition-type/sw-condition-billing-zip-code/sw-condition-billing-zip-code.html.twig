@@ -6,7 +6,6 @@
         name="sw-field--isNumeric"
         :disabled="disabled || undefined"
         class="sw-condition-zipcode-type-select"
-        size="medium"
         :options="numericOptions"
         required
         @update:value="onChangeNumeric"
@@ -25,7 +24,6 @@
         v-if="!isNumeric && !isEmpty"
         v-model:value="zipCodes"
         name="sw-field--zipCodes"
-        size="medium"
         :placeholder="taggedFieldPlaceholder"
         :disabled="disabled || undefined"
     />
@@ -33,7 +31,6 @@
         v-if="isNumeric && !isEmpty"
         v-model="zipCodes"
         name="sw-field--zipCodes"
-        size="medium"
         :disabled="disabled || undefined"
         :min="0"
         :digits="20"

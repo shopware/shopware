@@ -10,11 +10,14 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(ReviewFormEvent::class)]
 class ReviewFormEventTest extends TestCase
 {
@@ -65,5 +68,34 @@ class ReviewFormEventTest extends TestCase
 
         static::assertArrayHasKey('reviewFormData', $flow->data());
         static::assertSame(['foo' => 'bar', 'bar' => 'baz'], $flow->data()['reviewFormData']);
+    }
+
+    public function testConstructorRequiresProductWhenFeatureActive(): void
+    {
+        $this->expectExceptionObject(FeatureException::error(
+            'Tried to access deprecated functionality: Not passing $product to ' . ReviewFormEvent::class . ' is deprecated and will be required in v6.8.0.'
+        ));
+        new ReviewFormEvent(
+            Context::createDefaultContext(),
+            'sales-channel-id',
+            new MailRecipientStruct(['foo' => 'bar']),
+            new DataBag(),
+            'product-id',
+            'customer-id'
+        );
+    }
+
+    public function testDescribesItsFlowContract(): void
+    {
+        static::assertSame(ReviewFormEvent::EVENT_NAME, (new ReviewFormEvent(
+            Context::createDefaultContext(),
+            'sales-channel-id',
+            new MailRecipientStruct(['foo' => 'bar']),
+            new DataBag(),
+            'product-id',
+            'customer-id',
+            new ProductEntity()
+        ))->getName());
+        static::assertSame(['reviewFormData', 'product'], array_keys(ReviewFormEvent::getAvailableData()->toArray()));
     }
 }

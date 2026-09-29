@@ -1,48 +1,51 @@
 .sw-customer-imitate-customer-modal {
     .imitate-customer-modal-description {
-        font-size: 14px;
-        font-weight: 400;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         color: var(--color-text-primary-default);
     }
 
-    .sw-container {
-        margin-top: 24px;
+    .imitate-customer-modal-container {
+        margin-top: var(--scale-size-24);
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-12);
     }
 
-    .sw-context-menu-item {
-        border: 2px solid var(--color-border-primary-default);
-        border-radius: 5px;
-        padding: 12px 16px;
-        color: var(--color-text-primary-default);
+    .imitate-customer-modal-item {
+        transition-property: background-color;
+        transition-duration: 0.15s;
+        transition-timing-function: ease-out;
+        background: var(--color-interaction-secondary-default);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
+        padding: var(--scale-size-10) var(--scale-size-12);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        cursor: pointer;
+        width: 100%;
 
         &:hover {
-            background-color: var(--color-interaction-secondary-hover);
-            color: var(--color-text-primary-default);
+            background: var(--color-interaction-secondary-hover);
         }
 
-        .imitate-customer-modal-item-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 0;
+        .mt-button__content {
+            width: 100%;
         }
 
-        .imitate-customer-modal-item-header {
-            font-weight: 600;
-            grid-column: 1;
+        &-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--scale-size-10);
         }
 
-        .imitate-customer-modal-item-url {
+        &-header {
+            font-weight: var(--font-weight-semibold);
+        }
+
+        &-url {
             color: var(--color-text-secondary-default);
-            grid-column: 1;
-        }
-
-        .mt-icon {
-            color: var(--color-icon-primary-default);
-            align-self: center;
-            grid-column: 2;
-            grid-row-start: 1;
-            grid-row-end: 3;
-            justify-self: end;
         }
     }
 }

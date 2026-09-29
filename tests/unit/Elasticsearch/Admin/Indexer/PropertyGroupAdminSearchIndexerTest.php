@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer;
@@ -25,6 +26,7 @@ use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(PropertyGroupAdminSearchIndexer::class)]
 class PropertyGroupAdminSearchIndexerTest extends TestCase
 {
@@ -33,10 +35,10 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new PropertyGroupAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
     }
@@ -44,10 +46,10 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIds(): void
     {
         $indexer = new PropertyGroupAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -85,7 +87,7 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
     public function testGlobalData(): void
     {
         $context = Context::createDefaultContext();
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $propertyGroup = new PropertyGroupEntity();
         $propertyGroup->setUniqueIdentifier(Uuid::randomHex());
         $repository->method('search')->willReturn(
@@ -100,10 +102,10 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
         );
 
         $indexer = new PropertyGroupAdminSearchIndexer(
-            $this->createMock(Connection::class),
-            $this->createMock(IteratorFactory::class),
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
             $repository,
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -125,9 +127,9 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
 
         $indexer = new PropertyGroupAdminSearchIndexer(
             $connection,
-            $this->createMock(IteratorFactory::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(ElasticsearchFieldBuilder::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
             100
         );
 
@@ -147,7 +149,7 @@ class PropertyGroupAdminSearchIndexerTest extends TestCase
 
     private function getConnection(): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $languageId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         $connection->method('fetchAllAssociative')->willReturn(

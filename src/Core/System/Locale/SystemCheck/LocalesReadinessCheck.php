@@ -32,6 +32,7 @@ class LocalesReadinessCheck extends BaseCheck
     {
         $locales = $this->localeRepository
             ->search(new Criteria(), Context::createDefaultContext())
+            ->getEntities()
             ->map(static fn (LocaleEntity $locale) => $locale->getCode());
 
         $invalidLocales = array_filter(
@@ -39,7 +40,7 @@ class LocalesReadinessCheck extends BaseCheck
             static fn (string $locale) => !LocaleHelper::isLocale($locale)
         );
 
-        $status = \count($invalidLocales) === 0 ? Status::OK : Status::WARNING;
+        $status = $invalidLocales === [] ? Status::OK : Status::WARNING;
 
         return new Result(
             $this->name(),

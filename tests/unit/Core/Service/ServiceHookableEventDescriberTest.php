@@ -13,8 +13,8 @@ use Shopware\Core\Service\ServiceHookableEventDescriber;
 /**
  * @internal
  */
-#[CoversClass(ServiceHookableEventDescriber::class)]
 #[Package('framework')]
+#[CoversClass(ServiceHookableEventDescriber::class)]
 class ServiceHookableEventDescriberTest extends TestCase
 {
     public function testDescribeDoesNotExposeServiceOnlyEventsGlobally(): void

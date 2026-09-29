@@ -55,7 +55,6 @@ class AccountServiceTest extends TestCase
         $customer->setEmail('foo@bar.de');
         $customer->setDoubleOptInRegistration(false);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 CustomerDefinition::ENTITY_NAME,
@@ -99,10 +98,10 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $customerRepository,
             $eventDispatcher,
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
             $cartRestorer,
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -149,10 +148,10 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $customerRepository,
             new EventDispatcher(),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
             $cartRestorer,
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -180,10 +179,10 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $customerRepository,
             new EventDispatcher(),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -236,11 +235,11 @@ class AccountServiceTest extends TestCase
 
         $accountService = new AccountService(
             $customerRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $legacyPasswordVerifier,
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -293,11 +292,11 @@ class AccountServiceTest extends TestCase
 
         $accountService = new AccountService(
             $customerRepository,
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $legacyPasswordVerifier,
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -320,12 +319,12 @@ class AccountServiceTest extends TestCase
             ->with('billing-address-id', AbstractSwitchDefaultAddressRoute::TYPE_BILLING, $context, $customer);
 
         $accountService = new AccountService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
             $switcher,
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -347,12 +346,12 @@ class AccountServiceTest extends TestCase
             ->with('shipping-address-id', AbstractSwitchDefaultAddressRoute::TYPE_SHIPPING, $context, $customer);
 
         $accountService = new AccountService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
             $switcher,
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -407,10 +406,10 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $repo,
             $dispatcher,
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -423,12 +422,12 @@ class AccountServiceTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $accountService = new AccountService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -457,11 +456,11 @@ class AccountServiceTest extends TestCase
 
         $accountService = new AccountService(
             $repo,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -475,12 +474,12 @@ class AccountServiceTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
         $accountService = new AccountService(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
-            $this->createMock(DoubleOptInService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
+            static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
         );
@@ -501,7 +500,6 @@ class AccountServiceTest extends TestCase
         $customer->setEmail('foo@bar.de');
         $customer->setDoubleOptInRegistration(true);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 CustomerDefinition::ENTITY_NAME,
@@ -521,9 +519,9 @@ class AccountServiceTest extends TestCase
         $accountService = new AccountService(
             $customerRepository,
             new EventDispatcher(),
-            $this->createMock(LegacyPasswordVerifier::class),
-            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
-            $this->createMock(CartRestorer::class),
+            static::createStub(LegacyPasswordVerifier::class),
+            static::createStub(AbstractSwitchDefaultAddressRoute::class),
+            static::createStub(CartRestorer::class),
             $doubleOptInService,
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),

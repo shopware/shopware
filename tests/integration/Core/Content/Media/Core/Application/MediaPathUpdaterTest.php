@@ -11,12 +11,14 @@ use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy;
 use Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaPathUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

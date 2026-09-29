@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
 use Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber;
@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ProductReviewSubscriber::class)]
 class ProductReviewSubscriberTest extends TestCase
 {
-    private MockObject&ProductReviewCountService $productReviewCountService;
+    private ProductReviewCountService&Stub $productReviewCountService;
 
     private ProductReviewSubscriber $productReviewSubscriber;
 
@@ -42,13 +42,13 @@ class ProductReviewSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productReviewCountService = $this->createMock(ProductReviewCountService::class);
-        $this->productReviewSubscriber = new ProductReviewSubscriber($this->productReviewCountService);
+        $this->productReviewCountService = static::createStub(ProductReviewCountService::class);
+        $this->productReviewSubscriber = $this->createSubscriber();
 
         $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
             [ProductReviewDefinition::class, ProductDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -163,11 +163,12 @@ class ProductReviewSubscriberTest extends TestCase
             Context::createDefaultContext(),
         );
 
-        $this->productReviewCountService->expects($this->once())
+        $productReviewCountService = $this->createMock(ProductReviewCountService::class);
+        $productReviewCountService->expects($this->once())
             ->method('updateReviewCountForCustomer')
             ->with('customer_id');
 
-        $this->productReviewSubscriber->onReviewDeleted($event);
+        $this->createSubscriber($productReviewCountService)->onReviewDeleted($event);
     }
 
     public function testCreateReviewWithInvalidEntityName(): void
@@ -176,8 +177,9 @@ class ProductReviewSubscriberTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
-        $this->productReviewCountService->expects($this->never())->method('updateReviewCount');
-        $this->productReviewSubscriber->createReview($this->getEntityWrittenEvent($ids, true));
+        $productReviewCountService = $this->createMock(ProductReviewCountService::class);
+        $productReviewCountService->expects($this->never())->method('updateReviewCount');
+        $this->createSubscriber($productReviewCountService)->createReview($this->getEntityWrittenEvent($ids, true));
     }
 
     public function testCreateReview(): void
@@ -186,9 +188,15 @@ class ProductReviewSubscriberTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
-        $this->productReviewCountService->expects($this->once())->method('updateReviewCount')->with($ids);
+        $productReviewCountService = $this->createMock(ProductReviewCountService::class);
+        $productReviewCountService->expects($this->once())->method('updateReviewCount')->with($ids);
 
-        $this->productReviewSubscriber->createReview($this->getEntityWrittenEvent($ids));
+        $this->createSubscriber($productReviewCountService)->createReview($this->getEntityWrittenEvent($ids));
+    }
+
+    private function createSubscriber(?ProductReviewCountService $productReviewCountService = null): ProductReviewSubscriber
+    {
+        return new ProductReviewSubscriber($productReviewCountService ?? $this->productReviewCountService);
     }
 
     /**
@@ -200,7 +208,7 @@ class ProductReviewSubscriberTest extends TestCase
 
         $writtenResults = [];
         foreach ($ids as $id) {
-            $writtenResult = $this->createMock(EntityWriteResult::class);
+            $writtenResult = static::createStub(EntityWriteResult::class);
             $writtenResult->method('getPrimaryKey')->willReturn($id);
             $writtenResults[] = $writtenResult;
         }

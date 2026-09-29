@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -11,6 +12,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(GenericSnippetFile::class)]
 class GenericSnippetFileTest extends TestCase
 {

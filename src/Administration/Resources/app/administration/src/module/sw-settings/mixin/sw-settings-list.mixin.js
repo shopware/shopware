@@ -8,10 +8,7 @@ const {
 const { debug } = Shopware.Utils;
 
 Mixin.register('sw-settings-list', {
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     inject: ['repositoryFactory'],
 
@@ -22,11 +19,7 @@ Mixin.register('sw-settings-list', {
             isLoading: false,
             showDeleteModal: false,
             deleteEntity: null,
-            steps: [
-                10,
-                25,
-                50,
-            ],
+            steps: [10, 25, 50],
         };
     },
 

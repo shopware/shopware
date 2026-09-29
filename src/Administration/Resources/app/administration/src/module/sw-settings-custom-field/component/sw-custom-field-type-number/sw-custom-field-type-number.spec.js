@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-function createCustomField(overrides = {}) {
+function createCustomField(overrides = {}, isNew = true) {
     return {
         name: 'technical_test',
         type: 'int',
@@ -21,6 +21,7 @@ function createCustomField(overrides = {}) {
             ...overrides,
         },
         active: true,
+        _isNew: isNew,
         customFieldSetId: 'd2667dfae415440592a0944fbea2d3ce',
         id: '8e1ab96faf374836a4d68febc8d4f1e1',
     };
@@ -35,10 +36,10 @@ const defaultSet = {
     id: 'd2667dfae415440592a0944fbea2d3ce',
 };
 
-async function createWrapper(customFieldOverrides = {}) {
+async function createWrapper(customFieldOverrides = {}, isNew = true) {
     return mount(await wrapTestComponent('sw-custom-field-type-number', { sync: true }), {
         props: {
-            currentCustomField: createCustomField(customFieldOverrides),
+            currentCustomField: createCustomField(customFieldOverrides, isNew),
             set: defaultSet,
         },
         global: {
@@ -52,10 +53,7 @@ async function createWrapper(customFieldOverrides = {}) {
                 },
                 'mt-select': {
                     template: '<div class="mt-select" />',
-                    props: [
-                        'modelValue',
-                        'options',
-                    ],
+                    props: ['modelValue', 'options', 'disabled'],
                 },
                 'mt-number-field': {
                     template: '<div class="mt-number-field" />',
@@ -106,6 +104,12 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
         ]);
     });
 
+    it('should not allow changing numberType for an existing custom field', async () => {
+        const wrapper = await createWrapper({}, false);
+
+        expect(wrapper.findComponent('.mt-select').props('disabled')).toBe(true);
+    });
+
     it('should not override numberType when already set', async () => {
         const wrapper = await createWrapper({ numberType: 'float' });
 
@@ -113,14 +117,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
     });
 
     it.each([
-        [
-            'int',
-            true,
-        ],
-        [
-            'float',
-            false,
-        ],
+        ['int', true],
+        ['float', false],
     ])('should expose isIntField for numberType %s', async (numberType, expected) => {
         const wrapper = await createWrapper({ numberType });
 
@@ -155,27 +153,13 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
         expect(wrapper.vm.currentCustomField.config.step).toBe(1);
     });
 
-    it('should update type property when switching numberType', async () => {
+    it('should set type when switching numberType for a new custom field', async () => {
         const wrapper = await createWrapper({ numberType: 'int' });
-
-        expect(wrapper.vm.currentCustomField.type).toBe('int');
 
         wrapper.vm.currentCustomField.config.numberType = 'float';
         await flushPromises();
 
         expect(wrapper.vm.currentCustomField.type).toBe('float');
-    });
-
-    it('should update type property when switching numberType to int', async () => {
-        const wrapper = await createWrapper({ numberType: 'float' });
-
-        wrapper.vm.currentCustomField.type = 'float';
-        expect(wrapper.vm.currentCustomField.type).toBe('float');
-
-        wrapper.vm.currentCustomField.config.numberType = 'int';
-        await flushPromises();
-
-        expect(wrapper.vm.currentCustomField.type).toBe('int');
     });
 
     it('should not round null values when switching numberType to int', async () => {

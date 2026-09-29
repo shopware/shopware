@@ -1,0 +1,12 @@
+{% block sw_mixin_callback %}
+    <div class="sw-mixin-callback">
+        <sw-media-media-item
+            v-for="item in selectableItems"
+            :key="item.id"
+            :selected="showItemSelected(item)"
+            v-on="mediaItemSelectionHandler"
+        />
+
+        <button class="sw-mixin-callback__reset" @click="onReset">Reset</button>
+    </div>
+{% endblock %}

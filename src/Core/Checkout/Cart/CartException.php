@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -31,6 +32,7 @@ class CartException extends HttpException
     public const CART_INVALID_CODE = 'CHECKOUT__CART_INVALID';
     public const CART_INVALID_LINE_ITEM_PAYLOAD_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_PAYLOAD';
     public const CART_INVALID_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY';
+    public const CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY';
     public const CART_PAYMENT_INVALID_ORDER_STORED_CODE = 'CHECKOUT__CART_INVALID_PAYMENT_ORDER_STORED';
     public const CART_PAYMENT_INVALID_ORDER_CODE = 'CHECKOUT__CART_INVALID_PAYMENT_ORDER_NOT_STORED';
     public const CART_ORDER_CONVERT_NOT_FOUND_CODE = 'CHECKOUT__CART_ORDER_CONVERT_NOT_FOUND';
@@ -191,7 +193,7 @@ class CartException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::CART_INVALID_LINE_ITEM_QUANTITY_CODE,
+            self::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE,
             'The quantity of a child "{{ childQuantity }}" must be a multiple of the parent quantity "{{ parentQuantity }}"',
             ['childQuantity' => $childQuantity, 'parentQuantity' => $parentQuantity]
         );
@@ -451,9 +453,7 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -606,9 +606,7 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidPriceFieldTypeException(string $type): self|InvalidPriceFieldTypeException
     {
         if (!Feature::isActive('v6.8.0.0')) {

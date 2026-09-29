@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Hookable;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HookableEventDescription::class)]
 class HookableEventDescriptionTest extends TestCase
 {

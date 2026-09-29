@@ -36,8 +36,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 {
     /**
@@ -165,8 +165,15 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         $response = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
 
-        if ($response->getPaymentMethods()->get($paymentMethodId) === null) {
+        $paymentMethods = $response->getPaymentMethods();
+
+        if ($paymentMethods->get($paymentMethodId) === null) {
             throw OrderException::paymentMethodNotAvailable($paymentMethodId);
+        }
+
+        // Enforce "Allow payment change after checkout" (afterOrderEnabled) server-side, not just in the edit-order UI filter.
+        if (!$paymentMethods->get($paymentMethodId)->getAfterOrderEnabled()) {
+            throw OrderException::paymentMethodNotChangeable();
         }
     }
 
@@ -188,11 +195,10 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         }
 
         foreach ($transactions as $transaction) {
-            if ($transaction->getPaymentMethodId() === $paymentMethodId && $lastTransaction->getId() === $transaction->getId()) {
-                if ($this->hasChangedAmount($order->getPrice(), $transaction->getAmount())) {
-                    return false;
-                }
-
+            if ($transaction->getPaymentMethodId() === $paymentMethodId
+                && $lastTransaction->getId() === $transaction->getId()
+                && !$this->hasChangedAmount($order->getPrice(), $transaction->getAmount())
+            ) {
                 $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
                 if ($transaction->getStateId() === $initialState) {
                     return true;
@@ -276,7 +282,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 
-        $order = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $order = $this->orderRepository->search($criteria, $context->getContext())->getEntities()->first();
         if ($order === null) {
             throw OrderException::orderNotFound($orderId);
         }

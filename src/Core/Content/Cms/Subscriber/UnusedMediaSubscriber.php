@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Cms\Subscriber;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Integration\Core\Content\Cms\Subscriber\UnusedMediaSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -13,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @codeCoverageIgnore
  *
- * @see UnusedMediaSubscriberTest
+ * @see \Shopware\Tests\Integration\Core\Content\Cms\Subscriber\UnusedMediaSubscriberTest
  */
 #[Package('discovery')]
 class UnusedMediaSubscriber implements EventSubscriberInterface

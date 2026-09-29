@@ -29,8 +29,8 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
@@ -69,13 +69,9 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
             )
         );
 
-        $response = $this->confirmWithResponse($dataBag, $context);
+        $this->confirmWithResponse($dataBag, $context);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new NoContentResponse();
-        }
-
-        return $response;
+        return new NoContentResponse();
     }
 
     #[Route(path: '/store-api/newsletter/confirm', name: 'store-api.newsletter.confirm', methods: ['POST'])]

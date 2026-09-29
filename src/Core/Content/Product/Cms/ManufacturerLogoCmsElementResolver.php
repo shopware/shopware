@@ -117,7 +117,7 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             }
 
             /** @var MediaEntity|null $media */
-            $media = $searchResult->get($config->getStringValue());
+            $media = $searchResult->getEntities()->get($config->getStringValue());
 
             return $media;
         }
@@ -141,7 +141,7 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
             return null;
         }
 
-        $manufacturer = $mappedManufacturer->first();
+        $manufacturer = $mappedManufacturer->getEntities()->first();
 
         return $manufacturer instanceof ProductManufacturerEntity ? $manufacturer : null;
     }

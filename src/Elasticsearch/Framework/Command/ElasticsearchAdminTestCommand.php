@@ -14,7 +14,6 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -29,11 +28,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[AsCommand(
     name: 'es:admin:test',
     description: 'Allows you to test the admin search index',
 )]
-#[Package('inventory')]
 final class ElasticsearchAdminTestCommand extends Command
 {
     private SymfonyStyle $io;
@@ -56,7 +55,7 @@ final class ElasticsearchAdminTestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = new ShopwareStyle($input, $output);
+        $this->io = new SymfonyStyle($input, $output);
 
         $term = $input->getArgument('term');
         $entities = [
@@ -79,7 +78,7 @@ final class ElasticsearchAdminTestCommand extends Command
 
         $rows = [];
         foreach ($result as $data) {
-            $rows[] = [$data['index'], $data['indexer'], $data['total']];
+            $rows[] = [$data['index'] ?? '', $data['indexer'] ?? '', $data['total']];
         }
 
         $this->io->table(['Index', 'Indexer', 'total'], $rows);

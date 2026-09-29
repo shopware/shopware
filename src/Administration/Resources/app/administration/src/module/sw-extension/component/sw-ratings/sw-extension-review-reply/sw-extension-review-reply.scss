@@ -12,7 +12,7 @@
     }
 
     &__producer-name {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     &__date {

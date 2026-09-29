@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
@@ -32,6 +33,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 class TranslatorTest extends TestCase
 {
     use AppSystemTestBehaviour;

@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompressedCriteriaListingProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(CompressedCriteriaListingProcessor::class)]
 class CompressedCriteriaListingProcessorTest extends TestCase
 {
@@ -34,7 +36,7 @@ class CompressedCriteriaListingProcessorTest extends TestCase
         $request->query->set('_criteria', 'some-hash');
 
         $this->decoder->expects($this->never())->method('decode');
-        $this->processor->prepare($request, new Criteria(), $this->createMock(SalesChannelContext::class));
+        $this->processor->prepare($request, new Criteria(), static::createStub(SalesChannelContext::class));
     }
 
     public function testPrepareIgnoredMissingCriteria(): void
@@ -44,7 +46,7 @@ class CompressedCriteriaListingProcessorTest extends TestCase
 
         $this->decoder->expects($this->never())->method('decode');
 
-        $this->processor->prepare($request, new Criteria(), $this->createMock(SalesChannelContext::class));
+        $this->processor->prepare($request, new Criteria(), static::createStub(SalesChannelContext::class));
     }
 
     public function testPrepareExtractsNonCriteriaFields(): void
@@ -66,7 +68,7 @@ class CompressedCriteriaListingProcessorTest extends TestCase
             ->with('encoded-payload')
             ->willReturn($payload);
 
-        $this->processor->prepare($request, new Criteria(), $this->createMock(SalesChannelContext::class));
+        $this->processor->prepare($request, new Criteria(), static::createStub(SalesChannelContext::class));
 
         static::assertTrue($request->query->has('manufacturer'), 'Custom param "manufacturer" should be in query');
         static::assertSame('param-value', $request->query->get('manufacturer'));

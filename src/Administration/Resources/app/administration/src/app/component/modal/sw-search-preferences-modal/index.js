@@ -14,17 +14,11 @@ const { Mixin, Module } = Shopware;
 export default {
     template,
 
-    inject: [
-        'searchPreferencesService',
-        'searchRankingService',
-        'userConfigService',
-    ],
+    inject: ['searchPreferencesService', 'searchRankingService'],
 
     emits: ['modal-close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -171,7 +165,7 @@ export default {
             this.searchRankingService.clearCacheUserSearchConfiguration();
 
             this.isLoading = true;
-            return this.userConfigService
+            return Shopware.Service('userConfigService')
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })

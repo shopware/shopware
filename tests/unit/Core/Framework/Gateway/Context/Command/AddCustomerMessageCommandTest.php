@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(AddCustomerMessageCommand::class)]
 #[Package('framework')]
+#[CoversClass(AddCustomerMessageCommand::class)]
 class AddCustomerMessageCommandTest extends TestCase
 {
     public function testCommand(): void

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('discovery')]
 class CategoryIndexerVersioningTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -67,8 +69,8 @@ class CategoryIndexerVersioningTest extends TestCase
         $ids = $message->getData();
         static::assertIsArray($ids);
 
-        // Included from EntityExistence old parent_id, not via recursive draft descendant lookup
-        static::assertContains($rootCategoryId, $ids);
+        // Ancestors are not re-indexed on a pure name change, only the written category and its descendants.
+        static::assertNotContains($rootCategoryId, $ids);
 
         static::assertContains($childCategoryId, $ids);
         static::assertContains($childCategory4Id, $ids);

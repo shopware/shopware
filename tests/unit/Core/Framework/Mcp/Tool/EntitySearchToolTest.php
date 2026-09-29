@@ -2,36 +2,40 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
+use Mcp\Capability\Discovery\DocBlockParser;
+use Mcp\Capability\Discovery\SchemaGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\EntitySearchTool;
-use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(EntitySearchTool::class)]
-#[CoversClass(McpEntityIncludes::class)]
 class EntitySearchToolTest extends TestCase
 {
     public function testSearchWithDefaultCriteria(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
@@ -46,24 +50,24 @@ class EntitySearchToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
-        $registry->method('getByEntityName')->with('product')->willReturn($definition);
-        $registry->method('getRepository')->with('product')->willReturn($repository);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn($repository);
 
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -78,7 +82,7 @@ class EntitySearchToolTest extends TestCase
     public function testSearchWithPagination(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(10);
@@ -94,24 +98,24 @@ class EntitySearchToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
 
-        $criteriaBuilder = $this->createMock(RequestCriteriaBuilder::class);
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
         $criteriaBuilder->method('fromArray')->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', '{"limit": 10, "page": 2}');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -125,7 +129,7 @@ class EntitySearchToolTest extends TestCase
     public function testTopLevelParamsMergeIntoCriteria(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(5);
@@ -140,10 +144,10 @@ class EntitySearchToolTest extends TestCase
             $context,
         );
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -161,13 +165,13 @@ class EntitySearchToolTest extends TestCase
             )
             ->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', '{}', 5, 2, 'shirt');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -177,7 +181,7 @@ class EntitySearchToolTest extends TestCase
     public function testDefaultLimitIsAlwaysAppliedToPayload(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
@@ -185,10 +189,10 @@ class EntitySearchToolTest extends TestCase
 
         $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -206,20 +210,20 @@ class EntitySearchToolTest extends TestCase
             )
             ->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         ($tool)('product');
     }
 
     public function testCriteriaJsonLimitTakesPrecedenceOverDefault(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(50);
@@ -227,10 +231,10 @@ class EntitySearchToolTest extends TestCase
 
         $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -248,20 +252,20 @@ class EntitySearchToolTest extends TestCase
             )
             ->willReturn($criteria);
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         ($tool)('product', '{"limit": 50}');
     }
 
     public function testDefaultsTotalCountModeToExact(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
@@ -269,10 +273,10 @@ class EntitySearchToolTest extends TestCase
 
         $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -287,13 +291,13 @@ class EntitySearchToolTest extends TestCase
                 return $criteria;
             });
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         ($tool)('product');
 
         static::assertIsArray($capturedPayload);
@@ -303,7 +307,7 @@ class EntitySearchToolTest extends TestCase
     public function testCallerCanOverrideTotalCountMode(): void
     {
         $context = Context::createDefaultContext();
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
 
         $criteria = new Criteria();
         $criteria->setLimit(25);
@@ -311,10 +315,10 @@ class EntitySearchToolTest extends TestCase
 
         $result = new EntitySearchResult('product', 0, new EntityCollection(), null, $criteria, $context);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn($result);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getByEntityName')->willReturn($definition);
         $registry->method('getRepository')->willReturn($repository);
@@ -329,13 +333,13 @@ class EntitySearchToolTest extends TestCase
                 return $criteria;
             });
 
-        $encoder = $this->createMock(JsonEntityEncoder::class);
+        $encoder = static::createStub(JsonEntityEncoder::class);
         $encoder->method('encode')->willReturn([]);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder);
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         ($tool)('product', '{"total-count-mode": 0}');
 
         static::assertIsArray($capturedPayload);
@@ -348,14 +352,15 @@ class EntitySearchToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntitySearchTool(
             $registry,
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
         $output = ($tool)('product', 'not-json');
 
@@ -376,10 +381,10 @@ class EntitySearchToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntitySearchTool($registry, $this->createMock(RequestCriteriaBuilder::class), $contextProvider, $this->createMock(JsonEntityEncoder::class));
+        $tool = new EntitySearchTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(JsonEntityEncoder::class), static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product');
 
         $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
@@ -389,20 +394,58 @@ class EntitySearchToolTest extends TestCase
         static::assertStringContainsString('product:read', $data['error']);
     }
 
+    public function testDeniesAccessWhenCriteriaRequiresMissingAssociationPrivilege(): void
+    {
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions(['order:read']);
+        $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('search');
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn($repository);
+
+        $criteria = new Criteria();
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willReturn($criteria);
+
+        $criteriaValidator = $this->createMock(AclCriteriaValidator::class);
+        $criteriaValidator->expects($this->once())
+            ->method('validate')
+            ->with('order', static::identicalTo($criteria), $context)
+            ->willReturn(['order_customer:read']);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, static::createStub(JsonEntityEncoder::class), $criteriaValidator);
+        $output = ($tool)('order', '{"associations": {"orderCustomer": {}}}');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('Missing privilege:', $data['error']);
+        static::assertStringContainsString('order_customer:read', $data['error']);
+    }
+
     public function testUnknownEntityReturnsError(): void
     {
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(false);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntitySearchTool(
             $registry,
-            $this->createMock(RequestCriteriaBuilder::class),
+            static::createStub(RequestCriteriaBuilder::class),
             $contextProvider,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
         );
         $output = ($tool)('unknown_entity');
 
@@ -411,5 +454,94 @@ class EntitySearchToolTest extends TestCase
         static::assertFalse($data['success']);
         static::assertStringContainsString('unknown_entity', $data['error']);
         static::assertStringContainsString('shopware://entities', $data['error']);
+    }
+
+    #[TestDox('A rejected filter is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]
+    public function testAMalformedCriteriaIsAnsweredWithTheParserDetail(): void
+    {
+        $context = Context::createDefaultContext();
+        $definition = static::createStub(EntityDefinition::class);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn($definition);
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+
+        $exception = new SearchRequestException();
+        $exception->add(
+            DataAbstractionLayerException::invalidFilterQuery('The filter should contain a "field".', '/filter/0/equals/field'),
+            '/filter/0/equals/field'
+        );
+
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willThrowException($exception);
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool(
+            $registry,
+            $criteriaBuilder,
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
+        );
+
+        $data = json_decode(
+            ($tool)('product', '{"filter":[{"type":"equals"}]}'),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR
+        );
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('/filter/0/equals/field', $data['error']);
+        static::assertStringContainsString('The filter should contain a "field".', $data['error']);
+    }
+
+    #[TestDox('Only criteria-parsing exceptions are answered; any other throwable is a bug and still propagates')]
+    public function testAnUnexpectedThrowableStillPropagates(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willThrowException(new \RuntimeException('bug, not bad input'));
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntitySearchTool(
+            $registry,
+            $criteriaBuilder,
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
+        );
+
+        $this->expectExceptionObject(new \RuntimeException('bug, not bad input'));
+
+        ($tool)('product');
+    }
+
+    #[TestDox('Every __invoke parameter carries a description into the SDK-generated input schema')]
+    public function testEveryParameterIsDescribedInTheInputSchema(): void
+    {
+        $method = new \ReflectionMethod(EntitySearchTool::class, '__invoke');
+        $schema = (new SchemaGenerator(new DocBlockParser()))->generate($method);
+
+        static::assertIsArray($schema['properties']);
+        static::assertCount(\count($method->getParameters()), $schema['properties']);
+
+        foreach ($schema['properties'] as $name => $property) {
+            static::assertIsArray($property);
+            static::assertArrayHasKey('description', $property, \sprintf('$%s has no description', $name));
+            static::assertIsString($property['description']);
+            static::assertNotSame('', $property['description'], \sprintf('$%s has an empty description', $name));
+        }
     }
 }

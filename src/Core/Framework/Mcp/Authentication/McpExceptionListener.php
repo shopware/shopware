@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Mcp\Authentication;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Mcp\Schema\JsonRpc\Error;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  *
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Converts exceptions thrown on the MCP endpoint into JSON-RPC error responses,
  * so MCP clients receive a parseable error instead of an HTML page.
@@ -24,14 +25,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[Package('framework')]
 class McpExceptionListener implements EventSubscriberInterface
 {
+    // Not covered by the MCP SDK's Error constants — defined here for clarity.
+    public const CODE_UNAUTHORIZED = -32001;
+    public const CODE_RATE_LIMITED = -32029;
     private const MCP_ROUTE_NAME = 'api.mcp.endpoint';
+    private const STORE_API_MCP_ROUTE_NAME = 'store-api.mcp.endpoint';
 
     // Must run before Symfony's default exception listener (priority 0) so we intercept before an HTML error page is rendered.
     private const PRIORITY = 10;
-
-    // Not covered by the MCP SDK's Error constants — defined here for clarity.
-    private const CODE_UNAUTHORIZED = -32001;
-    private const CODE_RATE_LIMITED = -32029;
 
     /**
      * Some MCP clients (e.g. Cursor) fall back to POST {origin}/register when the primary
@@ -54,7 +55,7 @@ class McpExceptionListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if ($request->attributes->get('_route') === self::MCP_ROUTE_NAME) {
+        if (\in_array($request->attributes->get('_route'), [self::MCP_ROUTE_NAME, self::STORE_API_MCP_ROUTE_NAME], true)) {
             $this->handleMcpException($event);
 
             return;
@@ -63,7 +64,7 @@ class McpExceptionListener implements EventSubscriberInterface
         if ($request->getPathInfo() === self::OAUTH_FALLBACK_PATH && $request->getMethod() === 'POST') {
             $event->setResponse(new JsonResponse([
                 'error' => 'invalid_client',
-                'error_description' => 'Authentication failed. Configure your MCP client with the correct sw-access-key and sw-secret-access-key from your Shopware integration (Settings → Integrations). The MCP endpoint is /api/_mcp.',
+                'error_description' => 'Authentication failed. Configure your MCP client with the correct Admin API integration credentials for /api/_mcp or Store API sales-channel credentials for /store-api/_mcp.',
             ], Response::HTTP_UNAUTHORIZED));
 
             return;
@@ -73,12 +74,24 @@ class McpExceptionListener implements EventSubscriberInterface
     private function handleMcpException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+        $message = $exception->getMessage();
+
+        if ($exception instanceof OAuthServerException) {
+            // OAuth errors (missing, invalid, or expired bearer token) do not implement getStatusCode()
+            $httpCode = $exception->getHttpStatusCode();
+
+            if ($exception->getHint() !== null) {
+                // the hint names the actual cause, e.g. a missing Authorization header or an expired token
+                $message .= ' ' . $exception->getHint();
+            }
+        } else {
+            $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
 
         $error = new Error(
             id: '',
             code: $this->toJsonRpcCode($httpCode),
-            message: $exception->getMessage(),
+            message: $message,
         );
 
         $event->setResponse(new JsonResponse($error->jsonSerialize(), $httpCode));

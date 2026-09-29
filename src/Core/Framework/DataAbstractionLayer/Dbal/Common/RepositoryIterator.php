@@ -46,7 +46,12 @@ class RepositoryIterator
             $criteria->setLimit(50);
         }
 
-        if ($repository->getDefinition()->hasAutoIncrement()) {
+        if ($criteria->getSorting() === [] && $repository->getDefinition()->hasAutoIncrement()) {
+            if ($criteria->getFields() !== []) {
+                // Partial loading omits the keyset cursor by default, so include it to advance past each batch.
+                $criteria->addFields(['autoIncrement']);
+            }
+
             $criteria->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING));
             $criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GTE => 0]));
             $this->autoIncrement = true;
@@ -104,6 +109,10 @@ class RepositoryIterator
      */
     public function fetch(): ?EntitySearchResult
     {
+        if ($this->autoIncrement) {
+            return $this->fetchByAutoIncrement();
+        }
+
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         $result = $this->repository->search(clone $this->criteria, $this->context);
@@ -111,7 +120,32 @@ class RepositoryIterator
         // increase offset for next iteration
         $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
-        if ($result->getIds() === []) {
+        if ($result->getEntities()->getIds() === []) {
+            return null;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return EntitySearchResult<TEntityCollection>|null
+     */
+    private function fetchByAutoIncrement(): ?EntitySearchResult
+    {
+        $this->criteria->setOffset(0);
+        $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+
+        $result = $this->repository->search($this->criteria, $this->context);
+
+        $last = $result->getEntities()->last();
+        if ($last !== null && $last->has('autoIncrement')) {
+            $increment = $last->get('autoIncrement');
+            if (\is_int($increment)) {
+                $this->criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GT => $increment]));
+            }
+        }
+
+        if ($result->getEntities()->getIds() === []) {
             return null;
         }
 

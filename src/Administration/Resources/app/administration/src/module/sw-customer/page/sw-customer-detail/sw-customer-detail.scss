@@ -1,7 +1,5 @@
-@import "~scss/variables";
-
 .sw-customer-detail__customer-registration-alert {
-    max-width: $content-width;
+    max-width: 60rem;
     margin: 0 auto;
 
     .mt-banner {
@@ -27,18 +25,7 @@
         align-items: center;
     }
 
-    .smart-bar__actions {
-        span {
-            display: flex;
-        }
-
-        .sw-tooltip--wrapper {
-            margin-left: 8px;
-        }
-    }
-
     &__created-by-admin-label {
-        margin: 0 10px;
-        text-align: center;
+        margin: 0 var(--scale-size-10);
     }
 }

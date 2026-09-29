@@ -1,7 +1,5 @@
-@import "~scss/variables";
-
 .sw-promotion-v2-generate-codes-modal {
-    font-size: $font-size-xs;
+    font-size: var(--font-size-xs);
     line-height: 22px;
 
     &__description {

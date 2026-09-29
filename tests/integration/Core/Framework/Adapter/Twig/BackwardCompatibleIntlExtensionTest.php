@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
 use Twig\Extra\Intl\IntlExtension;
@@ -15,6 +16,7 @@ use Twig\Loader\ArrayLoader;
  *
  * @deprecated tag:v6.8.0 - Will be removed, because we don't support invalid locales anymore
  */
+#[Package('framework')]
 class BackwardCompatibleIntlExtensionTest extends TestCase
 {
     use KernelTestBehaviour;

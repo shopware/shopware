@@ -9,12 +9,14 @@ use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(ImportExportExceptionImportExportHandlerEvent::class)]
 class ImportExportExceptionImportExportHandlerEventTest extends TestCase
 {
@@ -26,6 +28,8 @@ class ImportExportExceptionImportExportHandlerEventTest extends TestCase
             $message,
             Context::createDefaultContext()
         );
+
+        static::assertSame($message, $event->getMessage());
 
         $event->clearException();
 

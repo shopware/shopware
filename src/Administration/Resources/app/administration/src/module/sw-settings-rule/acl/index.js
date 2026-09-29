@@ -33,6 +33,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'promotion_discount:read',
                 'promotion_setgroup:read',
                 'app_script_condition:read',
+                'flow:read',
                 'flow_sequence:read',
                 'user_config:read',
                 'user_config:create',
@@ -55,26 +56,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'promotion_cart_rule:create',
                 'promotion_cart_rule:delete',
             ],
-            dependencies: [
-                'rule.viewer',
-            ],
+            dependencies: ['rule.viewer'],
         },
         creator: {
-            privileges: [
-                'rule:create',
-            ],
-            dependencies: [
-                'rule.viewer',
-                'rule.editor',
-            ],
+            privileges: ['rule:create'],
+            dependencies: ['rule.viewer', 'rule.editor'],
         },
         deleter: {
-            privileges: [
-                'rule:delete',
-            ],
-            dependencies: [
-                'rule.viewer',
-            ],
+            privileges: ['rule:delete'],
+            dependencies: ['rule.viewer'],
         },
     },
 });

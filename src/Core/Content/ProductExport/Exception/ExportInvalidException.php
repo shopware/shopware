@@ -8,6 +8,9 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ExportInvalidException extends ShopwareHttpException
 {

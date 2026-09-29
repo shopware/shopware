@@ -3,6 +3,7 @@ import './sw-flow-mail-send-modal.scss';
 
 const {
     Component,
+    Mixin,
     Utils,
     Classes: { ShopwareError },
     Store,
@@ -18,15 +19,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'validationApiService',
-    ],
+    inject: ['repositoryFactory', 'validationApiService', 'documentV2Service'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
+
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -43,6 +40,11 @@ export default {
             mailRecipient: null,
             recipientMailIsValid: true,
             documentTypeIds: [],
+            documentTypeSelected: null,
+            fileFormatsSelected: [],
+            fileFormatsError: null,
+            supportedDocumentTypes: {},
+            isLoadingSupportedDocumentTypes: false,
             recipients: [],
             selectedRecipient: null,
             mailTemplateIdError: null,
@@ -63,6 +65,40 @@ export default {
 
         documentTypeRepository() {
             return this.repositoryFactory.create('document_type');
+        },
+
+        /**
+         * @deprecated tag:v6.9.0 - drop this filter when document_type is removed.
+         */
+        documentTypeCriteria() {
+            return new Criteria(1, 25).addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
+        },
+
+        isDocumentGenerationReworkActive() {
+            return Shopware.Feature.isActive('DOCUMENT_GENERATION_REWORK');
+        },
+
+        documentTypeOptions() {
+            return Object.keys(this.supportedDocumentTypes).map((technicalName) => {
+                return {
+                    value: technicalName,
+                    label: this.documentV2Service.getDocumentTypeLabel(
+                        technicalName,
+                        this.supportedDocumentTypes[technicalName]?.label,
+                    ),
+                };
+            });
+        },
+
+        fileFormatOptions() {
+            const formats = this.supportedDocumentTypes[this.documentTypeSelected]?.formats ?? [];
+
+            return formats.map((format) => {
+                return {
+                    value: format,
+                    label: this.$t(this.documentV2Service.getFileFormatSnippet(format)),
+                };
+            });
         },
 
         isNewMail() {
@@ -165,34 +201,17 @@ export default {
                 ];
             }
 
-            if (
-                [
-                    'newsletter.confirm',
-                    'newsletter.register',
-                    'newsletter.unsubscribe',
-                ].includes(this.triggerEvent.name)
-            ) {
-                return [
-                    ...this.recipientCustomer,
-                    ...this.recipientAdmin,
-                    ...this.recipientCustom,
-                ];
+            if (['newsletter.confirm', 'newsletter.register', 'newsletter.unsubscribe'].includes(this.triggerEvent.name)) {
+                return [...this.recipientCustomer, ...this.recipientAdmin, ...this.recipientCustom];
             }
 
             const hasEntityAware = allowAwareConverted.some((allowedAware) => this.entityAware.includes(allowedAware));
 
             if (hasEntityAware) {
-                return [
-                    ...this.recipientCustomer,
-                    ...this.recipientAdmin,
-                    ...this.recipientCustom,
-                ];
+                return [...this.recipientCustomer, ...this.recipientAdmin, ...this.recipientCustom];
             }
 
-            return [
-                ...this.recipientAdmin,
-                ...this.recipientCustom,
-            ];
+            return [...this.recipientAdmin, ...this.recipientCustom];
         },
 
         recipientColumns() {
@@ -212,17 +231,10 @@ export default {
 
         replyToOptions() {
             if (this.triggerEvent.name === 'contact_form.send') {
-                return [
-                    ...this.recipientDefault,
-                    ...this.recipientContactFormMail,
-                    ...this.recipientCustom,
-                ];
+                return [...this.recipientDefault, ...this.recipientContactFormMail, ...this.recipientCustom];
             }
 
-            return [
-                ...this.recipientDefault,
-                ...this.recipientCustom,
-            ];
+            return [...this.recipientDefault, ...this.recipientCustom];
         },
 
         replyToSelection() {
@@ -240,14 +252,15 @@ export default {
             return this.replyToSelection === 'custom';
         },
 
-        ...mapState(
-            () => Store.get('swFlow'),
-            [
-                'mailTemplates',
-                'triggerEvent',
-                'triggerActions',
-            ],
-        ),
+        ...mapState(() => Store.get('swFlow'), ['mailTemplates', 'triggerEvent', 'triggerActions']),
+    },
+
+    watch: {
+        fileFormatsSelected(value) {
+            if (value.length > 0 && this.fileFormatsError) {
+                this.fileFormatsError = null;
+            }
+        },
     },
 
     created() {
@@ -258,27 +271,26 @@ export default {
         createdComponent() {
             this.mailRecipient = this.recipientOptions[0].value;
 
+            if (this.isDocumentGenerationReworkActive) {
+                this.loadSupportedDocumentTypes();
+            }
+
             if (!this.isNewMail) {
                 const { config } = this.sequence;
 
                 this.mailRecipient = config.recipient?.type;
 
                 if (config.recipient?.type === 'custom') {
-                    Object.entries(config.recipient.data).forEach(
-                        ([
-                            key,
-                            value,
-                        ]) => {
-                            const newId = Utils.createId();
-                            this.recipients.push({
-                                id: newId,
-                                email: key,
-                                name: value,
-                                isNew: false,
-                                isMailValid: true,
-                            });
-                        },
-                    );
+                    Object.entries(config.recipient.data).forEach(([key, value]) => {
+                        const newId = Utils.createId();
+                        this.recipients.push({
+                            id: newId,
+                            email: key,
+                            name: value,
+                            isNew: false,
+                            isMailValid: true,
+                        });
+                    });
 
                     this.showRecipientEmails = true;
                 }
@@ -288,7 +300,32 @@ export default {
                 }
 
                 this.mailTemplateId = config.mailTemplateId;
-                this.documentTypeIds = config.documentTypeIds;
+
+                if (this.isDocumentGenerationReworkActive) {
+                    this.documentTypeSelected = config.documentType ?? null;
+                    this.fileFormatsSelected = config.fileFormats || [];
+                } else {
+                    this.documentTypeIds = config.documentTypeIds || [];
+                }
+            }
+        },
+
+        onDocumentTypeSelectedChange(value) {
+            this.documentTypeSelected = value;
+            this.fileFormatsSelected = [];
+        },
+
+        async loadSupportedDocumentTypes() {
+            this.isLoadingSupportedDocumentTypes = true;
+
+            try {
+                this.supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
+            } catch (error) {
+                this.createNotificationError({
+                    message: error.message,
+                });
+            } finally {
+                this.isLoadingSupportedDocumentTypes = false;
             }
         },
 
@@ -343,7 +380,19 @@ export default {
         onAddAction() {
             this.mailTemplateIdError = this.mailTemplateError(this.mailTemplateId);
             this.recipientGridError = this.isRecipientGridError();
-            if (this.mailTemplateIdError || this.replyToError || this.recipientGridError || this.isValidating) {
+
+            this.fileFormatsError =
+                this.isDocumentGenerationReworkActive && this.documentTypeSelected && !this.fileFormatsSelected.length
+                    ? new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' })
+                    : null;
+
+            if (
+                this.mailTemplateIdError ||
+                this.replyToError ||
+                this.recipientGridError ||
+                this.isValidating ||
+                this.fileFormatsError
+            ) {
                 return;
             }
 
@@ -353,7 +402,12 @@ export default {
                 ...this.sequence,
                 config: {
                     mailTemplateId: this.mailTemplateId,
-                    documentTypeIds: this.documentTypeIds,
+                    ...(this.isDocumentGenerationReworkActive
+                        ? {
+                              documentType: this.documentTypeSelected,
+                              fileFormats: this.fileFormatsSelected,
+                          }
+                        : { documentTypeIds: this.documentTypeIds }),
                     recipient: {
                         type: this.mailRecipient,
                         data: this.getRecipientData(),
@@ -387,10 +441,7 @@ export default {
 
             const currentMailTemplate = this.mailTemplates.find((item) => item.id === id);
             if (!currentMailTemplate && mailTemplate) {
-                Shopware.Store.get('swFlow').mailTemplates = [
-                    ...this.mailTemplates,
-                    mailTemplate,
-                ];
+                Shopware.Store.get('swFlow').mailTemplates = [...this.mailTemplates, mailTemplate];
             }
         },
 

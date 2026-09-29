@@ -431,13 +431,13 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
             return false;
         }
 
-        $value = (string) preg_replace('/\s+/', '', trim($value));
+        $value = (string) preg_replace('/\s+/', '', $value);
 
         /*
          * Allows embedded raster image payloads only.
          * Regex tester: https://regex101.com/r/kxNJDI/1
          */
-        return preg_match('/^data:image\/(?:png|jpe?g|gif|webp);base64,[a-z0-9+\/=]+$/i', $value) === 1;
+        return preg_match('/^data:image\/(?:png|jpe?g|gif|webp);base64,[a-z0-9+\/=]+$/iD', $value) === 1;
     }
 
     private function isAllowedAttribute(\XMLReader $reader, string $attributeName, bool $allowsAnyPassiveAttribute): bool
@@ -517,8 +517,8 @@ class SvgContentValidator extends AbstractFileContentValidator implements ResetI
             return false;
         }
 
-        $doctype = (string) preg_replace('/\s+/', ' ', trim($doctype));
-        if (!preg_match('/^<!DOCTYPE svg PUBLIC ([\'"])(.+?)\1 ([\'"])(.+?)\3\s*>$/i', $doctype, $matches)) {
+        $doctype = (string) preg_replace('/\s+/', ' ', $doctype);
+        if (!preg_match('/^<!DOCTYPE svg PUBLIC ([\'"])(.+?)\1 ([\'"])(.+?)\3\s*>$/iD', $doctype, $matches)) {
             return false;
         }
 

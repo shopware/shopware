@@ -149,6 +149,7 @@ class StorybookServiceTest extends TestCase
             '123invalid' => 'bad',
             'also-invalid' => 'bad',
             'valid_prop2' => 'world',
+            "trailingNewline\n" => 'bad',
         ]);
 
         $result = $this->createService()->resolveComponentProps($request, $salesChannelContext);
@@ -157,6 +158,7 @@ class StorybookServiceTest extends TestCase
         static::assertArrayHasKey('valid_prop2', $result);
         static::assertArrayNotHasKey('123invalid', $result);
         static::assertArrayNotHasKey('also-invalid', $result);
+        static::assertArrayNotHasKey("trailingNewline\n", $result);
     }
 
     public function testResolveComponentPropsResolvesProductEntityProperty(): void

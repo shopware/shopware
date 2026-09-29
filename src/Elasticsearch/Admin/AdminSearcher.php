@@ -242,7 +242,7 @@ class AdminSearcher
             BoolQuery::SHOULD
         );
 
-        if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
+        if (preg_match('/^[\p{L}0-9]+$/uD', $lastPart)) {
             $search->addQuery(
                 new PrefixQuery('completion', $prefixTerm, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
                 BoolQuery::SHOULD

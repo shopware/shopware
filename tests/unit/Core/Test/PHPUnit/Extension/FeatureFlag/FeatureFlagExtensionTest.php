@@ -103,6 +103,12 @@ class FeatureFlagExtensionTest extends TestCase
             'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", "valid\namespace\without\backslash\at\the\end" given.',
         ];
 
+        yield 'namespace with a trailing newline' => [
+            "Valid\\Namespace\\\n",
+            \InvalidArgumentException::class,
+            "Namespace must be a valid PHP namespace ending with a backslash like this \"Shopware\\Tests\\Unit\\\", \"Valid\\Namespace\\\n\" given.",
+        ];
+
         yield 'namespace already present' => [
             'Shopware\\Tests\\Unit\\',
             \InvalidArgumentException::class,

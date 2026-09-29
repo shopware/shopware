@@ -129,7 +129,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $lastPart = (string) end($splitTerms);
         $identifierTerm = mb_strtolower($term);
         $identifierFields = ['ean', 'productNumber', 'manufacturerNumber'];
-        $isPrefixTerm = preg_match('/^[\p{L}0-9]+$/u', $lastPart) === 1;
+        $isPrefixTerm = preg_match('/^[\p{L}0-9]+$/uD', $lastPart) === 1;
         $textBoostedTerm = $isPrefixTerm ? $term . '*' : $term;
 
         foreach ($identifierFields as $field) {

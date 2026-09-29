@@ -11,7 +11,7 @@ The complete list of removed classes, entities, and Administration components is
 - The `document.renderer` and `document_type.renderer` service tags were removed. Register document types, data providers, and renderers via the `shopware.document_v2.type`, `shopware.document_v2.provider`, and `shopware.document_v2.renderer` tags instead, or use the app manifest `<documents>` block. See the [extension points guide](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/document/extension-points.html).
 - The `document_type` and `document_type_translation` entities were removed including their DAL definitions and associations. Document types are code-registered strings. Read the type from `document.typeName` instead of the `documentType` association. Persisted references were backfilled into the `type_name` columns, and the `document_type_id` columns became nullable.
 
-Shared classes that survived the removal were relocated into the `Shopware\Core\Checkout\DocumentV2` namespace, keeping their class names (see the "Relocated classes" list in `UPGRADE-6.7.md`). Update your imports accordingly.
+The class aliases and deprecated service aliases of the shared document classes were removed. These classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). References to a previous name, for example `Shopware\Core\Checkout\Document\DocumentEntity`, no longer resolve. Use the canonical names in imports, type declarations, static references, and service IDs.
 
 Twig template overrides were not affected: v2 renders the same `@Framework/documents/*.html.twig` templates.
 

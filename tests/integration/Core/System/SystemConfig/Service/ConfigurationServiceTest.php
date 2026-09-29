@@ -105,6 +105,22 @@ class ConfigurationServiceTest extends TestCase
         ));
     }
 
+    public function testBasicInformationOffersASellerCountrySelectDirectlyAboveTheShopOwnerAddress(): void
+    {
+        $configuration = $this->createConfigurationService([])->getConfiguration(
+            'core.basicInformation',
+            Context::createDefaultContext()
+        );
+
+        $elements = $configuration[0]['elements'];
+        $position = array_search('core.basicInformation.sellerCountryId', array_column($elements, 'name'), true);
+
+        static::assertIsInt($position);
+        static::assertSame('sw-entity-single-select', $elements[$position]['config']['componentName']);
+        static::assertSame('country', $elements[$position]['config']['entity']);
+        static::assertSame('core.basicInformation.address', $elements[$position + 1]['name'] ?? null);
+    }
+
     /**
      * @param list<Plugin> $plugins
      */

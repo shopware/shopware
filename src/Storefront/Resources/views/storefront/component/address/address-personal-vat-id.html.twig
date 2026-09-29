@@ -24,7 +24,8 @@
             validationRules: vatIdRequired ? 'required' : '',
             additionalClass: 'col-md-6',
             attributes: {
-                'data-form-validation-error-message': 'error.VIOLATION::VAT_ID_FORMAT_NOT_CORRECT'|trans|sw_sanitize,
+                'data-form-validation-pattern-message': 'error.VIOLATION::VAT_ID_FORMAT_NOT_CORRECT'|trans|sw_sanitize,
+                'data-vat-id-format-warning': 'address.companyVatFormatWarning'|trans|sw_sanitize,
             },
         } %}
     {% endblock %}

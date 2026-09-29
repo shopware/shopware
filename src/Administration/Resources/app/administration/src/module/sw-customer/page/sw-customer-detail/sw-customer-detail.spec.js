@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
+import CustomerVatIdService from 'src/app/service/customer-vat-id.service';
 
 /**
  * @sw-package checkout
@@ -22,6 +23,22 @@ async function createWrapper(
     customerResponse = defaultCustomer,
     { featureActive = false, routeName = 'sw.customer.detail.base', routerPush = jest.fn() } = {},
 ) {
+    const repositoryFactory = {
+        create: () => {
+            return {
+                get: () => Promise.resolve(customerResponse),
+
+                search: () => Promise.resolve([]),
+
+                searchIds: () =>
+                    Promise.resolve({
+                        total: 1,
+                        data: ['1'],
+                    }),
+            };
+        },
+    };
+
     return mount(
         await wrapTestComponent('sw-customer-detail', {
             sync: true,
@@ -101,19 +118,8 @@ async function createWrapper(
                     },
                 },
                 provide: {
-                    repositoryFactory: {
-                        create: () => {
-                            return {
-                                get: () => Promise.resolve(customerResponse),
-
-                                searchIds: () =>
-                                    Promise.resolve({
-                                        total: 1,
-                                        data: ['1'],
-                                    }),
-                            };
-                        },
-                    },
+                    repositoryFactory,
+                    customerVatIdService: new CustomerVatIdService(repositoryFactory),
                     acl: {
                         can: (identifier) => {
                             if (!identifier) {
@@ -245,6 +251,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         const saveButton = wrapperWithPrivileges.findComponent('.sw-customer-detail__save-action');
         await saveButton.trigger('click');
+        await flushPromises();
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({

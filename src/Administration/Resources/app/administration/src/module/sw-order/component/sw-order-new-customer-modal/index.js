@@ -20,6 +20,7 @@ export default {
         'numberRangeService',
         'systemConfigApiService',
         'customerValidationService',
+        'customerVatIdService',
         'feature',
     ],
 
@@ -34,6 +35,7 @@ export default {
             customerNumberPreview: '',
             defaultSalutationId: null,
             activeTab: 'details',
+            billingCountry: null,
         };
     },
 
@@ -101,6 +103,10 @@ export default {
             return this.customer !== null ? this.customer.addresses.get(this.customer.defaultBillingAddressId) : null;
         },
 
+        isVatIdRequired() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS && !!this.billingCountry?.vatIdRequired;
+        },
+
         isSameBilling: {
             get() {
                 if (this.customer === null) {
@@ -142,6 +148,10 @@ export default {
                 : true;
         },
 
+        countryRepository() {
+            return this.repositoryFactory.create('country');
+        },
+
         languageRepository() {
             return this.repositoryFactory.create('language');
         },
@@ -175,6 +185,10 @@ export default {
     },
 
     watch: {
+        async 'billingAddress.countryId'(countryId) {
+            this.billingCountry = countryId ? await this.countryRepository.get(countryId) : null;
+        },
+
         'customer.salesChannelId'(salesChannelId) {
             this.systemConfigApiService.getValues('core.systemWideLoginRegistration').then((response) => {
                 if (response['core.systemWideLoginRegistration.isCustomerBoundToSalesChannel']) {
@@ -230,6 +244,12 @@ export default {
 
             if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_PRIVATE) {
                 this.customer.vatIds = [];
+            } else if (this.customer.vatIds) {
+                this.customer.vatIds = this.customerVatIdService.normalizeVatIds(this.customer.vatIds);
+            }
+
+            if (!(await this.validVatIdField())) {
+                hasError = true;
             }
 
             if (hasError) {
@@ -277,6 +297,13 @@ export default {
                     });
                     this.isLoading = false;
                 });
+        },
+
+        async validVatIdField() {
+            const countryId = this.billingAddress?.countryId;
+            const country = countryId ? await this.countryRepository.get(countryId) : null;
+
+            return this.customerVatIdService.validateVatIds(this.customer, country);
         },
 
         onChangeSalesChannel(salesChannelId) {

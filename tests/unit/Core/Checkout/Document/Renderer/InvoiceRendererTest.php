@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -49,7 +50,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool, shouldCheckVatIdPattern?: bool, validVat?: bool}
+ * @phpstan-type OrderSettings array{accountType: string, isCountryCompanyTaxFree: bool, setOrderDelivery: bool, setShippingCountry: bool, setEuCountry: bool, shouldCheckVatIdPattern?: bool, validVat?: bool, domesticSupply?: bool}
  * @phpstan-type InvoiceConfig array{displayAdditionalNoteDelivery: bool, fileTypes: array<string>}
  */
 #[Package('after-sales')]
@@ -116,6 +117,9 @@ class InvoiceRendererTest extends TestCase
             });
         }
 
+        $vatIdPatternProvider = static::createStub(VatIdPatternProvider::class);
+        $vatIdPatternProvider->method('isDomesticSupply')->willReturn($orderSettings['domesticSupply'] ?? false);
+
         $invoiceRenderer = new InvoiceRenderer(
             $orderRepositoryMock,
             $documentConfigLoaderMock,
@@ -124,7 +128,8 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             $validator,
-            new NativeClock()
+            new NativeClock(),
+            $vatIdPatternProvider
         );
 
         $operations = [
@@ -212,7 +217,8 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             static::createStub(ValidatorInterface::class),
-            new NativeClock()
+            new NativeClock(),
+            static::createStub(VatIdPatternProvider::class)
         );
 
         $operations = [
@@ -266,7 +272,8 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             static::createStub(ValidatorInterface::class),
-            new NativeClock()
+            new NativeClock(),
+            static::createStub(VatIdPatternProvider::class)
         );
 
         $operations = [
@@ -383,6 +390,24 @@ class InvoiceRendererTest extends TestCase
                 'setOrderDelivery' => true,
                 'setShippingCountry' => false,
                 'setEuCountry' => true,
+            ],
+            'config' => [
+                'displayAdditionalNoteDelivery' => true,
+                'fileTypes' => ['pdf', 'html'],
+            ],
+            'expectedResult' => false,
+        ];
+
+        yield 'will return false because the goods stay in the shop\'s own member state' => [
+            'orderSettings' => [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'isCountryCompanyTaxFree' => true,
+                'setOrderDelivery' => true,
+                'setShippingCountry' => true,
+                'setEuCountry' => true,
+                'shouldCheckVatIdPattern' => true,
+                'validVat' => true,
+                'domesticSupply' => true,
             ],
             'config' => [
                 'displayAdditionalNoteDelivery' => true,

@@ -104,6 +104,35 @@ describe('src/module/sw-order/component/sw-order-state-select-v2', () => {
         expect(wrapper.find('.sw-order-state-select-v2__status-dot').exists()).toBe(false);
     });
 
+    it('should show status dots in the options with a current state', async () => {
+        const wrapper = await createWrapper({ transitionOptions, stateName: 'open' });
+
+        await wrapper.find('.mt-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-order-state-select-v2__state .mt-status-dot')).toHaveLength(2);
+    });
+
+    it('should not show status dots in the options without a current state', async () => {
+        const wrapper = await createWrapper({ transitionOptions });
+
+        await wrapper.find('.mt-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.mt-select-option--0').text()).toBe('Open');
+        expect(wrapper.find('.sw-order-state-select-v2__state').exists()).toBe(false);
+    });
+
+    it('should mark the select without a current state, so the placeholder reads as the current state', async () => {
+        const wrapper = await createWrapper({ transitionOptions });
+
+        expect(wrapper.classes()).toContain('sw-order-state-select-v2--without-state');
+
+        await wrapper.setProps({ stateName: 'open' });
+
+        expect(wrapper.classes()).not.toContain('sw-order-state-select-v2--without-state');
+    });
+
     it('should render a passed hint below the field', async () => {
         const wrapper = await createWrapper({}, { hint: 'Status set 5 minutes ago by admin' });
 

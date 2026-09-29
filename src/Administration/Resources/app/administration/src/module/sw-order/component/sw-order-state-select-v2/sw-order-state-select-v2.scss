@@ -9,6 +9,10 @@
         gap: var(--scale-size-8);
     }
 
+    &--without-state .mt-select-selection-list .mt-select-selection-list__input::placeholder {
+        color: var(--color-text-primary-default);
+    }
+
     &:has(&__status-dot) .mt-select {
         .mt-field__addition.is--prefix {
             min-width: 0;

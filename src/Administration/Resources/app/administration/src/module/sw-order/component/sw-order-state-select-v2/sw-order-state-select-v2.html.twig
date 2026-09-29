@@ -1,7 +1,7 @@
 {% block sw_order_state_select_v2 %}
 <div
     class="sw-order-state-select-v2"
-    :class="`sw-order-state-select-v2__${stateType}`"
+    :class="[`sw-order-state-select-v2__${stateType}`, { 'sw-order-state-select-v2--without-state': !stateName }]"
 >
     {% block sw_order_state_select_v2_field %}
     <mt-select
@@ -26,7 +26,10 @@
             />
         </template>
 
-        <template #result-label-property="{ item }">
+        <template
+            v-if="stateName"
+            #result-label-property="{ item }"
+        >
             <span class="sw-order-state-select-v2__state">
                 <mt-status-dot :variant="getStateVariant(item.stateName)" />
 

@@ -7,9 +7,15 @@
 {% block base_navigation %}{% endblock %}
 
 {% set showLegalGuaranteeNotice = config('core.cart.showLegalGuaranteeNotice') %}
+{% set showLegalGuaranteeNoticeInline = showLegalGuaranteeNotice and config('core.cart.showLegalGuaranteeNoticeInline') %}
 {% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
-{% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
-{% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+{% if showLegalGuaranteeNoticeInline %}
+    {% set legalGuaranteeNoticeModalTagOpen = '<a href="#legalGuaranteeNoticeInline" class="btn btn-link-inline">' %}
+    {% set legalGuaranteeNoticeModalTagClose = '</a>' %}
+{% else %}
+    {% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
+    {% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+{% endif %}
 
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
@@ -47,7 +53,6 @@
             <div class="confirm-tos">
                 <div class="card checkout-card">
                     <div class="card-body">
-
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
                                 {{ 'checkout.confirmTermsHeader'|trans|sw_sanitize }}
@@ -104,6 +109,12 @@
                                     </label>
                                 {% endblock %}
                             </div>
+                        {% endblock %}
+
+                        {% block page_checkout_confirm_legal_guarantee_notice_inline %}
+                            {% if showLegalGuaranteeNoticeInline %}
+                                {% sw_include '@Storefront/storefront/page/checkout/confirm/legal-guarantee-notice.html.twig' %}
+                            {% endif %}
                         {% endblock %}
 
                         {% block page_checkout_confirm_revocation_control %}
@@ -253,7 +264,7 @@
 
 {% block page_checkout_aside_actions %}
     {% block page_checkout_confirm_legal_guarantee_notice %}
-        {% if showLegalGuaranteeNotice %}
+        {% if showLegalGuaranteeNotice and not showLegalGuaranteeNoticeInline %}
             {% block page_checkout_confirm_legal_guarantee_notice_modal %}
                 <div class="modal modal-lg fade"
                      id="{{ legalGuaranteeNoticeModalId }}"

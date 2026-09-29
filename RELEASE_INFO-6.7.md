@@ -220,6 +220,31 @@ The group order in the permissions grid of Settings > Users & permissions follow
 
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
+### Import the global Shopware object with `shopware:*` modules (experimental)
+
+Administration code and extensions can now import selected APIs from the global `Shopware` object:
+
+```ts
+import { createId } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
+import { Criteria } from 'shopware:data';
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
+```
+
+This surface is **experimental** and not covered by the backwards-compatibility promise: the available
+specifiers, what each one exports, and their types can change in any release without a deprecation cycle.
+It is annotated `@experimental stableVersion:v6.8.0`, and becomes stable public API with Shopware 6.8.
+`Shopware.*` access is stable, so code that keeps using the global needs no change.
+
+The `shopware:utils` and `shopware:data` roots provide named exports. Their subpaths provide default
+exports, and declared utility namespaces can also provide named exports. Mixins and stores only provide
+subpaths for Administration registrations. A store subpath returns a composable that resolves the store
+when called.
+
+Existing `Shopware.*` access remains supported. Use `Shopware.Store.get()` and
+`Shopware.Mixin.getByName()` for registrations that an extension creates at runtime.
+
 ## Storefront
 
 ### Display the complete legal guarantee notice at checkout

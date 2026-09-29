@@ -44,9 +44,9 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
     public function configSpecification(): LoaderConfigSpecification
     {
         return new LoaderConfigSpecification([
-            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'entityId'),
+            new ConfigKeySpecification('property', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: 'entityId'),
             new ConfigKeySpecification('type', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: 'product'),
-            new ConfigKeySpecification('referrerCategoryProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: null),
+            new ConfigKeySpecification('referrerCategoryProperty', ConfigKeyKind::Literal, 'string', required: false, hasDefault: true, default: null),
         ]);
     }
 
@@ -84,11 +84,9 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
         if ($referrerCategoryId !== null) {
             $referrerCategoryId = u($referrerCategoryId)->lower()->toString();
 
-            if (!Uuid::isValid($referrerCategoryId)) {
-                return ContentDataLoaderResult::notFound();
+            if (Uuid::isValid($referrerCategoryId)) {
+                $clonedRequest->query->set('referrerCategoryId', $referrerCategoryId);
             }
-
-            $clonedRequest->query->set('referrerCategoryId', $referrerCategoryId);
         }
 
         // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError

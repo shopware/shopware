@@ -16,9 +16,13 @@ properties:
     description: "Breadcrumb path of the current product or category page, resolved by the breadcrumb data loader from the page entity's id."
     resolvedBy:
       breadcrumb:
-        type: "{{entityType}}"
-        property: "{{entityIdField}}"
-        referrerCategoryProperty: referrerCategoryId
+        property: !scoped
+          product: "{{productId}}"
+          category: "{{categoryId}}"
+        type: !scoped
+          product: product
+          category: category
+        referrerCategoryProperty: "{{referrerCategoryId}}"
 
   showHome:
     type: boolean
@@ -27,28 +31,3 @@ properties:
     default: false
     adminUI:
       component: "switch"
-
-  referrerCategoryId:
-    type: string
-    required: false
-    title: "Referrer category ID"
-    description: "Category the visitor navigated from. When present, the breadcrumb follows that category's path; otherwise it falls back to the page entity's own default path. Filled per request from the referrerCategoryId query parameter, so it needs no editorial input."
-    default: "{{referrerCategoryId}}"
-    adminUI:
-      hidden: true
-
-  productId:
-    type: string
-    title: "Product entity ID"
-    description: "Id of the current product page's entity. Resolved per request from the layout root, so it needs no editorial input."
-    default: "{{productId}}"
-    adminUI:
-      hidden: true
-
-  categoryId:
-    type: string
-    title: "Category entity ID"
-    description: "Id of the current category page's entity. Resolved per request from the layout root, so it needs no editorial input."
-    default: "{{categoryId}}"
-    adminUI:
-      hidden: true

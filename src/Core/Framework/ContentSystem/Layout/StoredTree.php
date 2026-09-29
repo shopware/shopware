@@ -34,6 +34,7 @@ final readonly class StoredTree
      */
     public function __construct(
         public array $roots,
+        public ?string $rootSource = null,
     ) {
     }
 
@@ -79,7 +80,7 @@ final readonly class StoredTree
 
     public function remove(string $id): self
     {
-        return new self($this->removeFrom($this->roots, $id));
+        return new self($this->removeFrom($this->roots, $id), $this->rootSource);
     }
 
     /**
@@ -89,7 +90,7 @@ final readonly class StoredTree
      */
     public function insertAtRoot(?int $index, array $nodes): self
     {
-        return new self($this->splice($this->roots, $index, $nodes));
+        return new self($this->splice($this->roots, $index, $nodes), $this->rootSource);
     }
 
     /**
@@ -100,12 +101,12 @@ final readonly class StoredTree
      */
     public function insertIntoSlot(string $parentId, string $slot, ?int $index, array $nodes): self
     {
-        return new self($this->insertInto($this->roots, $parentId, $slot, $index, $nodes));
+        return new self($this->insertInto($this->roots, $parentId, $slot, $index, $nodes), $this->rootSource);
     }
 
     public function replace(string $id, StoredElement $replacement): self
     {
-        return new self($this->replaceIn($this->roots, $id, $replacement));
+        return new self($this->replaceIn($this->roots, $id, $replacement), $this->rootSource);
     }
 
     /**

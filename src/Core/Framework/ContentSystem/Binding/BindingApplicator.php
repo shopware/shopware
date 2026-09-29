@@ -27,9 +27,9 @@ final class BindingApplicator
     ) {
     }
 
-    public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId): StoredElement
+    public function apply(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $rootSource = null): StoredElement
     {
-        $dataRequirements = array_replace($element->dataRequirements, $this->resolveDataRequirements($specification));
+        $dataRequirements = array_replace($element->dataRequirements, $this->resolveDataRequirements($specification, $rootSource));
         $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
         $attributedSpecifications = array_replace($element->attributedSpecifications, $this->attributionFor(array_keys($specification->resolves()), $bindingSpecificationId));
 
@@ -42,12 +42,12 @@ final class BindingApplicator
      * existing-wins idiom {@see LayoutDefaultSeeder} uses for property seeding: the element's own value always wins
      * over a wired/seeded one.
      */
-    public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId): StoredElement
+    public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $rootSource = null): StoredElement
     {
         $existingDataRequirements = $element->dataRequirements;
         $wiredKeys = array_diff(array_keys($specification->resolves()), array_keys($existingDataRequirements));
 
-        $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($specification);
+        $dataRequirements = $existingDataRequirements + $this->resolveDataRequirements($specification, $rootSource);
         $properties = array_replace($this->seedInputDefaults($element, $specification), $element->properties());
         $attributedSpecifications = $element->attributedSpecifications + $this->attributionFor($wiredKeys, $bindingSpecificationId);
 
@@ -70,12 +70,13 @@ final class BindingApplicator
     /**
      * @return array<string, DataRequirement>
      */
-    private function resolveDataRequirements(BindingSpecification $specification): array
+    private function resolveDataRequirements(BindingSpecification $specification, ?string $rootSource): array
     {
         $dataRequirements = [];
 
         foreach ($specification->resolves() as $key => $binding) {
-            $dataRequirements[$key] = new DataRequirement($key, $binding->loader, $this->configSerializerProvider->decode($binding->loader, $binding->config));
+            $config = RootSourceConfigMap::collapse($binding->config, $rootSource);
+            $dataRequirements[$key] = new DataRequirement($key, $binding->loader, $this->configSerializerProvider->decode($binding->loader, $config));
         }
 
         return $dataRequirements;

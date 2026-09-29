@@ -44,7 +44,7 @@ final class BindElement extends AbstractLayoutMutation
             throw ContentSystemException::bindingTypeMismatch($this->bindingSpecificationId, $specification->type(), $node->component);
         }
 
-        $replacement = $this->applicator->apply($node, $specification, $this->bindingSpecificationId);
+        $replacement = $this->applicator->apply($node, $specification, $this->bindingSpecificationId, $tree->rootSource);
 
         $result = $tree->replace($this->elementId, $replacement);
 

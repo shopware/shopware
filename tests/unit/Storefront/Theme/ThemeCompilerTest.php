@@ -2,9 +2,11 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\UnableToWriteFile;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
@@ -451,6 +453,7 @@ PHP_EOL,
 
     public function testCompileWithoutAssets(): void
     {
+        $this->filesystem->write('theme/test/logo.png', 'existing logo');
         $this->themeFileResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
             ThemeFileResolver::STYLE_FILES => new FileCollection(),
@@ -480,6 +483,89 @@ PHP_EOL,
         );
 
         static::assertTrue($this->filesystem->has('theme/9a11a759d278b4a55cb5e2c3414733c1'));
+        static::assertSame('existing logo', $this->filesystem->read('theme/test/logo.png'));
+    }
+
+    public function testFailedAssetCopyPreservesPreviousAssets(): void
+    {
+        $adapter = new class extends InMemoryFilesystemAdapter {
+            public function writeStream(string $path, $contents, Config $config): void
+            {
+                throw UnableToWriteFile::atLocation($path);
+            }
+        };
+        $this->filesystem = new Filesystem($adapter);
+        $this->filesystem->write('theme/test/logo.png', 'old logo');
+        $this->filesystem->write('theme/test/obsolete.png', 'old asset');
+        $this->tempFilesystem->write('logo.png', 'new logo');
+        $this->themeFileResolver->method('resolveFiles')->willReturn([
+            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
+            ThemeFileResolver::STYLE_FILES => new FileCollection(),
+        ]);
+        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')
+            ->willReturn(new StaticFilesystem(['Resources/assets' => 'directory']));
+        $stream = $this->tempFilesystem->readStream('logo.png');
+        $this->copyBatchInputFactory->method('fromDirectory')->willReturn([
+            new CopyBatchInput($stream, ['theme/test/logo.png']),
+        ]);
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['assets']);
+
+        try {
+            $this->getThemeCompiler()->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'test',
+                $config,
+                new StorefrontPluginConfigurationCollection(),
+                true,
+                Context::createDefaultContext()
+            );
+            static::fail('The failed upload must not report a successful compile.');
+        } catch (UnableToWriteFile) {
+            static::assertSame('old logo', $this->filesystem->read('theme/test/logo.png'));
+            static::assertSame('old asset', $this->filesystem->read('theme/test/obsolete.png'));
+        } finally {
+            if (\is_resource($stream)) {
+                fclose($stream);
+            }
+        }
+    }
+
+    public function testThemeAssetsSurviveDelayedDeletes(): void
+    {
+        $adapter = new DelayedThemeAssetDeleteAdapter();
+        $this->filesystem = new Filesystem($adapter);
+        $this->filesystem->write('theme/test/images/logo.png', 'old logo');
+        $this->filesystem->write('theme/test/fonts/obsolete.woff', 'obsolete font');
+        $this->filesystem->write('theme/other/images/logo.png', 'other theme');
+        $this->tempFilesystem->write('logo.png', 'new logo');
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['assets']);
+        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')
+            ->willReturn(new StaticFilesystem(['Resources/assets' => 'directory']));
+        $this->themeFileResolver->method('resolveFiles')->willReturn([
+            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
+            ThemeFileResolver::STYLE_FILES => new FileCollection(),
+        ]);
+        $this->copyBatchInputFactory->method('fromDirectory')->willReturn([
+            new CopyBatchInput($this->tempFilesystem->readStream('logo.png'), ['theme/test/images/logo.png']),
+        ]);
+
+        $this->getThemeCompiler()->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'test',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            true,
+            Context::createDefaultContext()
+        );
+        $adapter->completeDeletes();
+
+        static::assertTrue($this->filesystem->fileExists('theme/test/images/logo.png'));
+        static::assertSame('new logo', $this->filesystem->read('theme/test/images/logo.png'));
+        static::assertFalse($this->filesystem->fileExists('theme/test/fonts/obsolete.woff'));
+        static::assertSame('other theme', $this->filesystem->read('theme/other/images/logo.png'));
     }
 
     public function testAssetPathWillBeAbsoluteConverted(): void
@@ -854,5 +940,38 @@ PHP_EOL,
             [],
             false
         );
+    }
+}
+
+/**
+ * @internal
+ */
+class DelayedThemeAssetDeleteAdapter extends InMemoryFilesystemAdapter
+{
+    /**
+     * @var list<string>
+     */
+    private array $pendingDeletes = [];
+
+    public function deleteDirectory(string $path): void
+    {
+        foreach ($this->listContents($path, true) as $item) {
+            if ($item->isFile()) {
+                $this->delete($item->path());
+            }
+        }
+    }
+
+    public function delete(string $path): void
+    {
+        $this->pendingDeletes[] = $path;
+    }
+
+    public function completeDeletes(): void
+    {
+        foreach ($this->pendingDeletes as $path) {
+            parent::delete($path);
+        }
+        $this->pendingDeletes = [];
     }
 }

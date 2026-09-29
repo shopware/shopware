@@ -1,5 +1,8 @@
 .sw-experience-studio-inline-text-field {
     display: grid;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
     gap: 4px;
 
     &__help-text {
@@ -16,6 +19,7 @@
 .sw-experience-studio-mapping-token {
     display: inline-flex;
     align-items: center;
+    gap: 4px;
     padding: 0 6px;
     border: 1px solid var(--color-border-brand-selected);
     border-radius: var(--border-radius-default);
@@ -23,6 +27,15 @@
     color: var(--color-text-brand-default);
     font-size: var(--font-size-xs);
     white-space: nowrap;
+
+    &::before {
+        content: "";
+        flex: 0 0 12px;
+        width: 12px;
+        height: 12px;
+        background-color: currentcolor;
+        mask: url("@shopware-ag/meteor-icon-kit/icons/regular/variables-xs.svg") center / contain no-repeat;
+    }
 
     &.ProseMirror-selectednode {
         border-color: var(--color-border-brand-selected);

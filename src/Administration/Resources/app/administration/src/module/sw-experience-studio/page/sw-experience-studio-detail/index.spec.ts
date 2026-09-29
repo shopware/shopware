@@ -16,6 +16,74 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(methods.resolveMutationRootSource.call(vm)).toBe('product');
     });
 
+    it('resizes the element settings panel while preserving a minimum preview width', () => {
+        const vm = {
+            isResizingElementSettings: true,
+            resizeStartX: 500,
+            resizeStartWidth: 320,
+            elementSettingsWidth: 320,
+            $refs: {
+                workspace: {
+                    getBoundingClientRect: () => ({ width: 1200 }),
+                },
+            },
+        };
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: 200 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(600);
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: -500 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(600);
+
+        methods.onElementSettingsResizeMove.call(vm, { clientX: 1000 } as PointerEvent);
+        expect(vm.elementSettingsWidth).toBe(280);
+    });
+
+    it('captures the pointer for the entire resize gesture', () => {
+        const vm = {
+            elementSettingsWidth: 320,
+            resizeStartX: 500,
+            resizeStartWidth: 320,
+            isResizingElementSettings: false,
+            resizeMoveHandler: null,
+            resizeEndHandler: null,
+            resizeHandle: null,
+            resizePointerId: null,
+            onElementSettingsResizeMove: methods.onElementSettingsResizeMove,
+            stopElementSettingsResize: methods.stopElementSettingsResize,
+        };
+        const event = {
+            clientX: 500,
+            pointerId: 1,
+            currentTarget: {
+                setPointerCapture: jest.fn(),
+                hasPointerCapture: jest.fn().mockReturnValue(true),
+                releasePointerCapture: jest.fn(),
+            },
+            preventDefault: jest.fn(),
+        } as unknown as PointerEvent;
+
+        methods.onElementSettingsResizeStart.call(vm, event);
+        expect(vm.isResizingElementSettings).toBe(true);
+        expect((event.currentTarget as HTMLElement).setPointerCapture).toHaveBeenCalledWith(1);
+
+        vm.resizeEndHandler?.();
+
+        expect(vm.isResizingElementSettings).toBe(false);
+        expect(vm.resizeEndHandler).toBeNull();
+    });
+
+    it('grows the settings panel for elements with rich-text properties', () => {
+        const vm = {
+            selectedElementHasRichText: true,
+            elementSettingsWidth: 320,
+        };
+
+        methods.adjustElementSettingsWidth.call(vm);
+
+        expect(vm.elementSettingsWidth).toBe(640);
+    });
+
     it('returns null rootSource when no rootSource is set', () => {
         const vm = {
             layout: {
@@ -183,8 +251,14 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     });
 
     it.each([
-        ['map-property', 'category.name'],
-        ['unmap-property', null],
+        [
+            'map-property',
+            'category.name',
+        ],
+        [
+            'unmap-property',
+            null,
+        ],
     ] as const)('changes an element mapping via the %s draft mutation', async (operation, path) => {
         const executeStructuralDraftMutation = jest.fn().mockResolvedValue(undefined);
         const layout = [{ id: 'element-1', component: 'Sw:Content:Text' }];

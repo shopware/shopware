@@ -43,7 +43,7 @@
             {% endblock %}
 
             {% block sw_experience_studio_detail_workspace %}
-                <div class="sw-experience-studio-detail__workspace">
+                <div ref="workspace" class="sw-experience-studio-detail__workspace" :class="{ 'is-resizing': isResizingElementSettings, 'has-rich-text-settings': selectedElementHasRichText }" :style="{ '--element-settings-width': elementSettingsWidth + 'px' }">
                 {% block sw_experience_studio_detail_sidebar_tree %}
                     <sw-experience-studio-sidebar-tree
                         class="sw-experience-studio-detail__sidebar-tree"
@@ -69,6 +69,8 @@
                         @select-element="onSelectElement"
                     />
                 {% endblock %}
+
+                <div class="sw-experience-studio-detail__settings-resizer" role="separator" aria-orientation="vertical" :aria-valuenow="elementSettingsWidth" aria-valuemin="280" aria-valuemax="800" tabindex="0" @pointerdown="onElementSettingsResizeStart"></div>
 
                 {% block sw_experience_studio_detail_element_settings %}
                     <sw-experience-studio-element-settings

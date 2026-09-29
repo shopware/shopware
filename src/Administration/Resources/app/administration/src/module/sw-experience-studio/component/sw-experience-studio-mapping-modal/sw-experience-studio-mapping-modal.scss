@@ -1,4 +1,14 @@
 .sw-experience-studio-mapping-modal {
+    .sw-modal__dialog {
+        height: 700px;
+    }
+
+    .sw-modal__body {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
     &__intro {
         margin-bottom: var(--scale-size-16);
         color: var(--color-text-secondary-default);
@@ -6,6 +16,14 @@
 
     &__search {
         padding-bottom: var(--scale-size-24);
+    }
+
+    &__results {
+        min-height: 0;
+        height: 400px;
+        margin: 0 -30px;
+        padding: 0 30px;
+        overflow-y: auto;
     }
 
     &__groups {
@@ -65,5 +83,11 @@
         right: var(--scale-size-12);
         transform: translateY(-50%);
         color: var(--color-icon-brand-default);
+    }
+
+    @media screen and (max-width: 500px) {
+        .sw-modal__dialog {
+            height: 100%;
+        }
     }
 }

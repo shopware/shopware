@@ -1,5 +1,8 @@
 .sw-experience-studio-settings-fields {
     display: grid;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
 
     & .mt-switch {
         margin-top: 0;
@@ -7,6 +10,7 @@
 
     &__panel {
         border-bottom: 1px solid var(--color-border-primary-default);
+        min-width: 0;
 
         > .sw-collapse__header {
             padding: var(--scale-size-16);
@@ -49,6 +53,8 @@
         display: grid;
         gap: var(--scale-size-12);
         padding: var(--scale-size-24) var(--scale-size-16) var(--scale-size-16);
+        min-width: 0;
+        overflow-x: hidden;
     }
 
     &__radio-panel-group {
@@ -71,6 +77,7 @@
         min-height: var(--scale-size-40);
     }
 
+    // stylelint-disable-next-line max-line-length
     &__radio-panel-options.sw-button-group .sw-experience-studio-settings-fields__radio-panel-option.mt-button.mt-button--square {
         flex: 1 1 0;
         min-width: 0;
@@ -328,6 +335,19 @@
         cursor: default;
     }
 
+    &__field {
+        min-width: 0;
+        max-width: 100%;
+        overflow-x: hidden;
+
+        > .mt-text-editor,
+        > .sw-experience-studio-inline-text-field {
+            min-width: 0;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+    }
+
     &__field.is--error &__mapping-chip {
         border-color: var(--color-border-critical-default);
         background: var(--color-background-critical-default);
@@ -343,7 +363,6 @@
     // belonging to it — the action reads as introducing the next field rather than describing this one. The
     // reset hands that gap to the field wrapper so it falls after the action instead. Matching the controls'
     // own value keeps a mappable field spaced exactly like its neighbours.
-    //
     // Keyed on `:has()` rather than a template modifier so the rule cannot drift from `canMapField()`, and
     // because the resulting three-class specificity clears every control's own margin, including the
     // `.mt-field.mt-field--small` rule that out-specifies a single class.

@@ -27,6 +27,8 @@ import type {
     ContentLayoutRepository,
 } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
+import { getPropertyControlType } from 'src/module/sw-experience-studio/util/element-settings.util';
+import { getPropertyControlType } from 'src/module/sw-experience-studio/util/element-settings.util';
 import {
     findElementLocation,
     updateElementPropertiesInLayout,
@@ -88,7 +90,14 @@ type LayoutPreviewContext = {
     salesChannelId: string | null;
 };
 
-type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'insert-preset' | 'map-property' | 'unmap-property';
+type DraftMutationOperation =
+    | 'insert'
+    | 'remove'
+    | 'duplicate'
+    | 'move'
+    | 'insert-preset'
+    | 'map-property'
+    | 'unmap-property';
 
 type ContentSystemLayoutDraftMutationService = {
     insertElement: (payload: ContentLayoutDraftInsertPayload) => Promise<ContentLayoutDraftMutationResponse>;
@@ -104,6 +113,12 @@ type ContentSystemLayoutDraftMutationService = {
 type ContentSystemEntityTypeService = {
     getEntityTypes: () => Promise<string[]>;
 };
+
+const DEFAULT_ELEMENT_SETTINGS_WIDTH = 320;
+const MIN_ELEMENT_SETTINGS_WIDTH = 320;
+const MAX_ELEMENT_SETTINGS_WIDTH = 800;
+const RICH_TEXT_ELEMENT_SETTINGS_WIDTH = 640;
+const MIN_PREVIEW_WIDTH = 320;
 
 /**
  * @private
@@ -146,6 +161,14 @@ export default Shopware.Component.wrapComponentConfig({
         layoutTypeLoadError: string | null;
         createWizardName: string;
         createWizardSelectedType: string | null;
+        elementSettingsWidth: number;
+        isResizingElementSettings: boolean;
+        resizeStartX: number;
+        resizeStartWidth: number;
+        resizeMoveHandler: ((event: PointerEvent) => void) | null;
+        resizeEndHandler: (() => void) | null;
+        resizeHandle: HTMLElement | null;
+        resizePointerId: number | null;
     } {
         return {
             layout: null,
@@ -171,6 +194,14 @@ export default Shopware.Component.wrapComponentConfig({
             layoutTypeLoadError: null,
             createWizardName: '',
             createWizardSelectedType: null,
+            elementSettingsWidth: DEFAULT_ELEMENT_SETTINGS_WIDTH,
+            isResizingElementSettings: false,
+            resizeStartX: 0,
+            resizeStartWidth: DEFAULT_ELEMENT_SETTINGS_WIDTH,
+            resizeMoveHandler: null,
+            resizeEndHandler: null,
+            resizeHandle: null,
+            resizePointerId: null,
         };
     },
 
@@ -262,9 +293,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         mappingCandidateStore() {
-            return Shopware.Store.get(
-                'experienceStudioMappingCandidate' as never,
-            ) as ExperienceStudioMappingCandidateStore;
+            return Shopware.Store.get('experienceStudioMappingCandidate' as never) as ExperienceStudioMappingCandidateStore;
         },
 
         mappingCandidates(): ContentSystemMappingCandidate[] {
@@ -300,6 +329,12 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return this.elementTypeStore.getByName(this.selectedElement.component);
+        },
+
+        selectedElementHasRichText(): boolean {
+            return Object.values(this.selectedElementType?.properties ?? {}).some(
+                (property) => getPropertyControlType(property) === 'richtext',
+            );
         },
 
         availablePickerElements(): ElementPickerItem[] {
@@ -347,6 +382,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    watch: {
+        selectedElementId(): void {
+            this.adjustElementSettingsWidth();
+        },
+
+        selectedElementType(): void {
+            this.adjustElementSettingsWidth();
+        },
+    },
+
     created(): void {
         Shopware.Store.get('adminMenu').collapseSidebar();
         this.historyKeydownHandler = (event: KeyboardEvent): void => {
@@ -371,6 +416,8 @@ export default Shopware.Component.wrapComponentConfig({
         if (this.historyKeydownHandler) {
             document.removeEventListener('keydown', this.historyKeydownHandler);
         }
+
+        this.stopElementSettingsResize();
 
         this.editorStore.reset();
     },
@@ -403,8 +450,78 @@ export default Shopware.Component.wrapComponentConfig({
             void this.$router.push({ name: 'sw.experience.studio.index' });
         },
 
+        adjustElementSettingsWidth(): void {
+            if (this.selectedElementHasRichText) {
+                this.elementSettingsWidth = RICH_TEXT_ELEMENT_SETTINGS_WIDTH;
+            }
+        },
+
         onViewportChange(viewport: Viewport): void {
             this.currentViewport = viewport;
+        },
+
+        onElementSettingsResizeStart(event: PointerEvent): void {
+            event.preventDefault();
+            const resizeHandle = event.currentTarget as HTMLElement | null;
+
+            if (resizeHandle?.setPointerCapture) {
+                resizeHandle.setPointerCapture(event.pointerId);
+            }
+
+            this.resizeHandle = resizeHandle;
+            this.resizePointerId = event.pointerId;
+            this.resizeStartX = event.clientX;
+            this.resizeStartWidth = this.elementSettingsWidth;
+            this.isResizingElementSettings = true;
+            this.resizeMoveHandler = (moveEvent: PointerEvent): void => {
+                this.onElementSettingsResizeMove(moveEvent);
+            };
+            this.resizeEndHandler = (): void => {
+                this.stopElementSettingsResize();
+            };
+            document.addEventListener('pointermove', this.resizeMoveHandler);
+            document.addEventListener('pointerup', this.resizeEndHandler, { once: true });
+            document.addEventListener('pointercancel', this.resizeEndHandler);
+            window.addEventListener('blur', this.resizeEndHandler);
+        },
+
+        onElementSettingsResizeMove(event: PointerEvent): void {
+            if (!this.isResizingElementSettings) {
+                return;
+            }
+
+            const workspace = this.$refs.workspace as HTMLElement | undefined;
+            const workspaceWidth = workspace?.getBoundingClientRect().width ?? Number.POSITIVE_INFINITY;
+            const maxWidth = Math.min(MAX_ELEMENT_SETTINGS_WIDTH, workspaceWidth - 280 - MIN_PREVIEW_WIDTH);
+            const width = this.resizeStartWidth - (event.clientX - this.resizeStartX);
+
+            this.elementSettingsWidth = Math.max(MIN_ELEMENT_SETTINGS_WIDTH, Math.min(maxWidth, width));
+        },
+
+        stopElementSettingsResize(): void {
+            if (this.resizeMoveHandler) {
+                document.removeEventListener('pointermove', this.resizeMoveHandler);
+            }
+
+            if (this.resizeEndHandler) {
+                document.removeEventListener('pointerup', this.resizeEndHandler);
+                document.removeEventListener('pointercancel', this.resizeEndHandler);
+                window.removeEventListener('blur', this.resizeEndHandler);
+            }
+
+            if (
+                this.resizeHandle &&
+                this.resizePointerId !== null &&
+                this.resizeHandle.hasPointerCapture(this.resizePointerId)
+            ) {
+                this.resizeHandle.releasePointerCapture(this.resizePointerId);
+            }
+
+            this.resizeMoveHandler = null;
+            this.resizeEndHandler = null;
+            this.resizeHandle = null;
+            this.resizePointerId = null;
+            this.isResizingElementSettings = false;
         },
 
         async loadDefaultPreviewSalesChannel(): Promise<void> {

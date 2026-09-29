@@ -149,7 +149,7 @@ export default Shopware.Component.wrapComponentConfig({
             const insertMappingButton: CustomButton = {
                 name: 'swInlineMapping',
                 label: this.$t('sw-experience-studio.detail.elementSettings.mapping.insertAction'),
-                icon: 'regular-database',
+                icon: 'regular-variables-xs',
                 disabled: (_editor: unknown, globalDisabled: boolean): boolean =>
                     globalDisabled || this.candidates.length === 0,
                 action: (editor: unknown): void => this.onOpenMappingModal(editor as MinimalEditor),

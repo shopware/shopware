@@ -99,6 +99,9 @@ public static function getSubscribedEvents(): array
 ```
 
 Use `onPre()` to adjust inputs or replace the result, `onPost()` to change the result, and `onError()` to provide a fallback. Decorating the abstract route classes keeps working. A decorator wraps the whole route: it runs before `onPre()` and after `onPost()` listeners, and a decorator that does not call the decorated route skips the extension events.
+### Digital products follow their max. order quantity again
+
+Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
 
 ## API
 
@@ -107,6 +110,10 @@ Use `onPre()` to adjust inputs or replace the result, `onPost()` to change the r
 Registration and address routes now reject HTML in `firstName`, `lastName`, `title`, `company`, `department`, `street`, `additionalAddressLine1`, `additionalAddressLine2` and `city` with the violation code `VIOLATION::CONTAINS_HTML_ERROR` and a source pointer to the offending field. Previously such input was emptied while being sanitized and then surfaced as a generic error that the storefront could not attach to a field, so a first name like `<John` failed registration with "Something went wrong".
 
 Input that only looks like markup, for example `I <3 you` or `5 > 3`, still passes. The check is available as the reusable constraint `Shopware\Core\Framework\Validation\Constraint\NoHtml` for your own validation definitions.
+
+### A required birthday is enforced by the Store API
+
+When `core.loginRegistration.birthdayFieldRequired` is active, `POST /store-api/account/register` and `POST /store-api/account/change-profile` now reject a request without `birthdayDay`, `birthdayMonth` or `birthdayYear` with a `VIOLATION::IS_BLANK_ERROR` on the missing field. Previously the customer was saved without a birthday. Headless frontends must send the birthday when the setting is active.
 
 ### Store API OpenAPI schema matches the actual responses
 

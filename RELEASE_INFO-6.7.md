@@ -566,7 +566,7 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart; decorate `AbstractCartOrderLineItemsAddRoute` to change what it adds.
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, and the `checkout.cart.add-order-line-items` extension lets you add or drop items before they reach the cart
 
 ## Administration
 
@@ -929,8 +929,9 @@ The zoom modal no longer waits for images without a source before it opens.
 These additions are experimental and become stable with 6.8.0.
 ### Reorder posts only the order id
 ### Reorder rebuilds its items from the order
+### Reorder resolves its line items from the order
 
-`frontend.checkout.line-item.order.add` rebuilds the reorder items from the order and ignores the posted `lineItems`, so overrides of the hidden input blocks no longer have an effect
+The reorder form no longer posts `lineItems`, so its two hidden input blocks are empty and deprecated, and overrides of them have no effect
 
 ## App system
 

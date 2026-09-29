@@ -4,13 +4,14 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Event\BeforeOrderLineItemsAddedToCartEvent;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartAddOrderLineItemsExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
+use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -18,7 +19,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('checkout')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
@@ -30,7 +30,8 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
     public function __construct(
         private readonly AbstractOrderRoute $orderRoute,
         private readonly AbstractCartItemAddRoute $cartItemAddRoute,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly LineItemFactoryRegistry $lineItemFactory,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -66,36 +67,50 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
             throw CartException::lineItemNotFound($orderId);
         }
 
-        $items = [];
+        $items = $this->extensions->publish(
+            name: CheckoutCartAddOrderLineItemsExtension::NAME,
+            extension: new CheckoutCartAddOrderLineItemsExtension($order, $cart, $context),
+            function: $this->buildLineItems(...)
+        );
 
-        foreach (LineItemTransformer::transformFlatToNested($orderLineItems) as $lineItem) {
+        // null would make the add route read the posted items instead, which this route must never do
+        return $this->cartItemAddRoute->add($request, $cart, $context, $items ?? []);
+    }
+
+    /**
+     * @return list<LineItem>
+     */
+    private function buildLineItems(OrderEntity $order, Cart $cart, SalesChannelContext $context): array
+    {
+        $quantities = [];
+
+        foreach ($order->getLineItems() ?? new OrderLineItemCollection() as $orderLineItem) {
             // re-adding promotion or credit items would grant them for free
-            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            if ($orderLineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
                 continue;
             }
 
-            // keeping it would let the next checkout overwrite the original order
-            $this->removeOriginalIdExtension($lineItem);
+            $productId = $orderLineItem->getReferencedId();
 
-            // the replaced form always posted stackable=1
-            $lineItem->setStackable(true);
+            if ($productId === null) {
+                continue;
+            }
 
-            $items[] = $lineItem;
+            $quantities[$productId] = ($quantities[$productId] ?? 0) + $orderLineItem->getQuantity();
         }
 
-        $event = new BeforeOrderLineItemsAddedToCartEvent($items, $order, $cart, $context);
-        $this->eventDispatcher->dispatch($event);
+        $items = [];
 
-        // the cart processor drops unavailable products and reports them as cart errors
-        return $this->cartItemAddRoute->add($request, $cart, $context, $event->getLineItems());
-    }
-
-    private function removeOriginalIdExtension(LineItem $lineItem): void
-    {
-        $lineItem->removeExtension(OrderConverter::ORIGINAL_ID);
-
-        foreach ($lineItem->getChildren() as $child) {
-            $this->removeOriginalIdExtension($child);
+        foreach ($quantities as $productId => $quantity) {
+            // the product id is what a normal add to cart posts, so a reorder stacks onto an existing cart row
+            $items[] = $this->lineItemFactory->create([
+                'id' => $productId,
+                'referencedId' => $productId,
+                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                'quantity' => $quantity,
+            ], $context);
         }
+
+        return $items;
     }
 }

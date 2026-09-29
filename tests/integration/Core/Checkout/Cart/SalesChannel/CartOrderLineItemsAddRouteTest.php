@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -75,6 +76,59 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         static::assertSame('cart', $response['apiAlias']);
         static::assertCount(1, $response['lineItems']);
         static::assertSame($productId, $response['lineItems'][0]['referencedId']);
+        static::assertSame($productId, $response['lineItems'][0]['id'], 'the cart id is the product id, as a normal add to cart posts it');
+    }
+
+    public function testTheSameProductInSeveralOrderRowsBecomesOneCartRow(): void
+    {
+        $productId = $this->createProduct();
+        $orderId = $this->createOrder($this->ids->get('customer'), [$productId, $productId]);
+
+        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+
+        $content = (string) $this->browser->getResponse()->getContent();
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
+        static::assertCount(1, $response['lineItems'], $content);
+        static::assertSame(2, $response['lineItems'][0]['quantity']);
+    }
+
+    public function testReorderingTwiceStacksOntoTheSameCartRow(): void
+    {
+        $productId = $this->createProduct();
+        $orderId = $this->createOrder($this->ids->get('customer'), [$productId]);
+
+        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+
+        $content = (string) $this->browser->getResponse()->getContent();
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
+        static::assertCount(1, $response['lineItems'], $content);
+        static::assertSame(2, $response['lineItems'][0]['quantity']);
+    }
+
+    public function testThePersistedOrderPayloadDoesNotTravelIntoTheCart(): void
+    {
+        $productId = $this->createProduct();
+        $orderId = $this->createOrder($this->ids->get('customer'), [$productId]);
+
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement(
+            'UPDATE order_line_item SET payload = JSON_SET(payload, "$.myPluginKey", "stale") WHERE order_id = :orderId',
+            ['orderId' => Uuid::fromHexToBytes($orderId)]
+        );
+
+        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+
+        $content = (string) $this->browser->getResponse()->getContent();
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
+        static::assertCount(1, $response['lineItems'], $content);
+        static::assertArrayNotHasKey('myPluginKey', $response['lineItems'][0]['payload'] ?? []);
     }
 
     public function testUnavailableProductsAreSkippedInsteadOfFailing(): void

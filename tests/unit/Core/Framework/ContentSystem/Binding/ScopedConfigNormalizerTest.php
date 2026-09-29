@@ -84,4 +84,18 @@ class ScopedConfigNormalizerTest extends TestCase
 
         ScopedConfigNormalizer::normalize(new TaggedValue(RootSourceConfigMap::TAG, 'productId'));
     }
+
+    #[TestDox('throws when the reserved marker key is authored literally instead of via the tag')]
+    public function testThrowsOnLiterallyAuthoredMarkerKey(): void
+    {
+        $this->expectExceptionObject(new ParseException('"$scoped" is a reserved key; use the "!scoped" tag instead.'));
+
+        ScopedConfigNormalizer::normalize([
+            'resolvedBy' => [
+                'breadcrumb' => [
+                    'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId']],
+                ],
+            ],
+        ]);
+    }
 }

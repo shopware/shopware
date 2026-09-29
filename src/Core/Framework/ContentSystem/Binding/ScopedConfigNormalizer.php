@@ -31,6 +31,11 @@ final class ScopedConfigNormalizer
         }
 
         if (\is_array($data)) {
+            if (\array_key_exists(RootSourceConfigMap::MARKER, $data)) {
+                // @phpstan-ignore shopware.domainException (caught and wrapped as a domain load-failed exception by the loader)
+                throw new ParseException(\sprintf('"%s" is a reserved key; use the "!%s" tag instead.', RootSourceConfigMap::MARKER, RootSourceConfigMap::TAG));
+            }
+
             $normalized = [];
 
             foreach ($data as $key => $value) {

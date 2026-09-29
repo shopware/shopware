@@ -131,7 +131,7 @@ class ProductListingRouteTest extends TestCase
         $url = '/store-api/product-listing/' . $this->ids->get('category');
         $this->browser->request('GET', $url, ['custom-filter' => '0', 'custom-flag' => '1', 'custom-number' => '5']);
 
-        $compressed = gzencode(json_encode(['custom-filter' => false, 'custom-flag' => true, 'custom-number' => 5], \JSON_THROW_ON_ERROR));
+        $compressed = gzencode(json_encode(['custom-filter' => false, 'custom-flag' => true, 'custom-number' => 5, 'custom-empty' => null], \JSON_THROW_ON_ERROR));
         static::assertNotFalse($compressed, 'Gzip compressing failed');
         $this->browser->request('GET', $url, ['_criteria' => Base64::urlEncode($compressed)]);
 

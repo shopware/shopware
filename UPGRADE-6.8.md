@@ -2353,10 +2353,6 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
-## Storefront routes no longer read listing parameters from `_criteria`
-
-Product listings of Storefront routes no longer read listing parameters, such as `order`, `p` or filters, from the compressed `_criteria` query parameter. `_criteria` is a Store API parameter. Send these parameters as plain query parameters, or load the listing through the Store API. The internal `CompressedCriteriaListingProcessor` was removed.
-
 ## Footer collapse headlines and columns now use semantic elements
 
 In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.

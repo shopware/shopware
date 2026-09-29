@@ -132,13 +132,12 @@ On every Store API `GET` route, `_criteria` is now a compressed form of the quer
 | `/payment-method`, `/shipping-method` | `onlyAvailable` |
 | `/checkout/cart` | `includes`, `excludes` |
 
-A field that a route reads from the `POST` body only is not read from `_criteria`, the same as from a plain query parameter. This concerns, for example, the filter flags of the listing routes, such as `manufacturer-filter` or `property-whitelist`. The values of the fields are read as strings, as in a query string. App scripts of `/store-api/script/{hook}` find them in the query as well.
-
-Reading listing parameters from `_criteria` on Storefront routes is deprecated and will be removed with 6.8.0.0. Send them as plain query parameters there.
+A field that a route reads from the `POST` body only is not read from `_criteria`, the same as from a plain query parameter. This concerns, for example, the filter flags of the listing routes, such as `manufacturer-filter` or `property-whitelist`. The values of the fields are read as strings, as in a query string, and a field set to `null` counts as not sent. App scripts of `/store-api/script/{hook}` find them in the query as well.
 
 Sending these fields as plain query parameters keeps working. If you send `_criteria`, check these changes:
 
 - A field in `_criteria` takes precedence over a query parameter of the same name. Before, a plain `limit` took precedence on the listing routes.
+- On the product listing, search and suggest routes, listing filters of extensions got the fields of `_criteria` with their JSON types before, such as `true` or `5`. They now get strings, the same as from plain query parameters.
 - Query parameters that are not part of `_criteria` are applied next to it. Before, the criteria were built from `_criteria` alone, so a plain `filter` next to it was ignored. This also applies to the `GET` list and detail routes of the Admin API.
 - The `sw-include-search-info` header is respected together with `_criteria`, on the Admin API as well.
 - An invalid `_criteria` value is answered with `400` on every Store API `GET` route. Before, routes without criteria, such as `/media` or `/checkout/cart`, ignored it.

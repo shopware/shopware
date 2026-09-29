@@ -61,6 +61,13 @@ class CompressedCriteriaRequestListener implements EventSubscriberInterface
                 continue;
             }
 
+            // a field without a value is not sent, as in a POST body, and also hides a plain query parameter of the same name
+            if ($value === null) {
+                $request->query->remove($field);
+
+                continue;
+            }
+
             // the compressed criteria wins over a plain query parameter of the same name
             $request->query->set($field, self::toQueryValue($value));
         }

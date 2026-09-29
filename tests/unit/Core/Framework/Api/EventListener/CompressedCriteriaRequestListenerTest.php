@@ -74,7 +74,6 @@ class CompressedCriteriaRequestListenerTest extends TestCase
                 'min-price' => 1.5,
                 'buildTree' => false,
                 'onlyAvailable' => true,
-                'referrerCategoryId' => null,
                 'options' => ['group' => 5],
             ]),
         ]);
@@ -90,11 +89,23 @@ class CompressedCriteriaRequestListenerTest extends TestCase
                 'min-price' => '1.5',
                 'buildTree' => '0',
                 'onlyAvailable' => '1',
-                'referrerCategoryId' => '',
                 'options' => ['group' => '5'],
             ],
             $query
         );
+    }
+
+    public function testFieldWithoutValueIsNotSent(): void
+    {
+        $request = self::createStoreApiRequest([
+            'rating' => '3',
+            '_criteria' => self::compress(['rating' => null, 'reduce-aggregations' => null]),
+        ]);
+
+        $this->listener->expandCompressedCriteria(self::createEvent($request));
+
+        static::assertFalse($request->query->has('rating'), 'The compressed criteria also wins over a plain query parameter here');
+        static::assertFalse($request->query->has('reduce-aggregations'));
     }
 
     public function testCompressedCriteriaWinsOverPlainQueryParameter(): void

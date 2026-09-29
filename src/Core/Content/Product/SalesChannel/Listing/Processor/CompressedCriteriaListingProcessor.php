@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -51,16 +50,6 @@ class CompressedCriteriaListingProcessor extends AbstractListingProcessor
         if (\in_array(StoreApiRouteScope::ID, (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []), true)) {
             return;
         }
-
-        // @deprecated tag:v6.8.0 - remove the processor, only Store API routes read the compressed criteria then
-        if (Feature::isActive('v6.8.0.0')) {
-            return;
-        }
-
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'Reading listing parameters from the compressed "_criteria" parameter outside of the Store API is deprecated and will be removed. Send them as plain query parameters instead.'
-        );
 
         $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
         foreach ($payload as $param => $value) {

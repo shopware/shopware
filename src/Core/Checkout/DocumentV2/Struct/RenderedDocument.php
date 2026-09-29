@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -149,5 +150,15 @@ final class RenderedDocument extends Struct
     public function addParameter(string $key, mixed $value): void
     {
         $this->parameters[$key] = $value;
+    }
+
+    public function getApiAlias(): string
+    {
+        /** @deprecated tag:v6.8.0 - Remove the override, the API alias then follows the class name: `shopware_core_checkout_document_v2_struct_rendered_document` */
+        if (!Feature::isActive('v6.8.0.0')) {
+            return 'shopware_core_checkout_document_renderer_rendered_document';
+        }
+
+        return parent::getApiAlias();
     }
 }

@@ -267,6 +267,14 @@ class SystemConfigServiceTest extends TestCase
         );
     }
 
+    public function testEmptyNestedSalesChannelValueOverridesValueFromParentConfig(): void
+    {
+        $this->systemConfigService->set('foo.bar', ['baz' => 'global']);
+        $this->systemConfigService->set('foo.bar.baz', [], TestDefaults::SALES_CHANNEL);
+
+        static::assertSame([], $this->systemConfigService->get('foo.bar.baz', TestDefaults::SALES_CHANNEL));
+    }
+
     public function testGetDomainNoData(): void
     {
         $actual = $this->systemConfigService->getDomain('foo');

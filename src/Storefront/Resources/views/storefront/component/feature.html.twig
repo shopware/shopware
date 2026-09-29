@@ -3,5 +3,6 @@
 {% block component_head_feature %}
     <script>
         window.features = JSON.parse('{{ getAllFeatures()|json_encode|escape('js') }}');
+        window.debug = {{ app.debug ? 'true' : 'false' }};
     </script>
 {% endblock %}

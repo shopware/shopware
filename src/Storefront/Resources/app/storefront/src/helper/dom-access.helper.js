@@ -1,5 +1,10 @@
 import StringHelper from 'src/helper/string.helper';
 
+window.Feature.triggerDeprecationOrThrow(
+    'v6.8.0.0', 
+    'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+);
+
 /**
  * @deprecated tag:v6.8.0 - Use native browser API.
  * @sw-package framework

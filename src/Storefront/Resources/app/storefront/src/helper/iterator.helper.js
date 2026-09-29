@@ -1,3 +1,8 @@
+window.Feature.triggerDeprecationOrThrow(
+    'v6.8.0.0', 
+    'The "Iterator" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like forEach instead.'
+);
+
 /**
  * @sw-package framework
  * @deprecated tag:v6.8.0 - Use native alternatives like forEach instead.

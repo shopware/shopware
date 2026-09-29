@@ -9,15 +9,19 @@ use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed together with the ReverseProxyCompilerPass
  */
 #[Package('framework')]
 #[CoversClass(ReverseProxyCompilerPass::class)]
+#[DisabledFeatures(['v6.8.0.0'])]
 class ReverseProxyCompilerPassTest extends TestCase
 {
     public function testFastlyReplaces(): void

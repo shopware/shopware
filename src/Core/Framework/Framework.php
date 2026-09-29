@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
-use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
@@ -131,7 +130,6 @@ class Framework extends Bundle
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());
-        $container->addCompilerPass(new ReverseProxyCompilerPass());
         $container->addCompilerPass(new CacheCompilerPass());
         $container->addCompilerPass(new OverwriteSessionFactoryCompilerPass());
         $container->addCompilerPass(new RedisPrefixCompilerPass(), PassConfig::TYPE_BEFORE_REMOVING, 0);

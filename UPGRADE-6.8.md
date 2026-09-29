@@ -326,6 +326,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `ReverseProxyCompilerPass` removed
+
+`Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. The http cache store and the reverse proxy gateway are selected at runtime from `shopware.http_cache.reverse_proxy.enabled` and `shopware.http_cache.reverse_proxy.fastly.enabled`. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
+
 ## `Feature` is final
 
 `Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.

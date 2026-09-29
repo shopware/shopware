@@ -2,6 +2,19 @@
 
 ## Core
 
+### Reverse proxy services are selected at runtime
+
+`shopware.http_cache.reverse_proxy.enabled` and `shopware.http_cache.reverse_proxy.fastly.enabled` are evaluated when the services are created instead of while the container is compiled, so both can be set via environment variables:
+
+```yaml
+shopware:
+    http_cache:
+        reverse_proxy:
+            enabled: '%env(bool:SHOPWARE_HTTP_CACHE_REVERSE_PROXY_ENABLED)%'
+```
+
+`ReverseProxyCache`, `VarnishReverseProxyGateway`, `FastlyReverseProxyGateway` and `AbstractReverseProxyGateway` are now always registered in the container. Decorators of `CacheStore` and `AbstractReverseProxyGateway` keep wrapping the store and gateway selected by the configuration. `Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` is deprecated and no longer registered.
+
 ### Array values in static system configuration
 
 `shopware.system_config` entries in `config/packages` now accept arrays, including `[]`. An empty sales-channel value clears an array from the default scope; a more specific sales-channel key still overrides an empty default parent.

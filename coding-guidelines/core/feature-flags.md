@@ -49,6 +49,8 @@ The unit suite is the exception: its bootstrap activates every registered flag r
 ## Using flags in PHP
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
+Version-shaped feature flag IDs use four parts, such as `v6.8.0.0`. Pass that full ID to `Feature` methods. The three-part release label in `@deprecated tag:v6.8.0` is not a feature flag ID; PHPStan rejects it in feature checks.
+
 ### Using flags in methods
 When there is no option via the container you can use additional helper functions:
 ```php

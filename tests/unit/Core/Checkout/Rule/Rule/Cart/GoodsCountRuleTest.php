@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -29,8 +29,6 @@ use Symfony\Component\Validator\Validation;
 #[CoversClass(GoodsCountRule::class)]
 class GoodsCountRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     public function testRuleWithExactCountMatch(): void
     {
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
@@ -291,7 +289,7 @@ class GoodsCountRuleTest extends TestCase
 
     private function createLineItemWithGoodsCount(): LineItem
     {
-        return $this->createLineItem()->setGood(true);
+        return CartRuleFixture::createLineItem()->setGood(true);
     }
 
     private function validateConstraint(string $field, mixed $value): ConstraintViolationListInterface

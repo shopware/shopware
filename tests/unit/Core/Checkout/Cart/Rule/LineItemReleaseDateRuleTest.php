@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -29,8 +29,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemReleaseDateRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private const PAYLOAD_KEY = 'releaseDate';
 
     private LineItemReleaseDateRule $rule;
@@ -132,7 +130,7 @@ class LineItemReleaseDateRuleTest extends TestCase
     public function testItemWithoutReleaseDateIsFalse(): void
     {
         $scope = new LineItemScope(
-            $this->createLineItem(),
+            CartRuleFixture::createLineItem(),
             static::createStub(SalesChannelContext::class)
         );
 
@@ -149,7 +147,7 @@ class LineItemReleaseDateRuleTest extends TestCase
         ]);
 
         $match = $this->rule->match(new LineItemScope(
-            $this->createLineItem(),
+            CartRuleFixture::createLineItem(),
             static::createStub(SalesChannelContext::class)
         ));
 
@@ -186,7 +184,7 @@ class LineItemReleaseDateRuleTest extends TestCase
             $this->createLineItemWithReleaseDate($lineItemReleaseDate1),
             $this->createLineItemWithReleaseDate($lineItemReleaseDate2),
         ]);
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -212,8 +210,8 @@ class LineItemReleaseDateRuleTest extends TestCase
             $this->createLineItemWithReleaseDate($lineItemReleaseDate1),
             $this->createLineItemWithReleaseDate($lineItemReleaseDate2),
         ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -228,12 +226,12 @@ class LineItemReleaseDateRuleTest extends TestCase
     {
         $rule = new LineItemReleaseDateRule(Rule::OPERATOR_NEQ, '2020-01-01 12:00:00');
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -264,9 +262,9 @@ class LineItemReleaseDateRuleTest extends TestCase
     private function createLineItemWithReleaseDate(?string $releaseDate): LineItem
     {
         if ($releaseDate === null) {
-            $this->createLineItem();
+            CartRuleFixture::createLineItem();
         }
 
-        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $releaseDate);
+        return CartRuleFixture::createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $releaseDate);
     }
 }

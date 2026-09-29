@@ -15,6 +15,8 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
+use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
@@ -68,7 +70,9 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            new NativeClock(),
+            static::getContainer()->get(AppUrlVerifier::class),
+            static::getContainer()->get(SecureUrlValidator::class),
         );
 
         $app = new AppEntity();
@@ -98,7 +102,9 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            new NativeClock(),
+            static::getContainer()->get(AppUrlVerifier::class),
+            static::getContainer()->get(SecureUrlValidator::class),
         );
 
         $app = new AppEntity();
@@ -125,7 +131,9 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            new NativeClock(),
+            static::getContainer()->get(AppUrlVerifier::class),
+            static::getContainer()->get(SecureUrlValidator::class),
         );
 
         $app = new AppEntity();

@@ -534,6 +534,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoreClient::class),
             param('kernel.shopware_version'),
             service(ClockInterface::class),
+            service(AppUrlVerifier::class),
+            service(SecureUrlValidator::class),
         ]);
 
     $services->set(AppManager::class)

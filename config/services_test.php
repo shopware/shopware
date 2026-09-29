@@ -5,6 +5,7 @@ use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
+use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider;
 use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CalculatedPriceFieldTestDefinition;
@@ -13,6 +14,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Tests\Integration\Core\Content\Seo\SalesChannel\FixturesPhp\StoreApiSeoResolverTestRoute;
 use Shopware\Tests\Integration\Core\Framework\Api\EventListener\FixturesPhp\SalesChannelAuthenticationListenerTestRoute;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
+use Shopware\Tests\Integration\Core\Framework\App\PrivateUrlValidator;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityWithHydrator;
@@ -91,6 +93,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('service_container'),
         ]);
+
+    $services->set(SecureUrlValidator::class, PrivateUrlValidator::class);
 
     $services->set(AppFixture::class)
         ->public()

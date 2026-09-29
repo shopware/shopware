@@ -287,7 +287,6 @@ function isInInternalDocblock(lines: string[], index: number): boolean {
     return view.slice(start, end + 1).some((line) => line.includes('@internal'));
 }
 
-/** Net occurrences per marker and matched text: added lines count up, removed lines down. */
 function markerBalance(section: string, markers: LineMarker[]): Map<string, { kind: MarkerKind; delta: number }> {
     const balance = new Map<string, { kind: MarkerKind; delta: number }>();
     const lines = section.split('\n');

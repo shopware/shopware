@@ -141,9 +141,12 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
 
     it('should register exactly the expected rule conditions', () => {
         const registered = Object.keys(service.$store);
+        const expected = Shopware.Feature.isActive('v6.8.0.0')
+            ? EXPECTED_CONDITION_TYPES.filter((type) => type !== 'cartLineItemProductStates')
+            : EXPECTED_CONDITION_TYPES;
 
-        expect(registered).toHaveLength(EXPECTED_CONDITION_TYPES.length);
-        expect([...registered].sort()).toEqual([...EXPECTED_CONDITION_TYPES].sort());
+        expect(registered).toHaveLength(expected.length);
+        expect([...registered].sort()).toEqual([...expected].sort());
     });
 
     it('should register exactly the expected awareness configurations', () => {

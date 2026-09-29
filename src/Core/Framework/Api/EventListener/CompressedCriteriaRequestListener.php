@@ -14,7 +14,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Copies the fields of the compressed `_criteria` parameter into the query parameters of a Store API GET request.
- * So `_criteria` is a compressed form of the query string, and a GET request is read the same way as a POST request with that body.
+ * So `_criteria` is a compressed form of the query string, and a GET request reads the same fields as a POST request with that body,
+ * except fields that a route reads from the body only.
  *
  * @internal
  */
@@ -61,7 +62,21 @@ class CompressedCriteriaRequestListener implements EventSubscriberInterface
             }
 
             // the compressed criteria wins over a plain query parameter of the same name
-            $request->query->set($field, $value);
+            $request->query->set($field, self::toQueryValue($value));
         }
+    }
+
+    /**
+     * Values become strings, as in a query string, so readers of the query parameters get the types they expect.
+     * The criteria keep their JSON types, because the criteria builder decodes the parameter itself.
+     */
+    private static function toQueryValue(mixed $value): mixed
+    {
+        return match (true) {
+            \is_array($value) => array_map(self::toQueryValue(...), $value),
+            \is_bool($value) => $value ? '1' : '0',
+            \is_scalar($value) => (string) $value,
+            default => '',
+        };
     }
 }

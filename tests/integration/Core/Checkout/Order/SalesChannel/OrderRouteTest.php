@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -256,7 +257,7 @@ class OrderRouteTest extends TestCase
     }
 
     #[DataProvider('guestCredentialsProvider')]
-    public function testGuestCredentialsAreReadFromTheCompressedCriteria(string $zipcode, int $expectedStatus): void
+    public function testGuestCredentialsAreReadFromTheCompressedCriteria(string $zipcode, int $expectedStatus, ?string $expectedErrorCode): void
     {
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', '');
 
@@ -292,22 +293,30 @@ class OrderRouteTest extends TestCase
 
         $this->browser->request('GET', '/store-api/order', ['_criteria' => Base64::urlEncode($compressed)]);
 
-        static::assertSame($expectedStatus, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        $content = (string) $this->browser->getResponse()->getContent();
+        static::assertSame($expectedStatus, $this->browser->getResponse()->getStatusCode(), $content);
+
+        if ($expectedErrorCode !== null) {
+            $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame($expectedErrorCode, $response['errors'][0]['code']);
+        }
     }
 
     /**
-     * @return iterable<string, array{zipcode: string, expectedStatus: int}>
+     * @return iterable<string, array{zipcode: string, expectedStatus: int, expectedErrorCode: ?string}>
      */
     public static function guestCredentialsProvider(): iterable
     {
         yield 'the order is returned for the right credentials' => [
             'zipcode' => '59438-0403',
             'expectedStatus' => Response::HTTP_OK,
+            'expectedErrorCode' => null,
         ];
 
-        yield 'a wrong zipcode is rejected the same as a plain query parameter' => [
+        yield 'a wrong zipcode is checked and rejected the same as a plain query parameter' => [
             'zipcode' => '00000',
             'expectedStatus' => Response::HTTP_FORBIDDEN,
+            'expectedErrorCode' => OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
         ];
     }
 

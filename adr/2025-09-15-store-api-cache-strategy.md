@@ -112,4 +112,4 @@ Important details:
 
 ## Updates
 
-- 2026-09-29: `_criteria` is a compressed form of the query string on every Store API `GET` route. Besides the criteria, it can contain any other query parameter of the route, and a field in it takes precedence over a plain query parameter of the same name. So a `GET` request reads the same fields as the `POST` request with that body, which the automatic request method selection of the SDKs needs. It does not change which routes should be called with `GET`.
+- 2026-09-29: `_criteria` is a compressed form of the query string on every Store API `GET` route. Besides the criteria, it can contain any other query parameter of the route, and a field in it takes precedence over a plain query parameter of the same name. So a `GET` request reads the same fields as the `POST` request with that body, which the automatic request method selection of the SDKs needs. Fields that a route reads from the `POST` body only, such as the filter flags of the listing routes, are the exception. It does not change which routes should be called with `GET`.

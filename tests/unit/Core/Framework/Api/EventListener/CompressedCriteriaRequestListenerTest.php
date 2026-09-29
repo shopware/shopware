@@ -66,6 +66,37 @@ class CompressedCriteriaRequestListenerTest extends TestCase
         static::assertSame(['category' => ['id', 'name']], $request->query->all('includes'));
     }
 
+    public function testValuesAreStringsAsInAQueryString(): void
+    {
+        $request = self::createStoreApiRequest([
+            '_criteria' => self::compress([
+                'limit' => 2,
+                'min-price' => 1.5,
+                'buildTree' => false,
+                'onlyAvailable' => true,
+                'referrerCategoryId' => null,
+                'options' => ['group' => 5],
+            ]),
+        ]);
+
+        $this->listener->expandCompressedCriteria(self::createEvent($request));
+
+        $query = $request->query->all();
+        unset($query['_criteria']);
+
+        static::assertSame(
+            [
+                'limit' => '2',
+                'min-price' => '1.5',
+                'buildTree' => '0',
+                'onlyAvailable' => '1',
+                'referrerCategoryId' => '',
+                'options' => ['group' => '5'],
+            ],
+            $query
+        );
+    }
+
     public function testCompressedCriteriaWinsOverPlainQueryParameter(): void
     {
         $request = self::createStoreApiRequest([

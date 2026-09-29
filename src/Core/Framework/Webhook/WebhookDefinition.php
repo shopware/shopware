@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -71,6 +72,7 @@ class WebhookDefinition extends EntityDefinition
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
             (new FkField('owner_user_id', 'ownerUserId', UserDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
             (new FkField('owner_integration_id', 'ownerIntegrationId', IntegrationDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
+            new ListField('acl_role_ids', 'aclRoleIds', IdField::class),
         ]);
 
         return $collection;

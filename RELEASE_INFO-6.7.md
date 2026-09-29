@@ -282,9 +282,19 @@ A webhook without an app can only be updated or deleted through the API by the u
 
 ### Webhooks created through the API are validated against the event they subscribe to
 
-`POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, as an app manifest already was. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the caller lacks a privilege the event requires. Previously any event name was accepted and the webhook simply never fired.
+`POST /api/webhook` and `PATCH /api/webhook/{id}` now check the event a webhook subscribes to, as an app manifest already was. Requests are rejected with a `400` and `FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED` when webhooks cannot receive the event, or `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` when the webhook's owner lacks a privilege the event requires. Previously any event name was accepted and the webhook simply never fired.
 
-A non-admin user or integration now needs the read privilege of every event it subscribes to in addition to `webhook:create`; a webhook on `product.written` requires `product:read`. Administrators are not restricted.
+A non-admin user or integration now needs the read privilege of every event it subscribes to in addition to `webhook:create`; a webhook on `product.written` requires `product:read`. Administrators are not restricted, unless the webhook is limited to some of their roles.
+
+### Webhooks created through the API can be limited to some of their owner's ACL roles
+
+A webhook without an app accepts an optional `aclRoleIds` list. It then only receives events those roles allow, even when its owner holds more roles; leave it unset to keep inheriting every role of the owner. For an administrator owner, the listed roles are used as they are.
+
+```json
+{ "name": "Product sync", "eventName": "product.written", "url": "https://example.com", "aclRoleIds": ["0193b1c2d3e47f5a8b9c0d1e2f3a4b5c"] }
+```
+
+The listed roles must be held by the owner, unless the owner is an administrator; otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. The subscribed event must be covered by the privileges of the listed roles, otherwise `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
 
 ## Administration
 

@@ -16,7 +16,8 @@ use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 final readonly class Webhook
 {
     /**
-     * @param list<string> $ownerRoleIds ACL roles of the owner, resolved live at load; for an app webhook the owner is the app's integration
+     * @param list<string> $ownerRoleIds ACL roles the webhook is authorized with, resolved live at load: the owner's roles, limited to the webhook's aclRoleIds when set; for an app webhook the owner is the app's integration
+     * @param list<string>|null $aclRoleIds the roles the webhook is limited to, null when it uses all of its owner's roles
      */
     public function __construct(
         public string $id,
@@ -32,6 +33,7 @@ final readonly class Webhook
         public ?string $appSecret,
         public OwnerType $ownerType = OwnerType::Restricted,
         public array $ownerRoleIds = [],
+        public ?array $aclRoleIds = null,
     ) {
     }
 }

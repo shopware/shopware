@@ -1,16 +1,9 @@
 @import "~scss/variables";
 
-$sw-plugin-box-color-container-border: var(--color-border-primary-default);
-$sw-plugin-box-color-container-border-radius: $border-radius-default;
-$sw-plugin-box-color-container-description-label-font-size: $font-size-xs;
-$sw-plugin-box-color-container-description-author-font-size: 12px;
-$sw-plugin-box-color-container-image-size: 48px;
-$sw-plugin-box-color-container-description-author-color: var(--color-text-secondary-default);
-
 .sw-plugin-box {
     .sw-plugin-box__container {
-        border: 1px solid $sw-plugin-box-color-container-border;
-        border-radius: $sw-plugin-box-color-container-border-radius;
+        border: 1px solid var(--color-border-secondary-default);
+        border-radius: $border-radius-default;
         padding: 8px 16px;
         margin-bottom: 22px;
 
@@ -25,24 +18,24 @@ $sw-plugin-box-color-container-description-author-color: var(--color-text-second
         }
 
         .sw-plugin-box__icon {
-            height: $sw-plugin-box-color-container-image-size;
-            width: $sw-plugin-box-color-container-image-size;
+            height: 48px;
+            width: 48px;
         }
 
         .sw-plugin-box__description {
             margin: auto 0;
 
             .sw-plugin-box__label {
-                font-size: $sw-plugin-box-color-container-description-label-font-size;
-                font-weight: $font-weight-semi-bold;
-                line-height: $sw-plugin-box-color-container-description-label-font-size;
+                font-size: var(--font-size-xs);
+                font-weight: var(--font-weight-semibold);
+                line-height: var(--font-size-xs);
                 margin-bottom: 2px;
             }
 
             .sw-plugin-box__author {
-                font-size: $sw-plugin-box-color-container-description-author-font-size;
-                color: $sw-plugin-box-color-container-description-author-color;
-                line-height: $sw-plugin-box-color-container-description-author-font-size;
+                font-size: 12px;
+                color: var(--color-text-secondary-default);
+                line-height: 12px;
             }
         }
 

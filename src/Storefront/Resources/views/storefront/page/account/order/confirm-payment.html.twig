@@ -4,6 +4,7 @@
     {% sw_include '@Storefront/storefront/component/payment/payment-form.html.twig' with {
         action: 'frontend.account.edit-order.change-payment-method',
         actionPath: path('frontend.account.edit-order.change-payment-method', { orderId: page.order.id } ),
-        redirect: null
+        redirect: null,
+        selectedPaymentMethodId: page.selectedPaymentMethodId
     } %}
 {% endblock %}

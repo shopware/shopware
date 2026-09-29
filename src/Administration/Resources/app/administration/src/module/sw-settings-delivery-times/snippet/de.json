@@ -9,7 +9,6 @@
       "mainMenuItemGeneral": "Lieferzeiten",
       "description": "Einstellungsmodul zur Verwaltung von Lieferzeiten",
       "buttonCreate": "Lieferzeit anlegen",
-      "buttonSave": "Speichern",
       "placeholder": "Durchsuche alle Lieferzeiten ..."
     },
     "list": {

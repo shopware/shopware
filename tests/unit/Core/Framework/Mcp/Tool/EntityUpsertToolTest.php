@@ -3,7 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use Doctrine\DBAL\Connection;
+use Mcp\Capability\Discovery\DocBlockParser;
+use Mcp\Capability\Discovery\SchemaGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -38,10 +41,10 @@ class EntityUpsertToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         $result = $this->decode(($tool)('product', '{"name": "Test"}'));
 
         static::assertFalse($result['success']);
@@ -58,10 +61,10 @@ class EntityUpsertToolTest extends TestCase
         $registry->method('has')->willReturn(true);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         // Payload with an id triggers an update operation, which requires :update privilege
         $result = $this->decode(($tool)('product', '{"id": "' . Defaults::CURRENCY . '", "name": "Test"}'));
 
@@ -75,20 +78,20 @@ class EntityUpsertToolTest extends TestCase
         $source->setPermissions(['product:read', 'product:create']);
         $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
 
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events = static::createStub(EntityWrittenContainerEvent::class);
         $events->method('getEvents')->willReturn(new NestedEventCollection([]));
 
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())->method('upsert')->willReturn($events);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getRepository')->willReturn($repository);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         // Payload without id — only create privilege needed
         $result = $this->decode(($tool)('product', '{"name": "Test"}', false));
 
@@ -101,20 +104,20 @@ class EntityUpsertToolTest extends TestCase
         $source->setPermissions(['product:read', 'product:update']);
         $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
 
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events = static::createStub(EntityWrittenContainerEvent::class);
         $events->method('getEvents')->willReturn(new NestedEventCollection([]));
 
         $repository = $this->createMock(EntityRepository::class);
         $repository->expects($this->once())->method('upsert')->willReturn($events);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getRepository')->willReturn($repository);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         // Payload with id — only update privilege needed
         $result = $this->decode(($tool)('product', '{"id": "' . Defaults::CURRENCY . '", "name": "Test"}', false));
 
@@ -127,13 +130,13 @@ class EntityUpsertToolTest extends TestCase
         $source->setPermissions([]);
         $context = new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
-        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         $result = $this->decode(($tool)('product', '[]'));
 
         static::assertFalse($result['success']);
@@ -171,11 +174,11 @@ class EntityUpsertToolTest extends TestCase
 
         $writeResult = new EntityWriteResult('abc', [], 'product', EntityWriteResult::OPERATION_INSERT);
         $writtenEvent = new EntityWrittenEvent('product', [$writeResult], Context::createDefaultContext());
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events = static::createStub(EntityWrittenContainerEvent::class);
         $events->method('getEvents')->willReturn(new NestedEventCollection([$writtenEvent]));
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('upsert')->willReturn($events);
+        $repository->expects($this->once())->method('upsert')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '[{"name": "Test"}]', true));
@@ -193,7 +196,7 @@ class EntityUpsertToolTest extends TestCase
         $connection->expects($this->once())->method('rollBack');
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('upsert')->willThrowException(new \RuntimeException('Constraint violation'));
+        $repository->expects($this->once())->method('upsert')->willThrowException(new \RuntimeException('Constraint violation'));
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '[{"name": "Test"}]', true));
@@ -208,11 +211,11 @@ class EntityUpsertToolTest extends TestCase
         $connection->expects($this->never())->method('beginTransaction');
         $connection->expects($this->never())->method('rollBack');
 
-        $events = $this->createMock(EntityWrittenContainerEvent::class);
+        $events = static::createStub(EntityWrittenContainerEvent::class);
         $events->method('getEvents')->willReturn(new NestedEventCollection());
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->method('upsert')->willReturn($events);
+        $repository->expects($this->once())->method('upsert')->willReturn($events);
 
         $tool = $this->createTool($repository, $connection);
         $result = $this->decode(($tool)('product', '{"name": "Test"}', false));
@@ -227,15 +230,32 @@ class EntityUpsertToolTest extends TestCase
         $registry->method('has')->willReturn(false);
         $registry->expects($this->never())->method('getRepository');
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $tool = new EntityUpsertTool($registry, $contextProvider, $this->createMock(Connection::class));
+        $tool = new EntityUpsertTool($registry, $contextProvider, static::createStub(Connection::class));
         $result = $this->decode(($tool)('unknown_entity', '{"name": "Test"}'));
 
         static::assertFalse($result['success']);
         static::assertStringContainsString('unknown_entity', $result['error']);
         static::assertStringContainsString('shopware://entities', $result['error']);
+    }
+
+    #[TestDox('Every __invoke parameter carries a description into the SDK-generated input schema')]
+    public function testEveryParameterIsDescribedInTheInputSchema(): void
+    {
+        $method = new \ReflectionMethod(EntityUpsertTool::class, '__invoke');
+        $schema = (new SchemaGenerator(new DocBlockParser()))->generate($method);
+
+        static::assertIsArray($schema['properties']);
+        static::assertCount(\count($method->getParameters()), $schema['properties']);
+
+        foreach ($schema['properties'] as $name => $property) {
+            static::assertIsArray($property);
+            static::assertArrayHasKey('description', $property, \sprintf('$%s has no description', $name));
+            static::assertIsString($property['description']);
+            static::assertNotSame('', $property['description'], \sprintf('$%s has an empty description', $name));
+        }
     }
 
     /**
@@ -244,19 +264,19 @@ class EntityUpsertToolTest extends TestCase
     private function createTool(?EntityRepository $repository = null, ?Connection $connection = null): EntityUpsertTool
     {
         if ($repository === null) {
-            $repository = $this->createMock(EntityRepository::class);
-            $events = $this->createMock(EntityWrittenContainerEvent::class);
+            $repository = static::createStub(EntityRepository::class);
+            $events = static::createStub(EntityWrittenContainerEvent::class);
             $events->method('getEvents')->willReturn(new NestedEventCollection());
             $repository->method('upsert')->willReturn($events);
         }
 
-        $connection ??= $this->createMock(Connection::class);
+        $connection ??= static::createStub(Connection::class);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getRepository')->willReturn($repository);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         return new EntityUpsertTool($registry, $contextProvider, $connection);

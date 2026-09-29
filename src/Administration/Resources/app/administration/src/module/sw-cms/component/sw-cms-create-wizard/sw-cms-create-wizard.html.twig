@@ -12,7 +12,10 @@
             </h2>
 
             {% block sw_cms_create_wizard_page_type %}
-            <div class="sw-cms-create-wizard__page-type-selection">
+            <div
+                class="sw-cms-create-wizard__page-type-selection"
+                :style="pageTypeSelectionStyle"
+            >
                 {% block sw_cms_create_wizard_page_type_options %}
                 <div
                     v-for="pageType in visiblePageTypes"
@@ -81,7 +84,7 @@
                 <mt-icon
                     name="regular-long-arrow-left"
                     size="16px"
-                /> {{ $t('sw-cms.createWizard.stepBack') }}
+                /> {{ $t('global.default.back') }}
             </div>
             {% endblock %}
 
@@ -171,7 +174,7 @@
                 <mt-icon
                     name="regular-long-arrow-left"
                     size="16px"
-                /> {{ $t('sw-cms.createWizard.stepBack') }}
+                /> {{ $t('global.default.back') }}
             </div>
             {% endblock %}
         </div>

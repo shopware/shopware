@@ -9,6 +9,7 @@ use Shopware\Core\Content\ProductExport\Error\ProviderValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\GoogleProductExportValidator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -17,6 +18,20 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(GoogleProductExportValidator::class)]
 class GoogleProductExportValidatorTest extends TestCase
 {
+    public function testValidateIsInertUnderV68(): void
+    {
+        // the validator stays wired into the container under the flag, so it must neither throw the
+        // class deprecation nor validate anything — the validation moves to SwagAgenticCommerce
+        $entity = $this->createProductExportEntity();
+
+        $errors = new ErrorCollection();
+
+        (new GoogleProductExportValidator())->validate($entity, 'not-xml', $errors);
+
+        static::assertCount(0, $errors);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNothingForOtherProviders(): void
     {
         $entity = $this->createProductExportEntity();
@@ -29,6 +44,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenFileFormatIsNotXml(): void
     {
         $entity = $this->createProductExportEntity();
@@ -44,6 +60,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('file_format', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForMalformedXml(): void
     {
         $entity = $this->createProductExportEntity();
@@ -57,6 +74,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('xml', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForFeedWithoutItems(): void
     {
         $entity = $this->createProductExportEntity();
@@ -74,6 +92,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('item', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateDoesNotAddErrorsForValidGoogleFeed(): void
     {
         $entity = $this->createProductExportEntity();
@@ -88,6 +107,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForMissingRequiredGoogleField(): void
     {
         $entity = $this->createProductExportEntity();
@@ -103,6 +123,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('brand', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidLink(): void
     {
         $entity = $this->createProductExportEntity();
@@ -118,6 +139,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('link', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidAvailability(): void
     {
         $entity = $this->createProductExportEntity();
@@ -133,6 +155,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('availability', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidCondition(): void
     {
         $entity = $this->createProductExportEntity();
@@ -148,6 +171,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('condition', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidGender(): void
     {
         $entity = $this->createProductExportEntity();
@@ -163,6 +187,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('gender', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAcceptsValidGender(): void
     {
         $entity = $this->createProductExportEntity();
@@ -175,6 +200,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidSizeSystem(): void
     {
         $entity = $this->createProductExportEntity();
@@ -190,6 +216,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('size_system', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAcceptsValidSizeSystem(): void
     {
         $entity = $this->createProductExportEntity();
@@ -202,6 +229,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidAgeGroup(): void
     {
         $entity = $this->createProductExportEntity();
@@ -217,6 +245,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('age_group', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAcceptsValidAgeGroup(): void
     {
         $entity = $this->createProductExportEntity();
@@ -229,6 +258,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForInvalidPriceFormat(): void
     {
         $entity = $this->createProductExportEntity();
@@ -244,6 +274,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('price', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorWhenIdentifiersAreMissingWithoutFlag(): void
     {
         $entity = $this->createProductExportEntity();
@@ -259,6 +290,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('identifier_exists', $error->getParameters()['field']);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAcceptsIdentifierExistsNo(): void
     {
         $entity = $this->createProductExportEntity();
@@ -275,6 +307,7 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testValidateAddsErrorForDuplicateIds(): void
     {
         $entity = $this->createProductExportEntity();

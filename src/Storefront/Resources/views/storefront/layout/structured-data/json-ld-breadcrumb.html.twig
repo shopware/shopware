@@ -14,9 +14,11 @@
                 {% set listItem = {
                     '@type': 'ListItem',
                     position: loop.index,
-                    name: breadcrumbCategory.name,
-                    item: seoUrl('frontend.navigation.page', { navigationId: breadcrumbCategory.categoryId })
+                    name: breadcrumbCategory.name
                 } %}
+                {% if breadcrumbCategory.type !== 'folder' %}
+                    {% set listItem = listItem|merge({item: seoUrl('frontend.navigation.page', { navigationId: breadcrumbCategory.categoryId })}) %}
+                {% endif %}
             {% else %}
                 {% set listItem = {
                     '@type': 'ListItem',

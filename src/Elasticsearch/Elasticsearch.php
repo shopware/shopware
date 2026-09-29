@@ -7,9 +7,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchExtension;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchMigrationCompilerPass;
 use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 /**
  * @internal
@@ -26,6 +28,9 @@ class Elasticsearch extends Bundle
     {
         parent::build($container);
         $this->buildDefaultConfig($container);
+
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
+        $loader->load('services.php');
 
         $container->addCompilerPass(new ElasticsearchMigrationCompilerPass());
 

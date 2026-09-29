@@ -13,11 +13,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('checkout')]
 #[AsCommand(
     name: 'state-machine:dump',
     description: 'Dumps a state machine to a graphviz file',
 )]
-#[Package('checkout')]
 class WorkflowDumpCommand extends Command
 {
     /**

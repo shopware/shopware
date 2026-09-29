@@ -6,12 +6,14 @@ namespace Shopware\Tests\Unit\Core\Profiling\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Subscriber\CacheTagCollectorSubscriber;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheTagCollectorSubscriber::class)]
 class CacheTagCollectorSubscriberTest extends TestCase
 {

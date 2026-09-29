@@ -9,11 +9,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'es:create:alias',
     description: 'Create the elasticsearch alias',
 )]
-#[Package('framework')]
 class ElasticsearchCreateAliasCommand extends Command
 {
     /**

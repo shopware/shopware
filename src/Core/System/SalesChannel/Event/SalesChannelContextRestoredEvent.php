@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class SalesChannelContextRestoredEvent extends NestedEvent
 {

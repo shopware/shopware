@@ -218,7 +218,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->indexer->handle(new EntityIndexingMessage([$id, $rule2Id]));
 
-        $rules = $this->ruleRepository->search(new Criteria([$id, $rule2Id]), $this->context);
+        $rules = $this->ruleRepository->search(new Criteria([$id, $rule2Id]), $this->context)->getEntities();
         $rule = $rules->get($id);
         static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());
@@ -288,7 +288,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->ruleRepository->create($data, $this->context);
 
-        $rules = $this->ruleRepository->search(new Criteria([$id, $rule2Id]), $this->context);
+        $rules = $this->ruleRepository->search(new Criteria([$id, $rule2Id]), $this->context)->getEntities();
         $rule = $rules->get($id);
         static::assertInstanceOf(RuleEntity::class, $rule);
         static::assertInstanceOf(Rule::class, $rule->getPayload());

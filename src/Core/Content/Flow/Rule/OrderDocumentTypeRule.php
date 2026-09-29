@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Rule;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -58,7 +59,7 @@ class OrderDocumentTypeRule extends FlowRule
 
         $typeIds = [];
         foreach ($documents->getElements() as $document) {
-            $typeIds[] = $document->getDocumentTypeId();
+            $typeIds[] = Feature::silent('v6.9.0.0', static fn (): string => $document->getDocumentTypeId());
         }
 
         return RuleComparison::uuids(array_values(array_unique($typeIds)), $this->documentIds, $this->operator);
@@ -67,7 +68,7 @@ class OrderDocumentTypeRule extends FlowRule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
             ->entitySelectField('documentIds', DocumentTypeDefinition::ENTITY_NAME, true);
     }
 }

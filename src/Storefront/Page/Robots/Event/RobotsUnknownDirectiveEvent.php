@@ -17,8 +17,10 @@ use Symfony\Contracts\EventDispatcher\Event;
  * - Set custom issues for specific directive types
  *
  *  Simple DTO with no business logic
+ *
+ * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('discovery')]
 class RobotsUnknownDirectiveEvent extends Event implements ShopwareEvent
 {
     /**

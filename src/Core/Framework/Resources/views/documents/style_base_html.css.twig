@@ -1,4 +1,4 @@
-<style type="text/css">
+<style type="text/css"{% if styleMedia ?? false %} media="{{ styleMedia }}"{% endif %}>
     {% block document_style_html %}
         body {
             max-width: 1200px;
@@ -25,6 +25,42 @@
         .page-count {
             display: none;
         }
+
+        {#-
+            The DocumentV2 HtmlRenderer emits one paginated HTML for browser and Dompdf.
+            In the browser the document should read as one continuous page, so these rules
+            hide what pagination repeats per page and collapse the repeated table head.
+        -#}
+        {% if (styleMedia ?? false) == 'screen' %}
+
+
+        .page_break ~ header,
+        .page_break ~ .letter-header,
+        .page_break ~ .letter-body .document-title-container {
+            display: none;
+        }
+
+        .letter-body:has(+ .page_break) .line-item-table {
+            border-bottom: none;
+        }
+
+        .page_break ~ .letter-body .line-item-table thead th {
+            font-size: 0;
+            line-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .page_break ~ .letter-body .line-item-table thead th > span {
+            display: none;
+        }
+
+        .page_break ~ .letter-body .line-item-table tbody tr:first-child > td {
+            padding-top: 1px;
+        }
+        {%- endif %}
+
 
         .line-item-table-header > th.incl-vat > span {
             font-size: 12px;

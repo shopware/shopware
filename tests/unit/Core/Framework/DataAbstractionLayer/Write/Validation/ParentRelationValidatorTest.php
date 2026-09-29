@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\ParentRelationValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -22,6 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ParentRelationValidator::class)]
 class ParentRelationValidatorTest extends TestCase
 {
@@ -33,8 +35,8 @@ class ParentRelationValidatorTest extends TestCase
     {
         $this->registry = new StaticDefinitionInstanceRegistry(
             [ProductDefinition::class, TaxDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
         $this->validator = new ParentRelationValidator($this->registry);
     }
@@ -52,8 +54,8 @@ class ParentRelationValidatorTest extends TestCase
         $event = new PreWriteValidationEvent(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [
-                new InsertCommand($this->registry->getByEntityName('tax'), ['id' => $id, 'parent_id' => $id], ['id' => $id], $this->createMock(EntityExistence::class), '/insert'),
-                new UpdateCommand($this->registry->getByEntityName('tax'), ['id' => $id, 'parent_id' => $id], ['id' => $id], $this->createMock(EntityExistence::class), '/update'),
+                new InsertCommand($this->registry->getByEntityName('tax'), ['id' => $id, 'parent_id' => $id], ['id' => $id], static::createStub(EntityExistence::class), '/insert'),
+                new UpdateCommand($this->registry->getByEntityName('tax'), ['id' => $id, 'parent_id' => $id], ['id' => $id], static::createStub(EntityExistence::class), '/update'),
             ]
         );
 
@@ -68,7 +70,7 @@ class ParentRelationValidatorTest extends TestCase
         $event = new PreWriteValidationEvent(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [
-                new InsertCommand($this->registry->getByEntityName('product'), ['id' => $id, 'parent_id' => $id], ['id' => $id], $this->createMock(EntityExistence::class), '/insert'),
+                new InsertCommand($this->registry->getByEntityName('product'), ['id' => $id, 'parent_id' => $id], ['id' => $id], static::createStub(EntityExistence::class), '/insert'),
             ]
         );
 
@@ -93,7 +95,7 @@ class ParentRelationValidatorTest extends TestCase
         $event = new PreWriteValidationEvent(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [
-                new UpdateCommand($this->registry->getByEntityName('product'), ['id' => $id, 'parent_id' => $id], ['id' => $id], $this->createMock(EntityExistence::class), '/update'),
+                new UpdateCommand($this->registry->getByEntityName('product'), ['id' => $id, 'parent_id' => $id], ['id' => $id], static::createStub(EntityExistence::class), '/update'),
             ]
         );
 
@@ -118,7 +120,7 @@ class ParentRelationValidatorTest extends TestCase
         $event = new PreWriteValidationEvent(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [
-                new UpdateCommand($this->registry->getByEntityName('product'), ['id' => $id, 'parent_id' => Uuid::randomBytes()], ['id' => $id], $this->createMock(EntityExistence::class), '/insert'),
+                new UpdateCommand($this->registry->getByEntityName('product'), ['id' => $id, 'parent_id' => Uuid::randomBytes()], ['id' => $id], static::createStub(EntityExistence::class), '/insert'),
             ]
         );
 

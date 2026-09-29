@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Thumbnail;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailData;
@@ -20,11 +20,11 @@ class ExternalThumbnailDataNormalizerTest extends TestCase
 {
     private ExternalThumbnailDataNormalizer $denormalizer;
 
-    private NormalizerInterface&MockObject $innerNormalizer;
+    private NormalizerInterface&Stub $innerNormalizer;
 
     protected function setUp(): void
     {
-        $this->innerNormalizer = $this->createMock(NormalizerInterface::class);
+        $this->innerNormalizer = static::createStub(NormalizerInterface::class);
 
         $this->denormalizer = new ExternalThumbnailDataNormalizer();
         $this->denormalizer->setNormalizer($this->innerNormalizer);
@@ -128,10 +128,12 @@ class ExternalThumbnailDataNormalizerTest extends TestCase
         $data = new ExternalThumbnailData('http://localhost:8000/thumb.jpg', 100, 100);
         $expected = ['url' => 'http://localhost:8000/thumb.jpg', 'width' => 100, 'height' => 100];
 
-        $this->innerNormalizer->expects($this->once())
+        $innerNormalizer = $this->createMock(NormalizerInterface::class);
+        $innerNormalizer->expects($this->once())
             ->method('normalize')
             ->with($data, null, static::arrayHasKey(ExternalThumbnailDataNormalizer::class . '::NORMALIZE_ALREADY_CALLED'))
             ->willReturn($expected);
+        $this->denormalizer->setNormalizer($innerNormalizer);
 
         $result = $this->denormalizer->normalize($data);
 

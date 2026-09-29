@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@after-sales')]
 class ImportExportProfileEntity extends Entity
 {
@@ -54,6 +57,9 @@ class ImportExportProfileEntity extends Entity
      */
     protected array $config;
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     protected ?ImportExportProfileTranslationCollection $translations = null;
 
     public function getTechnicalName(): string

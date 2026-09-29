@@ -39,7 +39,7 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $accessor
         );
 
-        if (empty($jsonPath)) {
+        if ($jsonPath === null || $jsonPath === '') {
             return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
         }
 

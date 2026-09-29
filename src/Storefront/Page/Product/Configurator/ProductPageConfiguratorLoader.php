@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product\Configurator;
 
+use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
@@ -9,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('framework')]
+#[Package('inventory')]
 class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
 {
     /**
@@ -25,5 +26,16 @@ class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
     public function load(SalesChannelProductEntity $product, SalesChannelContext $context): PropertyGroupCollection
     {
         return $this->loader->load($product, $context);
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function loadFromCombinations(
+        SalesChannelProductEntity $product,
+        AvailableCombinationResult $combinations,
+        SalesChannelContext $context
+    ): PropertyGroupCollection {
+        return $this->loader->loadFromCombinations($product, $combinations, $context);
     }
 }

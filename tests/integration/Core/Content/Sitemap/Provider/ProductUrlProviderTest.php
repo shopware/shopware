@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
@@ -303,7 +304,7 @@ class ProductUrlProviderTest extends TestCase
 
     private function getComparisonUrl(string $productId): string
     {
-        $loc = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $loc = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
         return $this->seoUrlPlaceholderHandler->replace($loc, $this->getHost($this->salesChannelContext), $this->salesChannelContext);
     }
@@ -320,6 +321,7 @@ class ProductUrlProviderTest extends TestCase
 
         return [
             'stock' => 100,
+            'type' => ProductDefinition::TYPE_PHYSICAL,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'tax' => ['id' => $taxId],
             'manufacturer' => ['name' => 'test'],

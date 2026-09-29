@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 /**
  * @internal
  */
+#[Package('framework')]
 class IncrementStorageRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;

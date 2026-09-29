@@ -11,7 +11,6 @@ use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderCustomFieldRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 
 /**
@@ -22,8 +21,6 @@ use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 #[Group('rules')]
 class OrderCustomFieldRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private const CUSTOM_FIELD_NAME = 'custom_test';
 
     private OrderCustomFieldRule $rule;
@@ -44,7 +41,7 @@ class OrderCustomFieldRuleTest extends TestCase
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = $this->rule->match($scope);
 
@@ -70,7 +67,7 @@ class OrderCustomFieldRuleTest extends TestCase
             self::CUSTOM_FIELD_NAME => 'my_invalid_value',
         ]]);
 
-        $scope = new FlowRuleScope($this->order, new Cart('test'), $this->createMock(SalesChannelContext::class));
+        $scope = new FlowRuleScope($this->order, new Cart('test'), static::createStub(SalesChannelContext::class));
 
         $this->rule->assign(
             [

@@ -1,7 +1,7 @@
 const { Criteria } = Shopware.Data;
 
 type AppScriptCondition = {
-    id: string;
+    scriptId: EntityKey<'script'>;
     config: unknown;
 };
 
@@ -11,12 +11,12 @@ type Condition = {
     label: string;
     scopes: string[];
     group: string;
-    scriptId: string;
+    scriptId: EntityKey<'script'>;
     appScriptCondition: AppScriptCondition;
 };
 
 type Script = {
-    id: string;
+    id: EntityKey<'script'>;
     name?: string;
     translated?: {
         name?: string;
@@ -65,6 +65,7 @@ type CustomFieldConditionConfig = {
     type: string;
     componentName: string;
     customFieldType?: string;
+    disabled?: boolean;
 };
 
 /**
@@ -81,6 +82,10 @@ type CustomFieldConditionConfig = {
  */
 export default class RuleConditionService {
     $store: { [key: string]: Condition } = {};
+
+    $deprecations: {
+        [type: string]: { version: string; replacement?: string; label: string };
+    } = {};
 
     awarenessConfiguration: { [key: string]: AwarenessConfiguration } = {};
 
@@ -142,21 +147,10 @@ export default class RuleConditionService {
             this.operators.greaterThanEquals,
             this.operators.lowerThanEquals,
         ],
-        singleStore: [
-            this.operators.equals,
-            this.operators.notEquals,
-        ],
-        multiStore: [
-            this.operators.isOneOf,
-            this.operators.isNoneOf,
-        ],
-        string: [
-            this.operators.equals,
-            this.operators.notEquals,
-        ],
-        bool: [
-            this.operators.equals,
-        ],
+        singleStore: [this.operators.equals, this.operators.notEquals],
+        multiStore: [this.operators.isOneOf, this.operators.isNoneOf],
+        string: [this.operators.equals, this.operators.notEquals],
+        bool: [this.operators.equals],
         number: [
             this.operators.equals,
             this.operators.greaterThan,
@@ -183,13 +177,8 @@ export default class RuleConditionService {
             this.operators.notEquals,
             this.operators.between,
         ],
-        isNet: [
-            this.operators.gross,
-            this.operators.net,
-        ],
-        empty: [
-            this.operators.empty,
-        ],
+        isNet: [this.operators.gross, this.operators.net],
+        empty: [this.operators.empty],
         zipCode: [
             this.operators.greaterThan,
             this.operators.greaterThanEquals,
@@ -290,22 +279,79 @@ export default class RuleConditionService {
         this.$store[condition.scriptId ?? type] = condition as Condition;
     }
 
+    registerDeprecation(type: string, deprecation: { version: string; replacement?: string; label: string }) {
+        this.$deprecations[type] = deprecation;
+    }
+
+    getDeprecationsInTree(conditions: Array<{ type: string; children?: unknown }>): Array<{
+        type: string;
+        label: string;
+        version: string;
+        replacement: { type: string; label: string } | null;
+    }> {
+        const uniqueTypes = [...new Set(this.collectTypes(conditions))];
+
+        return uniqueTypes.flatMap((type) => {
+            const deprecation = this.$deprecations[type];
+
+            if (!deprecation) {
+                return [];
+            }
+
+            const replacementCondition = deprecation.replacement ? this.$store[deprecation.replacement] : null;
+
+            return [
+                {
+                    type,
+                    label: deprecation.label,
+                    version: deprecation.version,
+                    replacement: replacementCondition
+                        ? { type: replacementCondition.type, label: replacementCondition.label }
+                        : null,
+                },
+            ];
+        });
+    }
+
+    getFlowOnlyTypesInTree(conditions: Array<{ type: string; children?: unknown }>): Array<{
+        type: string;
+        label: string;
+    }> {
+        const uniqueTypes = [...new Set(this.collectTypes(conditions))];
+
+        return uniqueTypes.flatMap((type) => {
+            const scopes = this.$store[type]?.scopes;
+
+            if (!scopes?.length || !scopes.every((scope) => scope === 'flow')) {
+                return [];
+            }
+
+            const label = this.$store[type]?.label;
+
+            return label ? [{ type, label }] : [];
+        });
+    }
+
+    private collectTypes(conditions: Array<{ type: string; children?: unknown }>): string[] {
+        return conditions.flatMap((condition) => {
+            if (!condition.children) {
+                return [condition.type];
+            }
+
+            return [condition.type, ...this.collectTypes(condition.children as Array<{ type: string; children?: unknown }>)];
+        });
+    }
+
     addScriptConditions(scripts: Script[]) {
         scripts.forEach((script) => {
             this.addCondition('scriptRule', {
                 component: 'sw-condition-script',
                 label: (script?.translated?.name || script.name) ?? '',
-                scopes:
-                    script.group === 'item'
-                        ? [
-                              'global',
-                              'lineItem',
-                          ]
-                        : ['global'],
+                scopes: script.group === 'item' ? ['global', 'lineItem'] : ['global'],
                 group: script.group,
                 scriptId: script.id,
                 appScriptCondition: {
-                    id: script.id,
+                    scriptId: script.id,
                     config: script.config,
                 },
             });
@@ -336,12 +382,12 @@ export default class RuleConditionService {
 
         const transformedConfig = { ...config };
 
-        if (
-            [
-                'checkbox',
-                'switch',
-            ].includes(transformedConfig?.type)
-        ) {
+        // Custom fields flagged `disabled: true` are read-only on detail pages, but the
+        // rule builder's value selector must stay editable. Strip it so it isn't spread
+        // onto `sw-form-field-renderer` as a prop.
+        delete transformedConfig.disabled;
+
+        if (['checkbox', 'switch'].includes(transformedConfig?.type)) {
             return this.getTransformedBooleanFieldConfig(transformedConfig);
         }
 
@@ -390,33 +436,16 @@ export default class RuleConditionService {
 
     getOperatorOptionsByIdentifiers(identifiers: Array<string>, isMatchAny = false) {
         return identifiers.map((identifier) => {
-            const option = Object.entries(this.operators).find(
-                ([
-                    name,
-                    operator,
-                ]) => {
-                    if (
-                        isMatchAny &&
-                        [
-                            'equals',
-                            'notEquals',
-                        ].includes(name)
-                    ) {
-                        return false;
-                    }
-                    if (
-                        !isMatchAny &&
-                        [
-                            'isOneOf',
-                            'isNoneOf',
-                        ].includes(name)
-                    ) {
-                        return false;
-                    }
+            const option = Object.entries(this.operators).find(([name, operator]) => {
+                if (isMatchAny && ['equals', 'notEquals'].includes(name)) {
+                    return false;
+                }
+                if (!isMatchAny && ['isOneOf', 'isNoneOf'].includes(name)) {
+                    return false;
+                }
 
-                    return identifier === operator.identifier;
-                },
-            );
+                return identifier === operator.identifier;
+            });
 
             if (option) {
                 return option.pop();
@@ -537,16 +566,11 @@ export default class RuleConditionService {
 
     getAwarenessKeysWithEqualsAnyConfig() {
         const equalsAnyConfigurations: Array<string> = [];
-        Object.entries(this.awarenessConfiguration).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                if (value?.equalsAny?.length && value?.equalsAny?.length > 0) {
-                    equalsAnyConfigurations.push(key);
-                }
-            },
-        );
+        Object.entries(this.awarenessConfiguration).forEach(([key, value]) => {
+            if (value?.equalsAny?.length && value?.equalsAny?.length > 0) {
+                equalsAnyConfigurations.push(key);
+            }
+        });
 
         return equalsAnyConfigurations;
     }
@@ -561,7 +585,7 @@ export default class RuleConditionService {
      *     ]
      * }
      */
-    getRestrictedConditions(r: EntitySchema.rule) {
+    getRestrictedConditions(r: Entity<'rule'>) {
         if (!r) {
             return {};
         }
@@ -570,7 +594,7 @@ export default class RuleConditionService {
 
         const conditions: { [key: string]: Array<unknown> } = {};
         keys.forEach((key) => {
-            const association = r[key as keyof EntitySchema.rule] as Array<unknown>;
+            const association = r[key as keyof Entity<'rule'>] as Array<unknown>;
             const currentEntry = this.awarenessConfiguration[key];
 
             if (association && association.length > 0 && currentEntry.notEquals) {
@@ -627,11 +651,7 @@ export default class RuleConditionService {
         }
 
         if (equalsAny) {
-            restrictions.push(
-                Criteria.not('AND', [
-                    Criteria.equalsAny('conditions.type', equalsAny),
-                ]),
-            );
+            restrictions.push(Criteria.not('AND', [Criteria.equalsAny('conditions.type', equalsAny)]));
         }
 
         if (restrictions.length === 0) {
@@ -841,24 +861,10 @@ export default class RuleConditionService {
     getRestrictionsByGroup(...wantedGroups: Array<string>) {
         const entries = Object.entries(this.$store);
 
-        return entries.reduce(
-            (
-                acc,
-                [
-                    restrictionName,
-                    condition,
-                ],
-            ) => {
-                const inGroup = wantedGroups.includes(condition.group);
+        return entries.reduce((acc, [restrictionName, condition]) => {
+            const inGroup = wantedGroups.includes(condition.group);
 
-                return inGroup
-                    ? [
-                          ...acc,
-                          restrictionName,
-                      ]
-                    : acc;
-            },
-            [] as Array<string>,
-        );
+            return inGroup ? [...acc, restrictionName] : acc;
+        }, [] as Array<string>);
     }
 }

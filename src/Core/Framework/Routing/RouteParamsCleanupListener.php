@@ -16,6 +16,7 @@ class RouteParamsCleanupListener
         PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED,
         PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST,
         PlatformRequest::ATTRIBUTE_ACL,
+        PlatformRequest::ATTRIBUTE_OPENAPI,
         TemplateScopeDetector::SCOPES_ATTRIBUTE,
     ];
 

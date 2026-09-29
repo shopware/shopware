@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\RefreshIndexEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber;
@@ -12,6 +13,7 @@ use Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(RefreshIndexSubscriber::class)]
 class RefreshIndexSubscriberTest extends TestCase
 {

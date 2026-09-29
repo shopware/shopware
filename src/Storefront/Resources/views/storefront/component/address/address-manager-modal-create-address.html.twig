@@ -1,8 +1,11 @@
 {% if changeShipping %}
-    {% set type = 'shipping' %}
+    {% set addressType = 'shipping' %}
 {% else %}
-    {% set type = 'billing' %}
+    {% set addressType = 'billing' %}
 {% endif %}
+
+{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+{% set type = addressType %}
 
 <div class="js-pseudo-modal-template-root-element address-manager-modal">
     <div class="modal-header pb-0 align-items-start">
@@ -25,7 +28,7 @@
         {% block address_manager_modal_address_form_create %}
             <form
                 method="post"
-                action="{% block address_manager_modal_address_form_create_action %}{{ path('frontend.account.addressmanager', { addressId: postedAddress.id, type }) }}{% endblock %}"
+                action="{% block address_manager_modal_address_form_create_action %}{{ path('frontend.account.addressmanager', { addressId: postedAddress.id, type: addressType }) }}{% endblock %}"
                 id="address-manager-modal-address-form"
                 data-form-handler="true"
             >
@@ -36,10 +39,12 @@
                         {% set accountType = '' %}
                     {% endif %}
 
+                    {# Clear `type` so the deprecated addressType alias does not become the HTML input type. #}
                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                         data: postedAddress,
                         prefix: 'address',
-                        accountType
+                        accountType,
+                        type: null
                     } %}
                 {% endblock %}
 
@@ -48,12 +53,13 @@
                         data: postedAddress,
                         prefix: 'address',
                         showFormCompany: true,
+                        type: null
                     } %}
                 {% endblock %}
 
                 {% block address_manager_modal_address_required %}
                     <p class="address-required-info required-fields">
-                        {{ 'general.requiredFields'|trans|sw_sanitize }}
+                        {{ 'global.default.noteRequiredFields'|trans|sw_sanitize }}
                     </p>
                 {% endblock %}
             </form>
@@ -64,7 +70,7 @@
             <button
                 type="button"
                 class="address-form-create-cancel btn btn-outline-dark btn-icon-hover-white"
-                data-address-type="{{ type }}"
+                data-address-type="{{ addressType }}"
             >
                 {% sw_icon 'arrow-left' style {size: 's'} %}
                 <span class="ps-1">

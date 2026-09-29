@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <testsuites>
+        <testsuite name="core-framework-batch1">
+            <directory>tests/integration/Core/Framework/Api</directory>
+            <directory>tests/integration/Core/Framework/App</directory>
+        </testsuite>
+        <testsuite name="core-others">
+            <file>tests/integration/Core/Framework/VersioningTest.php</file>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory suffix="Provider.php">src/Core/Content</directory>
+            <directory>src/Core/DevOps/StaticAnalyze</directory>
+            <file>src/Core/Framework/ExcludedService.php</file>
+        </exclude>
+    </source>
+</phpunit>

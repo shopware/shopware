@@ -30,8 +30,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CartTransformer::class)]
 #[Package('checkout')]
+#[CoversClass(CartTransformer::class)]
 class CartTransformerTest extends TestCase
 {
     public function testCartTransformation(): void

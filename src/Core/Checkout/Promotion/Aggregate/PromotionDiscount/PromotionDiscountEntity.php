@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -228,14 +229,16 @@ class PromotionDiscountEntity extends Entity
         return str_replace($prefix, '', $this->scope);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
-     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getSorterKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->sorterKey ?? '';
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->sorterKey === null) {
+            return '';
+        }
+
+        return $this->sorterKey;
     }
 
     public function setSorterKey(?string $sorterKey): void
@@ -243,14 +246,16 @@ class PromotionDiscountEntity extends Entity
         $this->sorterKey = $sorterKey;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
-     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getApplierKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->applierKey ?? '';
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->applierKey === null) {
+            return '';
+        }
+
+        return $this->applierKey;
     }
 
     public function setApplierKey(?string $applierKey): void
@@ -258,14 +263,16 @@ class PromotionDiscountEntity extends Entity
         $this->applierKey = $applierKey;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `?string` in the future
-     * @deprecated tag:v6.8.0 - reason:behavior-change - The fallback to empty string will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getUsageKey(): string
     {
         // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
-        return $this->usageKey ?? '';
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->usageKey === null) {
+            return '';
+        }
+
+        return $this->usageKey;
     }
 
     public function setUsageKey(?string $usageKey): void

@@ -1,0 +1,9 @@
+{% block sw_mixin_provided_props %}
+    <div class="sw-mixin-provided-props" :class="containerRowClass">
+        <span class="sw-mixin-provided-props__label">{{ entity.name }}</span>
+
+        <button class="sw-mixin-provided-props__add" :disabled="disabled" @click="onAddPlaceholder">Add</button>
+
+        <button class="sw-mixin-provided-props__remove" :disabled="level === 0" @click="onRemove">Remove</button>
+    </div>
+{% endblock %}

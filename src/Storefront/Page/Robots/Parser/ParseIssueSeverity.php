@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore Simple enum with no logic - covered by ParseIssue and ParsedRobots tests
  */
-#[Package('framework')]
+#[Package('discovery')]
 enum ParseIssueSeverity: string
 {
     case ERROR = 'error';

@@ -115,7 +115,7 @@ class DocumentControllerTest extends TestCase
         /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $criteria = (new Criteria())->addFilter(new EqualsFilter('technicalName', 'invoice'));
-        $type = $documentTypeRepository->search($criteria, $context)->first();
+        $type = $documentTypeRepository->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($type);
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
@@ -171,7 +171,7 @@ class DocumentControllerTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         $deepLinkCode = $order->getDeepLinkCode();
@@ -208,7 +208,7 @@ class DocumentControllerTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->get($orderId);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->get($orderId);
         static::assertNotNull($order);
 
         TestUser::createNewTestUser(
@@ -531,7 +531,7 @@ class DocumentControllerTest extends TestCase
         ];
 
         $this->orderRepository->upsert([$order], $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
         return $order;

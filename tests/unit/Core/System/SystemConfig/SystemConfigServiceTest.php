@@ -6,9 +6,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
@@ -28,25 +29,26 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemConfigService::class)]
 class SystemConfigServiceTest extends TestCase
 {
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
-    private ConfigReader&MockObject $configReader;
+    private ConfigReader&Stub $configReader;
 
-    private AbstractSystemConfigLoader&MockObject $configLoader;
+    private AbstractSystemConfigLoader&Stub $configLoader;
 
-    private EventDispatcherInterface&MockObject $eventDispatcher;
+    private EventDispatcherInterface&Stub $eventDispatcher;
 
     private SystemConfigService $configService;
 
     protected function setUp(): void
     {
-        $this->connection = $this->createMock(Connection::class);
-        $this->configReader = $this->createMock(ConfigReader::class);
-        $this->configLoader = $this->createMock(AbstractSystemConfigLoader::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->connection = static::createStub(Connection::class);
+        $this->configReader = static::createStub(ConfigReader::class);
+        $this->configLoader = static::createStub(AbstractSystemConfigLoader::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $this->configService = new SystemConfigService(
             $this->connection,
@@ -54,7 +56,7 @@ class SystemConfigServiceTest extends TestCase
             $this->configLoader,
             $this->eventDispatcher,
             new SymfonySystemConfigService([]),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             new NativeClock()
         );
     }
@@ -72,7 +74,8 @@ class SystemConfigServiceTest extends TestCase
         };
 
         $expects = $this->exactly(7);
-        $this->eventDispatcher
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher
             ->expects($expects)
             ->method('dispatch')
             ->willReturnCallback(static function (Event|Hookable $event) use ($expects, $beforeEventAssert, $eventAssert) {
@@ -85,7 +88,17 @@ class SystemConfigServiceTest extends TestCase
                 return $event;
             });
 
-        $this->configService->setMultiple(['foo.bar' => 'value', 'bar.foo' => 50], TestDefaults::SALES_CHANNEL);
+        $configService = new SystemConfigService(
+            $this->connection,
+            $this->configReader,
+            $this->configLoader,
+            $eventDispatcher,
+            new SymfonySystemConfigService([]),
+            static::createStub(CacheTagCollector::class),
+            new NativeClock()
+        );
+
+        $configService->setMultiple(['foo.bar' => 'value', 'bar.foo' => 50], TestDefaults::SALES_CHANNEL);
     }
 
     public function testNotAllowedToSetKeysManagedBySystem(): void
@@ -96,7 +109,7 @@ class SystemConfigServiceTest extends TestCase
             $this->configLoader,
             $this->eventDispatcher,
             new SymfonySystemConfigService(['default' => ['core.test' => true]]),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             new NativeClock()
         );
 
@@ -110,7 +123,7 @@ class SystemConfigServiceTest extends TestCase
 
     public function testGetDomainFiltersOutUnrelatedYamlDefaults(): void
     {
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('select')->willReturn($queryBuilder);
         $queryBuilder->method('from')->willReturn($queryBuilder);
         $queryBuilder->method('where')->willReturn($queryBuilder);
@@ -118,7 +131,7 @@ class SystemConfigServiceTest extends TestCase
         $queryBuilder->method('addOrderBy')->willReturn($queryBuilder);
         $queryBuilder->method('setParameter')->willReturn($queryBuilder);
 
-        $result = $this->createMock(Result::class);
+        $result = static::createStub(Result::class);
         $result->method('fetchAllNumeric')->willReturn([]);
         $queryBuilder->method('executeQuery')->willReturn($result);
 
@@ -130,7 +143,7 @@ class SystemConfigServiceTest extends TestCase
             $this->configLoader,
             $this->eventDispatcher,
             new SymfonySystemConfigService(['default' => ['foo.bar.key1' => 'value1', 'baz.qux.key2' => 'value2']]),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(CacheTagCollector::class),
             new NativeClock()
         );
 

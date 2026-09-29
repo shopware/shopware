@@ -124,12 +124,29 @@
         <sw-skeleton variant="tree-item" />
     </div>
 
+    {% block sw_landing_page_tree_load_more %}
+    <div
+        v-if="hasMoreLandingPages"
+        class="sw-landing-page-tree__load-more"
+    >
+        <mt-button
+            class="sw-landing-page-tree__load-more-button"
+            size="small"
+            variant="secondary"
+            :disabled="isLoadingMore"
+            :is-loading="isLoadingMore"
+            @click="loadMoreLandingPages"
+        >
+            {{ $t('sw-landing-page.general.buttonLoadMore') }}
+        </mt-button>
+    </div>
+    {% endblock %}
+
     {% block sw_landing_page_tree_action %}
     <div class="sw-landing-page-tree__add-button">
         <mt-button
             class="sw-landing-page-tree__add-button-button"
             size="small"
-            ghost
             :disabled="disableContextMenu || !acl.can('landing_page.creator') || undefined"
             variant="secondary"
             @click="$router.push(newLandingPageUrl())"

@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -52,7 +53,7 @@ class ElasticsearchException extends HttpException
     }
 
     /**
-     * @param array{reason: string}|array{reason: string}[] $items
+     * @param array{reason: string, index?: string, id?: string, type?: string}|list<array{reason: string, index?: string, id?: string, type?: string}> $items
      */
     public static function indexingError(array $items): self
     {
@@ -176,9 +177,7 @@ class ElasticsearchException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function operatorNotAllowed(string $operator): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {

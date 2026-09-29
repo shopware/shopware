@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout;
 
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -18,6 +19,11 @@ class CheckoutRuleScope extends RuleScope
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
+    }
+
+    public function getCustomer(): ?CustomerEntity
+    {
+        return $this->context->getCustomer();
     }
 
     public function getContext(): Context

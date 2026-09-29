@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\Api\OAuth\Scope;
 
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
+#[BecomesFinal(version: 'v6.8.0')]
 class UserVerifiedScope implements ScopeEntityInterface
 {
     final public const IDENTIFIER = 'user-verified';

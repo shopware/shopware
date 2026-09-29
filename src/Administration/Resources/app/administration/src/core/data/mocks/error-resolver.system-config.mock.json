@@ -18,6 +18,17 @@
       }
     }
   ],
+  "apiErrorsScoped": [
+    {
+      "code": "Scoped code",
+      "meta": "Dummy meta",
+      "detail": "Dummy detail",
+      "status": "Dummy status",
+      "source": {
+        "pointer": "/98432def39fc4624b33213a56b8c944d/scoped.key"
+      }
+    }
+  ],
   "apiErrorsWithTranslation": [
     {
       "code": "Dummy code",

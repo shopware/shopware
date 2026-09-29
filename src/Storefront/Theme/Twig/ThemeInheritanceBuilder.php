@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     /**
@@ -153,10 +153,6 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
             return true;
         }
 
-        if ($bundle === StorefrontPluginRegistry::BASE_THEME_NAME) {
-            return true;
-        }
-
-        return false;
+        return $bundle === StorefrontPluginRegistry::BASE_THEME_NAME;
     }
 }

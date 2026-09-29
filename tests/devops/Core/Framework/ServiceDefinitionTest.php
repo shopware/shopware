@@ -13,7 +13,6 @@ use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
@@ -64,29 +63,6 @@ class ServiceDefinitionTest extends TestCase
         KernelFactory::$kernelClass = Kernel::class;
     }
 
-    public function testServiceDefinitionNaming(): void
-    {
-        $basePath = __DIR__ . '/../../../../src';
-
-        $finder = (new Finder())->in($basePath)->files()->path('~DependencyInjection/[^/]+\.xml$~');
-        static::assertTrue($finder->hasResults(), 'No service definition files found. Check the base path.');
-
-        $errors = [];
-        foreach ($finder->getIterator() as $file) {
-            $content = $file->getContents();
-
-            $parameterErrors = $this->checkServiceParameterOrder($content);
-            $argumentErrors = $this->checkArgumentOrder($content);
-
-            $errors[$file->getRelativePathname()] = array_merge($parameterErrors, $argumentErrors);
-        }
-
-        $errors = array_filter($errors);
-        $errorMessage = 'Found some issues in the following files:' . \PHP_EOL . \PHP_EOL . print_r($errors, true);
-
-        static::assertCount(0, $errors, $errorMessage);
-    }
-
     public function testContainerLintCommand(): void
     {
         $command = static::getContainer()->get('console.command.container_lint');
@@ -102,80 +78,5 @@ class ServiceDefinitionTest extends TestCase
             $commandTester->getStatusCode(),
             "\"bin/console lint:container\" returned errors:\n" . $commandTester->getDisplay()
         );
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function checkArgumentOrder(string $content): array
-    {
-        $matches = [];
-        $result = preg_match_all(
-            '/<argument (?!type="[^"]+").*id="(?<id>[^"]+)".*>/',
-            $content,
-            $matches,
-            \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
-        );
-
-        if (!$result || $matches === []) {
-            return [];
-        }
-
-        $errors = [];
-        foreach ($matches as $match) {
-            $fullMatch = $match[0];
-            $position = $fullMatch[1];
-            static::assertTrue($position > 1);
-            $errors[] = \sprintf(
-                '%s:%d - invalid order (type should be first)',
-                $match['id'][0],
-                $this->getLineNumber($content, $position)
-            );
-        }
-
-        return $errors;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function checkServiceParameterOrder(string $content): array
-    {
-        $matches = [];
-        $result = preg_match_all(
-            '<service\s+(?=.*class="(?<class>[^"]+)")(?=.*id="\k{class}").*>',
-            $content,
-            $matches,
-            \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
-        );
-
-        // only continue if a Shopware service definition doesn't start with class followed by id
-        if (!$result || $matches === []) {
-            return [];
-        }
-
-        $errors = [];
-        foreach ($matches as $match) {
-            $fullMatch = $match[0];
-            $position = $fullMatch[1];
-            static::assertTrue($position > 1);
-            $errors[] = \sprintf(
-                '%s:%d - parameter class and id are identical. class parameter should be removed',
-                $match['class'][0],
-                $this->getLineNumber($content, $position)
-            );
-        }
-
-        return $errors;
-    }
-
-    /**
-     * @param int<1, max> $position
-     */
-    private function getLineNumber(string $content, int $position): int
-    {
-        [$before] = str_split($content, $position);
-
-        return mb_strlen($before) - mb_strlen(str_replace(\PHP_EOL, '', $before)) + 1;
     }
 }

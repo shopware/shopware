@@ -10,7 +10,7 @@
                         {% block component_line_item_children_headline %}
                             <div class="col line-item-headline">
                                 {% block component_line_item_children_headline_text %}
-                                    <span class="line-item-headline-text">
+                                    <span id="{{ childrenCollapseId }}-label" class="line-item-headline-text">
                                         {{ 'checkout.lineItemContainerHeadline'|trans }}
                                     </span>
                                 {% endblock %}
@@ -31,6 +31,7 @@
                                     class="collapsed line-item-collapse-button"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#{{ childrenCollapseId }}"
+                                    aria-labelledby="{{ childrenCollapseId }}-label"
                                     aria-controls="{{ childrenCollapseId }}"
                                     aria-expanded="false">
                                     {% block component_line_item_children_collapse_icon %}

@@ -14,6 +14,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'rule:read',
                 'tag:read',
                 'currency:read',
+                'sales_channel:read',
                 'delivery_time:read',
                 'media_folder:read',
                 Shopware.Service('privileges').getPrivileges('media.viewer'),
@@ -35,26 +36,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'shipping_method_price:delete',
                 'shipping_method_tag:create',
             ],
-            dependencies: [
-                'shipping.viewer',
-            ],
+            dependencies: ['shipping.viewer'],
         },
         creator: {
-            privileges: [
-                'shipping_method:create',
-            ],
-            dependencies: [
-                'shipping.viewer',
-                'shipping.editor',
-            ],
+            privileges: ['shipping_method:create'],
+            dependencies: ['shipping.viewer', 'shipping.editor'],
         },
         deleter: {
-            privileges: [
-                'shipping_method:delete',
-            ],
-            dependencies: [
-                'shipping.viewer',
-            ],
+            privileges: ['shipping_method:delete'],
+            dependencies: ['shipping.viewer'],
         },
     },
 });

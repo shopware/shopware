@@ -6,11 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Sync\FkReference;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\Api\CurrencyIsoCodeFkResolver;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CurrencyIsoCodeFkResolver::class)]
 class CurrencyIsoCodeFkResolverTest extends TestCase
 {

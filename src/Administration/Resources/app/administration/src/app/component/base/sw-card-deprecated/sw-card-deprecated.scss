@@ -99,7 +99,7 @@
         padding: 24px;
         padding-bottom: 20px;
         border-radius: $border-radius-lg $border-radius-lg 0 0;
-        border-bottom: 1px solid var(--color-border-primary-default);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     .sw-card__avatar {
@@ -122,15 +122,15 @@
 
     .sw-card__title {
         color: var(--color-text-primary-default);
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
-        line-height: $line-height-xs;
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-xs);
     }
 
     .sw-card__subtitle {
         color: var(--color-text-secondary-default);
-        font-size: $font-size-xs;
-        line-height: $line-height-xs;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     .sw-card__titles-right-slot {
@@ -140,8 +140,8 @@
     .sw-card__toolbar {
         flex-basis: 100%;
         padding: 30px;
-        background-color: var(--color-background-secondary-default);
-        border-bottom: 1px solid var(--color-border-primary-default);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-secondary-default);
     }
 
     &.has--header {
@@ -177,7 +177,7 @@
         }
 
         h1 {
-            font-size: $font-size-xl;
+            font-size: var(--font-size-xl);
         }
 
         h2 {
@@ -185,13 +185,13 @@
         }
 
         h3 {
-            font-size: $font-size-l;
+            font-size: var(--font-size-l);
         }
 
         h4,
         h5,
         h6 {
-            font-size: $font-size-m;
+            font-size: var(--font-size-m);
         }
 
         a.sw-card__quick-link {
@@ -201,7 +201,7 @@
             align-items: center;
             text-decoration: none;
             color: var(--color-text-brand-default);
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
 
             &:hover {
                 color: var(--color-text-brand-hover);
@@ -228,12 +228,12 @@
             border-bottom-right-radius: 0;
 
             &:hover {
-                border-bottom-color: var(--color-border-primary-default);
+                border-bottom-color: var(--color-border-secondary-default);
             }
 
             &:focus {
                 background-color: var(--color-background-secondary-default);
-                border-bottom-color: var(--color-border-primary-default);
+                border-bottom-color: var(--color-border-secondary-default);
             }
 
             &:active {
@@ -256,7 +256,7 @@
     }
 
     & > .sw-tabs {
-        border: 1px solid var(--color-border-primary-default);
+        border: 1px solid var(--color-border-secondary-default);
         border-radius: $border-radius-lg $border-radius-lg 0 0;
         border-bottom: none;
         margin-bottom: 0;
@@ -284,7 +284,7 @@
             font-weight: normal;
 
             &.sw-tabs-item--active {
-                font-weight: $font-weight-semi-bold;
+                font-weight: var(--font-weight-semibold);
             }
         }
     }

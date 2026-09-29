@@ -114,6 +114,16 @@ class CustomFieldRuleTest extends TestCase
             'expected' => [],
         ];
 
+        yield 'switch field type' => [
+            'renderedField' => ['type' => CustomFieldTypes::SWITCH],
+            'expected' => [],
+        ];
+
+        yield 'checkbox field type' => [
+            'renderedField' => ['type' => CustomFieldTypes::CHECKBOX],
+            'expected' => [],
+        ];
+
         yield 'date field type' => [
             'renderedField' => ['type' => CustomFieldTypes::DATE],
             'expected' => $dateConstraints,
@@ -198,7 +208,7 @@ class CustomFieldRuleTest extends TestCase
             'config' => [],
         ];
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
 
         $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
@@ -218,7 +228,7 @@ class CustomFieldRuleTest extends TestCase
             'config' => [],
         ];
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
 
         $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);
@@ -238,7 +248,7 @@ class CustomFieldRuleTest extends TestCase
             'config' => [],
         ];
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
 
         $value = CustomFieldRule::getValue([self::CUSTOM_FIELD_NAME => $priceCollection], $renderedField, $context);

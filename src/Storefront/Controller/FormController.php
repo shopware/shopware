@@ -6,7 +6,7 @@ use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -23,8 +23,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class FormController extends StorefrontController
 {
     final public const SUBSCRIBE = 'subscribe';
@@ -41,6 +41,7 @@ class FormController extends StorefrontController
         private readonly AbstractNewsletterSubscribeRoute $subscribeRoute,
         private readonly AbstractNewsletterUnsubscribeRoute $unsubscribeRoute,
         private readonly AbstractRevocationRequestRoute $abstractRevocationRequestRoute,
+        private readonly ConstraintViolationTranslator $constraintViolationTranslator,
     ) {
     }
 
@@ -73,7 +74,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $violation->getMessage();
+                $violations[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -145,7 +146,7 @@ class FormController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             $violations = [];
             foreach ($formViolations->getViolations() as $violation) {
-                $violations[] = $violation->getMessage();
+                $violations[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -177,11 +178,7 @@ class FormController extends StorefrontController
         try {
             $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
-            if (Feature::isActive('v6.8.0.0')) {
-                $this->subscribeRoute->subscribeWithResponse($data, $context, false);
-            } else {
-                $this->subscribeRoute->subscribe($data, $context, false);
-            }
+            $this->subscribeRoute->subscribeWithResponse($data, $context, false);
 
             $response[] = [
                 'type' => 'success',
@@ -196,8 +193,8 @@ class FormController extends StorefrontController
             ];
         } catch (ConstraintViolationException $exception) {
             $errors = [];
-            foreach ($exception->getViolations() as $error) {
-                $errors[] = $error->getMessage();
+            foreach ($exception->getViolations() as $violation) {
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',
@@ -235,15 +232,15 @@ class FormController extends StorefrontController
         $response = [];
 
         try {
-            $this->unsubscribeRoute->unsubscribe($data, $context);
+            $this->unsubscribeRoute->unsubscribeWithResponse($data, $context);
             $response[] = [
                 'type' => 'success',
                 'alert' => $this->trans('newsletter.subscriptionRevokeSuccess'),
             ];
         } catch (ConstraintViolationException $exception) {
             $errors = [];
-            foreach ($exception->getViolations() as $error) {
-                $errors[] = $error->getMessage();
+            foreach ($exception->getViolations() as $violation) {
+                $errors[] = $this->constraintViolationTranslator->translate($violation);
             }
             $response[] = [
                 'type' => 'danger',

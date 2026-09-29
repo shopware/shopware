@@ -107,7 +107,10 @@ class ProductSubscriber implements EventSubscriberInterface
             $assigns = [];
 
             if (($properties = $product->get('properties')) !== null) {
-                $assigns['sortedProperties'] = $this->propertyGroupSorter->sort($properties);
+                $assigns['sortedProperties'] = $this->propertyGroupSorter->sortUsingLocaleCode(
+                    $properties,
+                    $event->getSalesChannelContext()->getLanguageInfo()->localeCode,
+                );
             }
 
             $assigns['calculatedMaxPurchase'] = $this->maxPurchaseCalculator->calculate($product, $event->getSalesChannelContext());

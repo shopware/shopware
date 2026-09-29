@@ -3,9 +3,10 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Health\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\SalesChannelRequest;
@@ -21,19 +22,20 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SalesChannelDomainUtil::class)]
 class SalesChannelDomainUtilTest extends TestCase
 {
-    private KernelInterface&MockObject $kernel;
+    private KernelInterface&Stub $kernel;
 
-    private RouterInterface&MockObject $router;
+    private RouterInterface&Stub $router;
 
     private RequestStack $requestStack;
 
     protected function setUp(): void
     {
-        $this->kernel = $this->createMock(KernelInterface::class);
-        $this->router = $this->createMock(RouterInterface::class);
+        $this->kernel = static::createStub(KernelInterface::class);
+        $this->router = static::createStub(RouterInterface::class);
         $this->requestStack = new RequestStack();
     }
 
@@ -111,12 +113,13 @@ class SalesChannelDomainUtilTest extends TestCase
         $routeName = 'test_route';
         $parameters = ['param1' => 'value1', 'param2' => 'value2'];
 
-        $this->router->expects($this->once())
+        $router = $this->createMock(RouterInterface::class);
+        $router->expects($this->once())
             ->method('generate')
             ->with($routeName, $parameters)
             ->willReturn('/test/path');
 
-        $util = $this->getUtil();
+        $util = $this->getUtil($router);
 
         $resultUrl = $util->generateDomainUrl($url, $routeName, $parameters);
 
@@ -165,10 +168,10 @@ class SalesChannelDomainUtilTest extends TestCase
         static::assertSame(Response::HTTP_LOOP_DETECTED, $result->responseCode);
     }
 
-    private function getUtil(): SalesChannelDomainUtil
+    private function getUtil(?RouterInterface $router = null): SalesChannelDomainUtil
     {
         return new SalesChannelDomainUtil(
-            $this->router,
+            $router ?? $this->router,
             $this->requestStack,
             $this->kernel,
             new NullLogger(),

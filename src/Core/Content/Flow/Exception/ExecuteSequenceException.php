@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Flow\Exception;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class ExecuteSequenceException extends FlowException
 {

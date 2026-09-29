@@ -7,10 +7,20 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-#[Package('framework')]
+#[Package('discovery')]
 class SeedingThemePathBuilder extends AbstractThemePathBuilder
 {
-    private const SYSTEM_CONFIG_KEY = 'storefront.themeSeed';
+    /**
+     * Each theme's seed lives under its own key ("<prefix><themeId>") so saving is a single-row
+     * write; a shared map would need a racy read-modify-write across concurrent compilations.
+     */
+    private const SYSTEM_CONFIG_KEY_PREFIX = 'storefront.themeSeeds.';
+
+    /**
+     * Legacy sales-channel-wide seed (one string for all themes), kept as a fallback until each
+     * theme is recompiled. Distinct prefix ("themeSeeds" vs "themeSeed") avoids key-nesting clashes.
+     */
+    private const LEGACY_SYSTEM_CONFIG_KEY = 'storefront.themeSeed';
 
     /**
      * @internal
@@ -22,7 +32,7 @@ class SeedingThemePathBuilder extends AbstractThemePathBuilder
 
     public function assemblePath(string $salesChannelId, string $themeId): string
     {
-        return $this->generateNewPath($salesChannelId, $themeId, $this->getSeed($salesChannelId));
+        return $this->generateNewPath($salesChannelId, $themeId, $this->getSeed($salesChannelId, $themeId));
     }
 
     public function generateNewPath(string $salesChannelId, string $themeId, string $seed): string
@@ -32,7 +42,7 @@ class SeedingThemePathBuilder extends AbstractThemePathBuilder
 
     public function saveSeed(string $salesChannelId, string $themeId, string $seed): void
     {
-        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY, $seed, $salesChannelId, false);
+        $this->systemConfigService->set(self::SYSTEM_CONFIG_KEY_PREFIX . $themeId, $seed, $salesChannelId, false);
     }
 
     public function getDecorated(): AbstractThemePathBuilder
@@ -40,15 +50,17 @@ class SeedingThemePathBuilder extends AbstractThemePathBuilder
         throw new DecorationPatternException(self::class);
     }
 
-    private function getSeed(string $salesChannelId): string
+    private function getSeed(string $salesChannelId, string $themeId): string
     {
-        /** @var string|null $seed */
-        $seed = $this->systemConfigService->get(self::SYSTEM_CONFIG_KEY, $salesChannelId);
+        $seed = $this->systemConfigService->get(self::SYSTEM_CONFIG_KEY_PREFIX . $themeId, $salesChannelId);
 
-        if (!$seed) {
-            return '';
+        if (\is_string($seed) && $seed !== '') {
+            return $seed;
         }
 
-        return $seed;
+        // Fallback for themes still on the legacy sales-channel-wide seed.
+        $legacy = $this->systemConfigService->get(self::LEGACY_SYSTEM_CONFIG_KEY, $salesChannelId);
+
+        return \is_string($legacy) ? $legacy : '';
     }
 }

@@ -12,6 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -22,11 +23,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:change',
     description: 'Change the active theme for a sales channel',
 )]
-#[Package('framework')]
 class ThemeChangeCommand extends Command
 {
     private readonly Context $context;
@@ -43,7 +44,8 @@ class ThemeChangeCommand extends Command
         private readonly ThemeService $themeService,
         private readonly StorefrontPluginRegistry $pluginRegistry,
         private readonly EntityRepository $salesChannelRepository,
-        private readonly EntityRepository $themeRepository
+        private readonly EntityRepository $themeRepository,
+        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter
     ) {
         parent::__construct();
         $this->context = Context::createCLIContext();
@@ -56,6 +58,7 @@ class ThemeChangeCommand extends Command
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
         $this->addOption('no-compile', null, InputOption::VALUE_NONE, 'Skip theme compiling');
         $this->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously');
+        $this->addOption('no-cleanup', null, InputOption::VALUE_NONE, 'Do not delete unused theme directories after compilation');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -117,6 +120,9 @@ class ThemeChangeCommand extends Command
 
         if ($input->getOption('sync')) {
             $this->context->addState(ThemeService::STATE_NO_QUEUE);
+        } elseif (!$input->getOption('no-compile')) {
+            // Defer the switch until compilation finished (no-op when async compilation is off).
+            $this->context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
         }
 
         foreach ($selectedSalesChannel as $salesChannel) {
@@ -130,6 +136,11 @@ class ThemeChangeCommand extends Command
                 $this->context,
                 $input->getOption('no-compile')
             );
+        }
+
+        if (!$input->getOption('no-cleanup')) {
+            $deletedDirectories = $this->unusedThemeDirectoryDeleter->deleteUnusedDirectories();
+            $this->io->note(\sprintf('Deleted %d unused theme %s', $deletedDirectories, $deletedDirectories === 1 ? 'directory' : 'directories'));
         }
 
         return self::SUCCESS;

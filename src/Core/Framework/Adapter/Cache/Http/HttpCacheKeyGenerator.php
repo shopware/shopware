@@ -80,6 +80,8 @@ class HttpCacheKeyGenerator
 
         $event->add('hash', $this->cacheHash);
 
+        $this->addVariantHeaders($request, $event);
+
         $this->addCookies($request, $response, $event);
 
         $this->dispatcher->dispatch($event);
@@ -115,9 +117,39 @@ class HttpCacheKeyGenerator
         );
     }
 
+    /**
+     * Shopware response may be influenced by headers, not only by domain URL or cookies.
+     * Such headers should be included in the cache key calculation.
+     * Requests that do not carry these headers are not affected.
+     */
+    private function addVariantHeaders(Request $request, HttpCacheKeyEvent $event): void
+    {
+        foreach (HttpCacheVariantHeaders::HEADERS as $header) {
+            // the cache hash needs cookie precedence and is handled in addCookies()
+            if ($header === self::CONTEXT_CACHE_COOKIE) {
+                continue;
+            }
+
+            // Values are matched case-sensitive: sw-access-key is a case-sensitive and language/currency ids
+            // must be lowercase hex, so any other casing is a different (and invalid) request.
+            // This behavior is similar to how headers mentioned in Vary are handled by reverse proxies.
+            $value = (string) $request->headers->get($header, '');
+            if ($value !== '') {
+                $event->add($header, $value);
+            }
+        }
+    }
+
     private function addCookies(Request $request, ?Response $response, HttpCacheKeyEvent $event): void
     {
-        if ($cacheCookie = $this->getCookieValue($request, $response, self::CONTEXT_CACHE_COOKIE)) {
+        // The response cookie carries the server-computed hash on write and stays authoritative.
+        // On the request side the header wins over the cookie, matching the poisoning guard in
+        // CacheResponseSubscriber and priority in the Shopware reverse proxies configs.
+        $cacheCookie = $this->getResponseCookieValue($response, self::CONTEXT_CACHE_COOKIE)
+            ?? $request->headers->get(self::CONTEXT_CACHE_COOKIE)
+            ?? $this->getRequestCookieValue($request, self::CONTEXT_CACHE_COOKIE);
+
+        if ($cacheCookie) {
             $event->add(
                 self::CONTEXT_CACHE_COOKIE,
                 $cacheCookie
@@ -155,22 +187,31 @@ class HttpCacheKeyGenerator
      */
     private function getCookieValue(Request $request, ?Response $response, string $cookieName): ?string
     {
-        if ($response) {
-            $cookie = Cookie::create($cookieName);
+        return $this->getResponseCookieValue($response, $cookieName)
+            ?? $this->getRequestCookieValue($request, $cookieName);
+    }
 
-            $responseCookies = $response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY);
-
-            $responseCookie = $responseCookies[$cookie->getDomain() ?? ''][$cookie->getPath()][$cookieName] ?? null;
-
-            if ($responseCookie) {
-                // if the response contains the cookie, we use it instead of the request cookie
-                // as the request cookie can be overwritten by the client
-                // however the response cookie is only set if it differs from the request cookie,
-                // so we need to fall back to the request cookie when the response cookie is not set
-                return $responseCookie->getValue();
-            }
+    private function getResponseCookieValue(?Response $response, string $cookieName): ?string
+    {
+        if (!$response) {
+            return null;
         }
 
+        $cookie = Cookie::create($cookieName);
+
+        $responseCookies = $response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY);
+
+        $responseCookie = $responseCookies[$cookie->getDomain() ?? ''][$cookie->getPath()][$cookieName] ?? null;
+
+        // if the response contains the cookie, we use it instead of the request value
+        // as the request value can be overwritten by the client;
+        // however the response cookie is only set if it differs from the request cookie,
+        // so callers need to fall back to the request when the response cookie is not set
+        return $responseCookie?->getValue();
+    }
+
+    private function getRequestCookieValue(Request $request, string $cookieName): ?string
+    {
         if ($request->cookies->has($cookieName)) {
             return (string) $request->cookies->get($cookieName);
         }

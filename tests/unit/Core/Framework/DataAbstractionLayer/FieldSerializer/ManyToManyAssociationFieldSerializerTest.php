@@ -23,12 +23,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedAr
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ManyToManyAssociationFieldSerializer::class)]
 class ManyToManyAssociationFieldSerializerTest extends TestCase
 {
@@ -40,15 +42,15 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
                 'MediaGallery' => new MediaGalleryDefinition(),
                 'MediaGalleryMapping' => new MediaGalleryMappingDefinition(),
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $field = $mediaDefinition->getField('galleries');
 
         static::assertInstanceOf(ManyToManyAssociationField::class, $field);
 
-        $serializer = new ManyToManyAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToManyAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $mediaDefinition,
@@ -68,7 +70,7 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
 
     public function testDecodeThrowsException(): void
     {
-        $serializer = new ManyToManyAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToManyAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $field = new ManyToManyAssociationField(
             'galleries',
@@ -95,15 +97,15 @@ class ManyToManyAssociationFieldSerializerTest extends TestCase
                 'MediaGallery' => $mediaGalleryDefinition,
                 'MediaGalleryMapping' => $mediaGalleryMappingDefinition,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class),
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
         );
 
         $field = $mediaDefinition->getField('galleries');
 
         static::assertInstanceOf(ManyToManyAssociationField::class, $field);
 
-        $serializer = new ManyToManyAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+        $serializer = new ManyToManyAssociationFieldSerializer(static::createStub(WriteCommandExtractor::class));
 
         $params = new WriteParameterBag(
             $mediaDefinition,

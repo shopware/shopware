@@ -12,10 +12,8 @@ const allowUrlList = [
     '/search/salutation',
     '/search/product-search-config',
     '/search/product-search-config-field',
-    '/app-system/action-button/product/list',
     '_action/system-config',
     '/_action/system-config',
-    'app-system/action-button/product/list',
     '/search/currency',
     '/search/order',
     '/search/customer',
@@ -59,10 +57,7 @@ const requestCacheTimeout = 1500;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function cacheAdapterFactory(originalAdapter, requestCaches = {}) {
     return (config) => {
-        const requestChangesData = [
-            'delete',
-            'patch',
-        ].includes(config?.method);
+        const requestChangesData = ['delete', 'patch'].includes(config?.method);
         const shouldFlushCache = flushCacheUrls.includes(config?.url);
 
         // remove all caches when something gets changed

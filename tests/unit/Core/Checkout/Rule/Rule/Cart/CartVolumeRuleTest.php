@@ -27,7 +27,7 @@ class CartVolumeRuleTest extends TestCase
     {
         $cartVolumeRule = new CartVolumeRule();
 
-        $wrongScope = $this->createMock(RuleScope::class);
+        $wrongScope = static::createStub(RuleScope::class);
 
         static::assertFalse($cartVolumeRule->match($wrongScope));
     }
@@ -36,7 +36,7 @@ class CartVolumeRuleTest extends TestCase
     {
         $cartVolumeRule = new CartVolumeRule();
 
-        $cartRuleScope = $this->createMock(CartRuleScope::class);
+        $cartRuleScope = static::createStub(CartRuleScope::class);
 
         if (!Feature::isActive('v6.8.0.0')) {
             $this->expectExceptionObject(new UnsupportedValueException('NULL', CartVolumeRule::class));
@@ -53,7 +53,7 @@ class CartVolumeRuleTest extends TestCase
         $cartVolumeRule = new CartVolumeRule($operator, $ruleVolume);
 
         $cart = Generator::createCartWithDelivery();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $cartRuleScope = new CartRuleScope($cart, $context);
 

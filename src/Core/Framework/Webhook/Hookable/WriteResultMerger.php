@@ -37,7 +37,7 @@ class WriteResultMerger
                 continue;
             }
 
-            if (empty($writeResult->getPayload())) {
+            if ($writeResult->getPayload() === []) {
                 continue;
             }
 

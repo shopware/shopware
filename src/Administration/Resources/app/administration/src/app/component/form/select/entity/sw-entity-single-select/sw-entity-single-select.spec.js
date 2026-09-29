@@ -150,6 +150,74 @@ describe('components/sw-entity-single-select', () => {
         expect(criteria.totalCountMode).toBe(0);
     });
 
+    it('passes unique cache keys for selected entities and search results', async () => {
+        const repository = {
+            get: jest.fn(() => Promise.resolve({ id: 'selected-id', name: 'Selected entity' })),
+            search: jest.fn(() => Promise.resolve(getCollection())),
+        };
+        const wrapper = await createEntitySingleSelect({
+            props: {
+                value: 'selected-id',
+                entity: 'test',
+                cacheKey: ['shared-data', 'test-entities'],
+                cacheTtl: 1000,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => repository,
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledWith('selected-id', expect.any(Object), expect.any(Object), {
+            cacheKey: [
+                'shared-data',
+                'test-entities',
+                'selected',
+                'selected-id',
+            ],
+            ttl: 1000,
+        });
+
+        await wrapper.vm.loadData();
+
+        expect(repository.search).toHaveBeenCalledWith(
+            expect.any(Object),
+            expect.any(Object),
+            expect.objectContaining({
+                cacheKey: expect.arrayContaining(['shared-data', 'test-entities', 'search']),
+                ttl: 1000,
+            }),
+        );
+    });
+
+    it('does not mutate a cached search result while adding the reset option', async () => {
+        const result = getCollection();
+        const wrapper = await createEntitySingleSelect({
+            props: {
+                resetOption: 'Reset selection',
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: jest.fn().mockResolvedValue(result),
+                        }),
+                    },
+                },
+            },
+        });
+
+        await wrapper.vm.loadData();
+
+        expect(wrapper.vm.resultCollection).not.toBe(result);
+        expect(wrapper.vm.resultCollection.has(null)).toBe(true);
+        expect(result.has(null)).toBe(false);
+    });
+
     it('should have no reset option when it is not defined', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
             props: {
@@ -162,6 +230,29 @@ describe('components/sw-entity-single-select', () => {
         const { singleSelection } = swEntitySingleSelect.vm;
 
         expect(singleSelection).toBeNull();
+    });
+
+    it('does not clear an unresolved selection when disabled', async () => {
+        const repository = {
+            get: jest.fn().mockResolvedValue(null),
+        };
+        const wrapper = await createEntitySingleSelect({
+            props: {
+                value: 'unresolved-id',
+                disabled: true,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => repository,
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledWith('unresolved-id', expect.any(Object), expect.any(Object), undefined);
+        expect(wrapper.emitted('update:value')).toBeUndefined();
     });
 
     it('should have disabled state results according to function', async () => {
@@ -541,9 +632,7 @@ describe('components/sw-entity-single-select', () => {
         await swEntitySingleSelect.find('input').trigger('change');
         await swEntitySingleSelect.vm.$nextTick();
 
-        expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual([
-            'first',
-        ]);
+        expect(swEntitySingleSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
 
     it('should not display variations', async () => {

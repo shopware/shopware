@@ -184,6 +184,25 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 
+    it('should forward displayAsGroup to the preview service', async () => {
+        const wrapper = await createWrapper();
+
+        const previewMock = jest.fn().mockResolvedValue({ elements: [], total: 0 });
+        wrapper.vm.productStreamPreviewService.preview = previewMock;
+        wrapper.vm.selectedSalesChannel = 'sales-channel-id';
+
+        await wrapper.setProps({ displayAsGroup: true });
+        await wrapper.vm.loadEntityData();
+
+        expect(previewMock).toHaveBeenCalledWith(
+            'sales-channel-id',
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            true,
+        );
+    });
+
     it('should load sales channel successfully', async () => {
         const wrapper = await createWrapper();
         const salesChannelData = {
@@ -369,10 +388,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
             'cheapestPrice',
             'releaseDate',
         ];
-        const validDirections = [
-            'ASC',
-            'DESC',
-        ];
+        const validDirections = ['ASC', 'DESC'];
 
         sortings.forEach((sorting) => {
             expect(allowedFields).toContain(sorting.field);
@@ -395,10 +411,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
             'cheapestPrice',
             'releaseDate',
         ];
-        const validDirections = [
-            'ASC',
-            'DESC',
-        ];
+        const validDirections = ['ASC', 'DESC'];
 
         sortings.forEach((sorting) => {
             expect(allowedFields).toContain(sorting.field);

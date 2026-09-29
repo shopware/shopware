@@ -12,7 +12,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     const classes = {
         componentRoot: 'sw-product-feature-set-form__container',
         descriptionContainer: 'sw-product-feature-set-form__description',
-        descriptionTitle: 'sw-product-feature-set-form__description-title',
         descriptionBody: 'sw-product-feature-set-form__description-body',
         descriptionConfigInformation: 'sw-product-feature-set-form__description-config-info',
         descriptionLink: 'sw-product-feature-set-form__description-link',
@@ -25,7 +24,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     };
 
     const text = {
-        descriptionTitle: 'sw-product.featureSets.descriptionTitle',
         descriptionBody: 'sw-product.featureSets.descriptionBody',
         descriptionConfigInformation: 'sw-product.featureSets.configInformation',
         descriptionLink: 'sw-product.featureSets.linkFeatureSetsConfig',
@@ -149,12 +147,10 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     it('has a complete description', async () => {
         const descriptionContainer = wrapper.get(`.${classes.descriptionContainer}`);
 
-        // checks if the descriptionTitle exists
-        descriptionContainer.get(`.${classes.descriptionTitle}`);
-
         const description = descriptionContainer.get(`.${classes.descriptionBody}`);
         const configInformation = descriptionContainer.get(`.${classes.descriptionConfigInformation}`);
 
+        expect(descriptionContainer.find('.sw-product-feature-set-form__description-title').exists()).toBe(false);
         expect(description.text()).toEqual(text.descriptionBody);
 
         expect(configInformation.attributes().keypath).toEqual(text.descriptionConfigInformation);

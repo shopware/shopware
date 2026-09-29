@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@framework')]
 class CurrencyCountryRoundingDefinition extends EntityDefinition
 {

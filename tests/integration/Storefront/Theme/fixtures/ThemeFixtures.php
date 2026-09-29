@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme\fixtures;
 
+use Shopware\Core\Framework\Feature;
+
 /**
  * @internal
  */
@@ -255,7 +257,7 @@ class ThemeFixtures
      */
     public static function getThemeStructuredFields(): array
     {
-        return [
+        return self::stripStructuredLabelsAndHelpTexts([
             'tabs' => [
                 'default' => [
                     'label' => '',
@@ -560,7 +562,7 @@ class ThemeFixtures
             ],
             'themeTechnicalName' => 'Storefront',
             'configInheritance' => [],
-        ];
+        ]);
     }
 
     /**
@@ -568,7 +570,7 @@ class ThemeFixtures
      */
     public static function getThemeInheritedConfig(string $faviconId, string $demostoreLogoId): array
     {
-        return [
+        return self::stripLabelsAndHelpTexts([
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
@@ -1278,7 +1280,7 @@ class ThemeFixtures
                 ],
             ],
             'configInheritance' => self::getConfigInheritance(),
-        ];
+        ]);
     }
 
     /**
@@ -1286,7 +1288,7 @@ class ThemeFixtures
      */
     public static function getThemeInheritedBlankConfig(string $faviconId, string $demostoreLogoId): array
     {
-        return [
+        return self::stripLabelsAndHelpTexts([
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
@@ -1996,7 +1998,7 @@ class ThemeFixtures
                 ],
             ],
             'configInheritance' => self::getConfigInheritance(),
-        ];
+        ]);
     }
 
     /**
@@ -2004,7 +2006,7 @@ class ThemeFixtures
      */
     public static function getThemeConfig(string $faviconId, string $demostoreLogoId): array
     {
-        return [
+        return self::stripLabelsAndHelpTexts([
             'fields' => [
                 'sw-color-brand-primary' => [
                     'name' => 'sw-color-brand-primary',
@@ -2714,7 +2716,32 @@ class ThemeFixtures
                 ],
             ],
             'configInheritance' => [],
-        ];
+        ]);
+    }
+
+    /**
+     * With v6.8.0.0 the merged theme config no longer exposes field labels and help texts
+     * ({@see \Shopware\Storefront\Theme\ThemeMergedConfigBuilder}), only the snippet keys remain.
+     *
+     * @param array<string, mixed> $config
+     *
+     * @return array<string, mixed>
+     */
+    public static function stripLabelsAndHelpTexts(array $config): array
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $config;
+        }
+
+        foreach (array_keys($config['fields'] ?? []) as $key) {
+            unset($config['fields'][$key]['label'], $config['fields'][$key]['helpText']);
+        }
+
+        foreach (array_keys($config['blocks'] ?? []) as $key) {
+            unset($config['blocks'][$key]['label']);
+        }
+
+        return $config;
     }
 
     /**
@@ -2725,5 +2752,35 @@ class ThemeFixtures
         return [
             0 => '@Storefront',
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $structure
+     *
+     * @return array<string, mixed>
+     */
+    private static function stripStructuredLabelsAndHelpTexts(array $structure): array
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return $structure;
+        }
+
+        foreach ($structure['tabs'] ?? [] as $tabKey => $tab) {
+            unset($structure['tabs'][$tabKey]['label']);
+            foreach ($tab['blocks'] ?? [] as $blockKey => $block) {
+                unset($structure['tabs'][$tabKey]['blocks'][$blockKey]['label']);
+                foreach ($block['sections'] ?? [] as $sectionKey => $section) {
+                    unset($structure['tabs'][$tabKey]['blocks'][$blockKey]['sections'][$sectionKey]['label']);
+                    foreach (array_keys($section['fields'] ?? []) as $fieldKey) {
+                        unset(
+                            $structure['tabs'][$tabKey]['blocks'][$blockKey]['sections'][$sectionKey]['fields'][$fieldKey]['label'],
+                            $structure['tabs'][$tabKey]['blocks'][$blockKey]['sections'][$sectionKey]['fields'][$fieldKey]['helpText'],
+                        );
+                    }
+                }
+            }
+        }
+
+        return $structure;
     }
 }

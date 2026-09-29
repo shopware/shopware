@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Command\CacheClearAllCommand;
 use Shopware\Core\Framework\Adapter\Command\CacheClearHttpCommand;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheClearAllCommand::class)]
 class CacheClearHttpCommandTest extends TestCase
 {

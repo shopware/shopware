@@ -15,8 +15,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler(handles: CleanupPaymentTokenTask::class)]
 #[Package('checkout')]
+#[AsMessageHandler(handles: CleanupPaymentTokenTask::class)]
 final class CleanupPaymentTokenTaskHandler extends ScheduledTaskHandler
 {
     /**

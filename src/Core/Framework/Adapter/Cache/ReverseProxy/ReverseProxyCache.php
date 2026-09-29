@@ -24,11 +24,12 @@ class ReverseProxyCache implements StoreInterface
      * @internal
      *
      * @param string[] $states
-     *
-     * @deprecated tag:v6.8.0 - Parameter $states will be removed
      */
     public function __construct(
         private readonly AbstractReverseProxyGateway $gateway,
+        /**
+         * @deprecated tag:v6.8.0 - Parameter $states will be removed
+         */
         private readonly array $states,
         private readonly CacheTagCollector $collector
     ) {

@@ -5,10 +5,12 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Indexin
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,6 +19,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class InheritanceIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -42,6 +45,7 @@ class InheritanceIndexerTest extends TestCase
         $products = [
             [
                 'id' => $ids->create('parent'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'name' => 'test',
                 'manufacturer' => [
                     'id' => $ids->create('manufacturer'),
@@ -56,12 +60,14 @@ class InheritanceIndexerTest extends TestCase
             ],
             [
                 'id' => $ids->create('variant-1'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'parentId' => $ids->get('parent'),
                 'stock' => 10,
                 'productNumber' => $ids->get('variant-1'),
             ],
             [
                 'id' => $ids->create('variant-2'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'parentId' => $ids->get('parent'),
                 'stock' => 10,
                 'productNumber' => $ids->get('variant-2'),
@@ -119,6 +125,7 @@ class InheritanceIndexerTest extends TestCase
         $products = [
             [
                 'id' => $ids->create('parent'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'name' => 'test',
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'price' => [
@@ -137,12 +144,14 @@ class InheritanceIndexerTest extends TestCase
             ],
             [
                 'id' => $ids->create('variant-1'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'parentId' => $ids->get('parent'),
                 'stock' => 10,
                 'productNumber' => $ids->get('variant-1'),
             ],
             [
                 'id' => $ids->create('variant-2'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'parentId' => $ids->get('parent'),
                 'stock' => 10,
                 'productNumber' => $ids->get('variant-2'),
@@ -224,6 +233,7 @@ class InheritanceIndexerTest extends TestCase
         $products = [
             [
                 'id' => $ids->create('parent'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'name' => 'test',
                 'tax' => ['name' => 'test', 'taxRate' => 15],
                 'price' => [
@@ -237,12 +247,14 @@ class InheritanceIndexerTest extends TestCase
             ],
             [
                 'id' => $ids->create('variant-1'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'parentId' => $ids->get('parent'),
                 'stock' => 10,
                 'productNumber' => $ids->get('variant-1'),
             ],
             [
                 'id' => $ids->create('variant-2'),
+                'type' => ProductDefinition::TYPE_PHYSICAL,
                 'parentId' => $ids->get('parent'),
                 'stock' => 10,
                 'productNumber' => $ids->get('variant-2'),

@@ -32,6 +32,11 @@ class AccountOrderDetailPageLoadedHook extends PageLoadedHook
         private readonly AccountOrderDetailPage $page,
         SalesChannelContext $context
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0')
+        );
+
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
     }

@@ -1,16 +1,7 @@
-@import "~scss/variables";
-
-$sw-datepicker-color-border: $color-gray-300;
-$sw-datepicker-color-font: $color-darkgray-200;
-$sw-datepicker-color-disabled-font: #b3bfcc;
-$sw-datepicker-color-hover: $color-shopware-brand-500;
-$sw-datepicker-color-selected: #e6e6e6;
-$sw-datepicker-color-text-selected: $color-white;
-
 @mixin flatpickr-day-hovered {
-    color: $sw-datepicker-color-text-selected;
-    background-color: $sw-datepicker-color-hover;
-    border-color: $color-shopware-brand-500;
+    color: var(--color-static-white);
+    background-color: var(--color-interaction-primary-default);
+    border-color: var(--color-border-brand-default);
 }
 
 .sw-field--datepicker {
@@ -21,7 +12,7 @@ $sw-datepicker-color-text-selected: $color-white;
 
         .mt-icon {
             &:hover {
-                color: darken($sw-datepicker-color-font, 20%);
+                color: var(--color-icon-primary-default);
             }
         }
     }
@@ -54,9 +45,9 @@ $sw-datepicker-color-text-selected: $color-white;
 }
 
 .flatpickr-calendar {
-    color: $sw-datepicker-color-font;
-    box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 30%);
-    border: 1px solid $sw-datepicker-color-border;
+    color: var(--color-text-primary-default);
+    box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
+    border: 1px solid var(--color-border-secondary-default);
     border-radius: 4px;
 
     &::before,
@@ -71,15 +62,15 @@ $sw-datepicker-color-text-selected: $color-white;
         .flatpickr-monthDropdown-months {
             padding-top: 2px;
             padding-bottom: 4px;
-            font-weight: $font-weight-semi-bold;
-            color: $color-darkgray-200;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text-primary-default);
             text-align: right;
             -moz-appearance: none;
             -webkit-appearance: none;
             line-height: 1.2;
 
             option {
-                font-weight: $font-weight-regular;
+                font-weight: var(--font-weight-regular);
             }
         }
 
@@ -89,13 +80,13 @@ $sw-datepicker-color-text-selected: $color-white;
 
             &:hover {
                 svg {
-                    fill: $color-shopware-brand-500;
+                    fill: var(--color-icon-brand-default);
                 }
             }
         }
 
         .cur-year {
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
         }
     }
 
@@ -111,7 +102,7 @@ $sw-datepicker-color-text-selected: $color-white;
     .flatpickr-weekday {
         font-size: inherit;
         color: inherit;
-        font-weight: $font-weight-regular;
+        font-weight: var(--font-weight-regular);
     }
 
     .flatpickr-day {
@@ -119,7 +110,7 @@ $sw-datepicker-color-text-selected: $color-white;
         margin-bottom: 6px;
 
         &:not(.flatpickr-disabled) {
-            color: $sw-datepicker-color-font;
+            color: var(--color-text-primary-default);
         }
 
         &:hover {
@@ -127,8 +118,8 @@ $sw-datepicker-color-text-selected: $color-white;
         }
 
         &.selected {
-            background-color: $sw-datepicker-color-selected;
-            border-color: $sw-datepicker-color-border;
+            background-color: var(--color-background-secondary-default);
+            border-color: var(--color-border-secondary-default);
 
             &:hover {
                 @include flatpickr-day-hovered;
@@ -138,7 +129,7 @@ $sw-datepicker-color-text-selected: $color-white;
         &.prevMonthDay,
         &.nextMonthDay {
             &:not(.flatpickr-disabled) {
-                color: $sw-datepicker-color-disabled-font;
+                color: var(--color-text-secondary-default);
             }
 
             &:hover {
@@ -147,14 +138,14 @@ $sw-datepicker-color-text-selected: $color-white;
         }
 
         &.today {
-            border-color: $color-gray-300;
+            border-color: var(--color-border-secondary-default);
 
             &:hover {
                 @include flatpickr-day-hovered;
             }
 
             &.selected {
-                background-color: $sw-datepicker-color-selected;
+                background-color: var(--color-background-secondary-default);
 
                 &:hover {
                     @include flatpickr-day-hovered;

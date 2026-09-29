@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
@@ -14,12 +15,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class CriteriaQueryHelperTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,7 +38,11 @@ class CriteriaQueryHelperTest extends TestCase
 
         $criteria->addSorting(new FieldSorting('rate', 'invalid direction'));
 
-        static::expectException(InvalidSortingDirectionException::class);
+        if (Feature::isActive('v6.8.0.0')) {
+            static::expectExceptionObject(DataAbstractionLayerException::invalidSortingDirection('invalid direction'));
+        } else {
+            static::expectException(InvalidSortingDirectionException::class);
+        }
         $taxRepository->search($criteria, $context);
     }
 
@@ -101,7 +109,7 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
 
-        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
 
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
@@ -119,7 +127,7 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
         $criteria->addSorting(new FieldSorting('_score', FieldSorting::ASCENDING));
-        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
+        $queryBuilder = new QueryBuilder(static::createStub(Connection::class));
 
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());

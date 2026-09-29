@@ -1,0 +1,58 @@
+name: 'Codeowners Plus with commit status'
+description: 'Runs codeowners-plus for a pull request and reports codeowners/approvals as a commit status.'
+
+inputs:
+  pr-number:
+    description: 'Pull request number'
+    required: true
+  draft:
+    description: 'Whether the pull request is a draft'
+    required: true
+  head-sha:
+    description: 'Commit the status is reported on'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: git fetch --no-tags origin "pull/${{ inputs.pr-number }}/head"
+
+    # GITHUB_TOKEN has no organization scope, so requesting a review from a team
+    # fails with "Could not resolve to a node with the global id of 'T_…'". No
+    # fallback on purpose: falling back would silently reintroduce that failure.
+    - id: sts
+      uses: shopware/octo-sts-action@main
+      with:
+        scope: shopware
+        identity: CodeownersPlus
+
+    - id: codeowners
+      continue-on-error: true
+      uses: multimediallc/codeowners-plus@492316f7b626694d8e43813585364ce6fab6d579 # v1.10.0
+      with:
+        github-token: '${{ steps.sts.outputs.token }}'
+        pr: '${{ inputs.pr-number }}'
+        verbose: true
+        quiet: ${{ inputs.draft }}
+
+    - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+      env:
+        APPROVED: ${{ steps.codeowners.outcome == 'success' }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+      with:
+        script: |
+          const approved = process.env.APPROVED === 'true'
+          // 'pending' blocks the merge exactly like 'failure' for a required
+          // status check, but keeps the commit rollup yellow: missing reviews
+          // are a waiting state, not a broken build.
+          await github.rest.repos.createCommitStatus({
+            ...context.repo,
+            sha: process.env.HEAD_SHA,
+            state: approved ? 'success' : 'pending',
+            context: 'codeowners/approvals',
+            description: approved
+              ? 'All required code owners approved'
+              : 'Approvals from required code owners are still missing',
+            target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+          })

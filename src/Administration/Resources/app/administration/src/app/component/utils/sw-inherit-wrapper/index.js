@@ -39,11 +39,7 @@ export default {
 
     inject: ['feature'],
 
-    emits: [
-        'update:value',
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
     props: {
         value: {
@@ -138,6 +134,8 @@ export default {
                 if (!this.isInherited && newValue !== this.inheritedValue) {
                     if (newValue === null || newValue === undefined || (Array.isArray(newValue) && newValue.length <= 0)) {
                         this.forceInheritanceRemove = true;
+                    } else {
+                        this.forceInheritanceRemove = false;
                     }
                     this.updateValue(newValue, 'restore');
                     return;
@@ -168,8 +166,8 @@ export default {
                 return this.customInheritationCheckFunction(this.value);
             }
 
-            // if association or array
-            if ((this.isAssociation || Array.isArray(this.value)) && this.value) {
+            // if association
+            if (this.isAssociation && this.value) {
                 return this.value.length <= 0;
             }
 
@@ -250,9 +248,11 @@ export default {
                 return;
             }
 
-            if (!newValue || (Array.isArray(newValue) && newValue.length <= 0)) {
-                this.forceInheritanceRemove = true;
-            }
+            // The user explicitly detached this field from the inherited value.
+            // Persist that intent so the field does not silently re-inherit once it
+            // becomes empty later (e.g. when the last value of a multi-select is
+            // removed). Re-linking via restoreInheritance() resets the flag again.
+            this.forceInheritanceRemove = true;
 
             this.$emit('update:value', newValue);
         },

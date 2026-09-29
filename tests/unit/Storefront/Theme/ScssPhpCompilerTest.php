@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ScssPhp\ScssPhp\OutputStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ScssPhpCompiler::class)]
 class ScssPhpCompilerTest extends TestCase
 {

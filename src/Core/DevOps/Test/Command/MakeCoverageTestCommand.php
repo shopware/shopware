@@ -18,11 +18,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'make:coverage',
     description: 'Generate PHP Unit test file',
 )]
-#[Package('framework')]
 class MakeCoverageTestCommand extends Command
 {
     public function __construct(

@@ -17,6 +17,8 @@ type BetweenValue = {
  * Adds `isBetween` and `betweenValue` to a condition component so
  * it can render a two picker ui for the `between` operator on a date / datetime
  * field.
+ *
+ * Duplicated in `src/app/composables/use-rule-between-operator`; change both together.
  */
 export default Shopware.Mixin.register(
     RULE_BETWEEN_OPERATOR_MIXIN_NAME,

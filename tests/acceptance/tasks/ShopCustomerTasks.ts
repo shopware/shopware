@@ -33,4 +33,3 @@ export const test = mergeTests(
     CheckVisibilityInHome,
     AcceptTechnicalRequiredCookies,
 );
-

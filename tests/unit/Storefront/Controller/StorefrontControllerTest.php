@@ -46,7 +46,7 @@ use Twig\Error\SyntaxError;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(StorefrontController::class)]
 class StorefrontControllerTest extends TestCase
 {
@@ -59,7 +59,7 @@ class StorefrontControllerTest extends TestCase
 
     public function testRenderStorefront(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $request = new Request(
             attributes: [
@@ -87,7 +87,7 @@ class StorefrontControllerTest extends TestCase
             ->with('<html lang="en">test</html>', 'foo', $context)
             ->willReturn('<html lang="en">test</html>');
 
-        $mediaUrlHandler = $this->createMock(MediaUrlPlaceholderHandlerInterface::class);
+        $mediaUrlHandler = static::createStub(MediaUrlPlaceholderHandlerInterface::class);
         $mediaUrlHandler->method('replace')->willReturnArgument(0);
 
         $templateFinder = $this->createMock(TemplateFinder::class);
@@ -99,12 +99,12 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('request_stack', $requestStack);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
         $container->set('twig', $twig);
         $container->set(TemplateFinder::class, $templateFinder);
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $seoUrlReplacer);
         $container->set(MediaUrlPlaceholderHandlerInterface::class, $mediaUrlHandler);
-        $container->set(SystemConfigService::class, $this->createMock(SystemConfigService::class));
+        $container->set(SystemConfigService::class, static::createStub(SystemConfigService::class));
         $container->set('twig', $twig);
 
         $this->controller->setContainer($container);
@@ -117,7 +117,7 @@ class StorefrontControllerTest extends TestCase
 
     public function testRenderStorefrontWithException(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $request = new Request(
             attributes: [
@@ -139,7 +139,7 @@ class StorefrontControllerTest extends TestCase
             ->method('render')
             ->willThrowException($exception);
 
-        $seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
+        $seoUrlReplacer = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
 
         $templateFinder = $this->createMock(TemplateFinder::class);
         $templateFinder
@@ -150,11 +150,11 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('request_stack', $requestStack);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
         $container->set('twig', $twig);
         $container->set(TemplateFinder::class, $templateFinder);
         $container->set(SeoUrlPlaceholderHandlerInterface::class, $seoUrlReplacer);
-        $container->set(SystemConfigService::class, $this->createMock(SystemConfigService::class));
+        $container->set(SystemConfigService::class, static::createStub(SystemConfigService::class));
         $container->set('twig', $twig);
 
         $this->controller->setContainer($container);
@@ -197,7 +197,7 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
 
         $this->controller->setContainer($container);
 
@@ -225,7 +225,7 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
 
         $this->controller->setContainer($container);
         $this->expectExceptionObject(StorefrontException::routeNotFound('foo'));
@@ -250,7 +250,7 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
 
         $this->controller->setContainer($container);
 
@@ -278,7 +278,7 @@ class StorefrontControllerTest extends TestCase
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
 
         $this->controller->setContainer($container);
 
@@ -297,7 +297,7 @@ class StorefrontControllerTest extends TestCase
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
 
-        $requestContext = $this->createMock(RequestContext::class);
+        $requestContext = static::createStub(RequestContext::class);
         $requestContext
             ->method('getMethod')
             ->willReturn('POST');
@@ -308,7 +308,6 @@ class StorefrontControllerTest extends TestCase
 
         $router
             ->method('match')
-            ->with('/foo/generated')
             ->willReturn(['_controller' => 'test_controller']);
 
         $request = new Request(
@@ -321,22 +320,22 @@ class StorefrontControllerTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
-        $controllerResolver = $this->createMock(ControllerResolverInterface::class);
+        $controllerResolver = static::createStub(ControllerResolverInterface::class);
         $controllerResolver
             ->method('getController')
             ->willReturn(static fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
 
         $kernel = new HttpKernel(
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $controllerResolver,
             $requestStack,
         );
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
         $container->set('request_stack', $requestStack);
-        $container->set(RequestTransformerInterface::class, $this->createMock(RequestTransformerInterface::class));
+        $container->set(RequestTransformerInterface::class, static::createStub(RequestTransformerInterface::class));
         $container->set('http_kernel', $kernel);
 
         $this->controller->setContainer($container);
@@ -367,22 +366,22 @@ class StorefrontControllerTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
-        $controllerResolver = $this->createMock(ControllerResolverInterface::class);
+        $controllerResolver = static::createStub(ControllerResolverInterface::class);
         $controllerResolver
             ->method('getController')
             ->willReturn(static fn () => new Response('<html lang="en">test</html>', Response::HTTP_PERMANENTLY_REDIRECT, ['Content-Type' => 'text/html']));
 
         $kernel = new HttpKernel(
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $controllerResolver,
             $requestStack,
         );
 
         $container = new ContainerBuilder();
         $container->set('router', $router);
-        $container->set('event_dispatcher', $this->createMock(EventDispatcherInterface::class));
+        $container->set('event_dispatcher', static::createStub(EventDispatcherInterface::class));
         $container->set('request_stack', $requestStack);
-        $container->set(RequestTransformerInterface::class, $this->createMock(RequestTransformerInterface::class));
+        $container->set(RequestTransformerInterface::class, static::createStub(RequestTransformerInterface::class));
         $container->set('http_kernel', $kernel);
 
         $this->controller->setContainer($container);
@@ -407,7 +406,7 @@ class StorefrontControllerTest extends TestCase
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
 
-        $requestContext = $this->createMock(RequestContext::class);
+        $requestContext = static::createStub(RequestContext::class);
         $requestContext
             ->method('getMethod')
             ->willReturn('POST');

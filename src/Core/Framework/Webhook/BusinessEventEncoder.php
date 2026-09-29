@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -35,7 +36,12 @@ class BusinessEventEncoder
      */
     public function encode(FlowEventAware $event): array
     {
-        return $this->encodeType($event->getAvailableData()->toArray(), $event);
+        $dataTypes = array_filter(
+            $event->getAvailableData()->toArray(),
+            static fn (array $dataType): bool => !($dataType[EventDataCollection::HIDDEN_FROM_WEBHOOK] ?? false)
+        );
+
+        return $this->encodeType($dataTypes, $event);
     }
 
     /**

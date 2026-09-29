@@ -11,11 +11,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('fundamentals@after-sales')]
 #[AsCommand(
     name: 'import-export:delete-expired',
     description: 'Deletes expired files',
 )]
-#[Package('fundamentals@after-sales')]
 class DeleteExpiredFilesCommand extends Command
 {
     /**

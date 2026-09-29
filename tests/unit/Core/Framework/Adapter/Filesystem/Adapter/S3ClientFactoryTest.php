@@ -115,7 +115,7 @@ class S3ClientFactoryTest extends TestCase
 
     public function testCreateWithCustomHttpClient(): void
     {
-        $httpClient = $this->createMock(HttpClientInterface::class);
+        $httpClient = static::createStub(HttpClientInterface::class);
 
         $result = S3ClientFactory::create([
             'bucket' => 'test-bucket',

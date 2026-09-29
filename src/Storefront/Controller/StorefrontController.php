@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressErrorInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
@@ -36,7 +37,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-#[Package('framework')]
+#[Package('discovery')]
 abstract class StorefrontController extends AbstractController
 {
     public const SUCCESS = 'success';
@@ -224,6 +225,7 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getMainRequest();
         $exists = [];
 
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to storefront flash handling inspecting the flash bag.) */
         if ($request && $request->hasSession() && $request->getSession() instanceof FlashBagAwareSessionInterface) {
             $exists = $request->getSession()->getFlashBag()->peekAll();
         }
@@ -258,6 +260,18 @@ abstract class StorefrontController extends AbstractController
                 }
 
                 $translatedMessage = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
+
+                if ($error instanceof PromotionNotEligibleError && $error->getRuleIds() !== []) {
+                    foreach ($error->getRuleIds() as $ruleId) {
+                        $ruleSpecificKey = 'checkout.promotion-not-eligible-' . $ruleId;
+                        $candidate = $this->trans($ruleSpecificKey, $parameters);
+                        if ($candidate !== $ruleSpecificKey) {
+                            $translatedMessage = $candidate;
+                            break;
+                        }
+                    }
+                }
+
                 $error->setTranslatedMessage($translatedMessage);
 
                 if (\in_array($translatedMessage, $flat, true)) {

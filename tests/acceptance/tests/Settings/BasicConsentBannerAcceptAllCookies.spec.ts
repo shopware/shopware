@@ -2,7 +2,12 @@ import { test } from '@fixtures/AcceptanceTest';
 
 test(
     'As a shop customer, I want to use an "Accept All Cookies" button in the basic cookie consent banner in the storefront.',
-    { tag: ['@Settings', '@Storefront'] },
+    {
+        tag: [
+            '@Settings',
+            '@Storefront',
+        ],
+    },
     async ({ ShopCustomer, StorefrontHome, TestDataService }) => {
         const COOKIE_BANNER_VISIBILITY_TIMEOUT = 2_000;
 
@@ -51,5 +56,5 @@ test(
                 timeout: COOKIE_BANNER_VISIBILITY_TIMEOUT,
             });
         });
-    }
+    },
 );

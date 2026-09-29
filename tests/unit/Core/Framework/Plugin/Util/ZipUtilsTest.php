@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ZipUtils::class)]
 class ZipUtilsTest extends TestCase
 {
@@ -34,7 +36,7 @@ class ZipUtilsTest extends TestCase
         );
 
         try {
-            static::assertSame(20, $archive->numFiles);
+            static::assertSame(21, $archive->numFiles);
         } finally {
             $archive->close();
         }

@@ -6,6 +6,7 @@ import type { AppModuleDefinition } from 'src/core/service/api/app-modules.servi
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface ShopwareAppsState {
     apps: AppModuleDefinition[];
+    appsLoaded: boolean;
     selectedIds: string[];
 }
 
@@ -14,9 +15,14 @@ const shopwareApps = Shopware.Store.register({
 
     state: (): {
         apps: AppModuleDefinition[];
+        appsLoaded: boolean;
         selectedIds: string[];
     } => ({
         apps: [],
+        /**
+         * Whether `apps` reflects a finished fetch — an empty list is ambiguous otherwise
+         */
+        appsLoaded: false,
         selectedIds: [],
     }),
 });

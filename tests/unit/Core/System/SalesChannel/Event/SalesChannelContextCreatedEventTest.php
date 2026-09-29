@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('framework')]
 #[CoversClass(SalesChannelContextCreatedEvent::class)]
 class SalesChannelContextCreatedEventTest extends TestCase
 {
@@ -20,7 +20,7 @@ class SalesChannelContextCreatedEventTest extends TestCase
     {
         $token = 'foo';
         $context = Context::createDefaultContext();
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
 
         $event = new SalesChannelContextCreatedEvent($salesChannelContext, $token);

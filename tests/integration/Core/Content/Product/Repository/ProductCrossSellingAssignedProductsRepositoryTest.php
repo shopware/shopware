@@ -7,12 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductCrossSellingAssignedProductsRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

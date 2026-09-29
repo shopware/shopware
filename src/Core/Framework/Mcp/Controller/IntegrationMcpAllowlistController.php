@@ -5,9 +5,8 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Integration\IntegrationCollection;
@@ -16,13 +15,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
+ * @experimental stableVersion:v6.8.0
  *
  * Saves the per-integration MCP allowlist (tools, resources, prompts).
- * Requires the `integration_mcp.editor` admin ACL privilege.
+ *
+ * Requires `api_action_integration_mcp-allowlist` and `integration:update`. The entity privilege
+ * was already enforced by AclWriteValidator on the write; naming it on the route turns the DAL
+ * exception into a plain 403 and matches {@see UserMcpAllowlistController}.
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class IntegrationMcpAllowlistController
 {
     /**
@@ -40,16 +42,12 @@ class IntegrationMcpAllowlistController
         name: 'api.action.integration.mcp-allowlist',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_action_integration_mcp-allowlist'],
+            PlatformRequest::ATTRIBUTE_ACL => ['api_action_integration_mcp-allowlist', 'integration:update'],
         ],
         methods: ['POST'],
     )]
     public function save(string $integrationId, Request $request, Context $context): Response
     {
-        if (!Feature::isActive('MCP_SERVER')) {
-            return new Response(null, Response::HTTP_NOT_FOUND);
-        }
-
         $integration = $this->integrationRepository
             ->search(new Criteria([$integrationId]), $context)
             ->getEntities()
@@ -87,7 +85,7 @@ class IntegrationMcpAllowlistController
      */
     private function isValidAllowlist(array $allowlist): bool
     {
-        $knownKeys = [McpAllowlistProvider::TOOLS, McpAllowlistProvider::RESOURCES, McpAllowlistProvider::PROMPTS];
+        $knownKeys = [McpAllowlist::TOOLS, McpAllowlist::RESOURCES, McpAllowlist::PROMPTS];
 
         if (array_diff(array_keys($allowlist), $knownKeys) !== []) {
             return false;
@@ -99,6 +97,11 @@ class IntegrationMcpAllowlistController
             }
             $value = $allowlist[$key];
             if ($value !== null && !\is_array($value)) {
+                return false;
+            }
+            // A JSON object is rejected rather than stored: the allowlist parser only reads lists,
+            // so accepting one would silently persist a selection that grants nothing.
+            if (\is_array($value) && !array_is_list($value)) {
                 return false;
             }
             if (\is_array($value) && array_filter($value, static fn ($item) => !\is_string($item)) !== []) {

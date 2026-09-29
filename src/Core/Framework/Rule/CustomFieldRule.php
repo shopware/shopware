@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiEntitySelectField;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiSelectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\MultiEntitySelectField;
+use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\MultiSelectField;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\AtLeastOneOf;
@@ -211,11 +211,7 @@ class CustomFieldRule
             return true;
         }
 
-        if ($renderedField['config']['componentName'] === MultiEntitySelectField::COMPONENT_NAME) {
-            return true;
-        }
-
-        return false;
+        return $renderedField['config']['componentName'] === MultiEntitySelectField::COMPONENT_NAME;
     }
 
     /**
@@ -229,7 +225,7 @@ class CustomFieldRule
             return [new NotBlank()];
         }
 
-        if ($renderedField['type'] === CustomFieldTypes::BOOL) {
+        if (self::isSwitchOrBoolField($renderedField)) {
             return [];
         }
 

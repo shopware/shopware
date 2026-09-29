@@ -60,6 +60,8 @@ class EntityCacheKeyGenerator
             $criteria->getGroupFields(),
             $criteria->getAggregations(),
             $criteria->getAssociations(),
+            $criteria->getFields(),
+            $criteria->getExcludedFields(),
         ]);
     }
 }

@@ -7,12 +7,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Error\LoaderError;
 use Twig\Source;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityTemplateLoader::class)]
 class EntityTemplateLoaderTest extends TestCase
 {
@@ -28,6 +30,8 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function testSubscribedEvents(): void
     {
+        $this->connectionMock->expects($this->never())->method('fetchAllAssociative');
+
         $subscribedEvents = EntityTemplateLoader::getSubscribedEvents();
 
         static::assertSame(['app_template.written' => 'reset'], $subscribedEvents);

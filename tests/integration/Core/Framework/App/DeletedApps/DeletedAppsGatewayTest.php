@@ -5,11 +5,13 @@ namespace Shopware\Tests\Integration\Core\Framework\App\DeletedApps;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DeletedAppsGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,7 +30,7 @@ class DeletedAppsGatewayTest extends TestCase
     {
         $appName = 'test-app';
         $appSecret = 'secret-123';
-        $this->deletedAppsGateway->insertSecretForDeletedApp($appName, $appSecret);
+        $this->deletedAppsGateway->insertSecretsForDeletedApp($appName, $appSecret);
 
         $retrievedSecret = $this->connection->fetchOne(
             'SELECT app_secret FROM deleted_apps WHERE name = :name',
@@ -42,7 +44,7 @@ class DeletedAppsGatewayTest extends TestCase
     {
         $appName = 'test-app';
         $appSecret = 'secret-123';
-        $this->deletedAppsGateway->insertSecretForDeletedApp($appName, $appSecret);
+        $this->deletedAppsGateway->insertSecretsForDeletedApp($appName, $appSecret);
 
         $retrievedSecret = $this->connection->fetchOne(
             'SELECT app_secret FROM deleted_apps WHERE name = :name',
@@ -51,7 +53,7 @@ class DeletedAppsGatewayTest extends TestCase
 
         static::assertSame($appSecret, $retrievedSecret);
 
-        $this->deletedAppsGateway->insertSecretForDeletedApp($appName, 'new-secret');
+        $this->deletedAppsGateway->insertSecretsForDeletedApp($appName, 'new-secret');
 
         $retrievedSecret = $this->connection->fetchOne(
             'SELECT app_secret FROM deleted_apps WHERE name = :name',
@@ -61,9 +63,27 @@ class DeletedAppsGatewayTest extends TestCase
         static::assertSame('new-secret', $retrievedSecret);
     }
 
+    public function testInsertRoundTripsTheUnconfirmedCandidates(): void
+    {
+        $appName = 'test-app';
+
+        $this->deletedAppsGateway->insertSecretsForDeletedApp($appName, 'committed', ['pending-2', 'pending-1']);
+
+        static::assertSame(
+            ['pending-2', 'pending-1'],
+            $this->deletedAppsGateway->getDeletedAppUnconfirmedSecrets($appName)
+        );
+
+        // A retried uninstall must replace the candidates, not merge them: the app row is the truth.
+        $this->deletedAppsGateway->insertSecretsForDeletedApp($appName, 'committed', []);
+
+        static::assertNull($this->deletedAppsGateway->getDeletedAppUnconfirmedSecrets($appName));
+    }
+
     public function testGetSecretWhenNoEntryExistsReturnsNull(): void
     {
         static::assertNull($this->deletedAppsGateway->getDeletedAppSecret('test-app'));
+        static::assertNull($this->deletedAppsGateway->getDeletedAppUnconfirmedSecrets('test-app'));
     }
 
     public function testGetSecretReturnsTheRightOne(): void

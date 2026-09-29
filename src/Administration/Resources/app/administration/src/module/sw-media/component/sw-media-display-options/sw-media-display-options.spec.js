@@ -10,6 +10,19 @@ const createWrapper = async (customOptions) => {
 };
 
 describe('src/module/sw-media/component/sw-media-display-options', () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy ascending media sort default.
+    it.deprecated('v6.8.0.0')('should default to created at ascending', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.sortingConCat).toBe('createdAt:asc');
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should default to created at descending', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.sortingConCat).toBe('createdAt:desc');
+    });
+
     it('should return the correct presentationOptions', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

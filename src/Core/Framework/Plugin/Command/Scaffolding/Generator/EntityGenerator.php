@@ -22,13 +22,12 @@ class EntityGenerator implements ScaffoldingGenerator
     public const OPTION_NAME = 'entities';
     private const OPTION_DESCRIPTION = 'list of entities to generate (PascalCase, comma separated)';
 
-    private string $servicesXmlEntry = <<<'EOL'
+    private string $servicesPhpEntry = <<<'EOL'
 
-            <service id="{{ namespace }}\Core\Content\{{ entityName }}\{{ entityName }}Definition">
-                <tag name="shopware.entity.definition" entity="{{ tableName }}" />
-            </service>
+    $services->set(\{{ namespace }}\Core\Content\{{ entityName }}\{{ entityName }}Definition::class)
+        ->tag('shopware.entity.definition', ['entity' => '{{ tableName }}']);
 
-    EOL;
+EOL;
 
     public function __construct(private readonly ClockInterface $clock)
     {
@@ -41,7 +40,7 @@ class EntityGenerator implements ScaffoldingGenerator
     ): void {
         $entities = $input->getOption(self::OPTION_NAME);
 
-        if (!empty($entities)) {
+        if (\is_string($entities) && $entities !== '') {
             $this->processEntities($config, $entities);
 
             return;
@@ -61,27 +60,41 @@ class EntityGenerator implements ScaffoldingGenerator
         StubCollection $stubCollection
     ): void {
         if (!$configuration->hasOption(self::OPTION_NAME)
-            || empty($configuration->getOption(self::OPTION_NAME))
+            || $configuration->getOption(self::OPTION_NAME) === []
             || !\is_array($configuration->getOption(self::OPTION_NAME))
         ) {
             return;
         }
 
         foreach ($configuration->getOption(self::OPTION_NAME) as $entityName) {
-            $stubCollection->add($this->createMigration($configuration, $entityName));
+            if (!$this->migrationAlreadyExists($configuration, $entityName)) {
+                $stubCollection->add($this->createMigration($configuration, $entityName));
+            }
+
             $stubCollection->add($this->createEntityClass($configuration, $entityName));
             $stubCollection->add($this->createEntityDefinition($configuration, $entityName));
             $stubCollection->add($this->createEntityCollection($configuration, $entityName));
 
             $stubCollection->append(
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 str_replace(
                     ['{{ namespace }}', '{{ entityName }}', '{{ tableName }}'],
                     [$configuration->namespace, $entityName, $this->getTableName($entityName)],
-                    $this->servicesXmlEntry
+                    $this->servicesPhpEntry
                 )
             );
         }
+    }
+
+    private function migrationAlreadyExists(
+        PluginScaffoldConfiguration $configuration,
+        string $entityName
+    ): bool {
+        $migrations = glob(
+            $configuration->directory . '/src/Migration/Migration*Create' . $entityName . 'Table.php'
+        );
+
+        return $migrations !== false && $migrations !== [];
     }
 
     private function createMigration(PluginScaffoldConfiguration $configuration, string $entityName): Stub

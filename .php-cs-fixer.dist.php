@@ -5,21 +5,47 @@ declare(strict_types=1);
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 
 return (new Config())
-    ->setParallelConfig(ParallelConfigFactory::detect())
+    // bigger chunks keep the workers busy with actual analysis instead of per-chunk overhead
+    ->setParallelConfig(ParallelConfigFactory::detect(filesPerProcess: 100))
     ->setRiskyAllowed(true)
     ->setRules([
         '@Symfony' => true,
         '@Symfony:risky' => true,
 
+        'attribute_empty_parentheses' => ['use_parentheses' => false],
         'blank_line_after_opening_tag' => false,
         'class_attributes_separation' => ['elements' => ['property' => 'one', 'method' => 'one']],
         'concat_space' => ['spacing' => 'one'],
         'declare_strict_types' => true,
         'fully_qualified_strict_types' => [
             'import_symbols' => true,
+            // Keep the default set of processed PHPDoc tags, but exclude `see` so that
+            // FQCN in `@see` references are not imported.
+            'phpdoc_tags' => [
+                'param',
+                'phpstan-param',
+                'phpstan-property',
+                'phpstan-property-read',
+                'phpstan-property-write',
+                'phpstan-return',
+                'phpstan-var',
+                'property',
+                'property-read',
+                'property-write',
+                'psalm-param',
+                'psalm-property',
+                'psalm-property-read',
+                'psalm-property-write',
+                'psalm-return',
+                'psalm-var',
+                'return',
+                'throws',
+                'var',
+            ],
         ],
         'fopen_flags' => false,
         'general_phpdoc_annotation_remove' => ['annotations' => ['copyright', 'category']],
@@ -34,6 +60,7 @@ return (new Config())
         'no_superfluous_phpdoc_tags' => ['allow_unused_params' => true, 'allow_mixed' => true],
         'no_useless_else' => true,
         'no_useless_return' => true,
+        'ordered_attributes' => ['order' => [Package::class], 'sort_algorithm' => 'custom'],
         'ordered_class_elements' => true,
         'phpdoc_align' => ['align' => 'left'],
         'phpdoc_annotation_without_dot' => false,

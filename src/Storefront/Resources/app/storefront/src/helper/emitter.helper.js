@@ -98,6 +98,10 @@ export default class NativeEventEmitter {
      * @param {String} eventName
      */
     unsubscribe(eventName) {
+        if (arguments.length > 1 && typeof arguments[1] === 'function') {
+            console.warn(`[NativeEventEmitter] Unsubscribing by passing the subscriber function as a second argument is not supported. By default, all listeners for the event will be removed. Use a suffix (separated by a dot) on the event name when subscribing/unsubscribing to identify/target your specific listener only, e.g. "${eventName}.MyCustomPlugin"`);
+        }
+
         const splitEventName = eventName.split('.');
         this.listeners = this.listeners.reduce((accumulator, listener) => {
             const foundEvent = [...listener.splitEventName].sort().toString() === splitEventName.sort().toString();

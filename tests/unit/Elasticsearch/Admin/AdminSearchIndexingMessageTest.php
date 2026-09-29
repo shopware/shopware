@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
 
 /**
@@ -17,6 +18,7 @@ use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
  *
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(AdminSearchIndexingMessage::class)]
 class AdminSearchIndexingMessageTest extends TestCase
 {

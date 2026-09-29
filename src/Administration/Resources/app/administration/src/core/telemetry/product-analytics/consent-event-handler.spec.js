@@ -55,10 +55,29 @@ describe('src/core/telemetry/product-analytics/consent-event-handlers.ts', () =>
         );
     });
 
-    it.each([
-        ['backend_data'],
-        ['product_analytics'],
-    ])('sends consent_status_change to amplitude', (consentName) => {
+    it('sends consent_modal_decision without product analytics data to amplitude', () => {
+        handle(
+            new ConsentEvent('consent_modal_decision', {
+                backend_data: {
+                    status: 'accepted',
+                    changed: true,
+                },
+                time_spent_on_modal: 30000,
+            }),
+        );
+
+        expect(gatewayClient.trackConsentMetric).toHaveBeenCalledWith(
+            'consent_modal_decision',
+            {
+                backend_data_state: 'accepted',
+                backend_data_changed: true,
+                time_spent_on_modal: 30000,
+            },
+            expect.any(Number),
+        );
+    });
+
+    it.each([['backend_data'], ['product_analytics']])('sends consent_status_change to amplitude', (consentName) => {
         handle(
             new ConsentEvent('consent_status_change', {
                 name: consentName,

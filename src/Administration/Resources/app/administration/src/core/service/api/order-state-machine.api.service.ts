@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 
@@ -9,12 +9,18 @@ import type { LoginService } from '../login.service';
  * @extends ApiService
  */
 class OrderStateMachineApiService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService, apiEndpoint = 'order') {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'order') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'orderStateMachineService';
     }
 
-    transitionOrderState(orderId: string, actionName: string, options = {}, additionalParams = {}, additionalHeaders = {}) {
+    transitionOrderState(
+        orderId: EntityKey<'order'>,
+        actionName: string,
+        options = {},
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
         const route = `_action/order/${orderId}/state/${actionName}`;
 
         const headers = this.getBasicHeaders(additionalHeaders);
@@ -26,7 +32,7 @@ class OrderStateMachineApiService extends ApiService {
     }
 
     transitionOrderTransactionState(
-        orderTransactionId: string,
+        orderTransactionId: EntityKey<'order_transaction'>,
         actionName: string,
         options = {},
         additionalParams = {},
@@ -43,7 +49,7 @@ class OrderStateMachineApiService extends ApiService {
     }
 
     transitionOrderDeliveryState(
-        orderDeliveryStateId: string,
+        orderDeliveryStateId: EntityKey<'state_machine_state'>,
         actionName: string,
         options = {},
         additionalParams = {},

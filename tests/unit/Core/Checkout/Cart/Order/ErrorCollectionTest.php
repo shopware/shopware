@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(ErrorCollection::class)]
 #[Package('checkout')]
+#[CoversClass(ErrorCollection::class)]
 class ErrorCollectionTest extends TestCase
 {
     public function testErrorTypes(): void

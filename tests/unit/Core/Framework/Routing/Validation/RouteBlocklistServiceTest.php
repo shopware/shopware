@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RouteBlocklistService::class)]
 class RouteBlocklistServiceTest extends TestCase
 {

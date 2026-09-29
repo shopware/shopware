@@ -23,6 +23,9 @@ use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDe
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class AclRoleDefinition extends EntityDefinition
 {
@@ -69,7 +72,8 @@ class AclRoleDefinition extends EntityDefinition
     protected function defineProtections(): EntityProtectionCollection
     {
         return new EntityProtectionCollection([
-            new WriteProtection(Context::SYSTEM_SCOPE),
+            // The generic CRUD API must not create or update ACL roles.
+            new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE),
         ]);
     }
 

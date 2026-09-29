@@ -1,0 +1,20 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-arch-catch",
+    "title": "feat(cart): enrich line items with latest prices",
+    "body": "Adds a helper that refreshes line item prices from the product repository.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/arch-catch",
+    "additions": 16,
+    "deletions": 0,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": ["src/Core/Checkout/Cart/SalesChannel/CartService.php"]
+}

@@ -17,6 +17,7 @@ async function createWrapper(propsData = {}, provide = {}) {
                 'sw-extension-icon': true,
                 'sw-context-menu-item': {
                     name: 'sw-context-menu-item',
+                    props: ['routerLink'],
                     template: '<div class="sw-context-menu-item"><slot></slot></div>',
                 },
                 'sw-context-button': {
@@ -32,7 +33,7 @@ async function createWrapper(propsData = {}, provide = {}) {
                     template: '<div><slot></slot></div>',
                 },
                 'router-link': true,
-                'sw-time-ago': await wrapTestComponent('sw-time-ago'),
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
         },
         props: {
@@ -69,6 +70,10 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 },
             }),
         });
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should show the correct image (icon)', async () => {
@@ -129,6 +134,30 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(wrapper.vm.isInstalled).toBe(false);
     });
 
+    it('should display the purchased date without time', async () => {
+        const formatDateSpy = jest.spyOn(Shopware.Utils.format, 'date').mockImplementation(() => 'formatted date');
+
+        const wrapper = await createWrapper({
+            extension: {
+                installedAt: null,
+                storeLicense: {
+                    creationDate: '2025-10-21T09:28:00+00:00',
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.get('.sw-extension-card-base__meta-info').text()).toContain('formatted date');
+        expect(formatDateSpy).toHaveBeenCalledWith(expect.any(String), {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric',
+            hour: undefined,
+            minute: undefined,
+        });
+    });
+
     it('should not show config menu item: not active and not activated once', async () => {
         const wrapper = await createWrapper(
             {
@@ -176,6 +205,29 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         const state = wrapper.findAll('.sw-context-menu-item');
         expect(state).toHaveLength(1);
+    });
+
+    it('should use the extension config route as fallback open link', async () => {
+        const wrapper = await createWrapper({
+            extension: {
+                name: 'ExampleConfigurableExtension',
+                installedAt: '845618651',
+                active: true,
+                configurable: true,
+                permissions: {},
+            },
+        });
+
+        await flushPromises();
+
+        const openExtensionItem = wrapper.findComponent({ name: 'sw-context-menu-item' });
+
+        expect(openExtensionItem.props('routerLink')).toStrictEqual({
+            name: 'sw.extension.config',
+            params: {
+                namespace: 'ExampleConfigurableExtension',
+            },
+        });
     });
 
     it('should not show config menu item: not active and activated once', async () => {

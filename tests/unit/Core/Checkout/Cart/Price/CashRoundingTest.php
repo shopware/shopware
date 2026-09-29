@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CashRounding::class)]
 #[Package('checkout')]
+#[CoversClass(CashRounding::class)]
 class CashRoundingTest extends TestCase
 {
     #[DataProvider('provider_german')]

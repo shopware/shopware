@@ -15,8 +15,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class ListAddressRouteTest extends TestCase
 {
     use CustomerTestTrait;

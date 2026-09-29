@@ -4,8 +4,6 @@
             "mainMenuItemGeneral": "First Run Wizard",
             "buttonNext": "Next",
             "buttonSkip": "Skip",
-            "buttonNextPayPalInfo": "Configure",
-            "buttonBack": "Back",
             "buttonInstall": "Install",
             "buttonActivate": "Activate",
             "buttonFinish": "Finish",
@@ -36,8 +34,7 @@
             "localOptionHelptext": "This option uses your system‘s default mailer (Sendmail).  Make sure Sendmail works and is available in your own hosting environment.",
             "localOptionSubline": "(Sendmail)",
             "smtpOption": "Configure own SMTP server",
-            "configurationNote": "Mailing configurations can be edited later.",
-            "buttonConfigure": "Configure"
+            "configurationNote": "Mailing configurations can be edited later."
         },
         "mailerSmtp": {
             "headline": "SMTP server"

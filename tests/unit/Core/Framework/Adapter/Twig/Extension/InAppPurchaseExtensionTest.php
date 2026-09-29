@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\InAppPurchaseExtension;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(InAppPurchaseExtension::class)]
 class InAppPurchaseExtensionTest extends TestCase
 {

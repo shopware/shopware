@@ -4,7 +4,7 @@
     .sw-media-upload-v2__dropzone {
         min-height: unset;
         padding: 6px;
-        background-color: $color-gray-50;
+        background-color: var(--color-background-secondary-default);
     }
 
     .sw-media-upload-v2__button {
@@ -69,7 +69,7 @@
         .sw-context-button__button {
             border: 0 none;
             visibility: hidden;
-            color: $color-white;
+            color: var(--color-static-white);
         }
 
         &:hover {
@@ -109,9 +109,9 @@
     .sw-media-compact-upload-v2__label {
         display: block;
         line-height: 16px;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         margin-bottom: 8px;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-weight: normal;
         user-select: none;
     }

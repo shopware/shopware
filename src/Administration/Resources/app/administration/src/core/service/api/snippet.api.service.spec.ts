@@ -7,11 +7,10 @@ import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import LocaleFactory from 'src/core/factory/locale.factory';
 import MockAdapter from 'axios-mock-adapter';
-import type { AxiosInstance } from 'axios';
 
 function createSnippetApiService() {
     const context = Shopware.Context?.api || {};
-    const client = createHTTPClient(context) as AxiosInstance;
+    const client = createHTTPClient(context);
     const clientMock = new MockAdapter(client);
     const loginService = createLoginService(client, context);
     const snippetApiService = new SnippetApiService(client, loginService);
@@ -395,20 +394,14 @@ describe('core/service/api/snippet.api.service.ts', () => {
 
             clientMock.onGet('/_action/snippet/filter').reply(200, {
                 total: 2,
-                data: [
-                    'filter1',
-                    'filter2',
-                ],
+                data: ['filter1', 'filter2'],
             });
 
             const result = await snippetApiService.getFilter();
 
             expect(result).toEqual({
                 total: 2,
-                data: [
-                    'filter1',
-                    'filter2',
-                ],
+                data: ['filter1', 'filter2'],
             });
         });
     });

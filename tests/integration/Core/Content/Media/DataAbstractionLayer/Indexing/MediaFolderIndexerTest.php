@@ -8,12 +8,14 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaFolderIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -106,13 +108,13 @@ class MediaFolderIndexerTest extends TestCase
         ], $this->context);
 
         /** @var MediaFolderEntity $folder */
-        $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->first();
+        $folder = $this->mediaFolderRepository->search(new Criteria([$parentId]), $this->context)->getEntities()->first();
 
         static::assertSame(1, $folder->getChildCount());
     }
 
     /**
-     * @param array<int, array<string, array<int, array<string, string>>|string>> $data
+     * @param list<array<string, list<array<string, list<array<string, list<array<string, string>>|string>>|string>>|string>> $data
      * @param list<string> $ids
      */
     private function assertCorrectPathWithOneSubFolderForEachParent(array $data, array $ids, int $depth): void
@@ -138,7 +140,7 @@ class MediaFolderIndexerTest extends TestCase
     }
 
     /**
-     * @return array{0: array<int, array<string, array<int, array<string, string>>|string>>, 1: list<string>}
+     * @return array{list<array<string, list<array<string, list<array<string, list<array<string, string>>|string>>|string>>|string>>, list<string>}
      */
     private function getData(int $depth): array
     {

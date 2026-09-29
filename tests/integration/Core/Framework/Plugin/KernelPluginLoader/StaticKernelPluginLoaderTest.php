@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
@@ -20,6 +21,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[Package('framework')]
 class StaticKernelPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
@@ -327,7 +329,7 @@ class StaticKernelPluginLoaderTest extends TestCase
 
     public function testExpectExceptionExternalPath(): void
     {
-        $classLoader = $this->createMock(ClassLoader::class);
+        $classLoader = static::createStub(ClassLoader::class);
 
         $plugin = $this->getInstalledInactivePlugin();
         $plugin->setPath('/custom/plugins/TestPlugin');

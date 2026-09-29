@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
@@ -12,12 +11,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'scheduled-task:deactivate',
     description: 'Deactivate a scheduled task',
 )]
-#[Package('framework')]
 class DeactivateScheduledTaskCommand extends Command
 {
     private const STATUSES_SUCCESS = [
@@ -45,7 +45,7 @@ class DeactivateScheduledTaskCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $io->warning('Be aware that this command will not cancel a running task execution (e.g. via the queue worker), only disable its scheduling.');
 

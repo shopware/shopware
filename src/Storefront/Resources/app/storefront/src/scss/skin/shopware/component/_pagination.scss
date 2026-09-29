@@ -1,6 +1,9 @@
 .pagination {
+    --#{$prefix}pagination-padding-y: calc(#{$btn-padding-y} + 1px);
+    gap: 0.125rem;
+
     .page-link {
-        line-height: $form-select-line-height;
+        line-height: $btn-line-height;
         text-align: center;
 
         @include media-breakpoint-up(sm) {
@@ -9,6 +12,10 @@
 
         .icon {
             color: inherit;
+        }
+
+        &:focus {
+            box-shadow: $focus-ring-box-shadow-inset;
         }
     }
 }

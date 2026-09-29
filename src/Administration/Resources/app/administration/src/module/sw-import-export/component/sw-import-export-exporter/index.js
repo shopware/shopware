@@ -13,17 +13,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'importExport',
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['importExport', 'repositoryFactory', 'feature'],
 
     emits: ['export-started'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         sourceEntity: {

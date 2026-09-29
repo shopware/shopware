@@ -33,6 +33,9 @@ const scssLoadPaths = [
     path.resolve(import.meta.dirname, 'src/scss'),
 ];
 
+const storefrontViteOrigin = process.env.STOREFRONT_VITE_ORIGIN;
+const storefrontViteHost = process.env.STOREFRONT_VITE_HOST;
+
 export default defineConfig(async ({ command }): Promise<UserConfig> => {
     const jsEntries = await buildComponentEntries();
     const { scssEntries, plainCssEntries, plainCssShims } = await buildComponentStyleEntries();
@@ -121,6 +124,8 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
         },
         server: {
             port: Number(process.env.STOREFRONT_VITE_PORT ?? 5175),
+            host: storefrontViteHost ?? 'localhost',
+            origin: storefrontViteOrigin,
             cors: true,
             fs: {
                 // Allow Vite to serve component sources from any bundle under

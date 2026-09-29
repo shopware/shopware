@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,7 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 class AclAnnotationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -64,7 +66,7 @@ class AclAnnotationValidatorTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ACL, $acl);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
 
         $exception = null;
 
@@ -103,7 +105,7 @@ class AclAnnotationValidatorTest extends TestCase
         $request->attributes->set('id', $actionId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
 
         $exception = null;
 
@@ -138,7 +140,7 @@ class AclAnnotationValidatorTest extends TestCase
         $request->attributes->set('id', $actionId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
 
         $exception = null;
 

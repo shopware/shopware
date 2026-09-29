@@ -15,10 +15,7 @@ const { debounce, get } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'update:value',
@@ -28,10 +25,7 @@ export default {
         'search-term-change',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error'), Mixin.getByName('notification')],
 
     props: {
         // null is a common value here, e.g. passed by the inheritance system.
@@ -54,10 +48,7 @@ export default {
             default: '',
         },
         labelProperty: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'name',
         },
@@ -108,17 +99,9 @@ export default {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-                'left',
-            ],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         allowEntityCreation: {
@@ -177,6 +160,16 @@ export default {
         },
         autocomplete: {
             type: String,
+            required: false,
+            default: undefined,
+        },
+        cacheKey: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+        cacheTtl: {
+            type: Number,
             required: false,
             default: undefined,
         },
@@ -277,17 +270,24 @@ export default {
             }
 
             this.isLoading = true;
-            return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
-                if (!item) {
-                    this.$emit('update:value', null);
-                }
+            return this.repository
+                .get(
+                    this.value,
+                    { ...this.context, inheritance: true },
+                    this.criteria,
+                    this.getCacheOptions(['selected', this.value]),
+                )
+                .then((item) => {
+                    if (!item && !this.disabled) {
+                        this.$emit('update:value', null);
+                    }
 
-                this.criteria.setIds([]);
+                    this.criteria.setIds([]);
 
-                this.singleSelection = item;
-                this.isLoading = false;
-                return item;
-            });
+                    this.singleSelection = item;
+                    this.isLoading = false;
+                    return item;
+                });
         },
 
         createCollection(collection) {
@@ -378,13 +378,30 @@ export default {
         loadData() {
             this.isLoading = true;
 
-            return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
-                this.displaySearch(result);
+            return this.repository
+                .search(
+                    this.criteria,
+                    { ...this.context, inheritance: true },
+                    this.getCacheOptions(['search', this.criteria.parse()]),
+                )
+                .then((result) => {
+                    this.displaySearch(result);
 
-                this.isLoading = false;
+                    this.isLoading = false;
 
-                return result;
-            });
+                    return result;
+                });
+        },
+
+        getCacheOptions(key) {
+            if (this.cacheKey.length === 0) {
+                return undefined;
+            }
+
+            return {
+                cacheKey: [...this.cacheKey, ...key],
+                ttl: this.cacheTtl,
+            };
         },
 
         checkEntityExists(term) {
@@ -396,10 +413,7 @@ export default {
 
             const criteria = new Criteria(1, this.resultLimit);
             criteria.addIncludes({
-                [this.entity]: [
-                    'id',
-                    'name',
-                ],
+                [this.entity]: ['id', 'name'],
             });
             criteria.addFilter(Criteria.equals('name', term));
 
@@ -412,7 +426,7 @@ export default {
 
         displaySearch(result) {
             if (!this.resultCollection) {
-                this.resultCollection = result;
+                this.resultCollection = EntityCollection.fromCollection(result);
             } else {
                 result.forEach((item) => {
                     // Prevent duplicate entries

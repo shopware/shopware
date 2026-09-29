@@ -5,8 +5,12 @@
 import type { uiModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type ModalItemEntry = Omit<uiModalOpen, 'responseType'> & {
+export type ModalItemEntry = Omit<uiModalOpen, 'responseType' | 'variant' | 'zIndex'> & {
     baseUrl: string;
+    // Keep these fields local so Admin can support newer Meteor messages while
+    // still compiling against older Meteor SDK versions.
+    variant?: 'default' | 'small' | 'large' | 'x-large' | 'full';
+    zIndex?: number;
 };
 
 const modalsStore = Shopware.Store.register({
@@ -27,6 +31,7 @@ const modalsStore = Shopware.Store.register({
             baseUrl,
             buttons,
             textContent,
+            zIndex,
         }: ModalItemEntry) {
             this.modals.push({
                 title,
@@ -38,6 +43,7 @@ const modalsStore = Shopware.Store.register({
                 buttons: buttons ?? [],
                 baseUrl,
                 textContent,
+                ...(zIndex !== undefined ? { zIndex } : {}),
             });
         },
 

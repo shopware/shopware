@@ -8,12 +8,14 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StaticFileAvailableThemeProvider::class)]
 class StaticFileAvailableThemeProviderTest extends TestCase
 {

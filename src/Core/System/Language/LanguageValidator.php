@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Tests\Integration\Core\Framework\Language\LanguageValidatorTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
@@ -22,6 +23,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see LanguageValidatorTest
  */
 #[Package('fundamentals@discovery')]
 class LanguageValidator implements EventSubscriberInterface
@@ -51,7 +56,7 @@ class LanguageValidator implements EventSubscriberInterface
 
     public function postValidate(PostWriteValidationEvent $event): void
     {
-        $commands = $event->getCommands();
+        $commands = $event->getCommandsForEntity(LanguageDefinition::ENTITY_NAME);
         $affectedIds = $this->getAffectedIds($commands);
         if ($affectedIds === []) {
             return;
@@ -68,12 +73,12 @@ class LanguageValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        $commands = $event->getCommands();
+        $commands = $event->getCommandsForEntity(LanguageDefinition::ENTITY_NAME);
 
         foreach ($commands as $command) {
             $violations = new ConstraintViolationList();
 
-            if ($command instanceof CascadeDeleteCommand || $command->getEntityName() !== LanguageDefinition::ENTITY_NAME) {
+            if ($command instanceof CascadeDeleteCommand) {
                 continue;
             }
 
@@ -189,9 +194,6 @@ class LanguageValidator implements EventSubscriberInterface
     {
         $ids = [];
         foreach ($commands as $command) {
-            if ($command->getEntityName() !== LanguageDefinition::ENTITY_NAME) {
-                continue;
-            }
             if ($command instanceof InsertCommand || $command instanceof UpdateCommand) {
                 $ids[] = $command->getPrimaryKey()['id'];
             }

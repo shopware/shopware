@@ -42,6 +42,8 @@ describe('src/app/service/state-style.service.ts', () => {
         expect(placeholder.selectBackgroundStyle).toBe('sw-order-state__bg-neutral-select');
         expect(placeholder.hasOwnProperty('variant')).toBe(true);
         expect(placeholder.variant).toBe('neutral');
+        expect(placeholder.hasOwnProperty('meteorVariant')).toBe(true);
+        expect(placeholder.meteorVariant).toBe('neutral');
         expect(placeholder.hasOwnProperty('colorCode')).toBe(true);
         expect(placeholder.colorCode).toBe('var(--color-icon-secondary-default)');
     });
@@ -107,6 +109,14 @@ describe('src/app/service/state-style.service.ts', () => {
             danger: 'danger',
         };
 
+        const meteorVariantMapping = {
+            neutral: 'neutral',
+            progress: 'info',
+            done: 'positive',
+            warning: 'attention',
+            danger: 'critical',
+        };
+
         Object.keys(variantMapping).forEach((key) => {
             stateStyleService.addStyle(stateMachineForTesting, key, {
                 icon: key,
@@ -129,6 +139,8 @@ describe('src/app/service/state-style.service.ts', () => {
             expect(style.selectBackgroundStyle).toBe(`sw-order-state__${colorMapping[key]}-select`);
             expect(style.hasOwnProperty('variant')).toBe(true);
             expect(style.variant).toEqual(variantMapping[key]);
+            expect(style.hasOwnProperty('meteorVariant')).toBe(true);
+            expect(style.meteorVariant).toEqual(meteorVariantMapping[key]);
             expect(style.hasOwnProperty('colorCode')).toBe(true);
             expect(style.colorCode).toEqual(colorCodeMapping[key]);
         });

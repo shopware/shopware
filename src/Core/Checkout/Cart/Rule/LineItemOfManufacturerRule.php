@@ -84,6 +84,10 @@ class LineItemOfManufacturerRule extends Rule
      */
     private function matchesOneOfManufacturers(LineItem $lineItem): bool
     {
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         $manufacturerId = (string) $lineItem->getPayloadValue('manufacturerId');
         $manufacturerArray = ($manufacturerId === '') ? [] : [$manufacturerId];
 

@@ -9,10 +9,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Cart\Rule\Helper\CartRuleScopeCase;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -21,14 +24,12 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[CoversClass(LineItemPropertyRule::class)]
 class LineItemPropertyRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     #[DataProvider('cartRuleScopeProvider')]
     public function testCartRuleScopes(CartRuleScopeCase $case): void
     {
-        $cart = $this->createCart(new LineItemCollection($case->lineItems));
+        $cart = CartRuleFixture::createCart(new LineItemCollection($case->lineItems));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
@@ -36,10 +37,10 @@ class LineItemPropertyRuleTest extends TestCase
     #[DataProvider('cartRuleScopeProvider')]
     public function testCartRuleScopesNested(CartRuleScopeCase $case): void
     {
-        $containerLineItem = $this->createContainerLineItem(new LineItemCollection($case->lineItems));
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem(new LineItemCollection($case->lineItems));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
@@ -83,13 +84,39 @@ class LineItemPropertyRuleTest extends TestCase
         }
     }
 
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemPropertyRule([Uuid::randomHex()], Rule::OPERATOR_NEQ);
+
+        $lineItem = CartRuleFixture::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+    }
+
     /**
      * @param array<string> $properties
      * @param array<string> $options
      */
     private static function createLineItemWithVariantOptions(array $properties = [], array $options = []): LineItem
     {
-        $lineItem = self::createLineItem();
+        $lineItem = CartRuleFixture::createLineItem();
 
         $lineItem->setPayloadValue('propertyIds', $properties);
         $lineItem->setPayloadValue('optionIds', $options);

@@ -522,6 +522,37 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(criteria.queries[2].score).toBe(5000);
     });
 
+    it('buildSearchQuery ignores empty terms from leading or repeated whitespace', async () => {
+        const criteria = new Criteria();
+        const wrapper = await createWrapper();
+
+        // Regression test for issue #16838: a leading space produced an empty
+        // term, which built a `contains` filter with an empty value and made the
+        // API reject the whole query with FRAMEWORK__INVALID_FILTER_QUERY.
+        wrapper.vm.term = ' red';
+        wrapper.vm.buildSearchQuery(criteria);
+
+        // Only the non-empty term "red" yields option queries (+1 productNumber query).
+        expect(criteria.queries).toHaveLength(3);
+        criteria.queries.forEach((query) => {
+            expect(query.query.value).not.toBe('');
+        });
+        expect(criteria.queries[0].query.value).toBe('red');
+        expect(criteria.queries[1].query.value).toBe('red');
+        // The productNumber query uses the trimmed term, not the raw " red".
+        expect(criteria.queries[2].query.value).toBe('red');
+    });
+
+    it('buildSearchQuery returns an unmodified criteria for a whitespace-only term', async () => {
+        const criteria = new Criteria();
+        const wrapper = await createWrapper();
+
+        wrapper.vm.term = '   ';
+        wrapper.vm.buildSearchQuery(criteria);
+
+        expect(criteria.queries).toHaveLength(0);
+    });
+
     it('should update variant listing config of product when deleting variant', async () => {
         global.activeAclRoles = ['product.deleter'];
 
@@ -547,7 +578,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const deleteModal = wrapper.find('.sw-product-variants-overview__delete-modal');
         expect(deleteModal.exists()).toBe(true);
 
-        await wrapper.findByText('button', 'sw-product.variations.generatedListDeleteModalButtonDelete').trigger('click');
+        await deleteModal
+            .findAll('button')
+            .find((button) => button.text().trim() === 'global.default.delete')
+            .trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);

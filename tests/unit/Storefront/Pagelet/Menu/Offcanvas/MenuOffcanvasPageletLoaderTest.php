@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoader;
@@ -19,16 +20,17 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(MenuOffcanvasPageletLoader::class)]
 class MenuOffcanvasPageletLoaderTest extends TestCase
 {
     public function testLoad(): void
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
 
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $navigationLoader = $this->createMock(NavigationLoaderInterface::class);
+        $navigationLoader = static::createStub(NavigationLoaderInterface::class);
         $categoryId1 = Uuid::randomHex();
         $categoryId2 = Uuid::randomHex();
         $category1 = (new CategoryEntity())->assign(['id' => $categoryId1]);

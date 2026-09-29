@@ -51,10 +51,7 @@ export default {
         },
 
         dataSource: {
-            type: [
-                Array,
-                Object,
-            ],
+            type: [Array, Object],
             required: false,
         },
 

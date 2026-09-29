@@ -2,12 +2,16 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
@@ -15,10 +19,12 @@ use Shopware\Core\Checkout\Document\Renderer\ZugferdCreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -84,6 +90,8 @@ class ZugferdCreditNoteRendererTest extends TestCase
         $this->renderer = static::getContainer()->get(ZugferdCreditNoteRenderer::class);
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
+
+        $this->upsertDocumentSellerAddress(CreditNoteRenderer::TYPE);
     }
 
     public function testDocumentSnapshot(): void
@@ -91,42 +99,8 @@ class ZugferdCreditNoteRendererTest extends TestCase
         $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
 
-        $config = [
-            'vatId' => 'DE123456789',
-            'bankBic' => 'DEUTDEDBFRA',
-            'bankIban' => 'DE89370400440532013000',
-            'bankName' => 'Deutsche Bank',
-            'taxNumber' => '123/456/7890',
-            'taxOffice' => 'Finanzamt Musterstadt',
-            'companyUrl' => 'https://www.example.com',
-            'companyName' => 'Example Company',
-            'companyEmail' => 'mail@example.com',
-            'companyPhone' => '+49 123 4567890',
-            'paymentDueDate' => '+30 days',
-            'executiveDirector' => 'Max Mustermann',
-            'placeOfFulfillment' => 'Musterstadt',
-            'placeOfJurisdiction' => 'Musterstadt',
-            'documentDate' => '2023-11-24T12:00:00+00:00',
-        ];
-
-        $invoiceConfig = new DocumentConfiguration();
-        $invoiceConfig->setDocumentNumber('1001');
-
-        $invoicOperation = new DocumentGenerateOperation(
-            $orderId,
-            FileTypes::PDF,
-            $invoiceConfig->jsonSerialize()
-        );
-
-        $invoice = $this->documentGenerator->generate(
-            InvoiceRenderer::TYPE,
-            [$orderId => $invoicOperation],
-            $this->context
-        )->getSuccess()->first();
-
-        static::assertNotNull($invoice);
-
-        $invoiceId = $invoice->getId();
+        $config = $this->createZugferdDocumentConfig();
+        $invoiceId = $this->generateInvoice($orderId);
 
         $this->addCreditItemsToOrderAfterInvoice($orderId, [-100]);
 
@@ -149,12 +123,118 @@ class ZugferdCreditNoteRendererTest extends TestCase
         $content = $renderedDocument->getContent();
         static::assertIsString($content);
 
-        $this->assertSnapshot('zugferd_credit_note_document_default', [
+        $snapshot = Feature::isActive('v6.8.0.0')
+            ? 'zugferd_credit_note_document_default_v6_8'
+            : 'zugferd_credit_note_document_default_v6_7';
+
+        $this->assertSnapshot($snapshot, [
             [
                 'type' => self::TYPE_XML,
                 'actual' => $content,
             ],
         ]);
+    }
+
+    public function testRenderIncludesInvoiceCreditItemsWhenInvoiceUsesLiveOrderVersion(): void
+    {
+        $cart = $this->generateDemoCartWithTaxes([7]);
+        $cart = $this->addCreditItemsToCart($cart, [-1]);
+
+        $orderId = $this->persistCart($cart);
+        $invoiceId = $this->generateInvoice($orderId);
+
+        static::assertNotSame(Defaults::LIVE_VERSION, $this->fetchDocumentOrderVersionId($invoiceId));
+        $this->setDocumentOrderVersionId($invoiceId, Defaults::LIVE_VERSION);
+        static::assertSame(Defaults::LIVE_VERSION, $this->fetchDocumentOrderVersionId($invoiceId));
+
+        $operation = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::XML,
+            $this->createZugferdDocumentConfig(),
+            $invoiceId
+        );
+
+        $result = $this->renderer->render(
+            [$orderId => $operation],
+            $this->context,
+            new DocumentRendererConfig(),
+        );
+
+        static::assertEmpty($result->getErrors());
+
+        $renderedDocument = $result->getSuccess()[$orderId] ?? null;
+        static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
+
+        $content = $renderedDocument->getContent();
+        static::assertIsString($content);
+        static::assertStringContainsString('<ram:Name>credit-1</ram:Name>', $content);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function createZugferdDocumentConfig(): array
+    {
+        return [
+            'vatId' => 'DE123456789',
+            'bankBic' => 'DEUTDEDBFRA',
+            'bankIban' => 'DE89370400440532013000',
+            'bankName' => 'Deutsche Bank',
+            'taxNumber' => '123/456/7890',
+            'taxOffice' => 'Finanzamt Musterstadt',
+            'companyUrl' => 'https://www.example.com',
+            'companyName' => 'Example Company',
+            'companyEmail' => 'mail@example.com',
+            'companyPhone' => '+49 123 4567890',
+            'paymentDueDate' => '+30 days',
+            'executiveDirector' => 'Max Mustermann',
+            'placeOfFulfillment' => 'Musterstadt',
+            'placeOfJurisdiction' => 'Musterstadt',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
+    }
+
+    private function generateInvoice(string $orderId): string
+    {
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
+
+        $invoiceOperation = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::PDF,
+            $invoiceConfig->jsonSerialize()
+        );
+
+        $invoice = $this->documentGenerator->generate(
+            InvoiceRenderer::TYPE,
+            [$orderId => $invoiceOperation],
+            $this->context
+        )->getSuccess()->first();
+
+        static::assertNotNull($invoice);
+
+        return $invoice->getId();
+    }
+
+    /**
+     * @param array<int, int> $creditPrices
+     */
+    private function addCreditItemsToCart(Cart $cart, array $creditPrices): Cart
+    {
+        $lineItems = [];
+
+        foreach ($creditPrices as $price) {
+            $creditId = Uuid::randomHex();
+            $creditLineItem = (new LineItem($creditId, LineItem::CREDIT_LINE_ITEM_TYPE, $creditId, 1))
+                ->setLabel('credit' . $price)
+                ->setPriceDefinition(new AbsolutePriceDefinition($price));
+
+            $lineItems[] = $creditLineItem;
+        }
+
+        $cart->setRuleIds($this->salesChannelContext->getRuleIds());
+
+        return static::getContainer()->get(CartService::class)->add($cart, $lineItems, $this->salesChannelContext);
     }
 
     /**
@@ -188,5 +268,26 @@ class ZugferdCreditNoteRendererTest extends TestCase
         static::getContainer()
             ->get(VersionManager::class)
             ->merge($versionId, WriteContext::createFromContext($this->context));
+    }
+
+    private function setDocumentOrderVersionId(string $documentId, string $orderVersionId): void
+    {
+        static::getContainer()->get(Connection::class)->update('document', [
+            'order_version_id' => Uuid::fromHexToBytes($orderVersionId),
+        ], [
+            'id' => Uuid::fromHexToBytes($documentId),
+        ]);
+    }
+
+    private function fetchDocumentOrderVersionId(string $documentId): string
+    {
+        $orderVersionId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(order_version_id)) FROM document WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($documentId)]
+        );
+
+        static::assertIsString($orderVersionId);
+
+        return $orderVersionId;
     }
 }

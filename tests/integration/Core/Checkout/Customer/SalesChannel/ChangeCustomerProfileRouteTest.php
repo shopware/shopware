@@ -153,6 +153,36 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertSame($changeData['lastName'], $customer->getLastName());
     }
 
+    public function testChangeProfileDataWithCommercialAccountNormalizesVatIdBeforeMatchingRegex(): void
+    {
+        $this->setVatIdOfTheCountryToValidateFormat();
+
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'de 123456789',
+            ],
+        ];
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($response['success']);
+
+        $customer = $this->getCustomer();
+
+        static::assertSame(['DE123456789'], $customer->getVatIds());
+    }
+
     public function testChangeProfileDataWithCommercialAccountAndVatIdsIsEmpty(): void
     {
         $this->setVatIdOfTheCountryToValidateFormat();
@@ -316,7 +346,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
                 'validateFormat' => false,
             ],
             true,
-            ['some-text'],
+            ['SOME-TEXT'],
         ];
 
         yield 'Success when vatIds is require but no validate format, and has value is random string' => [
@@ -326,7 +356,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
                 'validateFormat' => false,
             ],
             true,
-            ['some-text'],
+            ['SOME-TEXT'],
         ];
 
         yield 'Success when vatIds need to validate format but no require and has value is empty' => [
@@ -658,7 +688,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $this->customerId));
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($customer);
 
         $customerDefinition = new CustomerDefinition();
@@ -823,7 +853,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
     {
         $criteria = new Criteria([$this->customerId]);
 
-        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($customer);
 
         return $customer;

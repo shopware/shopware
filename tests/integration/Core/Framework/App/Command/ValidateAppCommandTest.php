@@ -5,12 +5,14 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Command;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ValidateAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

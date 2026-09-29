@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @phpstan-import-type CacheAttributeArray from \Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheAttribute;
  *
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheAttribute::class)]
 class CacheAttributeTest extends TestCase
 {
@@ -31,7 +33,7 @@ class CacheAttributeTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, CacheAttributeArray>
+     * @return \Generator<string, array{input: CacheAttributeArray, expectedMaxAge: ?int, expectedSMaxAge: ?int, expectedStates: array<string>|null}>
      */
     public static function fromArrayProvider(): \Generator
     {

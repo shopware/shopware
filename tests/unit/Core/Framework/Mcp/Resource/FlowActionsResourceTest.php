@@ -27,10 +27,10 @@ class FlowActionsResourceTest extends TestCase
         $action2 = new FlowActionDefinition('action.add-tag', ['entity'], false);
         $response = new FlowActionCollectorResponse([$action1, $action2]);
 
-        $collector = $this->createMock(FlowActionCollector::class);
-        $collector->method('collect')->with($context)->willReturn($response);
+        $collector = static::createStub(FlowActionCollector::class);
+        $collector->method('collect')->willReturn($response);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);
 
         $resource = new FlowActionsResource($collector, $contextProvider);

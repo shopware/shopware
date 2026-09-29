@@ -12,55 +12,53 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DocumentRendererRegistry
 {
     /**
-     * @var array<string, array<string, AbstractDocumentRenderer>>
+     * @var array<string, AbstractDocumentRenderer>
      */
-    private array $renderersByDocumentType;
+    private array $renderersByFormat;
 
     /**
      * @param iterable<AbstractDocumentRenderer> $documentRenderers
      */
     public function __construct(iterable $documentRenderers)
     {
-        $renderersByDocumentType = [];
+        $renderersByFormat = [];
 
         foreach ($documentRenderers as $renderer) {
             $format = $renderer->getFormat();
 
-            foreach ($renderer->getDocumentTypes() as $documentType) {
-                if (isset($renderersByDocumentType[$documentType][$format])) {
-                    throw DocumentV2Exception::duplicateRenderer($format, $documentType);
-                }
-
-                $renderersByDocumentType[$documentType][$format] = $renderer;
+            // tagged_iterator yields the highest-priority service first. the first per format wins
+            if (isset($renderersByFormat[$format])) {
+                continue;
             }
+
+            $renderersByFormat[$format] = $renderer;
         }
 
-        $this->renderersByDocumentType = $renderersByDocumentType;
+        $this->renderersByFormat = $renderersByFormat;
     }
 
     /**
-     * Returns the renderer used for one exact format and document type combination.
-     *
      * @throws DocumentV2Exception
      */
-    public function getRenderer(string $format, string $documentType): AbstractDocumentRenderer
+    public function getRenderer(string $format): AbstractDocumentRenderer
     {
-        $renderers = $this->mapRenderersByFormat($documentType);
-
-        if (!isset($renderers[$format])) {
-            throw DocumentV2Exception::rendererNotFound($format, $documentType);
+        if (!isset($this->renderersByFormat[$format])) {
+            throw DocumentV2Exception::rendererNotFound($format);
         }
 
-        return $renderers[$format];
+        return $this->renderersByFormat[$format];
     }
 
     /**
-     * Builds a format => renderer map for all renderers that support the given document type.
-     *
      * @return array<string, AbstractDocumentRenderer>
      */
-    public function mapRenderersByFormat(string $documentType): array
+    public function getRenderers(): array
     {
-        return $this->renderersByDocumentType[$documentType] ?? [];
+        return $this->renderersByFormat;
+    }
+
+    public function getFileExtension(string $format): ?string
+    {
+        return ($this->renderersByFormat[$format] ?? null)?->getFileExtension();
     }
 }

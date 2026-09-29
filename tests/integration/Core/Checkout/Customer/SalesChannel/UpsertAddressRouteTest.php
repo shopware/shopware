@@ -104,7 +104,7 @@ class UpsertAddressRouteTest extends TestCase
         }
 
         // Check existence
-        $address = $this->addressRepository->search(new Criteria([$content['id']]), Context::createDefaultContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$content['id']]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerAddressEntity::class, $address);
         $serializedAddress = $address->jsonSerialize();
 
@@ -222,7 +222,7 @@ class UpsertAddressRouteTest extends TestCase
         }
 
         // Check existence
-        $address = $this->addressRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->first();
+        $address = $this->addressRepository->search(new Criteria([$response['id']]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(CustomerAddressEntity::class, $address);
 
         foreach ($data as $key => $val) {

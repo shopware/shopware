@@ -9,6 +9,7 @@ Filtered product listings show a variant product's main variant only if it match
 `core.listing.findBestVariant` now only affects search results. With it enabled, filtered listings show a matching main variant or the parent instead of another matching variant.
 
 Extensions that replace the preview resolution via `LoadPreviewExtension` can read the active post filters from the new `postFilters` property to apply the same rule.
+
 ### Array values in static system configuration
 
 `shopware.system_config` entries in `config/packages` now accept arrays, including `[]`. An empty sales-channel value clears an array from the default scope; a more specific sales-channel key still overrides an empty default parent.

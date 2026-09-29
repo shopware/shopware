@@ -1,4 +1,7 @@
 {# @sw-package framework #}
+{# ludtwig-ignore-file html-tag-fragments #}
+
+{# The overridable base_html block contains only the opening tag; changing its scope would break theme overrides. #}
 {% block base_doctype %}<!DOCTYPE html>{% endblock %}
 
 {% block base_html %}

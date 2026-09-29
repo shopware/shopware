@@ -47,6 +47,7 @@ active-rules = [
     "twig-block-duplicate",
     "twig-json-encode-escape-js",
     "html-duplicate-id",
+    "html-tag-fragments",
     "twig-variable-definition-naming",
     "twig-valid-filter",
     "twig-valid-test",

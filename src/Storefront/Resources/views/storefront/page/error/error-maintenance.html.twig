@@ -1,3 +1,6 @@
+{# ludtwig-ignore-file html-tag-fragments #}
+
+{# The overridable error_maintenance_html block contains only the opening tag; changing its scope would break theme overrides. #}
 {% block error_maintenance_doctype %}
     <!DOCTYPE html>
 {% endblock %}

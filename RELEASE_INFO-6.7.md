@@ -862,6 +862,32 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
+### Runtime guards for Administration deprecations
+
+`Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` gives Administration deprecations the lifecycle of the PHP `Feature::triggerDeprecationOrThrow()`. While the major flag is inactive it warns in development builds. Once the flag is active it throws, so a missed migration fails in next-major mode instead of after the removal:
+
+```js
+Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'myService.oldMethod() is deprecated. Use newMethod() instead.');
+```
+
+The `deprecated` option of components and props follows the same lifecycle. It used to only warn; now it throws in next-major mode. A deprecated component is guarded every time it is created, a deprecated prop only when a parent supplies it:
+
+```js
+Component.register('sw-example', {
+    deprecated: { version: 'v6.8.0.0', comment: 'Use "mt-example" instead.' },
+
+    props: {
+        emptyImagePath: {
+            type: String,
+            required: false,
+            deprecated: { version: 'v6.8.0.0', comment: 'Use "emptyIcon" instead.' },
+        },
+    },
+});
+```
+
+That error is thrown while the component is created, so Vue handles it: a development build aborts the mount, a production build logs it and keeps rendering.
+
 ## Storefront
 
 ### New line item reference price block

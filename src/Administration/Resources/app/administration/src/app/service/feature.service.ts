@@ -1,4 +1,5 @@
 import type { default as FeatureType } from 'src/core/feature';
+import { reportDeprecation } from 'src/core/feature';
 
 /**
  * @sw-package framework
@@ -19,5 +20,13 @@ export default class FeatureService {
 
     isActive(flagName: string): boolean {
         return this.Feature.isActive(flagName);
+    }
+
+    /**
+     * Same as `Feature.triggerDeprecationOrThrow()`. Resolves the flag through this service, so the flags
+     * of the Jest feature mock apply.
+     */
+    triggerDeprecationOrThrow(majorFlag: string, message: string): void {
+        reportDeprecation(this.isActive(majorFlag), message);
     }
 }

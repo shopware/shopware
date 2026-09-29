@@ -8,6 +8,7 @@ import '@testing-library/jest-dom';
 
 import VirtualCallStackPlugin from 'src/app/plugin/virtual-call-stack.plugin';
 import MeteorSdkDataPlugin from 'src/app/plugin/meteor-sdk-data.plugin';
+import DeprecationPlugin from 'src/app/plugin/deprecation.plugin';
 import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 import SwBlock from 'src/app/component/structure/sw-block-override/sw-block/index';
 import SwBlockParent from 'src/app/component/structure/sw-block-override/sw-block-parent/index';
@@ -61,6 +62,7 @@ import wrapTestComponent from '../_helper_/componentWrapper';
 import 'blob-polyfill';
 import {
     sendTimeoutExpired,
+    deprecationWarning,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
     unresolvedComponentWarning,
@@ -374,6 +376,7 @@ const BlockDataScopePlugin = {
 config.global.plugins = [
     VirtualCallStackPlugin,
     MeteorSdkDataPlugin,
+    DeprecationPlugin,
     BlockDataScopePlugin,
     i18n,
 ];
@@ -537,6 +540,7 @@ global.allowedErrors = [
     },
 
     sendTimeoutExpired,
+    deprecationWarning,
     deprecatedTabComponent,
     deprecatedPopoverComponent,
     // Vue 3 test stubs may have empty templates which triggers this warning

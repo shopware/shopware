@@ -17,6 +17,14 @@ export const sendTimeoutExpired = {
     method: 'error',
 };
 
+/**
+ * Pre-major deprecation warnings, silenced because the suite runs both sides of a feature flag.
+ */
+export const deprecationWarning = {
+    msg: '[Deprecation]',
+    method: 'warn',
+};
+
 export const deprecatedTabComponent = {
     method: 'warn',
     msgCheck: (_, msg1) => {

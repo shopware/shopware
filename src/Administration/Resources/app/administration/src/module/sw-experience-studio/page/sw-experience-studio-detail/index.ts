@@ -1302,9 +1302,17 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.isLoading = true;
 
-            await this.layoutRepository.save(layout, Shopware.Context.api);
-            this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
-            this.applyPreviewContextDefaults();
+            try {
+                await this.layoutRepository.save(layout, Shopware.Context.api);
+                this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
+                this.applyPreviewContextDefaults();
+            } catch (error) {
+                this.notifySaveError(error);
+
+                return;
+            } finally {
+                this.isLoading = false;
+            }
 
             this.createNotificationSuccess({
                 message: this.$t('sw-experience-studio.detail.messageSaved'),
@@ -1316,8 +1324,37 @@ export default Shopware.Component.wrapComponentConfig({
                     params: { id: layout.id },
                 });
             }
+        },
 
-            this.isLoading = false;
+        // Resolvability is a write-time gate, so a draft that previews cleanly can still be refused on save.
+        notifySaveError(error: unknown): void {
+            const detail = this.extractApiErrorDetail(error);
+
+            this.createNotificationError({
+                message: detail
+                    ? this.$t('sw-experience-studio.detail.messageSaveErrorDetail', { detail })
+                    : this.$t('sw-experience-studio.detail.messageSaveError'),
+            });
+        },
+
+        extractApiErrorDetail(error: unknown): string | null {
+            const responseErrors = (
+                error as {
+                    response?: {
+                        data?: {
+                            errors?: Array<{ detail?: unknown }>;
+                        };
+                    };
+                }
+            ).response?.data?.errors;
+
+            if (!Array.isArray(responseErrors)) {
+                return null;
+            }
+
+            const detail = responseErrors.find((item) => typeof item.detail === 'string' && item.detail.trim())?.detail;
+
+            return typeof detail === 'string' ? detail : null;
         },
     },
 });

@@ -123,7 +123,9 @@
           "other": "Sonstige"
         }
       },
-      "messageSaved": "Inhaltslayout erfolgreich gespeichert."
+      "messageSaved": "Inhaltslayout erfolgreich gespeichert.",
+      "messageSaveError": "Das Inhaltslayout konnte nicht gespeichert werden.",
+      "messageSaveErrorDetail": "Das Inhaltslayout konnte nicht gespeichert werden: {detail}"
     }
   }
 }

@@ -129,7 +129,7 @@ export default class ErrorResolver {
         const field = definition.getField(fieldName);
 
         if (!field) {
-            this.errorStore.addSystemError(error);
+            Shopware.Store.get('error').addSystemError(error);
             return;
         }
 

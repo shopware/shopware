@@ -99,6 +99,7 @@ public static function getSubscribedEvents(): array
 ```
 
 Use `onPre()` to adjust inputs or replace the result, `onPost()` to change the result, and `onError()` to provide a fallback. Decorating the abstract route classes keeps working. A decorator wraps the whole route: it runs before `onPre()` and after `onPost()` listeners, and a decorator that does not call the decorated route skips the extension events.
+
 ### Digital products follow their max. order quantity again
 
 Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.

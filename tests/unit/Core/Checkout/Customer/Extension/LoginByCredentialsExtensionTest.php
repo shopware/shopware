@@ -6,15 +6,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Extension\LoginByCredentialsExtension;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Generator;
 use Shopware\Tests\Examples\LoginByCredentialsExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(LoginByCredentialsExtension::class)]
-#[CoversClass(LoginByCredentialsExample::class)]
 class LoginByCredentialsExtensionTest extends TestCase
 {
     public function testSubscriberResolvesLogin(): void
@@ -28,7 +29,7 @@ class LoginByCredentialsExtensionTest extends TestCase
             extension: new LoginByCredentialsExtension(
                 'user@example.com',
                 'secret',
-                $this->createMock(SalesChannelContext::class),
+                Generator::generateSalesChannelContext(),
             ),
             function: static function () use (&$coreCalled): string {
                 $coreCalled = true;

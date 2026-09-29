@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
-use Shopware\Core\Checkout\Customer\Extension\RegisterCustomerExtension;
+use Shopware\Core\Checkout\Customer\Extension\RegisterRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
@@ -113,8 +113,8 @@ class RegisterRoute extends AbstractRegisterRoute
         ?DataValidationDefinition $additionalValidationDefinitions = null
     ): CustomerResponse {
         return $this->extensions->publish(
-            name: RegisterCustomerExtension::NAME,
-            extension: new RegisterCustomerExtension($data, $context, $validateStorefrontUrl, $additionalValidationDefinitions),
+            name: RegisterRouteExtension::NAME,
+            extension: new RegisterRouteExtension($data, $context, $validateStorefrontUrl, $additionalValidationDefinitions),
             function: $this->_register(...),
         );
     }
@@ -122,8 +122,8 @@ class RegisterRoute extends AbstractRegisterRoute
     private function _register(
         RequestDataBag $data,
         SalesChannelContext $context,
-        bool $validateStorefrontUrl = true,
-        ?DataValidationDefinition $additionalValidationDefinitions = null
+        bool $validateStorefrontUrl,
+        ?DataValidationDefinition $additionalValidationDefinitions
     ): CustomerResponse {
         EmailIdnConverter::encodeDataBag($data);
 

@@ -5,32 +5,35 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Extension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Extension\RegisterCustomerExtension;
+use Shopware\Core\Checkout\Customer\Extension\RegisterRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Examples\RegisterCustomerExample;
+use Shopware\Core\Test\Generator;
+use Shopware\Tests\Examples\RegisterRouteExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
-#[CoversClass(RegisterCustomerExtension::class)]
-#[CoversClass(RegisterCustomerExample::class)]
-class RegisterCustomerExtensionTest extends TestCase
+#[Package('checkout')]
+#[CoversClass(RegisterRouteExtension::class)]
+class RegisterRouteExtensionTest extends TestCase
 {
     public function testSubscriberResolvesRegistration(): void
     {
         $dispatcher = new EventDispatcher();
-        $dispatcher->addSubscriber(new RegisterCustomerExample());
+        $dispatcher->addSubscriber(new RegisterRouteExample());
 
         $coreCalled = false;
         $result = (new ExtensionDispatcher($dispatcher))->publish(
-            name: RegisterCustomerExtension::NAME,
-            extension: new RegisterCustomerExtension(
+            name: RegisterRouteExtension::NAME,
+            extension: new RegisterRouteExtension(
                 new RequestDataBag(),
-                $this->createMock(SalesChannelContext::class),
+                Generator::generateSalesChannelContext(),
+                validateStorefrontUrl: true,
+                additionalValidationDefinitions: null,
             ),
             function: static function () use (&$coreCalled): CustomerResponse {
                 $coreCalled = true;
@@ -40,7 +43,6 @@ class RegisterCustomerExtensionTest extends TestCase
         );
 
         static::assertFalse($coreCalled, 'The core registration must be skipped when a subscriber resolves it.');
-        static::assertInstanceOf(CustomerResponse::class, $result);
         static::assertSame('example', $result->getCustomer()->getId());
     }
 }

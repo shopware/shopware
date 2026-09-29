@@ -17,9 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @extends Extension<CustomerResponse>
  */
 #[Package('checkout')]
-final class RegisterCustomerExtension extends Extension
+final class RegisterRouteExtension extends Extension
 {
-    public const NAME = 'account.register';
+    public const NAME = 'register-route.register';
 
     /**
      * @internal shopware owns the __constructor, but the properties are public API
@@ -42,13 +42,13 @@ final class RegisterCustomerExtension extends Extension
          *
          * @description Whether the submitted storefrontUrl is validated against the sales-channel domains
          */
-        public readonly bool $validateStorefrontUrl = true,
+        public readonly bool $validateStorefrontUrl,
         /**
          * @public
          *
          * @description Additional validation definitions to merge into the registration validation
          */
-        public readonly ?DataValidationDefinition $additionalValidationDefinitions = null,
+        public readonly ?DataValidationDefinition $additionalValidationDefinitions,
     ) {
     }
 }

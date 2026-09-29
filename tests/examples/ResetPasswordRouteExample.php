@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Examples;
 
-use Shopware\Core\Checkout\Customer\Extension\ResetPasswordExtension;
+use Shopware\Core\Checkout\Customer\Extension\ResetPasswordRouteExtension;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -10,16 +10,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Resolves the password reset yourself — validate the hash against your own
  * store and update the password there — instead of the core flow.
  */
-readonly class ResetPasswordExample implements EventSubscriberInterface
+readonly class ResetPasswordRouteExample implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
     {
         return [
-            ResetPasswordExtension::NAME . '.pre' => 'replace',
+            ResetPasswordRouteExtension::NAME . '.pre' => 'replace',
         ];
     }
 
-    public function replace(ResetPasswordExtension $event): void
+    public function replace(ResetPasswordRouteExtension $event): void
     {
         // The request is exposed through the public properties:
         // $event->data (hash + new password), $event->context

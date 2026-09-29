@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryC
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Extension\SendPasswordRecoveryMailRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -177,5 +179,32 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         static::assertArrayHasKey('success', $response);
         static::assertTrue($response['success']);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $data = new RequestDataBag();
+        $response = new SuccessResponse();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('send-password-recovery-mail-route.send-recovery-mail.pre', function (SendPasswordRecoveryMailRouteExtension $extension) use ($data, $response): void {
+            static::assertSame(['data' => $data, 'context' => $this->context, 'validateStorefrontUrl' => true], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new SendPasswordRecoveryMailRoute(
+            $this->customerRepository,
+            $this->customerRecoveryRepository,
+            $this->eventDispatcher,
+            $this->validator,
+            $this->systemConfigService,
+            $this->requestStack,
+            $this->rateLimiter,
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->sendRecoveryMail($data, $this->context, true));
     }
 }

@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
-use Shopware\Core\Checkout\Customer\Extension\SendRecoveryMailExtension;
+use Shopware\Core\Checkout\Customer\Extension\SendPasswordRecoveryMailRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -74,13 +74,13 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
     {
         return $this->extensions->publish(
-            name: SendRecoveryMailExtension::NAME,
-            extension: new SendRecoveryMailExtension($data, $context, $validateStorefrontUrl),
+            name: SendPasswordRecoveryMailRouteExtension::NAME,
+            extension: new SendPasswordRecoveryMailRouteExtension($data, $context, $validateStorefrontUrl),
             function: $this->_sendRecoveryMail(...),
         );
     }
 
-    private function _sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
+    private function _sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl): SuccessResponse
     {
         EmailIdnConverter::encodeDataBag($data);
 

@@ -2,24 +2,24 @@
 
 namespace Shopware\Core\Checkout\Customer\Extension;
 
-use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredResponse;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 
 /**
- * Wraps `CustomerRecoveryIsExpiredRoute::load`. A listener on the `.pre` event
- * may resolve the expiry check itself (e.g. for an alternative account store),
- * assign a `CustomerRecoveryIsExpiredResponse` to `$result` and call
- * `stopPropagation()` to short-circuit the core flow.
+ * Wraps `ResetPasswordRoute::resetPassword`. A listener on the `.pre` event may
+ * resolve the reset itself (e.g. for an alternative account store), assign a
+ * `SuccessResponse` to `$result` and call `stopPropagation()` to short-circuit
+ * the core flow.
  *
- * @extends Extension<CustomerRecoveryIsExpiredResponse>
+ * @extends Extension<SuccessResponse>
  */
 #[Package('checkout')]
-final class RecoveryIsExpiredExtension extends Extension
+final class ResetPasswordRouteExtension extends Extension
 {
-    public const NAME = 'account.recovery-is-expired';
+    public const NAME = 'reset-password-route.reset-password';
 
     /**
      * @internal shopware owns the __constructor, but the properties are public API
@@ -28,7 +28,7 @@ final class RecoveryIsExpiredExtension extends Extension
         /**
          * @public
          *
-         * @description The submitted data (contains the recovery hash)
+         * @description The submitted reset data (contains hash and new password)
          */
         public readonly RequestDataBag $data,
         /**

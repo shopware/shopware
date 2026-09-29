@@ -17,9 +17,9 @@ use Shopware\Core\System\SalesChannel\SuccessResponse;
  * @extends Extension<SuccessResponse>
  */
 #[Package('checkout')]
-final class SendRecoveryMailExtension extends Extension
+final class SendPasswordRecoveryMailRouteExtension extends Extension
 {
-    public const NAME = 'account.send-recovery-mail';
+    public const NAME = 'send-password-recovery-mail-route.send-recovery-mail';
 
     /**
      * @internal shopware owns the __constructor, but the properties are public API
@@ -42,7 +42,7 @@ final class SendRecoveryMailExtension extends Extension
          *
          * @description Whether the submitted storefrontUrl is validated against the sales-channel domains
          */
-        public readonly bool $validateStorefrontUrl = true,
+        public readonly bool $validateStorefrontUrl,
     ) {
     }
 }

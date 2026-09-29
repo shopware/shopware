@@ -6,7 +6,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Extension\RecoveryIsExpiredExtension;
+use Shopware\Core\Checkout\Customer\Extension\CustomerRecoveryIsExpiredRouteExtension;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -56,8 +56,8 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
     public function load(RequestDataBag $data, SalesChannelContext $context): CustomerRecoveryIsExpiredResponse
     {
         return $this->extensions->publish(
-            name: RecoveryIsExpiredExtension::NAME,
-            extension: new RecoveryIsExpiredExtension($data, $context),
+            name: CustomerRecoveryIsExpiredRouteExtension::NAME,
+            extension: new CustomerRecoveryIsExpiredRouteExtension($data, $context),
             function: $this->_load(...),
         );
     }

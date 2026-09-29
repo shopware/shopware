@@ -4,9 +4,11 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Extension\ResetPasswordRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,6 +25,8 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -161,6 +165,35 @@ class ResetPasswordRouteTest extends TestCase
         $customerUpdate = $this->resetPasswordAndReturnCustomerUpdate($customer);
 
         static::assertArrayNotHasKey('doubleOptInConfirmDate', $customerUpdate);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $data = new RequestDataBag();
+        $context = Generator::generateSalesChannelContext();
+        $response = new SuccessResponse();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('reset-password-route.reset-password.pre', static function (ResetPasswordRouteExtension $extension) use ($data, $context, $response): void {
+            static::assertSame(['data' => $data, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ResetPasswordRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
+            static::createStub(RequestStack::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(DataValidationFactoryInterface::class),
+            static::createStub(ClockInterface::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->resetPassword($data, $context));
     }
 
     private function createCustomer(): CustomerEntity

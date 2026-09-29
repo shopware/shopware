@@ -95,6 +95,10 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 
 Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
 
+### Customer login publishes an extension event
+
+`AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
@@ -2712,11 +2716,6 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
-### Customer account extension points for login, registration and password recovery
-
-The customer login, registration and password-recovery store-api operations are now wrapped with the `Extension` mechanism, so you can extend them through a plain event subscriber instead of decorating `AccountService` and four separate routes. This makes it much simpler to resolve these flows yourself — for example to authenticate against an SSO / external identity provider, a separate employee or sub-account store, or a migrated legacy credential store.
-
-The new extensions are `LoginByCredentialsExtension`, `RegisterCustomerExtension`, `SendRecoveryMailExtension`, `ResetPasswordExtension` and `RecoveryIsExpiredExtension`. Subscribe to `<Extension>::onPre()` to take over the operation (assign `$extension->result` and call `stopPropagation()`), to `<Extension>::onPost()` to adjust the result, or to `<Extension>::onError()` to recover from a failure. Without a subscriber the unchanged core behaviour runs.
 ### `cache:watch:delayed` shuts down gracefully
 
 The `cache:watch:delayed` command now stops cleanly on `SIGINT`/`SIGTERM` instead of being killed mid-loop, and exposes a configurable `--interval` option (microseconds) for the poll frequency.

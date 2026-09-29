@@ -4,33 +4,34 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Extension;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Extension\SendRecoveryMailExtension;
+use Shopware\Core\Checkout\Customer\Extension\SendPasswordRecoveryMailRouteExtension;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
-use Shopware\Tests\Examples\SendRecoveryMailExample;
+use Shopware\Core\Test\Generator;
+use Shopware\Tests\Examples\SendPasswordRecoveryMailRouteExample;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
-#[CoversClass(SendRecoveryMailExtension::class)]
-#[CoversClass(SendRecoveryMailExample::class)]
-class SendRecoveryMailExtensionTest extends TestCase
+#[Package('checkout')]
+#[CoversClass(SendPasswordRecoveryMailRouteExtension::class)]
+class SendPasswordRecoveryMailRouteExtensionTest extends TestCase
 {
     public function testSubscriberResolvesRecoveryMail(): void
     {
         $dispatcher = new EventDispatcher();
-        $dispatcher->addSubscriber(new SendRecoveryMailExample());
+        $dispatcher->addSubscriber(new SendPasswordRecoveryMailRouteExample());
 
         $coreCalled = false;
         $result = (new ExtensionDispatcher($dispatcher))->publish(
-            name: SendRecoveryMailExtension::NAME,
-            extension: new SendRecoveryMailExtension(
+            name: SendPasswordRecoveryMailRouteExtension::NAME,
+            extension: new SendPasswordRecoveryMailRouteExtension(
                 new RequestDataBag(),
-                $this->createMock(SalesChannelContext::class),
-                true,
+                Generator::generateSalesChannelContext(),
+                validateStorefrontUrl: true,
             ),
             function: static function () use (&$coreCalled): SuccessResponse {
                 $coreCalled = true;
@@ -40,6 +41,5 @@ class SendRecoveryMailExtensionTest extends TestCase
         );
 
         static::assertFalse($coreCalled, 'The core recovery flow must be skipped when a subscriber resolves it.');
-        static::assertInstanceOf(SuccessResponse::class, $result);
     }
 }

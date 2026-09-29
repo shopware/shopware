@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryC
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Extension\ResetPasswordExtension;
+use Shopware\Core\Checkout\Customer\Extension\ResetPasswordRouteExtension;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -66,8 +66,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {
         return $this->extensions->publish(
-            name: ResetPasswordExtension::NAME,
-            extension: new ResetPasswordExtension($data, $context),
+            name: ResetPasswordRouteExtension::NAME,
+            extension: new ResetPasswordRouteExtension($data, $context),
             function: $this->_resetPassword(...),
         );
     }

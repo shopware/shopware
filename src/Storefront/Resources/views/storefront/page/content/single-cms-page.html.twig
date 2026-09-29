@@ -1,6 +1,3 @@
-{# ludtwig-ignore-file html-tag-fragments #}
-
-{# The overridable single_cms_page_html block contains only the opening tag; changing its scope would break theme overrides. #}
 {% block single_cms_page_doctype %}
     <!DOCTYPE html>
 {% endblock %}
@@ -121,4 +118,6 @@
     </body>
 {% endblock %}
 
+{# The overridable single_cms_page_html block contains only the opening tag; changing its scope would break theme overrides. #}
+{# ludtwig-ignore html-tag-fragments #}
 </html>

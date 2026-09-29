@@ -222,6 +222,22 @@ export default {
             this.debouncedSearch();
         },
 
+        onClear() {
+            this.searchTerm = null;
+
+            if (this.$refs.selectBase?.expanded) {
+                this.resetSearchCriteria();
+                this.searchItems().then((searchResult) => {
+                    this.resultCollection = searchResult;
+                });
+                return;
+            }
+
+            if (!this.localMode) {
+                this.paginateGrid();
+            }
+        },
+
         debouncedSearch: debounce(function debouncedSearch() {
             this.resetSearchCriteria();
             this.searchCriteria.term = this.searchTerm || null;

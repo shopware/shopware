@@ -24,4 +24,11 @@ class McpExceptionTest extends TestCase
         static::assertSame('MCP__THROTTLED', $e->getErrorCode());
         static::assertSame($previous, $e->getPrevious());
     }
+
+    public function testToolResultNotFoundNamesTheIdWithoutSayingWhoStoredIt(): void
+    {
+        $e = McpException::toolResultNotFound('abc');
+
+        static::assertSame('Tool result "abc" not found. It may have expired or been stored by another caller.', $e->uri);
+    }
 }

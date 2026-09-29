@@ -1,10 +1,10 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-import-export-edit-profile-modal.html.twig';
 import './sw-import-export-edit-profile-modal.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 

@@ -1,13 +1,13 @@
-import notificationMixin from 'shopware:mixins/notification';
 import type { AxiosError } from 'axios';
 import template from './sw-extension-my-extensions-account.html.twig';
 import './sw-extension-my-extensions-account.scss';
 import extensionErrorHandler from '../../service/extension-error-handler.service';
 import type { MappedError } from '../../service/extension-error-handler.service';
 import type { UserInfo } from '../../../../core/service/api/store.api.service';
+import notificationMixin from 'shopware:mixins/notification';
 import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 
-const { Store, Filter } = Shopware;
+const { Filter } = Shopware;
 
 /**
  * @sw-package checkout
@@ -18,9 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['systemConfigApiService', 'shopwareExtensionService', 'storeService'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data(): {
         isLoading: boolean;
@@ -42,11 +40,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         userInfo(): UserInfo | null {
-            return Store.get('shopwareExtensions').userInfo;
+            return useShopwareExtensionsStore().userInfo;
         },
 
         isLoggedIn(): boolean {
-            return Store.get('shopwareExtensions').userInfo !== null;
+            return useShopwareExtensionsStore().userInfo !== null;
         },
 
         assetFilter() {
@@ -57,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
     created() {
         this.createdComponent()
             .then(() => {
-                this.unsubscribeStore = Store.get('shopwareExtensions').$onAction(({ name, args }) =>
+                this.unsubscribeStore = useShopwareExtensionsStore().$onAction(({ name, args }) =>
                     this.showErrorNotification({ type: name, payload: args as MappedError[][] }),
                 );
             })

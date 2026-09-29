@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 
-import { warn } from 'shopware:utils/debug';
 import { getCurrentInstance, watchEffect } from 'vue';
+import { warn } from 'shopware:utils/debug';
 
 class MetaInfoPlugin {
     pluginInstalled = false;

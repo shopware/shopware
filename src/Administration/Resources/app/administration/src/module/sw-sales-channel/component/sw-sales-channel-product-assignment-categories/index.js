@@ -2,12 +2,13 @@
  * @sw-package discovery
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-sales-channel-product-assignment-categories.html.twig';
 import './sw-sales-channel-product-assignment-categories.scss';
-import { Criteria, EntityCollection } from 'shopware:data';
+import { EntityCollection, Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -16,9 +17,7 @@ export default {
 
     emits: ['selection-change', 'product-loading'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         salesChannel: {

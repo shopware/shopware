@@ -1,6 +1,6 @@
+import template from './sw-order-create-initial.html.twig';
 import { Criteria } from 'shopware:data';
 import useSwOrderStore from 'shopware:stores/swOrder';
-import template from './sw-order-create-initial.html.twig';
 
 /**
  * @sw-package checkout

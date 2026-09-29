@@ -1,11 +1,11 @@
 /**
  * @sw-package checkout
  */
+import template from './sw-settings-salutation-detail.html.twig';
+import { Criteria } from 'shopware:data';
 import notificationMixin from 'shopware:mixins/notification';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
-import template from './sw-settings-salutation-detail.html.twig';
-import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 
 const ShopwareError = Shopware.Classes.ShopwareError;

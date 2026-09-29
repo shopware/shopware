@@ -1,5 +1,3 @@
-import useSwOrderStore from 'shopware:stores/swOrder';
-import useContextStore from 'shopware:stores/context';
 import type CriteriaType from 'src/core/data/criteria.data';
 
 import template from './sw-order-create-options.html.twig';
@@ -7,12 +5,15 @@ import './sw-order-create-options.scss';
 
 import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.types';
 import { Criteria } from 'shopware:data';
+import useSwOrderStore from 'shopware:stores/swOrder';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
  */
 
 const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,

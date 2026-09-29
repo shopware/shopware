@@ -1,13 +1,13 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import listingMixin from 'shopware:mixins/listing';
-import notificationMixin from 'shopware:mixins/notification';
 import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
-import { format } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+import { format } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -20,10 +20,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {

@@ -1,6 +1,8 @@
 import template from './sw-cms-el-vimeo-video.html.twig';
 import './sw-cms-el-vimeo-video.scss';
 
+const { Mixin } = Shopware;
+
 /**
  * @private
  * @sw-package discovery
@@ -8,9 +10,7 @@ import './sw-cms-el-vimeo-video.scss';
 export default {
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     computed: {
         videoID() {

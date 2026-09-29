@@ -1,9 +1,10 @@
-import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-sequence-condition.html.twig';
 import './sw-flow-sequence-condition.scss';
 import { Criteria } from 'shopware:data';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component } = Shopware;
+
 const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();

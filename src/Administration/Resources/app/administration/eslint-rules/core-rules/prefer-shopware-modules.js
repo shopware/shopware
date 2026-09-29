@@ -468,6 +468,27 @@ module.exports = {
         }
 
         /**
+         * Where new imports go, so no doc comment ends up separated from what it documents.
+         *
+         * After the last existing import when there is one. Otherwise above the first statement's leading
+         * comments: inserting between a `@constructor` block and the function under it detaches the tag,
+         * and TypeScript then stops treating the function as constructible.
+         */
+        function insertImports(fixer, first, block) {
+            const lastImport = source.ast.body.filter((statement) => statement.type === 'ImportDeclaration').pop();
+
+            if (lastImport) {
+                return fixer.insertTextAfter(lastImport, `\n${block}`);
+            }
+
+            const [leading] = source.getCommentsBefore(first);
+            const at = (leading ?? first).range[0];
+
+            // A blank line keeps the imports visibly apart from a doc comment that belongs to the code below.
+            return fixer.insertTextBeforeRange([at, at], leading ? `${block}\n\n` : `${block}\n`);
+        }
+
+        /**
          * Every import the file needs, as one insertion, plus merges into imports it already has.
          *
          * One insertion rather than one per rewrite: several insertions at the same offset overlap, and
@@ -504,7 +525,7 @@ module.exports = {
             });
 
             if (fresh.length > 0) {
-                edits.unshift(fixer.insertTextBefore(first, `${importStatements(fresh).join('\n')}\n`));
+                edits.unshift(insertImports(fixer, first, importStatements(fresh).join('\n')));
             }
 
             return edits;

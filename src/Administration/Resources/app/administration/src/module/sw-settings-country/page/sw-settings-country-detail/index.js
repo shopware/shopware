@@ -1,11 +1,11 @@
 /**
  * @sw-package fundamentals@discovery
  */
+import template from './sw-settings-country-detail.html.twig';
+import './sw-settings-country-detail.scss';
 import notificationMixin from 'shopware:mixins/notification';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
-import template from './sw-settings-country-detail.html.twig';
-import './sw-settings-country-detail.scss';
 import { object } from 'shopware:utils';
 
 const { Component } = Shopware;

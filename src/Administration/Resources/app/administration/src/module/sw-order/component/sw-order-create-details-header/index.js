@@ -1,10 +1,9 @@
 import template from './sw-order-create-details-header.html.twig';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
-
-import { Criteria } from 'shopware:data';
 
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore

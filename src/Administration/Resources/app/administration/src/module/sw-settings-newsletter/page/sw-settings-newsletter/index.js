@@ -1,5 +1,5 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-newsletter.html.twig';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package after-sales
@@ -9,9 +9,7 @@ import template from './sw-settings-newsletter.html.twig';
 export default {
     template,
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

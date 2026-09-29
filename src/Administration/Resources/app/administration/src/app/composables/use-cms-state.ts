@@ -7,11 +7,11 @@ import { computed, type ComputedRef, type WritableComputedRef } from 'vue';
 import { useRoute } from 'vue-router';
 import 'src/module/sw-cms/store/cms-page.store';
 import type { CmsSlotConfig } from 'src/module/sw-cms/service/cms.service';
-import { object } from 'shopware:utils';
 import useCmsPageStore from 'shopware:stores/cmsPage';
-import useContextStore from 'shopware:stores/context';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useContextStore from 'shopware:stores/context';
+import { object } from 'shopware:utils';
 
 type SlotConfigMap = { [slotId: string]: CmsSlotConfig };
 

@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-media-form.html.twig';
 import './sw-product-media-form.scss';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -15,9 +15,7 @@ export default {
 
     emits: ['media-open'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         disabled: {

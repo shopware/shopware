@@ -2,12 +2,12 @@
  * @sw-package inventory
  */
 
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
-import { Criteria } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useContextStore from 'shopware:stores/context';
+import { Criteria } from 'shopware:data';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -17,9 +17,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         allowEdit: {

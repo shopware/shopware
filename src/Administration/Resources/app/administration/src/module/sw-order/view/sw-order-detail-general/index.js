@@ -1,8 +1,8 @@
+import template from './sw-order-detail-general.html.twig';
 import { format, array } from 'shopware:utils';
+import { cloneDeep } from 'shopware:utils/object';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
-import template from './sw-order-detail-general.html.twig';
-import { cloneDeep } from 'shopware:utils/object';
 
 /**
  * @sw-package checkout
@@ -52,9 +52,7 @@ export default {
         'error',
     ],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         orderId: {
@@ -201,10 +199,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            useSwOrderDetailStore().setLoading([
-                'order',
-                loadingValue,
-            ]);
+            useSwOrderDetailStore().setLoading(['order', loadingValue]);
         },
 
         reloadEntityData(isSaved = true) {

@@ -2,6 +2,7 @@ import { h } from 'vue';
 import { debug } from 'shopware:utils';
 
 const { Locale } = Shopware;
+
 /**
  * Contains a list of allowed block categories
  * @type {string[]}

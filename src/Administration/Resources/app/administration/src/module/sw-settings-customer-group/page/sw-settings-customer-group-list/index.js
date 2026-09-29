@@ -1,8 +1,8 @@
+import template from './sw-settings-customer-group-list.html.twig';
+import { Criteria } from 'shopware:data';
 import listingMixin from 'shopware:mixins/listing';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import notificationMixin from 'shopware:mixins/notification';
-import template from './sw-settings-customer-group-list.html.twig';
-import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package discovery
@@ -14,11 +14,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        listingMixin,
-        placeholderMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, placeholderMixin, notificationMixin],
 
     data() {
         return {

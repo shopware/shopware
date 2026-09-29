@@ -1,26 +1,23 @@
-import notificationMixin from 'shopware:mixins/notification';
-import salutationMixin from 'shopware:mixins/salutation';
-import listingMixin from 'shopware:mixins/listing';
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import listingMixin from 'shopware:mixins/listing';
 
 /**
  * @sw-package checkout
  */
 
 const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['repositoryFactory', 'acl', 'filterFactory'],
 
-    mixins: [
-        notificationMixin,
-        salutationMixin,
-        listingMixin,
-    ],
+    mixins: [notificationMixin, salutationMixin, listingMixin],
 
     data() {
         return {

@@ -6,6 +6,7 @@ import { Criteria } from 'shopware:data';
  */
 
 const { Context } = Shopware;
+
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

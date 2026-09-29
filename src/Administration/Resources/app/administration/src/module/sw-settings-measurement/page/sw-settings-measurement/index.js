@@ -1,11 +1,11 @@
 /**
  * @sw-package inventory
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-measurement.html.twig';
 import { Criteria } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
+import notificationMixin from 'shopware:mixins/notification';
 import useErrorStore from 'shopware:stores/error';
+import useContextStore from 'shopware:stores/context';
 
 const { ShopwareError } = Shopware.Classes;
 
@@ -15,9 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'systemConfigApiService', 'acl'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     metaInfo() {
         return {

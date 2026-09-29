@@ -1,8 +1,9 @@
 import template from './sw-condition-line-item-in-category.html.twig';
 import './sw-condition-line-item-in-category.scss';
-import { Criteria, EntityCollection } from 'shopware:data';
+import { EntityCollection, Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
+
 /**
  * @sw-package fundamentals@after-sales
  * @deprecated tag:v6.8.0 - Will be removed. Use sw-condition-generic instead.

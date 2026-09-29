@@ -1,12 +1,12 @@
 /**
  * @sw-package fundamentals@framework
  */
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
 import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useContextStore from 'shopware:stores/context';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -22,10 +22,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         currencyId: {

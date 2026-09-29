@@ -2,10 +2,10 @@
  * @sw-package framework
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-search-preferences-modal.html.twig';
 import './sw-search-preferences-modal.scss';
+import notificationMixin from 'shopware:mixins/notification';
 import { EventBus } from 'shopware:utils';
 
 const { Module } = Shopware;
@@ -20,9 +20,7 @@ export default {
 
     emits: ['modal-close'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

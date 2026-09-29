@@ -1,9 +1,9 @@
 /**
  * @sw-package framework
  */
-import { debug } from 'shopware:utils';
 import { computed, ref } from 'vue';
 import useSystem from './use-system';
+import { debug } from 'shopware:utils';
 
 interface LocaleToLanguageService {
     localeToLanguage(locale: string): Promise<string>;

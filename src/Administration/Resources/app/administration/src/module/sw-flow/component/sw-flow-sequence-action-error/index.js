@@ -1,6 +1,6 @@
-import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-sequence-action-error.html.twig';
 import './sw-flow-sequence-action-error.scss';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();

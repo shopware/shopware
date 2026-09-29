@@ -1,4 +1,3 @@
-import { Criteria } from 'shopware:data';
 import type { RouteLocationNamedRaw, RouteLocation } from 'vue-router';
 import type { AppModulesService, AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 import type StoreApiService from 'src/core/service/api/store.api.service';
@@ -10,10 +9,11 @@ import type {
     ExtensionVariantType,
     ExtensionType,
 } from './extension-store-action.service';
+import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 import useContextStore from 'shopware:stores/context';
 import useExtensionEntryRoutesStore from 'shopware:stores/extensionEntryRoutes';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
-import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
+import { Criteria } from 'shopware:data';
 
 type EXTENSION_VARIANT_TYPES = {
     [Property in Uppercase<ExtensionVariantType>]: Lowercase<Property>;

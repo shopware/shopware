@@ -1,9 +1,10 @@
 import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-preview-v2.html.twig';
 import './sw-media-preview-v2.scss';
-import { EventBus, fileReader } from 'shopware:utils';
+import { fileReader, EventBus } from 'shopware:utils';
 
 const { Context, Filter } = Shopware;
+
 /**
  * @status ready
  * @description The <u>sw-media-preview-v2</u> component is used to show a preview of media objects.

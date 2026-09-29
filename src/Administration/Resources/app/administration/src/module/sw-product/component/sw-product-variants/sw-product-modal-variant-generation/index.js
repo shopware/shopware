@@ -2,12 +2,12 @@
  * @sw-package inventory
  */
 
-import listingMixin from 'shopware:mixins/listing';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-modal-variant-generation.html.twig';
 import VariantsGenerator from '../../../helper/sw-products-variants-generator';
 import './sw-product-modal-variant-generation.scss';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;
@@ -25,10 +25,7 @@ export default {
 
     emits: ['modal-close', 'variations-finish-generate'],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     props: {
         product: {

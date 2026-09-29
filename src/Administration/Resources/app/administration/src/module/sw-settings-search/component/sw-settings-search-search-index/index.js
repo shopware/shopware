@@ -1,13 +1,14 @@
 /**
  * @sw-package inventory
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-search-search-index.html.twig';
 import './sw-settings-search-search-index.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 const PRODUCT_INDEXER_INTERVAL = 3000;
 const { Context } = Shopware;
+
 /**
  * @private
  */

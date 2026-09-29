@@ -1,10 +1,10 @@
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
-import { EventBus, dom, format } from 'shopware:utils';
+import { dom, format, EventBus } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useActionButtonsStore from 'shopware:stores/actionButtons';
 
 const { Mixin, Context } = Shopware;

@@ -1,11 +1,11 @@
 /**
  * @sw-package inventory
  */
-import listingMixin from 'shopware:mixins/listing';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-tag-list.html.twig';
 import './sw-settings-tag-list.scss';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -13,10 +13,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'tagApiService'],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {

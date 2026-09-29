@@ -1,9 +1,9 @@
-import notificationMixin from 'shopware:mixins/notification';
 import './sw-order-state-history-modal.scss';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 /**
@@ -42,9 +42,7 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'stateStyleDataProviderService'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         order: {
@@ -159,10 +157,7 @@ export default Component.wrapComponentConfig({
                 return useSwOrderDetailStore().loading.states;
             },
             set(value: boolean): void {
-                useSwOrderDetailStore().setLoading([
-                    'states',
-                    value,
-                ]);
+                useSwOrderDetailStore().setLoading(['states', value]);
             },
         },
     },

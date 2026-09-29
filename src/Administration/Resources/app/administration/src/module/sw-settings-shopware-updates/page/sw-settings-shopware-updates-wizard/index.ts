@@ -1,8 +1,8 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 import useSession from 'src/app/composables/use-session';
 import useSnackbar from 'src/app/composables/use-snackbar';
+import notificationMixin from 'shopware:mixins/notification';
 import { dom } from 'shopware:utils';
 
 const { Component } = Shopware;
@@ -18,9 +18,7 @@ export default Component.wrapComponentConfig({
 
     emits: ['update-started', 'update-stopped'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data(): {
         updateInfo: {

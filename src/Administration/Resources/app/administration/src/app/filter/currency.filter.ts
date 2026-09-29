@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 import type { CurrencyOptions } from 'src/core/service/utils/format.utils';
-import { types } from 'shopware:utils';
 import { currency } from 'shopware:utils/format';
+import { types } from 'shopware:utils';
 
 /**
  * @private

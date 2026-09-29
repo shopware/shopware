@@ -1,9 +1,9 @@
 /**
  * @sw-package inventory
  */
+import template from './sw-settings-product-feature-sets-detail.html.twig';
 import notificationMixin from 'shopware:mixins/notification';
 import placeholderMixin from 'shopware:mixins/placeholder';
-import template from './sw-settings-product-feature-sets-detail.html.twig';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -13,10 +13,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'feature'],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         productFeatureSetId: {

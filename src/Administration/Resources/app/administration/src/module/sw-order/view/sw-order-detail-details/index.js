@@ -1,14 +1,15 @@
-import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
-import { debounce } from 'shopware:utils';
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 import { Criteria } from 'shopware:data';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
+import { debounce } from 'shopware:utils';
 
 /**
  * @sw-package checkout
  */
 
 const { Component } = Shopware;
+
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -265,10 +266,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            useSwOrderDetailStore().setLoading([
-                'order',
-                loadingValue,
-            ]);
+            useSwOrderDetailStore().setLoading(['order', loadingValue]);
         },
 
         validateTrackingCode(searchTerm) {

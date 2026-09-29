@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
-const { Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 const { CMS } = Shopware.Constants;
 
 /**
@@ -13,9 +13,7 @@ export default {
 
     inject: ['feature', 'repositoryFactory'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {

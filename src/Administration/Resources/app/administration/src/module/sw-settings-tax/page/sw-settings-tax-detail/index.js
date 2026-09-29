@@ -1,6 +1,6 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-tax-detail.html.twig';
 import './sw-settings-tax-detail.scss';
+import notificationMixin from 'shopware:mixins/notification';
 import useContextStore from 'shopware:stores/context';
 
 /**
@@ -20,9 +20,7 @@ export default {
         'systemConfigApiService',
     ],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

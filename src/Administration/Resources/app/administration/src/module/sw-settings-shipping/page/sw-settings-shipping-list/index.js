@@ -1,7 +1,7 @@
-import listingMixin from 'shopware:mixins/listing';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-shipping-list.html.twig';
 import './sw-settings-shipping-list.scss';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import useContextStore from 'shopware:stores/context';
 
 const {
@@ -17,10 +17,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {

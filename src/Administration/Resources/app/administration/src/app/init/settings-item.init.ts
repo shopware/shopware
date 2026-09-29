@@ -1,6 +1,6 @@
 import useExtensionsStore from 'shopware:stores/extensions';
-import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
 import useSettingsItemsStore from 'shopware:stores/settingsItems';
+import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
 
 /**
  * @private

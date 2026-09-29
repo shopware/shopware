@@ -1,17 +1,18 @@
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import './store';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
+import { Criteria, ChangesetGenerator, EntityCollection } from 'shopware:data';
 import { isArray, isEmpty, isEqual } from 'shopware:utils/types';
-import { ChangesetGenerator, Criteria, EntityCollection } from 'shopware:data';
-import useCmsPageStore from 'shopware:stores/cmsPage';
-import useErrorStore from 'shopware:stores/error';
-import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useErrorStore from 'shopware:stores/error';
 import useSwSeoUrlStore from 'shopware:stores/swSeoUrl';
 
 const { Context } = Shopware;
+
 /**
  * @sw-package discovery
  */
@@ -28,10 +29,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -479,9 +477,7 @@ export default {
                     return;
                 }
 
-                useShopwareAppsStore().selectedIds = [
-                    this.landingPageId,
-                ];
+                useShopwareAppsStore().selectedIds = [this.landingPageId];
                 await useSwCategoryDetailStore().loadActiveLandingPage({
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -514,9 +510,7 @@ export default {
                 return;
             }
 
-            useShopwareAppsStore().selectedIds = [
-                this.categoryId,
-            ];
+            useShopwareAppsStore().selectedIds = [this.categoryId];
             useSwCategoryDetailStore()
                 .loadActiveCategory({
                     repository: this.categoryRepository,

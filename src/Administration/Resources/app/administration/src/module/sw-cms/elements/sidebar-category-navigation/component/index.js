@@ -9,10 +9,7 @@ import placeholderMixin from 'shopware:mixins/placeholder';
 export default {
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-        placeholderMixin,
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-element'), placeholderMixin],
 
     created() {
         this.createdComponent();

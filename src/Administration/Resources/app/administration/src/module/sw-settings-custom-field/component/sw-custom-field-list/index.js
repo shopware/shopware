@@ -1,11 +1,11 @@
 /**
  * @sw-package framework
  */
-import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 import { Criteria } from 'shopware:data';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
+import notificationMixin from 'shopware:mixins/notification';
 import useErrorStore from 'shopware:stores/error';
 
 const { ShopwareError } = Shopware.Classes;
@@ -25,10 +25,7 @@ export default {
 
     emits: ['loading-changed'],
 
-    mixins: [
-        swInlineSnippetMixin,
-        notificationMixin,
-    ],
+    mixins: [swInlineSnippetMixin, notificationMixin],
 
     props: {
         set: {

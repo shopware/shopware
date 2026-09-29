@@ -1,7 +1,7 @@
+import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import { debug } from 'shopware:utils';
 import useNotificationStore from 'shopware:stores/notification';
 import useSessionStore from 'shopware:stores/session';
-import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 
 /**
  * @sw-package framework

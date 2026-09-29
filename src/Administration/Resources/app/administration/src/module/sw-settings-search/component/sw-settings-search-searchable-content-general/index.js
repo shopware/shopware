@@ -1,9 +1,9 @@
 /**
  * @sw-package inventory
  */
+import template from './sw-settings-search-searchable-content-general.html.twig';
 import listingMixin from 'shopware:mixins/listing';
 import notificationMixin from 'shopware:mixins/notification';
-import template from './sw-settings-search-searchable-content-general.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -13,10 +13,7 @@ export default {
 
     emits: ['data-load', 'config-save'],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     props: {
         isEmpty: {

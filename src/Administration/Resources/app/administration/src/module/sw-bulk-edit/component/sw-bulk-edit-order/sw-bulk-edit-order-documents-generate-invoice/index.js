@@ -1,10 +1,10 @@
 /**
  * @sw-package checkout
  */
-import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 import template from './sw-bulk-edit-order-documents-generate-invoice.html.twig';
 import './sw-bulk-edit-order-documents-generate-invoice.scss';
 import notificationMixin from 'shopware:mixins/notification';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -17,9 +17,7 @@ export default {
         },
     },
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

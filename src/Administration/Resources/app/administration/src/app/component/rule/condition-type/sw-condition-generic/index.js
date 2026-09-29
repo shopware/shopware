@@ -1,7 +1,7 @@
-import genericConditionMixin from 'shopware:mixins/generic-condition';
 import template from './sw-condition-generic.html.twig';
 import './sw-condition-generic.scss';
 import { getPlaceholderSnippet } from 'shopware:utils/genericRuleCondition';
+import genericConditionMixin from 'shopware:mixins/generic-condition';
 
 /**
  * @public
@@ -17,9 +17,7 @@ export default {
     template,
     inheritAttrs: false,
 
-    mixins: [
-        genericConditionMixin,
-    ],
+    mixins: [genericConditionMixin],
 
     data() {
         return {

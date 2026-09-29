@@ -2,16 +2,14 @@
  * @sw-package discovery
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-sitemap.html.twig';
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

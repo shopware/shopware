@@ -14,9 +14,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         isLoading: {

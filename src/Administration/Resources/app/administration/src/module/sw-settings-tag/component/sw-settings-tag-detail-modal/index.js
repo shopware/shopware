@@ -1,9 +1,9 @@
 /**
  * @sw-package inventory
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-tag-detail-modal.html.twig';
 import './sw-settings-tag-detail-modal.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -20,9 +20,7 @@ export default {
 
     emits: ['close', 'finish'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

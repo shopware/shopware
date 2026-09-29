@@ -1,7 +1,7 @@
 import BulkEditBaseHandler from './bulk-edit-base.handler';
 import RetryHelper from '../../../../core/helper/retry.helper';
-import { types } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import { types } from 'shopware:utils';
 import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /**

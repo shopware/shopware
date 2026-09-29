@@ -6,9 +6,6 @@
 import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
 import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
-import { debug, types } from 'shopware:utils';
-import useShopwareAppsStore from 'shopware:stores/shopwareApps';
-import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /* @private */
 export {};
@@ -106,7 +103,7 @@ export default Shopware.Mixin.register(
             const actualQueryParameters: LocationQuery = this.$route.query;
 
             // When no route information are provided
-            if (types.isEmpty(actualQueryParameters)) {
+            if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
                 this.resetListing();
             } else {
                 this.parseBooleanQueryParams(actualQueryParameters);
@@ -125,8 +122,8 @@ export default Shopware.Mixin.register(
                 return;
             }
 
-            useShopwareAppsStore().selectedIds = [];
-            useSwBulkEditStore().selectedIds = [];
+            Shopware.Store.get('shopwareApps').selectedIds = [];
+            Shopware.Store.get('swBulkEdit').selectedIds = [];
         },
 
         watch: {
@@ -138,7 +135,7 @@ export default Shopware.Mixin.register(
 
                 const query = this.$route.query;
 
-                if (types.isEmpty(query)) {
+                if (Shopware.Utils.types.isEmpty(query)) {
                     this.resetListing();
                 }
 
@@ -159,8 +156,8 @@ export default Shopware.Mixin.register(
             },
 
             selection() {
-                useShopwareAppsStore().selectedIds = Object.keys(this.selection);
-                useSwBulkEditStore().selectedIds = Object.keys(this.selection);
+                Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.selection);
+                Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.selection);
             },
 
             term(newValue) {
@@ -224,7 +221,7 @@ export default Shopware.Mixin.register(
                 };
 
                 // If query is empty then replace route, otherwise push
-                if (types.isEmpty(routeQuery)) {
+                if (Shopware.Utils.types.isEmpty(routeQuery)) {
                     void this.$router.replace(route as unknown as RouteLocationNamedRaw);
                 } else {
                     void this.$router.push(route as unknown as RouteLocationNamedRaw);
@@ -354,7 +351,7 @@ export default Shopware.Mixin.register(
             },
 
             getList() {
-                debug.warn(
+                Shopware.Utils.debug.warn(
                     'Listing Mixin',
                     'When using the listing mixin you have to implement your custom "getList()" method.',
                 );

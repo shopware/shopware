@@ -4,14 +4,15 @@
  * @private
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-sales-channel-detail-agentic-file.html.twig';
 import './sw-sales-channel-detail-agentic-file.scss';
-import { string, types } from 'shopware:utils';
 import { EntityCollection } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import { types, string } from 'shopware:utils';
 import useSessionStore from 'shopware:stores/session';
 
 const { Context, Defaults } = Shopware;
+
 const FILE_FAMILY_AGENTIC = 'agentic';
 const USER_PROVIDED_CONTENT_OVERRIDE_KEY = 'user_provided_content';
 
@@ -21,9 +22,7 @@ export default {
 
     inject: ['acl', 'salesChannelFileApiService', 'repositoryFactory'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         salesChannel: {

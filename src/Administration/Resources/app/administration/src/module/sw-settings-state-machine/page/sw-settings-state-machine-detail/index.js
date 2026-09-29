@@ -1,7 +1,7 @@
+import template from './sw-settings-state-machine-detail.html.twig';
 import notificationMixin from 'shopware:mixins/notification';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
-import template from './sw-settings-state-machine-detail.html.twig';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();

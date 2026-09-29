@@ -3,6 +3,8 @@ import './sw-cms-el-text.scss';
 import SwTextEditorToolbarButtonCmsDataMappingButton from '../../../../../app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
+const { Mixin } = Shopware;
+
 /**
  * @private
  * @sw-package discovery
@@ -14,9 +16,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
@@ -43,10 +43,7 @@ export default {
             let mappings = [];
 
             Object.entries(useCmsPageStore().currentMappingTypes).forEach((entry) => {
-                const [
-                    type,
-                    value,
-                ] = entry;
+                const [type, value] = entry;
 
                 if (type === 'string') {
                     mappings = [...mappings, ...value];

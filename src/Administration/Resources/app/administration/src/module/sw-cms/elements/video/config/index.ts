@@ -3,7 +3,7 @@ import type { RuntimeSlot } from 'src/module/sw-cms/service/cms.service';
 import template from './sw-cms-el-config-video.html.twig';
 import './sw-cms-el-config-video.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 type Options = { id: number; value: string; label: string }[];
 
 /**
@@ -17,9 +17,7 @@ export default Component.wrapComponentConfig({
 
     emits: ['element-update'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data(): { showMediaModal: boolean; initialFolderId: EntityKey<'media_folder'> | null } {
         return {

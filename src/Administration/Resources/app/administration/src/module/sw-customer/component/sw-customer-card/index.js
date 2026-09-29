@@ -1,12 +1,12 @@
-import notificationMixin from 'shopware:mixins/notification';
-import salutationMixin from 'shopware:mixins/salutation';
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
 import { Criteria } from 'shopware:data';
-import useErrorStore from 'shopware:stores/error';
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
 import useSessionStore from 'shopware:stores/session';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
@@ -14,6 +14,7 @@ import useSessionStore from 'shopware:stores/session';
 
 const { Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
 const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -22,10 +23,7 @@ export default {
 
     inject: ['acl', 'contextStoreService', 'repositoryFactory'],
 
-    mixins: [
-        notificationMixin,
-        salutationMixin,
-    ],
+    mixins: [notificationMixin, salutationMixin],
 
     props: {
         customer: {

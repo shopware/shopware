@@ -1,7 +1,7 @@
 import template from './sw-condition-script.html.twig';
 import './sw-condition-script.scss';
-import { object } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import { object } from 'shopware:utils';
 
 /**
  * @public

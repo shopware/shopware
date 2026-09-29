@@ -1,8 +1,8 @@
-import { string } from 'shopware:utils';
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-category-detail-custom-entity.html.twig';
 import './sw-category-detail-custom-entity.scss';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import { string } from 'shopware:utils';
 
 const EXTENSION_POSTFIX = 'SwCategories';
 

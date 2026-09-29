@@ -1,6 +1,6 @@
-import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-invalid-promotion-modal.html.twig';
 import './sw-order-create-invalid-promotion-modal.scss';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
 /**
  * @sw-package checkout

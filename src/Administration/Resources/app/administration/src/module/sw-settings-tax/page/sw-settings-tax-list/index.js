@@ -1,8 +1,8 @@
-import listingMixin from 'shopware:mixins/listing';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-tax-list.html.twig';
 import './sw-settings-tax-list.scss';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 import useContextStore from 'shopware:stores/context';
 
 /**
@@ -15,10 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {

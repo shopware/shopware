@@ -1,6 +1,6 @@
-import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-sequence-selector.html.twig';
 import './sw-flow-sequence-selector.scss';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 /**
  * @private

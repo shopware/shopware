@@ -1,9 +1,9 @@
+import { types } from 'shopware:utils';
+import { cloneDeep } from 'shopware:utils/object';
+
 /**
  * @sw-package framework
  */
-
-import { types } from 'shopware:utils';
-import { cloneDeep } from 'shopware:utils/object';
 
 /**
  * @module app/filter-service
@@ -118,7 +118,7 @@ export default class FilterService {
             },
         };
 
-        if (!types.isEmpty(routeParams)) {
+        if (!Shopware.Utils.types.isEmpty(routeParams)) {
             newRoute.params = routeParams;
         }
 

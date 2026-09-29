@@ -4,7 +4,8 @@
 import { computed, type ComputedRef } from 'vue';
 import useCmsState from './use-cms-state';
 import type { CmsElementConfig, RuntimeSlot } from 'src/module/sw-cms/service/cms.service';
-import { object, types } from 'shopware:utils';
+import { cloneDeep, merge, get, set, has } from 'shopware:utils/object';
+import { types } from 'shopware:utils';
 
 /**
  * The two props the mixin declared and read, handed in as getters so every read stays reactive.
@@ -58,7 +59,6 @@ export default function useCmsElementDeprecated(options: UseCmsElementDeprecated
     }
 
     function initBaseConfig(): void {
-        const { cloneDeep, merge, get, set, has } = object;
         const element = options.element();
 
         if (!element.type) {
@@ -85,7 +85,6 @@ export default function useCmsElementDeprecated(options: UseCmsElementDeprecated
     }
 
     function applyContentOverride(): void {
-        const { cloneDeep, set } = object;
         const element = options.element();
 
         if (!cmsState.contentEntity.value || !cmsState.inheritedSlotConfig.value || !element.id) {
@@ -104,7 +103,6 @@ export default function useCmsElementDeprecated(options: UseCmsElementDeprecated
     }
 
     function initElementData(elementName: string): void {
-        const { cloneDeep, merge } = object;
         const element = options.element();
 
         if (types.isPlainObject(element.data) && Object.keys(element.data).length > 0) {

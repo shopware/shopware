@@ -1,8 +1,8 @@
 import template from './sw-language-info.html.twig';
 import './sw-language-info.scss';
-import { EventBus } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
 import useContextStore from 'shopware:stores/context';
+import { EventBus } from 'shopware:utils';
 
 /**
  * @sw-package framework

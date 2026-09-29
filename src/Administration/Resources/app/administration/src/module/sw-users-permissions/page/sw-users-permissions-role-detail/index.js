@@ -1,9 +1,9 @@
 /**
  * @sw-package fundamentals@framework
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-users-permissions-role-detail.html.twig';
 import './sw-users-permissions-role-detail.scss';
+import notificationMixin from 'shopware:mixins/notification';
 import useSessionStore from 'shopware:stores/session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -21,9 +21,7 @@ export default {
         'ssoSettingsService',
     ],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

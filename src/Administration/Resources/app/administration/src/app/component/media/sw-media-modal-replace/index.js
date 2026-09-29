@@ -1,8 +1,8 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
-import { createId, fileReader } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
 import useContextStore from 'shopware:stores/context';
+import { createId, fileReader } from 'shopware:utils';
 
 /**
  * @status ready
@@ -22,9 +22,7 @@ export default {
 
     emits: ['media-replace-modal-close', 'media-replace-modal-item-replaced'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         itemToReplace: {

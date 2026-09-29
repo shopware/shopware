@@ -1,6 +1,6 @@
-import { format } from 'shopware:utils';
 import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
+import { format } from 'shopware:utils';
 
 /**
  * @sw-package checkout

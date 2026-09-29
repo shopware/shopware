@@ -1,7 +1,7 @@
 import { computed } from 'vue';
 import template from './sw-grid.html.twig';
 import './sw-grid.scss';
-import { debug, dom } from 'shopware:utils';
+import { dom, debug } from 'shopware:utils';
 
 /**
  * @sw-package framework

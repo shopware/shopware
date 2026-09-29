@@ -2,11 +2,11 @@
  * @sw-package inventory
  */
 
-import { isEmpty } from 'shopware:utils/types';
-import notificationMixin from 'shopware:mixins/notification';
 import Criteria from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
+import { isEmpty } from 'shopware:utils/types';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;
@@ -17,9 +17,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         productId: {

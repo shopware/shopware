@@ -1,7 +1,7 @@
+import template from './sw-flow-affiliate-and-campaign-code-modal.html.twig';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwFlowStore from 'shopware:stores/swFlow';
-import template from './sw-flow-affiliate-and-campaign-code-modal.html.twig';
 
 const { Component } = Shopware;
 const { ShopwareError } = Shopware.Classes;
@@ -18,10 +18,7 @@ export default {
 
     emits: ['process-finish', 'modal-close'],
 
-    mixins: [
-        placeholderMixin,
-        notificationMixin,
-    ],
+    mixins: [placeholderMixin, notificationMixin],
 
     props: {
         sequence: {
@@ -61,13 +58,7 @@ export default {
             return this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, properties);
         },
 
-        ...mapState(
-            () => useSwFlowStore(),
-            [
-                'triggerEvent',
-                'triggerActions',
-            ],
-        ),
+        ...mapState(() => useSwFlowStore(), ['triggerEvent', 'triggerActions']),
     },
 
     watch: {

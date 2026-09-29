@@ -38,7 +38,7 @@ export default {
                 return;
             }
 
-            if (!useContextStore().isSystemDefaultLanguage) {
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                 useContextStore().resetLanguageToDefault();
             }
 

@@ -1,10 +1,10 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-import-export-exporter.html.twig';
 import './sw-import-export-exporter.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -16,9 +16,7 @@ export default {
 
     emits: ['export-started'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         sourceEntity: {

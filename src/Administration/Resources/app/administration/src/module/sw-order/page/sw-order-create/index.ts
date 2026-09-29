@@ -1,5 +1,3 @@
-import notificationMixin from 'shopware:mixins/notification';
-import useSwOrderStore from 'shopware:stores/swOrder';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type Repository from 'src/core/data/repository.data';
 import type { Cart, PromotionCodeTag } from '../../order.types';
@@ -7,22 +5,23 @@ import '../../store/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
  */
 
-const { Context, Store } = Shopware;
+const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['repositoryFactory', 'feature'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data(): {
         isLoading: boolean;
@@ -122,8 +121,8 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         createdComponent(): void {
             // set language to system language
-            if (!Store.get('context').isSystemDefaultLanguage) {
-                Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
         },
 

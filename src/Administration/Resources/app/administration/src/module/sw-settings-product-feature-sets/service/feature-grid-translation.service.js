@@ -1,8 +1,9 @@
+import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
+
 /**
  * @sw-package inventory
  */
-import { Criteria } from 'shopware:data';
-import useSessionStore from 'shopware:stores/session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class FeatureGridTranslationService {

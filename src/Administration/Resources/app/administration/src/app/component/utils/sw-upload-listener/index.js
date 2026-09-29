@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import { UploadEvents } from 'src/core/service/api/media.api.service';
+import notificationMixin from 'shopware:mixins/notification';
 import useNotificationStore from 'shopware:stores/notification';
 
 const { Context } = Shopware;
@@ -50,9 +50,7 @@ export default {
 
     inject: ['repositoryFactory', 'mediaService'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         uploadTag: {

@@ -1,23 +1,20 @@
+import template from './sw-order-create-general.html.twig';
+import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, SalesChannelContext } from '../../order.types';
 import { get, format, array } from 'shopware:utils';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwOrderStore from 'shopware:stores/swOrder';
-import template from './sw-order-create-general.html.twig';
-import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, SalesChannelContext } from '../../order.types';
 
 /**
  * @sw-package checkout
  */
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [
-        notificationMixin,
-        Shopware.Mixin.getByName('cart-notification'),
-    ],
+    mixins: [notificationMixin, Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;

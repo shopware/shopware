@@ -1,6 +1,5 @@
 /* @private */
 import { defineComponent } from 'vue';
-import { types } from 'shopware:utils';
 
 /**
  * @private
@@ -50,11 +49,11 @@ export default Shopware.Mixin.register(
                 let validation = this.validation;
                 let valid = true;
 
-                if (types.isBoolean(validation)) {
+                if (Shopware.Utils.types.isBoolean(validation)) {
                     return validation;
                 }
 
-                if (types.isString(validation)) {
+                if (Shopware.Utils.types.isString(validation)) {
                     const validationList = validation.split(',');
 
                     if (validationList.length > 1) {
@@ -65,13 +64,13 @@ export default Shopware.Mixin.register(
                     }
                 }
 
-                if (types.isArray(validation)) {
+                if (Shopware.Utils.types.isArray(validation)) {
                     valid = validation.every((validationRule) => {
-                        if (types.isBoolean(validationRule)) {
+                        if (Shopware.Utils.types.isBoolean(validationRule)) {
                             return validationRule;
                         }
 
-                        if (types.isString(validationRule)) {
+                        if (Shopware.Utils.types.isString(validationRule)) {
                             return this.validateRule(value, validationRule.trim());
                         }
 

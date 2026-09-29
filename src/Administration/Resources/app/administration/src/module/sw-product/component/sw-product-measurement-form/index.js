@@ -1,11 +1,11 @@
 /*
  * @sw-package inventory
  */
-import placeholderMixin from 'shopware:mixins/placeholder';
-import { unitConversion } from 'shopware:utils';
 import template from './sw-product-measurement-form.html.twig';
 import './sw-product-measurement-form.scss';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import { unitConversion } from 'shopware:utils';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -13,9 +13,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         allowEdit: {

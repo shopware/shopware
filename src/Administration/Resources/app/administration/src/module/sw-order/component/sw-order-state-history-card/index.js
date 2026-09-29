@@ -1,6 +1,6 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-order-state-history-card.html.twig';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package checkout
@@ -23,9 +23,7 @@ export default {
 
     emits: ['options-change', 'order-state-change'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         title: {

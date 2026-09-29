@@ -67,9 +67,7 @@ export default Shopware.Component.wrapComponentConfig({
         MtModalRoot,
     },
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data(): {
         isOpen: boolean;

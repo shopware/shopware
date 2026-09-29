@@ -1,3 +1,5 @@
+import { fileReader } from 'shopware:utils';
+
 /**
  * @public
  * @status ready
@@ -11,7 +13,6 @@
  *      variant="regular"
  * ></sw-media-replace>
  */
-import { fileReader } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

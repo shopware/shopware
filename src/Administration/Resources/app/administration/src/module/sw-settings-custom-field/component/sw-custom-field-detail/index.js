@@ -1,12 +1,13 @@
 /**
  * @sw-package framework
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-custom-field-detail.html.twig';
 import './sw-custom-field-detail.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { Context, Component } = Shopware;
+
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -22,9 +23,7 @@ export default {
 
     emits: ['custom-field-edit-cancel', 'custom-field-edit-save'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         currentCustomField: {

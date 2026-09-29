@@ -1,8 +1,8 @@
-import notificationMixin from 'shopware:mixins/notification';
-import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import template from './sw-settings-listing-option-criteria-grid.html.twig';
 import './sw-settings-listing-option-criteria-grid.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
 /**
  * @sw-package inventory
@@ -21,10 +21,7 @@ export default {
         'inline-edit-cancel',
     ],
 
-    mixins: [
-        notificationMixin,
-        swInlineSnippetMixin,
-    ],
+    mixins: [notificationMixin, swInlineSnippetMixin],
 
     props: {
         productSortingEntity: {

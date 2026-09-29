@@ -1,6 +1,6 @@
-import listingMixin from 'shopware:mixins/listing';
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
+import listingMixin from 'shopware:mixins/listing';
 
 const {
     Context,
@@ -18,9 +18,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        listingMixin,
-    ],
+    mixins: [listingMixin],
 
     shortcuts: {
         OF: 'openFilterSidebar',

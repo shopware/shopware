@@ -1,8 +1,8 @@
-import swFormFieldMixin from 'shopware:mixins/sw-form-field';
-import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import { inject } from 'vue';
 import template from './sw-textarea-field.html.twig';
 import './sw-textarea-field.scss';
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 
 /**
  * @sw-package framework
@@ -28,10 +28,7 @@ export default {
         'inheritance-remove',
     ],
 
-    mixins: [
-        swFormFieldMixin,
-        removeApiErrorMixin,
-    ],
+    mixins: [swFormFieldMixin, removeApiErrorMixin],
 
     props: {
         value: {

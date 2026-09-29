@@ -4,6 +4,7 @@ import { Criteria } from 'shopware:data';
 import useContextStore from 'shopware:stores/context';
 
 const { Context, Filter } = Shopware;
+
 /**
  * @sw-package framework
  *

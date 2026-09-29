@@ -144,10 +144,7 @@ export default Shopware.Component.wrapComponentConfig({
             return (
                 this.element.locked ||
                 (useCmsPageStore().currentPage?.type === 'product_detail' &&
-                    [
-                        'buy-box',
-                        'product-description-reviews',
-                    ].includes(this.element.type))
+                    ['buy-box', 'product-description-reviews'].includes(this.element.type))
             );
         },
     },

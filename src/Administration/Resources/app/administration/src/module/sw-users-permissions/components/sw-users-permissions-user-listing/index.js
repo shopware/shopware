@@ -1,12 +1,12 @@
 /**
  * @sw-package fundamentals@framework
  */
+import template from './sw-users-permissions-user-listing.html.twig';
+import './sw-users-permissions-user-listing.scss';
 import { Criteria } from 'shopware:data';
 import listingMixin from 'shopware:mixins/listing';
 import notificationMixin from 'shopware:mixins/notification';
 import salutationMixin from 'shopware:mixins/salutation';
-import template from './sw-users-permissions-user-listing.html.twig';
-import './sw-users-permissions-user-listing.scss';
 import useSessionStore from 'shopware:stores/session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -24,11 +24,7 @@ export default {
 
     emits: ['get-list'],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-        salutationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin, salutationMixin],
 
     created() {
         this.ssoSettingsService.isSso().then((response) => {

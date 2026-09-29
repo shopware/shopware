@@ -1,6 +1,6 @@
-import { createId } from 'shopware:utils';
 import template from './sw-media-modal-v2.html.twig';
 import './sw-media-modal-v2.scss';
+import { createId } from 'shopware:utils';
 
 const { Context } = Shopware;
 

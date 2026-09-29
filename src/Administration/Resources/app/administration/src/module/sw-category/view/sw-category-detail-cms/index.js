@@ -1,6 +1,6 @@
 import template from './sw-category-detail-cms.html.twig';
-import useCmsPageStore from 'shopware:stores/cmsPage';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @sw-package discovery

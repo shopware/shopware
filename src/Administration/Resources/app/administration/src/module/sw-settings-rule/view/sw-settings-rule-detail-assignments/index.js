@@ -1,11 +1,12 @@
-import notificationMixin from 'shopware:mixins/notification';
-import { object } from 'shopware:utils';
 import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
 import template from './sw-settings-rule-detail-assignments.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import { object } from 'shopware:utils';
 
 const { Context } = Shopware;
+
 /**
  * @private
  * @sw-package fundamentals@after-sales
@@ -20,9 +21,7 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         rule: {

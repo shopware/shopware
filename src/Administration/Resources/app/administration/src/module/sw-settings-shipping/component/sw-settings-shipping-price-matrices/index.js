@@ -1,14 +1,15 @@
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-shipping-price-matrices.html.twig';
 import './sw-settings-shipping-price-matrices.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwShippingDetailStore from 'shopware:stores/swShippingDetail';
 
 const {
     Data: { Criteria },
     Context,
 } = Shopware;
+
 /**
  * @sw-package checkout
  */
@@ -18,10 +19,7 @@ export default {
 
     inject: ['repositoryFactory', 'ruleConditionDataProviderService'],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         disabled: {

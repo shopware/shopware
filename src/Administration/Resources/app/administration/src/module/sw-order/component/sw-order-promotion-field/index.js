@@ -7,7 +7,7 @@ import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 /**
  * @sw-package checkout
  */
-const { Store } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -79,13 +79,13 @@ export default {
 
     computed: {
         order() {
-            return Store.get('swOrderDetail').order;
+            return useSwOrderDetailStore().order;
         },
 
-        isOrderLoading: () => Store.get('swOrderDetail').isLoading,
+        isOrderLoading: () => useSwOrderDetailStore().isLoading,
 
         versionContext() {
-            return Store.get('swOrderDetail').versionContext;
+            return useSwOrderDetailStore().versionContext;
         },
 
         orderLineItemRepository() {
@@ -233,10 +233,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         emitLoadingChange(state) {
-            useSwOrderDetailStore().setLoading([
-                'recalculation',
-                state,
-            ]);
+            useSwOrderDetailStore().setLoading(['recalculation', state]);
         },
 
         /**
@@ -269,10 +266,7 @@ export default {
         },
 
         handleError(error) {
-            useSwOrderDetailStore().setLoading([
-                'recalculation',
-                false,
-            ]);
+            useSwOrderDetailStore().setLoading(['recalculation', false]);
 
             if (this.swOrderDetailOnError) {
                 this.swOrderDetailOnError(error);
@@ -318,10 +312,7 @@ export default {
                 return Promise.resolve();
             }
 
-            useSwOrderDetailStore().setLoading([
-                'recalculation',
-                true,
-            ]);
+            useSwOrderDetailStore().setLoading(['recalculation', true]);
 
             await this.saveAndReload();
             await this.deleteAutomaticPromotions();
@@ -354,10 +345,7 @@ export default {
 
         handlePromotionResponse(response) {
             this.emitEntityData();
-            useSwOrderDetailStore().setLoading([
-                'recalculation',
-                false,
-            ]);
+            useSwOrderDetailStore().setLoading(['recalculation', false]);
 
             if (typeof response?.data?.errors !== 'object') {
                 return;
@@ -411,10 +399,7 @@ export default {
         },
 
         async onRemoveExistingCode(removedItem) {
-            useSwOrderDetailStore().setLoading([
-                'recalculation',
-                true,
-            ]);
+            useSwOrderDetailStore().setLoading(['recalculation', true]);
 
             this.order.lineItems = this.order.lineItems.filter(
                 (item) => item.type !== 'promotion' || item.promotionId !== removedItem.promotionId,

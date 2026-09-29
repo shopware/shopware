@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 
-import { Criteria } from 'shopware:data';
 import template from './sw-product-detail-reviews.html.twig';
 import './sw-product-detail-reviews.scss';
+import { Criteria } from 'shopware:data';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;

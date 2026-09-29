@@ -1,5 +1,4 @@
 import { Criteria } from 'shopware:data';
-
 const { Context } = Shopware;
 
 /**

@@ -1,8 +1,8 @@
-import notificationMixin from 'shopware:mixins/notification';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 import useErrorStore from 'shopware:stores/error';
 
 /**
@@ -26,9 +26,7 @@ export default {
 
     emits: ['on-select-existing-customer', 'close'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

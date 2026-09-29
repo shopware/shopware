@@ -1,12 +1,12 @@
 import template from './sw-customer-base-info.html.twig';
 import './sw-customer-base-info.scss';
 import errorConfig from '../../error-config.json';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
 
-import { Criteria } from 'shopware:data';
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

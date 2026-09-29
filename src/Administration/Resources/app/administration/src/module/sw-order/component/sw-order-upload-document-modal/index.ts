@@ -1,10 +1,10 @@
-import notificationMixin from 'shopware:mixins/notification';
 import type RepositoryType from 'src/core/data/repository.data';
 import type { DocumentConfig } from '../../service/documentV2.service';
 import { DOCUMENT_TYPES, FILE_FORMAT_MIME_TYPES } from '../../service/documentV2.service';
 import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { Component } = Shopware;
 

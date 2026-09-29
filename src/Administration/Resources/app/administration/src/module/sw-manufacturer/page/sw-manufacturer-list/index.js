@@ -2,21 +2,20 @@
  * @sw-package inventory
  */
 
-import listingMixin from 'shopware:mixins/listing';
 import template from './sw-manufacturer-list.html.twig';
 import './sw-manufacturer-list.scss';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
 
 const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        listingMixin,
-    ],
+    mixins: [listingMixin],
 
     data() {
         return {

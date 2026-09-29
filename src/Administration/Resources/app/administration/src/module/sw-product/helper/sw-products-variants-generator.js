@@ -5,8 +5,8 @@
 import EventEmitter from 'events';
 import ChangesetGenerator from '../../../core/data/changeset-generator.data';
 import RetryHelper from '../../../core/helper/retry.helper';
-import { md5 } from 'shopware:utils/format';
 import { deepCopyObject, hasOwnProperty } from 'shopware:utils/object';
+import { md5 } from 'shopware:utils/format';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class VariantsGenerator extends EventEmitter {

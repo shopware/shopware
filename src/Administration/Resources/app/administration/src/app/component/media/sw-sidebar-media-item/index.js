@@ -1,9 +1,10 @@
 import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.scss';
-import { debounce } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import { debounce } from 'shopware:utils';
 
 const { Context } = Shopware;
+
 /**
  * @status ready
  * @description The <u>sw-sidebar-media-item</u> component is used everywhere you need media objects outside the media

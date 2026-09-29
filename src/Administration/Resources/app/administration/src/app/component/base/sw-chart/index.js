@@ -2,7 +2,7 @@ import VueApexCharts from 'vue3-apexcharts';
 import apexLocales from './locales';
 import template from './sw-chart.html.twig';
 import './sw-chart.scss';
-import { format, object } from 'shopware:utils';
+import { object, format } from 'shopware:utils';
 import { warn } from 'shopware:utils/debug';
 import useSessionStore from 'shopware:stores/session';
 

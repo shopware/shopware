@@ -1,15 +1,16 @@
-import placeholderMixin from 'shopware:mixins/placeholder';
-import notificationMixin from 'shopware:mixins/notification';
-import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
-import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import { computed } from 'vue';
 
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 import { Criteria } from 'shopware:data';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
 const { Context } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
 /**
  * @sw-package inventory
  * @private

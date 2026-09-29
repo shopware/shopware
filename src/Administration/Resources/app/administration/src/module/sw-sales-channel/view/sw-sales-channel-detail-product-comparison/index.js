@@ -2,14 +2,15 @@
  * @sw-package discovery
  */
 
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-sales-channel-detail-product-comparison.html.twig';
 import './sw-sales-channel-detail-product-comparison.scss';
-import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
+import { warn } from 'shopware:utils/debug';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 const { Defaults } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -22,10 +23,7 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         salesChannel: {

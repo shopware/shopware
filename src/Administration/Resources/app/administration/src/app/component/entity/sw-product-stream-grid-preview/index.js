@@ -7,6 +7,7 @@ import './sw-product-stream-grid-preview.scss';
 import { Criteria } from 'shopware:data';
 
 const { Context, Defaults } = Shopware;
+
 /**
  * @private
  */

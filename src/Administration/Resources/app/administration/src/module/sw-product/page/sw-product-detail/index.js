@@ -2,25 +2,26 @@
  * @sw-package inventory
  */
 
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-product-detail.html.twig';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 import '../../page/sw-product-detail/store';
-import { EventBus, types } from 'shopware:utils';
+import { Criteria, ChangesetGenerator } from 'shopware:data';
 import { cloneDeep } from 'shopware:utils/object';
-import { ChangesetGenerator, Criteria } from 'shopware:data';
+import { types, EventBus } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useSessionStore from 'shopware:stores/session';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 import useContextStore from 'shopware:stores/context';
-import useErrorStore from 'shopware:stores/error';
-import useSessionStore from 'shopware:stores/session';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
-import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useErrorStore from 'shopware:stores/error';
 import useSwSeoUrlStore from 'shopware:stores/swSeoUrl';
 
 const { Context, EntityDefinition } = Shopware;
+
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 const type = types;
 
@@ -48,10 +49,7 @@ export default {
         };
     },
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -547,10 +545,7 @@ export default {
                 }
             }
 
-            useSwProductDetailStore().setLoading([
-                'product',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['product', true]);
 
             await this.initProductMeasurementUnits();
 
@@ -652,10 +647,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         saveAdvancedMode() {
-            useSwProductDetailStore().setLoading([
-                'advancedMode',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['advancedMode', true]);
 
             return Shopware.Service('userConfigService')
                 .upsert({
@@ -663,10 +655,7 @@ export default {
                 })
                 .then(async () => {
                     await this.getAdvancedModeSetting();
-                    useSwProductDetailStore().setLoading([
-                        'advancedMode',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['advancedMode', false]);
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -705,9 +694,7 @@ export default {
 
         loadState() {
             useSwProductDetailStore().localMode = false;
-            useShopwareAppsStore().selectedIds = [
-                this.productId,
-            ];
+            useShopwareAppsStore().selectedIds = [this.productId];
 
             return this.loadAll();
         },
@@ -726,10 +713,7 @@ export default {
             useSwProductDetailStore().localMode = true;
             useShopwareAppsStore().selectedIds = [];
 
-            useSwProductDetailStore().setLoading([
-                'product',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['product', true]);
 
             // set product "type"
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
@@ -808,10 +792,7 @@ export default {
                     this.product.featureSetId = this.getDefaultFeatureSet?.[0].id;
                 }
 
-                useSwProductDetailStore().setLoading([
-                    'product',
-                    false,
-                ]);
+                useSwProductDetailStore().setLoading(['product', false]);
             });
         },
 
@@ -824,10 +805,7 @@ export default {
         },
 
         loadProduct() {
-            useSwProductDetailStore().setLoading([
-                'product',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['product', true]);
 
             return this.productRepository
                 .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
@@ -870,10 +848,7 @@ export default {
                     }
                 })
                 .finally(() => {
-                    useSwProductDetailStore().setLoading([
-                        'product',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['product', false]);
                 });
         },
 
@@ -926,10 +901,7 @@ export default {
         },
 
         loadParentProduct() {
-            useSwProductDetailStore().setLoading([
-                'parentProduct',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['parentProduct', true]);
 
             return this.productRepository
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
@@ -958,18 +930,12 @@ export default {
                     useSwProductDetailStore().parentProduct = parent;
                 })
                 .then(() => {
-                    useSwProductDetailStore().setLoading([
-                        'parentProduct',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['parentProduct', false]);
                 });
         },
 
         loadCurrencies() {
-            useSwProductDetailStore().setLoading([
-                'currencies',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['currencies', true]);
 
             const criteria = new Criteria(1, 500);
 
@@ -984,18 +950,12 @@ export default {
                     useSwProductDetailStore().currencies = [...res];
                 })
                 .finally(() => {
-                    useSwProductDetailStore().setLoading([
-                        'currencies',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['currencies', false]);
                 });
         },
 
         loadTaxes() {
-            useSwProductDetailStore().setLoading([
-                'taxes',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['taxes', true]);
 
             const criteria = new Criteria(1, 500);
             criteria.addSorting(Criteria.sort('position'));
@@ -1009,10 +969,7 @@ export default {
                     useSwProductDetailStore().setTaxes(res);
                 })
                 .finally(() => {
-                    useSwProductDetailStore().setLoading([
-                        'taxes',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['taxes', false]);
                 });
         },
 
@@ -1030,10 +987,7 @@ export default {
         },
 
         loadAttributeSet() {
-            useSwProductDetailStore().setLoading([
-                'customFieldSets',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['customFieldSets', true]);
 
             const customFieldDataProviderService =
                 this.customFieldDataProviderService ?? Shopware.Service('customFieldDataProviderService');
@@ -1044,18 +998,12 @@ export default {
                     useSwProductDetailStore().customFieldSets = res;
                 })
                 .finally(() => {
-                    useSwProductDetailStore().setLoading([
-                        'customFieldSets',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['customFieldSets', false]);
                 });
         },
 
         loadDefaultFeatureSet() {
-            useSwProductDetailStore().setLoading([
-                'defaultFeatureSet',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['defaultFeatureSet', true]);
 
             return this.featureSetRepository
                 .search(this.defaultFeatureSetCriteria)
@@ -1063,10 +1011,7 @@ export default {
                     useSwProductDetailStore().setDefaultFeatureSet(res);
                 })
                 .finally(() => {
-                    useSwProductDetailStore().setLoading([
-                        'defaultFeatureSet',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['defaultFeatureSet', false]);
                 });
         },
 
@@ -1261,10 +1206,7 @@ export default {
                 return;
             }
 
-            useSwProductDetailStore().setLoading([
-                'product',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['product', true]);
 
             Promise.all(this.updateSeoPromises)
                 .then(() => {
@@ -1275,10 +1217,7 @@ export default {
                 })
                 .catch(() => Promise.resolve())
                 .finally(() => {
-                    useSwProductDetailStore().setLoading([
-                        'product',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['product', false]);
 
                     this.loadProduct();
                 });
@@ -1289,10 +1228,7 @@ export default {
         },
 
         saveProduct() {
-            useSwProductDetailStore().setLoading([
-                'product',
-                true,
-            ]);
+            useSwProductDetailStore().setLoading(['product', true]);
 
             this.updateSeoPromises = [];
 
@@ -1342,15 +1278,9 @@ export default {
             return new Promise((resolve) => {
                 // check if product exists
                 if (!this.productRepository.hasChanges(this.product)) {
-                    useSwProductDetailStore().setLoading([
-                        'product',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['product', false]);
                     resolve('empty');
-                    useSwProductDetailStore().setLoading([
-                        'product',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['product', false]);
                     return;
                 }
 
@@ -1368,19 +1298,13 @@ export default {
                             });
 
                         this.loadAll().then(() => {
-                            useSwProductDetailStore().setLoading([
-                                'product',
-                                false,
-                            ]);
+                            useSwProductDetailStore().setLoading(['product', false]);
 
                             resolve('success');
                         });
                     })
                     .catch((response) => {
-                        useSwProductDetailStore().setLoading([
-                            'product',
-                            false,
-                        ]);
+                        useSwProductDetailStore().setLoading(['product', false]);
                         resolve(response);
                     });
             });

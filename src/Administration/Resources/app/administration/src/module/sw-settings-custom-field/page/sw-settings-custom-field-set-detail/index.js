@@ -1,11 +1,11 @@
 /**
  * @sw-package framework
  */
+import template from './sw-settings-custom-field-set-detail.html.twig';
+import { Criteria } from 'shopware:data';
 import notificationMixin from 'shopware:mixins/notification';
 import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
-import template from './sw-settings-custom-field-set-detail.html.twig';
-import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

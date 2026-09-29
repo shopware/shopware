@@ -1,6 +1,6 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const {
     Context,
@@ -29,9 +29,7 @@ export default {
 
     emits: ['media-move-modal-close', 'media-move-modal-items-move'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         itemsToMove: {

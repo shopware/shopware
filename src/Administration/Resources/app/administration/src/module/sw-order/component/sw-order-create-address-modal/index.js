@@ -1,16 +1,17 @@
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
-import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useErrorStore from 'shopware:stores/error';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
 /**
  * @sw-package checkout
  */
 
 const { Service } = Shopware;
+
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
  */
@@ -20,10 +21,7 @@ export default {
 
     emits: ['set-customer-address', 'close-modal'],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         customer: {

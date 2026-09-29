@@ -1,6 +1,6 @@
-import ruleContainerMixin from 'shopware:mixins/ruleContainer';
 import template from './sw-condition-and-container.html.twig';
 import './sw-condition-and-container.scss';
+import ruleContainerMixin from 'shopware:mixins/ruleContainer';
 
 /**
  * @private
@@ -17,9 +17,7 @@ export default {
 
     inject: ['acl'],
 
-    mixins: [
-        ruleContainerMixin,
-    ],
+    mixins: [ruleContainerMixin],
 
     created() {
         this.createdComponent();

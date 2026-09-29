@@ -1,11 +1,11 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useContextStore from 'shopware:stores/context';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -22,10 +22,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

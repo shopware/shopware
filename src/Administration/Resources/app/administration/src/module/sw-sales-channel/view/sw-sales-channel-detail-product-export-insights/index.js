@@ -4,8 +4,8 @@
 
 import template from './sw-sales-channel-detail-product-export-insights.html.twig';
 import './sw-sales-channel-detail-product-export-insights.scss';
-import { format } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import { format } from 'shopware:utils';
 import useSessionStore from 'shopware:stores/session';
 
 const DEFAULT_DATE_RANGE_OPTIONS = {

@@ -1,9 +1,9 @@
-import placeholderMixin from 'shopware:mixins/placeholder';
 import { DiscountTypes, DiscountScopes, PromotionPermissions } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountHandler from './handler';
 import { Criteria } from 'shopware:data';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 const discountHandler = new DiscountHandler();
 
@@ -19,9 +19,7 @@ export default {
 
     emits: ['discount-delete'],
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         promotion: {

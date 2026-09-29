@@ -1,7 +1,7 @@
-import useAdminMenuStore from 'shopware:stores/adminMenu';
 import useExtensionsStore from 'shopware:stores/extensions';
-import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
 import useMenuItemStore from 'shopware:stores/menuItem';
+import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
+import useAdminMenuStore from 'shopware:stores/adminMenu';
 
 /**
  * @sw-package framework

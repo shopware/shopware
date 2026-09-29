@@ -1,10 +1,10 @@
 /**
  * @sw-package inventory
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-units.html.twig';
 import './sw-settings-units.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -14,9 +14,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

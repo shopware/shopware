@@ -1,11 +1,12 @@
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 import { Criteria, EntityCollection } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useErrorStore from 'shopware:stores/error';
 
 const { Component } = Shopware;
+
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -368,10 +369,7 @@ export default {
         'documentV2Service',
     ],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

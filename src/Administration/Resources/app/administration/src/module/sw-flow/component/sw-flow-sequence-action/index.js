@@ -1,10 +1,10 @@
-import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
-import useSwFlowStore from 'shopware:stores/swFlow';
 import orderBy from 'lodash-es/orderBy';
 import sortBy from 'lodash-es/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import useSessionStore from 'shopware:stores/session';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component } = Shopware;
 const utils = Shopware.Utils;
@@ -22,9 +22,7 @@ export default {
 
     inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
 
-    mixins: [
-        swInlineSnippetMixin,
-    ],
+    mixins: [swInlineSnippetMixin],
 
     props: {
         sequence: {

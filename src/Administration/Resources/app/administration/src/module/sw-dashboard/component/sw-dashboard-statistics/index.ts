@@ -1,7 +1,7 @@
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
-import { format } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import { format } from 'shopware:utils';
 import useSessionStore from 'shopware:stores/session';
 
 type OrderEntity = Entity<'order'>;

@@ -8,6 +8,7 @@ import type CriteriaType from '../../../../../core/data/criteria.data';
 import { Criteria, EntityCollection } from 'shopware:data';
 
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
+
 /**
  * @sw-package framework
  *

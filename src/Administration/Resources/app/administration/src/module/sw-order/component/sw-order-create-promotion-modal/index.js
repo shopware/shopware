@@ -1,8 +1,8 @@
-import { format } from 'shopware:utils';
-import useSwOrderStore from 'shopware:stores/swOrder';
 import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 import template from './sw-order-create-promotion-modal.html.twig';
 import './sw-order-create-promotion-modal.scss';
+import { format } from 'shopware:utils';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
 /**
  * @sw-package checkout

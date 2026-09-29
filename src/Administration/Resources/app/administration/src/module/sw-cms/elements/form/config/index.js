@@ -1,6 +1,8 @@
 import template from './sw-cms-el-config-form.html.twig';
 import './sw-cms-el-config-form.scss';
 
+const { Mixin } = Shopware;
+
 /**
  * @private
  * @sw-package discovery
@@ -10,9 +12,7 @@ export default {
 
     inject: ['feature', 'systemConfigApiService'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {

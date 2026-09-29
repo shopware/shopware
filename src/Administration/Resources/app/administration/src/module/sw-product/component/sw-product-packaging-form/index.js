@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-product-packaging-form.html.twig';
 import './sw-product-packaging-form.scss';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -13,9 +13,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         allowEdit: {

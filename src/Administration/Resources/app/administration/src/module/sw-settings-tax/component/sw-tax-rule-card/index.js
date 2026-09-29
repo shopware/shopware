@@ -1,11 +1,10 @@
 import template from './sw-tax-rule-card.html.twig';
 import './sw-tax-rule-card.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
-
-import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

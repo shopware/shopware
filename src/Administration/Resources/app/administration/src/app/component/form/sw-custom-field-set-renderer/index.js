@@ -1,14 +1,14 @@
-import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import { computed } from 'vue';
 
 import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/meteor-inheritance.utils';
 
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
-import { object } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useContextStore from 'shopware:stores/context';
+import { object } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -37,10 +37,7 @@ export default {
 
     emits: ['process-finish', 'save', 'change-active-selection'],
 
-    mixins: [
-        swInlineSnippetMixin,
-        placeholderMixin,
-    ],
+    mixins: [swInlineSnippetMixin, placeholderMixin],
 
     props: {
         sets: {

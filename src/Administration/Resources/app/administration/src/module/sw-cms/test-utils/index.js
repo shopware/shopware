@@ -1,5 +1,4 @@
 import useSessionStore from 'shopware:stores/session';
-
 function runCmsBlockRegistryTest(config) {
     beforeAll(async () => {
         await setupCmsEnvironment();

@@ -2,10 +2,11 @@ import { defineComponent } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
 import './sw-cms-state.mixin';
 import { types } from 'shopware:utils';
-import { cloneDeep, get, has, merge, set } from 'shopware:utils/object';
+import { cloneDeep, merge, get, set, has } from 'shopware:utils/object';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Mixin } = Shopware;
+
 /**
  * @private
  * @sw-package discovery
@@ -17,9 +18,7 @@ export default Mixin.register(
     defineComponent({
         inject: ['cmsService'],
 
-        mixins: [
-            Shopware.Mixin.getByName('cms-state'),
-        ],
+        mixins: [Mixin.getByName('cms-state')],
 
         props: {
             element: {

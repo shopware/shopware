@@ -1,6 +1,6 @@
-import positionMixin from 'shopware:mixins/position';
 import template from './sw-data-grid-column-position.html.twig';
 import './sw-data-grid-column-position.scss';
+import positionMixin from 'shopware:mixins/position';
 
 /**
  * @sw-package framework
@@ -25,9 +25,7 @@ export default {
 
     emits: ['lower-position-value', 'position-changed', 'raise-position-value'],
 
-    mixins: [
-        positionMixin,
-    ],
+    mixins: [positionMixin],
 
     props: {
         value: {

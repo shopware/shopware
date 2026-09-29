@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 
-import useContextStore from 'shopware:stores/context';
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
+import useContextStore from 'shopware:stores/context';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

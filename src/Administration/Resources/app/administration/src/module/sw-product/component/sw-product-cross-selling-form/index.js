@@ -2,10 +2,10 @@
  * @sw-package inventory
  */
 
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 import { Criteria } from 'shopware:data';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Component } = Shopware;
@@ -23,9 +23,7 @@ export default {
         };
     },
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         crossSelling: {

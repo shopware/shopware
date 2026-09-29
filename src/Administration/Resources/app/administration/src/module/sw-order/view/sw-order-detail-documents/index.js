@@ -2,8 +2,8 @@
  * @sw-package after-sales
  */
 
-import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import template from './sw-order-detail-documents.html.twig';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

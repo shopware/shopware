@@ -1,8 +1,8 @@
-import { debug } from 'shopware:utils';
 import template from './sw-extension-card-base.html.twig';
 import './sw-extension-card-base.scss';
-import useContextStore from 'shopware:stores/context';
 import useExtensionMainModulesStore from 'shopware:stores/extensionMainModules';
+import useContextStore from 'shopware:stores/context';
+import { debug } from 'shopware:utils';
 
 const { Filter } = Shopware;
 

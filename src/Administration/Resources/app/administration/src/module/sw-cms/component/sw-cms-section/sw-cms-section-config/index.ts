@@ -3,6 +3,8 @@ import './sw-cms-section-config.scss';
 import type MediaUploadResult from '../../../shared/MediaUploadResult';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
+const { Mixin } = Shopware;
+
 /**
  * @sw-package discovery
  */
@@ -14,9 +16,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['section-delete', 'section-duplicate'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
+    mixins: [Mixin.getByName('cms-state')],
 
     props: {
         section: {

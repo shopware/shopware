@@ -1,13 +1,12 @@
-import notificationMixin from 'shopware:mixins/notification';
-import listingMixin from 'shopware:mixins/listing';
 import template from './sw-flow-list.html.twig';
 import './sw-flow-list.scss';
+import notificationMixin from 'shopware:mixins/notification';
+import listingMixin from 'shopware:mixins/listing';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
 const {
     Data: { Criteria },
     Component,
-    Store,
 } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
@@ -22,10 +21,7 @@ export default {
 
     emits: ['on-update-total'],
 
-    mixins: [
-        notificationMixin,
-        listingMixin,
-    ],
+    mixins: [notificationMixin, listingMixin],
 
     props: {
         searchTerm: {
@@ -113,7 +109,7 @@ export default {
             return Shopware.Filter.getByName('asset');
         },
 
-        ...mapState(() => Store.get('swFlow'), ['triggerEvents']),
+        ...mapState(() => useSwFlowStore(), ['triggerEvents']),
     },
 
     watch: {

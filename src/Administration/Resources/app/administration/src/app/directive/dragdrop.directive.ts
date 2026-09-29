@@ -1,8 +1,8 @@
+import { types } from 'shopware:utils';
+
 /**
  * @sw-package framework
  */
-
-import { types } from 'shopware:utils';
 
 interface DropConfig<DATA = unknown> {
     dragGroup: number | string;

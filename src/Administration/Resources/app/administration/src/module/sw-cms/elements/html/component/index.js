@@ -1,6 +1,8 @@
 import template from './sw-cms-el-html.html.twig';
 import './sw-cms-el-html.scss';
 
+const { Mixin } = Shopware;
+
 /**
  * @private
  * @sw-package discovery
@@ -8,9 +10,7 @@ import './sw-cms-el-html.scss';
 export default {
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {

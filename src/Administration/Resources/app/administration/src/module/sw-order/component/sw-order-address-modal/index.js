@@ -1,8 +1,8 @@
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useErrorStore from 'shopware:stores/error';
 
 /**
@@ -17,10 +17,7 @@ export default {
 
     emits: ['reset', 'address-select', 'save'],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         address: {

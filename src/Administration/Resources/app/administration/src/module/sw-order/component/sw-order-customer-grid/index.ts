@@ -1,7 +1,3 @@
-import listingMixin from 'shopware:mixins/listing';
-import notificationMixin from 'shopware:mixins/notification';
-import useSwOrderStore from 'shopware:stores/swOrder';
-import useContextStore from 'shopware:stores/context';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type RepositoryType from '../../../../core/data/repository.data';
 
@@ -10,6 +6,10 @@ import './sw-order-customer-grid.scss';
 
 import type { Cart } from '../../order.types';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -44,10 +44,7 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory'],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     data(): {
         customers: EntityCollection<'customer'> | null;

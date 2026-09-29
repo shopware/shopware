@@ -1,6 +1,6 @@
-import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import template from './sw-form-field-renderer.html.twig';
 import { types } from 'shopware:utils';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
 /**
  * @sw-package framework
@@ -76,9 +76,7 @@ export default {
 
     emits: ['update:value'],
 
-    mixins: [
-        swInlineSnippetMixin,
-    ],
+    mixins: [swInlineSnippetMixin],
 
     props: {
         type: {

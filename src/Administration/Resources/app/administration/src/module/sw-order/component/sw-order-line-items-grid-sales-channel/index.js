@@ -1,8 +1,8 @@
-import { get, format } from 'shopware:utils';
-import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
 import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid-sales-channel.scss';
+import { get, format } from 'shopware:utils';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
 /**
  * @sw-package checkout

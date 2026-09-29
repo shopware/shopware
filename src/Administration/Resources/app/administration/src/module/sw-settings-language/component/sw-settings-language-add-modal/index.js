@@ -1,11 +1,11 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-language-add-modal.html.twig';
 import './sw-settings-language-add-modal.scss';
-import { format } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import { format } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -13,9 +13,7 @@ export default {
 
     inject: ['repositoryFactory', 'translationService'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     emits: ['close', 'language-added'],
 

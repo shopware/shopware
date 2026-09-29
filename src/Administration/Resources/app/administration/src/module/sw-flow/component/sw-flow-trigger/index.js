@@ -1,11 +1,12 @@
-import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-trigger.html.twig';
 import './sw-flow-trigger.scss';
 import { camelCase, capitalizeString } from 'shopware:utils/string';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 const utils = Shopware.Utils;
+
 const { isEmpty } = utils.types;
 
 /**
@@ -89,14 +90,7 @@ export default {
             return this.$t('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
-        ...mapState(
-            () => useSwFlowStore(),
-            [
-                'flow',
-                'triggerEvents',
-                'isSequenceEmpty',
-            ],
-        ),
+        ...mapState(() => useSwFlowStore(), ['flow', 'triggerEvents', 'isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),
     },
 

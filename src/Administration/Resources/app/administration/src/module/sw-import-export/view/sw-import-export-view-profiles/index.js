@@ -1,10 +1,10 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-import-export-view-profiles.html.twig';
 import './sw-import-export-view-profiles.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -14,9 +14,7 @@ export default {
 
     inject: ['repositoryFactory', 'importExport', 'feature'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

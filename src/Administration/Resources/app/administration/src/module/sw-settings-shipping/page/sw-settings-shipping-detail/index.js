@@ -1,14 +1,15 @@
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
 import './store';
-import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
+import { warn } from 'shopware:utils/debug';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwShippingDetailStore from 'shopware:stores/swShippingDetail';
+import useContextStore from 'shopware:stores/context';
 
 const { Context } = Shopware;
+
 /**
  * @sw-package checkout
  */
@@ -23,10 +24,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

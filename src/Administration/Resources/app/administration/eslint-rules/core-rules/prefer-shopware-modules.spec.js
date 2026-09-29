@@ -136,6 +136,18 @@ tester.run('prefer-shopware-modules', rule, {
             errors: [{ messageId: 'preferModule' }],
         },
         {
+            name: 'the import goes above a doc comment, so it stays attached to its function',
+            code: `/**\n * @constructor\n */\nexport default function make() {\n    return Shopware.Utils.createId();\n}`,
+            output: `import { createId } from 'shopware:utils';\n\n/**\n * @constructor\n */\nexport default function make() {\n    return createId();\n}`,
+            errors: [{ messageId: 'preferModule' }],
+        },
+        {
+            name: 'the import follows the imports the file already has',
+            code: `import template from './a.html.twig';\n\n/** Docs. */\nconst id = Shopware.Utils.createId();`,
+            output: `import template from './a.html.twig';\nimport { createId } from 'shopware:utils';\n\n/** Docs. */\nconst id = createId();`,
+            errors: [{ messageId: 'preferModule' }],
+        },
+        {
             name: 'an existing import of the same specifier gains the name',
             code: `import { debug } from 'shopware:utils';\nconst id = Shopware.Utils.createId();`,
             output: `import { debug, createId } from 'shopware:utils';\nconst id = createId();`,

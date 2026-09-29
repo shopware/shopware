@@ -1,8 +1,9 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-state-machine-state-list.html.twig';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { Component } = Shopware;
+
 /**
  * @sw-package checkout
  */
@@ -14,9 +15,7 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         stateMachineId: {

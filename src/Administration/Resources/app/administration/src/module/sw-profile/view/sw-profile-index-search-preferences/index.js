@@ -1,13 +1,13 @@
 /**
  * @sw-package fundamentals@framework
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
-import { EventBus } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwProfileStore from 'shopware:stores/swProfile';
+import { EventBus } from 'shopware:utils';
 
-const { Module, Store } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -15,9 +15,7 @@ export default {
 
     inject: ['searchPreferencesService', 'searchRankingService'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -28,28 +26,28 @@ export default {
     computed: {
         minSearchTermLength: {
             get() {
-                return Store.get('swProfile').minSearchTermLength;
+                return useSwProfileStore().minSearchTermLength;
             },
             set(minSearchTermLength) {
-                Store.get('swProfile').setMinSearchTermLength(minSearchTermLength);
+                useSwProfileStore().setMinSearchTermLength(minSearchTermLength);
             },
         },
 
         searchPreferences: {
             get() {
-                return Store.get('swProfile').searchPreferences;
+                return useSwProfileStore().searchPreferences;
             },
             set(searchPreferences) {
-                Store.get('swProfile').searchPreferences = searchPreferences;
+                useSwProfileStore().searchPreferences = searchPreferences;
             },
         },
 
         userSearchPreferences: {
             get() {
-                return Store.get('swProfile').userSearchPreferences;
+                return useSwProfileStore().userSearchPreferences;
             },
             set(userSearchPreferences) {
-                Store.get('swProfile').userSearchPreferences = userSearchPreferences;
+                useSwProfileStore().userSearchPreferences = userSearchPreferences;
             },
         },
 

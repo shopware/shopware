@@ -1,11 +1,12 @@
-import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-detail-flow.html.twig';
 import './sw-flow-detail-flow.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import useSwFlowStore from 'shopware:stores/swFlow';
 import useErrorStore from 'shopware:stores/error';
 
 const { Component } = Shopware;
 const utils = Shopware.Utils;
+
 const { mapState } = Component.getComponentHelper();
 
 /**

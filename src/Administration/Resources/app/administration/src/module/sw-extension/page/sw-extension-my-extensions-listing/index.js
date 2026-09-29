@@ -1,8 +1,8 @@
 import template from './sw-extension-my-extensions-listing.html.twig';
 import './sw-extension-my-extensions-listing.scss';
-import { types } from 'shopware:utils';
 import useContextStore from 'shopware:stores/context';
 import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
+import { types } from 'shopware:utils';
 
 /**
  * @sw-package checkout

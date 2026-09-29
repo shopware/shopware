@@ -1,5 +1,3 @@
-import notificationMixin from 'shopware:mixins/notification';
-import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-details.html.twig';
 import type {
     Cart,
@@ -14,23 +12,23 @@ import { LineItemType } from '../../order.types';
 import type Repository from '../../../../core/data/repository.data';
 import { get } from '../../../../core/service/utils/object.utils';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
 import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
  */
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
 
     inject: ['repositoryFactory', 'cartStoreService'],
 
-    mixins: [
-        notificationMixin,
-        Shopware.Mixin.getByName('cart-notification'),
-    ],
+    mixins: [notificationMixin, Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;

@@ -2,8 +2,7 @@
  * @sw-package checkout
  */
 import type { ContextState } from '../../../app/composables/use-context';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * Kept outside of the store state on purpose: it only deduplicates concurrent requests and must not be reactive.

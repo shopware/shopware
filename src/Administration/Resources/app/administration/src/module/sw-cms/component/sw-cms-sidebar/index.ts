@@ -1,14 +1,15 @@
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-sidebar.html.twig';
 import './sw-cms-sidebar.scss';
 import { type PageType } from '../../service/cms-page-type.service';
 import type MediaUploadResult from '../../shared/MediaUploadResult';
-import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
+import { cloneDeep } from 'shopware:utils/object';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
+
 const types = Shopware.Utils.types;
 const { CMS } = Shopware.Constants;
 
@@ -73,10 +74,7 @@ export default Shopware.Component.wrapComponentConfig({
         'open-layout-set-as-default',
     ],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-        placeholderMixin,
-    ],
+    mixins: [Mixin.getByName('cms-state'), placeholderMixin],
 
     props: {
         page: {
@@ -445,8 +443,8 @@ export default Shopware.Component.wrapComponentConfig({
                 oldSection.blocks!.remove(dragData.block.id);
                 oldSection._origin.blocks!.remove(dragData.block.id);
 
-                this.refreshPosition(oldSection.blocks);
-                this.refreshPosition(dropSection.blocks);
+                this.refreshPosition(oldSection.blocks!);
+                this.refreshPosition(dropSection.blocks!);
                 this.currentDragSectionIndex = dropSectionIndex;
                 return;
             }
@@ -457,7 +455,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             // move item inside the section
             this.page.sections![dropSectionIndex].blocks!.moveItem(dragData.block.position, dropData.block.position);
-            this.refreshPosition(dropSection.blocks);
+            this.refreshPosition(dropSection.blocks!);
         },
 
         refreshPosition(blocks: EntityCollection<'cms_block'>) {

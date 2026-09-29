@@ -1,8 +1,8 @@
+import { warn } from 'shopware:utils/debug';
+
 /**
  * @sw-package framework
  */
-
-import { warn } from 'shopware:utils/debug';
 
 const Sanitizer = Shopware.Helper.SanitizerHelper;
 

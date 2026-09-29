@@ -1,7 +1,7 @@
-import notificationMixin from 'shopware:mixins/notification';
 import './sw-customer-convert-guest-modal.scss';
 import template from './sw-customer-convert-guest-modal.html.twig';
 import errorConfig from '../../error-config.json';
+import notificationMixin from 'shopware:mixins/notification';
 import useErrorStore from 'shopware:stores/error';
 
 /**
@@ -19,9 +19,7 @@ export default {
 
     inject: ['guestCustomerConvertService', 'loadCustomer'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         customer: {

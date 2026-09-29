@@ -14,9 +14,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['block-delete', 'block-duplicate'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-state')],
 
     props: {
         block: {

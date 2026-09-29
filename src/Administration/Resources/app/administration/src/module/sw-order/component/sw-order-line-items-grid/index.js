@@ -1,7 +1,7 @@
-import { get, format } from 'shopware:utils';
 import template from './sw-order-line-items-grid.html.twig';
 import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid.scss';
+import { get, format } from 'shopware:utils';
 
 /**
  * @sw-package checkout

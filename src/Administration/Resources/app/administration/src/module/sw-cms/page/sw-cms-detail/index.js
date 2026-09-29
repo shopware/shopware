@@ -1,19 +1,20 @@
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
 import { debounce, string } from 'shopware:utils';
-import { warn } from 'shopware:utils/debug';
 import { cloneDeep, getObjectDiff } from 'shopware:utils/object';
 import { isEmpty } from 'shopware:utils/types';
+import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 import useContextStore from 'shopware:stores/context';
 import useErrorStore from 'shopware:stores/error';
-import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
+
 const { CMS } = Shopware.Constants;
 const debounceTimeout = 800;
 
@@ -37,11 +38,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [Mixin.getByName('cms-state'), notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -340,9 +337,7 @@ export default {
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id.toLowerCase();
                 this.isLoading = true;
-                useShopwareAppsStore().selectedIds = [
-                    this.pageId,
-                ];
+                useShopwareAppsStore().selectedIds = [this.pageId];
 
                 this.loadPage(this.pageId);
             }

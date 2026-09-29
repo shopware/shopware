@@ -7,11 +7,11 @@ import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import '../store/context.store';
 import useSession from '../composables/use-session';
 import useTheme from '../composables/use-theme';
-import { createId } from 'shopware:utils';
-import useContextStore from 'shopware:stores/context';
+import useSessionStore from 'shopware:stores/session';
 import useExtensionsStore from 'shopware:stores/extensions';
 import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
-import useSessionStore from 'shopware:stores/session';
+import useContextStore from 'shopware:stores/context';
+import { createId } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {

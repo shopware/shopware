@@ -3,7 +3,6 @@
  */
 import { defineComponent } from 'vue';
 import type { NotificationType, NotificationVariant } from '../store/notification.store';
-import useNotificationStore from 'shopware:stores/notification';
 
 const { Mixin } = Shopware;
 
@@ -17,7 +16,7 @@ export default Mixin.register(
     defineComponent({
         methods: {
             createNotification(notification: NotificationType): string | null {
-                return useNotificationStore().createNotification(notification);
+                return Shopware.Store.get('notification').createNotification(notification);
             },
 
             createNotificationSuccess(config: NotificationType): void {

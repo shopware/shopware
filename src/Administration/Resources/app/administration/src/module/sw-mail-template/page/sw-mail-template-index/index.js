@@ -2,8 +2,8 @@
  * @sw-package after-sales
  */
 
-import listingMixin from 'shopware:mixins/listing';
 import template from './sw-mail-template-index.html.twig';
+import listingMixin from 'shopware:mixins/listing';
 import useContextStore from 'shopware:stores/context';
 
 const { Feature } = Shopware;

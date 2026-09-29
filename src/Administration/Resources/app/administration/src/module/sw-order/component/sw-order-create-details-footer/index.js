@@ -1,12 +1,13 @@
-import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-details-footer.html.twig';
 import { Criteria } from 'shopware:data';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
 /**
  * @sw-package checkout
  */
 
 const { Service } = Shopware;
+
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
  */

@@ -1,8 +1,8 @@
-import listingMixin from 'shopware:mixins/listing';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-settings-delivery-time-list.html.twig';
 import './sw-settings-delivery-time-list.scss';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 /**
  * @sw-package discovery
@@ -14,10 +14,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        listingMixin,
-        placeholderMixin,
-    ],
+    mixins: [listingMixin, placeholderMixin],
 
     data() {
         return {

@@ -1,14 +1,15 @@
-import placeholderMixin from 'shopware:mixins/placeholder';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-shipping-price-matrix.html.twig';
 import './sw-settings-shipping-price-matrix.scss';
 import { cloneDeep } from 'shopware:utils/object';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwShippingDetailStore from 'shopware:stores/swShippingDetail';
 
 const {
     Context,
     Data: { Criteria },
 } = Shopware;
+
 /**
  * @sw-package checkout
  */
@@ -20,10 +21,7 @@ export default {
 
     emits: ['duplicate-price-matrix', 'delete-price-matrix'],
 
-    mixins: [
-        placeholderMixin,
-        notificationMixin,
-    ],
+    mixins: [placeholderMixin, notificationMixin],
 
     props: {
         priceGroup: {

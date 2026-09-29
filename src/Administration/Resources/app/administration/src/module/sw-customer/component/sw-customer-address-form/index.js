@@ -9,6 +9,7 @@ import useErrorStore from 'shopware:stores/error';
  */
 
 const { Defaults, EntityDefinition } = Shopware;
+
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 const COUNTRY_DEPENDENT_FIELDS = {

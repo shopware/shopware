@@ -1,6 +1,6 @@
-import { debug, object, types } from 'shopware:utils';
-import { getObjectDiff } from 'shopware:utils/object';
+import { object, types, debug } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import { getObjectDiff } from 'shopware:utils/object';
 
 const bulkSyncTypes = Object.freeze({
     OVERWRITE: 'overwrite',

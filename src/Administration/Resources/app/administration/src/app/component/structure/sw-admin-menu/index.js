@@ -1,15 +1,15 @@
-import notificationMixin from 'shopware:mixins/notification';
 import { createFocusTrap } from 'focus-trap';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-admin-menu.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
-import { createId, debug, dom, EventBus } from 'shopware:utils';
-import useAdminMenuStore from 'shopware:stores/adminMenu';
-import useMenuItemStore from 'shopware:stores/menuItem';
-import useNotificationStore from 'shopware:stores/notification';
+import { dom, debug, createId, EventBus } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
 import useSessionStore from 'shopware:stores/session';
+import useMenuItemStore from 'shopware:stores/menuItem';
+import useAdminMenuStore from 'shopware:stores/adminMenu';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useNotificationStore from 'shopware:stores/notification';
 
 const SIDEBAR_TOGGLE_ANIMATION_DURATION = 500;
 
@@ -34,9 +34,7 @@ export default {
         'systemConfigApiService',
     ],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     shortcuts: {
         S: {

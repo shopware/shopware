@@ -8,6 +8,7 @@ import { deepCopyObject } from 'shopware:utils/object';
 import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Component } = Shopware;
+
 /**
  * @private
  *

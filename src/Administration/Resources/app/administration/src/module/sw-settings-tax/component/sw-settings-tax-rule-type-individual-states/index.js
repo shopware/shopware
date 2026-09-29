@@ -6,6 +6,7 @@ import { Criteria, EntityCollection } from 'shopware:data';
  */
 
 const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

@@ -3,6 +3,7 @@ import './sw-category-entry-point-card.scss';
 import { Criteria, EntityCollection } from 'shopware:data';
 
 const { Context } = Shopware;
+
 /**
  * @sw-package discovery
  */

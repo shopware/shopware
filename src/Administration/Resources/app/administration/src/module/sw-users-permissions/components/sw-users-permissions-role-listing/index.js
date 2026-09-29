@@ -1,11 +1,11 @@
 /**
  * @sw-package fundamentals@framework
  */
+import template from './sw-users-permissions-role-listing.html.twig';
+import './sw-users-permissions-role-listing.scss';
 import { Criteria } from 'shopware:data';
 import listingMixin from 'shopware:mixins/listing';
 import notificationMixin from 'shopware:mixins/notification';
-import template from './sw-users-permissions-role-listing.html.twig';
-import './sw-users-permissions-role-listing.scss';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -15,10 +15,7 @@ export default {
 
     emits: ['get-list'],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {

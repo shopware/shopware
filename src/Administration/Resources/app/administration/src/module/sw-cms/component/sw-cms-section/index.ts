@@ -3,7 +3,7 @@ import './sw-cms-section.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
-const { Component, Filter } = Shopware;
+const { Component, Mixin, Filter } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 type SlotsErrorObject = {
@@ -39,9 +39,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['page-config-open', 'block-duplicate'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
+    mixins: [Mixin.getByName('cms-state')],
 
     props: {
         page: {

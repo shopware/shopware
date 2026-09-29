@@ -1,9 +1,9 @@
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 import template from './sw-extension-app-module-page.html.twig';
 import './sw-extension-app-module-page.scss';
-import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
 import useSessionStore from 'shopware:stores/session';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
 
 const { Context } = Shopware;
 

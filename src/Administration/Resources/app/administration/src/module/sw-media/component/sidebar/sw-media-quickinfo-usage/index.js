@@ -4,6 +4,7 @@ import { Criteria } from 'shopware:data';
 
 const { Application } = Shopware;
 const types = Shopware.Utils.types;
+
 /**
  * @sw-package discovery
  */

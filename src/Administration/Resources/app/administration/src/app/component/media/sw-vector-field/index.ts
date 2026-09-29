@@ -1,7 +1,7 @@
 import template from './sw-vector-field.html.twig';
 import './sw-vector-field.scss';
-import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import validationMixin from 'shopware:mixins/validation';
 
 /**

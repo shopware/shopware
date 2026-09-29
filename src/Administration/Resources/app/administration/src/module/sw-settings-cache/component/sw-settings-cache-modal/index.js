@@ -1,8 +1,8 @@
 /**
  * @sw-package framework
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-cache-modal.twig';
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,9 +14,7 @@ export default {
 
     inject: ['cacheApiService', 'acl'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

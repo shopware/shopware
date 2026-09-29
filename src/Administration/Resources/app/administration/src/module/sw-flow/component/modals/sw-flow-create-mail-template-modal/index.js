@@ -1,8 +1,8 @@
-import placeholderMixin from 'shopware:mixins/placeholder';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-create-mail-template-modal.html.twig';
 import './sw-flow-create-mail-template-modal.scss';
 import { Criteria } from 'shopware:data';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
 import useContextStore from 'shopware:stores/context';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -19,10 +19,7 @@ export default {
 
     emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        placeholderMixin,
-        notificationMixin,
-    ],
+    mixins: [placeholderMixin, notificationMixin],
 
     data() {
         return {

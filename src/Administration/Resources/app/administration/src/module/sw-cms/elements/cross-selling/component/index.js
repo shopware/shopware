@@ -1,7 +1,9 @@
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-cms-el-cross-selling.html.twig';
 import './sw-cms-el-cross-selling.scss';
 import { isEmpty } from 'shopware:utils/types';
+import placeholderMixin from 'shopware:mixins/placeholder';
+
+const { Mixin } = Shopware;
 
 /**
  * @private
@@ -10,10 +12,7 @@ import { isEmpty } from 'shopware:utils/types';
 export default {
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-        placeholderMixin,
-    ],
+    mixins: [Mixin.getByName('cms-element'), placeholderMixin],
 
     data() {
         return {

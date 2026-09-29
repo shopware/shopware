@@ -38,10 +38,7 @@ export default function initializeTabs(): void {
 
             // Get all tab routes
             const tabRoutes = Object.values(useTabsStore().tabItems).reduce<string[]>((acc, tabItems) => {
-                acc = [
-                    ...acc,
-                    ...tabItems.map((tabItem) => tabItem.componentSectionId),
-                ];
+                acc = [...acc, ...tabItems.map((tabItem) => tabItem.componentSectionId)];
                 return acc;
             }, []);
 

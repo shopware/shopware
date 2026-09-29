@@ -1,6 +1,6 @@
-import { debounce } from 'shopware:utils';
 import template from './sw-simple-search-field.html.twig';
 import './sw-simple-search-field.scss';
+import { debounce } from 'shopware:utils';
 
 /**
  * @sw-package framework

@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-seo-url-template-card.html.twig';
 import './sw-seo-url-template-card.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { Defaults } = Shopware;
 const { mapCollectionPropertyErrors } = Shopware.Component.getComponentHelper();

@@ -1,9 +1,9 @@
-import notificationMixin from 'shopware:mixins/notification';
-import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
-import { cloneDeep } from 'shopware:utils/object';
 import { Criteria, EntityCollection } from 'shopware:data';
+import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 /**
  * @sw-package checkout
@@ -46,9 +46,7 @@ export default {
 
     emits: ['save-edits'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         order: {
@@ -182,10 +180,7 @@ export default {
         savedSuccessful() {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
-                useSwOrderDetailStore().setLoading([
-                    'states',
-                    false,
-                ]);
+                useSwOrderDetailStore().setLoading(['states', false]);
             }
         },
 
@@ -295,10 +290,7 @@ export default {
         },
 
         getTransitionOptions() {
-            useSwOrderDetailStore().setLoading([
-                'states',
-                true,
-            ]);
+            useSwOrderDetailStore().setLoading(['states', true]);
 
             const statePromises = [this.stateMachineService.getState('order', this.order.id)];
 
@@ -342,10 +334,7 @@ export default {
                     return Promise.resolve();
                 })
                 .finally(() => {
-                    useSwOrderDetailStore().setLoading([
-                        'states',
-                        false,
-                    ]);
+                    useSwOrderDetailStore().setLoading(['states', false]);
                 });
         },
 
@@ -378,18 +367,12 @@ export default {
             this.currentStateType = null;
             this.showModal = false;
 
-            useSwOrderDetailStore().setLoading([
-                'states',
-                false,
-            ]);
+            useSwOrderDetailStore().setLoading(['states', false]);
         },
 
         onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showModal = false;
-            useSwOrderDetailStore().setLoading([
-                'states',
-                true,
-            ]);
+            useSwOrderDetailStore().setLoading(['states', true]);
 
             let transition = null;
 
@@ -439,10 +422,7 @@ export default {
                         this.createStateChangeErrorNotification(error);
                     })
                     .finally(() => {
-                        useSwOrderDetailStore().setLoading([
-                            'states',
-                            false,
-                        ]);
+                        useSwOrderDetailStore().setLoading(['states', false]);
                     });
             }
 

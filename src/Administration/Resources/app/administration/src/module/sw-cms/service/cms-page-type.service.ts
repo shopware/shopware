@@ -1,8 +1,8 @@
 /**
  * @sw-package discovery
  */
-import { string } from 'shopware:utils';
 import { reactive } from 'vue';
+import { string } from 'shopware:utils';
 
 /**
  * @private

@@ -1,7 +1,7 @@
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-landing-page-detail-base.html.twig';
-import useCmsPageStore from 'shopware:stores/cmsPage';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -14,9 +14,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         isLoading: {

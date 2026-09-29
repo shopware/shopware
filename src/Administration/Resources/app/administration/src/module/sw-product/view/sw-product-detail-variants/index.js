@@ -4,10 +4,10 @@
 
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
-import { uniqBy } from 'shopware:utils/array';
 import { Criteria, EntityCollection } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
+import { uniqBy } from 'shopware:utils/array';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useContextStore from 'shopware:stores/context';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

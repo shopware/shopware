@@ -1,10 +1,10 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import listingMixin from 'shopware:mixins/listing';
 import template from './sw-settings-country-list.html.twig';
 import './sw-settings-country-list.scss';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
 import useContextStore from 'shopware:stores/context';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -13,9 +13,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        listingMixin,
-    ],
+    mixins: [listingMixin],
 
     data() {
         return {

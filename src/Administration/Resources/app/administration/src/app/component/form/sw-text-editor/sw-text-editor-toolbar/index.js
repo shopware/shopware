@@ -1,6 +1,6 @@
-import { throttle } from 'shopware:utils';
 import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
+import { throttle } from 'shopware:utils';
 
 /**
  * @sw-package framework

@@ -2,14 +2,15 @@
  * @sw-package inventory
  */
 
-import notificationMixin from 'shopware:mixins/notification';
-import listingMixin from 'shopware:mixins/listing';
 import template from './sw-product-variants-overview.html.twig';
 import './sw-products-variants-overview.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import listingMixin from 'shopware:mixins/listing';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -23,10 +24,7 @@ export default {
 
     emits: ['generator-open', 'delivery-open', 'variants-finish-update'],
 
-    mixins: [
-        notificationMixin,
-        listingMixin,
-    ],
+    mixins: [notificationMixin, listingMixin],
 
     props: {
         productEntity: {
@@ -307,10 +305,7 @@ export default {
                     return;
                 }
 
-                useSwProductDetailStore().setLoading([
-                    'variants',
-                    true,
-                ]);
+                useSwProductDetailStore().setLoading(['variants', true]);
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria(1, 25);
@@ -363,10 +358,7 @@ export default {
                 this.productRepository.search(searchCriteria).then((res) => {
                     this.total = res.total;
                     useSwProductDetailStore().variants = res;
-                    useSwProductDetailStore().setLoading([
-                        'variants',
-                        false,
-                    ]);
+                    useSwProductDetailStore().setLoading(['variants', false]);
                     this.$emit('variants-finish-update', this.variants);
                     resolve();
                 });

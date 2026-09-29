@@ -2,8 +2,8 @@ import template from './sw-desktop.html.twig';
 import useTheme, { THEMES, THEME_LABELS } from 'src/app/composables/use-theme';
 import './sw-desktop.scss';
 import { hasOwnProperty } from 'shopware:utils/object';
-import useContextStore from 'shopware:stores/context';
 import useSessionStore from 'shopware:stores/session';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package framework

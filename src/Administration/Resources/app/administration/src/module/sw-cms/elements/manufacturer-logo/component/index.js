@@ -1,5 +1,7 @@
 import template from './sw-cms-el-manufacturer-logo.html.twig';
 
+const { Mixin } = Shopware;
+
 /**
  * @private
  * @sw-package discovery
@@ -7,9 +9,7 @@ import template from './sw-cms-el-manufacturer-logo.html.twig';
 export default {
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     computed: {
         isProductPage() {

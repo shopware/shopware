@@ -1,9 +1,9 @@
 /**
  * @sw-package discovery
  */
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-snippet-detail.html.twig';
 import './sw-settings-snippet-detail.scss';
+import notificationMixin from 'shopware:mixins/notification';
 import useSessionStore from 'shopware:stores/session';
 
 const {
@@ -18,9 +18,7 @@ export default {
 
     inject: ['snippetSetService', 'repositoryFactory', 'acl'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

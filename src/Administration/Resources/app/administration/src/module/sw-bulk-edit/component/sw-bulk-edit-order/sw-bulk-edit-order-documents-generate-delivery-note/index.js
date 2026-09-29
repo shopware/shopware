@@ -1,8 +1,8 @@
 /**
  * @sw-package checkout
  */
-import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 import template from './sw-bulk-edit-order-documents-generate-delivery-note.html.twig';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

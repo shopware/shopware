@@ -1,5 +1,3 @@
-import notificationMixin from 'shopware:mixins/notification';
-import useSwOrderStore from 'shopware:stores/swOrder';
 import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
@@ -7,8 +5,10 @@ import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtT
 import type { Cart, LineItem, SalesChannelContext, ContextSwitchParameters, CartDelivery } from '../../order.types';
 
 import { LineItemType } from '../../order.types';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
-const { Component, Service } = Shopware;
+const { Component, Mixin, Service } = Shopware;
 
 interface PromotionCodeItem {
     type: string;
@@ -24,10 +24,7 @@ export default Component.wrapComponentConfig({
 
     inject: ['feature'],
 
-    mixins: [
-        notificationMixin,
-        Shopware.Mixin.getByName('cart-notification'),
-    ],
+    mixins: [notificationMixin, Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;

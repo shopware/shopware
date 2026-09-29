@@ -9,6 +9,7 @@ import { Criteria } from 'shopware:data';
  */
 
 const { Component } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,

@@ -1,8 +1,8 @@
+import template from './sw-order-create-base.html.twig';
 import { Criteria } from 'shopware:data';
 import { get, format, array } from 'shopware:utils';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwOrderStore from 'shopware:stores/swOrder';
-import template from './sw-order-create-base.html.twig';
 
 /**
  * @sw-package checkout
@@ -19,9 +19,7 @@ export default {
 
     emits: ['error'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

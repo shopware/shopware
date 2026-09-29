@@ -5,6 +5,7 @@ import template from './sw-users-permissions-role-view-general.html.twig';
 import { Criteria } from 'shopware:data';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

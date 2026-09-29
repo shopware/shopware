@@ -1,15 +1,16 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
-import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import template from './sw-settings-country-general.html.twig';
 import './sw-settings-country-general.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

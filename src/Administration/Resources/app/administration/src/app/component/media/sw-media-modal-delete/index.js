@@ -1,6 +1,6 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-media-modal-delete.html.twig';
 import './sw-media-modal-delete.scss';
+import notificationMixin from 'shopware:mixins/notification';
 import useNotificationStore from 'shopware:stores/notification';
 
 const { Context, Filter } = Shopware;
@@ -22,9 +22,7 @@ export default {
 
     emits: ['media-delete-modal-close', 'media-delete-modal-items-delete'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         itemsToDelete: {

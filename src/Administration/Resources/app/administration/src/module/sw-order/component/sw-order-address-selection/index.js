@@ -1,11 +1,11 @@
-import notificationMixin from 'shopware:mixins/notification';
-import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import { required } from 'src/core/service/validation.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
-import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
+import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import useErrorStore from 'shopware:stores/error';
 
 /**
@@ -14,6 +14,7 @@ import useErrorStore from 'shopware:stores/error';
 
 const { ShopwareError } = Shopware.Classes;
 const { EntityDefinition } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -22,9 +23,7 @@ export default {
 
     emits: ['change-address'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         address: {
@@ -82,10 +81,10 @@ export default {
          */
         customer: {
             get() {
-                return Store.get('swOrderDetail').customer;
+                return useSwOrderDetailStore().customer;
             },
             set(customer) {
-                Store.get('swOrderDetail').customer = customer;
+                useSwOrderDetailStore().customer = customer;
             },
         },
 
@@ -262,7 +261,7 @@ export default {
 
             return this.customerRepository
                 .save(this.customer)
-                .then(() => Store.get('swOrderDetail').loadCustomer(customerId, true))
+                .then(() => useSwOrderDetailStore().loadCustomer(customerId, true))
                 .then(() => {
                     this.currentAddress = null;
 
@@ -371,7 +370,7 @@ export default {
                 return Promise.reject();
             }
 
-            return Store.get('swOrderDetail').loadCustomer(this.orderCustomer.customerId);
+            return useSwOrderDetailStore().loadCustomer(this.orderCustomer.customerId);
         },
 
         getCustomFieldSet() {

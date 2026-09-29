@@ -1,7 +1,7 @@
-import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import template from './sw-multi-tag-select.html.twig';
 import './sw-multi-tag-select.scss';
 import { get } from 'shopware:utils';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 
 /**
  * @sw-package framework
@@ -25,9 +25,7 @@ export default {
 
     emits: ['add-item-is-valid', 'update:value', 'display-values-expand'],
 
-    mixins: [
-        removeApiErrorMixin,
-    ],
+    mixins: [removeApiErrorMixin],
 
     props: {
         value: {

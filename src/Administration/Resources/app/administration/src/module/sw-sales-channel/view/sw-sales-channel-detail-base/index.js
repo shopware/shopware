@@ -2,15 +2,16 @@
  * @sw-package discovery
  */
 
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
-import { dom, EventBus, object } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import { dom, object, EventBus } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useErrorStore from 'shopware:stores/error';
 
 const { Component, Context, Defaults } = Shopware;
+
 const domUtils = dom;
 const objectHelper = object;
 const ShopwareError = Shopware.Classes.ShopwareError;
@@ -47,10 +48,7 @@ export default {
         'domain-changed',
     ],
 
-    mixins: [
-        notificationMixin,
-        placeholderMixin,
-    ],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         salesChannel: {

@@ -2,7 +2,7 @@ import template from './sw-cms-el-location-renderer.html.twig';
 import './sw-cms-el-location-renderer.scss';
 import type { ElementDataProp } from '../index';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 /**
  * @private
@@ -11,9 +11,7 @@ const { Component } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     props: {
         elementData: {

@@ -1,7 +1,7 @@
-import notificationMixin from 'shopware:mixins/notification';
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 import { dom } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
 
 const domUtils = dom;
 
@@ -13,9 +13,7 @@ const domUtils = dom;
 export default {
     template,
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         copyableText: {

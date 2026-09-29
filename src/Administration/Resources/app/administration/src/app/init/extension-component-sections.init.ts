@@ -1,6 +1,6 @@
 import '../store/extension-component-sections.store';
-import useExtensionComponentSectionsStore from 'shopware:stores/extensionComponentSections';
 import useExtensionsStore from 'shopware:stores/extensions';
+import useExtensionComponentSectionsStore from 'shopware:stores/extensionComponentSections';
 
 /**
  * @sw-package framework

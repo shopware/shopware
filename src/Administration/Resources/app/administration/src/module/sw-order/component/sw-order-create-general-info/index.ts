@@ -1,7 +1,7 @@
-import notificationMixin from 'shopware:mixins/notification';
 import './sw-order-create-general-info.scss';
 import template from './sw-order-create-general-info.html.twig';
 import type { Cart, SalesChannelContext } from '../../order.types';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package checkout
@@ -17,9 +17,7 @@ export default Component.wrapComponentConfig({
 
     inject: ['acl'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         cart: {

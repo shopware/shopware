@@ -1,5 +1,5 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-settings-delivery-time-detail.html.twig';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package discovery
@@ -15,9 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

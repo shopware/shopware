@@ -1,7 +1,7 @@
 import template from './sw-cms-el-image-slider.html.twig';
 import './sw-cms-el-image-slider.scss';
 
-const { Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 
 /**
  * @private
@@ -14,9 +14,7 @@ export default {
 
     emits: ['active-image-change'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     props: {
         activeMedia: {

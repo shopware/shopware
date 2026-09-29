@@ -2,12 +2,12 @@
  * @sw-package inventory
  */
 
-import { get } from 'shopware:utils/object';
 import template from './sw-product-detail-layout.html.twig';
 import './sw-product-detail-layout.scss';
 import { Criteria } from 'shopware:data';
-import useCmsPageStore from 'shopware:stores/cmsPage';
+import { get } from 'shopware:utils/object';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Context } = Shopware;
 

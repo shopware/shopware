@@ -2,14 +2,15 @@
  * @sw-package framework
  */
 
-import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
-import notificationMixin from 'shopware:mixins/notification';
 import './sw-entity-single-select.scss';
 import template from './sw-entity-single-select.html.twig';
-import { debounce, debug, get, string } from 'shopware:utils';
 import { Criteria, EntityCollection } from 'shopware:data';
+import { debounce, get, string, debug } from 'shopware:utils';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
+import notificationMixin from 'shopware:mixins/notification';
 
 const { Component } = Shopware;
+
 /**
  * @private
  */
@@ -26,10 +27,7 @@ export default {
         'search-term-change',
     ],
 
-    mixins: [
-        removeApiErrorMixin,
-        notificationMixin,
-    ],
+    mixins: [removeApiErrorMixin, notificationMixin],
 
     props: {
         // null is a common value here, e.g. passed by the inheritance system.

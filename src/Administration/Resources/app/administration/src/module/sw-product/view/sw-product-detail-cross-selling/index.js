@@ -5,8 +5,8 @@
 import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 import { Criteria, EntityCollection } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useContextStore from 'shopware:stores/context';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

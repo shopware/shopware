@@ -1,7 +1,7 @@
-import salutationMixin from 'shopware:mixins/salutation';
 import template from './sw-order-user-card.html.twig';
 import './sw-order-user-card.scss';
 import { Criteria } from 'shopware:data';
+import salutationMixin from 'shopware:mixins/salutation';
 
 /**
  * @sw-package checkout
@@ -23,9 +23,7 @@ export default {
         'order-reset',
     ],
 
-    mixins: [
-        salutationMixin,
-    ],
+    mixins: [salutationMixin],
 
     props: {
         currentOrder: {

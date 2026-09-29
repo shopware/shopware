@@ -1,8 +1,9 @@
+import { debounce } from 'shopware:utils';
+
 /**
  * @sw-package framework
  */
 
-import { debounce } from 'shopware:utils';
 const componentShortcutKeystrokeDelay = 1000;
 /**
  * @private

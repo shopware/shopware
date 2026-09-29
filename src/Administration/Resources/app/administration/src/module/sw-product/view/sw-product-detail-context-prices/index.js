@@ -2,10 +2,10 @@
  * @sw-package inventory
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-detail-context-prices.html.twig';
 import './sw-product-detail-context-prices.scss';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,9 +14,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'feature'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         isSetDefaultPrice: {
@@ -256,19 +254,13 @@ export default {
             );
 
             if (this.canSetLoadingRules) {
-                useSwProductDetailStore().setLoading([
-                    'rules',
-                    true,
-                ]);
+                useSwProductDetailStore().setLoading(['rules', true]);
             }
             this.ruleRepository.search(ruleCriteria).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;
 
-                useSwProductDetailStore().setLoading([
-                    'rules',
-                    false,
-                ]);
+                useSwProductDetailStore().setLoading(['rules', false]);
             });
 
             this.isInherited = this.isChild && !this.product.prices.total;

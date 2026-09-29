@@ -2,8 +2,8 @@
  * @sw-package inventory
  */
 
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-property-option-detail.html.twig';
+import placeholderMixin from 'shopware:mixins/placeholder';
 import useErrorStore from 'shopware:stores/error';
 
 const { Component } = Shopware;
@@ -15,9 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         currentOption: {

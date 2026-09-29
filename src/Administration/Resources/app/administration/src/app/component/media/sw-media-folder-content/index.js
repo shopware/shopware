@@ -3,6 +3,7 @@ import './sw-media-folder-content.scss';
 import { Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
+
 /**
  * @sw-package discovery
  */

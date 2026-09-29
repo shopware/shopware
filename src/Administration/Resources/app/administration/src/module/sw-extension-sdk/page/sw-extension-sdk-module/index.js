@@ -4,8 +4,8 @@
 
 import template from './sw-extension-sdk-module.html.twig';
 import './sw-extension-sdk-module.scss';
-import useContextStore from 'shopware:stores/context';
 import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @private Only to be used by the Admin extension API

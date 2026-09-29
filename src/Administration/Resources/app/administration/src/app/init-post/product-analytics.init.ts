@@ -7,8 +7,8 @@ import { GatewayClient } from 'src/core/telemetry/product-analytics/gateway-clie
 import createConsentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import createTelemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
 import { trackSessionSnapshot } from 'src/app/service/product-analytics-session-snapshot.service';
-import { EventBus } from 'shopware:utils';
 import useContextStore from 'shopware:stores/context';
+import { EventBus } from 'shopware:utils';
 import useSessionStore from 'shopware:stores/session';
 
 /**

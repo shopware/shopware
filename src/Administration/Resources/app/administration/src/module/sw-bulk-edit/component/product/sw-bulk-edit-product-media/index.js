@@ -1,10 +1,10 @@
 /**
  * @sw-package inventory
  */
-import { isEmpty } from 'shopware:utils/types';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-bulk-edit-product-media.html.twig';
 import { Criteria } from 'shopware:data';
+import { isEmpty } from 'shopware:utils/types';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -13,9 +13,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         disabled: {

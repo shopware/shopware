@@ -3,6 +3,7 @@ import './sw-price-field.scss';
 import { debounce } from 'shopware:utils';
 
 const { Application } = Shopware;
+
 /**
  * @sw-package framework
  *

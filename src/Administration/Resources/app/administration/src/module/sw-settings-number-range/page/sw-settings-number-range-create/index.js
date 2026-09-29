@@ -68,7 +68,7 @@ export default {
     methods: {
         async createdComponent() {
             await this.getProductNumberRanges();
-            if (!useContextStore().isSystemDefaultLanguage) {
+            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                 useContextStore().resetLanguageToDefault();
             }
 

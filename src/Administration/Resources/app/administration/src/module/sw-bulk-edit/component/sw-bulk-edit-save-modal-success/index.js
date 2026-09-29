@@ -32,9 +32,7 @@ export default {
 
     emits: ['title-set', 'buttons-update'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

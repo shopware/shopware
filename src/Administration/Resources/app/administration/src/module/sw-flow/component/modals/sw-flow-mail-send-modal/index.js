@@ -1,15 +1,15 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
-import { debounce, createId } from 'shopware:utils';
 import { Criteria } from 'shopware:data';
+import { debounce, createId } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
 const {
     Component,
     Classes: { ShopwareError },
-    Store,
 } = Shopware;
+
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -23,9 +23,7 @@ export default {
 
     emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         sequence: {
@@ -254,7 +252,7 @@ export default {
             return this.replyToSelection === 'custom';
         },
 
-        ...mapState(() => Store.get('swFlow'), ['mailTemplates', 'triggerEvent', 'triggerActions']),
+        ...mapState(() => useSwFlowStore(), ['mailTemplates', 'triggerEvent', 'triggerActions']),
     },
 
     watch: {
@@ -283,21 +281,16 @@ export default {
                 this.mailRecipient = config.recipient?.type;
 
                 if (config.recipient?.type === 'custom') {
-                    Object.entries(config.recipient.data).forEach(
-                        ([
-                            key,
-                            value,
-                        ]) => {
-                            const newId = createId();
-                            this.recipients.push({
-                                id: newId,
-                                email: key,
-                                name: value,
-                                isNew: false,
-                                isMailValid: true,
-                            });
-                        },
-                    );
+                    Object.entries(config.recipient.data).forEach(([key, value]) => {
+                        const newId = createId();
+                        this.recipients.push({
+                            id: newId,
+                            email: key,
+                            name: value,
+                            isNew: false,
+                            isMailValid: true,
+                        });
+                    });
 
                     this.showRecipientEmails = true;
                 }
@@ -448,10 +441,7 @@ export default {
 
             const currentMailTemplate = this.mailTemplates.find((item) => item.id === id);
             if (!currentMailTemplate && mailTemplate) {
-                useSwFlowStore().mailTemplates = [
-                    ...this.mailTemplates,
-                    mailTemplate,
-                ];
+                useSwFlowStore().mailTemplates = [...this.mailTemplates, mailTemplate];
             }
         },
 

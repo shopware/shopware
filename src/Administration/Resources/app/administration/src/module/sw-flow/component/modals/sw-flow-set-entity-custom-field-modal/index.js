@@ -1,12 +1,13 @@
-import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-set-entity-custom-field-modal.html.twig';
 import './sw-flow-set-entity-custom-field-modal.scss';
 import { Criteria } from 'shopware:data';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
+import notificationMixin from 'shopware:mixins/notification';
 import useSessionStore from 'shopware:stores/session';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Store } = Shopware;
+const { Component } = Shopware;
+
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
@@ -21,10 +22,7 @@ export default {
 
     emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        swInlineSnippetMixin,
-        notificationMixin,
-    ],
+    mixins: [swInlineSnippetMixin, notificationMixin],
 
     props: {
         sequence: {
@@ -123,7 +121,7 @@ export default {
         },
 
         ...mapState(
-            () => Store.get('swFlow'),
+            () => useSwFlowStore(),
             [
                 'triggerEvent',
                 'customFieldSets',
@@ -209,10 +207,7 @@ export default {
             if (!customFieldSet) {
                 return;
             }
-            useSwFlowStore().customFieldSets = [
-                ...this.customFieldSets,
-                customFieldSet,
-            ];
+            useSwFlowStore().customFieldSets = [...this.customFieldSets, customFieldSet];
             this.customFieldId = null;
             this.customFieldValue = null;
             this.renderedFieldConfig = {};
@@ -224,10 +219,7 @@ export default {
             }
             this.customField = customField;
 
-            useSwFlowStore().customFields = [
-                ...this.customFields,
-                customField,
-            ];
+            useSwFlowStore().customFields = [...this.customFields, customField];
             this.customFieldValue = null;
             this.renderedFieldConfig = this.validateOptionSelectFieldLabel(customField.config);
             if (this.renderedFieldConfig.componentName === 'sw-entity-multi-id-select') {

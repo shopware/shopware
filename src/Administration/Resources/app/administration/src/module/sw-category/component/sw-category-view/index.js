@@ -1,8 +1,8 @@
 import template from './sw-category-view.html.twig';
 import './sw-category-view.scss';
 import errorConfig from '../../error-config.json';
-import useCmsPageStore from 'shopware:stores/cmsPage';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 

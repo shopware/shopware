@@ -1,7 +1,7 @@
-import swFormFieldMixin from 'shopware:mixins/sw-form-field';
-import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 import template from './sw-colorpicker.html.twig';
 import './sw-colorpicker.scss';
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 
 const debounce = Shopware.Utils.debounce;
 
@@ -30,10 +30,7 @@ export default {
 
     emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
-    mixins: [
-        swFormFieldMixin,
-        removeApiErrorMixin,
-    ],
+    mixins: [swFormFieldMixin, removeApiErrorMixin],
 
     props: {
         value: {

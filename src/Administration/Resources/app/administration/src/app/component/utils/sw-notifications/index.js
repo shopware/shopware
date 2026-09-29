@@ -4,9 +4,9 @@
 
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
-import { string } from 'shopware:utils';
 import notificationTranslationMixin from 'shopware:mixins/notification-translation';
 import useNotificationStore from 'shopware:stores/notification';
+import { string } from 'shopware:utils';
 
 /**
  * @private

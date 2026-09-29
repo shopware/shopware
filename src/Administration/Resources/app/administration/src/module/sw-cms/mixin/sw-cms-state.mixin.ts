@@ -3,9 +3,9 @@ import '../store/cms-page.store';
 import type { CmsSlotConfig } from '../service/cms.service';
 import { cloneDeep } from 'shopware:utils/object';
 import useCmsPageStore from 'shopware:stores/cmsPage';
-import useContextStore from 'shopware:stores/context';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useContextStore from 'shopware:stores/context';
 
 type WithSlotConfig = {
     slotConfig?: {

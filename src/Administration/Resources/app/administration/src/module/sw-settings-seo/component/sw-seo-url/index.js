@@ -5,8 +5,8 @@
 import './store';
 import template from './sw-seo-url.html.twig';
 import './sw-seo-url.scss';
-import { EventBus } from 'shopware:utils';
 import useSwSeoUrlStore from 'shopware:stores/swSeoUrl';
+import { EventBus } from 'shopware:utils';
 
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;

@@ -1,13 +1,13 @@
 import './sw-cms-el-category-name.scss';
 
+const { Mixin } = Shopware;
+
 /**
  * @private
  * @sw-package discovery
  */
 export default {
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     computed: {
         isCategoryPage() {

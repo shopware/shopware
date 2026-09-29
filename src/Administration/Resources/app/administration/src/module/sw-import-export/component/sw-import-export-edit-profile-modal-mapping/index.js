@@ -22,9 +22,7 @@ export default {
 
     emits: ['update-mapping'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         profile: {

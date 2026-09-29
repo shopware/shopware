@@ -1,7 +1,7 @@
-import useSwOrderStore from 'shopware:stores/swOrder';
 import { defineComponent } from 'vue';
 import type { CartError } from '../order.types';
 import { getCartErrorMessage } from '../cart-error.helper';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
 /**
  * @sw-package checkout

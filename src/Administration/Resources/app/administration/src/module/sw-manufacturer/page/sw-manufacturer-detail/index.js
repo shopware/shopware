@@ -2,11 +2,11 @@
  * @sw-package inventory
  */
 
+import template from './sw-manufacturer-detail.html.twig';
+import './sw-manufacturer-detail.scss';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import notificationMixin from 'shopware:mixins/notification';
 import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
-import template from './sw-manufacturer-detail.html.twig';
-import './sw-manufacturer-detail.scss';
 import useContextStore from 'shopware:stores/context';
 
 const {

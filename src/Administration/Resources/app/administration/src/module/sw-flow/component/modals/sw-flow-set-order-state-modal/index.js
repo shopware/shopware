@@ -1,9 +1,10 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-flow-set-order-state-modal.html.twig';
 import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Store } = Shopware;
+const { Component } = Shopware;
+
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -17,9 +18,7 @@ export default {
 
     emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         sequence: {
@@ -62,7 +61,7 @@ export default {
             return criteria;
         },
 
-        ...mapState(() => Store.get('swFlow'), ['stateMachineState']),
+        ...mapState(() => useSwFlowStore(), ['stateMachineState']),
     },
 
     created() {

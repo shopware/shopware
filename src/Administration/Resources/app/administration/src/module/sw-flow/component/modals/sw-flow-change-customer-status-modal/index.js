@@ -1,5 +1,5 @@
-import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-change-customer-status-modal.html.twig';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const { Component } = Shopware;
 const { mapState } = Component.getComponentHelper();

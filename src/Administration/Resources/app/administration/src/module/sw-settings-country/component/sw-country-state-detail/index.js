@@ -1,8 +1,8 @@
 /**
  * @sw-package fundamentals@discovery
  */
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-country-state-detail.html.twig';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -12,9 +12,7 @@ export default {
 
     emits: ['attribute-edit-cancel', 'attribute-edit-save'],
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         countryState: {

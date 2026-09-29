@@ -1,14 +1,14 @@
 /**
  * @sw-package checkout
  */
-import notificationMixin from 'shopware:mixins/notification';
-import placeholderMixin from 'shopware:mixins/placeholder';
-import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import template from './sw-promotion-v2-detail.html.twig';
 import errorConfig from './error-config.json';
 import { Criteria } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useContextStore from 'shopware:stores/context';
 import useSwPromotionDetailStore from 'shopware:stores/swPromotionDetail';
 
 const { mapPageErrors } = Shopware.Component.getComponentHelper();

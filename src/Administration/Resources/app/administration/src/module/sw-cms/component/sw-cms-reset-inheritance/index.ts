@@ -1,8 +1,8 @@
 import template from './sw-cms-reset-inheritance.html.twig';
 import './sw-cms-reset-inheritance.scss';
-import { types } from 'shopware:utils';
-import { merge, set } from 'shopware:utils/object';
+import { set, merge } from 'shopware:utils/object';
 import useCmsPageStore from 'shopware:stores/cmsPage';
+import { types } from 'shopware:utils';
 
 /**
  * @private
@@ -10,9 +10,7 @@ import useCmsPageStore from 'shopware:stores/cmsPage';
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-state')],
     data() {
         return {
             showModal: false,

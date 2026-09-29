@@ -3,8 +3,8 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-settings-country-address-handling.html.twig';
 import './sw-settings-country-address-handling.scss';
-import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
+import { cloneDeep } from 'shopware:utils/object';
 
 const { Component } = Shopware;
 

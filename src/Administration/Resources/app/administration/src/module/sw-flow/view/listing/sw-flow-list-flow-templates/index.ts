@@ -1,8 +1,8 @@
-import listingMixin from 'shopware:mixins/listing';
 import type Repository from '../../../../../core/data/repository.data';
 import type CriteriaType from '../../../../../core/data/criteria.data';
 import template from './sw-flow-list-flow-templates.html.twig';
 import './sw-flow-list-flow-templates.scss';
+import listingMixin from 'shopware:mixins/listing';
 
 interface GridColumn {
     property: string;
@@ -27,9 +27,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['acl', 'repositoryFactory'],
 
-    mixins: [
-        listingMixin,
-    ],
+    mixins: [listingMixin],
 
     props: {
         searchTerm: {

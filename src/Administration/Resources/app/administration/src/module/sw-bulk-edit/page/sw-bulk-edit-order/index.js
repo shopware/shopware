@@ -1,9 +1,9 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
-import { types } from 'shopware:utils';
-import { chunk, intersectionBy, uniqBy } from 'shopware:utils/array';
 import { Criteria } from 'shopware:data';
+import { types } from 'shopware:utils';
+import { intersectionBy, chunk, uniqBy } from 'shopware:utils/array';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /**
@@ -22,9 +22,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

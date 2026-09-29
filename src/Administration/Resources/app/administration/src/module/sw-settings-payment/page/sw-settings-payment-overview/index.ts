@@ -1,13 +1,13 @@
-import notificationMixin from 'shopware:mixins/notification';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 import type { PaymentOverviewCard } from '../../store/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
-import { cloneDeep } from 'shopware:utils/object';
 import { Criteria } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
+import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
 import usePaymentOverviewCardStore from 'shopware:stores/paymentOverviewCard';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -29,9 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data(): {
         isLoading: boolean;

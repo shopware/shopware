@@ -1,13 +1,13 @@
-import notificationMixin from 'shopware:mixins/notification';
-import salutationMixin from 'shopware:mixins/salutation';
-import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
 import { Criteria } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
-import useErrorStore from 'shopware:stores/error';
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useErrorStore from 'shopware:stores/error';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout

@@ -4,13 +4,14 @@
  * @private
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-sales-channel-detail-agentic-files.html.twig';
 import './sw-sales-channel-detail-agentic-files.scss';
-import { string } from 'shopware:utils';
 import { EntityCollection } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import { string } from 'shopware:utils';
 
 const { Context } = Shopware;
+
 const FILE_FAMILY_AGENTIC = 'agentic';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -19,9 +20,7 @@ export default {
 
     inject: ['acl', 'salesChannelFileApiService', 'repositoryFactory'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         salesChannel: {

@@ -7,6 +7,7 @@ import './sw-category-tree-field.scss';
 import { Criteria } from 'shopware:data';
 
 const utils = Shopware.Utils;
+
 /**
  * @private
  */

@@ -1,15 +1,16 @@
 /**
  * @sw-package discovery
  */
-import listingMixin from 'shopware:mixins/listing';
-import notificationMixin from 'shopware:mixins/notification';
-import userSettingsMixin from 'shopware:mixins/user-settings';
 import template from './sw-cms-list.html.twig';
 import './sw-cms-list.scss';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+import userSettingsMixin from 'shopware:mixins/user-settings';
 import useContextStore from 'shopware:stores/context';
 
 const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -22,11 +23,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [
-        listingMixin,
-        notificationMixin,
-        userSettingsMixin,
-    ],
+    mixins: [listingMixin, notificationMixin, userSettingsMixin],
 
     data() {
         return {

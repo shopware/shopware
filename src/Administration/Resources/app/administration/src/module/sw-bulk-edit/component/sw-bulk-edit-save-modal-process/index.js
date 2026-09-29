@@ -23,9 +23,7 @@ export default {
         },
     },
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     emits: [
         'changes-apply',

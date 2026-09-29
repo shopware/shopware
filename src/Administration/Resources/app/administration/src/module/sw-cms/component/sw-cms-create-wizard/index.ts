@@ -1,7 +1,7 @@
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
-import { EntityCollection } from 'shopware:data';
 import useCmsPageStore from 'shopware:stores/cmsPage';
+import { EntityCollection } from 'shopware:data';
 
 const { Filter } = Shopware;
 

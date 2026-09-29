@@ -2,13 +2,14 @@
  * @sw-package inventory
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-product-category-form.html.twig';
 import './sw-product-category-form.scss';
-import { Criteria, EntityCollection } from 'shopware:data';
+import { EntityCollection, Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;
+
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -17,9 +18,7 @@ export default {
 
     inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     props: {
         allowEdit: {

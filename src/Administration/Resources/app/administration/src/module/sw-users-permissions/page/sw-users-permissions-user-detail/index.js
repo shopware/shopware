@@ -1,19 +1,21 @@
 /**
  * @sw-package fundamentals@framework
  */
-import notificationMixin from 'shopware:mixins/notification';
-import salutationMixin from 'shopware:mixins/salutation';
 import useTheme from 'src/app/composables/use-theme';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
-import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
+import { warn } from 'shopware:utils/debug';
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import useSessionStore from 'shopware:stores/session';
 import useContextStore from 'shopware:stores/context';
 import useErrorStore from 'shopware:stores/error';
-import useSessionStore from 'shopware:stores/session';
 
 const { Component } = Shopware;
+
 const { mapPropertyErrors } = Component.getComponentHelper();
+
 const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -31,10 +33,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        notificationMixin,
-        salutationMixin,
-    ],
+    mixins: [notificationMixin, salutationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

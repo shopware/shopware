@@ -4,6 +4,7 @@ import './sw-product-stream-modal-preview.scss';
 import { Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
+
 const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 
 /**

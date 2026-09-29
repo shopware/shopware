@@ -2,8 +2,8 @@ import type { Extension } from '../../../store/extensions.store';
 import useTheme from '../../../composables/use-theme';
 import template from './sw-iframe-renderer.html.twig';
 import './sw-iframe-renderer.scss';
-import useExtensionsStore from 'shopware:stores/extensions';
 import useSdkLocationStore from 'shopware:stores/sdkLocation';
+import useExtensionsStore from 'shopware:stores/extensions';
 
 /**
  * @sw-package framework

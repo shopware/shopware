@@ -1,6 +1,6 @@
+import { debug } from 'shopware:utils';
 import listingMixin from 'shopware:mixins/listing';
 import notificationMixin from 'shopware:mixins/notification';
-import { debug } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -9,11 +9,9 @@ const {
     Mixin,
     Data: { Criteria },
 } = Shopware;
+
 Mixin.register('sw-settings-list', {
-    mixins: [
-        listingMixin,
-        notificationMixin,
-    ],
+    mixins: [listingMixin, notificationMixin],
 
     inject: ['repositoryFactory'],
 

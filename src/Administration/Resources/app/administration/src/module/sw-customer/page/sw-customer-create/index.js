@@ -1,8 +1,8 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-customer-create.html.twig';
 import { Criteria } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
+import notificationMixin from 'shopware:mixins/notification';
 import useErrorStore from 'shopware:stores/error';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -24,9 +24,7 @@ export default {
         'customerValidationService',
     ],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

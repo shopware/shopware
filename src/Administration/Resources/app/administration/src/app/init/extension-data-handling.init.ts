@@ -5,14 +5,14 @@
 
 import type Repository from '../../core/data/repository.data';
 import type { ContextState } from '../composables/use-context';
-import { Criteria } from 'shopware:data';
 import useExtensionsStore from 'shopware:stores/extensions';
+import { Criteria } from 'shopware:data';
 
 function getRepository<EntityName extends keyof EntitySchema.EntityKeys>(
     entityName: EntityName,
     additionalInformation: { _event_: MessageEvent<string> },
 ): Repository<EntityName> | null {
-    const extensionName = Object.keys(useExtensionsStore().extensionsState).find((key) =>
+    const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
         useExtensionsStore().extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
     );
 

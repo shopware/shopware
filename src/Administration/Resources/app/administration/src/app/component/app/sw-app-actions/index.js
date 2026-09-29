@@ -2,12 +2,12 @@
  * @sw-package framework
  */
 
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 import { hasOwnProperty } from 'shopware:utils/object';
-import useActionButtonsStore from 'shopware:stores/actionButtons';
+import notificationMixin from 'shopware:mixins/notification';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
 
 const actionTypeConstants = Object.freeze({
     ACTION_SHOW_NOTIFICATION: 'notification',

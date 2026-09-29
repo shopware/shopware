@@ -8,7 +8,6 @@
 import 'src/app/store/teaser-popover.store';
 import type { TeaserSalesChannelConfig, TeaserPopoverConfig } from 'src/app/store/teaser-popover.store';
 import useTeaserPopoverStore from 'shopware:stores/teaserPopover';
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeTeaserPopovers(): void {
     const store = useTeaserPopoverStore();

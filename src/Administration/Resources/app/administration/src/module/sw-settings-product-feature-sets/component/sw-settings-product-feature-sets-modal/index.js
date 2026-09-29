@@ -7,6 +7,7 @@ import { Criteria } from 'shopware:data';
 import useSessionStore from 'shopware:stores/session';
 
 const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

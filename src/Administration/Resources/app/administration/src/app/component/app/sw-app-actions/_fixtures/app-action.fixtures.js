@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 
-import { createId } from 'shopware:utils';
 import { createRouter as createRouterVue, createWebHistory } from 'vue-router';
+import { createId } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createRouter() {

@@ -16,9 +16,7 @@ export default {
         documentV2Service: {},
     },
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

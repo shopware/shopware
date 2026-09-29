@@ -8,6 +8,7 @@ import { Criteria } from 'shopware:data';
  */
 
 const { Service } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

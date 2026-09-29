@@ -1,13 +1,14 @@
-import placeholderMixin from 'shopware:mixins/placeholder';
-import notificationMixin from 'shopware:mixins/notification';
-import useSwFlowStore from 'shopware:stores/swFlow';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 import { Criteria } from 'shopware:data';
-import useErrorStore from 'shopware:stores/error';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwFlowStore from 'shopware:stores/swFlow';
 import useSessionStore from 'shopware:stores/session';
+import useErrorStore from 'shopware:stores/error';
 
 const { Component, Context } = Shopware;
+
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**
@@ -26,10 +27,7 @@ export default {
 
     emits: ['process-finish', 'modal-close'],
 
-    mixins: [
-        placeholderMixin,
-        notificationMixin,
-    ],
+    mixins: [placeholderMixin, notificationMixin],
 
     props: {
         ruleId: {

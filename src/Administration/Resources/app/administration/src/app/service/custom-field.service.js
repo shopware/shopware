@@ -2,6 +2,7 @@ import { remove } from 'shopware:utils/array';
 import { Criteria } from 'shopware:data';
 
 const { Service } = Shopware;
+
 const DEFAULT_TTL = 5 * 60 * 1000;
 const DEFAULT_LIMIT = 25;
 

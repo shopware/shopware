@@ -1,5 +1,4 @@
 import { object } from 'shopware:utils';
-
 type CmsSlot = Entity<'cms_slot'> & { config?: Record<string, unknown> };
 
 type CmsPageState = {

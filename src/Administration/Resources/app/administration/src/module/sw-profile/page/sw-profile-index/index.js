@@ -1,8 +1,6 @@
 /**
  * @sw-package fundamentals@framework
  */
-import notificationMixin from 'shopware:mixins/notification';
-import useSwProfileStore from 'shopware:stores/swProfile';
 import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import useTheme from 'src/app/composables/use-theme';
@@ -10,10 +8,13 @@ import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-profile-index.html.twig';
 import '../../store/sw-profile.store';
 import { Criteria } from 'shopware:data';
-import useErrorStore from 'shopware:stores/error';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwProfileStore from 'shopware:stores/swProfile';
 import useSessionStore from 'shopware:stores/session';
+import useErrorStore from 'shopware:stores/error';
 
 const { Component } = Shopware;
+
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -33,9 +34,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

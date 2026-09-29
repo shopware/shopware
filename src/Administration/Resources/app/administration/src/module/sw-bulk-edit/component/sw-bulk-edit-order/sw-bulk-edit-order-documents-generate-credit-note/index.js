@@ -1,7 +1,8 @@
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
+
 /**
  * @sw-package checkout
  */
-import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -2,6 +2,8 @@ import SwTextEditorToolbarButtonCmsDataMappingButton from 'src/app/component/met
 import template from './sw-cms-el-config-text.html.twig';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
+const { Mixin } = Shopware;
+
 /**
  * @private
  * @sw-package discovery
@@ -13,9 +15,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
@@ -41,10 +41,7 @@ export default {
             let mappings = [];
 
             Object.entries(useCmsPageStore().currentMappingTypes).forEach((entry) => {
-                const [
-                    type,
-                    value,
-                ] = entry;
+                const [type, value] = entry;
 
                 if (type === 'string') {
                     mappings = [...mappings, ...value];

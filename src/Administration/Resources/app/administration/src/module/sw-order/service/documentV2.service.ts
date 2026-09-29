@@ -1,6 +1,6 @@
-import useSessionStore from 'shopware:stores/session';
 import type DocumentV2ApiService from 'src/core/service/api/documentV2.api.service';
 import type { DocumentTypeFormats } from 'src/core/service/api/documentV2.api.service';
+import useSessionStore from 'shopware:stores/session';
 
 interface DocumentConfig {
     documentComment: string;

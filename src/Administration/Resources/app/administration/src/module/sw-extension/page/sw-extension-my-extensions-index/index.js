@@ -1,6 +1,6 @@
 import template from './sw-extension-my-extensions-index.html.twig';
-import { types } from 'shopware:utils';
 import useContextStore from 'shopware:stores/context';
+import { types } from 'shopware:utils';
 
 /**
  * @sw-package checkout

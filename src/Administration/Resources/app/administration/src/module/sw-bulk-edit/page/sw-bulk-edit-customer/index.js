@@ -1,12 +1,12 @@
-import notificationMixin from 'shopware:mixins/notification';
 import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
+import { Criteria } from 'shopware:data';
 import { types } from 'shopware:utils';
 import { chunk } from 'shopware:utils/array';
 import { cloneDeep } from 'shopware:utils/object';
-import { Criteria } from 'shopware:data';
-import useContextStore from 'shopware:stores/context';
+import notificationMixin from 'shopware:mixins/notification';
 import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -17,9 +17,7 @@ export default {
 
     inject: ['bulkEditApiFactory', 'repositoryFactory', 'customFieldDataProviderService'],
 
-    mixins: [
-        notificationMixin,
-    ],
+    mixins: [notificationMixin],
 
     data() {
         return {

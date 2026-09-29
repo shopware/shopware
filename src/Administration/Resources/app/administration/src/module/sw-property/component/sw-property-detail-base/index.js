@@ -2,8 +2,8 @@
  * @sw-package inventory
  */
 
-import placeholderMixin from 'shopware:mixins/placeholder';
 import template from './sw-property-detail-base.html.twig';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -12,9 +12,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        placeholderMixin,
-    ],
+    mixins: [placeholderMixin],
 
     props: {
         propertyGroup: {

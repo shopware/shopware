@@ -4,6 +4,7 @@ import './sw-settings-rule-assignment-modal.scss';
 import { Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
+
 /**
  * @private
  * @sw-package fundamentals@after-sales

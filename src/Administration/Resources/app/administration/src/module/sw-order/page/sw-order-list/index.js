@@ -1,13 +1,14 @@
-import listingMixin from 'shopware:mixins/listing';
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
 import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
 
 /**
  * @sw-package checkout
  */
 
 const { Context } = Shopware;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -20,9 +21,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        listingMixin,
-    ],
+    mixins: [listingMixin],
 
     data() {
         return {

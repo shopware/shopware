@@ -1,7 +1,7 @@
-import useCmsPageStore from 'shopware:stores/cmsPage';
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Filter } = Shopware;
 

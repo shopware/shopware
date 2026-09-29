@@ -82,7 +82,7 @@ class CustomerTokenSubscriberTest extends TestCase
         $request = Request::create('/');
         $request->setSession(new Session(new MockArraySessionStorage()));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getToken')->willReturn('test');
         $context->method('getCustomerId')->willReturn($customerId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
@@ -91,7 +91,7 @@ class CustomerTokenSubscriberTest extends TestCase
 
         $newToken = null;
 
-        $context->method('assign')->withAnyParameters()->willReturnCallback(static function ($array) use ($context, &$newToken) {
+        $context->method('assign')->willReturnCallback(static function ($array) use ($context, &$newToken) {
             $newToken = $array['token'];
 
             return $context;

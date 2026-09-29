@@ -60,9 +60,13 @@
             >
 
                 {% block sw_cms_page_form_section_empty_state_block_text %}
-                <p class="sw-cms-page-form__empty-state-text">
-                    {{ $t('sw-cms.section.sectionEmptyState') }}
-                </p>
+                <mt-empty-state
+                    class="sw-cms-page-form__empty-state-text"
+                    centered
+                    icon="regular-image-text"
+                    :headline="$t('sw-cms.section.sectionEmptyState')"
+                    description=""
+                />
                 {% endblock %}
             </mt-card>
             {% endblock %}

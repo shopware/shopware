@@ -9,10 +9,11 @@ use Shopware\Core\Framework\Log\Package;
  *
  * Marker interface for all BC-change attributes.
  *
- * BC-change attributes document planned changes to the public API surface that are *not* deprecations:
- * there is no replacement API to migrate to and the annotated symbol keeps working as-is. Whether
- * third-party code has to act before the announced version depends on how it uses the symbol; the
- * sub-interfaces state which audience can be affected:
+ * BC-change attributes document planned changes to the public API surface without marking the annotated
+ * symbol as deprecated. Most describe a symbol that keeps working as-is and has no replacement API;
+ * {@see ClassMoved} instead identifies the canonical name of a temporarily aliased class. Whether third-party
+ * code has to act before the announced version depends on how it uses the symbol; the sub-interfaces state
+ * which audience can be affected:
  *
  * - {@see CallSiteCompatibilityChange} — code calling the symbol can be affected
  * - {@see ExtenderCompatibilityChange} — code extending or overriding the symbol can be affected

@@ -41,10 +41,28 @@ class ProductConfiguratorLoader
             return new PropertyGroupCollection();
         }
 
-        $combinations = $this->combinationLoader->loadCombinations(
-            $parentId,
-            $context,
+        return $this->loadFromCombinations(
+            $product,
+            $this->combinationLoader->loadCombinations($parentId, $context),
+            $context
         );
+    }
+
+    /**
+     * Builds the configurator from a combination result the caller supplies, for callers that have to
+     * narrow which variants may be offered before the groups are assembled.
+     *
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function loadFromCombinations(
+        SalesChannelProductEntity $product,
+        AvailableCombinationResult $combinations,
+        SalesChannelContext $context
+    ): PropertyGroupCollection {
+        $parentId = $product->getParentId();
+        if (!$parentId) {
+            return new PropertyGroupCollection();
+        }
 
         $groups = $this->loadSettings($parentId, $combinations, $context);
 

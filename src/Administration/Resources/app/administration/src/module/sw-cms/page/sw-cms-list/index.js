@@ -287,6 +287,13 @@ export default {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
+        isDefaultLayout(page) {
+            return [
+                this.defaultProductId,
+                this.defaultCategoryId,
+            ].includes(page.id);
+        },
+
         showDefaultLayoutContextMenu(cmsPage) {
             if (!this.acl.can('system_config:read')) {
                 return false;
@@ -609,7 +616,7 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
+            const isDefault = this.isDefaultLayout(page);
             const defaultText = this.$t('sw-cms.components.cmsListItem.defaultLayout');
             const typeLabel = this.$t(this.cmsPageTypeService.getType(page.type)?.title);
 

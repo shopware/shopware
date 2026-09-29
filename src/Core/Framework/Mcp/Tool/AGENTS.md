@@ -31,6 +31,10 @@ The `description` argument on `#[McpTool]` is what the agent reads to pick a too
 - **Mention the use cases the user will name.** If a prompt is "upload this image as a product cover", the description should contain the phrase "product cover" and clarify that no extra parameter is needed for that case. Otherwise the agent often returns no tool selection at all.
 - **Make required parameters truly required.** A parameter without a PHP default ends up `required: true` in the JSON schema. If users frequently won't supply it (a sales channel UUID, a tax ID), give it a default of `''` or `null` and validate inside `__invoke()`. GPT-4o refuses to call tools when required parameters are missing from the prompt — even when the description says they are optional.
 
+### Parameter descriptions
+
+Parameter contracts belong in `#[Schema(description: ...)]` (`Mcp\Capability\Attribute\Schema`) on the `__invoke()` parameter, not in docblock `@param` tags. The SDK renders them into the tool's public `inputSchema`, so they are part of the routing surface the agent reads when it fills in arguments. Do not add `@param` blocks that only restate the native type; keep docblocks for what static analysis needs (array shapes). The same `cache:clear` caveat as for tool descriptions applies.
+
 ### Cache after description changes
 
 Tool descriptions are read at container compile time and baked into the cached DI container. Editing a `#[McpTool(description: ...)]` attribute does **not** take effect until you run `bin/console cache:clear`. If `bin/console debug:mcp` or `tools/list` shows the old text, clear the cache first before debugging further.
@@ -215,6 +219,7 @@ Tools extending `McpToolResponse` benefit from built-in error handling:
 - `executeWithDryRun()` catches any `\Throwable` and returns it as a structured `$this->error()` response
 - Unhandled exceptions from `__invoke()` produce a generic MCP error (`-32603`). Prefer catching known exceptions and returning `$this->error($message)` instead.
 - Write tools should validate inputs before the operation (e.g., `SystemConfigWriteTool` rejects null values, entity tools validate entity existence)
+- `invalidCriteriaError()` renders a `RequestCriteriaBuilder::fromArray()` failure as an actionable message. Wrap **only** the `fromArray()` call and catch `ShopwareHttpException`: the builder reports bad payloads through several unrelated classes (`SearchRequestException` with one pointer per rejected element, `DataAbstractionLayerException` directly, `FrameworkException::associationNotFound()`, and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from `ApiCriteriaValidator`). Keep the following read/search/aggregate call outside the `try`, so a real DAL failure still reaches the log instead of being reported as bad input.
 
 ## Adding a new tool
 1. Create a class in this directory

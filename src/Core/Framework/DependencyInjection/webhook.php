@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Http\AppSystemHttpMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -78,6 +79,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             [
                 'timeout' => 20,
                 'connect_timeout' => 10,
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->call('after', [

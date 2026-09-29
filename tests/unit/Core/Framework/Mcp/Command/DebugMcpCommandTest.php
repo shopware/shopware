@@ -363,6 +363,23 @@ class DebugMcpCommandTest extends TestCase
         static::assertSame(0, $tester->getStatusCode());
     }
 
+    public function testIntegrationOptionWithEmptyAllowlistExplainsThatNothingIsAllowed(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(new Tool('tool-a', null, self::inputSchema(), null, null), 'Acme\\ToolA');
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forAccessKey')->willReturn(McpAllowlist::blocked());
+
+        $tester = new CommandTester($this->makeCommand($registry, allowlistProvider: $allowlistProvider));
+        $tester->execute(['--integration' => 'SWIA-test-key']);
+
+        $output = $tester->getDisplay();
+        static::assertStringContainsString('no tools allowed', $output);
+        static::assertStringContainsString('administrator bypass', $output);
+        static::assertSame(0, $tester->getStatusCode());
+    }
+
     public function testIntegrationOptionFiltersToAllowedTools(): void
     {
         $registry = new Registry();

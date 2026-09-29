@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
@@ -123,12 +124,13 @@ class PdfRendererTest extends TestCase
         $renderer->renderToString($input, $state, Context::createDefaultContext());
     }
 
-    public function testPageCountInjected(): void
+    #[DataProvider('provideFontFamiliesForPageCountInjection')]
+    public function testPageCountInjected(string $fontFamily): void
     {
         $renderer = new PdfRenderer(self::DOMPDF_OPTIONS);
 
-        $raw = <<<'HTML'
-            <html><head><style>body { font-family: DejaVu Sans; }</style></head><body>
+        $raw = <<<HTML
+            <html><head><style>body { font-family: {$fontFamily}; }</style></head><body>
                 <p>Page 1 / DOMPDF_PAGE_COUNT_PLACEHOLDER</p>
             </body></html>
             HTML;
@@ -148,6 +150,16 @@ class PdfRendererTest extends TestCase
 
         static::assertStringNotContainsString('DOMPDF_PAGE_COUNT_PLACEHOLDER', $text);
         static::assertStringContainsString('Page 1 / 1', $text);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideFontFamiliesForPageCountInjection(): iterable
+    {
+        yield 'unicode TrueType font (UTF-16BE)' => ['DejaVu Sans'];
+        yield 'standard core AFM font (8-bit ANSI)' => ['Helvetica'];
+        yield 'generic sans-serif fallback (8-bit ANSI)' => ['sans-serif'];
     }
 
     public function testScreenHiddenContentRemainsVisibleInPdf(): void

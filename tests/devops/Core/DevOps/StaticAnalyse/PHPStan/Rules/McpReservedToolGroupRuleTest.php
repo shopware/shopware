@@ -31,6 +31,22 @@ class McpReservedToolGroupRuleTest extends RuleTestCase
         ]]);
     }
 
+    public function testAttributesOnInvokeAreCheckedToo(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/ExtensionToolInDiscoveryOnInvoke.php'], [[
+            'MCP tool "lookup_catalog" must not use the reserved "discovery" group, which is limited to the core discovery tools. Give it a group of its own and select that toolset at connect time with ?toolsets=.',
+            8,
+        ]]);
+    }
+
+    public function testAttributesSplitAcrossClassAndInvokeAreCheckedToo(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/ExtensionToolSplitAcrossClassAndInvoke.php'], [[
+            'MCP tool "get_order" must not use the reserved "discovery" group, which is limited to the core discovery tools. Give it a group of its own and select that toolset at connect time with ?toolsets=.',
+            8,
+        ]]);
+    }
+
     public function testCoreDiscoveryToolPasses(): void
     {
         $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/CoreMetaToolInDiscovery.php'], []);

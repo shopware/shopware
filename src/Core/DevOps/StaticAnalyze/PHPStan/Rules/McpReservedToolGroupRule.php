@@ -3,6 +3,8 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
+use PhpParser\Node\Attribute;
+use PhpParser\Node\AttributeGroup;
 use PhpParser\Node\Stmt\Class_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
@@ -59,27 +61,50 @@ class McpReservedToolGroupRule implements Rule
 
     /**
      * The constant string value of a named (or first positional) attribute argument, or null.
+     *
+     * Looks at the class first and then at `__invoke()`, per attribute, in the same order as
+     * `McpToolAttributeReader` at runtime: a tool may declare `#[McpTool]` and `#[McpToolGroup]` on
+     * either, or split them between the two.
      */
     private function attributeArgument(Class_ $node, string $attributeClass, string $argumentName, Scope $scope): ?string
     {
-        foreach ($node->attrGroups as $attrGroup) {
-            foreach ($attrGroup->attrs as $attribute) {
-                if ($attribute->name->toString() !== $attributeClass) {
+        $attributes = $this->attributesOf($node->attrGroups, $attributeClass);
+        $invoke = $node->getMethod('__invoke');
+        if ($attributes === [] && $invoke !== null) {
+            $attributes = $this->attributesOf($invoke->attrGroups, $attributeClass);
+        }
+
+        foreach ($attributes as $attribute) {
+            foreach ($attribute->args as $position => $arg) {
+                if ($arg->name?->toString() !== $argumentName && ($arg->name !== null || $position !== 0)) {
                     continue;
                 }
 
-                foreach ($attribute->args as $position => $arg) {
-                    if ($arg->name?->toString() !== $argumentName && ($arg->name !== null || $position !== 0)) {
-                        continue;
-                    }
+                $values = $scope->getType($arg->value)->getConstantStrings();
 
-                    $values = $scope->getType($arg->value)->getConstantStrings();
-
-                    return \count($values) === 1 ? $values[0]->getValue() : null;
-                }
+                return \count($values) === 1 ? $values[0]->getValue() : null;
             }
         }
 
         return null;
+    }
+
+    /**
+     * @param array<AttributeGroup> $attrGroups
+     *
+     * @return list<Attribute>
+     */
+    private function attributesOf(array $attrGroups, string $attributeClass): array
+    {
+        $attributes = [];
+        foreach ($attrGroups as $attrGroup) {
+            foreach ($attrGroup->attrs as $attribute) {
+                if ($attribute->name->toString() === $attributeClass) {
+                    $attributes[] = $attribute;
+                }
+            }
+        }
+
+        return $attributes;
     }
 }

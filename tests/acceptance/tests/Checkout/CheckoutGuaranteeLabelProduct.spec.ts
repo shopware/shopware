@@ -23,7 +23,10 @@ test(
         SelectShippingMethod,
         SubmitOrder,
     }) => {
-        await TestDataService.setSystemConfig({ 'core.cart.showLegalGuaranteeNotice': true });
+        await TestDataService.setSystemConfig({
+            'core.cart.showLegalGuaranteeNotice': true,
+            'core.cart.showTosCheckbox': true,
+        });
         const manufacturer = await TestDataService.createBasicManufacturer({ name: 'GARAN-ACME' });
         const guaranteeMonths = 36;
         const expectedGuaranteeDuration = '3';
@@ -129,7 +132,10 @@ test(
         SelectShippingMethod,
         SubmitOrder,
     }) => {
-        await TestDataService.setSystemConfig({ 'core.cart.showLegalGuaranteeNotice': false });
+        await TestDataService.setSystemConfig({
+            'core.cart.showLegalGuaranteeNotice': false,
+            'core.cart.showTosCheckbox': true,
+        });
         const manufacturer = await TestDataService.createBasicManufacturer({ name: 'GARAN-ACME-Off' });
         const product = await TestDataService.createBasicProduct({
             name: 'GARAN-Label-Checkout-Product-Notice-Off',

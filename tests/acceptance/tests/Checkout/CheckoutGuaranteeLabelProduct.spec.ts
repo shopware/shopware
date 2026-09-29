@@ -11,6 +11,7 @@ test(
     async ({
         ShopCustomer,
         TestDataService,
+        InstanceMeta,
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
@@ -23,10 +24,7 @@ test(
         SelectShippingMethod,
         SubmitOrder,
     }) => {
-        await TestDataService.setSystemConfig({
-            'core.cart.showLegalGuaranteeNotice': true,
-            'core.cart.showTosCheckbox': true,
-        });
+        await TestDataService.setSystemConfig({ 'core.cart.showLegalGuaranteeNotice': true });
         const manufacturer = await TestDataService.createBasicManufacturer({ name: 'GARAN-ACME' });
         const guaranteeMonths = 36;
         const expectedGuaranteeDuration = '3';
@@ -80,8 +78,18 @@ test(
             );
         });
 
-        await test.step('Legal guarantee notice is displayed separately from the terms checkbox.', async () => {
-            await ShopCustomer.expects(StorefrontCheckoutConfirm.page.locator('.legal-guarantee-notice')).toBeVisible();
+        await test.step('Legal guarantee notice follows the active terms layout.', async () => {
+            if (InstanceMeta.features['V6_8_0_0']) {
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).not.toBeVisible();
+                await ShopCustomer.expects(
+                    StorefrontCheckoutConfirm.termsAutoConfirmedText.locator(
+                        '[data-bs-target="#legalGuaranteeNoticeModal"]',
+                    ),
+                ).toBeVisible();
+            } else {
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).toBeVisible();
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.page.locator('.legal-guarantee-notice')).toBeVisible();
+            }
             await ShopCustomer.expects(
                 StorefrontCheckoutConfirm.termsAndConditionsWithLegalGuaranteeRightsLabel,
             ).not.toBeVisible();
@@ -120,6 +128,7 @@ test(
     async ({
         ShopCustomer,
         TestDataService,
+        InstanceMeta,
         StorefrontProductDetail,
         StorefrontCheckoutConfirm,
         StorefrontCheckoutFinish,
@@ -132,10 +141,7 @@ test(
         SelectShippingMethod,
         SubmitOrder,
     }) => {
-        await TestDataService.setSystemConfig({
-            'core.cart.showLegalGuaranteeNotice': false,
-            'core.cart.showTosCheckbox': true,
-        });
+        await TestDataService.setSystemConfig({ 'core.cart.showLegalGuaranteeNotice': false });
         const manufacturer = await TestDataService.createBasicManufacturer({ name: 'GARAN-ACME-Off' });
         const product = await TestDataService.createBasicProduct({
             name: 'GARAN-Label-Checkout-Product-Notice-Off',
@@ -163,7 +169,12 @@ test(
             await ShopCustomer.expects(StorefrontCheckoutConfirm.lineItemGaranLabel).not.toBeVisible();
             await ShopCustomer.expects(StorefrontCheckoutConfirm.legalGuaranteeNoticeLink).not.toBeVisible();
             await ShopCustomer.expects(StorefrontCheckoutConfirm.page.locator('.legal-guarantee-notice')).not.toBeVisible();
-            await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).toBeVisible();
+            if (InstanceMeta.features['V6_8_0_0']) {
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).not.toBeVisible();
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAutoConfirmedText).toBeVisible();
+            } else {
+                await ShopCustomer.expects(StorefrontCheckoutConfirm.termsAndConditionsCheckbox).toBeVisible();
+            }
         });
 
         let orderNumber: string;

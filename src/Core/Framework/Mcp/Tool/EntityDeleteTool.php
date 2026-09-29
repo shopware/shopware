@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[McpTool(
     name: 'shopware-entity-delete',
     title: 'Entity Delete',
-    description: 'Delete Shopware entities by their UUIDs. Also the way to REMOVE a many-to-many link without deleting either side: delete the mapping entity, e.g. entity "product_category" with ids [{"productId":"...","categoryId":"..."}] removes a category from a product, "product_property" with [{"productId":"...","optionId":"..."}] removes a property option. shopware-entity-upsert can only add such links. Always use dryRun=true (default) first to preview cascade effects and dependent entity deletions, then set dryRun=false to execute. Returns {success, data: {deleted, notFound}, _meta: {dryRun}}.'
+    description: 'Delete Shopware entities by their UUIDs. Also the way to REMOVE a many-to-many link without deleting either side: delete the mapping entity, e.g. entity "product_category" with ids [{"productId":"...","categoryId":"..."}] removes a category from a product, "product_property" with [{"productId":"...","optionId":"..."}] removes a property option. shopware-entity-upsert can only add such links. Always use dryRun=true (default) first to preview cascade effects, then set dryRun=false to execute. Returns each affected entity with its operation: delete, or update for the entities a removed link belonged to.'
 )]
 #[McpToolDependsOn('shopware-entity-search')]
 #[McpToolGroup('entity')]

@@ -134,6 +134,8 @@ On every Store API `GET` route, `_criteria` is now a compressed form of the quer
 
 A field that a route reads from the `POST` body only is not read from `_criteria`, the same as from a plain query parameter. This concerns, for example, the filter flags of the listing routes, such as `manufacturer-filter` or `property-whitelist`. The values of the fields are read as strings, as in a query string. App scripts of `/store-api/script/{hook}` find them in the query as well.
 
+Reading listing parameters from `_criteria` on Storefront routes is deprecated and will be removed with 6.8.0.0. Send them as plain query parameters there.
+
 Sending these fields as plain query parameters keeps working. If you send `_criteria`, check these changes:
 
 - A field in `_criteria` takes precedence over a query parameter of the same name. Before, a plain `limit` took precedence on the listing routes.

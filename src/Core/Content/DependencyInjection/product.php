@@ -500,6 +500,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.listing.processor'),
         ]);
 
+    // @deprecated tag:v6.8.0 Will be removed, Store API requests are handled by the CompressedCriteriaRequestListener
     $services->set(CompressedCriteriaListingProcessor::class)
         ->args([
             service(CompressedCriteriaDecoder::class),

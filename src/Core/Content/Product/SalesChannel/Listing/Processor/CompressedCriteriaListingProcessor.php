@@ -6,14 +6,18 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This processor adds support of ProductListingCriteria fields passed in the compressed criteria payload.
  * It should run before any other filter/processor that relies on request parameters.
+ * Store API requests are not handled here, the CompressedCriteriaRequestListener already copied all fields of the payload.
  *
  * @internal
  */
@@ -42,6 +46,21 @@ class CompressedCriteriaListingProcessor extends AbstractListingProcessor
         if (!$request->query->has('_criteria')) {
             return;
         }
+
+        // the listener copied the fields as query-string values, copying them again would overwrite them with their JSON types
+        if (\in_array(StoreApiRouteScope::ID, (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []), true)) {
+            return;
+        }
+
+        // @deprecated tag:v6.8.0 - remove the processor, only Store API routes read the compressed criteria then
+        if (Feature::isActive('v6.8.0.0')) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Reading listing parameters from the compressed "_criteria" parameter outside of the Store API is deprecated and will be removed. Send them as plain query parameters instead.'
+        );
 
         $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
         foreach ($payload as $param => $value) {

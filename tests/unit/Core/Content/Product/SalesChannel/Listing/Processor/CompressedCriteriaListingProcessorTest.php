@@ -9,7 +9,10 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompressedCrite
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -49,6 +52,7 @@ class CompressedCriteriaListingProcessorTest extends TestCase
         $this->processor->prepare($request, new Criteria(), static::createStub(SalesChannelContext::class));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testPrepareExtractsNonCriteriaFields(): void
     {
         $request = new Request();
@@ -77,5 +81,29 @@ class CompressedCriteriaListingProcessorTest extends TestCase
         static::assertTrue($request->query->getBoolean('custom-flag'));
 
         static::assertFalse($request->query->has('limit'), 'Standard param "limit" should NOT be in query');
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testStoreApiRequestsAreLeftToTheListener(): void
+    {
+        $request = new Request(['_criteria' => 'encoded-payload', 'custom-flag' => '1']);
+        $request->setMethod(Request::METHOD_GET);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+
+        $this->decoder->expects($this->never())->method('decode');
+
+        $this->processor->prepare($request, new Criteria(), static::createStub(SalesChannelContext::class));
+
+        static::assertSame('1', $request->query->get('custom-flag'), 'The value the listener copied is not overwritten');
+    }
+
+    public function testNothingIsReadWithTheNextMajorVersion(): void
+    {
+        $request = new Request(['_criteria' => 'encoded-payload']);
+        $request->setMethod(Request::METHOD_GET);
+
+        $this->decoder->expects($this->never())->method('decode');
+
+        $this->processor->prepare($request, new Criteria(), static::createStub(SalesChannelContext::class));
     }
 }

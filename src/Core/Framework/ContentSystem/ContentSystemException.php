@@ -1228,11 +1228,11 @@ class ContentSystemException extends HttpException
     }
 
     /**
-    * An id the domain rule refused is the one id this class renders that can hold a control character, and
-    * the message is written to logs as plain text — where a `\r` rewinds the line and hides the id it was
-    * meant to name. JSON's escaping is borrowed rather than `addcslashes`, which leaves U+2028 and U+2029
-    * untouched, and rather than plain `json_encode`, which would also mangle a legitimate `héro`.
-    */
+     * An id the domain rule refused is the one id this class renders that can hold a control character, and
+     * the message is written to logs as plain text — where a `\r` rewinds the line and hides the id it was
+     * meant to name. JSON's escaping is borrowed rather than `addcslashes`, which leaves U+2028 and U+2029
+     * untouched, and rather than plain `json_encode`, which would also mangle a legitimate `héro`.
+     */
     private static function printableId(string $id): string
     {
         $encoded = json_encode($id, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);

@@ -174,8 +174,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'lowercase' => false,
     ]);
 
-    // Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes
+    // Populated by RouteScopeCompilerPass with all route prefixes from the registered RouteScopes,
+    // and with the prefixes of the RouteScopes that depend on an API context
     $parameters->set('shopware.routing.registered_api_prefixes', []);
+    $parameters->set('shopware.routing.api_context_route_prefixes', []);
 
     // Migration config
     $parameters->set('core.migration.directories', []);

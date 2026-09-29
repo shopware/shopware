@@ -143,14 +143,14 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('contentLayoutId', this.layoutId));
+            criteria.addFilter(Criteria.equals('salesChannelId', null));
+            criteria.setTotalCountMode(0);
+
             this.isLoading = true;
 
             try {
-                const criteria = new Criteria(1, null);
-                criteria.addFilter(Criteria.equals('contentLayoutId', this.layoutId));
-                criteria.addFilter(Criteria.equals('salesChannelId', null));
-                criteria.setTotalCountMode(0);
-
                 const assignments = await repository.search(criteria, Shopware.Context.api);
                 const config = this.acl.can('system.system_config')
                     ? ((await this.systemConfigApiService.getValues(DEFAULT_LAYOUT_CONFIG_DOMAIN)) as Record<

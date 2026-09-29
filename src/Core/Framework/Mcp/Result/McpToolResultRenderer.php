@@ -21,7 +21,8 @@ use Shopware\Core\Framework\Util\Json;
  * models, which many clients pass on instead of `structuredContent`.
  *
  * Until 6.8.0 the text block keeps the legacy `{"success": …}` string, so existing readers keep
- * working. With the `v6.8.0.0` feature flag it carries the plain data (or the error message) instead.
+ * working. With the `v6.8.0.0` feature flag the text carries the plain data (or the error message)
+ * instead, followed by the summary and the metadata as blocks of their own.
  */
 #[Package('framework')]
 class McpToolResultRenderer
@@ -48,12 +49,15 @@ class McpToolResultRenderer
     public function render(McpToolResult $result, ProtocolVersion $protocolVersion, ?string $legacyText = null): CallToolResult
     {
         $specOnly = Feature::isActive('v6.8.0.0');
-        $text = $specOnly ? $this->plainText($result) : ($legacyText ?? $this->legacyEnvelope($result));
+        $texts = $specOnly ? $this->specTexts($result) : [$legacyText ?? $this->legacyEnvelope($result)];
 
         return new CallToolResult(
-            [new TextContent($text), ...$this->links($result, $protocolVersion)],
+            [
+                ...array_map(static fn (string $text): TextContent => new TextContent($text), $texts),
+                ...$this->links($result, $protocolVersion),
+            ],
             isError: $result->isError(),
-            structuredContent: \strlen($text) <= self::MAX_STRUCTURED_TEXT_BYTES ? $this->structuredContent($result, $protocolVersion) : null,
+            structuredContent: \strlen($texts[0]) <= self::MAX_STRUCTURED_TEXT_BYTES ? $this->structuredContent($result, $protocolVersion) : null,
             meta: $this->meta($result, $specOnly),
         );
     }
@@ -94,13 +98,37 @@ class McpToolResultRenderer
         ), $result->links);
     }
 
-    private function plainText(McpToolResult $result): string
+    /**
+     * The text blocks of the spec-only format. The data comes first as plain JSON, because it is
+     * the copy of `structuredContent` the spec asks for, and clients that only pass `content` to the
+     * model would otherwise lose it. A summary is an additional block, never a replacement.
+     *
+     * The metadata gets a block of its own as well. `_meta` of the result is for the client, and most
+     * clients don't show it to the model, but much of it is written for the model: `dryRun` says a
+     * change was only previewed, `total` that there are more results, `usage`, `note` and `resourceUri`
+     * what to call next. The legacy envelope carried all of it in the text, and this keeps it there.
+     *
+     * @return non-empty-list<string>
+     */
+    private function specTexts(McpToolResult $result): array
     {
         if ($result->error !== null) {
-            return $result->error->message;
+            return [$result->error->message];
         }
 
-        return $result->summary ?? Json::encode($result->data);
+        $texts = [];
+        // A result without data, such as one stored behind a link, has no `structuredContent` to copy.
+        if ($result->data !== null) {
+            $texts[] = Json::encode($result->data);
+        }
+        if ($result->summary !== null) {
+            $texts[] = $result->summary;
+        }
+        if ($result->meta !== []) {
+            $texts[] = Json::encode(['_meta' => $result->meta]);
+        }
+
+        return $texts === [] ? [Json::encode(null)] : $texts;
     }
 
     private function structuredContent(McpToolResult $result, ProtocolVersion $protocolVersion): mixed

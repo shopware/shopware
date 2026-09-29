@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,6 +28,7 @@ use Twig\Environment;
 class LegalGuaranteeNoticeTemplateTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
+    use EnvTestBehaviour;
     use KernelTestBehaviour;
     use RequestStackTestBehaviour;
 
@@ -40,7 +41,6 @@ class LegalGuaranteeNoticeTemplateTest extends TestCase
         $this->systemConfig = static::getContainer()->get(SystemConfigService::class);
         $this->systemConfig->set('core.cart.showLegalGuaranteeNotice', true);
         $this->systemConfig->set('core.cart.showLegalGuaranteeNoticeInline', false);
-        $this->systemConfig->set('core.cart.showTosCheckbox', true);
         $this->systemConfig->set('core.basicInformation.tosPage', Uuid::randomHex());
         $this->systemConfig->set('core.basicInformation.revocationPage', Uuid::randomHex());
 
@@ -51,12 +51,12 @@ class LegalGuaranteeNoticeTemplateTest extends TestCase
         static::getContainer()->get(RequestStack::class)->push(Request::create('/checkout/confirm'));
     }
 
-    #[DataProvider('tosCheckboxSettings')]
-    public function testDisabledNoticeHidesBothDisplayModes(bool $showTosCheckbox): void
+    #[DataProvider('displayModes')]
+    public function testDisabledNoticeHidesBothDisplayModes(bool $accessibilityTweaks, bool $showInline): void
     {
+        $this->setEnvVars(['ACCESSIBILITY_TWEAKS' => $accessibilityTweaks]);
         $this->systemConfig->set('core.cart.showLegalGuaranteeNotice', false);
-        $this->systemConfig->set('core.cart.showLegalGuaranteeNoticeInline', true);
-        $this->systemConfig->set('core.cart.showTosCheckbox', $showTosCheckbox);
+        $this->systemConfig->set('core.cart.showLegalGuaranteeNoticeInline', $showInline);
 
         $page = new Crawler($this->renderCheckout());
 
@@ -64,29 +64,36 @@ class LegalGuaranteeNoticeTemplateTest extends TestCase
         static::assertCount(0, $page->filter('#legalGuaranteeNoticeModal'));
         static::assertCount(0, $page->filter('[data-bs-target="#legalGuaranteeNoticeModal"]'));
         static::assertCount(0, $page->filter('a[href="#legalGuaranteeNoticeInline"]'));
+        static::assertCount(1, $page->filter('#tos[required][form="confirmOrderForm"]'));
     }
 
-    #[DataProvider('tosCheckboxSettings')]
-    public function testDefaultDisplayKeepsTheNoticeInAModal(bool $showTosCheckbox): void
+    #[DataProvider('accessibilitySettings')]
+    public function testDefaultDisplayKeepsTheNoticeInAModal(bool $accessibilityTweaks): void
     {
+        $this->setEnvVars(['ACCESSIBILITY_TWEAKS' => $accessibilityTweaks]);
         $this->systemConfig->delete('core.cart.showLegalGuaranteeNoticeInline');
-        $this->systemConfig->set('core.cart.showTosCheckbox', $showTosCheckbox);
 
         $page = new Crawler($this->renderCheckout());
 
         static::assertCount(0, $page->filter('.confirm-legal-guarantee-notice-inline'));
+        static::assertCount(0, $page->filter('.checkout-confirm-tos-information'));
+        static::assertCount(1, $page->filter('#tos[required][form="confirmOrderForm"]'));
         static::assertCount(1, $page->filter('[data-bs-target="#legalGuaranteeNoticeModal"]'));
         static::assertCount(1, $page->filter('#legalGuaranteeNoticeModal svg'));
         static::assertSame('https://europa.eu/youreurope/guarantees', $page->filter('#legalGuaranteeNoticeModal .modal-body a')->attr('href'));
     }
 
-    public function testInlineNoticeAppearsBelowTheTermsCheckbox(): void
+    #[DataProvider('accessibilitySettings')]
+    public function testInlineNoticeAppearsBelowTheRequiredTermsCheckbox(bool $accessibilityTweaks): void
     {
+        $this->setEnvVars(['ACCESSIBILITY_TWEAKS' => $accessibilityTweaks]);
         $this->systemConfig->set('core.cart.showLegalGuaranteeNoticeInline', true);
 
         $html = $this->renderCheckout();
         $page = new Crawler($html);
 
+        static::assertCount(1, $page->filter('#tos[required][form="confirmOrderForm"]'));
+        static::assertCount(1, $page->filter('label[for="tos"] ' . ($accessibilityTweaks ? 'button' : 'a') . '[data-ajax-modal]'));
         static::assertCount(1, $page->filter('svg'));
         static::assertCount(1, $page->filter('.confirm-legal-guarantee-notice-inline svg'));
         static::assertCount(1, $page->filter('a[href="#legalGuaranteeNoticeInline"]'));
@@ -96,37 +103,24 @@ class LegalGuaranteeNoticeTemplateTest extends TestCase
         static::assertStringContainsString(trim($this->twig->render('@Content/legal-guarantee-notice/en.svg')), $html);
     }
 
-    public function testLegacyCheckoutKeepsInlineNoticeBelowTheRequiredCheckbox(): void
+    #[DataProvider('displayModes')]
+    public function testNoticePreservesTheRequiredRevocationCheckbox(bool $accessibilityTweaks, bool $showInline): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        $this->setEnvVars(['ACCESSIBILITY_TWEAKS' => $accessibilityTweaks]);
+        $this->systemConfig->set('core.cart.showLegalGuaranteeNoticeInline', $showInline);
 
-        $this->systemConfig->set('core.cart.showLegalGuaranteeNoticeInline', true);
-        $this->systemConfig->set('core.cart.showTosCheckbox', false);
+        $page = new Crawler($this->renderCheckout(showRevocation: true));
 
-        $page = new Crawler($this->renderCheckout());
-
-        static::assertCount(1, $page->filter('#tos[required]'));
-        static::assertCount(1, $page->filterXPath('//label[@for="tos"]/following::div[contains(concat(" ", normalize-space(@class), " "), " confirm-legal-guarantee-notice-inline ")]'));
-    }
-
-    public function testInlineNoticeAppearsBelowAutomaticallyAcceptedTerms(): void
-    {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
-        $this->systemConfig->set('core.cart.showLegalGuaranteeNoticeInline', true);
-        $this->systemConfig->set('core.cart.showTosCheckbox', false);
-
-        $page = new Crawler($this->renderCheckout());
-
-        static::assertCount(0, $page->filter('#tos'));
+        static::assertCount(1, $page->filter('#tos[required][form="confirmOrderForm"]'));
+        static::assertCount(1, $page->filter('#revocation[required][form="confirmOrderForm"]'));
+        static::assertCount(1, $page->filter('label[for="revocation"]'));
         static::assertCount(1, $page->filter('svg'));
-        static::assertCount(1, $page->filter('a[href="#legalGuaranteeNoticeInline"]'));
-        static::assertCount(0, $page->filter('#legalGuaranteeNoticeModal'));
-        static::assertCount(1, $page->filter('.checkout-confirm-tos-information + .confirm-legal-guarantee-notice-inline svg'));
     }
 
-    public function testInlineNoticeUsesTheCheckoutLanguageAndOfficialLink(): void
+    #[DataProvider('accessibilitySettings')]
+    public function testInlineNoticeUsesTheCheckoutLanguageAndOfficialLink(bool $accessibilityTweaks): void
     {
+        $this->setEnvVars(['ACCESSIBILITY_TWEAKS' => $accessibilityTweaks]);
         $languageId = Uuid::randomHex();
         $localeId = Uuid::randomHex();
         static::getContainer()->get('language.repository')->create([[
@@ -155,16 +149,28 @@ class LegalGuaranteeNoticeTemplateTest extends TestCase
     /**
      * @return \Generator<string, array{bool}>
      */
-    public static function tosCheckboxSettings(): \Generator
+    public static function accessibilitySettings(): \Generator
     {
-        yield 'explicit terms acceptance' => [true];
-        yield 'automatic terms acceptance' => [false];
+        yield 'legacy modal links' => [false];
+        yield 'accessible modal buttons' => [true];
     }
 
-    private function renderCheckout(string $languageId = Defaults::LANGUAGE_SYSTEM): string
+    /**
+     * @return \Generator<string, array{bool, bool}>
+     */
+    public static function displayModes(): \Generator
+    {
+        yield 'legacy checkout with modal notice' => [false, false];
+        yield 'legacy checkout with inline notice' => [false, true];
+        yield 'accessible checkout with modal notice' => [true, false];
+        yield 'accessible checkout with inline notice' => [true, true];
+    }
+
+    private function renderCheckout(string $languageId = Defaults::LANGUAGE_SYSTEM, bool $showRevocation = false): string
     {
         $page = new CheckoutConfirmPage();
         $page->setCart(new Cart(Uuid::randomHex()));
+        $page->setShowRevocation($showRevocation);
 
         return $this->twig->createTemplate(<<<'TWIG'
             {% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}

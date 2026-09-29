@@ -271,6 +271,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(WriteAuthorizer::class),
             service(SubscriptionValidator::class),
+            service(WebhookLoader::class),
         ])
         ->tag('kernel.event_subscriber');
 

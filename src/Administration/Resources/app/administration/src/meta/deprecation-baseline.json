@@ -161,6 +161,11 @@
             "major"
         ]
     },
+    "sw-customer-detail-base.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.": {
+        "src/Administration/Resources/app/administration/src/module/sw-customer/view/sw-customer-detail-base/sw-customer-detail-base.spec.js": [
+            "major"
+        ]
+    },
     "sw-customer-list.createdComponent() is deprecated. Will be removed without replacement.": {
         "sw-customer-list": [
             "major"
@@ -171,8 +176,18 @@
             "major"
         ]
     },
+    "sw-mail-header-footer-list.assetFilter is deprecated. Use Shopware.Filter.getByName('asset') instead.": {
+        "src/Administration/Resources/app/administration/src/module/sw-mail-template/component/sw-mail-header-footer-list/sw-mail-header-footer-list.spec.js": [
+            "major"
+        ]
+    },
     "sw-mail-template-index.getList() is deprecated. Will be removed together with listing mixin.": {
         "sw-mail-template-index": [
+            "major"
+        ]
+    },
+    "sw-mail-template-list.assetFilter is deprecated. Use Shopware.Filter.getByName('asset') instead.": {
+        "src/Administration/Resources/app/administration/src/module/sw-mail-template/component/sw-mail-template-list/sw-mail-template-list.spec.js": [
             "major"
         ]
     },

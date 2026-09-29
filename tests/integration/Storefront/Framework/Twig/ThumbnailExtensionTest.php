@@ -128,6 +128,24 @@ class ThumbnailExtensionTest extends TestCase
         static::assertStringContainsString('srcset="https://shopware.local/thumbnail/cute-cat_800x800.webp 800w, https://shopware.local/thumbnail/cute-cat_400x400.webp 400w, https://shopware.local/thumbnail/cute-cat_280x280.webp 280w, https://shopware.local/thumbnail/cute-cat_1920x1920.webp 1920w"', $result);
     }
 
+    public function testSwThumbnailsEncodesNonAsciiFileNames(): void
+    {
+        $media = $this->createExampleMedia();
+        $media->setUrl('https://shopware.local/media/Ärmel Öl ß.webp');
+        $media->setThumbnails($this->createThumbnails([400]));
+        $thumbnail = $media->getThumbnails()?->first();
+        static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
+        $thumbnail->setUrl('https://cdn.example.com/thumbnail/Gr%C3%B6%C3%9Fe_400x400.webp');
+
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-default.html.twig', [
+            'media' => $media,
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        static::assertStringContainsString('src="https://shopware.local/media/%C3%84rmel%20%C3%96l%20%C3%9F.webp"', $result);
+        static::assertStringContainsString('srcset="https://cdn.example.com/thumbnail/Gr%C3%B6%C3%9Fe_400x400.webp 400w"', $result);
+    }
+
     /**
      * @param array<string, mixed> $data
      *

@@ -265,8 +265,8 @@ class LineItemCreationDateRuleTest extends TestCase
         );
     }
 
-    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemCreationDateRule(Rule::OPERATOR_NEQ, '2020-01-01 12:00:00');
 
@@ -278,6 +278,32 @@ class LineItemCreationDateRuleTest extends TestCase
             : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDataIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $rule = new LineItemCreationDateRule(Rule::OPERATOR_EQ, '2020-01-01 12:00:00');
+        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('createdAt', '2020-01-01 12:00:00');
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testProductWithNullValueIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemCreationDateRule(Rule::OPERATOR_NEQ, '2020-01-01 12:00:00');
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('createdAt', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithCreatedDate(?string $createdAt): LineItem

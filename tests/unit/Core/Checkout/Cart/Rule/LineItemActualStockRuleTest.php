@@ -245,7 +245,7 @@ class LineItemActualStockRuleTest extends TestCase
     }
 
     #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    public function testLineItemWithStockIsEvaluated(string $type, bool $lineItemScope): void
     {
         $rule = new LineItemActualStockRule(Rule::OPERATOR_NEQ, 5);
 
@@ -256,7 +256,7 @@ class LineItemActualStockRuleTest extends TestCase
             ? new LineItemScope($lineItem, $context)
             : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
-        static::assertSame($expected, $rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithStock(int $stock): LineItem

@@ -171,8 +171,8 @@ class LineItemPromotedRuleTest extends TestCase
         static::assertFalse($this->rule->match($scope));
     }
 
-    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemPromotedRule(false);
 
@@ -184,6 +184,32 @@ class LineItemPromotedRuleTest extends TestCase
             : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDataIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $rule = new LineItemPromotedRule(true);
+        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('markAsTopseller', true);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testProductWithNullValueIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemPromotedRule(false);
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('markAsTopseller', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithTopsellerMarker(bool $markAsTopseller): LineItem

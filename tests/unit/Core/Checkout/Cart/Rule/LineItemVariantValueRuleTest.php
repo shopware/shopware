@@ -134,8 +134,8 @@ class LineItemVariantValueRuleTest extends TestCase
         ], $configData['operatorSet']);
     }
 
-    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemVariantValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
 
@@ -164,5 +164,32 @@ class LineItemVariantValueRuleTest extends TestCase
         yield 'should not match when option id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ];
         yield 'should match when option id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ];
         yield 'should not match when option id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ];
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDataIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $id = Uuid::randomHex();
+        $rule = new LineItemVariantValueRule(Rule::OPERATOR_EQ, [$id]);
+        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('optionIds', [$id]);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testProductWithNullValueIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemVariantValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('optionIds', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 }

@@ -719,7 +719,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
     }
 
     #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    public function testLineItemWithoutPriceIsEvaluated(string $type, bool $lineItemScope): void
     {
         $rule = new LineItemListPriceRatioRule(Rule::OPERATOR_NEQ, 0.5);
 
@@ -730,7 +730,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
             ? new LineItemScope($lineItem, $context)
             : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
-        static::assertSame($expected, $rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithListPrice(float $price, ?float $listPriceAmount): LineItem

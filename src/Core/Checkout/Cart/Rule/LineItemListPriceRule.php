@@ -77,10 +77,6 @@ class LineItemListPriceRule extends Rule
      */
     private function matchesListPriceCondition(LineItem $lineItem): bool
     {
-        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
-            return false;
-        }
-
         $calculatedPrice = $lineItem->getPrice();
 
         if (!$calculatedPrice instanceof CalculatedPrice) {

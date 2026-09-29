@@ -23,7 +23,7 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 class LineItemListPriceRuleTest extends TestCase
 {
     #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    public function testLineItemWithListPriceIsEvaluated(string $type, bool $lineItemScope): void
     {
         $rule = new LineItemListPriceRule(Rule::OPERATOR_EQ, 150.0);
 
@@ -34,6 +34,6 @@ class LineItemListPriceRuleTest extends TestCase
             ? new LineItemScope($lineItem, $context)
             : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
-        static::assertSame($expected, $rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 }

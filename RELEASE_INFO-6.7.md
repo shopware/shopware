@@ -2,9 +2,9 @@
 
 ## Critical Fixes
 
-### Line item conditions evaluate custom, credit and extension line items again
+### Line item conditions evaluate line items by the data they carry
 
-These line item conditions again evaluate custom and credit line items added in the Administration and goods line items that extensions add to the cart, including any product data those line items carry, such as a manufacturer, a weight or a list price:
+These line item conditions evaluate every line item that carries the data they read, including line items that extensions add to the cart:
 
 * Item in stock, Item marked as "new", Item is promoted, Item with clearance sale
 * Item in category, Item in dynamic product group, Item with manufacturer, Item with tag, Item with tax rate
@@ -13,9 +13,9 @@ These line item conditions again evaluate custom and credit line items added in 
 * Item with list price, Item with price/list price ratio, Item with purchase price
 * Item with property value, Item with variant value, Item with variant or property value
 
-Line items of the types `container`, `customized-products-option` and `option-values` stay excluded from these conditions.
+With the match mode "At least one", these conditions skip line items without the data they read, such as a custom product option without a manufacturer. The dimension conditions evaluate digital products too, which have no dimensions, and custom line items, whose weight and volume are 0 and whose height, width and length are empty. "Item with list price" and "Item with price/list price ratio" evaluate every line item.
 
-With the match mode "All", a negated condition such as "Item with tag / All / Are none of" no longer hides shipping methods or blocks promotions for carts with custom line items. With the match mode "At least one", a negated condition such as "Item with tag / At least one / Is none of" matches again for any cart that contains a custom or credit line item, or an extension line item without the data the condition reads.
+With the match mode "All", and in the filters of "Number of distinct products", "Subtotal of goods (excl. discounts/fees)" and "Total product quantity (units)", these conditions evaluate every line item they check, with or without that data. A custom line item no longer hides shipping methods or blocks promotions under a negated condition such as "Item with tag / All / Are none of".
 
 ## Core
 

@@ -48,21 +48,19 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         static::assertFalse($matches);
     }
 
-    public function testCustomProductOptionDoesNotMatchNotEqualManufacturerRuleWithLineItemScope(): void
+    public function testProductWithoutManufacturerMatchesNotEqualManufacturerRule(): void
     {
-        $manufacturerId = '019fa77183677a04ba9eaff57eed9627';
+        $rule = new LineItemOfManufacturerRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
 
-        $rule = new LineItemOfManufacturerRule(
-            Rule::OPERATOR_NEQ,
-            [$manufacturerId],
-        );
+        $productLineItem = CartRuleFixture::createLineItem()
+            ->setPayloadValue('manufacturerId', null);
 
-        $hasMatch = $rule->match(new LineItemScope(
-            CartRuleFixture::createLineItem('customized-products-option'),
+        $matches = $rule->match(new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$productLineItem])),
             static::createStub(SalesChannelContext::class),
         ));
 
-        static::assertFalse($hasMatch);
+        static::assertTrue($matches);
     }
 
     public function testPluginLineItemWithManufacturerMatchesEqualManufacturerRule(): void
@@ -82,8 +80,8 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         static::assertTrue($matches);
     }
 
-    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemOfManufacturerRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
 

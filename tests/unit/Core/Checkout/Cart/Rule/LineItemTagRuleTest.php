@@ -181,7 +181,7 @@ class LineItemTagRuleTest extends TestCase
 
         static::assertFalse($match);
 
-        $lineItemCollection->add(CartRuleFixture::createLineItem());
+        $lineItemCollection->add(CartRuleFixture::createLineItem()->setPayloadValue('tagIds', null));
         $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->createLineItemTagRule($tagIds, Rule::OPERATOR_NEQ)->match(
@@ -222,11 +222,11 @@ class LineItemTagRuleTest extends TestCase
             ];
 
             if ($withItemWithoutPayload) {
-                $lineItems[] = CartRuleFixture::createLineItem();
+                $lineItems[] = CartRuleFixture::createLineItem()->setPayloadValue('tagIds', null);
             }
         } else {
             $lineItems = [
-                CartRuleFixture::createLineItem(),
+                CartRuleFixture::createLineItem()->setPayloadValue('tagIds', null),
             ];
         }
 
@@ -261,8 +261,8 @@ class LineItemTagRuleTest extends TestCase
         ];
     }
 
-    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemTagRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
 
@@ -276,14 +276,18 @@ class LineItemTagRuleTest extends TestCase
         static::assertSame($expected, $rule->match($scope));
     }
 
-    #[DataProviderExternal(CartRuleFixture::class, 'nonProductLineItemTypeProvider')]
-    public function testNonProductLineItemWithTagMatchesEqualRule(string $type): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithTagIsEvaluated(string $type, bool $lineItemScope): void
     {
         $tagId = Uuid::randomHex();
         $rule = new LineItemTagRule(Rule::OPERATOR_EQ, [$tagId]);
 
         $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('tagIds', [$tagId]);
-        $scope = new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), static::createStub(SalesChannelContext::class));
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertTrue($rule->match($scope));
     }

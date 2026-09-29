@@ -43,6 +43,10 @@ class LineItemActualStockRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('stock', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchStock($lineItem)) {
                 return true;
             }
@@ -71,10 +75,6 @@ class LineItemActualStockRule extends Rule
      */
     private function matchStock(LineItem $lineItem): bool
     {
-        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
-            return false;
-        }
-
         if ($this->stock === null) {
             if (!Feature::isActive('v6.8.0.0')) {
                 // @phpstan-ignore-next-line

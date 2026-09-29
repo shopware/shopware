@@ -44,6 +44,10 @@ class LineItemTaxationRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('taxId', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesOneOfTaxations($lineItem)) {
                 return true;
             }
@@ -73,10 +77,6 @@ class LineItemTaxationRule extends Rule
      */
     private function matchesOneOfTaxations(LineItem $lineItem): bool
     {
-        if (LineItemProductData::isExcludedFromProductConditions($lineItem)) {
-            return false;
-        }
-
         return RuleComparison::uuids([$lineItem->getPayloadValue('taxId')], $this->taxIds, $this->operator);
     }
 }

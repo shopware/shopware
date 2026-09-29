@@ -215,13 +215,13 @@ class LineItemPurchasePriceRuleTest extends TestCase
         $lineItem1 = $this->createLineItemWithPurchasePrice($lineItemPurchasePrice1);
 
         if ($lineItem1WithoutPrice) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = CartRuleFixture::createLineItem()->setPayloadValue('purchasePrices', null);
         }
 
         $lineItem2 = $this->createLineItemWithPurchasePrice($lineItemPurchasePrice2);
 
         if ($lineItem2WithoutPrice) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = CartRuleFixture::createLineItem()->setPayloadValue('purchasePrices', null);
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -259,13 +259,13 @@ class LineItemPurchasePriceRuleTest extends TestCase
         $lineItem1 = $this->createLineItemWithPurchasePrice($lineItemPurchasePrice1);
 
         if ($lineItem1WithoutPrice) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = CartRuleFixture::createLineItem()->setPayloadValue('purchasePrices', null);
         }
 
         $lineItem2 = $this->createLineItemWithPurchasePrice($lineItemPurchasePrice2);
 
         if ($lineItem2WithoutPrice) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = CartRuleFixture::createLineItem()->setPayloadValue('purchasePrices', null);
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -346,8 +346,8 @@ class LineItemPurchasePriceRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemPurchasePriceRule(Rule::OPERATOR_NEQ, 5.0);
 
@@ -359,6 +359,20 @@ class LineItemPurchasePriceRuleTest extends TestCase
             : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDataIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $rule = new LineItemPurchasePriceRule(Rule::OPERATOR_EQ, 5.0);
+        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('purchasePrices', json_encode(new Price(Defaults::CURRENCY, 5.0, 5.0, false), \JSON_THROW_ON_ERROR));
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithPurchasePrice(

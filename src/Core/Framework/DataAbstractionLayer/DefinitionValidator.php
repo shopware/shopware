@@ -741,7 +741,7 @@ class DefinitionValidator
             );
         }
 
-        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
+        $versionError = $this->validateVersionAwareness($definition, $association);
         if ($versionError) {
             $associationViolations[$definitionClass][] = $versionError;
         }
@@ -787,7 +787,7 @@ class DefinitionValidator
             );
         }
 
-        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
+        $versionError = $this->validateVersionAwareness($definition, $association);
         if ($versionError) {
             $associationViolations[$definitionClass][] = $versionError;
         }
@@ -930,11 +930,6 @@ class DefinitionValidator
                 $definitionClass,
                 $association->getPropertyName()
             );
-        }
-
-        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
-        if ($versionError) {
-            $violations[$definitionClass][] = $versionError;
         }
 
         return $violations;
@@ -1451,8 +1446,9 @@ class DefinitionValidator
         return $associationViolations;
     }
 
-    private function validateVersionAwareness(EntityDefinition $reference, EntityDefinition $definition, AssociationField $association): ?string
+    private function validateVersionAwareness(EntityDefinition $definition, ManyToOneAssociationField|OneToOneAssociationField $association): ?string
     {
+        $reference = $association->getReferenceDefinition();
         if (!$reference->isVersionAware()) {
             return null;
         }
@@ -1465,7 +1461,7 @@ class DefinitionValidator
             return null;
         }
         $referenceVersionFieldForReference = $definition->getFields()
-            ->filter(static fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass());
+            ->filter(static fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition()->getClass() === $reference->getClass());
 
         if (\count($referenceVersionFieldForReference) > 0) {
             return null;
@@ -1473,7 +1469,7 @@ class DefinitionValidator
 
         return \sprintf(
             'Missing version reference for foreign key column %s.%s for definition association %s.%s',
-            $association->getReferenceDefinition()->getEntityName(),
+            $reference->getEntityName(),
             $association->getReferenceField(),
             $definition->getEntityName(),
             $association->getPropertyName()

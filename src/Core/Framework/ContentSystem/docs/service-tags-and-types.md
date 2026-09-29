@@ -36,7 +36,7 @@ Key types extension developers encounter when working with the ContentSystem:
 | `SpecificationData`       | Return type of `resolveSpecificationData()`                                            |
 | `PlaceholderValues`       | Created via `PlaceholderValues::from(array $values)`                                   |
 
-The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are described in [README.md](../README.md#key-classes).
+The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are listed in [AGENTS.md](../AGENTS.md#source-code-references).
 
 ### Enums
 

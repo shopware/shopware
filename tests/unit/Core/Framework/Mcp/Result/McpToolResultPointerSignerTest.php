@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointerSigner;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Clock\MockClock;
@@ -16,7 +15,6 @@ use Symfony\Component\Clock\MockClock;
  */
 #[Package('framework')]
 #[CoversClass(McpToolResultPointerSigner::class)]
-#[CoversClass(McpToolResultPointer::class)]
 class McpToolResultPointerSignerTest extends TestCase
 {
     public function testASignedPointerVerifiesForThePrincipalItWasIssuedTo(): void

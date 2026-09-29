@@ -782,5 +782,31 @@ class FeatureFlagRegistryTest extends TestCase
                 ],
             ],
         ];
+
+        yield 'keep a stored override when the static flag name needs normalization' => [
+            'enabled' => true,
+            'staticFeatureFlags' => [
+                'foo-bar' => [
+                    'major' => 'v6.8.0.0',
+                    'default' => false,
+                    'toggleable' => true,
+                ],
+            ],
+            'stored' => [
+                'FOO_BAR' => [
+                    'major' => true,
+                    'active' => false,
+                ],
+            ],
+            'expected' => [
+                'FOO_BAR' => [
+                    'major' => 'v6.8.0.0',
+                    'default' => false,
+                    'toggleable' => true,
+                    'active' => false,
+                    'description' => '',
+                ],
+            ],
+        ];
     }
 }

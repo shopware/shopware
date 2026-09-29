@@ -90,6 +90,56 @@ class ConfigurationTest extends TestCase
         ]]);
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidParentMajorDataProvider(): iterable
+    {
+        yield 'incomplete version' => ['v6.8.0'];
+        yield 'patch version' => ['v6.8.1.0'];
+        yield 'environment variable name' => ['V6_8_0_0'];
+    }
+
+    #[DataProvider('invalidParentMajorDataProvider')]
+    public function testFeatureRejectsInvalidParentMajor(string $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'JSON_LD_DATA', 'major' => $major],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testFeatureCannotBeItsOwnParentMajor(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testMajorVersionFlagCannotBeAnotherMajorSubFeature(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.9.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+    }
+
     public function testCdnPathCacheBusterDefaultsToTrue(): void
     {
         $config = (new Processor())->processConfiguration(new Configuration(), [['cdn' => []]]);
@@ -692,6 +742,24 @@ class ConfigurationTest extends TestCase
 
         static::assertTrue($systemConfigs['system_config']['default']['core.listing.allowBuyInListing']);
         static::assertFalse($systemConfigs['system_config'][$salesChannelId]['core.listing.allowBuyInListing']);
+    }
+
+    public function testEmptyArraySystemConfigValue(): void
+    {
+        $configuration = new Configuration();
+        $salesChannelId = Uuid::randomHex();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            'shopware' => [
+                'system_config' => [
+                    'default' => ['foo.ids' => ['global-id']],
+                    $salesChannelId => ['foo.ids' => []],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['global-id'], $config['system_config']['default']['foo.ids']);
+        static::assertSame([], $config['system_config'][$salesChannelId]['foo.ids']);
     }
 
     public function testInvalidSystemConfigKeys(): void

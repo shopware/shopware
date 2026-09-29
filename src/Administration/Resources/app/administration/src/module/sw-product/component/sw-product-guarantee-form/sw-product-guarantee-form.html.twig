@@ -51,6 +51,7 @@
                     <mt-switch
                         :is-inheritance-field="props.isInheritField"
                         :is-inherited="props.isInherited"
+                        :inherited-value="parentProduct.guaranteeConfirmed"
                         :error="productGuaranteeConfirmedError"
                         :label="$t('sw-product.settingsForm.labelGuaranteeConfirmed')"
                         :help-text="$t('sw-product.settingsForm.helpTextGuaranteeConfirmed')"

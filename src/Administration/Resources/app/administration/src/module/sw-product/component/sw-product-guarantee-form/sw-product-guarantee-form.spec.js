@@ -44,7 +44,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                             <div class="sw-inherit-wrapper">
                                 <slot name="content" v-bind="{
                                     currentValue: value,
-                                    isInherited: false,
+                                    isInherited: hasParent && (value === null || value === undefined),
                                     updateCurrentValue: (val) => $emit('update:value', val)
                                 }"></slot>
                             </div>`,
@@ -107,17 +107,24 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                           }
                         : {}),
                     'mt-switch': {
+                        // Like the real mt-switch, an inherited switch shows its inheritedValue and ignores modelValue.
                         template: `
                             <div class="mt-switch">
                                 <label>{{ label }}</label>
                                 <input
                                     type="checkbox"
-                                    :checked="modelValue"
+                                    :checked="isInherited ? inheritedValue : modelValue"
                                     :disabled="disabled"
                                     @change="$emit('update:model-value', $event.target.checked)"
                                 />
                             </div>`,
-                        props: ['modelValue', 'label', 'disabled'],
+                        props: [
+                            'modelValue',
+                            'label',
+                            'disabled',
+                            'isInherited',
+                            'inheritedValue',
+                        ],
                     },
                     'mt-banner': {
                         template: '<div class="mt-banner"><slot></slot></div>',
@@ -156,6 +163,14 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
         expect(store.product.guaranteeMonths).toBe(42);
         expect(store.product.guaranteeConfirmed).toBe(true);
+    });
+
+    it('should show the confirmation a variant inherits from its parent product', async () => {
+        store.product.guaranteeConfirmed = null;
+        store.parentProduct = { id: 'parentId', guaranteeConfirmed: true };
+        await flushPromises();
+
+        expect(wrapper.find('.mt-switch input').element.checked).toBe(true);
     });
 
     it('should only offer valid guarantee durations in the stepper', async () => {

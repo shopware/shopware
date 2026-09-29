@@ -8,9 +8,15 @@
 {% set showSubtotal = config('core.cart.showSubtotal') %}
 
 {% set showLegalGuaranteeNotice = config('core.cart.showLegalGuaranteeNotice') %}
+{% set showLegalGuaranteeNoticeInline = showLegalGuaranteeNotice and config('core.cart.showLegalGuaranteeNoticeInline') %}
 {% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
-{% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
-{% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+{% if showLegalGuaranteeNoticeInline %}
+    {% set legalGuaranteeNoticeModalTagOpen = '<a href="#legalGuaranteeNoticeInline" class="btn btn-link-inline">' %}
+    {% set legalGuaranteeNoticeModalTagClose = '</a>' %}
+{% else %}
+    {% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
+    {% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+{% endif %}
 
 {% block page_checkout_main_content %}
     {% block page_checkout_confirm %}
@@ -43,7 +49,6 @@
             <div class="confirm-tos">
                 <div class="card checkout-card">
                     <div class="card-body">
-
                         {% block page_checkout_confirm_tos_header %}
                             <div class="card-title">
                                 {{ 'checkout.confirmTermsHeader'|trans|sw_sanitize }}
@@ -97,6 +102,12 @@
                                     </label>
                                 {% endblock %}
                             </div>
+                        {% endblock %}
+
+                        {% block page_checkout_confirm_legal_guarantee_notice_inline %}
+                            {% if showLegalGuaranteeNoticeInline %}
+                                {% sw_include '@Storefront/storefront/page/checkout/confirm/legal-guarantee-notice.html.twig' %}
+                            {% endif %}
                         {% endblock %}
 
                         {% block page_checkout_confirm_revocation_control %}
@@ -278,6 +289,8 @@
 
                         <div class="form-check mt-2 ">
                             {% block page_checkout_confirm_tos_auto_confirmed_checkbox_bottom %}
+                                {# The legacy checkbox is in the mutually exclusive v6.8.0.0 branch. #}
+                                {# ludtwig-ignore html-duplicate-id #}
                                 <input type="checkbox"
                                        class="checkout-confirm-tos-checkbox form-check-input{% if formViolations.getViolations('/tos') is not empty %} is-invalid{% endif %}"
                                        required="required"
@@ -319,10 +332,18 @@
                 {% endblock %}
             {% endif %}
 
+            {% block page_checkout_confirm_legal_guarantee_notice_inline_bottom %}
+                {% if showLegalGuaranteeNoticeInline %}
+                    {% sw_include '@Storefront/storefront/page/checkout/confirm/legal-guarantee-notice.html.twig' %}
+                {% endif %}
+            {% endblock %}
+
             {% if page.showRevocation() %}
                 {% block page_checkout_confirm_revocation_section_control %}
                     <div class="form-check mt-2 mb-4">
                         {% block page_checkout_confirm_revocation_section_control_bottom %}
+                            {# The legacy checkbox is in the mutually exclusive v6.8.0.0 branch. #}
+                            {# ludtwig-ignore html-duplicate-id #}
                             <input type="checkbox"
                                    class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
                                    required="required"
@@ -339,13 +360,12 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
-
             {% endif %}
         {% endif %}
     {% endblock %}
 
     {% block page_checkout_confirm_legal_guarantee_notice %}
-        {% if showLegalGuaranteeNotice %}
+        {% if showLegalGuaranteeNotice and not showLegalGuaranteeNoticeInline %}
             {% block page_checkout_confirm_legal_guarantee_notice_modal %}
                 <div class="modal modal-lg fade"
                      id="{{ legalGuaranteeNoticeModalId }}"

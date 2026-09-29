@@ -636,6 +636,84 @@ class CrossSellingRouteTest extends TestCase
         );
     }
 
+    public function testCrossSellingProductStreamReplacesMainVariantOutsideTheStream(): void
+    {
+        $viewedProductId = Uuid::randomHex();
+        $parentId = Uuid::randomHex();
+        $redVariantId = Uuid::randomHex();
+        $greenVariantId = Uuid::randomHex();
+        $redOptionId = Uuid::randomHex();
+        $greenOptionId = Uuid::randomHex();
+        $groupId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
+        $taxId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+
+        $parentData = $this->getProductData($parentId, $manufacturerId, $taxId);
+        $parentData['configuratorSettings'] = [];
+        $parentData['children'] = [];
+
+        foreach (['red' => [$redVariantId, $redOptionId], 'green' => [$greenVariantId, $greenOptionId]] as $name => [$variantId, $optionId]) {
+            $parentData['configuratorSettings'][] = [
+                'option' => [
+                    'id' => $optionId,
+                    'name' => $name,
+                    'group' => [
+                        'id' => $groupId,
+                        'sortingType' => 'alphanumeric',
+                        'displayType' => 'text',
+                        'name' => 'color',
+                    ],
+                ],
+            ];
+            $parentData['children'][] = [
+                'id' => $variantId,
+                'type' => ProductDefinition::TYPE_PHYSICAL,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'options' => [['id' => $optionId]],
+            ];
+        }
+
+        $parentData['variantListingConfig'] = ['mainVariantId' => $redVariantId];
+
+        $viewedProductData = $this->getProductData($viewedProductId, $manufacturerId, $taxId);
+        $viewedProductData['crossSellings'] = [[
+            'name' => 'Test Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'productStreamId' => $streamId,
+        ]];
+
+        // dynamic product group which only contains the green variant, not the red main variant
+        static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $streamId,
+                'name' => 'testStream',
+                'filters' => [
+                    [
+                        'type' => 'equals',
+                        'field' => 'options.id',
+                        'value' => $greenOptionId,
+                    ],
+                ],
+            ],
+        ], $this->salesChannelContext->getContext());
+
+        $this->productRepository->create([$parentData, $viewedProductData], $this->salesChannelContext->getContext());
+
+        $this->salesChannelContext->getContext()->setConsiderInheritance(true);
+
+        $result = $this->route->load($viewedProductId, new Request(), $this->salesChannelContext, new Criteria())
+            ->getResult();
+
+        $element = $result->first();
+
+        static::assertNotNull($element);
+        static::assertSame([$greenVariantId], array_values($element->getProducts()->getIds()));
+    }
+
     public function testCrossSellingEventSubscriberCanUpdateCriteria(): void
     {
         $eventDispatcher = new EventDispatcher();

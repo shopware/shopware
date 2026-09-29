@@ -221,12 +221,13 @@ class ProductListingLoader
     /**
      * @param array<string> $ids
      * @param list<Filter> $postFilters
+     * @param list<Filter> $filters
      *
      * @throws \JsonException
      *
      * @return array<string>
      */
-    private function loadPreviews(array $ids, SalesChannelContext $context, array $postFilters): array
+    private function loadPreviews(array $ids, SalesChannelContext $context, array $postFilters, array $filters): array
     {
         $ids = array_combine($ids, $ids);
 
@@ -290,15 +291,16 @@ class ProductListingLoader
             new ProductListingPreviewCriteriaEvent($criteria, $context)
         );
 
-        // main variant is only used as preview if it matches the post filters
+        // main variant is only used as preview if it matches the filters and post filters of the listing
         // parent is always kept, as it represents all of its variants
-        if ($postFilters !== [] && $mainVariantIds !== []) {
-            $matchesActiveFilters = new AndFilter($postFilters);
+        $listingFilters = [...$filters, ...$postFilters];
+        if ($listingFilters !== [] && $mainVariantIds !== []) {
+            $matchesListingFilters = new AndFilter($listingFilters);
             $parentIds = array_values(array_unique(array_diff($mapping, $mainVariantIds)));
 
-            $criteria->addFilter($parentIds === [] ? $matchesActiveFilters : new OrFilter([
+            $criteria->addFilter($parentIds === [] ? $matchesListingFilters : new OrFilter([
                 new EqualsAnyFilter('id', $parentIds),
-                $matchesActiveFilters,
+                $matchesListingFilters,
             ]));
         }
 
@@ -317,7 +319,7 @@ class ProductListingLoader
             // get access to main variant id over the fetched config mapping
             $main = $mapping[$id];
 
-            // main variant is configured but not active/available or does not match the post filters - keep old id
+            // main variant is configured but not active/available or does not match the listing filters - keep old id
             if (!$available->has($main)) {
                 $remapped[$id] = $id;
 
@@ -371,9 +373,7 @@ class ProductListingLoader
             $this->addGrouping($criteria);
         }
 
-        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
-
-        if ($displayAsGroup && $isSearchRoute && $this->systemConfigService->getBool(
+        if ($displayAsGroup && $this->isSearchRoute($criteria) && $this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         )) {
@@ -410,7 +410,13 @@ class ProductListingLoader
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
                 name: LoadPreviewExtension::NAME,
-                extension: new LoadPreviewExtension($keys, $context, $criteria->getPostFilters()),
+                extension: new LoadPreviewExtension(
+                    ids: $keys,
+                    context: $context,
+                    postFilters: $criteria->getPostFilters(),
+                    // the search term only becomes a filter in the DAL search, not in OpenSearch, so search results only check the post filters
+                    filters: $this->isSearchRoute($criteria) ? [] : array_values($criteria->getFilters()),
+                ),
                 function: $this->loadPreviews(...)
             );
         }
@@ -423,9 +429,7 @@ class ProductListingLoader
 
     private function shouldLoadPreviews(Criteria $criteria, SalesChannelContext $context): bool
     {
-        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
-
-        return !$isSearchRoute || !$this->systemConfigService->getBool(
+        return !$this->isSearchRoute($criteria) || !$this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         );
@@ -447,5 +451,10 @@ class ProductListingLoader
     private function shouldSkipGrouping(Criteria $criteria): bool
     {
         return $criteria->hasState(self::STATE_SKIP_ADD_GROUPING);
+    }
+
+    private function isSearchRoute(Criteria $criteria): bool
+    {
+        return $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
     }
 }

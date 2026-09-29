@@ -247,6 +247,7 @@ class ProductListingLoaderTest extends TestCase
             static function (LoadPreviewExtension $extension) use (&$previewLoaded): void {
                 $previewLoaded = true;
                 static::assertEquals([new EqualsFilter('product.options.id', 'option-id')], $extension->postFilters);
+                static::assertSame([], $extension->filters, 'Search results only check the main variant against the post filters.');
                 $extension->result = [
                     'variant-id' => 'preview-id',
                 ];
@@ -388,7 +389,24 @@ class ProductListingLoaderTest extends TestCase
             []
         );
 
-        static::assertContainsEquals(new AndFilter([$postFilter]), $availabilityCriteria->getFilters());
+        static::assertContainsEquals(new AndFilter([new NotEqualsFilter('displayGroup', null), $postFilter]), $availabilityCriteria->getFilters());
+        static::assertSame([$ids->get('found-a')], $resultIds);
+    }
+
+    public function testLoadPreviewsChecksMainVariantAgainstListingFilters(): void
+    {
+        $ids = new IdsCollection();
+        // for example a condition of a dynamic product group
+        $filter = new EqualsFilter('product.options.id', $ids->get('green'));
+
+        [$availabilityCriteria, $resultIds] = $this->loadWithPreviews(
+            [$this->createPreviewConfigRow($ids, 'found-a', 'parent-a', ['mainVariantId' => $ids->get('main-a')])],
+            postFilters: [],
+            availableIds: [],
+            filters: [$filter]
+        );
+
+        static::assertContainsEquals(new AndFilter([$filter, new NotEqualsFilter('displayGroup', null)]), $availabilityCriteria->getFilters());
         static::assertSame([$ids->get('found-a')], $resultIds);
     }
 
@@ -408,7 +426,7 @@ class ProductListingLoaderTest extends TestCase
 
         static::assertContainsEquals(new OrFilter([
             new EqualsAnyFilter('id', [$ids->get('parent-b')]),
-            new AndFilter([$postFilter]),
+            new AndFilter([new NotEqualsFilter('displayGroup', null), $postFilter]),
         ]), $availabilityCriteria->getFilters());
         static::assertSame([$ids->get('found-a'), $ids->get('parent-b')], $resultIds);
     }
@@ -423,7 +441,8 @@ class ProductListingLoaderTest extends TestCase
             [$ids->get('main-a')]
         );
 
-        static::assertCount(1, $availabilityCriteria->getFilters());
+        // the listing filters still apply, here only the display group filter of the grouping
+        static::assertContainsEquals(new AndFilter([new NotEqualsFilter('displayGroup', null)]), $availabilityCriteria->getFilters());
         static::assertSame([$ids->get('main-a')], $resultIds);
     }
 
@@ -431,10 +450,11 @@ class ProductListingLoaderTest extends TestCase
      * @param list<array{variantListingConfig: string, id: string, parentId: string}> $configRows
      * @param list<Filter> $postFilters
      * @param list<string> $availableIds
+     * @param list<Filter> $filters
      *
      * @return array{Criteria, list<string>}
      */
-    private function loadWithPreviews(array $configRows, array $postFilters, array $availableIds): array
+    private function loadWithPreviews(array $configRows, array $postFilters, array $availableIds, array $filters = []): array
     {
         $this->systemConfigService
             ->expects($this->atLeastOnce())
@@ -466,6 +486,9 @@ class ProductListingLoaderTest extends TestCase
             ->willReturnCallback(fn (Criteria $criteria): EntitySearchResult => $this->createProductSearchResult($criteria, array_values(array_filter($criteria->getIds(), 'is_string'))));
 
         $criteria = new Criteria();
+        foreach ($filters as $filter) {
+            $criteria->addFilter($filter);
+        }
         foreach ($postFilters as $postFilter) {
             $criteria->addPostFilter($postFilter);
         }

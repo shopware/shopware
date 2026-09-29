@@ -48,7 +48,15 @@ final class LoadPreviewExtension extends Extension
          *
          * @var list<Filter>
          */
-        public readonly array $postFilters = []
+        public readonly array $postFilters = [],
+        /**
+         * @public
+         *
+         * @description The filters of the listing, for example the conditions of a dynamic product group. A configured main variant is only used as preview if it matches them as well. Empty for search results, which only check the post filters.
+         *
+         * @var list<Filter>
+         */
+        public readonly array $filters = []
     ) {
     }
 }

@@ -56,6 +56,12 @@ Filtered product listings show a variant product's main variant only if it match
 
 Extensions that replace the preview resolution via `LoadPreviewExtension` can read the active post filters from the new `postFilters` property to apply the same rule.
 
+### Dynamic product groups show the main variant only if it belongs to the group
+
+Category listings and cross-sellings based on a dynamic product group show a variant product's main variant only if it matches the group's conditions. Otherwise, a variant of the group is shown. This also applies to groups that select specific variants and to filters that extensions add to a listing. Products configured to display their parent still show the parent.
+
+Extensions that replace the preview resolution via `LoadPreviewExtension` can read these filters from the new `filters` property.
+
 ### Feature flags can remove legacy service definitions
 
 Extensions can tag a PHP service definition with `shopware.inactiveFeature` and a `flag` attribute, for example `v6.8.0.0`. The service remains registered while the flag is inactive and is absent from the container once the flag is active. Use this for services that are removed with a major version; `shopware.feature` continues to register services only while their flag is active. Changing `FEATURE_ALL` or a version-shaped major flag in the environment selects a separate container on a fresh kernel boot or explicit reboot when the default build directory is used. If `APP_BUILD_DIR` is configured, provide a different directory for each major mode. Reboot the kernel or restart long-running processes to apply the new mode.

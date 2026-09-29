@@ -89,12 +89,12 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 
 ### Every Store API route publishes an extension event
 
-All Store API routes in core now publish an extension event, so you can extend a route with a subscriber instead of decorating its abstract route class. Each route has a `<Route>Extension` in the `Extension` namespace of its domain that carries the route's input parameters, for example `Shopware\Core\Content\Product\Extension\ProductSearchRouteExtension`:
+All Store API routes in core now publish an extension event, so you can extend a route with a subscriber instead of decorating its abstract route class. Each route has a `<Route>Extension` in the `Extension` namespace of its domain that carries the route's input parameters, for example `Shopware\Core\Content\Product\Extension\ProductListingRouteExtension`:
 
 ```php
 public static function getSubscribedEvents(): array
 {
-    return [ProductSearchRouteExtension::onPre() => 'addFilter'];
+    return [ProductListingRouteExtension::onPre() => 'addFilter'];
 }
 ```
 

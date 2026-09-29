@@ -42,6 +42,7 @@ use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlugin;
@@ -95,6 +96,7 @@ class ThemeCompilerTest extends TestCase
             static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
+            static::getContainer()->get(UnusedThemeDirectoryDeleter::class),
         );
     }
 
@@ -211,6 +213,7 @@ class ThemeCompilerTest extends TestCase
             static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
+            static::getContainer()->get(UnusedThemeDirectoryDeleter::class),
         );
 
         $exception = null;

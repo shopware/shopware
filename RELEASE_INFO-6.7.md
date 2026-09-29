@@ -249,7 +249,7 @@ Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display th
 
 After a theme recompile, the previously active `public/theme/<hash>` directory was deleted as soon as its files were older than 24 hours. That age is measured from the compilation, not from the moment the sales channel switched to the new directory, so a theme compiled weeks ago was removed by the next cleanup right after the recompile. Pages still served from an HTTP cache or CDN then referenced CSS and JS files that returned 404.
 
-The cleanup (`theme.delete_files` scheduled task, `theme:compile` and `theme:change`) now marks an unused directory with a `.retired` file on first sight and deletes it only once that marker is at least 24 hours old. A directory that becomes active again, for example via `theme:change --no-compile`, loses the marker and stays. Directories from before this change are covered as well: they receive the marker on the next cleanup run and are deleted 24 hours later.
+The compiler now marks the previous directory with a `.retired` file at the moment it switches the sales channel to the new one. The cleanup (`theme.delete_files` scheduled task, `theme:compile` and `theme:change`) deletes a directory only once that marker is at least 24 hours old. A directory that becomes active again, for example via `theme:change --no-compile`, loses the marker and stays. Directories from before this change are covered as well: the cleanup marks an unused directory once all of its files are older than 24 hours and deletes it 24 hours later. A directory that a queued compilation is still writing has fresh files and is left alone.
 
 ### Preserve theme assets on S3-compatible storage
 

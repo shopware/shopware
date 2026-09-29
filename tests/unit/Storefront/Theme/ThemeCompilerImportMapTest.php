@@ -18,6 +18,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -510,6 +511,7 @@ class ThemeCompilerImportMapTest extends TestCase
             static::createStub(LoggerInterface::class),
             $themePathBuilder,
             static::createStub(AbstractScssCompiler::class),
+            static::createStub(UnusedThemeDirectoryDeleter::class),
             [],
             false,
             'public',

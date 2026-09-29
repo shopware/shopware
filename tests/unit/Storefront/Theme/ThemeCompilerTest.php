@@ -37,6 +37,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncPlugin\AsyncPlugin;
@@ -89,6 +90,8 @@ class ThemeCompilerTest extends TestCase
 
     private MD5ThemePathBuilder $pathBuilder;
 
+    private UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter;
+
     private ThemeFilesystemResolver&Stub $themeFilesystemResolver;
 
     /**
@@ -104,6 +107,7 @@ class ThemeCompilerTest extends TestCase
         $this->logger = static::createStub(LoggerInterface::class);
         $this->scssPhpCompiler = static::createStub(ScssPhpCompiler::class);
         $this->pathBuilder = new MD5ThemePathBuilder();
+        $this->unusedThemeDirectoryDeleter = static::createStub(UnusedThemeDirectoryDeleter::class);
         $this->copyBatchInputFactory = static::createStub(CopyBatchInputFactory::class);
         $this->themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
 
@@ -711,8 +715,13 @@ PHP_EOL,
         static::assertFalse($this->filesystem->fileExists('theme/new/all.js'));
     }
 
-    public function testOldThemeFilesAreDeletedDelayedOnThemeCompileSuccess(): void
+    public function testOldThemeDirectoryIsMarkedAsRetiredOnThemeCompileSuccess(): void
     {
+        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
+        $this->unusedThemeDirectoryDeleter->expects($this->once())
+            ->method('markAsRetired')
+            ->with('theme/current');
+
         $this->themeFileResolver->method('resolveFiles')->willReturn(
             [
                 ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
@@ -937,6 +946,7 @@ PHP_EOL,
             $logger ?? $this->logger,
             $this->pathBuilder,
             $scssPhpCompiler ?? $this->scssPhpCompiler,
+            $this->unusedThemeDirectoryDeleter,
             [],
             false
         );

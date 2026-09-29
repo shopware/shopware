@@ -65,6 +65,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
+        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter,
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
         private readonly string $visibility = Visibility::PUBLIC,
@@ -133,6 +134,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
+
+        if ($themePrefix !== $oldThemePrefix) {
+            $this->unusedThemeDirectoryDeleter->markAsRetired('theme' . \DIRECTORY_SEPARATOR . $oldThemePrefix);
+        }
 
         $this->cacheInvalidator->invalidate([
             ThemeConfigCacheInvalidator::buildCacheTag($themeId),

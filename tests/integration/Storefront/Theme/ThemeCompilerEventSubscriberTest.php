@@ -21,6 +21,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubscriber;
 use Symfony\Component\Asset\UrlPackage;
@@ -71,6 +72,7 @@ class ThemeCompilerEventSubscriberTest extends TestCase
             static::createStub(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
+            static::getContainer()->get(UnusedThemeDirectoryDeleter::class),
             [],
             false
         );

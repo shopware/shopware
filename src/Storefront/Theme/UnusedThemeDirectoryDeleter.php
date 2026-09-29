@@ -4,16 +4,19 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\FilesystemReader;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Deletes theme directories that are no longer referenced by any sales channel/theme mapping.
  *
- * An unused directory is first marked as retired and only deleted once the grace period has
- * passed since that marking. Cached responses may still reference the directory of the
- * previously active theme, so its files have to stay available for a while after the switch.
- * The age of the compiled files themselves says nothing about when the switch happened.
+ * A directory is deleted once the grace period has passed since it was marked as retired.
+ * The compiler marks the previous directory when it switches a sales channel to a new one,
+ * so the grace period starts at the switch and cached responses referencing the previous
+ * directory keep working. Directories without a marker are only marked here once their
+ * files are older than the grace period, so a compilation that is still writing its
+ * directory is never mistaken for a retired one.
  *
  * @internal
  */
@@ -33,13 +36,27 @@ class UnusedThemeDirectoryDeleter
     }
 
     /**
+     * @param string $themePath path relative to the theme filesystem root, e.g. `theme/<hash>`
+     */
+    public function markAsRetired(string $themePath): void
+    {
+        if (!$this->themeFileSystem->directoryExists($themePath)) {
+            return;
+        }
+
+        $this->themeFileSystem->write(
+            $themePath . \DIRECTORY_SEPARATOR . self::RETIRED_MARKER_FILE,
+            (string) $this->clock->now()->getTimestamp()
+        );
+    }
+
+    /**
      * @return int the number of deleted theme directories
      */
     public function deleteUnusedDirectories(): int
     {
         $usedThemePaths = $this->getUsedThemePaths();
 
-        $now = $this->clock->now()->getTimestamp();
         $graceBoundary = $this->clock->now()
             ->modify(\sprintf('-%d hours', self::GRACE_PERIOD_HOURS))
             ->getTimestamp();
@@ -64,7 +81,10 @@ class UnusedThemeDirectoryDeleter
 
             $retiredAt = $this->getRetiredAt($markerPath);
             if ($retiredAt === null) {
-                $this->themeFileSystem->write($markerPath, (string) $now);
+                $newestFileTimestamp = $this->getNewestFileTimestamp($themePath);
+                if ($newestFileTimestamp !== null && $newestFileTimestamp <= $graceBoundary) {
+                    $this->markAsRetired($themePath);
+                }
 
                 continue;
             }
@@ -114,5 +134,22 @@ class UnusedThemeDirectoryDeleter
         $content = trim($this->themeFileSystem->read($markerPath));
 
         return ctype_digit($content) ? (int) $content : null;
+    }
+
+    private function getNewestFileTimestamp(string $themePath): ?int
+    {
+        $newest = null;
+        foreach ($this->themeFileSystem->listContents($themePath, FilesystemReader::LIST_DEEP) as $file) {
+            if (!$file->isFile()) {
+                continue;
+            }
+
+            $lastModified = $file->lastModified();
+            if ($lastModified !== null && ($newest === null || $lastModified > $newest)) {
+                $newest = $lastModified;
+            }
+        }
+
+        return $newest;
     }
 }

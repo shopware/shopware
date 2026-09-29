@@ -566,7 +566,7 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, and the `checkout.cart.add-order-line-items` extension lets you add or drop items before they reach the cart
+`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-order-line-items` extension lets you add or drop items before they reach the cart
 
 ## Administration
 

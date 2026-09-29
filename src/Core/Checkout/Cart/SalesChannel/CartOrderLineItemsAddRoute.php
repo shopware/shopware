@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutCartAddOrderLineItemsExtension;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartCollectOrderLineItemsExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -13,7 +14,6 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Package('checkout')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
-class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
+class CartOrderLineItemsAddRoute
 {
     /**
      * @internal
@@ -35,11 +35,6 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
     ) {
     }
 
-    public function getDecorated(): AbstractCartOrderLineItemsAddRoute
-    {
-        throw new DecorationPatternException(self::class);
-    }
-
     #[Route(
         path: '/store-api/checkout/cart/line-item/order/{orderId}',
         name: 'store-api.checkout.cart.line-item.order.add',
@@ -50,6 +45,15 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
         methods: [Request::METHOD_POST]
     )]
     public function add(string $orderId, Request $request, Cart $cart, SalesChannelContext $context): CartResponse
+    {
+        return $this->extensions->publish(
+            name: CheckoutCartAddOrderLineItemsExtension::NAME,
+            extension: new CheckoutCartAddOrderLineItemsExtension($orderId, $request, $cart, $context),
+            function: $this->_add(...),
+        );
+    }
+
+    private function _add(string $orderId, Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
@@ -68,9 +72,9 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
         }
 
         $items = $this->extensions->publish(
-            name: CheckoutCartAddOrderLineItemsExtension::NAME,
-            extension: new CheckoutCartAddOrderLineItemsExtension($order, $cart, $context),
-            function: $this->buildLineItems(...)
+            name: CheckoutCartCollectOrderLineItemsExtension::NAME,
+            extension: new CheckoutCartCollectOrderLineItemsExtension($order, $cart, $context),
+            function: $this->collectLineItems(...),
         );
 
         // null would make the add route read the posted items instead, which this route must never do
@@ -80,7 +84,7 @@ class CartOrderLineItemsAddRoute extends AbstractCartOrderLineItemsAddRoute
     /**
      * @return list<LineItem>
      */
-    private function buildLineItems(OrderEntity $order, Cart $cart, SalesChannelContext $context): array
+    private function collectLineItems(OrderEntity $order, Cart $cart, SalesChannelContext $context): array
     {
         $quantities = [];
 

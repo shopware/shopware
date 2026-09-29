@@ -738,6 +738,108 @@ class RegisterRouteTest extends TestCase
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
     }
 
+    public function testVatIdConstraintsAreAddedBeforeCustomerCreateValidationEvent(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+            ],
+        ]);
+
+        $countryId = Uuid::randomHex();
+
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $country->setVatIdRequired(true);
+        $country->setCheckVatIdPattern(false);
+
+        $countryRepository = static::createStub(SalesChannelRepository::class);
+        $countryRepository
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    CountryDefinition::ENTITY_NAME,
+                    1,
+                    new CountryCollection([$country]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            );
+
+        $vatIdConstraintsOnDispatch = null;
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener('framework.validation.customer.create', static function (BuildValidationEvent $event) use (&$vatIdConstraintsOnDispatch): void {
+            $vatIdConstraintsOnDispatch = $event->getDefinition()->getProperty('vatIds');
+        });
+
+        $dataValidator = static::createStub(DataValidator::class);
+        $dataValidator
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList([
+                new ConstraintViolation('Stop after validation', null, [], null, '/email', null),
+            ]));
+
+        $customerDefinitionFactory = static::createStub(DataValidationFactoryInterface::class);
+        $customerDefinitionFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('customer.create'));
+
+        $addressDefinitionFactory = static::createStub(DataValidationFactoryInterface::class);
+        $addressDefinitionFactory
+            ->method('create')
+            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
+
+        $doubleOptInService = static::createStub(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
+        $registerRoute = new RegisterRoute(
+            $eventDispatcher,
+            static::createStub(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $customerDefinitionFactory,
+            $addressDefinitionFactory,
+            $systemConfigService,
+            static::createStub(EntityRepository::class),
+            static::createStub(SalesChannelContextPersister::class),
+            $countryRepository,
+            static::createStub(Connection::class),
+            static::createStub(SalesChannelContextService::class),
+            static::createStub(StoreApiCustomFieldMapper::class),
+            static::createStub(EntityRepository::class),
+            $customerDefinitionFactory,
+            $doubleOptInService,
+            static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
+            new NativeClock(),
+        );
+
+        $salutationId = Uuid::randomHex();
+
+        $data = [
+            'email' => 'test@test.de',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'countryId' => $countryId,
+                'salutationId' => $salutationId,
+            ],
+            'salutationId' => $salutationId,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+        ];
+
+        try {
+            $registerRoute->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
+            static::fail('The stubbed violation should stop the registration.');
+        } catch (ConstraintViolationException) {
+        }
+
+        static::assertIsArray($vatIdConstraintsOnDispatch);
+        static::assertCount(3, $vatIdConstraintsOnDispatch);
+        static::assertInstanceOf(NotBlank::class, $vatIdConstraintsOnDispatch[0]);
+        static::assertInstanceOf(Type::class, $vatIdConstraintsOnDispatch[1]);
+        static::assertInstanceOf(CustomerVatIdentification::class, $vatIdConstraintsOnDispatch[2]);
+    }
+
     public function testRegisterWithoutBillingAddressCountryViolation(): void
     {
         $systemConfigService = new StaticSystemConfigService([

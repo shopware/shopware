@@ -66,6 +66,11 @@ export default {
          * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
          */
         productCrossSellingRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-cross-selling-form.productCrossSellingRepository is deprecated. Unused, will be removed without replacement.',
+            );
+
             return this.repositoryFactory.create('product_cross_selling');
         },
 
@@ -95,6 +100,11 @@ export default {
          * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
          */
         crossSellingAssigmentRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-cross-selling-form.crossSellingAssigmentRepository is deprecated. Unused, will be removed without replacement.',
+            );
+
             return this.repositoryFactory.create('product_cross_selling_assigned_products');
         },
 
@@ -156,6 +166,11 @@ export default {
          * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
          */
         disablePositioning() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-cross-selling-form.disablePositioning is deprecated. Unused, will be removed without replacement.',
+            );
+
             return !!this.term || this.sortBy !== 'position';
         },
 

@@ -40,6 +40,7 @@ const DOCUMENT_TYPES = {
 
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1. In v2 ZUGFeRD is a file format, not a document type.
+ * @deprecationGuard static-only - A value export, so reading it has no call boundary to guard.
  */
 const ZUGFERD_DOCUMENT_TYPES = [
     DOCUMENT_TYPES.ZUGFERD_INVOICE,

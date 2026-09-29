@@ -2,6 +2,8 @@ import ApiService from '../api.service';
 
 /**
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ * @deprecationGuard static-only - A value export, so reading it has no boundary to guard; the service that emits
+ * these events is guarded instead.
  */
 const DocumentEvents = {
     DOCUMENT_FAILED: 'create-document-fail',
@@ -18,6 +20,12 @@ const DocumentEvents = {
 class DocumentApiService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'document') {
         super(httpClient, loginService, apiEndpoint);
+
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_9_0_0',
+            'documentService is deprecated. Removed with document generation v1; use documentV2ApiService instead.',
+        );
+
         this.name = 'documentService';
         this.$listener = () => ({});
     }

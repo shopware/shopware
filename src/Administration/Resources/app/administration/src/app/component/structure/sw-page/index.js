@@ -156,6 +156,11 @@ export default {
          * @deprecated tag:v6.8.0 -- There's no replacement
          */
         headerStyles() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-page.headerStyles is deprecated. There is no replacement.',
+            );
+
             return {
                 'border-bottom-color': this.pageColor,
                 'padding-right': this.pageOffset,

@@ -76,6 +76,10 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement.',
+            },
         },
     },
 
@@ -88,7 +92,14 @@ export default {
 
     computed: {
         /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading: () => {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.isLoading is deprecated. Use loading.order instead.',
+            );
+
+            return Store.get('swOrderDetail').isLoading;
+        },
 
         order: () => Store.get('swOrderDetail').order,
 
@@ -122,11 +133,21 @@ export default {
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.customFieldSetCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
 
@@ -153,6 +174,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, will not be used anymore.
         currency() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.currency is deprecated and will be removed, will not be used anymore.',
+            );
+
             return this.order.currency;
         },
 
@@ -179,9 +205,19 @@ export default {
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         shippingCosts: {
             get() {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-order-detail-details.shippingCosts is deprecated. Change shipping cost on order general view instead.',
+                );
+
                 return this.delivery?.shippingCosts.totalPrice || 0.0;
             },
             set(value) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-order-detail-details.shippingCosts is deprecated. Change shipping cost on order general view instead.',
+                );
+
                 this.onShippingChargeEdited(value);
             },
         },
@@ -203,6 +239,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.onShippingChargeEdited() is deprecated. Change shipping cost on order general view instead.',
+            );
+
             if (amount >= 0) {
                 this.delivery.shippingCosts.unitPrice = amount;
                 this.delivery.shippingCosts.totalPrice = amount;
@@ -263,6 +304,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.updateLoading() is deprecated. Will be removed without replacement.',
+            );
+
             Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 

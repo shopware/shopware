@@ -48,7 +48,9 @@ export default class ListingPlugin extends Plugin {
         this._registry = [];
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-        this.httpClient = new HttpClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this.httpClient = new HttpClient();
+        }
 
         this._urlFilterParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 

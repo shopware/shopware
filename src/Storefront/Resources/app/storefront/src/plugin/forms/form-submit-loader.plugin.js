@@ -34,6 +34,11 @@ export default class FormSubmitLoaderPlugin extends Plugin {
     _submittedButtonLoaders = [];
 
     init() {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0', 
+            'The "FormSubmitLoaderPlugin" class is deprecated. It will be removed in v6.8.0.0. Please use the "FormHandlerPlugin" class instead.'
+        );
+
         if (!this._getForm() || !this._getSubmitButtons()) {
             return;
         }

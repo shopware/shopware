@@ -34,7 +34,7 @@ export default class AjaxModalPlugin extends Plugin {
     };
 
     /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-    httpClient = new HttpClient();
+    httpClient = !window.Feature.isActive('v6.8.0.0') ? new HttpClient() : undefined;
 
     init() {
         this._registerEvents();

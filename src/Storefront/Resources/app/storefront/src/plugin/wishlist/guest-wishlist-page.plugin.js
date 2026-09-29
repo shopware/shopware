@@ -11,7 +11,9 @@ export default class GuestWishlistPagePlugin extends Plugin {
         ElementLoadingIndicatorUtil.create(this.el);
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-        this.httpClient = new HttpClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this.httpClient = new HttpClient();
+        }
         this._getWishlistStorage();
 
         this._loadProductListForGuest();

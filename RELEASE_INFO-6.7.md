@@ -89,18 +89,18 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 
 ### Every Store API route publishes an extension event
 
-All Store API routes in core now publish an extension event, so you can extend a route with a subscriber instead of decorating its abstract route class. Each route has a `<Route>Extension` in the `Extension` namespace of its domain that carries the route's input parameters, for example `Shopware\Core\Content\Product\Extension\ProductSearchRouteExtension`:
+All Store API routes in core now publish an extension event, so you can extend a route with a subscriber instead of decorating its abstract route class. Each route has a `<Route>Extension` in the `Extension` namespace of its domain that carries the route's input parameters, for example `Shopware\Core\Content\Product\Extension\ProductListingRouteExtension`:
 
 ```php
 public static function getSubscribedEvents(): array
 {
-    return [ProductSearchRouteExtension::onPre() => 'addFilter'];
+    return [ProductListingRouteExtension::onPre() => 'addFilter'];
 }
 ```
 
 Use `onPre()` to adjust inputs or replace the result, `onPost()` to change the result, and `onError()` to provide a fallback. Decorating the abstract route classes keeps working. A decorator wraps the whole route: it runs before `onPre()` and after `onPost()` listeners, and a decorator that does not call the decorated route skips the extension events.
 
-The product search and suggest routes publish their extension before the listing criteria are resolved from the request, so `onPre()` listeners can still change request parameters such as `limit`, `order` or filters, and `onPost()` listeners see the processed listing result. Decorators of these two routes with a priority above `-2000` run inside the extension events, after `onPre()` and before `onPost()`.
+The product suggest route publishes its extension before the listing criteria are resolved from the request, so `onPre()` listeners can still change request parameters such as `limit`, `order` or filters, and `onPost()` listeners see the processed listing result. Decorators of this route with a priority above `-2000` run inside the extension events, after `onPre()` and before `onPost()`.
 
 ### Digital products follow their max. order quantity again
 

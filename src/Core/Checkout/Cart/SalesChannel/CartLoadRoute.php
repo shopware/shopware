@@ -49,7 +49,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
         );
     }
 
-    private function _load(Request $request, SalesChannelContext $context, ?Cart $cart = null): CartResponse
+    private function _load(Request $request, SalesChannelContext $context, ?Cart $cart): CartResponse
     {
         $token = RequestParamHelper::get($request, 'token', $context->getToken());
         $taxed = RequestParamHelper::get($request, 'taxed', false);

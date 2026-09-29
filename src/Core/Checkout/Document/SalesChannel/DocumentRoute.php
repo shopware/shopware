@@ -135,9 +135,9 @@ final class DocumentRoute extends AbstractDocumentRoute
         string $documentId,
         Request $request,
         SalesChannelContext $context,
-        string $deepLinkCode = '',
-        ?string $fileType = null,
-        ?string $format = null,
+        string $deepLinkCode,
+        ?string $fileType,
+        ?string $format,
     ): Response {
         $documentEntity = $this->checkAuth($documentId, $deepLinkCode, $request, $context);
 

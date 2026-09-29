@@ -82,7 +82,7 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
         RequestDataBag $requestDataBag,
         SalesChannelContext $context,
         CustomerEntity $customer,
-        ?DataValidationDefinition $additionalValidationDefinitions = null
+        ?DataValidationDefinition $additionalValidationDefinitions
     ): SuccessResponse {
         if (!$customer->getGuest()) {
             throw CustomerException::registeredCustomerCannotBeConverted($customer->getId());

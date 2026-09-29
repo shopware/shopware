@@ -74,7 +74,7 @@ class ShippingCostRoute extends AbstractShippingCostRoute
     /**
      * @param non-empty-list<string>|null $availableShippingMethodIds
      */
-    private function _shippingCostsCart(Cart $cart, SalesChannelContext $salesChannelContext, ?array $availableShippingMethodIds = null): ShippingCostRouteResponse
+    private function _shippingCostsCart(Cart $cart, SalesChannelContext $salesChannelContext, ?array $availableShippingMethodIds): ShippingCostRouteResponse
     {
         return Profiler::trace('shipping-cost-calculator::cart', function () use ($cart, $salesChannelContext, $availableShippingMethodIds) {
             $shippingCosts = new ShippingCostCollection();

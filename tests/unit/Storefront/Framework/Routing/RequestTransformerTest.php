@@ -135,6 +135,31 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
+    public function testSeoUrlNamedLikeAnApiContextRouteBelowVirtualBaseUrlIsStillResolved(): void
+    {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
+
+        $categoryId = Uuid::randomHex();
+        $resolver = static::createStub(AbstractSeoResolver::class);
+        $resolver->method('resolveUrl')->willReturnCallback(static fn (SeoUrlRequestContext $context) => ltrim($context->pathInfo, '/') === 'admin'
+            ? new ResolvedSeoUrl(pathInfo: '/navigation/' . $categoryId, isCanonical: true, id: Uuid::randomHex())
+            : new ResolvedSeoUrl(pathInfo: '/' . ltrim($context->pathInfo, '/'), isCanonical: false));
+
+        $requestTransformer = new RequestTransformer(
+            $decorated,
+            $resolver,
+            ['admin', ApiRouteScope::ID, 'store-api'],
+            $this->createDomainLoader('http://shopware.com/de/'),
+            ['admin', ApiRouteScope::ID],
+        );
+
+        $transformedRequest = $requestTransformer->transform(Request::create('http://shopware.com/de/admin'));
+
+        static::assertTrue($transformedRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
+        static::assertSame('/navigation/' . $categoryId, $transformedRequest->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
+    }
+
     public function testStoreApiBelowVirtualBaseUrlIsStillTransformed(): void
     {
         $decorated = static::createStub(RequestTransformerInterface::class);

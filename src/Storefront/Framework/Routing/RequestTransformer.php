@@ -132,17 +132,18 @@ class RequestTransformer implements RequestTransformerInterface
             );
         }
 
-        // Admin and Admin API routes can't be served with a sales channel context, e.g. shopware.de/de/admin
-        if ($this->isApiContextRouteBelowBaseUrl($request->getPathInfo(), $baseUrl)) {
-            return $request;
-        }
-
         $resolved = $this->resolveSeoUrl(
             $request,
             $baseUrl,
             $salesChannel->languageId,
             $salesChannel->salesChannelId
         );
+
+        // Admin and Admin API routes can't be served with a sales channel context, e.g. shopware.de/de/admin,
+        // unless an SEO URL like "admin" resolved the path to a storefront route
+        if ($this->isApiContextRoute($resolved->pathInfo)) {
+            return $request;
+        }
 
         $currentRequestUri = $request->getRequestUri();
 
@@ -282,14 +283,9 @@ class RequestTransformer implements RequestTransformerInterface
         return true;
     }
 
-    private function isApiContextRouteBelowBaseUrl(string $pathInfo, string $baseUrl): bool
+    private function isApiContextRoute(string $pathInfo): bool
     {
-        $baseUrl = rtrim($baseUrl, '/');
-        if ($baseUrl === '' || !str_starts_with($pathInfo, $baseUrl . '/')) {
-            return false;
-        }
-
-        $pathInfo = '/' . trim(mb_substr($pathInfo, mb_strlen($baseUrl)), '/') . '/';
+        $pathInfo = '/' . trim($pathInfo, '/') . '/';
 
         foreach ($this->apiContextRoutePrefixes as $prefix) {
             if (str_starts_with($pathInfo, '/' . $prefix . '/')) {

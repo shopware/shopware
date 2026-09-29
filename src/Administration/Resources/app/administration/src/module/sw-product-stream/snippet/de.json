@@ -133,7 +133,7 @@
       "labelDescription": "Beschreibung",
       "placeholderDescription": "Gib eine Beschreibung ein ...",
       "labelDisplayAsGroup": "Passende Varianten gruppiert anzeigen",
-      "helpTextDisplayAsGroup": "Wenn aktiviert, werden passende Varianten gemäß der Produktdarstellung gruppiert. Zum Einzelanzeigen deaktivieren.",
+      "helpTextDisplayAsGroup": "Wenn aktiviert, werden passende Varianten gemäß der Storefront-Darstellung des Produkts gruppiert. Zeigt diese ein einzelnes Produkt an, zum Beispiel das Hauptprodukt oder eine ausgewählte Variante, wird dieses auch angezeigt, wenn es nicht den Bedingungen entspricht. Deaktiviere die Option, um jede passende Variante einzeln anzuzeigen.",
       "textHeadline": "Neue Produktgruppe",
       "titleFilter": "Bedingungen",
       "titleResult": "Produkte",

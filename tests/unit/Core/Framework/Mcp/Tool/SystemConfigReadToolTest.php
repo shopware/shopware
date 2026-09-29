@@ -94,7 +94,7 @@ class SystemConfigReadToolTest extends TestCase
     public function testNoDotTreatedAsDomain(): void
     {
         $configService = $this->createMock(SystemConfigService::class);
-        $configService->method('getDomain')
+        $configService->expects($this->once())->method('getDomain')
             ->with('core', null)
             ->willReturn(['core.listing.defaultSorting' => 'name-asc']);
 

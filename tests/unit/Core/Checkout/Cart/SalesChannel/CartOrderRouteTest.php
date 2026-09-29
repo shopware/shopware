@@ -391,7 +391,7 @@ class CartOrderRouteTest extends TestCase
         $cart->add(new LineItem('id', 'type'));
 
         $cartPersister = $this->createMock(AbstractCartPersister::class);
-        $cartPersister->method('exists')
+        $cartPersister->expects($this->once())->method('exists')
             ->with('token', $this->context)
             ->willReturn(false);
         $cartPersister->expects($this->never())->method('delete');

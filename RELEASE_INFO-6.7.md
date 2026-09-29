@@ -2,6 +2,10 @@
 
 ## Core
 
+### Array values in static system configuration
+
+`shopware.system_config` entries in `config/packages` now accept arrays, including `[]`. An empty sales-channel value clears an array from the default scope; a more specific sales-channel key still overrides an empty default parent.
+
 ### `JsonField` supports typed properties with additional extension data
 
 `JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:
@@ -214,7 +218,36 @@ The group order in the permissions grid of Settings > Users & permissions follow
 
 The order is the `parentOrder` computed of `sw-users-permissions-permissions-grid`, and label lookups go through its `parentLabel()` method; both can be overridden to place an extension's group.
 
+### Import the global Shopware object with `shopware:*` modules (experimental)
+
+Administration code and extensions can now import selected APIs from the global `Shopware` object:
+
+```ts
+import { createId } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
+import { Criteria } from 'shopware:data';
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
+```
+
+This surface is **experimental** and not covered by the backwards-compatibility promise: the available
+specifiers, what each one exports, and their types can change in any release without a deprecation cycle.
+It is annotated `@experimental stableVersion:v6.8.0`, and becomes stable public API with Shopware 6.8.
+`Shopware.*` access is stable, so code that keeps using the global needs no change.
+
+The `shopware:utils` and `shopware:data` roots provide named exports. Their subpaths provide default
+exports, and declared utility namespaces can also provide named exports. Mixins and stores only provide
+subpaths for Administration registrations. A store subpath returns a composable that resolves the store
+when called.
+
+Existing `Shopware.*` access remains supported. Use `Shopware.Store.get()` and
+`Shopware.Mixin.getByName()` for registrations that an extension creates at runtime.
+
 ## Storefront
+
+### Display the complete legal guarantee notice at checkout
+
+Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.
 
 ### Preserve theme assets on S3-compatible storage
 

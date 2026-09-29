@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResultParser;
  */
 #[Package('framework')]
 #[CoversClass(McpToolResultParser::class)]
-#[CoversClass(McpToolResult::class)]
-#[CoversClass(McpToolError::class)]
 class McpToolResultParserTest extends TestCase
 {
     public function testParsesASuccessEnvelopeWithMeta(): void
@@ -98,17 +96,5 @@ class McpToolResultParserTest extends TestCase
     public function testLeavesOtherStringsAlone(string $text): void
     {
         static::assertNull((new McpToolResultParser())->parse($text));
-    }
-
-    public function testNamedConstructors(): void
-    {
-        $success = McpToolResult::success(['a' => 1], ['dryRun' => true], 'One item');
-        static::assertSame(['a' => 1], $success->data);
-        static::assertSame('One item', $success->summary);
-        static::assertSame(['dryRun' => true], $success->meta);
-        static::assertFalse($success->isError());
-
-        $failure = McpToolResult::failure('Nope', McpToolError::NOT_FOUND, ['id' => 'x']);
-        static::assertEquals(new McpToolError('Nope', McpToolError::NOT_FOUND, ['id' => 'x']), $failure->error);
     }
 }

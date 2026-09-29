@@ -95,7 +95,7 @@ Tool calls on `/api/_mcp` and `/store-api/_mcp` now return the result data as `s
 
 The text block is unchanged, so clients that parse `{"success": ..., "data": ...}` keep working. Plugin tools that extend `McpToolResponse` get the new fields without any change. Tools can pass a stable code as the second argument of `McpToolResponse::error()`.
 
-With the `v6.8.0.0` feature flag, the text block holds the plain data or error message instead of the `success` envelope.
+With the `v6.8.0.0` feature flag, the first text block holds the plain data or the error message instead of the `success` envelope, followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own. See `UPGRADE-6.8.md` for how to switch a client.
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
 

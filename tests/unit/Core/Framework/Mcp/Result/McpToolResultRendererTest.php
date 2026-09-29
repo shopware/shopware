@@ -133,18 +133,23 @@ class McpToolResultRendererTest extends TestCase
         $result = $this->renderer()->render(McpToolResult::success(['a' => 1], ['total' => 1]), ProtocolVersion::latestHandshake(), '{"success":true,"data":{"a":1}}');
 
         static::assertSame('{"a":1}', $this->text($result->content[0]));
+        static::assertSame('{"_meta":{"total":1}}', $this->text($result->content[1]), 'hints written for the model stay in the text');
+        static::assertCount(2, $result->content);
         static::assertSame(['shopware/total' => 1, 'shopware/generatedAt' => self::NOW], $result->meta);
     }
 
-    public function testSpecOnlyModePrefersTheSummaryAndSendsErrorsAsTheirMessage(): void
+    public function testSpecOnlyModeKeepsTheDataFirstAddsTheSummaryAndSendsErrorsAsTheirMessage(): void
     {
         Feature::skipTestIfInActive('v6.8.0.0', $this);
 
         $success = $this->renderer()->render(McpToolResult::success(['a' => 1], summary: 'One product'), ProtocolVersion::latestHandshake());
-        static::assertSame('One product', $this->text($success->content[0]));
+        static::assertSame('{"a":1}', $this->text($success->content[0]), 'the summary never replaces the data');
+        static::assertSame('One product', $this->text($success->content[1]));
+        static::assertCount(2, $success->content);
 
         $failure = $this->renderer()->render(McpToolResult::failure('Not found'), ProtocolVersion::latestHandshake());
         static::assertSame('Not found', $this->text($failure->content[0]));
+        static::assertCount(1, $failure->content);
     }
 
     private function renderer(): McpToolResultRenderer

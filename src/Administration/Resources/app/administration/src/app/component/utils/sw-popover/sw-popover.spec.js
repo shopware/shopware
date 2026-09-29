@@ -53,6 +53,8 @@ describe('src/app/component/base/sw-popover', () => {
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should pass the "resizeWidth" prop to the "matchReferenceWidth" property in mt-floating-ui with false',
         async () => {
+            const guardSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
+
             const wrapper = await createWrapper({
                 props: {
                     resizeWidth: false,
@@ -61,6 +63,8 @@ describe('src/app/component/base/sw-popover', () => {
 
             const floatingUi = wrapper.findComponent({ name: 'mt-floating-ui' });
             expect(floatingUi.attributes('match-reference-width')).toBe('false');
+
+            guardSpy.mockRestore();
         },
     );
 
@@ -99,6 +103,8 @@ describe('src/app/component/base/sw-popover', () => {
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('should prefer match-reference-width attribute over resizeWidth prop', async () => {
+        const guardSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
+
         const wrapper = await createWrapper({
             props: {
                 resizeWidth: false,
@@ -110,11 +116,15 @@ describe('src/app/component/base/sw-popover', () => {
 
         const floatingUi = wrapper.findComponent({ name: 'mt-floating-ui' });
         expect(floatingUi.attributes('match-reference-width')).toBe('true');
+
+        guardSpy.mockRestore();
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])(
         'should prefer matchReferenceWidth camelCase attribute over resizeWidth prop',
         async () => {
+            const guardSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
+
             const wrapper = await createWrapper({
                 props: {
                     resizeWidth: false,
@@ -126,6 +136,8 @@ describe('src/app/component/base/sw-popover', () => {
 
             const floatingUi = wrapper.findComponent({ name: 'mt-floating-ui' });
             expect(floatingUi.attributes('match-reference-width')).toBe('true');
+
+            guardSpy.mockRestore();
         },
     );
 

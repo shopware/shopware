@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
+use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -13,7 +14,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminIndexingCommand;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -41,6 +46,26 @@ class AdminSearchControllerTest extends TestCase
      * receive the ids via #[Depends] - see NoDependsWithDataProviderRule.
      */
     private static IdsCollection $indexedIds;
+
+    public static function tearDownAfterClass(): void
+    {
+        $container = static::getContainer();
+
+        // the promotions are committed once for the whole class, so the tests running after it would see them
+        $container->get(Connection::class)->executeStatement('DELETE FROM promotion');
+
+        // rebuild the admin promotion index from the emptied table, otherwise it keeps reporting the deleted promotions
+        $adminEsHelper = $container->get(AdminElasticsearchHelper::class);
+        $adminEsHelper->setEnabled(true);
+
+        try {
+            $container->get(ElasticsearchAdminIndexingCommand::class)
+                ->run(new ArrayInput(['--only' => 'promotion', '--no-queue' => true]), new NullOutput());
+            $container->get(Client::class)->indices()->refresh(['index' => '*']);
+        } finally {
+            $adminEsHelper->setEnabled(false);
+        }
+    }
 
     protected function setUp(): void
     {

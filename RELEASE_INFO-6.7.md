@@ -6,6 +6,8 @@
 
 Filtered product listings now show the configured main variant of a variant product only if it matches all active listing filters, including price, manufacturer and rating filters, not only property filters; otherwise a matching variant is shown. A product configured to display its parent still shows the parent. The "Preview best matching variant in search results" setting (`core.listing.findBestVariant`) affects search results only again, not filtered listings.
 
+If `core.listing.findBestVariant` is enabled, filtered listings now also respect the storefront presentation of variant products: a product configured to display its parent shows the parent instead of the matching variant, and a main variant that matches the active filters is shown instead of any other matching variant.
+
 Extensions that replace the preview resolution via `LoadPreviewExtension` can read the active post filters from the new `postFilters` property to apply the same rule.
 
 ### `JsonField` supports typed properties with additional extension data

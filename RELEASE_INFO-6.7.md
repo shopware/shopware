@@ -118,12 +118,6 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.
 
-### [Internal] State in `<sw-block extends>` content is mutable
-
-Setup bindings an override SFC forwards into `<sw-block extends>` content can now be written from that content. `@click="count++"`, `count = 1` and `v-model="count"` reach the real ref, exactly as in a base component; previously such a write was rejected at build time, and `v-model` silently did nothing. No change is needed in existing overrides.
-
-One expression form is newly rejected: an expression inside `<sw-block extends>` content that reads a forwarded binding must not contain HTML entities, for example `v-if="count &lt; max"`. Write the character itself (`v-if="count < max"`), which is valid in a Vue expression.
-
 ### Custom-field set loader computed properties deprecated
 
 The following Administration components now load custom-field sets through `customFieldDataProviderService`. This replaces their separate loaders with one shared implementation and gives each component cached results by entity, language, and requested limit. Their previous loader computed properties remain available in 6.7 but are deprecated for v6.8.0:

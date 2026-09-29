@@ -292,7 +292,7 @@
     },
     "tmp": "0.2.7",
     "qs": "6.16.0",
-    "ip-address": "10.4.0",
+    "ip-address": "10.7.2",
     "basic-ftp": "5.3.1",
     "follow-redirects": "1.16.0",
     "@lhci/cli": {

@@ -75,6 +75,10 @@ describe('majorFeatureFlags', () => {
         expect(getMajorFeatureFlags(config, { JSON_LD_DATA: '1' })).toEqual(['JSON_LD_DATA']);
     });
 
+    it('keeps an explicitly enabled independent feature in a major run', () => {
+        expect(getMajorFeatureFlags(config, { V6_8_0_0: '1', MINOR_FEATURE: '1' })).toContain('MINOR_FEATURE');
+    });
+
     it('does not inherit from a non-major flag', () => {
         expect(getMajorFeatureFlags(config, { V6_8_0_0: '1', MINOR_FEATURE: '1' })).not.toContain('INVALID_CHILD');
     });

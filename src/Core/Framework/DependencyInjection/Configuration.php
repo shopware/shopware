@@ -661,7 +661,12 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
-                        ->stringNode('major')->cannotBeEmpty()->end()
+                        ->stringNode('major')->cannotBeEmpty()
+                            ->validate()
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/', $major))
+                                ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
+                            ->end()
+                        ->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
@@ -681,6 +686,18 @@ class Configuration implements ConfigurationInterface
 
                         return $flags;
                     })
+                    ->end()
+                ->validate()
+                    ->ifTrue(static function (array $flags): bool {
+                        foreach ($flags as $name => $flag) {
+                            if (isset($flag['major']) && Feature::isMajorVersionFlag((string) $name)) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    })
+                    ->thenInvalid('A major version flag cannot declare a parent major.')
                     ->end()
             ->end();
 
@@ -1314,7 +1331,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->arrayPrototype()->scalarPrototype()->end()
+            ->arrayPrototype()->variablePrototype()->end()
             ->end()
             ->validate()
             ->ifFalse(

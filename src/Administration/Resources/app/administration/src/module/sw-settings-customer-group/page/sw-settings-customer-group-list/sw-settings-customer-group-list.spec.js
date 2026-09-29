@@ -6,7 +6,17 @@ import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-async function createWrapper(privileges = []) {
+const defaultCustomerGroups = [
+    {
+        id: '1',
+        name: 'Net price customer group',
+        displayGross: false,
+        priceBasis: null,
+        registrationActive: false,
+    },
+];
+
+async function createWrapper(privileges = [], customerGroups = defaultCustomerGroups) {
     return mount(
         await wrapTestComponent('sw-settings-customer-group-list', {
             sync: true,
@@ -42,6 +52,7 @@ async function createWrapper(privileges = []) {
                         template: '<div><slot name="grid"></slot></div>',
                     },
                     'sw-context-menu-item': true,
+                    'sw-data-grid-column-boolean': true,
                     'sw-entity-listing': {
                         props: [
                             'items',
@@ -53,6 +64,14 @@ async function createWrapper(privileges = []) {
                         template: `
                     <div>
                         <template v-for="item in (dataSource || items)">
+                            <div class="sw-entity-listing__column-price-basis">
+                                <slot name="column-priceBasis" v-bind="{ item }"></slot>
+                            </div>
+
+                            <div class="sw-entity-listing__column-registration-active">
+                                <slot name="column-registrationActive" v-bind="{ item }"></slot>
+                            </div>
+
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
                                     <div class="sw-entity-listing__context-menu-edit-action"
@@ -77,13 +96,7 @@ async function createWrapper(privileges = []) {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve([
-                                    {
-                                        id: '1',
-                                        name: 'Net price customer group',
-                                        displayGross: false,
-                                    },
-                                ]);
+                                return Promise.resolve(customerGroups);
                             },
                         }),
                     },
@@ -135,6 +148,92 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         const wrapper = await createWrapper();
 
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should show name, tax display and price basis by default and hide the signup form column', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.columns).toEqual([
+            expect.objectContaining({ property: 'name' }),
+            expect.objectContaining({ property: 'displayGross' }),
+            expect.objectContaining({ property: 'priceBasis' }),
+            expect.objectContaining({ property: 'registrationActive', visible: false }),
+        ]);
+
+        const priceBasisColumn = wrapper.vm.columns.find((column) => column.property === 'priceBasis');
+
+        expect(priceBasisColumn.visible).not.toBe(false);
+        expect(priceBasisColumn.inlineEdit).toBeUndefined();
+    });
+
+    it.each([
+        [
+            'derives the gross basis from a gross tax display',
+            { priceBasis: null, displayGross: true },
+            'sw-settings-customer-group.detail.priceBasis.grossLabel',
+        ],
+        [
+            'derives the net basis from a net tax display',
+            { priceBasis: null, displayGross: false },
+            'sw-settings-customer-group.detail.priceBasis.netLabel',
+        ],
+        [
+            'keeps an explicit gross basis with a net tax display',
+            { priceBasis: 'gross', displayGross: false },
+            'sw-settings-customer-group.detail.priceBasis.grossLabel',
+        ],
+        [
+            'keeps an explicit net basis with a gross tax display',
+            { priceBasis: 'net', displayGross: true },
+            'sw-settings-customer-group.detail.priceBasis.netLabel',
+        ],
+    ])('should show the effective price basis: %s', async (_description, customerGroup, expectedLabel) => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.getPriceBasisLabel(customerGroup)).toBe(expectedLabel);
+    });
+
+    it('should render the effective price basis in the grid', async () => {
+        const wrapper = await createWrapper(
+            [],
+            [
+                {
+                    id: '1',
+                    name: 'Legacy net customer group',
+                    displayGross: false,
+                    priceBasis: null,
+                    registrationActive: false,
+                },
+            ],
+        );
+        await flushPromises();
+
+        const priceBasisCell = wrapper.find('.sw-entity-listing__column-price-basis');
+
+        expect(priceBasisCell.text()).toBe('sw-settings-customer-group.detail.priceBasis.netLabel');
+    });
+
+    it('should render the signup form column as a boolean column', async () => {
+        const wrapper = await createWrapper(
+            [],
+            [
+                {
+                    id: '1',
+                    name: 'Customer group with signup form',
+                    displayGross: true,
+                    priceBasis: 'gross',
+                    registrationActive: true,
+                },
+            ],
+        );
+        await flushPromises();
+
+        const registrationCell = wrapper.find('.sw-entity-listing__column-registration-active');
+        const booleanColumn = registrationCell.find('sw-data-grid-column-boolean-stub');
+
+        expect(booleanColumn.exists()).toBe(true);
+        expect(booleanColumn.attributes('value')).toBe('true');
+        expect(booleanColumn.attributes('is-inline-edit')).toBe('false');
     });
 
     it('should return false if customer group has a customer and/or SalesChannel assigned to it', async () => {

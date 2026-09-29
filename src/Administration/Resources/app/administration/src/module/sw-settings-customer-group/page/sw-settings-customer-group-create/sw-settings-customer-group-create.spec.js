@@ -201,6 +201,24 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         });
     });
 
+    it('should preselect gross tax display and gross price basis for a freshly created customer group', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.customerGroup.displayGross).toBe(true);
+        expect(wrapper.vm.customerGroup.priceBasis).toBe('gross');
+
+        const taxDisplayOptions = wrapper
+            .find('.sw-settings-customer-group-detail__tax-display')
+            .findAll('.sw-field__radio-option');
+        const priceBasisOptions = wrapper
+            .find('.sw-settings-customer-group-detail__price-basis')
+            .findAll('.sw-field__radio-option');
+
+        expect(taxDisplayOptions.at(0).classes()).toContain('sw-field__radio-option-checked');
+        expect(priceBasisOptions.at(0).classes()).toContain('sw-field__radio-option-checked');
+    });
+
     it('should not be able to save the customer group without registration title', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -14,7 +14,7 @@ test(
             await ShopAdmin.goesTo(AdminCustomerGroupDetail.url(customerGroup.id));
             await ShopAdmin.expects(AdminCustomerGroupDetail.headline).toContainText(customerGroup.name);
             await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupNameField).toHaveValue(customerGroup.name);
-            await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupGrossTaxDisplay).toBeChecked();
+            await ShopAdmin.expects(AdminCustomerGroupDetail.customerGroupTaxDisplayGross).toBeChecked();
             await ShopAdmin.expects(AdminCustomerGroupDetail.customSignupFormToggle).toBeChecked();
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormTitle).toHaveValue(customerGroup.name);
             await ShopAdmin.expects(AdminCustomerGroupDetail.signupFormIntroduction).toContainText(

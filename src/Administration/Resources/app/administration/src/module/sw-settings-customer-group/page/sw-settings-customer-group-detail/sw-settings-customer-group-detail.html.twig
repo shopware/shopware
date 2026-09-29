@@ -92,30 +92,48 @@
                                 :disabled="!acl.can('customer_groups.editor') || undefined"
                             />
                             {% endblock %}
-
-                            {% block sw_settings_customer_group_detail_content_card_display_gross %}
-                            <sw-boolean-radio-group
-                                v-model:value="customerGroup.displayGross"
-                                bordered
-                                :label="$t('sw-settings-customer-group.detail.fieldDisplayGrossLabel')"
-                                :label-option-true="$t('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 1)"
-                                :label-option-false="$t('sw-settings-customer-group.detail.fieldDisplayGrossValues', {}, 0)"
-                                :disabled="!acl.can('customer_groups.editor') || undefined"
-                            />
-                            {% endblock %}
-
-                            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
-                            {% block sw_settings_customer_group_detail_content_card_registration_form %}
-
-                            <mt-switch
-                                v-model="customerGroup.registrationActive"
-                                name="sw-field--customerGroup-registrationActive"
-                                class="sw-settings-customer-group-detail__registration-form-switch"
-                                :label="$t('sw-settings-customer-group.detail.registrationForm')"
-                                :disabled="!acl.can('customer_groups.editor') || undefined"
-                            />
-                            {% endblock %}
                         </sw-container>
+
+                        {% block sw_settings_customer_group_detail_content_card_tax_display %}
+                        <sw-radio-field
+                            v-model:value="displayGross"
+                            name="sw-field--customerGroup-displayGross"
+                            class="sw-settings-customer-group-detail__tax-display"
+                            block
+                            :label="$t('sw-settings-customer-group.detail.taxDisplay.label')"
+                            :options="taxDisplayOptions"
+                            :disabled="!acl.can('customer_groups.editor') || undefined"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_customer_group_detail_content_card_price_basis %}
+                        <sw-radio-field
+                            v-model:value="priceBasis"
+                            name="sw-field--customerGroup-priceBasis"
+                            class="sw-settings-customer-group-detail__price-basis"
+                            block
+                            :label="$t('sw-settings-customer-group.detail.priceBasis.label')"
+                            :options="priceBasisOptions"
+                            :disabled="!acl.can('customer_groups.editor') || undefined"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_customer_group_detail_content_card_registration_form %}
+                        <div class="sw-settings-customer-group-detail__registration-form-title">
+                            {{ $t('sw-settings-customer-group.detail.registrationFormTitle') }}
+                        </div>
+
+                        <mt-switch
+                            v-model="customerGroup.registrationActive"
+                            name="sw-field--customerGroup-registrationActive"
+                            class="sw-settings-customer-group-detail__registration-form-switch"
+                            :label="$t('sw-settings-customer-group.detail.registrationForm')"
+                            :disabled="!acl.can('customer_groups.editor') || undefined"
+                        />
+                        {% endblock %}
+
+                        {# @deprecated tag:v6.8.0 - Will be removed. Use sw_settings_customer_group_detail_content_card_tax_display instead. #}
+                        {% block sw_settings_customer_group_detail_content_card_display_gross %}{% endblock %}
                     </template>
                 </mt-card>
                 {% endblock %}

@@ -26,7 +26,10 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
+use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 
@@ -37,6 +40,9 @@ use Shopware\Core\Test\TestDefaults;
 #[CoversClass(EntityCacheKeyGenerator::class)]
 class EntityCacheKeyGeneratorTest extends TestCase
 {
+    private const TAX_ID = '0191b0e4b7a97243b0f2fca1f9b0d2a1';
+    private const TAX_RULE_ID = '0191b0e4b7a97243b0f2fca1f9b0d2a2';
+
     public function testBuildCmsTag(): void
     {
         static::assertSame('cms-page-foo', EntityCacheKeyGenerator::buildCmsTag('foo'));
@@ -134,6 +140,91 @@ class EntityCacheKeyGeneratorTest extends TestCase
         yield 'rules considered for hash' => [
             (new DummyContext())->setAreaRuleIdsFluent(['test' => ['foo']]),
         ];
+
+        yield 'tax rates considered for hash when the price basis differs from the display state' => [
+            (new DummyContext())
+                ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_NET)
+                ->setTaxRulesFluent(self::taxes(19.0)),
+        ];
+    }
+
+    public function testTaxRatesAreIgnoredWhenTheBasisMatchesTheDisplayState(): void
+    {
+        $generator = new EntityCacheKeyGenerator();
+
+        $germany = (new DummyContext())
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+            ->setTaxRulesFluent(self::taxes(19.0));
+
+        $austria = (new DummyContext())
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+            ->setTaxRulesFluent(self::taxes(20.0));
+
+        static::assertSame(
+            $generator->getSalesChannelContextHash($germany),
+            $generator->getSalesChannelContextHash($austria)
+        );
+    }
+
+    public function testTaxRatesSeparateTheHashForTheNetBasisWithGrossDisplay(): void
+    {
+        $generator = new EntityCacheKeyGenerator();
+
+        $germany = (new DummyContext())
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_NET)
+            ->setTaxRulesFluent(self::taxes(19.0));
+
+        $austria = (new DummyContext())
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_NET)
+            ->setTaxRulesFluent(self::taxes(20.0));
+
+        static::assertNotSame(
+            $generator->getSalesChannelContextHash($germany),
+            $generator->getSalesChannelContextHash($austria)
+        );
+    }
+
+    public function testTaxRatesSeparateTheHashForTheGrossBasisWithNetDisplay(): void
+    {
+        $generator = new EntityCacheKeyGenerator();
+
+        $germany = (new DummyContext())
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+            ->setTaxStateFluent(CartPrice::TAX_STATE_NET)
+            ->setTaxRulesFluent(self::taxes(19.0));
+
+        $austria = (new DummyContext())
+            ->setPriceBasisFluent(CustomerGroupEntity::PRICE_BASIS_GROSS)
+            ->setTaxStateFluent(CartPrice::TAX_STATE_NET)
+            ->setTaxRulesFluent(self::taxes(20.0));
+
+        static::assertNotSame(
+            $generator->getSalesChannelContextHash($germany),
+            $generator->getSalesChannelContextHash($austria)
+        );
+    }
+
+    private static function taxes(float $rate, ?float $countryRate = null): TaxCollection
+    {
+        $tax = (new TaxEntity())->assign([
+            'id' => self::TAX_ID,
+            '_uniqueIdentifier' => self::TAX_ID,
+            'taxRate' => $rate,
+            'name' => 'tax',
+            'position' => 1,
+        ]);
+
+        if ($countryRate !== null) {
+            $tax->setRules(new TaxRuleCollection([
+                (new TaxRuleEntity())->assign([
+                    'id' => self::TAX_RULE_ID,
+                    '_uniqueIdentifier' => self::TAX_RULE_ID,
+                    'taxRate' => $countryRate,
+                ]),
+            ]));
+        }
+
+        return new TaxCollection([$tax]);
     }
 }
 
@@ -215,6 +306,20 @@ class DummyContext extends SalesChannelContext
     public function setItemRoundingFluent(CashRoundingConfig $rounding): self
     {
         $this->itemRounding = $rounding;
+
+        return $this;
+    }
+
+    public function setPriceBasisFluent(?string $priceBasis): self
+    {
+        $this->currentCustomerGroup = (new CustomerGroupEntity())->assign(['priceBasis' => $priceBasis]);
+
+        return $this;
+    }
+
+    public function setTaxRulesFluent(TaxCollection $taxRules): self
+    {
+        $this->taxRules = $taxRules;
 
         return $this;
     }

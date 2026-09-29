@@ -947,6 +947,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('product_content_layout.repository'),
             service(ProductContentLayoutDefinition::class),
             service(EntityLayoutContextFactory::class),
+            service('sales_channel.product.repository'),
         ])
         ->tag('content_system.entity_specification_source', ['priority' => 100]);
 };

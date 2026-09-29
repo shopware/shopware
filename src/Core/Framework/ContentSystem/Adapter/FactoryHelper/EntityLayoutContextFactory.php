@@ -58,21 +58,39 @@ class EntityLayoutContextFactory
 
     /**
      * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
+     * @param list<string> $fallbackEntityIds entity ids whose assignments are tried in order before the default layout
      */
     public function resolveLayoutId(
         string $path,
         SalesChannelContext $context,
         EntityRepository $repository,
-        AbstractContentLayoutAssignableDefinition $definition
+        AbstractContentLayoutAssignableDefinition $definition,
+        array $fallbackEntityIds = [],
     ): string {
         $entityId = $this->extractEntityId($path, $definition);
+        $layoutId = null;
 
-        $layoutId = $this->layoutResolver->findLayoutId(
-            $definition->getContentLayoutEntityIdField(),
-            $entityId,
-            $context,
-            $repository
-        ) ?? $this->findDefaultLayoutId($definition, $context);
+        foreach ([$entityId, ...$fallbackEntityIds] as $assignedEntityId) {
+            // Tagged before the lookup, so a page cached without an assignment (legacy CMS fallback) is invalidated once one is written
+            $cacheTags = $definition->getCacheTags($assignedEntityId);
+
+            if ($cacheTags !== []) {
+                $this->cacheTagCollector->addTag(...$cacheTags);
+            }
+
+            $layoutId = $this->layoutResolver->findLayoutId(
+                $definition->getContentLayoutEntityIdField(),
+                $assignedEntityId,
+                $context,
+                $repository
+            );
+
+            if ($layoutId !== null) {
+                break;
+            }
+        }
+
+        $layoutId ??= $this->findDefaultLayoutId($definition, $context);
 
         if ($layoutId === null) {
             throw ContentSystemException::layoutAssignmentNotFound(
@@ -136,26 +154,10 @@ class EntityLayoutContextFactory
         return $definition->getCacheTags($entityId);
     }
 
-    private function findDefaultLayoutId(AbstractContentLayoutAssignableDefinition $definition, SalesChannelContext $context): ?string
-    {
-        $configKey = $definition->getContentLayoutDefaultConfigKey();
-
-        if ($configKey === null) {
-            return null;
-        }
-
-        // Tagged before the read, so a page cached without a default (legacy CMS fallback) is invalidated once one is set
-        $this->cacheTagCollector->addTag(SystemConfigService::buildName($configKey));
-
-        $layoutId = $this->systemConfigService->getString($configKey, $context->getSalesChannelId());
-
-        return $layoutId !== '' ? $layoutId : null;
-    }
-
     /**
      * @throws ContentSystemException If path doesn't match route pattern
      */
-    private function extractEntityId(string $path, AbstractContentLayoutAssignableDefinition $definition): string
+    public function extractEntityId(string $path, AbstractContentLayoutAssignableDefinition $definition): string
     {
         $path = '/' . ltrim($path, '/');
         $routePattern = $definition->getContentLayoutRoutePattern();
@@ -184,5 +186,21 @@ class EntityLayoutContextFactory
         $entityIdField = $definition->getContentLayoutEntityIdField();
 
         return $parameters[$entityIdField];
+    }
+
+    private function findDefaultLayoutId(AbstractContentLayoutAssignableDefinition $definition, SalesChannelContext $context): ?string
+    {
+        $configKey = $definition->getContentLayoutDefaultConfigKey();
+
+        if ($configKey === null) {
+            return null;
+        }
+
+        // Tagged before the read, so a page cached without a default (legacy CMS fallback) is invalidated once one is set
+        $this->cacheTagCollector->addTag(SystemConfigService::buildName($configKey));
+
+        $layoutId = $this->systemConfigService->getString($configKey, $context->getSalesChannelId());
+
+        return $layoutId !== '' ? $layoutId : null;
     }
 }

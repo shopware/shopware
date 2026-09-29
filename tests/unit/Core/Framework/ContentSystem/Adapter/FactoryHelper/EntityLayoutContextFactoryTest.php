@@ -95,6 +95,29 @@ class EntityLayoutContextFactoryTest extends TestCase
         static::assertSame($this->ids->get('explicit-layout'), $result);
     }
 
+    #[TestDox('uses the assignment of the first fallback entity with one before the default layout')]
+    public function testResolveLayoutIdTriesFallbackEntitiesBeforeDefault(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('default-layout'));
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturnCallback(fn (string $field, string $entityId) => $entityId === $this->ids->get('parent')
+                ? $this->ids->get('parent-layout')
+                : null);
+
+        $result = $this->factory->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            Generator::generateSalesChannelContext(),
+            $this->createRepository(),
+            $definition,
+            [$this->ids->get('parent')],
+        );
+
+        static::assertSame($this->ids->get('parent-layout'), $result);
+    }
+
     #[TestDox('falls back to the default layout of the entity type when no explicit assignment exists')]
     public function testResolveLayoutIdFallsBackToDefaultLayout(): void
     {

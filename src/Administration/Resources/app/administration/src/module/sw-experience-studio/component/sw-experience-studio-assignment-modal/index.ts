@@ -122,10 +122,6 @@ export default Shopware.Component.wrapComponentConfig({
         entityCriteria(): CriteriaType {
             const criteria = new Criteria(1, 25);
 
-            if (this.assignmentType?.entity === 'product') {
-                criteria.addFilter(Criteria.equals('parentId', null));
-            }
-
             if (this.assignmentType?.entity === 'category') {
                 criteria.addFilter(Criteria.not('AND', [Criteria.equals('type', 'link')]));
             }

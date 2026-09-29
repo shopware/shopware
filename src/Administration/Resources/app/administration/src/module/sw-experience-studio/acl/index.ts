@@ -10,6 +10,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             privileges: [
                 'content_layout:read',
                 'property_group:read',
+                'property_group_option:read',
                 'sales_channel:read',
                 'product:read',
                 'category:read',

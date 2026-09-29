@@ -156,6 +156,35 @@ class ContentLayoutAssignmentResolutionTest extends TestCase
         $this->assertRendersLegacyCmsLayout($this->requestProduct());
     }
 
+    #[TestDox('renders the Experience Studio layout assigned to a variant on the variant detail page')]
+    public function testVariantAssignmentOverridesLegacyCmsLayout(): void
+    {
+        $this->createVariantProduct();
+        $this->assignLayout('product_content_layout.repository', 'productId', 'variant', 'product-layout');
+
+        $this->assertRendersContentLayout($this->requestPage('detail/' . $this->ids->get('variant')), 'product-layout');
+    }
+
+    #[TestDox('renders the Experience Studio layout assigned to the parent product on a variant without an assignment')]
+    public function testVariantInheritsParentAssignment(): void
+    {
+        $this->createVariantProduct();
+        $this->assignLayout('product_content_layout.repository', 'productId', 'variant-parent', 'product-layout');
+
+        $this->assertRendersContentLayout($this->requestPage('detail/' . $this->ids->get('variant')), 'product-layout');
+    }
+
+    #[TestDox('renders the variant assignment instead of the parent product assignment')]
+    public function testVariantAssignmentOverridesParentAssignment(): void
+    {
+        $this->createVariantProduct();
+        $this->createContentLayout('parent-product-layout', 'product');
+        $this->assignLayout('product_content_layout.repository', 'productId', 'variant-parent', 'parent-product-layout');
+        $this->assignLayout('product_content_layout.repository', 'productId', 'variant', 'product-layout');
+
+        $this->assertRendersContentLayout($this->requestPage('detail/' . $this->ids->get('variant')), 'product-layout');
+    }
+
     private function assertRendersContentLayout(string $html, string $layoutKey): void
     {
         static::assertStringContainsString('data-element-id="' . $this->ids->get($layoutKey . '-root') . '"', $html);
@@ -269,6 +298,24 @@ class ContentLayoutAssignmentResolutionTest extends TestCase
         $product = (new ProductBuilder($this->ids, 'product'))
             ->price(10)
             ->visibility($this->getSalesChannelId())
+            ->build();
+
+        $product['cmsPageId'] = $this->ids->get('legacy-product-page');
+
+        $this->repository('product.repository')->create([$product], Context::createDefaultContext());
+    }
+
+    private function createVariantProduct(): void
+    {
+        $product = (new ProductBuilder($this->ids, 'variant-parent'))
+            ->price(10)
+            ->visibility($this->getSalesChannelId())
+            ->configuratorSetting('red', 'color')
+            ->variant(
+                (new ProductBuilder($this->ids, 'variant'))
+                    ->option('red', 'color')
+                    ->build()
+            )
             ->build();
 
         $product['cmsPageId'] = $this->ids->get('legacy-product-page');

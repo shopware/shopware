@@ -38,12 +38,12 @@ describe('module/sw-experience-studio/component/sw-experience-studio-assignment-
         expect(computed.assignmentType.call({ rootSource: 'landing_page' })).toBeNull();
     });
 
-    it('limits product selection to parent products', () => {
+    it('offers parent products and variants for selection', () => {
         const criteria = computed.entityCriteria.call({ assignmentType: { entity: 'product' } }) as {
             filters: unknown[];
         };
 
-        expect(criteria.filters).toEqual([{ type: 'equals', field: 'parentId', value: null }]);
+        expect(criteria.filters).toEqual([]);
     });
 
     it('excludes link categories from selection', () => {

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\User\UserCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class AclRoleEntity extends Entity
 {

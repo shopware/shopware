@@ -1,0 +1,22 @@
+{
+    "global": {
+        "sw-admin-menu": {
+            "navigation": {
+                "mainMenuItemShopwarePayments": "Shopware Payments"
+            }
+        }
+    },
+    "sw-payments": {
+        "general": {
+            "mainMenuItemGeneral": "Shopware Payments",
+            "description": "Verwalte Shopware Payments."
+        }
+    },
+    "sw-privileges": {
+        "permissions": {
+            "sw-payments": {
+                "label": "Shopware Payments"
+            }
+        }
+    }
+}

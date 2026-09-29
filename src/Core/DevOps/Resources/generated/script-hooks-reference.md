@@ -12,6 +12,18 @@ nav:
 
 All available Hooks that can be used to load additional data.
 
+### document-generation
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | document-generation                         |
+| **Since**              | 6.7.14.0                        |
+| **Class**              | `Shopware\Core\Checkout\DocumentV2\Event\Hooks\DocumentGenerationHook`                      |
+| **Description**        | Triggered once per document generation, after the order is loaded and the document number is allocated, but before any renderer runs.<br>                  |
+| **Available Data**     | context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Context.php)<br>documentNumber: `string`<br>documentType: `string`<br>formats: `array`<br>orderId: `string`<br>orderVersionId: `string`<br>salesChannelId: `string`<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference#SystemConfigFacade)<br>[acl](./miscellaneous-script-services-reference#AclFacade)<br> |
+| **Stoppable**          | `false`                  |
+
 ### payment-method-route-request
 
 | <!-- -->               | <!-- -->                                |
@@ -33,6 +45,18 @@ All available Hooks that can be used to load additional data.
 | **Class**              | `Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook`                      |
 | **Description**        | Triggered when ShippingMethodRoute is requested<br>                  |
 | **Available Data**     | collection: [`Shopware\Core\Checkout\Shipping\ShippingMethodCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Checkout/Shipping/ShippingMethodCollection.php)<br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Context.php)<br>onlyAvailable: `bool`<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/shopware/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
+| **Available Services** | [repository](./data-loading-script-services-reference#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference#SystemConfigFacade)<br>[store](./data-loading-script-services-reference#SalesChannelRepositoryFacade)<br>[acl](./miscellaneous-script-services-reference#AclFacade)<br> |
+| **Stoppable**          | `false`                  |
+
+### cookie-group-collect
+
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | cookie-group-collect                         |
+| **Since**              | 6.7.14.0                        |
+| **Class**              | `Shopware\Core\Content\Cookie\Hook\CookieGroupCollectHook`                      |
+| **Description**        | Triggered when the cookie consent groups are collected for the current sales channel.<br>Allows apps to modify or remove cookie groups and entries, e.g. depending on the payment methods active in the current sales channel.                  |
+| **Available Data**     | context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/shopware/blob/trunk/src/Core/Framework/Context.php)<br>cookieGroups: [`Shopware\Core\Content\Cookie\Struct\CookieGroupCollection`](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Cookie/Struct/CookieGroupCollection.php)<br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/shopware/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php)<br>        |
 | **Available Services** | [repository](./data-loading-script-services-reference#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference#SystemConfigFacade)<br>[store](./data-loading-script-services-reference#SalesChannelRepositoryFacade)<br>[acl](./miscellaneous-script-services-reference#AclFacade)<br> |
 | **Stoppable**          | `false`                  |
 

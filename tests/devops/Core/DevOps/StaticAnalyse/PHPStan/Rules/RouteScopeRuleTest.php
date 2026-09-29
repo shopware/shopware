@@ -4,17 +4,17 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RouteScopeRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends RuleTestCase<RouteScopeRule>
  */
+#[Package('framework')]
 class RouteScopeRuleTest extends RuleTestCase
 {
-    #[RunInSeparateProcess]
     public function testRouteScopeRule(): void
     {
         $this->analyse([__DIR__ . '/data/RouteScope/ControllerWithRouteAttribute.php'], [

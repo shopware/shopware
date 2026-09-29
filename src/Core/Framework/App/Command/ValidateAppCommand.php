@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
@@ -15,16 +14,17 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:validate',
     description: 'Validates an app',
 )]
-#[Package('framework')]
 class ValidateAppCommand extends Command
 {
     public function __construct(
@@ -36,7 +36,7 @@ class ValidateAppCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $dir = $this->appDir; // validate all apps as default
         $successMessage = 'all apps valid';
 
@@ -120,7 +120,7 @@ class ValidateAppCommand extends Command
         return $manifests;
     }
 
-    private function getAppFolderByName(string $name, ShopwareStyle $io): ?string
+    private function getAppFolderByName(string $name, SymfonyStyle $io): ?string
     {
         $finder = new Finder();
         $finder->in($this->appDir)

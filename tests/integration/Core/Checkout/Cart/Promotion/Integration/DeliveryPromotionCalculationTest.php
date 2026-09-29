@@ -27,7 +27,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('checkout')]
-#[Group('slow')]
 class DeliveryPromotionCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;

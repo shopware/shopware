@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
@@ -23,14 +23,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[CoversClass(CustomerZipCodeValidator::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerZipCodeValidator::class)]
 class CustomerZipcodeValidatorTest extends TestCase
 {
     private CustomerZipCode $constraint;
 
     /**
-     * @var EntityRepository<CountryCollection>&MockObject
+     * @var EntityRepository<CountryCollection>&Stub
      */
     private EntityRepository $countryRepository;
 
@@ -38,7 +38,7 @@ class CustomerZipcodeValidatorTest extends TestCase
     {
         $this->constraint = new CustomerZipCode(countryId: Uuid::randomHex());
 
-        $this->countryRepository = $this->createMock(EntityRepository::class);
+        $this->countryRepository = static::createStub(EntityRepository::class);
     }
 
     public function testUnexpectedTypeException(): void
@@ -46,7 +46,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $mock = new CustomerZipCodeValidator($this->countryRepository);
 
         try {
-            $mock->validate(['zipcode' => '1235468'], $this->createMock(Constraint::class));
+            $mock->validate(['zipcode' => '1235468'], static::createStub(Constraint::class));
         } catch (\Throwable $exception) {
             static::assertInstanceOf(CustomerException::class, $exception);
         }
@@ -54,9 +54,10 @@ class CustomerZipcodeValidatorTest extends TestCase
 
     public function testValidateWithoutCountryId(): void
     {
-        $this->countryRepository->expects($this->never())->method('search');
+        $countryRepository = $this->createMock(EntityRepository::class);
+        $countryRepository->expects($this->never())->method('search');
 
-        $validator = new CustomerZipCodeValidator($this->countryRepository);
+        $validator = new CustomerZipCodeValidator($countryRepository);
 
         $validator->validate(['zipcode' => '1235468'], new CustomerZipCode());
     }
@@ -66,7 +67,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $country = new CountryEntity();
         $country->setIso('DE');
         $country->setId($countryId);
@@ -78,7 +79,8 @@ class CustomerZipcodeValidatorTest extends TestCase
 
         $result->method('getEntities')->willReturn(new CountryCollection([$country]));
 
-        $this->countryRepository->expects($this->once())->method('search')->willReturn($result);
+        $countryRepository = $this->createMock(EntityRepository::class);
+        $countryRepository->expects($this->once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
         $executionContext->expects($this->once())->method('buildViolation')->willReturnCallback(function (string $message, array $parameters = []) {
@@ -99,7 +101,7 @@ class CustomerZipcodeValidatorTest extends TestCase
             );
         });
 
-        $mock = new CustomerZipCodeValidator($this->countryRepository);
+        $mock = new CustomerZipCodeValidator($countryRepository);
 
         $mock->initialize($executionContext);
 
@@ -113,10 +115,11 @@ class CustomerZipcodeValidatorTest extends TestCase
         $result = $this->createMock(EntitySearchResult::class);
         $result->expects($this->once())->method('getEntities')->willReturn(new CountryCollection([]));
 
-        $this->countryRepository->expects($this->once())->method('search')->willReturn($result);
+        $countryRepository = $this->createMock(EntityRepository::class);
+        $countryRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $executionContext = $this->createMock(ExecutionContext::class);
-        $mock = new CustomerZipCodeValidator($this->countryRepository);
+        $executionContext = static::createStub(ExecutionContext::class);
+        $mock = new CustomerZipCodeValidator($countryRepository);
 
         $mock->initialize($executionContext);
 
@@ -128,7 +131,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $country = new CountryEntity();
         $country->setIso('DE');
         $country->setId($countryId);
@@ -139,12 +142,13 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setAdvancedPostalCodePattern(null);
 
         $result->method('getEntities')->willReturn(new CountryCollection([$country]));
-        $this->countryRepository->expects($this->once())->method('search')->willReturn($result);
+        $countryRepository = $this->createMock(EntityRepository::class);
+        $countryRepository->expects($this->once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
         $executionContext->expects($this->never())->method('buildViolation');
 
-        $mock = new CustomerZipCodeValidator($this->countryRepository);
+        $mock = new CustomerZipCodeValidator($countryRepository);
 
         $mock->validate('123', $this->constraint);
     }
@@ -154,7 +158,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $country = new CountryEntity();
         $country->setIso('DE');
         $country->setId($countryId);
@@ -165,12 +169,13 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setAdvancedPostalCodePattern(null);
 
         $result->method('getEntities')->willReturn(new CountryCollection([$country]));
-        $this->countryRepository->expects($this->once())->method('search')->willReturn($result);
+        $countryRepository = $this->createMock(EntityRepository::class);
+        $countryRepository->expects($this->once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
         $executionContext->expects($this->never())->method('buildViolation');
 
-        $mock = new CustomerZipCodeValidator($this->countryRepository);
+        $mock = new CustomerZipCodeValidator($countryRepository);
 
         $mock->initialize($executionContext);
 
@@ -182,7 +187,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $country = new CountryEntity();
         $country->setIso('DE');
         $country->setId($countryId);
@@ -193,7 +198,8 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setAdvancedPostalCodePattern('\\d{5}');
 
         $result->method('getEntities')->willReturn(new CountryCollection([$country]));
-        $this->countryRepository->expects($this->once())->method('search')->willReturn($result);
+        $countryRepository = $this->createMock(EntityRepository::class);
+        $countryRepository->expects($this->once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
         $executionContext->expects($this->once())->method('buildViolation')->willReturnCallback(function (string $message, array $parameters = []) {
@@ -214,7 +220,7 @@ class CustomerZipcodeValidatorTest extends TestCase
             );
         });
 
-        $mock = new CustomerZipCodeValidator($this->countryRepository);
+        $mock = new CustomerZipCodeValidator($countryRepository);
 
         $mock->initialize($executionContext);
 
@@ -226,7 +232,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $country = new CountryEntity();
         $country->setIso('DE');
         $country->setId($countryId);
@@ -237,12 +243,13 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setAdvancedPostalCodePattern(null);
 
         $result->method('getEntities')->willReturn(new CountryCollection([$country]));
-        $this->countryRepository->expects($this->once())->method('search')->willReturn($result);
+        $countryRepository = $this->createMock(EntityRepository::class);
+        $countryRepository->expects($this->once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
         $executionContext->expects($this->never())->method('buildViolation');
 
-        $mock = new CustomerZipCodeValidator($this->countryRepository);
+        $mock = new CustomerZipCodeValidator($countryRepository);
 
         $mock->initialize($executionContext);
 
@@ -254,7 +261,7 @@ class CustomerZipcodeValidatorTest extends TestCase
         $countryId = $this->constraint->getCountryId();
         static::assertNotNull($countryId);
 
-        $result = $this->createMock(EntitySearchResult::class);
+        $result = static::createStub(EntitySearchResult::class);
         $country = new CountryEntity();
         $country->setIso('DE');
         $country->setId($countryId);
@@ -265,7 +272,8 @@ class CustomerZipcodeValidatorTest extends TestCase
         $country->setAdvancedPostalCodePattern(null);
 
         $result->method('getEntities')->willReturn(new CountryCollection([$country]));
-        $this->countryRepository->expects($this->once())->method('search')->willReturn($result);
+        $countryRepository = $this->createMock(EntityRepository::class);
+        $countryRepository->expects($this->once())->method('search')->willReturn($result);
 
         $executionContext = $this->createMock(ExecutionContext::class);
         $executionContext->expects($this->once())->method('buildViolation')->willReturnCallback(function (string $message, array $parameters = []) {
@@ -286,7 +294,7 @@ class CustomerZipcodeValidatorTest extends TestCase
             );
         });
 
-        $mock = new CustomerZipCodeValidator($this->countryRepository);
+        $mock = new CustomerZipCodeValidator($countryRepository);
 
         $mock->initialize($executionContext);
 

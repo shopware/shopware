@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -26,6 +27,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class CartMergedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,6 +35,7 @@ class CartMergedSubscriberTest extends TestCase
     public function testMergedHintIsAdded(): void
     {
         $session = new Session(new MockArraySessionStorage());
+        $session->start();
         $request = new Request();
         $request->setSession($session);
         $requestStack = new RequestStack();

@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -18,6 +19,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 class StoreHandshakeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -81,7 +83,7 @@ class StoreHandshakeTest extends TestCase
 
     public function testThrowsIfSbpRespondsWithUnauthorized(): void
     {
-        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient = static::createStub(StoreClient::class);
         $json = \json_encode(['code' => 'ShopwarePlatformException-1']);
 
         static::assertNotFalse($json);

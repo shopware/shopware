@@ -1,22 +1,19 @@
 import template from './sw-condition-line-item-in-category.html.twig';
 import './sw-condition-line-item-in-category.scss';
 
-const { Component, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { Context } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @sw-package fundamentals@after-sales
+ * @deprecated tag:v6.8.0 - Will be removed. Use sw-condition-generic instead.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
@@ -48,15 +45,6 @@ export default {
                     categoryIds,
                 };
             },
-        },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.categoryIds',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;
         },
     },
 

@@ -8,14 +8,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
-use Shopware\Tests\Integration\Core\Framework\MessageQueue\Stats\MySQLStatsRepositoryTest;
 
 /**
  * @internal
  *
  * @codeCoverageIgnore
  *
- * @see MySQLStatsRepositoryTest
+ * @see \Shopware\Tests\Integration\Core\Framework\MessageQueue\Stats\MySQLStatsRepositoryTest
  */
 #[Package('framework')]
 class MySQLStatsRepository extends AbstractStatsRepository

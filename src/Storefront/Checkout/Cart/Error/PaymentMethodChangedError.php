@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Checkout\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,12 +13,9 @@ class PaymentMethodChangedError extends Error
 {
     private const KEY = 'payment-method-changed';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - The order of parameters will be changed to: $oldPaymentMethodId, $oldPaymentMethodName, $newPaymentMethodId, $newPaymentMethodName
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $oldPaymentMethodId will be of type string
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $newPaymentMethodId will be of type string
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $reason will be of type string
-     */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'newPaymentMethodId', newType: 'string')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'oldPaymentMethodId', newType: 'string')]
     public function __construct(
         protected readonly string $oldPaymentMethodName,
         protected readonly string $newPaymentMethodName,
@@ -83,9 +82,7 @@ class PaymentMethodChangedError extends Error
         return self::KEY;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $oldPaymentMethodId will be of type string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getOldPaymentMethodId(): ?string
     {
         return $this->oldPaymentMethodId;
@@ -96,9 +93,7 @@ class PaymentMethodChangedError extends Error
         return $this->oldPaymentMethodName;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $newPaymentMethodId will be of type string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getNewPaymentMethodId(): ?string
     {
         return $this->newPaymentMethodId;
@@ -109,9 +104,7 @@ class PaymentMethodChangedError extends Error
         return $this->newPaymentMethodName;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $reason will be of type string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getReason(): ?string
     {
         return $this->reason;

@@ -19,9 +19,7 @@ export default {
         'systemConfigApiService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -70,10 +68,7 @@ export default {
             return this.repositoryFactory.create('tax');
         },
 
-        ...mapPropertyErrors('tax', [
-            'name',
-            'taxRate',
-        ]),
+        ...mapPropertyErrors('tax', ['name', 'taxRate']),
 
         isNewTax() {
             return this.tax.isNew === 'function' ? this.tax.isNew() : false;
@@ -174,18 +169,18 @@ export default {
                         });
                     }
 
-                    this.taxRepository
-                        .get(this.tax.id)
-                        .then((updatedTax) => {
-                            this.tax = updatedTax;
-                        })
-                        .then(() => {
-                            return this.systemConfigApiService.saveValues(this.config).then(() => {
-                                this.defaultTaxRateId = this.tax.id;
-                                this.reloadDefaultTaxRate();
-                                this.isLoading = false;
-                            });
-                        });
+                    return this.taxRepository.get(this.tax.id);
+                })
+                .then((updatedTax) => {
+                    this.tax = updatedTax;
+
+                    return this.systemConfigApiService.saveValues(this.config);
+                })
+                .then(() => {
+                    this.defaultTaxRateId = this.tax.id;
+                    this.reloadDefaultTaxRate();
+                    this.invalidateTaxCaches();
+                    this.isLoading = false;
                 })
                 .catch(() => {
                     this.createNotificationError({
@@ -197,6 +192,17 @@ export default {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.tax.index' });
+        },
+
+        invalidateTaxCaches() {
+            const cacheService = Shopware.Service('cacheService');
+
+            cacheService.invalidateCaches({
+                cacheKey: ['shared-data', 'taxes'],
+            });
+            cacheService.invalidateCaches({
+                cacheKey: ['shared-data', 'default-tax-rate-id'],
+            });
         },
 
         abortOnLanguageChange() {

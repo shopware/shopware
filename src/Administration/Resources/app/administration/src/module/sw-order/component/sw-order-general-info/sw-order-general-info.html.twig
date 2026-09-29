@@ -8,12 +8,17 @@
             <div class="sw-order-general-info__summary-main-header">
                 {{ order.orderNumber }} -
                 <router-link
+                    v-if="order.orderCustomer.customer"
                     class="sw-order-general-info__summary-main-header-link"
                     :to="{ name: 'sw.customer.detail', params: { id: order.orderCustomer.customerId } }"
                 >
                     {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}
                     <span v-if="order.orderCustomer.company"> - {{ order.orderCustomer.company }}</span>
                 </router-link>
+                <template v-else>
+                    {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }}
+                    <span v-if="order.orderCustomer.company"> - {{ order.orderCustomer.company }}</span>
+                </template>
                 ({{ emailIdnFilter(order.orderCustomer.email) }})
             </div>
             {% endblock %}

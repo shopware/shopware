@@ -1,0 +1,8 @@
+.skip-target {
+    background-color: var(--#{$prefix}body-bg);
+    z-index: 1;
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    left: 0;
+}

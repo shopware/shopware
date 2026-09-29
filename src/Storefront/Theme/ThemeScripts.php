@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 readonly class ThemeScripts
 {
     /**
@@ -40,11 +40,8 @@ readonly class ThemeScripts
     }
 
     /**
-     * Returns the pre-built import map stored in the runtime config, or null when
-     * no import map has been compiled yet (first-run / test environment without a build).
-     *
-     * Paths inside the map are theme-relative (e.g. 'js/components/Sw/Filter/Sorting.js').
-     * TemplateConfigAccessor converts them to full URLs at request time.
+     * Returns the pre-built import map stored in the runtime config,
+     * or null when no import map has been compiled yet.
      *
      * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>}|null
      */

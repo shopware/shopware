@@ -10,10 +10,12 @@ use Shopware\Core\Content\Media\Core\Strategy\PathStrategyFactory;
 use Shopware\Core\Content\Media\Core\Strategy\PhysicalFilenamePathStrategy;
 use Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy;
 use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(PathStrategyFactory::class)]
 #[CoversClass(IdPathStrategy::class)]
 #[CoversClass(FilenamePathStrategy::class)]

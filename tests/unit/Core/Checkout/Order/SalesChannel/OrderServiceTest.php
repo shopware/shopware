@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -36,44 +36,31 @@ use Symfony\Component\Validator\Validation;
 /**
  * @internal
  */
-#[CoversClass(OrderService::class)]
 #[Package('checkout')]
+#[CoversClass(OrderService::class)]
 class OrderServiceTest extends TestCase
 {
-    private MockObject&CartService $cartService;
+    private Stub&CartService $cartService;
 
     /**
-     * @var MockObject&EntityRepository<PaymentMethodCollection>
+     * @var Stub&EntityRepository<PaymentMethodCollection>
      */
-    private MockObject&EntityRepository $paymentMethodRepository;
+    private Stub&EntityRepository $paymentMethodRepository;
 
-    private MockObject&StateMachineRegistry $stateMachineRegistry;
-
-    private OrderService $orderService;
+    private Stub&StateMachineRegistry $stateMachineRegistry;
 
     protected function setUp(): void
     {
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->cartService = $this->createMock(CartService::class);
-        $this->paymentMethodRepository = $this->createMock(EntityRepository::class);
-        $this->stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-
-        $this->orderService = new OrderService(
-            new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            new OrderValidationFactory($systemConfigService),
-            $eventDispatcher,
-            $this->cartService,
-            $this->paymentMethodRepository,
-            $this->stateMachineRegistry
-        );
+        $this->cartService = static::createStub(CartService::class);
+        $this->paymentMethodRepository = static::createStub(EntityRepository::class);
+        $this->stateMachineRegistry = static::createStub(StateMachineRegistry::class);
     }
 
     public function testCreateOrderWithDigitalGoodsNeedsRevocationConfirm(): void
     {
         $dataBag = new DataBag();
         $dataBag->set('tos', true);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $cart = new Cart('test');
         $lineItem = (new LineItem('a', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
@@ -83,13 +70,15 @@ class OrderServiceTest extends TestCase
         }
 
         $cart->add($lineItem);
-        $this->cartService->method('getCart')->willReturn($cart);
-        $this->cartService->expects($this->exactly(2))->method('order');
+        $cartService = $this->createMock(CartService::class);
+        $cartService->method('getCart')->willReturn($cart);
+        $cartService->expects($this->exactly(2))->method('order');
+        $orderService = $this->buildOrderService($cartService);
 
         $idSearchResult = new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());
         $this->paymentMethodRepository->method('searchIds')->willReturn($idSearchResult);
 
-        $this->orderService->createOrder($dataBag, $context);
+        $orderService->createOrder($dataBag, $context);
 
         $lineItem = (new LineItem('b', 'test'))->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
 
@@ -99,7 +88,7 @@ class OrderServiceTest extends TestCase
         $cart->add($lineItem);
 
         try {
-            $this->orderService->createOrder($dataBag, $context);
+            $orderService->createOrder($dataBag, $context);
 
             static::fail('Did not throw exception');
         } catch (\Throwable $exception) {
@@ -112,7 +101,7 @@ class OrderServiceTest extends TestCase
 
         $dataBag->set('revocation', true);
 
-        $this->orderService->createOrder($dataBag, $context);
+        $orderService->createOrder($dataBag, $context);
     }
 
     public function testOrderStateTransitionUseData(): void
@@ -130,15 +119,17 @@ class OrderServiceTest extends TestCase
 
         $expectedTransition = new Transition('order', $orderId, 'cancel', 'abc', 'def');
 
-        $this->stateMachineRegistry->expects($this->once())
+        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
+        $stateMachineRegistry->expects($this->once())
             ->method('transition')
             ->with(
                 static::equalTo($expectedTransition),
                 $context
             )
             ->willReturn($stateMachineStates);
+        $orderService = $this->buildOrderService(null, $stateMachineRegistry);
 
-        $state = $this->orderService->orderStateTransition($orderId, 'cancel', $data, $context);
+        $state = $orderService->orderStateTransition($orderId, 'cancel', $data, $context);
         static::assertSame($toPlace, $state);
     }
 
@@ -157,15 +148,17 @@ class OrderServiceTest extends TestCase
 
         $expectedTransition = new Transition('order_transaction', $orderTransactionId, 'cancel', 'abc', 'def');
 
-        $this->stateMachineRegistry->expects($this->once())
+        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
+        $stateMachineRegistry->expects($this->once())
             ->method('transition')
             ->with(
                 static::equalTo($expectedTransition),
                 $context
             )
             ->willReturn($stateMachineStates);
+        $orderService = $this->buildOrderService(null, $stateMachineRegistry);
 
-        $state = $this->orderService->orderTransactionStateTransition($orderTransactionId, 'cancel', $data, $context);
+        $state = $orderService->orderTransactionStateTransition($orderTransactionId, 'cancel', $data, $context);
         static::assertSame($toPlace, $state);
     }
 
@@ -184,15 +177,33 @@ class OrderServiceTest extends TestCase
 
         $expectedTransition = new Transition('order_delivery', $orderDeliveryId, 'cancel', 'abc', 'def');
 
-        $this->stateMachineRegistry->expects($this->once())
+        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
+        $stateMachineRegistry->expects($this->once())
             ->method('transition')
             ->with(
                 static::equalTo($expectedTransition),
                 $context
             )
             ->willReturn($stateMachineStates);
+        $orderService = $this->buildOrderService(null, $stateMachineRegistry);
 
-        $state = $this->orderService->orderDeliveryStateTransition($orderDeliveryId, 'cancel', $data, $context);
+        $state = $orderService->orderDeliveryStateTransition($orderDeliveryId, 'cancel', $data, $context);
         static::assertSame($toPlace, $state);
+    }
+
+    private function buildOrderService(
+        ?CartService $cartService = null,
+        ?StateMachineRegistry $stateMachineRegistry = null,
+    ): OrderService {
+        $systemConfigService = static::createStub(SystemConfigService::class);
+
+        return new OrderService(
+            new DataValidator(Validation::createValidatorBuilder()->getValidator()),
+            new OrderValidationFactory($systemConfigService),
+            static::createStub(EventDispatcherInterface::class),
+            $cartService ?? $this->cartService,
+            $this->paymentMethodRepository,
+            $stateMachineRegistry ?? $this->stateMachineRegistry,
+        );
     }
 }

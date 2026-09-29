@@ -34,7 +34,7 @@ class RoutingOverwriteMiddleware implements MiddlewareInterface
 
         $transports = $this->getTransports($envelope, $this->routing, true);
 
-        if (empty($transports)) {
+        if ($transports === null || $transports === '' || $transports === []) {
             return $stack->next()->handle($envelope, $stack);
         }
 

@@ -15,7 +15,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(DeliveryDate::class)]
 class DeliveryDateTest extends TestCase
 {

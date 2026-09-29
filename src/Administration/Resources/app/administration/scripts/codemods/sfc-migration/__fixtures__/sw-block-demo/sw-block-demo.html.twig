@@ -1,0 +1,8 @@
+{# Legacy twig comment, becomes an HTML comment #}
+{% block sw_block_demo %}
+    <div class="sw-block-demo">
+        {% block sw_block_demo_inner %}
+            <p>{{ message }}</p>
+        {% endblock %}
+    </div>
+{% endblock %}

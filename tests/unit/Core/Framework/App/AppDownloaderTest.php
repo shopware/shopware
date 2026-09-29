@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\App;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppDownloader;
 use Shopware\Core\Framework\App\Exception\AppDownloadException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\Chunk\DataChunk;
 use Symfony\Component\HttpClient\Response\ResponseStream;
@@ -17,10 +19,11 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppDownloader::class)]
 class AppDownloaderTest extends TestCase
 {
-    private HttpClientInterface&MockObject $httpClient;
+    private HttpClientInterface&Stub $httpClient;
 
     private Filesystem&MockObject $filesystem;
 
@@ -28,7 +31,7 @@ class AppDownloaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->httpClient = $this->createMock(HttpClientInterface::class);
+        $this->httpClient = static::createStub(HttpClientInterface::class);
         $this->filesystem = $this->createMock(Filesystem::class);
 
         $this->appDownloader = new AppDownloader($this->httpClient, $this->filesystem);
@@ -36,10 +39,12 @@ class AppDownloaderTest extends TestCase
 
     public function testDownloadThrowsExceptionOnNon200Response(): void
     {
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(404);
 
         $this->httpClient->method('request')->willReturn($response);
+
+        $this->filesystem->expects($this->never())->method('appendToFile');
 
         $this->expectExceptionObject(AppDownloadException::transportError('http://example.com/file.zip'));
 
@@ -52,7 +57,7 @@ class AppDownloaderTest extends TestCase
             ->method('mkdir')
             ->with(static::equalTo('/path/to'));
 
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getStatusCode')->willReturn(200);
 
         $generator = static function () use ($response): \Generator {

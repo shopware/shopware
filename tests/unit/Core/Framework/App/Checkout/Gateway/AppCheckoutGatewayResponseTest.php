@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(AppCheckoutGatewayResponse::class)]
 #[Package('checkout')]
+#[CoversClass(AppCheckoutGatewayResponse::class)]
 class AppCheckoutGatewayResponseTest extends TestCase
 {
     public function testApi(): void

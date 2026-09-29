@@ -1,7 +1,3 @@
-/*
- * @sw-package inventory
- */
-
 import template from './sw-product-stream-list.html.twig';
 import './sw-product-stream-list.scss';
 
@@ -9,20 +5,15 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {

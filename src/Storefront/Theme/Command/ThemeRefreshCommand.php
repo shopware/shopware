@@ -10,11 +10,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:refresh',
     description: 'Refresh the theme configuration',
 )]
-#[Package('framework')]
 class ThemeRefreshCommand extends Command
 {
     private readonly Context $context;

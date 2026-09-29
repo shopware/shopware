@@ -27,6 +27,12 @@ export default Component.wrapComponentConfig({
             required: true,
         },
 
+        sendOrderConfirmationMail: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
         context: {
             type: Object as PropType<ContextSwitchParameters>,
             required: true,
@@ -46,7 +52,7 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        salesChannelId(): string {
+        salesChannelId(): EntityKey<'sales_channel'> {
             return this.customer?.salesChannelId ?? Store.get('swOrder').context?.salesChannel?.id ?? '';
         },
 
@@ -109,7 +115,7 @@ export default Component.wrapComponentConfig({
         },
 
         'context.currencyId': {
-            async handler(currencyId: string): Promise<void> {
+            async handler(currencyId: EntityKey<'currency'>): Promise<void> {
                 if (!currencyId || currencyId === Store.get('swOrder').context?.context?.currencyId) {
                     return;
                 }
@@ -131,7 +137,7 @@ export default Component.wrapComponentConfig({
         },
 
         'context.shippingMethodId': {
-            async handler(shippingMethodId: string): Promise<void> {
+            async handler(shippingMethodId: EntityKey<'shipping_method'>): Promise<void> {
                 if (!shippingMethodId || shippingMethodId === Store.get('swOrder').context?.shippingMethod?.id) {
                     return;
                 }
@@ -140,7 +146,7 @@ export default Component.wrapComponentConfig({
             },
         },
 
-        'context.languageId'(languageId: string) {
+        'context.languageId'(languageId: EntityKey<'language'>) {
             if (!languageId) {
                 return;
             }
@@ -184,6 +190,10 @@ export default Component.wrapComponentConfig({
 
         onToggleAutoPromotion(value: boolean): void {
             this.$emit('auto-promotion-toggle', value);
+        },
+
+        onToggleSendOrderConfirmationMail(value: boolean): void {
+            this.$emit('send-order-confirmation-mail-toggle', value);
         },
 
         changePromotionCodes(value: string[]): void {

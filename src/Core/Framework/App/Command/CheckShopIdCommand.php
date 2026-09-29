@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\FingerprintGenerator;
 use Shopware\Core\Framework\App\ShopId\ShopId;
@@ -14,15 +13,16 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:shop-id:check',
     description: 'Check if a shop ID change is suggested',
 )]
-#[Package('framework')]
 class CheckShopIdCommand extends Command
 {
     public function __construct(
@@ -37,7 +37,7 @@ class CheckShopIdCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $shopIdConfig = $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2)
             ?? $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
@@ -58,7 +58,7 @@ class CheckShopIdCommand extends Command
         return $result->isMatching() ? self::SUCCESS : self::FAILURE;
     }
 
-    private function renderShopIdTable(ShopwareStyle $io, ShopId $shopId): void
+    private function renderShopIdTable(SymfonyStyle $io, ShopId $shopId): void
     {
         $shopIdTable = new Table($io);
         $shopIdTable->setVertical();
@@ -69,13 +69,13 @@ class CheckShopIdCommand extends Command
         $io->writeln('');
     }
 
-    private function renderFingerprintsTable(ShopwareStyle $io, FingerprintComparisonResult $result): void
+    private function renderFingerprintsTable(SymfonyStyle $io, FingerprintComparisonResult $result): void
     {
         $fingerprintsTable = new Table($io);
         $fingerprintsTable->setHeaders(['Fingerprint', 'Old Value', 'New Value', 'Score', 'State']);
 
         foreach ($result->mismatchingFingerprints as $fingerprint) {
-            $fingerprintsTable->addRow([$fingerprint->identifier, $fingerprint->storedStamp, $fingerprint->expectedStamp ?? 'NULL', $fingerprint->score, '<fg=red>✘ MISMATCH</>']);
+            $fingerprintsTable->addRow([$fingerprint->identifier, $fingerprint->storedStamp, $fingerprint->expectedStamp, $fingerprint->score, '<fg=red>✘ MISMATCH</>']);
         }
 
         foreach ($result->matchingFingerprints as $fingerprint) {
@@ -87,7 +87,7 @@ class CheckShopIdCommand extends Command
         $io->writeln('');
     }
 
-    private function renderResult(ShopwareStyle $io, FingerprintComparisonResult $result): void
+    private function renderResult(SymfonyStyle $io, FingerprintComparisonResult $result): void
     {
         if ($result->isMatching()) {
             $io->success('Shop ID change not suggested.');

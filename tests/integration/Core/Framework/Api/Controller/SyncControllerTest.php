@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
@@ -14,9 +13,11 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,7 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class SyncControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -327,6 +328,56 @@ class SyncControllerTest extends TestCase
         static::assertEmpty($exists);
     }
 
+    public function testCriteriaDeleteRequiresReadPrivilegesForCriteriaSelection(): void
+    {
+        $victimId = Uuid::randomHex();
+        $controlId = Uuid::randomHex();
+        $manufacturerName = Uuid::randomHex();
+
+        foreach ([$victimId => $manufacturerName, $controlId => Uuid::randomHex()] as $productId => $name) {
+            $this->getBrowser()->jsonRequest('POST', '/api/product', [
+                'id' => $productId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => Uuid::randomHex(),
+                'tax' => ['name' => Uuid::randomHex(), 'taxRate' => 15],
+                'manufacturer' => ['name' => $name],
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+            ]);
+
+            static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
+        }
+
+        TestUser::createNewTestUser($this->connection, ['product:delete'])->authorizeBrowser($this->getBrowser());
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/sync', [[
+            'action' => SyncController::ACTION_DELETE,
+            'entity' => ProductDefinition::ENTITY_NAME,
+            'criteria' => [[
+                'type' => 'equals',
+                'field' => 'manufacturer.name',
+                'value' => $manufacturerName,
+            ]],
+        ]]);
+
+        $response = $this->getBrowser()->getResponse();
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
+        static::assertSame(
+            ['product:read', 'product_manufacturer:read'],
+            json_decode(json_decode($content, true, flags: \JSON_THROW_ON_ERROR)['errors'][0]['detail'], true, flags: \JSON_THROW_ON_ERROR)['missingPrivileges']
+        );
+
+        $existingIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE id IN (:ids)',
+            ['ids' => [Uuid::fromHexToBytes($victimId), Uuid::fromHexToBytes($controlId)]],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        static::assertEqualsCanonicalizing([$victimId, $controlId], $existingIds);
+    }
+
     public function testIndexingByQueueHeader(): void
     {
         $product = Uuid::randomHex();
@@ -494,7 +545,7 @@ class SyncControllerTest extends TestCase
             return $index !== ProductIndexer::SEARCH_KEYWORD_UPDATER;
         });
 
-        static::assertEqualsCanonicalizing($allProductIndexerMinusSearchKeyword, $skip);
+        static::assertEqualsCanonicalizing(array_values($allProductIndexerMinusSearchKeyword), array_values($skip));
     }
 
     public static function invalidOperationProvider(): \Generator

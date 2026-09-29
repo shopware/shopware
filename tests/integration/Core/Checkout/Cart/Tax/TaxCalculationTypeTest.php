@@ -69,7 +69,7 @@ class TaxCalculationTypeTest extends TestCase
     }
 
     /**
-     * @return array<array{0: ItemBlueprint[], 1: CalculatedTaxCollection, 2: CalculatedTaxCollection}>
+     * @return array<array{0: ItemBlueprint[], 1: CalculatedTaxCollection, 2: CalculatedTaxCollection, 3?: bool}>
      */
     public static function calculationProvider()
     {

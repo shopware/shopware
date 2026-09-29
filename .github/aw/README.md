@@ -1,0 +1,131 @@
+# GitHub Agentic Workflows (`gh aw`)
+
+This directory holds the **shared assets** for our [`gh aw`](https://github.com/githubnext/gh-aw)
+workflows — policy fragments, the SHA-pinned actions lock, and the run-log archive. The
+workflow **sources** live one level up at `.github/workflows/<name>.md` and are compiled
+to `.lock.yml` siblings (committed, never hand-edited).
+
+For the bigger picture (interactive Agent Skills, unattended twins, the dedup pattern,
+the checklist for adding a new skill), see
+[`coding-guidelines/core/agent-skills.md`](../../coding-guidelines/core/agent-skills.md).
+
+## Layout
+
+```
+.github/
+├── workflows/
+│   ├── agentics-maintenance.yml # generated safe-output maintenance/replay
+│   ├── sw-bugfixer.md       # gh aw SOURCE (edit this)
+│   ├── sw-bugfixer.lock.yml # compiled — `gh aw compile` regenerates it
+│   ├── sw-triage.md         # gh aw SOURCE (edit this)
+│   ├── sw-triage.lock.yml   # compiled — `gh aw compile` regenerates it
+│   ├── sw-nightly.md        # gh aw SOURCE (edit this)
+│   ├── sw-nightly.lock.yml  # compiled — `gh aw compile` regenerates it
+│   ├── sw-review.md         # gh aw SOURCE (edit this)
+│   └── sw-review.lock.yml   # compiled — `gh aw compile` regenerates it
+└── aw/
+    ├── README.md            # this file
+    ├── sw-bugfixer-policy.md   # gh-aw-mode policy, runtime-imported by the workflow
+    ├── sw-triage-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
+    ├── sw-nightly-policy.md    # gh-aw-mode policy, runtime-imported by the workflow
+    ├── sw-review-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
+    ├── shared/
+    │   ├── sw-bugfixer-policy.md # shared rubric, runtime-imported by the gh-aw fragment
+    │   ├── sw-triage-policy.md   # AND referenced by the interactive skill (single source)
+    │   ├── sw-nightly-policy.md  # shared nightly-triage rubric (both surfaces)
+    │   └── sw-review-policy.md   # shared review rubric (both surfaces)
+    ├── actions-lock.json    # SHA pins for every action gh aw injects
+    └── logs/                # gh aw run snapshots (gitignored — personal scratch)
+```
+
+## Current workflows
+
+| Workflow | Trigger | Engine | Output |
+|---|---|---|---|
+| `sw-bugfixer` | `qi/sw-bugfixer` issue label, `workflow_dispatch`, `/sw-bugfixer ...` on PRs | `claude` / Opus tier | draft PR via `create-pull-request`, PR branch update via `push-to-pull-request-branch`, comment/no-op |
+| `sw-triage` | `workflow_dispatch` (input: `issue_number`), `/sw-triage` issue comment, `qi/sw-triage` issue label | `claude` / Sonnet tier | `triage-output.json` via `upload-artifact` |
+| `sw-nightly` | `workflow_dispatch` (input: `issue_number`), `/sw-nightly` issue comment, `qi/sw-nightly` issue label | `claude` / Sonnet tier | `nightly-triage-output.json` via `upload-artifact` |
+| `sw-review` | `qi/sw-review` PR label, `workflow_dispatch` (input: `pr_number`), `/sw-review` on PRs | `claude` / Sonnet tier (security & architecture personas → Opus tier) | inline findings via `create-pull-request-review-comment` + summary via `submit-pull-request-review` |
+
+The concrete model version for each workflow lives in its own `engine.model` frontmatter (`.github/workflows/<name>.md`) — the single source of truth. This table and the notes below intentionally name tiers, not versioned IDs, so they don't drift when a model is bumped.
+
+The triage agent job is read-only — it cannot label, comment, or close. Command-trigger activation may add status/reaction feedback, and the validated artifact is consumed by the downstream processor that posts the triage result.
+
+The Bugfixer agent also runs without direct write credentials. Branch creation, commits, pull request creation, pull request branch updates, and comments are mediated through gh aw safe outputs. Public comments and PR bodies intentionally omit token and cost analytics; use the Actions step summary, `gh aw audit`, or `gh aw logs` for usage data.
+
+The Review agent is read-only and never approves. It orchestrates one **inline sub-agent per persona** (the `## agent:` blocks in `sw-review.md`; `security` and `architecture` escalate to the Opus tier), merges the per-persona findings, and publishes `blocking`/`major` findings as inline PR review comments; `minor`/`nit` findings ride as a compact list in the single summary review (`COMMENT` or `REQUEST_CHANGES`), so the diff only carries the important ones. The rubric and personas are shared with the interactive `sw-review` skill via `.github/aw/shared/sw-review-policy.md` and `.agents/skills/sw-review/{personas,references}/`. Persona dispatch was verified end-to-end via the registration trick (see below): all five personas run as `Task` sub-agents, `security`/`architecture` on Opus, and workers cannot publish — their `tools:` frontmatter withholds the safe-output tools, so the orchestrator's single `submit-pull-request-review` is the only publish path.
+
+`agentics-maintenance.yml` is generated by `gh aw compile` for safe-output maintenance tasks such as replaying failed safe outputs and lifecycle cleanup. Do not hand-edit it.
+
+## Editing a workflow
+
+1. Edit the markdown source at `.github/workflows/<name>.md`.
+2. If the policy changes, edit the corresponding fragment in `.github/aw/<name>-policy.md` or the shared rubric at `.github/aw/shared/<name>-policy.md`. The shared file is runtime-imported by both the interactive skill and the gh-aw fragment — single source of the rubric.
+3. Compile:
+   ```bash
+   gh aw compile
+   ```
+   This regenerates the `.lock.yml`. It may also touch `.gitattributes` and `.github/dependabot.yml` (one-time reformat — re-runs are stable). Commit the compiled files together with the source.
+
+## Pinning
+
+- **`gh aw` itself** — install via `gh extension install github/gh-aw --pin v0.81.2`. gh aw ships frequent releases — verify against `gh release list --repo github/gh-aw` before bumping, and re-run `gh aw compile` to refresh the lock-file.
+- **Engine model** — each workflow pins its model in its own `engine.model` frontmatter (the single source of truth; edit it there when bumping a model). `sw-triage` uses the repo-default Sonnet tier; `sw-bugfixer` escalates to the Opus tier because PR improvement runs need more capable code-fixing behavior. New workflows in this repo should use Sonnet unless there is a concrete reason to diverge.
+- **Actions** — gh aw action references, container pins, and dependency ignore rules are managed by `gh aw compile` through the generated lock files, `actions-lock.json`, and `.github/dependabot.yml`. Do not hand-edit generated pins.
+
+## Secrets
+
+The repo's `ANTHROPIC_API_KEY` secret is empty. The real key lives in `QUALITY_INITIATIVE_ANTHROPIC_API_KEY`. The workflow remaps it via `engine.env`:
+
+```yaml
+engine:
+  id: claude
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY }}
+```
+
+That keeps the engine code path unchanged while sourcing from the correct secret.
+
+## Running and inspecting
+
+```bash
+# Dispatch a workflow (workflow must be registered — see below)
+gh aw run sw-triage -f issue_number=17018
+gh aw run sw-bugfixer -f mode=fix-bug -f issue_number=17018
+
+# Audit a run (token usage + cost)
+gh aw audit <run-id>
+
+# Tail the most recent run
+gh workflow view sw-triage --web
+```
+
+Runs are persisted under `.github/aw/logs/run-<id>/` after `gh aw audit` — useful for replay, regression diffing, and as snapshot evidence. The directory is gitignored; treat it as personal scratch, not shared state.
+
+## Registration trick
+
+GitHub Actions only exposes `workflow_dispatch` for workflows that have run at least once **or** exist on the default branch — a GitHub limitation, not a `gh aw` quirk. To register a workflow on a feature branch without merging it to trunk:
+
+1. Add a temporary `push:` trigger scoped to the workflow files:
+   ```yaml
+   on:
+     workflow_dispatch:
+       inputs:
+         issue_number: { description: ..., required: true, type: number }
+     push:
+       branches: [<feature-branch>]
+       paths: [.github/workflows/<name>.md, .github/aw/<name>-policy.md]
+   ```
+2. Push once — GitHub registers the workflow.
+3. Remove the `push:` trigger and recompile.
+
+## Output processing
+
+`gh aw` does **not** enforce user-defined output schemas — the `upload-artifact` safe-output just stores the file. We run our own post-processing:
+
+- `.github/workflows/process-sw-triage-result.yml` triggers on every triage `workflow_run` completion, downloads the staging artifact, and runs `.github/bin/js/validate-sw-triage-output.ts` against the `triage-output.json` payload before applying deterministic issue updates.
+- `.github/workflows/process-sw-nightly-result.yml` does the same for `sw-nightly`: it validates `nightly-triage-output.json` with `.github/bin/js/validate-sw-nightly-output.ts`, then posts the cluster analysis (with re-route suggestions for confirmed root causes whose owner differs from the issue's labels) as a comment on the nightly tracking issue. `sw-nightly` triages the auto-filed nightly PHPUnit tracking issues produced by `report-phpunit-failures.yml`; it is the unattended twin of the interactive `nightly-triage` skill.
+- The validator enforces the field-level limits the agent had only as prompt hints (`reasoning` ≤ 2000 chars, `evidence_quotes[]` ≤ 500 chars × ≤ 5 entries) and scans for accidental or prompt-injection-induced secret leakage (GitHub PATs, Anthropic keys, long base64 blocks). It is TypeScript, run via Node's native type-stripping, no dependencies.
+- The `TriageOutput` shape and field rules live in `.agents/skills/sw-triage/assets/examples.md`; the validator is the machine-readable enforcement of those rules.
+
+A failed validation appears as a red `Triage Result Processor` run — visible to the maintainer who dispatched the triage. The staging artifact is not deleted on failure (would need `actions: write`); the visibility of the failed check is the gate.

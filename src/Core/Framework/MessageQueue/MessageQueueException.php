@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\MessageQueue;
 
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ScheduledTaskExecutorCompilerPass;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -19,6 +21,7 @@ class MessageQueueException extends HttpException
     public const MISSING_EXTENDS_CODE = 'FRAMEWORK__SCHEDULED_TASK_MISSING_EXTENDS';
     public const NOT_FOUND_CODE = 'FRAMEWORK__SCHEDULED_TASK_NOT_FOUND';
     public const SCHEDULED_TASK_NOT_IMPLEMENTING_INTERFACE = 'FRAMEWORK__SCHEDULED_TASK_NOT_IMPLEMENTING_INTERFACE';
+    public const SCHEDULED_TASK_EXECUTOR_NOT_SET = 'FRAMEWORK__SCHEDULED_TASK_EXECUTOR_NOT_SET';
 
     public static function validReceiverNameNotProvided(): self
     {
@@ -125,6 +128,20 @@ class MessageQueueException extends HttpException
             self::SCHEDULED_TASK_NOT_IMPLEMENTING_INTERFACE,
             'Tried to schedule "{{ class }}", but class does not extend ScheduledTask',
             ['class' => $class]
+        );
+    }
+
+    public static function scheduledTaskExecutorNotSet(string $handler): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SCHEDULED_TASK_EXECUTOR_NOT_SET,
+            'No "{{ executor }}" was set on the scheduled task handler "{{ handler }}". Register the handler as a "messenger.message_handler" service so the "{{ compilerPass }}" can inject the executor, or call "{{ handler }}::setScheduledTaskExecutor()" manually.',
+            [
+                'executor' => ScheduledTaskExecutor::class,
+                'handler' => $handler,
+                'compilerPass' => ScheduledTaskExecutorCompilerPass::class,
+            ]
         );
     }
 }

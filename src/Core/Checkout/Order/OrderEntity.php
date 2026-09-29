@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Order;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentSourceEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -26,7 +27,7 @@ use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
 #[Package('checkout')]
-class OrderEntity extends Entity
+class OrderEntity extends Entity implements DocumentSourceEntity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;

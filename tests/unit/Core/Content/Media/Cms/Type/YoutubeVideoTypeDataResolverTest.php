@@ -46,7 +46,7 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -61,7 +61,7 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
 
     public function testCollectWithPreviewMediaId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('previewMedia', FieldConfig::SOURCE_STATIC, 'media123'));
@@ -88,9 +88,9 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
         $product->setCustomFields(['heroPreview' => 'media123']);
 
         $resolverContext = new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -121,9 +121,9 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
         $product->setCustomFields(['heroPreview' => 'media123']);
 
         $resolverContext = new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -157,7 +157,7 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -176,7 +176,7 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
 
     public function testEnrichWithPreviewMediaOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -221,9 +221,9 @@ class YoutubeVideoTypeDataResolverTest extends TestCase
         $product->setCover($productMedia);
 
         $resolverContext = new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 

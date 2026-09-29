@@ -9,8 +9,10 @@ use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
 /**
  * @internal
  */
+#[Package('framework')]
 class HookableEventDescriberValidationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -35,7 +38,7 @@ class HookableEventDescriberValidationTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             new \ArrayIterator([]),
             new \ArrayIterator([new TestHookableEventDescriber()])
-        ));
+        ), new PolicyRegistry([]));
         $this->roleId = Uuid::randomHex();
     }
 

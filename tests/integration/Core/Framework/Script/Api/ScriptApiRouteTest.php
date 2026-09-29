@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class ScriptApiRouteTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -35,7 +37,7 @@ class ScriptApiRouteTest extends TestCase
         $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($browser->getContainer());
         static::assertArrayHasKey('api-simple-script', $traces);
         static::assertCount(1, $traces['api-simple-script']);
         static::assertSame('some debug information', $traces['api-simple-script'][0]['output'][0]);
@@ -55,7 +57,7 @@ class ScriptApiRouteTest extends TestCase
         $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($browser->getContainer());
         static::assertArrayHasKey('api-simple-script', $traces);
         static::assertCount(1, $traces['api-simple-script']);
         static::assertSame('some debug information', $traces['api-simple-script'][0]['output'][0]);
@@ -181,7 +183,7 @@ class ScriptApiRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'api-endpoint-cases'));
         /** @var AppEntity $app */
-        $app = static::getContainer()->get('app.repository')->search($criteria, Context::createDefaultContext())->first();
+        $app = static::getContainer()->get('app.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
         $browser->jsonRequest('POST', '/api/script/simple-script');

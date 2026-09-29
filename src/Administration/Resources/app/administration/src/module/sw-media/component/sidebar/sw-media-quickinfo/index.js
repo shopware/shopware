@@ -21,11 +21,7 @@ export default {
         'systemConfigApiService',
     ],
 
-    emits: [
-        'media-item-rename-success',
-        'media-item-replaced',
-        'update:item',
-    ],
+    emits: ['media-item-rename-success', 'media-item-replaced', 'update:item'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -142,6 +138,14 @@ export default {
                 showOnDisabledElements: true,
             };
         },
+
+        fileName() {
+            if (this.item.fileExtension) {
+                return `${this.item.fileName}.${this.item.fileExtension}`;
+            }
+
+            return this.item.fileName;
+        },
     },
 
     watch: {
@@ -159,6 +163,12 @@ export default {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-media-quickinfo__item',
+                path: 'item',
+                scope: this,
+            });
+
             this.loadCustomFieldSets();
             this.fetchSpatialItemConfig();
         },
@@ -281,10 +291,7 @@ export default {
 
             try {
                 await this.mediaService.renameMedia(item.id, value).catch((error) => {
-                    const fileNameErrorCodes = [
-                        'CONTENT__MEDIA_EMPTY_FILE',
-                        'CONTENT__MEDIA_ILLEGAL_FILE_NAME',
-                    ];
+                    const fileNameErrorCodes = ['CONTENT__MEDIA_EMPTY_FILE', 'CONTENT__MEDIA_ILLEGAL_FILE_NAME'];
 
                     error.response.data.errors.forEach((e) => {
                         if (this.fileNameError || !fileNameErrorCodes.includes(e.code)) {
@@ -426,6 +433,44 @@ export default {
 
         closeModelEditorModal() {
             this.showModelEditorModal = false;
+        },
+
+        downloadMedia() {
+            this.mediaService
+                .prepareDownloadMedia(this.item.id)
+                .then((download) => {
+                    if (download.type === 'external') {
+                        this.triggerDownload(download.url);
+
+                        return;
+                    }
+
+                    return this.mediaService.downloadMedia(this.item.id).then((data) => {
+                        const url = window.URL.createObjectURL(data);
+                        this.triggerDownload(url, this.fileName);
+                        URL.revokeObjectURL(url);
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('global.sw-media-media-item.notification.downloadError.message'),
+                    });
+                });
+        },
+
+        triggerDownload(url, fileName = null) {
+            const link = document.createElement('a');
+            link.href = url;
+
+            if (fileName) {
+                link.download = fileName;
+            } else {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            }
+
+            link.dispatchEvent(new MouseEvent('click'));
+            link.remove();
         },
     },
 };

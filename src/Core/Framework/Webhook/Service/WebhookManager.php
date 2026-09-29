@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook\Service;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
@@ -18,7 +17,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -50,7 +49,6 @@ class WebhookManager implements ResetInterface
 
     public function __construct(
         private readonly WebhookLoader $webhookLoader,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly HookableEventFactory $eventFactory,
         private readonly AppLocaleProvider $appLocaleProvider,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
@@ -61,6 +59,7 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
+        private readonly PolicyRegistry $policies,
     ) {
     }
 
@@ -94,13 +93,11 @@ class WebhookManager implements ResetInterface
     private function callWebhooks(Hookable $event, Context $context): void
     {
         $webhooksForEvent = $this->filterWebhooksByLiveVersion($this->getWebhooks($event->getName()), $event);
+        $webhooksForEvent = $this->filterWebhooksByPolicies($webhooksForEvent, $event);
 
         if ($webhooksForEvent === []) {
             return;
         }
-
-        $this->eventDispatcher->dispatch($e = new PreWebhooksDispatchEvent($webhooksForEvent));
-        $webhooksForEvent = $e->webhooks;
 
         $languageId = $context->getLanguageId();
         $userLocale = $this->appLocaleProvider->getLocaleFromContext($context);
@@ -112,10 +109,9 @@ class WebhookManager implements ResetInterface
             $messages = $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale);
 
             if ($messages !== []) {
-                /** @deprecated tag:v6.8.0 - reason:parameter-will-be-removed - $forceSynchronous will be removed; lifecycle events will go async with retries */
                 $isAppLifecycleEvent = $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated;
 
-                $this->webhookDeliveryService->process($messages, forceSynchronous: $isAppLifecycleEvent);
+                Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($messages, forceSynchronous: $isAppLifecycleEvent));
             }
 
             return;
@@ -266,6 +262,7 @@ class WebhookManager implements ResetInterface
             $userLocale,
             $webhookHeaders,
             $partitionKey,
+            $webhook->appName,
         );
     }
 
@@ -372,6 +369,19 @@ class WebhookManager implements ResetInterface
         foreach ($webhooks as $webhook) {
             $this->webhooks[$webhook->eventName][] = $webhook;
         }
+    }
+
+    /**
+     * @param list<Webhook> $webhooks
+     *
+     * @return list<Webhook>
+     */
+    private function filterWebhooksByPolicies(array $webhooks, Hookable $event): array
+    {
+        return array_values(array_filter(
+            $webhooks,
+            fn (Webhook $webhook): bool => $this->policies->permitsDelivery($event, $webhook)
+        ));
     }
 
     /**

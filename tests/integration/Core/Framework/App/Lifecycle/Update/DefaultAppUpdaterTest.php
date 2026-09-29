@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -17,6 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 class DefaultAppUpdaterTest extends TestCase
 {
     use ExtensionBehaviour;

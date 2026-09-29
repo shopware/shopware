@@ -344,7 +344,7 @@ criteria.setLimit(limit);
 // Total count modes for performance optimization
 criteria.setTotalCountMode(0); // No total count (fastest)
 criteria.setTotalCountMode(1); // Exact total count (default)
-criteria.setTotalCountMode(2); // Approximate total count (for very large datasets)
+criteria.setTotalCountMode(2); // Bounded lookahead count (for next-page pagination)
 
 // Check total count in results
 const searchResult = await productRepository.search(criteria, context);

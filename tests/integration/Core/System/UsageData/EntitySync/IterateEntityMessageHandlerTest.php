@@ -66,10 +66,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
-        $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects($this->any())
-            ->method('getAllowedEntityDefinition')
-            ->with('product')
+        $entityDefinitionService = static::createStub(EntityDefinitionService::class);
+        $entityDefinitionService->method('getAllowedEntityDefinition')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
 
         $productIds = $this->setUpProducts();
@@ -118,10 +116,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
-        $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects($this->any())
-            ->method('getAllowedEntityDefinition')
-            ->with('product')
+        $entityDefinitionService = static::createStub(EntityDefinitionService::class);
+        $entityDefinitionService->method('getAllowedEntityDefinition')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
 
         $productIds = $this->setUpProducts();
@@ -168,10 +164,8 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
-        $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
-        $entityDefinitionService->expects($this->any())
-            ->method('getAllowedEntityDefinition')
-            ->with('product')
+        $entityDefinitionService = static::createStub(EntityDefinitionService::class);
+        $entityDefinitionService->method('getAllowedEntityDefinition')
             ->willReturn($definitionRegistry->get(ProductDefinition::class));
 
         $ids = new IdsCollection();

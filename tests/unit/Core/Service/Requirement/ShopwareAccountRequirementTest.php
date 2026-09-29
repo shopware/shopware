@@ -5,17 +5,30 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\ShopwareAccountRequirement;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShopwareAccountRequirement::class)]
 class ShopwareAccountRequirementTest extends TestCase
 {
     public function testGetName(): void
     {
         static::assertSame('shopware_account', ShopwareAccountRequirement::getName());
+    }
+
+    public function testGatesPrivileges(): void
+    {
+        static::assertSame(Gate::PRIVILEGES, (new ShopwareAccountRequirement(static::createStub(Connection::class)))->getGate());
+    }
+
+    public function testDispermitsStateChange(): void
+    {
+        static::assertFalse((new ShopwareAccountRequirement(static::createStub(Connection::class)))->permitsStateChange());
     }
 
     public function testIsSatisfiedWhenUserHasStoreToken(): void

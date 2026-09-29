@@ -89,7 +89,7 @@ class UserServiceTest extends TestCase
         static::assertSame($userId, Uuid::fromBytesToHex($tokenUserData['user_id']));
 
         // check user is activated
-        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$externalAuthUser->userId]), Context::createDefaultContext())->first();
+        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$externalAuthUser->userId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(UserEntity::class, $user);
         static::assertTrue($user->getActive());
         static::assertSame('given_name', $user->getFirstName());
@@ -172,7 +172,7 @@ class UserServiceTest extends TestCase
         static::assertSame($refreshToken, $externalAuthUser->token->refreshToken);
         static::assertSame($localeEmail, $externalAuthUser->email);
 
-        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$userId]), Context::createDefaultContext())->first();
+        $user = $this->getContainer()->get('user.repository')->search(new Criteria([$userId]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(UserEntity::class, $user);
         static::assertSame($tokenEmail, $user->getEmail());
     }
@@ -335,7 +335,7 @@ class UserServiceTest extends TestCase
      */
     private function getTokenUserData(string $subject): ?array
     {
-        $result = $this->connection->createQueryBuilder()
+        $dbResult = $this->connection->createQueryBuilder()
             ->select('id', 'user_id', 'user_sub', 'token', 'expiry')
             ->from('oauth_user')
             ->where('user_sub = :subject')
@@ -343,18 +343,16 @@ class UserServiceTest extends TestCase
             ->executeQuery()
             ->fetchAssociative();
 
-        if (!\is_array($result)) {
+        if (!\is_array($dbResult)) {
             return null;
         }
 
-        static::assertArrayHasKey('id', $result);
-        static::assertArrayHasKey('user_id', $result);
-        static::assertArrayHasKey('user_sub', $result);
-        static::assertArrayHasKey('token', $result);
-        static::assertArrayHasKey('expiry', $result);
-
-        $result['token'] = Token::fromArray(\json_decode($result['token'], true));
-
-        return $result;
+        return [
+            'id' => $dbResult['id'],
+            'user_id' => $dbResult['user_id'],
+            'user_sub' => $dbResult['user_sub'],
+            'token' => Token::fromArray(\json_decode($dbResult['token'], true, flags: \JSON_THROW_ON_ERROR)),
+            'expiry' => $dbResult['expiry'],
+        ];
     }
 }

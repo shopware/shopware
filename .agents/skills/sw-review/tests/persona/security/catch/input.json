@@ -1,0 +1,22 @@
+{
+  "persona": "security",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-sec-catch",
+    "title": "feat(checkout): add unsafe order lookup",
+    "body": "Adds OrderCustomer lookup helper.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/sec-catch",
+    "additions": 21,
+    "deletions": 0,
+    "changed_files": 1
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Checkout/Order/Aggregate/OrderCustomer/UnsafeOrderQuery.php"
+  ]
+}

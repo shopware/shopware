@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\Cookie\AnalyticsCookieCollectListener;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(AnalyticsCookieCollectListener::class)]
 class AnalyticsCookieCollectListenerTest extends TestCase
 {

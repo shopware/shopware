@@ -18,15 +18,15 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemGroupRule::class)]
-#[Package('checkout')]
 class LineItemGroupRuleTest extends TestCase
 {
     public function testMatchReturnsFalseBecauseOfWrongScope(): void
     {
         $rule = new LineItemGroupRule();
 
-        static::assertFalse($rule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class))));
+        static::assertFalse($rule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class))));
     }
 
     public function testMatchReturnsFalseBecauseOfWrongBuilder(): void
@@ -36,7 +36,7 @@ class LineItemGroupRuleTest extends TestCase
 
         $cart = new Cart('test');
         $cart->getData()->set(LineItemGroupBuilder::class, 'not a builder');
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertFalse($rule->match($scope));
     }
@@ -51,7 +51,7 @@ class LineItemGroupRuleTest extends TestCase
         $result = new LineItemGroupBuilderResult();
         $lineItemGroupBuilder->expects($this->once())->method('findGroupPackages')->willReturn($result);
         $cart->getData()->set(LineItemGroupBuilder::class, $lineItemGroupBuilder);
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertFalse($rule->match($scope));
     }
@@ -67,7 +67,7 @@ class LineItemGroupRuleTest extends TestCase
         $result->expects($this->once())->method('hasFoundItems')->willReturn(true);
         $lineItemGroupBuilder->expects($this->once())->method('findGroupPackages')->willReturn($result);
         $cart->getData()->set(LineItemGroupBuilder::class, $lineItemGroupBuilder);
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertTrue($rule->match($scope));
     }

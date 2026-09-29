@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -33,6 +34,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  *
  * @see JoinFilterTest for the tests for all valid cases that are part of the public API.
  */
+#[Package('framework')]
 class MultiJoinFilterLimitationTest extends TestCase
 {
     use KernelTestBehaviour;

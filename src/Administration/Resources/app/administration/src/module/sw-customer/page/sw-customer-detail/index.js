@@ -21,6 +21,7 @@ export default {
         'customerGroupRegistrationService',
         'acl',
         'customerValidationService',
+        'feature',
     ],
 
     mixins: [
@@ -39,6 +40,12 @@ export default {
             type: String,
             required: true,
         },
+    },
+
+    provide() {
+        return {
+            loadCustomer: this.loadCustomer.bind(this),
+        };
     },
 
     data() {
@@ -134,6 +141,33 @@ export default {
             };
         },
 
+        customerDetailTabs() {
+            return [
+                {
+                    label: this.$t('sw-customer.detail.tabGeneral'),
+                    name: this.generalRoute.name,
+                    hasError: this.swCustomerDetailBaseError,
+                    onClick: () => {
+                        void this.$router.push(this.generalRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-customer.detail.tabAddresses'),
+                    name: this.addressesRoute.name,
+                    onClick: () => {
+                        void this.$router.push(this.addressesRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-customer.detailBase.labelOrderCard'),
+                    name: this.ordersRoute.name,
+                    onClick: () => {
+                        void this.$router.push(this.ordersRoute);
+                    },
+                },
+            ];
+        },
+
         emailHasChanged() {
             const origin = this.customer.getOrigin();
             if (this.customer.isNew() || !origin.email) {
@@ -170,14 +204,16 @@ export default {
         },
     },
 
+    beforeRouteLeave() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     created() {
         this.createdComponent();
     },
 
     methods: {
         async loadCustomer() {
-            const defaultSalutationId = await this.getDefaultSalutation();
-
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
                 path: 'customer',
@@ -185,9 +221,26 @@ export default {
             });
             this.isLoading = true;
 
-            this.customerRepository.get(this.customerId, Shopware.Context.api, this.defaultCriteria).then((customer) => {
+            try {
+                const customer = await this.customerRepository.get(
+                    this.customerId,
+                    Shopware.Context.api,
+                    this.defaultCriteria,
+                );
                 this.customer = customer;
-                if (!this.customer?.salutationId) {
+
+                if (!this.customer) {
+                    this.createNotificationError({
+                        message: this.$t('sw-customer.detail.messageCustomerNotFound'),
+                    });
+                    void this.$router.push({ name: 'sw.customer.index' });
+
+                    return;
+                }
+
+                const defaultSalutationId = await this.getDefaultSalutation();
+
+                if (!this.customer.salutationId) {
                     this.customer.salutationId = defaultSalutationId;
                 }
 
@@ -198,12 +251,18 @@ export default {
 
                     return address;
                 });
-
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                });
+            } finally {
                 this.isLoading = false;
-            });
+            }
         },
 
         async createdComponent() {
+            Shopware.Store.get('shopwareApps').selectedIds = this.customerId ? [this.customerId] : [];
+
             await this.loadCustomer();
         },
 

@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-vector-field {
     .sw-vector-field__input {
         display: flex;
@@ -10,7 +8,7 @@
 
     .mt-field__addition.is--prefix {
         min-width: 32px;
-        font-weight: $font-weight-bold;
+        font-weight: var(--font-weight-bold);
     }
 
     .sw-vector-field__lock-icon {
@@ -23,7 +21,7 @@
 
         &.is--disabled {
             cursor: default;
-            color: var(--color-gray-700);
+            color: var(--color-icon-primary-disabled);
         }
     }
 

@@ -12,10 +12,10 @@ interface DragConfig {
     preventEvent: boolean;
     validateDrop: boolean;
     validateDrag: boolean;
-    onDragStart: (...args: never[]) => void;
-    onDragEnter: (...args: never[]) => void;
-    onDragLeave: (...args: never[]) => void;
-    onDrop: (...args: never[]) => void;
+    onDragStart?: (...args: never[]) => void;
+    onDragEnter?: (...args: never[]) => void;
+    onDragLeave?: (...args: never[]) => void;
+    onDrop?: (...args: never[]) => void;
     data: Record<string, unknown>;
     disabled: boolean;
 }
@@ -62,7 +62,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     props: {
         items: {
-            type: Array as PropType<Array<Entity<keyof EntitySchema.Entities>>>,
+            type: Array as PropType<Array<Entity<keyof EntitySchema.EntityKeys>>>,
             required: true,
         },
         sortable: {
@@ -99,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
         dragElement: Element | null;
         defaultConfig: DragConfig;
         defaultScrollOnDragConf: ScrollOnDragConf;
-        sortedItems: Array<Entity<keyof EntitySchema.Entities>>;
+        sortedItems: Array<Entity<keyof EntitySchema.EntityKeys>>;
         scrollEventTicking: boolean;
     } {
         return {
@@ -121,14 +121,16 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         mergedDragConfig(): DragConfig {
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDragStart = this.onDragStart;
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDragEnter = this.onDragEnter;
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDrop = this.onDrop;
-
-            return { ...this.defaultConfig, ...this.dragConf } as DragConfig;
+            return {
+                ...this.defaultConfig,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDragStart: this.onDragStart,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDragEnter: this.onDragEnter,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDrop: this.onDrop,
+                ...this.dragConf,
+            } as DragConfig;
         },
 
         mergedScrollOnDragConfig(): ScrollOnDragConf {
@@ -161,8 +163,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onDragEnter(
-            draggedComponent: Entity<keyof EntitySchema.Entities>,
-            droppedComponent: Entity<keyof EntitySchema.Entities>,
+            draggedComponent: Entity<keyof EntitySchema.EntityKeys>,
+            droppedComponent: Entity<keyof EntitySchema.EntityKeys>,
         ): void {
             if (!this.isSortable) {
                 return;

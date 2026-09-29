@@ -8,6 +8,7 @@ use League\OAuth2\Server\Entities\ClientEntityInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\UserRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
@@ -16,6 +17,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UserRepository::class)]
 class UserRepositoryTest extends TestCase
 {
@@ -28,10 +30,11 @@ class UserRepositoryTest extends TestCase
         $user->setId(Uuid::randomBytes());
         $user->setUsername($username);
         $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
 
         $userRepository = $this->createUserRepository($user);
 
-        $clientEntity = $this->createMock(ClientEntityInterface::class);
+        $clientEntity = static::createStub(ClientEntityInterface::class);
         $response = $userRepository->getUserEntityByUserCredentials(
             $username,
             $password,
@@ -51,10 +54,11 @@ class UserRepositoryTest extends TestCase
         $user->setId(Uuid::randomBytes());
         $user->setUsername($username);
         $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
 
         $userRepository = $this->createUserRepository($user);
 
-        $clientEntity = $this->createMock(ClientEntityInterface::class);
+        $clientEntity = static::createStub(ClientEntityInterface::class);
         $response = $userRepository->getUserEntityByUserCredentials(
             $username,
             'secure-test-wrong',
@@ -72,7 +76,7 @@ class UserRepositoryTest extends TestCase
 
         $userRepository = $this->createUserRepository(null);
 
-        $clientEntity = $this->createMock(ClientEntityInterface::class);
+        $clientEntity = static::createStub(ClientEntityInterface::class);
         $response = $userRepository->getUserEntityByUserCredentials(
             $username,
             $password,
@@ -92,10 +96,35 @@ class UserRepositoryTest extends TestCase
         $user->setId(Uuid::randomBytes());
         $user->setUsername($username);
         $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(true);
 
         $userRepository = $this->createUserRepository($user, false);
 
-        $clientEntity = $this->createMock(ClientEntityInterface::class);
+        $clientEntity = static::createStub(ClientEntityInterface::class);
+        $response = $userRepository->getUserEntityByUserCredentials(
+            $username,
+            $password,
+            'password',
+            $clientEntity
+        );
+
+        static::assertNull($response);
+    }
+
+    public function testLoginWithDefaultLoginEnabledAndInactiveUser(): void
+    {
+        $username = 'my_username';
+        $password = 'secure-test';
+
+        $user = new UserEntity();
+        $user->setId(Uuid::randomBytes());
+        $user->setUsername($username);
+        $user->setPassword(password_hash($password, \PASSWORD_BCRYPT));
+        $user->setActive(false);
+
+        $userRepository = $this->createUserRepository($user);
+
+        $clientEntity = static::createStub(ClientEntityInterface::class);
         $response = $userRepository->getUserEntityByUserCredentials(
             $username,
             $password,
@@ -108,7 +137,7 @@ class UserRepositoryTest extends TestCase
 
     protected function createUserRepository(?UserEntity $user, bool $useDefault = true): UserRepository
     {
-        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
         $queryBuilder->method('select')->willReturnSelf();
         $queryBuilder->method('from')->willReturnSelf();
         $queryBuilder->method('where')->willReturnSelf();
@@ -121,7 +150,7 @@ class UserRepositoryTest extends TestCase
             return false;
         });
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
         $loginConfigService = new LoginConfigService(
@@ -137,7 +166,7 @@ class UserRepositoryTest extends TestCase
                 'scope' => 'scope',
                 'register_url' => 'https://register.url',
             ],
-            $this->createMock(RouterInterface::class)
+            static::createStub(RouterInterface::class)
         );
 
         return new UserRepository($connection, $loginConfigService);

@@ -38,6 +38,13 @@ html {
     /* stylelint-enable selector-class-pattern */
 }
 
+// Unify focus styling across all focusable elements.
+// Component-specific focus styles (.btn, .form-control, ...) have a higher specificity and keep their own styling.
+:focus-visible {
+    outline: 0;
+    box-shadow: $focus-ring-box-shadow;
+}
+
 // used by viewport detection helper to determine the current viewport
 :root {
     @include media-breakpoint-only(xs) {

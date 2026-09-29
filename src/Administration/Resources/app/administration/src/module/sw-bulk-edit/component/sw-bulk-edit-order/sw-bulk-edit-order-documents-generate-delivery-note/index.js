@@ -21,5 +21,9 @@ export default {
                 });
             },
         },
+
+        documentTypeTechnicalName() {
+            return 'delivery_note';
+        },
     },
 };

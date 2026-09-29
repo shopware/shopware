@@ -1,0 +1,8 @@
+{% block sw_mixin_emits %}
+    <div class="sw-mixin-emits">
+        <button class="sw-mixin-emits__delete" @click="openModalDelete">Delete</button>
+
+        {# The mixin owns the flag; the component never declares it. #}
+        <sw-media-modal-delete v-if="showModalDelete" @confirm="onConfirmDelete" />
+    </div>
+{% endblock %}

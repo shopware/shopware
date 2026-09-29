@@ -11,7 +11,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 class CartMergedSubscriber implements EventSubscriberInterface
 {
     /**
@@ -38,13 +38,13 @@ class CartMergedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($mainRequest->hasSession() === false) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 
         $session = $mainRequest->getSession();
 
-        if (!method_exists($session, 'getFlashBag')) {
+        if (!$session->isStarted() || !method_exists($session, 'getFlashBag')) {
             return;
         }
 

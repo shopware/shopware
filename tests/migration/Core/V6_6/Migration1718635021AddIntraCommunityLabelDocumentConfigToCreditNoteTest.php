@@ -7,6 +7,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_6\Migration1718635021AddIntraCommunityLabelDocumentConfigToCreditNote;
 use Shopware\Tests\Migration\MigrationTestTrait;
@@ -14,6 +15,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1718635021AddIntraCommunityLabelDocumentConfigToCreditNote::class)]
 class Migration1718635021AddIntraCommunityLabelDocumentConfigToCreditNoteTest extends TestCase
 {

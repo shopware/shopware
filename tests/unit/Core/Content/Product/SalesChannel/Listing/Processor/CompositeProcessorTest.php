@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AbstractListing
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(CompositeListingProcessor::class)]
 class CompositeProcessorTest extends TestCase
 {
@@ -22,7 +24,7 @@ class CompositeProcessorTest extends TestCase
     {
         $request = new Request();
         $criteria = new Criteria();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new CompositeListingProcessor([
             $dummy = new DummyListingProcessor(),
@@ -36,8 +38,8 @@ class CompositeProcessorTest extends TestCase
     public function testProcess(): void
     {
         $request = new Request();
-        $result = $this->createMock(ProductListingResult::class);
-        $context = $this->createMock(SalesChannelContext::class);
+        $result = static::createStub(ProductListingResult::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $processor = new CompositeListingProcessor([
             $dummy = new DummyListingProcessor(),

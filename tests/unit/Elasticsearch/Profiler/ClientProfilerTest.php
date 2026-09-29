@@ -15,11 +15,13 @@ use OpenSearch\TransportFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ClientProfiler::class)]
 class ClientProfilerTest extends TestCase
 {

@@ -6,11 +6,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class PriceFieldAccessorBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

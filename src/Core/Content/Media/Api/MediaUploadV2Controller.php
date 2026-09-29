@@ -24,8 +24,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 readonly class MediaUploadV2Controller
 {
     /**
@@ -37,7 +37,7 @@ readonly class MediaUploadV2Controller
     ) {
     }
 
-    #[Route(path: '/api/_action/media/upload', name: 'api.action.media.upload_v2', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/upload', name: 'api.action.media.upload_v2', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:create']], methods: ['POST'])]
     public function upload(
         Request $request,
         #[MapRequestPayload]
@@ -47,7 +47,7 @@ readonly class MediaUploadV2Controller
         return new JsonResponse(['id' => $this->mediaUploadService->uploadFromRequest($request, $context, $mediaUploadParameters)]);
     }
 
-    #[Route(path: '/api/_action/media/upload_by_url', name: 'api.action.media.upload_v2_url', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/upload_by_url', name: 'api.action.media.upload_v2_url', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:create']], methods: ['POST'])]
     public function uploadUrl(
         Request $request,
         #[MapRequestPayload]
@@ -63,7 +63,7 @@ readonly class MediaUploadV2Controller
         return new JsonResponse(['id' => $this->mediaUploadService->uploadFromURL($url, $context, $mediaUploadParameters)]);
     }
 
-    #[Route(path: '/api/_action/media/external-link', name: 'api.action.media.external-link', methods: ['POST'])]
+    #[Route(path: '/api/_action/media/external-link', name: 'api.action.media.external-link', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:create']], methods: ['POST'])]
     public function externalLink(
         Request $request,
         #[MapRequestPayload]
@@ -81,7 +81,7 @@ readonly class MediaUploadV2Controller
         ]);
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/external-thumbnails', name: 'api.action.media.add-external-thumbnails', methods: [Request::METHOD_POST])]
+    #[Route(path: '/api/_action/media/{mediaId}/external-thumbnails', name: 'api.action.media.add-external-thumbnails', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media_thumbnail:create']], methods: [Request::METHOD_POST])]
     public function addExternalThumbnails(
         string $mediaId,
         #[MapRequestPayload]
@@ -98,7 +98,7 @@ readonly class MediaUploadV2Controller
         ], Response::HTTP_CREATED);
     }
 
-    #[Route(path: '/api/_action/media/{mediaId}/external-thumbnails', name: 'api.action.media.delete-external-thumbnails', methods: [Request::METHOD_DELETE])]
+    #[Route(path: '/api/_action/media/{mediaId}/external-thumbnails', name: 'api.action.media.delete-external-thumbnails', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media_thumbnail:delete']], methods: [Request::METHOD_DELETE])]
     public function deleteExternalThumbnails(
         string $mediaId,
         Context $context
@@ -117,7 +117,7 @@ readonly class MediaUploadV2Controller
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('thumbnails');
 
-        $media = $this->mediaRepository->search($criteria, $context)->first();
+        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->first();
 
         if ($media === null) {
             throw MediaException::mediaNotFound($id);

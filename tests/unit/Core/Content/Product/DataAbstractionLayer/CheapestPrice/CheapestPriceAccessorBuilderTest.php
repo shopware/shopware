@@ -10,11 +10,13 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPri
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CheapestPriceAccessorBuilder::class)]
 class CheapestPriceAccessorBuilderTest extends TestCase
 {

@@ -11,6 +11,7 @@ use Shopware\Core\Content\ProductExport\ProductExportHydrator;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
@@ -23,6 +24,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductExportHydrator::class)]
 class ProductExportHydratorTest extends TestCase
 {
@@ -44,8 +46,8 @@ class ProductExportHydratorTest extends TestCase
                 SalesChannelTypeDefinition::class,
                 CurrencyDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $container->set(ProductExportHydrator::class, $this->hydrator);

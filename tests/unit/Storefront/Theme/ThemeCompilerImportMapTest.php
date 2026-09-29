@@ -10,8 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
-use Shopware\Storefront\Theme\MD5ThemePathBuilder;
-use Shopware\Storefront\Theme\ScssPhpCompiler;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Theme\AbstractScssCompiler;
+use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
@@ -19,24 +20,22 @@ use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
-use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerImportMapTest extends TestCase
 {
-    public static ?FilesystemOperator $buildMetaFilesystemForFetch = null;
-
-    private Filesystem $tempFilesystem;
+    private Filesystem $assetFilesystem;
 
     private ThemeCompiler $compiler;
 
     protected function setUp(): void
     {
-        $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->assetFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->compiler = $this->createCompilerForBundleBuildMeta();
     }
 
@@ -56,11 +55,11 @@ class ThemeCompilerImportMapTest extends TestCase
         $result = $this->assertImportMap($this->compiler->buildComponentImportMap());
 
         static::assertSame(
-            'https://cdn.example.com/bundles/storefront/storefront/components/Example/Component-HASH.js',
+            '/bundles/storefront/storefront/components/Example/Component-HASH.js',
             $result['imports']['Example:Component']
         );
         static::assertSame(
-            ['https://cdn.example.com/bundles/storefront/storefront/components/Example/Component-HASH.css'],
+            ['/bundles/storefront/storefront/components/Example/Component-HASH.css'],
             $result['styles'] ?? []
         );
     }
@@ -81,8 +80,8 @@ class ThemeCompilerImportMapTest extends TestCase
         static::assertIsArray($result);
         static::assertSame(
             [
-                'https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/' => [
-                    '@vendor/chunk' => 'https://cdn.example.com/bundles/myextension/storefront/components/vendor/chunk-HASH.js',
+                '/bundles/myextension/storefront/components/MyExtension/' => [
+                    '@vendor/chunk' => '/bundles/myextension/storefront/components/vendor/chunk-HASH.js',
                 ],
             ],
             $result['scopes'] ?? []
@@ -92,8 +91,8 @@ class ThemeCompilerImportMapTest extends TestCase
     public function testBuildComponentImportMapSkipsBundleWhenBuildMetaJsonIsInvalid(): void
     {
         $path = 'bundles/brokenextension/storefront/components/.vite/build-meta.json';
-        $this->tempFilesystem->createDirectory('bundles/brokenextension/storefront/components/.vite');
-        $this->tempFilesystem->write($path, '{invalid json');
+        $this->assetFilesystem->createDirectory('bundles/brokenextension/storefront/components/.vite');
+        $this->assetFilesystem->write($path, '{invalid json');
         $collection = new StorefrontPluginConfigurationCollection([
             new StorefrontPluginConfiguration('Storefront'),
             new StorefrontPluginConfiguration('BrokenExtension'),
@@ -146,12 +145,12 @@ class ThemeCompilerImportMapTest extends TestCase
         static::assertArrayHasKey('scopes', $firstResult);
         static::assertArrayHasKey('scopes', $secondResult);
         static::assertSame(
-            'https://cdn.example.com/bundles/cachedextension/storefront/components/vendor/chunk-one.js',
-            $firstResult['scopes']['https://cdn.example.com/bundles/cachedextension/storefront/components/CachedExtension/']['@cached/chunk']
+            '/bundles/cachedextension/storefront/components/vendor/chunk-one.js',
+            $firstResult['scopes']['/bundles/cachedextension/storefront/components/CachedExtension/']['@cached/chunk']
         );
         static::assertSame(
-            'https://cdn.example.com/bundles/cachedextension/storefront/components/vendor/chunk-two.js',
-            $secondResult['scopes']['https://cdn.example.com/bundles/cachedextension/storefront/components/CachedExtension/']['@cached/chunk']
+            '/bundles/cachedextension/storefront/components/vendor/chunk-two.js',
+            $secondResult['scopes']['/bundles/cachedextension/storefront/components/CachedExtension/']['@cached/chunk']
         );
     }
 
@@ -179,11 +178,11 @@ class ThemeCompilerImportMapTest extends TestCase
         $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
 
         static::assertSame(
-            'https://cdn.example.com/bundles/storefront/storefront/components/Core/Button-HASH.js',
+            '/bundles/storefront/storefront/components/Core/Button-HASH.js',
             $result['imports']['Core:Button']
         );
         static::assertSame(
-            'https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/Card-HASH.js',
+            '/bundles/myextension/storefront/components/MyExtension/Card-HASH.js',
             $result['imports']['MyExtension:Card']
         );
     }
@@ -213,7 +212,7 @@ class ThemeCompilerImportMapTest extends TestCase
 
         static::assertIsArray($result);
         static::assertArrayHasKey('imports', $result);
-        static::assertSame('https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js', $result['imports']['shopware']);
+        static::assertSame('/bundles/storefront/storefront/shopware/shopware.js', $result['imports']['shopware']);
         static::assertArrayHasKey('Core:Button', $result['imports']);
         static::assertArrayNotHasKey('InactiveApp:Card', $result['imports']);
     }
@@ -257,16 +256,16 @@ class ThemeCompilerImportMapTest extends TestCase
 
         static::assertIsArray($result);
         static::assertSame(
-            'https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/Card-HASH.js',
+            '/bundles/myextension/storefront/components/MyExtension/Card-HASH.js',
             $result['imports']['MyExtension:Card']
         );
         static::assertSame(
-            ['https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/Card-HASH.css'],
+            ['/bundles/myextension/storefront/components/MyExtension/Card-HASH.css'],
             $result['styles'] ?? []
         );
     }
 
-    public function testBuildComponentImportMapUsesPublicPackageBaseUrlAndCreatesScopesAndStyles(): void
+    public function testBuildComponentImportMapCreatesRelativeScopesAndStyles(): void
     {
         $this->writeJson(
             'bundles/storefront/storefront/components/.vite/build-meta.json',
@@ -306,151 +305,28 @@ class ThemeCompilerImportMapTest extends TestCase
             new StorefrontPluginConfiguration('MyExtension'),
         ]);
 
-        $compiler = $this->createCompilerForBundleBuildMeta([
-            'public' => new UrlPackage('https://cdn.example.com', new EmptyVersionStrategy()),
-        ]);
-        $result = $compiler->buildComponentImportMap($collection);
+        $result = $this->compiler->buildComponentImportMap($collection);
 
         static::assertIsArray($result);
         static::assertSame(
-            'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+            '/bundles/storefront/storefront/shopware/shopware.js',
             $result['imports']['shopware']
         );
         static::assertSame(
-            'https://cdn.example.com/bundles/storefront/storefront/components/vendor/core-HASH.js',
+            '/bundles/storefront/storefront/components/vendor/core-HASH.js',
             $result['imports']['@core/vendor']
         );
         static::assertSame(
-            ['https://cdn.example.com/bundles/storefront/storefront/components/Core/Button-HASH.css'],
+            ['/bundles/storefront/storefront/components/Core/Button-HASH.css'],
             $result['styles'] ?? []
         );
         static::assertSame(
             [
-                'https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/' => [
-                    '@ext/vendor' => 'https://cdn.example.com/bundles/myextension/storefront/components/vendor/ext-HASH.js',
+                '/bundles/myextension/storefront/components/MyExtension/' => [
+                    '@ext/vendor' => '/bundles/myextension/storefront/components/vendor/ext-HASH.js',
                 ],
             ],
             $result['scopes'] ?? []
-        );
-    }
-
-    public function testBuildComponentImportMapScopeKeyStripsPackageQueryString(): void
-    {
-        $this->writeJson(
-            'bundles/myextension/storefront/components/.vite/build-meta.json',
-            [
-                'manifest' => [],
-                'vendorMap' => ['@ext/vendor' => 'vendor/ext-HASH.js'],
-            ]
-        );
-
-        $collection = new StorefrontPluginConfigurationCollection([
-            new StorefrontPluginConfiguration('Storefront'),
-            new StorefrontPluginConfiguration('MyExtension'),
-        ]);
-
-        $compiler = $this->createCompilerForBundleBuildMeta([
-            'public' => new UrlPackage(
-                'https://cdn.example.com/base',
-                new class implements VersionStrategyInterface {
-                    public function getVersion(string $path): string
-                    {
-                        return 'c159f3a5';
-                    }
-
-                    public function applyVersion(string $path): string
-                    {
-                        return $path . '?c159f3a5';
-                    }
-                },
-            ),
-        ]);
-        $result = $compiler->buildComponentImportMap($collection);
-
-        static::assertIsArray($result);
-        static::assertSame(
-            [
-                'https://cdn.example.com/base/bundles/myextension/storefront/components/MyExtension/' => [
-                    '@ext/vendor' => 'https://cdn.example.com/base/bundles/myextension/storefront/components/vendor/ext-HASH.js?c159f3a5',
-                ],
-            ],
-            $result['scopes'] ?? []
-        );
-    }
-
-    public function testBuildComponentImportMapPrefersAssetPackageBaseUrlOverPublicPackage(): void
-    {
-        $collection = new StorefrontPluginConfigurationCollection([
-            new StorefrontPluginConfiguration('Storefront'),
-        ]);
-
-        $compiler = $this->createCompilerForBundleBuildMeta([
-            'asset' => new UrlPackage('https://cdn.example.com/_assets/v/ae6dd181', new EmptyVersionStrategy()),
-            'public' => new UrlPackage('https://cdn.example.com/F/K/J/2zrR0', new EmptyVersionStrategy()),
-        ]);
-        $result = $compiler->buildComponentImportMap($collection);
-
-        static::assertIsArray($result);
-        static::assertSame(
-            'https://cdn.example.com/_assets/v/ae6dd181/bundles/storefront/storefront/shopware/shopware.js',
-            $result['imports']['shopware']
-        );
-    }
-
-    public function testBuildComponentImportMapUsesGlobalAssetForPluginsAndAssetForApps(): void
-    {
-        $this->writeJson(
-            'bundles/myplugin/storefront/components/.vite/build-meta.json',
-            [
-                'manifest' => [
-                    'MyPlugin/Card.ts' => [
-                        'file' => 'MyPlugin/Card-HASH.js',
-                        'name' => 'MyPlugin/Card',
-                        'isEntry' => true,
-                    ],
-                ],
-                'vendorMap' => [],
-            ]
-        );
-        $this->writeJson(
-            'bundles/myapp/storefront/components/.vite/build-meta.json',
-            [
-                'manifest' => [
-                    'MyApp/Card.ts' => [
-                        'file' => 'MyApp/Card-HASH.js',
-                        'name' => 'MyApp/Card',
-                        'isEntry' => true,
-                    ],
-                ],
-                'vendorMap' => [],
-            ]
-        );
-
-        $storefront = new StorefrontPluginConfiguration('Storefront');
-        $plugin = new StorefrontPluginConfiguration('MyPlugin');
-        $app = new StorefrontPluginConfiguration('MyApp');
-        $app->addArrayExtension('saas_remote_app', ['isFresh' => true]);
-
-        $collection = new StorefrontPluginConfigurationCollection([$storefront, $plugin, $app]);
-
-        $compiler = $this->createCompilerForBundleBuildMeta([
-            'global_asset' => new UrlPackage('https://global.cdn.example.com/_assets/v/123', new EmptyVersionStrategy()),
-            'asset' => new UrlPackage('https://private.cdn.example.com/d/X/Y/Z', new EmptyVersionStrategy()),
-        ]);
-        $result = $compiler->buildComponentImportMap($collection);
-
-        static::assertIsArray($result);
-        static::assertSame(
-            'https://global.cdn.example.com/_assets/v/123/bundles/storefront/storefront/shopware/shopware.js',
-            $result['imports']['shopware']
-        );
-        static::assertSame(
-            'https://global.cdn.example.com/_assets/v/123/bundles/myplugin/storefront/components/MyPlugin/Card-HASH.js',
-            $result['imports']['MyPlugin:Card']
-        );
-        static::assertSame(
-            'https://private.cdn.example.com/d/X/Y/Z/bundles/myapp/storefront/components/MyApp/Card-HASH.js',
-            $result['imports']['MyApp:Card']
         );
     }
 
@@ -469,7 +345,7 @@ class ThemeCompilerImportMapTest extends TestCase
         static::assertSame(
             [
                 'imports' => [
-                    'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+                    'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
                 ],
             ],
             $result
@@ -495,13 +371,13 @@ class ThemeCompilerImportMapTest extends TestCase
     public function testBuildComponentImportMapIgnoresEmptyBuildMetaContent(): void
     {
         $path = 'bundles/storefront/storefront/components/.vite/build-meta.json';
-        $this->tempFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
-        $this->tempFilesystem->write($path, '');
+        $this->assetFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
+        $this->assetFilesystem->write($path, '');
 
         static::assertSame(
             [
                 'imports' => [
-                    'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+                    'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
                 ],
             ],
             $this->compiler->buildComponentImportMap()
@@ -511,13 +387,13 @@ class ThemeCompilerImportMapTest extends TestCase
     public function testBuildComponentImportMapNormalizesScalarBuildMetaJsonToEmptyArrays(): void
     {
         $path = 'bundles/storefront/storefront/components/.vite/build-meta.json';
-        $this->tempFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
-        $this->tempFilesystem->write($path, '1');
+        $this->assetFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
+        $this->assetFilesystem->write($path, '1');
 
         static::assertSame(
             [
                 'imports' => [
-                    'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+                    'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
                 ],
             ],
             $this->compiler->buildComponentImportMap()
@@ -544,15 +420,15 @@ class ThemeCompilerImportMapTest extends TestCase
         static::assertArrayHasKey('scopes', $result);
         static::assertSame(
             [
-                'https://cdn.example.com/bundles/emptyextension/storefront/components/EmptyExtension/' => [
-                    '@vendor/chunk' => 'https://cdn.example.com/bundles/emptyextension/storefront/components/vendor/chunk-HASH.js',
+                '/bundles/emptyextension/storefront/components/EmptyExtension/' => [
+                    '@vendor/chunk' => '/bundles/emptyextension/storefront/components/vendor/chunk-HASH.js',
                 ],
             ],
             $result['scopes'] ?? []
         );
     }
 
-    public function testBuildComponentImportMapUsesProvidedAssetPackageKeys(): void
+    public function testBuildComponentImportMapIsIndependentFromAssetPackageConfiguration(): void
     {
         $compiler = $this->createCompilerForBundleBuildMeta([
             'public' => new UrlPackage('https://cdn.example.com/public', new EmptyVersionStrategy()),
@@ -564,12 +440,12 @@ class ThemeCompilerImportMapTest extends TestCase
 
         $result = $this->assertImportMap($compiler->buildComponentImportMap($collection));
         static::assertSame(
-            'https://cdn.example.com/asset/bundles/storefront/storefront/shopware/shopware.js',
+            '/bundles/storefront/storefront/shopware/shopware.js',
             $result['imports']['shopware']
         );
     }
 
-    public function testBuildComponentImportMapResolvesVersionedPackagePath(): void
+    public function testBuildComponentImportMapReadsUnversionedFilesystemPathAndEmitsRelativeBundlePaths(): void
     {
         $versionedMeta = [
             'manifest' => [
@@ -583,16 +459,13 @@ class ThemeCompilerImportMapTest extends TestCase
         ];
 
         $this->writeJson(
-            '_assets/v/123/bundles/storefront/storefront/components/.vite/build-meta.json',
+            'bundles/storefront/storefront/components/.vite/build-meta.json',
             $versionedMeta
         );
 
-        $compiler = $this->createCompilerForBundleBuildMeta([
-            'global_asset' => new UrlPackage('https://cdn.example.com/_assets/v/123', new EmptyVersionStrategy()),
-        ]);
-        $result = $this->assertImportMap($compiler->buildComponentImportMap());
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap());
         static::assertSame(
-            'https://cdn.example.com/_assets/v/123/bundles/storefront/storefront/components/Sw/Custom/Test-HASH.js',
+            '/bundles/storefront/storefront/components/Sw/Custom/Test-HASH.js',
             $result['imports']['Sw:Custom:Test']
         );
     }
@@ -615,52 +488,32 @@ class ThemeCompilerImportMapTest extends TestCase
      */
     private function createCompilerForBundleBuildMeta(array $packages = []): ThemeCompiler
     {
-        $themePathBuilder = $this->createMock(MD5ThemePathBuilder::class);
+        $themePathBuilder = static::createStub(AbstractThemePathBuilder::class);
         $themePathBuilder->method('assemblePath')->willReturn('theme-path');
         if ($packages === []) {
             $packages = [
-                'public' => new UrlPackage('https://cdn.example.com', new EmptyVersionStrategy()),
+                'asset' => new UrlPackage('https://cdn.example.com', new EmptyVersionStrategy()),
             ];
         }
-        self::$buildMetaFilesystemForFetch = $this->tempFilesystem;
 
-        return new class($this->createMock(FilesystemOperator::class), $this->createMock(FilesystemOperator::class), new CopyBatchInputFactory(), $this->createMock(ThemeFileResolver::class), true, $this->createMock(EventDispatcherInterface::class), $this->createMock(ThemeFilesystemResolver::class), $packages, $this->createMock(CacheInvalidator::class), $this->createMock(LoggerInterface::class), $themePathBuilder, $this->createMock(ScssPhpCompiler::class), [], false, 'public') extends ThemeCompiler {
-            protected function fetchPublicFile(string $url): string|false
-            {
-                $buildMetaFilesystem = ThemeCompilerImportMapTest::$buildMetaFilesystemForFetch;
-                if (!$buildMetaFilesystem instanceof FilesystemOperator) {
-                    return false;
-                }
-
-                $path = parse_url($url, \PHP_URL_PATH);
-                if (!\is_string($path) || $path === '') {
-                    return false;
-                }
-
-                $path = ltrim($path, '/');
-                if ($path === '') {
-                    return false;
-                }
-
-                try {
-                    if (!$buildMetaFilesystem->fileExists($path)) {
-                        $bundlesPos = strpos($path, 'bundles/');
-                        if ($bundlesPos === false) {
-                            return false;
-                        }
-
-                        $path = substr($path, $bundlesPos);
-                        if ($path === '' || !$buildMetaFilesystem->fileExists($path)) {
-                            return false;
-                        }
-                    }
-
-                    return $buildMetaFilesystem->read($path);
-                } catch (\Throwable) {
-                    return false;
-                }
-            }
-        };
+        return new ThemeCompiler(
+            static::createStub(FilesystemOperator::class),
+            static::createStub(FilesystemOperator::class),
+            $this->assetFilesystem,
+            new CopyBatchInputFactory(),
+            static::createStub(ThemeFileResolver::class),
+            true,
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ThemeFilesystemResolver::class),
+            $packages,
+            static::createStub(CacheInvalidator::class),
+            static::createStub(LoggerInterface::class),
+            $themePathBuilder,
+            static::createStub(AbstractScssCompiler::class),
+            [],
+            false,
+            'public',
+        );
     }
 
     /**
@@ -669,11 +522,11 @@ class ThemeCompilerImportMapTest extends TestCase
     private function writeJson(string $path, array $data): void
     {
         $directory = \dirname($path);
-        if ($directory !== '.' && !$this->tempFilesystem->directoryExists($directory)) {
-            $this->tempFilesystem->createDirectory($directory);
+        if ($directory !== '.' && !$this->assetFilesystem->directoryExists($directory)) {
+            $this->assetFilesystem->createDirectory($directory);
         }
 
-        $this->tempFilesystem->write(
+        $this->assetFilesystem->write(
             $path,
             json_encode($data, \JSON_THROW_ON_ERROR),
         );

@@ -26,9 +26,7 @@ describe('addressFormattingApiService', () => {
         const { customSnippetApiService, clientMock } = createCustomSnippetApiService();
 
         clientMock.onGet('/_action/custom-snippet').reply(200, {
-            data: [
-                { type: 'plain', value: '-' },
-            ],
+            data: [{ type: 'plain', value: '-' }],
         });
 
         const { data } = await customSnippetApiService.snippets();

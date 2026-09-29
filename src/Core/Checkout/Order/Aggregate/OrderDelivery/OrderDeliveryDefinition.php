@@ -29,6 +29,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderDeliveryDefinition extends EntityDefinition
 {
@@ -86,7 +89,7 @@ class OrderDeliveryDefinition extends EntityDefinition
             (new ListField('tracking_codes', 'trackingCodes', StringField::class))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))->setDescription('Tracking code is a unique URL code assigned to each package, which allows you to monitor the movement of the parcel.'),
             (new DateTimeField('shipping_date_earliest', 'shippingDateEarliest'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Date and time of earliest delivery of products.'),
             (new DateTimeField('shipping_date_latest', 'shippingDateLatest'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING))->setDescription('Date and time of latest delivery of products.'),
-            (new CalculatedPriceField('shipping_costs', 'shippingCosts'))->addFlags(new ApiAware())->setDescription('Contains cheapest price from last 30 days as per EU law.'),
+            (new CalculatedPriceField('shipping_costs', 'shippingCosts'))->addFlags(new ApiAware())->setDescription('Calculated shipping costs for this delivery.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             (new ManyToOneAssociationField('shippingOrderAddress', 'shipping_order_address_id', OrderAddressDefinition::class, 'id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))->setDescription('Shipping address for this delivery'),

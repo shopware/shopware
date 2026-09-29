@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
@@ -12,6 +13,7 @@ use Symfony\Component\Clock\NativeClock;
 /**
  * @internal
  */
+#[Package('framework')]
 class PrivateHandshakeTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -1,3 +1,4 @@
+{# @deprecated tag:v6.9.0 - Removed with document generation v1. #}
 <!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_order_document_settings_modal %}
 <sw-modal
@@ -148,7 +149,7 @@
                 data-analytics-id="sw-order-document-settings-modal.cancel-and-close-modal"
                 @click="onCancel"
             >
-                {{ $t('sw-order.documentModal.labelCancel') }}
+                {{ $t('global.default.close') }}
             </mt-button>
             {% endblock %}
 

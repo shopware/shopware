@@ -46,7 +46,7 @@ class DefinitionRegistryChainTest extends TestCase
         $this->definitionInstanceRegistry
             ->expects($this->once())
             ->method('getRepository')
-            ->willReturn($this->createMock(EntityRepository::class));
+            ->willReturn(static::createStub(EntityRepository::class));
 
         $repository = $this->definitionRegistryChain->getRepository('product_manufacturer');
 
@@ -58,7 +58,11 @@ class DefinitionRegistryChainTest extends TestCase
         $this->salesChannelDefinitionInstanceRegistry
             ->expects($this->once())
             ->method('getSalesChannelRepository')
-            ->willReturn($this->createMock(SalesChannelRepository::class));
+            ->willReturn(static::createStub(SalesChannelRepository::class));
+
+        $this->definitionInstanceRegistry
+            ->expects($this->never())
+            ->method('getRepository');
 
         $repository = $this->definitionRegistryChain->getRepository('category');
 

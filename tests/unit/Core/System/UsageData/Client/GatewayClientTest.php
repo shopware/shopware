@@ -27,7 +27,7 @@ class GatewayClientTest extends TestCase
 
         $gatewayClient = new GatewayClient(
             $client,
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(ShopIdProvider::class),
         );
 
         static::assertTrue($gatewayClient->isGatewayAllowsPush());
@@ -43,7 +43,7 @@ class GatewayClientTest extends TestCase
 
         $gatewayClient = new GatewayClient(
             $client,
-            $this->createMock(ShopIdProvider::class),
+            static::createStub(ShopIdProvider::class),
         );
 
         static::assertFalse($gatewayClient->isGatewayAllowsPush());

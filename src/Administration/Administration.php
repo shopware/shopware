@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 /**
  * @internal
@@ -27,9 +27,9 @@ class Administration extends Bundle
         parent::build($container);
         $this->buildDefaultConfig($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
-        $loader->load('services.xml');
-        $loader->load('framework.xml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $loader->load('services.php');
+        $loader->load('framework.php');
 
         $container->addCompilerPass(new AdministrationMigrationCompilerPass());
     }

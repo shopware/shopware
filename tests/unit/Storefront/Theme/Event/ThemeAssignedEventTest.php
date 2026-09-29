@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
@@ -14,6 +15,7 @@ use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeAssignedEvent::class)]
 class ThemeAssignedEventTest extends TestCase
 {

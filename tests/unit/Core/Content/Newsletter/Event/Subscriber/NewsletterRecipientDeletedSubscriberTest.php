@@ -30,7 +30,7 @@ class NewsletterRecipientDeletedSubscriberTest extends TestCase
 
     public function testOnNewsletterRecipientDeleted(): void
     {
-        $event = $this->createMock(EntityDeletedEvent::class);
+        $event = static::createStub(EntityDeletedEvent::class);
         $event->method('getIds')->willReturn(['id1', 'id2']);
         $event->method('getContext')->willReturn(Context::createDefaultContext());
 

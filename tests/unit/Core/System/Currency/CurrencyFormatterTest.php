@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\System\Currency;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
@@ -20,26 +19,25 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 /**
  * @internal
  */
-#[Package('fundamentals@discovery')]
+#[Package('fundamentals@framework')]
 #[CoversClass(CurrencyFormatter::class)]
 class CurrencyFormatterTest extends TestCase
 {
-    private MockObject&LanguageLocaleCodeProvider $localeProvider;
-
     private CurrencyFormatter $formatter;
 
     protected function setUp(): void
     {
-        $this->localeProvider = static::createMock(LanguageLocaleCodeProvider::class);
-        $this->formatter = new CurrencyFormatter($this->localeProvider);
+        $this->formatter = new CurrencyFormatter(static::createStub(LanguageLocaleCodeProvider::class));
     }
 
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillUseProvidedDecimalPlaces(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO, string $expectedCurrencySymbol): void
     {
-        $this->localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
+        $localeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
+        $formatter = new CurrencyFormatter($localeProvider);
         $pattern = \sprintf('/\%s\d{%s}/', $expectedSeparator, (string) $decimalPlaces);
-        $formattedPrice = $this->formatter->formatCurrencyByLanguage(
+        $formattedPrice = $formatter->formatCurrencyByLanguage(
             $price,
             $currencyISO,
             Uuid::randomHex(),
@@ -56,8 +54,10 @@ class CurrencyFormatterTest extends TestCase
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillWriteCorrectCurrencySymbol(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO, string $expectedCurrencySymbol): void
     {
-        $this->localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
-        $formattedPrice = $this->formatter->formatCurrencyByLanguage(
+        $localeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
+        $formatter = new CurrencyFormatter($localeProvider);
+        $formattedPrice = $formatter->formatCurrencyByLanguage(
             $price,
             $currencyISO,
             Uuid::randomHex(),

@@ -26,8 +26,8 @@ use Symfony\Component\Routing\RouterInterface;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 class ContextController extends StorefrontController
 {
     /**

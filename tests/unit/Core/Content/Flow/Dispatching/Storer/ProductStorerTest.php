@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -28,17 +28,13 @@ class ProductStorerTest extends TestCase
 {
     private ProductStorer $storer;
 
-    private MockObject&ProductProvider $productProvider;
+    private Stub&ProductProvider $productProvider;
 
     protected function setUp(): void
     {
-        $this->productProvider = $this->createMock(ProductProvider::class);
+        $this->productProvider = static::createStub(ProductProvider::class);
 
-        $this->storer = new ProductStorer(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EventDispatcherInterface::class),
-            $this->productProvider
-        );
+        $this->storer = $this->createStorer($this->productProvider);
     }
 
     public function testStoreWithAware(): void
@@ -54,7 +50,7 @@ class ProductStorerTest extends TestCase
 
     public function testStoreWithNotAware(): void
     {
-        $event = $this->createMock(CustomerRegisterEvent::class);
+        $event = static::createStub(CustomerRegisterEvent::class);
         $stored = [];
         $stored = $this->storer->store($event, $stored);
         static::assertArrayNotHasKey(ProductAware::PRODUCT_ID, $stored);
@@ -80,12 +76,15 @@ class ProductStorerTest extends TestCase
 
     public function testLazyLoadEntity(): void
     {
+        $productProvider = $this->createMock(ProductProvider::class);
+        $storer = $this->createStorer($productProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
-        $this->storer->restore($storable);
+        $storer->restore($storable);
         $entity = new ProductEntity();
         $entity->setId('id');
 
-        $this->productProvider->expects($this->once())->method('getData')->willReturn($entity);
+        $productProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('product');
 
         static::assertSame($res, $entity);
@@ -93,9 +92,12 @@ class ProductStorerTest extends TestCase
 
     public function testLazyLoadNullEntity(): void
     {
+        $productProvider = $this->createMock(ProductProvider::class);
+        $storer = $this->createStorer($productProvider);
+
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['productId' => 'id'], []);
-        $this->storer->restore($storable);
-        $this->productProvider->expects($this->once())->method('getData')->willReturn(null);
+        $storer->restore($storable);
+        $productProvider->expects($this->once())->method('getData')->willReturn(null);
 
         $res = $storable->getData('product');
 
@@ -109,5 +111,14 @@ class ProductStorerTest extends TestCase
         $product = $storable->getData('product');
 
         static::assertNull($product);
+    }
+
+    private function createStorer(ProductProvider $productProvider): ProductStorer
+    {
+        return new ProductStorer(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            $productProvider,
+        );
     }
 }

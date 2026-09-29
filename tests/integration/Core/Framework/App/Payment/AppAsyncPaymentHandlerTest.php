@@ -15,12 +15,14 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     final public const REDIRECT_URL = 'http://payment.app/do/something';
@@ -562,6 +564,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertNotEmpty($token);
         static::assertArrayHasKey('order', $content);
         static::assertIsArray($content['order']);
+        static::assertArrayHasKey('language', $content['order']);
+        static::assertIsArray($content['order']['language']);
+        static::assertArrayHasKey('translationCode', $content['order']['language']);
         static::assertArrayHasKey('orderCustomer', $content['order']);
         static::assertIsArray($content['order']['orderCustomer']);
         static::assertArrayHasKey('customer', $content['order']['orderCustomer']);

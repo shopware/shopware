@@ -35,11 +35,32 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-modal': true,
-                    'sw-tabs': await wrapTestComponent('sw-tabs', {
-                        sync: true,
-                    }),
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
+                    'sw-tabs': {
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"><slot name="content" active="general"></slot></div>',
+                    },
                     'sw-tabs-item': true,
-                    'sw-text-field': true,
+                    'mt-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
                     'sw-tabs-deprecated': true,
                 },
@@ -49,6 +70,45 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render the deprecated tabs', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render meteor tabs with the expected item API', async () => {
+        const wrapper = await createWrapper();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-tag-detail-modal');
+        expect(tabs.props('defaultItem')).toBe('general');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-settings-tag.detail.generalTab',
+                name: 'general',
+            },
+            {
+                label: 'sw-settings-tag.detail.assignmentsTab',
+                name: 'assignments',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch active content when meteor tabs emit a new active item', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.getComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', 'assignments');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.initialTab).toBe('assignments');
+        expect(wrapper.find('sw-settings-tag-detail-assignments-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-text-field-stub').exists()).toBe(false);
+    });
+
     it('should set tag, to be added and to be deleted on create', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

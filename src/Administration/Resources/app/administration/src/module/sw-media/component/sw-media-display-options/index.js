@@ -1,5 +1,21 @@
 import template from './sw-media-display-options.html.twig';
 
+const { Feature } = Shopware;
+
+const getDefaultSorting = () => {
+    if (Feature.isActive('v6.8.0.0')) {
+        return {
+            sortBy: 'createdAt',
+            sortDirection: 'desc',
+        };
+    }
+
+    return {
+        sortBy: 'createdAt',
+        sortDirection: 'asc',
+    };
+};
+
 /**
  * @sw-package discovery
  */
@@ -7,10 +23,7 @@ import template from './sw-media-display-options.html.twig';
 export default {
     template,
 
-    emits: [
-        'media-sorting-change',
-        'media-presentation-change',
-    ],
+    emits: ['media-sorting-change', 'media-presentation-change'],
 
     props: {
         presentation: {
@@ -36,12 +49,7 @@ export default {
         sorting: {
             type: Object,
             required: false,
-            default: () => {
-                return {
-                    sortBy: 'createdAt',
-                    sortDirection: 'asc',
-                };
-            },
+            default: getDefaultSorting,
         },
 
         hidePresentation: {

@@ -14,6 +14,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -34,7 +35,7 @@ class ImageCmsElementResolverTest extends TestCase
 {
     public function testCollectReturnsNullWithMappedConfigAndResolverContextWithoutEntity(): void
     {
-        $resolver = new ImageCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
 
         $slot = new CmsSlotEntity();
         $slot->setId('slot-1');
@@ -49,7 +50,7 @@ class ImageCmsElementResolverTest extends TestCase
 
     public function testCollectReturnsNullWithMappedConfigResolvedToMediaEntity(): void
     {
-        $resolver = new ImageCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
 
         $media = new MediaEntity();
         $media->setId('media-1');
@@ -63,7 +64,7 @@ class ImageCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -78,7 +79,7 @@ class ImageCmsElementResolverTest extends TestCase
 
     public function testCollectCreatesMediaCriteriaWithMappedStringId(): void
     {
-        $resolver = new ImageCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
 
         $product = new ProductEntity();
         $product->setCustomFields(['heroImage' => 'media-1']);
@@ -86,7 +87,7 @@ class ImageCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -111,7 +112,7 @@ class ImageCmsElementResolverTest extends TestCase
 
     public function testEnrichMappedStringMediaSetsMediaIdAndMedia(): void
     {
-        $resolver = new ImageCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
 
         $product = new ProductEntity();
         $product->setCustomFields(['heroImage' => 'media-1']);
@@ -119,7 +120,7 @@ class ImageCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 
@@ -132,8 +133,8 @@ class ImageCmsElementResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media-1');
 
-        $searchResult = $this->createMock(EntitySearchResult::class);
-        $searchResult->method('get')->with('media-1')->willReturn($media);
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new MediaCollection([$media]));
 
         $data = new ElementDataCollection();
         $data->add('media_slot-1', $searchResult);
@@ -148,7 +149,7 @@ class ImageCmsElementResolverTest extends TestCase
 
     public function testEnrichMappedStringMediaSetsOnlyMediaIdWhenSearchResultMissing(): void
     {
-        $resolver = new ImageCmsElementResolver($this->createMock(AbstractDefaultMediaResolver::class));
+        $resolver = new ImageCmsElementResolver(static::createStub(AbstractDefaultMediaResolver::class));
 
         $product = new ProductEntity();
         $product->setCustomFields(['heroImage' => 'media-1']);
@@ -156,7 +157,7 @@ class ImageCmsElementResolverTest extends TestCase
         $context = new EntityResolverContext(
             Generator::generateSalesChannelContext(),
             new Request(),
-            $this->createMock(ProductDefinition::class),
+            static::createStub(ProductDefinition::class),
             $product,
         );
 

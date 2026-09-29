@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(BreadcrumbCollection::class)]
 class BreadcrumbCollectionTest extends TestCase
 {

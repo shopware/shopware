@@ -1,8 +1,9 @@
 {% block sw_sidebar_navigation_item %}
 <button
+    v-tooltip.left="{ message: tooltipContent }"
     class="sw-sidebar-navigation-item"
     :class="sidebarItem.sidebarItemClasses"
-    :title="sidebarItem.title"
+    :aria-label="sidebarItem.title"
     :disabled="sidebarItem.disabled"
     @click="emitButtonClicked"
 >

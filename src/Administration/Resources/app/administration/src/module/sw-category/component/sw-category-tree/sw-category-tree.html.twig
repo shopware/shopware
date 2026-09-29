@@ -7,13 +7,14 @@
         after-id-property="afterCategoryId"
         :items="categories"
         :sortable="sortable"
+        allow-drop-into-folder
         :searchable="false"
         :active-tree-item-id="categoryId"
         :translation-context="translationContext"
         :on-change-route="changeCategory"
         :disable-context-menu="disableContextMenu"
         :allow-delete-categories="allowDelete || undefined"
-        initially-expanded-root
+        :initially-expanded-root="!categoryId"
         @batch-delete="deleteCheckedItems"
         @delete-element="onDeleteCategory"
         @drag-end="onUpdatePositions"
@@ -31,6 +32,7 @@
             #items="{
                 treeItems,
                 sortable,
+                allowDropIntoFolder,
                 draggedItem,
                 newElementId,
                 checkItem,
@@ -53,6 +55,7 @@
                 :translation-context="translationContext"
                 :on-change-route="onChangeRoute"
                 :sortable="sortable"
+                :allow-drop-into-folder="allowDropIntoFolder"
                 :dragged-item="draggedItem"
                 :disable-context-menu="disableContextMenu"
                 :display-checkbox="allowEdit || undefined"

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class CategoryTranslationEntity extends TranslationEntity
 {
@@ -29,7 +32,7 @@ class CategoryTranslationEntity extends TranslationEntity
     protected ?LanguageEntity $language = null;
 
     /**
-     * @var array<string, mixed>|null
+     * @var array<string, array<string, array<string, mixed>>|null>|null
      */
     protected ?array $slotConfig = null;
 
@@ -80,7 +83,7 @@ class CategoryTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @return array<string, mixed>|null
+     * @return array<string, array<string, array<string, mixed>>|null>|null
      */
     public function getSlotConfig(): ?array
     {
@@ -88,7 +91,7 @@ class CategoryTranslationEntity extends TranslationEntity
     }
 
     /**
-     * @param array<string, mixed> $slotConfig
+     * @param array<string, array<string, array<string, mixed>>|null> $slotConfig
      */
     public function setSlotConfig(array $slotConfig): void
     {

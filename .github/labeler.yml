@@ -34,3 +34,7 @@ labels:
       body: "Extension:Image-Editor"
     - label: "extension/Copilot"
       body: "Extension:Copilot"
+    - label: "extension/Agentic-Commerce"
+      body: "Extension:Agentic-Commerce"
+    - label: "service/shopware-payments"
+      body: "Extension:Shopware-Payments"

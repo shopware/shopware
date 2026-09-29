@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Application;
@@ -15,6 +16,7 @@ use Symfony\Component\Dotenv\Dotenv;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemSetupCommand::class)]
 class SystemSetupCommandTest extends TestCase
 {
@@ -146,6 +148,7 @@ class SystemSetupCommandTest extends TestCase
         static::assertIsString($envContent);
         $env = (new Dotenv())->parse($envContent);
 
+        /** @phpstan-ignore require.fileNotFound (Although the existence of the file is checked above, PHPStan will only consider files, that always exist. See https://github.com/phpstan/phpstan/issues/12417) */
         $envLocal = require __DIR__ . '/.env.local.php';
         static::assertSame($env, $envLocal);
     }

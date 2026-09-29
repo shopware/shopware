@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Command;
 
 use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Command\ListTranslationsCommand;
@@ -13,7 +13,7 @@ use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataCollection;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
-use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\Service\TranslationMetadataStore;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -24,11 +24,11 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(ListTranslationsCommand::class)]
 class ListTranslationsCommandTest extends TestCase
 {
-    private TranslationMetadataLoader&MockObject $metadataLoader;
+    private TranslationMetadataStore&Stub $metadataStore;
 
     protected function setUp(): void
     {
-        $this->metadataLoader = $this->createMock(TranslationMetadataLoader::class);
+        $this->metadataStore = static::createStub(TranslationMetadataStore::class);
     }
 
     public function testListsConfiguredLocalesSortedWithEnglishNamesAndInstalledMarker(): void
@@ -49,7 +49,7 @@ class ListTranslationsCommandTest extends TestCase
             [],
         );
 
-        $this->metadataLoader->method('getLocalMetadata')->willReturn(new MetadataCollection([
+        $this->metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection([
             MetadataEntry::create([
                 'locale' => 'es-ES',
                 'updatedAt' => '2024-06-15T12:34:56+00:00',
@@ -57,7 +57,7 @@ class ListTranslationsCommandTest extends TestCase
             ]),
         ]));
 
-        $tester = new CommandTester(new ListTranslationsCommand($config, $this->metadataLoader));
+        $tester = new CommandTester(new ListTranslationsCommand($config, $this->metadataStore));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
 
@@ -95,9 +95,9 @@ class ListTranslationsCommandTest extends TestCase
             [],
         );
 
-        $this->metadataLoader->method('getLocalMetadata')->willReturn(new MetadataCollection());
+        $this->metadataStore->method('getLocalMetadata')->willReturn(new MetadataCollection());
 
-        $tester = new CommandTester(new ListTranslationsCommand($config, $this->metadataLoader));
+        $tester = new CommandTester(new ListTranslationsCommand($config, $this->metadataStore));
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
 

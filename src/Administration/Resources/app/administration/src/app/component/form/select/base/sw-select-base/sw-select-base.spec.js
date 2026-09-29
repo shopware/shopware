@@ -64,6 +64,21 @@ describe('components/sw-select-base', () => {
         expect(clearableIcon.exists()).toBe(false);
     });
 
+    it('should remove disabled selects from the tab order', async () => {
+        const wrapper = await createWrapper({ disabled: true });
+
+        expect(wrapper.find('.sw-select__selection').attributes('tabindex')).toBe('-1');
+    });
+
+    it('should not emit a collapsed event when not expanded', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.expanded = false;
+
+        wrapper.vm.collapse();
+
+        expect(wrapper.emitted('select-collapsed')).toBeUndefined();
+    });
+
     it('should trigger clear event when user clicks on clearable icon', async () => {
         const wrapper = await createWrapper({ showClearableButton: true });
 
@@ -85,10 +100,7 @@ describe('components/sw-select-base', () => {
         const originalElementsFromPoint = document.elementsFromPoint;
 
         try {
-            document.elementsFromPoint = jest.fn(() => [
-                selection,
-                document.body,
-            ]);
+            document.elementsFromPoint = jest.fn(() => [selection, document.body]);
             wrapper.vm.collapse = jest.fn();
 
             wrapper.vm.listenToClickOutside({
@@ -108,9 +120,7 @@ describe('components/sw-select-base', () => {
         const originalElementsFromPoint = document.elementsFromPoint;
 
         try {
-            document.elementsFromPoint = jest.fn(() => [
-                document.body,
-            ]);
+            document.elementsFromPoint = jest.fn(() => [document.body]);
             wrapper.vm.collapse = jest.fn();
 
             wrapper.vm.listenToClickOutside({

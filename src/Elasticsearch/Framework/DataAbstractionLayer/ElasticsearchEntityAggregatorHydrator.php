@@ -180,10 +180,12 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         }
 
         $buckets = [];
+
+        $nestedAggregation = $aggregation->getAggregation();
+
         foreach ($result['buckets'] as $bucket) {
             $nested = null;
 
-            $nestedAggregation = $aggregation->getAggregation();
             if ($nestedAggregation) {
                 $nested = $this->hydrateAggregation($nestedAggregation, $bucket[$nestedAggregation->getName()], $context);
             }
@@ -227,10 +229,11 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         }
 
         $buckets = [];
+        $nestedAggregation = $aggregation->getAggregation();
+
         foreach ($result['buckets'] as $bucket) {
             $nested = null;
 
-            $nestedAggregation = $aggregation->getAggregation();
             if ($nestedAggregation) {
                 $nested = $this->hydrateAggregation(
                     $nestedAggregation,
@@ -285,10 +288,11 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         }
 
         $buckets = [];
+        $nestedAggregation = $aggregation->getAggregation();
+
         foreach ($result['buckets'] as $bucket) {
             $nested = null;
 
-            $nestedAggregation = $aggregation->getAggregation();
             if ($nestedAggregation) {
                 $nested = $this->hydrateAggregation(
                     $nestedAggregation,

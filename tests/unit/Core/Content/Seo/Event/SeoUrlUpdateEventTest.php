@@ -8,11 +8,13 @@ use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SeoUrlUpdateEvent::class)]
 class SeoUrlUpdateEventTest extends TestCase
 {
@@ -22,6 +24,14 @@ class SeoUrlUpdateEventTest extends TestCase
         $event = new SeoUrlUpdateEvent([], $context);
 
         static::assertSame($context, $event->getContext());
+    }
+
+    public function testExposesTheSeoUrls(): void
+    {
+        $seoUrls = [['routeName' => 'frontend.detail.page', 'seoPathInfo' => 'awesome-product']];
+        $event = new SeoUrlUpdateEvent($seoUrls, Context::createDefaultContext());
+
+        static::assertSame($seoUrls, $event->getSeoUrls());
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

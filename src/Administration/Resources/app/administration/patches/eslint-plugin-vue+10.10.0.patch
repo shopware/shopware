@@ -1,0 +1,13 @@
+diff --git a/node_modules/eslint-plugin-vue/dist/utils/indent-common.js b/node_modules/eslint-plugin-vue/dist/utils/indent-common.js
+index 4e00161..b05171d 100644
+--- a/node_modules/eslint-plugin-vue/dist/utils/indent-common.js
++++ b/node_modules/eslint-plugin-vue/dist/utils/indent-common.js
+@@ -90,7 +90,7 @@ function isOptionalToken(token) {
+ * Creates AST event handlers for html-indent.
+ */
+ function defineVisitor(context, tokenStore, defaultOptions) {
+-	if (!context.filename.endsWith(".vue")) return {};
++	if (!context.filename.endsWith(".vue") && !context.filename.endsWith(".twig")) return {};
+ 	const options = parseOptions(context.options[0], context.options[1] || {}, defaultOptions);
+ 	const sourceCode = context.sourceCode;
+ 	const offsets = /* @__PURE__ */ new Map();

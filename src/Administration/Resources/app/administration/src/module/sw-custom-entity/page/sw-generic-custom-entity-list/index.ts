@@ -46,11 +46,7 @@ interface RouteParseOptions {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'customEntityDefinitionService',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['customEntityDefinitionService', 'repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -191,7 +187,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isLoading = false;
         },
 
-        onChangeLanguage(languageId: string): void {
+        onChangeLanguage(languageId: EntityKey<'language'>): void {
             Shopware.Store.get('context').setApiLanguageId(languageId);
             void this.getList();
         },

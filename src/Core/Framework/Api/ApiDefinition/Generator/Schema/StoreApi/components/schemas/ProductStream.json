@@ -1,0 +1,53 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductStream": {
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "internal": {
+                        "description": "When the boolean value is `true` indicating that it is for internal use only and will not appear in product stream listings.",
+                        "type": "boolean"
+                    },
+                    "displayAsGroup": {
+                        "description": "When enabled, matching variants are grouped according to the product presentation setting. Disable to show them individually.",
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "translated": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

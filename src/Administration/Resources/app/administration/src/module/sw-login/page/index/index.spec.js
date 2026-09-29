@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(methodOverrides = {}) {
+async function createWrapper(methodOverrides = {}, mocks = {}) {
     const swLogin = await wrapTestComponent('sw-login', {
         sync: true,
     });
@@ -16,7 +16,7 @@ async function createWrapper(methodOverrides = {}) {
                 'router-view': true,
                 'sw-loader': true,
             },
-            mocks: {},
+            mocks,
         },
     });
 }
@@ -68,5 +68,25 @@ describe('src/module/sw-login/page/index/index.js', () => {
         wrapper = await createWrapper({ _reloadPage: reloadSpy });
 
         expect(reloadSpy).toHaveBeenCalled();
+    });
+
+    it('should show the forgot password link once the login view reports a config with the password login', async () => {
+        wrapper = await createWrapper({}, { $route: { name: 'sw.login.index.login' } });
+
+        expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(false);
+
+        wrapper.vm.setLoginConfig({ useDefault: true, url: '' });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(true);
+    });
+
+    it('should not show the forgot password link for an SSO-only config', async () => {
+        wrapper = await createWrapper({}, { $route: { name: 'sw.login.index.login' } });
+
+        wrapper.vm.setLoginConfig({ useDefault: false, url: 'https://sso.example' });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(false);
     });
 });

@@ -56,6 +56,7 @@ PluginManager.register('SearchWidget', () => import('src/plugin/header/search-wi
 PluginManager.register('CartWidget', () => import('src/plugin/header/cart-widget.plugin'), '[data-cart-widget]');
 PluginManager.register('AccountGuestAbortButton', () => import('src/plugin/header/account-guest-abort-button.plugin'), '[data-account-guest-abort-button]');
 PluginManager.register('CheckoutCustomerStorage', () => import('src/plugin/checkout/checkout-customer-storage.plugin'), '[data-checkout-customer-storage]');
+PluginManager.register('CheckoutCustomerStorageReset', () => import('src/plugin/checkout/checkout-customer-storage-reset.plugin'), '[data-checkout-customer-storage-reset]');
 PluginManager.register('OffCanvasCart', () => import('src/plugin/offcanvas-cart/offcanvas-cart.plugin'), '[data-off-canvas-cart]');
 PluginManager.register('AddToCart', () => import('src/plugin/add-to-cart/add-to-cart.plugin'), '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', () => import('src/plugin/collapse/collapse-footer-columns.plugin'), '[data-collapse-footer-columns]');
@@ -82,6 +83,7 @@ PluginManager.register('ZoomModal', () => import('src/plugin/zoom-modal/zoom-mod
 PluginManager.register('Magnifier', () => import('src/plugin/magnifier/magnifier.plugin'), '[data-magnifier]');
 PluginManager.register('SpeculationRules', SpeculationRulesPlugin, '[data-speculation-rules]');
 PluginManager.register('VariantSwitch', () => import('src/plugin/variant-switch/variant-switch.plugin'), '[data-variant-switch]');
+PluginManager.register('GaranLabelToggle', () => import('src/plugin/garan-label/garan-label-toggle.plugin'), '[data-garan-label-toggle]');
 PluginManager.register('RemoteClick', () => import('src/plugin/remote-click/remote-click.plugin'), '[data-remote-click]');
 PluginManager.register('AddressManager', () => import('src/plugin/address-manager/address-manager.plugin'), '[data-address-manager]');
 PluginManager.register('AddressSearch', () => import('src/plugin/address-search/address-search.plugin'), '[data-address-search]');

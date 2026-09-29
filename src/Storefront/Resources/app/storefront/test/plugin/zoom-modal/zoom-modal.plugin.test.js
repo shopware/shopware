@@ -206,6 +206,31 @@ describe('ZoomModalPlugin tests', () => {
         expect(onKeyDownSpy).toHaveBeenCalledTimes(1);
     });
 
+    test('zoom modal re-registers trigger listeners after viewport changes', () => {
+        const registerEventsSpy = jest.spyOn(ZoomModalPlugin.prototype, '_registerEvents');
+        const onClickSpy = jest.spyOn(ZoomModalPlugin.prototype, '_onClick').mockImplementation(() => {});
+
+        const element = document.querySelector('[data-zoom-modal]');
+
+        const plugin = new ZoomModalPlugin(element);
+
+        expect(registerEventsSpy).toHaveBeenCalledTimes(1);
+
+        document.getElementById('gallery-slider').innerHTML = `
+            <img src="#" alt="" class="gallery-slider-image magnifier-image js-magnifier-image" tabindex="0" id="updated-trigger">
+        `;
+
+        document.dispatchEvent(new Event('Viewport/hasChanged'));
+
+        expect(registerEventsSpy).toHaveBeenCalledTimes(2);
+
+        document.getElementById('updated-trigger').dispatchEvent(new Event('click'));
+
+        expect(onClickSpy).toHaveBeenCalledTimes(1);
+
+        expect(plugin).toBeInstanceOf(ZoomModalPlugin);
+    });
+
     test('zoom modal closes via ESC key', () => {
         const triggerImgElement = document.querySelector('img');
         const modal = document.querySelector('.js-zoom-modal');

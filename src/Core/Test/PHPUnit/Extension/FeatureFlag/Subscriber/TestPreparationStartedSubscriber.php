@@ -16,6 +16,8 @@ use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\SavedConfig;
 #[Package('framework')]
 class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
 {
+    private const INTEGRATION_NAMESPACE_PREFIX = 'Shopware\\Tests\\Integration\\';
+
     public function __construct(private readonly SavedConfig $savedConfig)
     {
     }
@@ -32,6 +34,8 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
         $method = $test->methodName();
 
         if (!$this->namespaceIsAllowed($class)) {
+            $this->rejectDisabledFeatures($class, $method);
+
             return;
         }
 
@@ -68,6 +72,38 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
             $flag = Feature::normalizeName($flag);
             $_SERVER[$flag] = !\array_key_exists($flag, $disabledFlags);
         }
+    }
+
+    /**
+     * The extension only rewrites feature flags for the namespaces in getTestNamespaces(). Everywhere
+     * else the attribute is inert, which silently lies in the integration suite: there the feature state
+     * comes from the job configuration (integration.yml runs without flags, integration-major.yml with
+     * FEATURE_ALL=major), and a test carrying the attribute still runs with the flag active in the major
+     * job. Reject the attribute loudly instead: PHPUnit reports the exception as a test-runner warning
+     * naming the test and fails the run (exit code 1, verified on PHPUnit 11 and 12). Scoped to this
+     * repository's integration namespace so plugin suites (which can opt in via addTestNamespace())
+     * keep their current behavior.
+     *
+     * @param class-string $class
+     */
+    private function rejectDisabledFeatures(string $class, string $method): void
+    {
+        if (!str_starts_with($class, self::INTEGRATION_NAMESPACE_PREFIX)) {
+            return;
+        }
+
+        $reflectedMethod = new \ReflectionMethod($class, $method);
+
+        if ($reflectedMethod->getAttributes(DisabledFeatures::class) === []
+            && $reflectedMethod->getDeclaringClass()->getAttributes(DisabledFeatures::class) === []) {
+            return;
+        }
+
+        throw new \RuntimeException(\sprintf(
+            '#[DisabledFeatures] on %s::%s has no effect in the integration suite. Feature state there comes from the job configuration: the default integration job runs with feature flags off, integration-major runs with FEATURE_ALL=major. Remove the attribute; if the test must not run under an active major flag, guard it with Feature::skipTestIfActive() instead.',
+            $class,
+            $method
+        ));
     }
 
     private function namespaceIsAllowed(string $className): bool

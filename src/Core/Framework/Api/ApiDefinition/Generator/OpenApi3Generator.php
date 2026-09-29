@@ -36,7 +36,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         private readonly OpenApiPathBuilder $pathBuilder,
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
+        private readonly ?OpenApiRouteDefaultsFilter $routeDefaultsFilter = null,
     ) {
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi';
     }
@@ -56,7 +57,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
         $openApi = new OpenApi([
-            'openapi' => '3.1.0',
+            'openapi' => '3.2.0',
         ]);
         $this->openApiBuilder->enrich($openApi, $api);
 
@@ -80,14 +81,14 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $apiType
             );
 
-            $openApi->components->merge($schema);
+            $openApi->components->merge(array_values($schema));
 
             if ($onlyFlat) {
                 continue;
             }
 
             if ($apiType === DefinitionService::TYPE_JSON_API) {
-                $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
+                $openApi->merge(array_values($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition))));
                 $openApi->merge([$this->pathBuilder->getTag($definition)]);
             }
         }
@@ -109,7 +110,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
 
-        return $finalSpecs;
+        return $this->routeDefaultsFilter?->filter($finalSpecs, $api) ?? $finalSpecs;
     }
 
     /**

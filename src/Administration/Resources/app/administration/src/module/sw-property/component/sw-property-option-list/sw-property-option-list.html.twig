@@ -111,7 +111,7 @@
                     :disabled="!acl.can('property.editor')"
                     @click="onOptionEdit(item)"
                 >
-                    {{ $t('sw-property.list.contextMenuView') }}
+                    {{ $t('global.default.edit') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -124,7 +124,7 @@
                     :disabled="!acl.can('property.editor')"
                     @click="onSingleOptionDelete(item.id)"
                 >
-                    {{ $t('sw-property.list.contextMenuDelete') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
             </template>
             {% endblock %}
@@ -133,6 +133,7 @@
         {% block sw_settings_country_state_list_empty %}
         <mt-empty-state
             v-if="showEmptyState"
+            centered
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-property.detail.messageOptionsEmpty')"
             :description="$t('sw-property.detail.messageOptionsEmptySubline')"

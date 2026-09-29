@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class MessageTypeStatsEntity extends Struct

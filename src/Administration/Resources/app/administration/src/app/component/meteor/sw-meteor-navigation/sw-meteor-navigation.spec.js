@@ -46,7 +46,7 @@ describe('src/app/component/meteor/sw-meteor-navigation', () => {
             name: testRoute.meta.parentPath,
         });
 
-        expect(routerLink.text()).toBe('sw-meteor.navigation.backButton');
+        expect(routerLink.text()).toBe('global.default.back');
     });
 
     it('should not display the back link when no parent exists', async () => {

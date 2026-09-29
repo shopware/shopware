@@ -11,13 +11,13 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: {
+        repositoryFactory: {},
+        feature: {},
+        documentV2Service: {},
+    },
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         documents: {
@@ -51,6 +51,9 @@ export default {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
+
             return criteria;
         },
     },
@@ -60,14 +63,34 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            this.documentTypeRepository.search(this.documentTypeCriteria).then((res) => {
-                this.documentTypes = res;
+        async createdComponent() {
+            try {
+                if (this.feature.isActive('DOCUMENT_GENERATION_REWORK') && this.documentV2Service) {
+                    const supportedDocumentTypes = await this.documentV2Service.getAvailableDocumentTypes();
+
+                    this.documentTypes = Object.keys(supportedDocumentTypes).map((technicalName) => {
+                        return {
+                            id: technicalName,
+                            technicalName,
+                            name: this.documentV2Service.getDocumentTypeLabel(
+                                technicalName,
+                                supportedDocumentTypes[technicalName]?.label,
+                            ),
+                        };
+                    });
+                } else {
+                    this.documentTypes = await this.documentTypeRepository.search(this.documentTypeCriteria);
+                }
 
                 this.documentTypes.forEach((type) => {
                     this.value.documentType[type.technicalName] = null;
                 });
-            });
+            } catch (error) {
+                this.documentTypes = [];
+                this.createNotificationError({
+                    message: error.message,
+                });
+            }
         },
     },
 };

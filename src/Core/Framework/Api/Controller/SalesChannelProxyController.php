@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -56,8 +58,8 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class SalesChannelProxyController extends AbstractController
 {
     private const CUSTOMER_ID = SalesChannelContextService::CUSTOMER_ID;
@@ -115,6 +117,13 @@ class SalesChannelProxyController extends AbstractController
         $this->fetchSalesChannel($salesChannelId, $context);
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
+
+        if ($request->request->get('sendOrderConfirmationMail', true) === false) {
+            $salesChannelContext->getContext()->addExtension(
+                SendMailAction::MAIL_CONFIG_EXTENSION,
+                new MailSendSubscriberConfig(true)
+            );
+        }
 
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
@@ -201,6 +210,7 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/modify-shipping-costs',
         name: 'api.proxy.modify-shipping-costs',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
         methods: [Request::METHOD_PATCH]
     )]
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
@@ -225,6 +235,7 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/disable-automatic-promotions',
         name: 'api.proxy.disable-automatic-promotions',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
         methods: [Request::METHOD_PATCH]
     )]
     public function disableAutomaticPromotions(Request $request): JsonResponse
@@ -245,6 +256,7 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/enable-automatic-promotions',
         name: 'api.proxy.enable-automatic-promotions',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:update']],
         methods: [Request::METHOD_PATCH]
     )]
     public function enableAutomaticPromotions(Request $request): JsonResponse

@@ -28,29 +28,19 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'flow_sequence:create',
                 'flow_sequence:delete',
                 'tag:create',
+                'flow:dispatch',
                 Shopware.Service('privileges').getPrivileges('rule.creator'),
                 Shopware.Service('privileges').getPrivileges('mail_templates.creator'),
             ],
-            dependencies: [
-                'flow.viewer',
-            ],
+            dependencies: ['flow.viewer'],
         },
         creator: {
-            privileges: [
-                'flow:create',
-            ],
-            dependencies: [
-                'flow.viewer',
-                'flow.editor',
-            ],
+            privileges: ['flow:create'],
+            dependencies: ['flow.viewer', 'flow.editor'],
         },
         deleter: {
-            privileges: [
-                'flow:delete',
-            ],
-            dependencies: [
-                'flow.viewer',
-            ],
+            privileges: ['flow:delete'],
+            dependencies: ['flow.viewer'],
         },
     },
 });

@@ -19,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
@@ -29,16 +30,18 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[CoversClass(GoogleProductExportProvider::class)]
 class GoogleProductExportProviderTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetTechnicalNameReturnsGoogle(): void
     {
         $provider = new GoogleProductExportProvider(
             $this->createSalesChannelRepository(),
-            $this->createMock(SystemConfigService::class)
+            static::createStub(SystemConfigService::class)
         );
 
         static::assertSame('google', $provider->getTechnicalName());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesCountriesFromSalesChannelContext(): void
     {
         $repository = $this->createSalesChannelRepository();
@@ -79,6 +82,7 @@ class GoogleProductExportProviderTest extends TestCase
         ], $providerContext->get('variantMapping'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextLoadsCountriesFromRepositoryWhenAssociationIsNotLoaded(): void
     {
         $context = Context::createDefaultContext();
@@ -88,15 +92,12 @@ class GoogleProductExportProviderTest extends TestCase
         $productExport = $this->createProductExport($salesChannelId);
 
         $repository = $this->createSalesChannelRepository([
-            /**
-             * @return list<SalesChannelEntity>
-             */
-            static function (Criteria $criteria, Context $repositoryContext) use ($context, $salesChannelId, $fallbackSalesChannel): array {
+            static function (Criteria $criteria, Context $repositoryContext) use ($context, $salesChannelId, $fallbackSalesChannel): SalesChannelCollection {
                 static::assertSame([$salesChannelId], $criteria->getIds());
                 static::assertTrue($criteria->hasAssociation('countries'));
                 static::assertSame($context, $repositoryContext);
 
-                return [$fallbackSalesChannel];
+                return new SalesChannelCollection([$fallbackSalesChannel]);
             },
         ]);
 
@@ -115,6 +116,7 @@ class GoogleProductExportProviderTest extends TestCase
         static::assertSame(['US'], $renderContext['provider']->get('targetCountries'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextSetsTargetCountriesToNullWhenTheyCannotBeResolved(): void
     {
         $context = Context::createDefaultContext();
@@ -124,15 +126,12 @@ class GoogleProductExportProviderTest extends TestCase
         $productExport = $this->createProductExport($salesChannelId);
 
         $repository = $this->createSalesChannelRepository([
-            /**
-             * @return list<SalesChannelEntity>
-             */
-            static function (Criteria $criteria, Context $repositoryContext) use ($context, $salesChannelId, $fallbackSalesChannel): array {
+            static function (Criteria $criteria, Context $repositoryContext) use ($context, $salesChannelId, $fallbackSalesChannel): SalesChannelCollection {
                 static::assertSame([$salesChannelId], $criteria->getIds());
                 static::assertTrue($criteria->hasAssociation('countries'));
                 static::assertSame($context, $repositoryContext);
 
-                return [$fallbackSalesChannel];
+                return new SalesChannelCollection([$fallbackSalesChannel]);
             },
         ]);
 
@@ -153,6 +152,7 @@ class GoogleProductExportProviderTest extends TestCase
         static::assertSame('Merchant', $renderContext['provider']->get('sellerName'));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testExtendRenderContextUsesConfiguredInputValues(): void
     {
         $salesChannel = $this->createSalesChannel(['DE']);
@@ -244,16 +244,13 @@ class GoogleProductExportProviderTest extends TestCase
     }
 
     /**
-     * @param array<callable(Criteria, Context): list<SalesChannelEntity>|SalesChannelCollection> $searches
+     * @param array<callable(Criteria, Context): SalesChannelCollection> $searches
      *
      * @return StaticEntityRepository<SalesChannelCollection>
      */
     private function createSalesChannelRepository(array $searches = []): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<SalesChannelCollection> $repository */
-        $repository = new StaticEntityRepository($searches);
-
-        return $repository;
+        return new StaticEntityRepository($searches);
     }
 
     /**

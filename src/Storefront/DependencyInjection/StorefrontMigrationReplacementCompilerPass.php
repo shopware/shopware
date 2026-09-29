@@ -5,7 +5,7 @@ namespace Shopware\Storefront\DependencyInjection;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AbstractMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontMigrationReplacementCompilerPass extends AbstractMigrationReplacementCompilerPass
 {
     protected function getMigrationPath(): string

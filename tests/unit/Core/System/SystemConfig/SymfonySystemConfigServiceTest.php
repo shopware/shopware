@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SymfonySystemConfigService::class)]
 class SymfonySystemConfigServiceTest extends TestCase
 {
@@ -117,5 +119,74 @@ class SymfonySystemConfigServiceTest extends TestCase
         static::assertSame(['key' => 'value', 'nested' => ['key' => 'value'], 'first' => ['key' => 'test']], $service->override($merged, null, inherit: false));
         static::assertSame(['key' => 'value2', 'nested' => ['key' => 'value2'], 'second' => ['key' => 'test']], $service->override($merged, 'salesChannelId', inherit: false));
         static::assertSame(['key' => 'value2', 'nested' => ['key' => 'value2'], 'first' => ['key' => 'test'], 'second' => ['key' => 'test']], $service->override($merged, 'salesChannelId'));
+    }
+
+    public function testOverrideNestedKeepsEmptyArraySalesChannelValue(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['key' => ['global-id']],
+            'salesChannelId' => ['key' => []],
+        ]);
+
+        static::assertSame(['key' => []], $service->override([], 'salesChannelId'));
+    }
+
+    public function testEmptyArrayStaticOverrideReplacesExistingArray(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['foo.bar' => ['global-id']],
+            'salesChannelId' => ['foo.bar' => []],
+        ]);
+
+        static::assertSame(
+            ['foo' => ['bar' => [], 'other' => 'unchanged']],
+            $service->override(['foo' => ['bar' => ['database-id'], 'other' => 'unchanged']], 'salesChannelId')
+        );
+        static::assertSame(
+            ['foo.bar' => []],
+            $service->override(['foo.bar' => ['database-id']], 'salesChannelId', nesting: false)
+        );
+    }
+
+    public function testNonEmptyStaticArrayKeepsExistingEntries(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['foo.bar' => ['static' => 'value']],
+        ]);
+
+        static::assertSame(
+            ['foo' => ['bar' => ['database' => 'value', 'static' => 'value']]],
+            $service->override(['foo' => ['bar' => ['database' => 'value']]], null)
+        );
+        static::assertSame(
+            ['foo.bar' => ['database' => 'value', 'static' => 'value']],
+            $service->override(['foo.bar' => ['database' => 'value']], null, nesting: false)
+        );
+    }
+
+    public function testSalesChannelDescendantOverridesEmptyDefaultParent(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['foo.bar' => []],
+            'salesChannelId' => ['foo.bar.baz' => 'sales'],
+        ]);
+
+        static::assertSame(
+            ['foo' => ['bar' => ['baz' => 'sales']]],
+            $service->override(['foo' => ['bar' => ['database' => 'value']]], 'salesChannelId')
+        );
+    }
+
+    public function testEmptySalesChannelParentOverridesDefaultDescendant(): void
+    {
+        $service = new SymfonySystemConfigService([
+            'default' => ['foo.bar.baz' => 'default'],
+            'salesChannelId' => ['foo.bar' => []],
+        ]);
+
+        static::assertSame(
+            ['foo' => ['bar' => []]],
+            $service->override([], 'salesChannelId')
+        );
     }
 }

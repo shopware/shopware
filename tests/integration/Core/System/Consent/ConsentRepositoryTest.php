@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\Consent;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentRepository;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 /**
  * @internal
  */
+#[Package('data-services')]
 class ConsentRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

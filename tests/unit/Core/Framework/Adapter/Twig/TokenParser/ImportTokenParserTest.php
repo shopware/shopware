@@ -30,7 +30,7 @@ class ImportTokenParserTest extends TestCase
     {
         static::assertSame(
             'sw_import',
-            (new ImportTokenParser($this->createMock(TemplateFinderInterface::class)))->getTag(),
+            (new ImportTokenParser(static::createStub(TemplateFinderInterface::class)))->getTag(),
         );
     }
 

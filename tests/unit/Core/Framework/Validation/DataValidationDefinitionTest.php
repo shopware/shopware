@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Validation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -11,6 +12,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DataValidationDefinition::class)]
 class DataValidationDefinitionTest extends TestCase
 {

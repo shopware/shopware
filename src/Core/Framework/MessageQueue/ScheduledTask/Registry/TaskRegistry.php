@@ -239,6 +239,7 @@ class TaskRegistry
 
         $scheduledTask = $this->scheduledTaskRepository
             ->search($criteria, $context)
+            ->getEntities()
             ->first();
 
         if (!$scheduledTask instanceof ScheduledTaskEntity) {

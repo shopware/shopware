@@ -31,7 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AddressTransformer
 {
     /**
-     * @return list<TransformedAddressArray>|array<string, TransformedAddressArray>
+     * @return ($useIdAsKey is false ? list<TransformedAddressArray>: array<string, TransformedAddressArray>)
      */
     public static function transformCollection(CustomerAddressCollection $addresses, bool $useIdAsKey = false): array
     {

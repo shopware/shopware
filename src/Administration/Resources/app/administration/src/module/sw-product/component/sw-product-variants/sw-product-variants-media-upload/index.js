@@ -12,14 +12,9 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'mediaDefaultFolderService',
-    ],
+    inject: ['repositoryFactory', 'mediaDefaultFolderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         source: {

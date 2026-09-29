@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
@@ -26,6 +27,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(NumberRangeValueGenerator::class)]
 class NumberRangeValueGeneratorTest extends TestCase
 {
@@ -234,7 +236,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     private function getGenerator(string $pattern): NumberRangeValueGenerator
     {
-        $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
+        $incrPattern = static::createStub(ValueGeneratorPatternIncrement::class);
         $incrPattern->method('getPatternId')->willReturn('n');
         $incrPattern->method('generate')->willReturn('5');
 

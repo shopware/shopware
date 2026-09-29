@@ -294,7 +294,7 @@ class ImportExportLogApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'activity' => $activities[$i % 2] ?? null,
+                'activity' => $activities[$i % 2],
                 'state' => \sprintf('state %d', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],

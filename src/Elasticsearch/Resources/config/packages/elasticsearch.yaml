@@ -21,6 +21,17 @@ elasticsearch:
         # match across multiple fields or language variants without diluting the primary match.
         # Valid range: 0.0 (pure dis_max) to 1.0 (effectively a bool/should sum).
         dismax_tie_breaker: 0.2
+        # Per-match-type boosts for product search (the dis_max clauses). Higher = that
+        # match type contributes more to the score. Keep exact/phrase above the weaker
+        # prefix/fuzzy/partial, otherwise a whole-word or whole-phrase match can be
+        # outranked by a looser one. Field-level ranking (product_search_config) still
+        # multiplies on top of these.
+        boost:
+            exact: 2.0
+            phrase: 4.0
+            fuzzy: 0.4
+            prefix: 0.4
+            partial: 0.4
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
@@ -125,6 +136,7 @@ elasticsearch:
         exclude_source: "%env(bool:SHOPWARE_ES_EXCLUDE_SOURCE)%"
     ssl:
         verify_server_cert: true
+    refresh_after_bulk: false
     index_settings:
         number_of_shards: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_SHARDS)%'
         number_of_replicas: '%env(int-or-null:SHOPWARE_ES_NUMBER_OF_REPLICAS)%'
@@ -180,12 +192,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase']
-            sw_whitespace_word_delimiter_index_analyzer:
+            sw_whitespace_technical_term_index_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates']
-            sw_whitespace_word_delimiter_search_analyzer:
+            sw_whitespace_technical_term_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
@@ -198,12 +210,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_english_stop_filter']
-            sw_english_word_delimiter_index_analyzer:
+            sw_english_technical_term_index_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_english_stop_filter']
-            sw_english_word_delimiter_search_analyzer:
+            sw_english_technical_term_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
@@ -212,12 +224,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_german_stop_filter']
-            sw_german_word_delimiter_index_analyzer:
+            sw_german_technical_term_index_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_decimal_normalize', 'sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_german_stop_filter']
-            sw_german_word_delimiter_search_analyzer:
+            sw_german_technical_term_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_decimal_normalize', 'sw_unit_glue']

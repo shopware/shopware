@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -15,6 +16,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RateLimiterCompilerPass::class)]
 class RateLimiterCompilerPassTest extends TestCase
 {

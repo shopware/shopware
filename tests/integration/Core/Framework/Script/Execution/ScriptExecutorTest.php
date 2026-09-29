@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 class ScriptExecutorTest extends TestCase
 {
     use AppSystemTestBehaviour;

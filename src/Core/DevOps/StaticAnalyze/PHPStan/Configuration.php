@@ -32,4 +32,28 @@ final readonly class Configuration
     {
         return $this->parameters['allowedStorefrontRouteNamespaces'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getAllowedUnitTestClassNamespaces(): array
+    {
+        return $this->parameters['allowedUnitTestClassNamespaces'] ?? [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getCreateMockWithoutExpectationsEnabledNamespaces(): array
+    {
+        return $this->parameters['createMockWithoutExpectationsEnabledNamespaces'] ?? [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getKernelInUnitTestsEnabledNamespaces(): array
+    {
+        return $this->parameters['kernelInUnitTestsEnabledNamespaces'] ?? [];
+    }
 }

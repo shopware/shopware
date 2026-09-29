@@ -40,16 +40,16 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayRoute::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayRoute::class)]
 class CheckoutGatewayRouteTest extends TestCase
 {
     public function testDecoratedThrows(): void
     {
         $route = new CheckoutGatewayRoute(
-            $this->createMock(AbstractPaymentMethodRoute::class),
-            $this->createMock(AbstractShippingMethodRoute::class),
-            $this->createMock(CheckoutGatewayInterface::class),
+            static::createStub(AbstractPaymentMethodRoute::class),
+            static::createStub(AbstractShippingMethodRoute::class),
+            static::createStub(CheckoutGatewayInterface::class),
         );
 
         $this->expectException(DecorationPatternException::class);
@@ -249,7 +249,7 @@ class CheckoutGatewayRouteTest extends TestCase
             ->method('load')
             ->with($request, $context, static::isInstanceOf(Criteria::class));
 
-        $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
+        $checkoutGateway = static::createStub(CheckoutGatewayInterface::class);
         $checkoutGateway
             ->method('process')
             ->willReturn(new CheckoutGatewayResponse(

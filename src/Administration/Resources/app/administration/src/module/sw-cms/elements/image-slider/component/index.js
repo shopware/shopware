@@ -14,16 +14,11 @@ export default {
 
     emits: ['active-image-change'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     props: {
         activeMedia: {
-            type: [
-                Object,
-                null,
-            ],
+            type: [Object, null],
             required: false,
             default: null,
         },
@@ -87,6 +82,18 @@ export default {
             }
 
             return null;
+        },
+
+        showNavigationDots() {
+            const navigationDots = this.element.config.navigationDots.value;
+
+            return !!navigationDots && navigationDots !== 'none';
+        },
+
+        showNavigationArrows() {
+            const navigationArrows = this.element.config.navigationArrows.value;
+
+            return !!navigationArrows && navigationArrows !== 'none';
         },
 
         navDotsClass() {

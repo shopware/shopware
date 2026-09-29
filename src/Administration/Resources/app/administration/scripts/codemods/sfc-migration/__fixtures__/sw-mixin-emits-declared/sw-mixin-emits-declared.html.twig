@@ -1,0 +1,7 @@
+{% block sw_mixin_emits_declared %}
+    <div class="sw-mixin-emits-declared">
+        <button class="sw-mixin-emits-declared__delete" @click="openModalDelete">Delete</button>
+
+        <sw-media-modal-delete v-if="showModalDelete" @confirm="onConfirmDelete" />
+    </div>
+{% endblock %}

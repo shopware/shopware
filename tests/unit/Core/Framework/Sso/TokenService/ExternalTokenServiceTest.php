@@ -93,6 +93,8 @@ class ExternalTokenServiceTest extends TestCase
 
         if ($withEmptyConfig) {
             $config = [];
+            $responseInterface->expects($this->never())->method('getContent');
+            $client->expects($this->never())->method('request');
         } else {
             $responseInterface->expects($this->once())->method('getContent');
             $client->expects($this->once())->method('request');
@@ -101,7 +103,7 @@ class ExternalTokenServiceTest extends TestCase
         $loginConfigService = new LoginConfigService(
             // @phpstan-ignore argument.type
             $config,
-            $router = $this->createMock(RouterInterface::class)
+            $router = static::createStub(RouterInterface::class)
         );
 
         return new ExternalTokenService($client, $loginConfigService);

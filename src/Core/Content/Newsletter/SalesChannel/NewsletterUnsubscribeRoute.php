@@ -28,8 +28,8 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 {
     /**
@@ -69,13 +69,9 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
             )
         );
 
-        $response = $this->unsubscribeWithResponse($dataBag, $context);
+        $this->unsubscribeWithResponse($dataBag, $context);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new NoContentResponse();
-        }
-
-        return $response;
+        return new NoContentResponse();
     }
 
     #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
@@ -87,7 +83,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 
         $data = $dataBag->only('email');
 
-        if (empty($data['email']) || !\is_string($data['email'])) {
+        if (!isset($data['email']) || !\is_string($data['email']) || $data['email'] === '') {
             throw NewsletterException::missingEmailParameter();
         }
 

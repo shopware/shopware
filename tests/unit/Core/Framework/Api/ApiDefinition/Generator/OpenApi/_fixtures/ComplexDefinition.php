@@ -6,6 +6,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -33,12 +34,12 @@ class ComplexDefinition extends EntityDefinition
     {
         return new FieldCollection(
             [
-                (new IdField('id_field', 'idField'))->addFlags(new ApiAware()),
+                (new IdField('id_field', 'idField'))->addFlags(new ApiAware(), new Required()),
                 (new ManyToOneAssociationField('simpleTo', 'simpleToId', SimpleDefinition::class))
                     ->addFlags(new ApiAware())
                     ->setDescription('A reference to a simple entity'),
                 (new OneToManyAssociationField('simpleManys', SimpleDefinition::class, 'ref_field'))
-                    ->addFlags(new ApiAware())
+                    ->addFlags(new ApiAware(), new Required())
                     ->setDescription('Multiple simple entities'),
                 (new ManyToOneAssociationField('simpleToWithEmptyDescription', 'simpleToId', SimpleDefinition::class))
                     ->addFlags(new ApiAware())

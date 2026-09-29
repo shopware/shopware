@@ -1,0 +1,105 @@
+{% block sw_settings_language_add_modal %}
+<sw-modal
+    class="sw-settings-language-add-modal"
+    :title="$t('sw-settings-language.addModal.title')"
+    @modal-close="onClose"
+>
+    {% block sw_settings_language_add_modal_select %}
+    <sw-single-select
+        v-model:value="selectedLocale"
+        class="sw-settings-language-add-modal__language-select"
+        :label="$t('sw-settings-language.addModal.labelLanguage')"
+        :placeholder="$t('sw-settings-language.addModal.placeholderLanguage')"
+        :options="languageOptions"
+        :is-loading="isLoading"
+        :disabled="isLoading || undefined"
+        label-property="label"
+        value-property="value"
+    />
+    {% endblock %}
+
+    {% block sw_settings_language_add_modal_selection_info %}
+    <ul
+        v-if="selectedTranslation"
+        class="sw-settings-language-add-modal__selection-info"
+    >
+        <li class="sw-settings-language-add-modal__selection-info-item">
+            {{ $t(translationsHintTextKey) }}
+        </li>
+
+        <li class="sw-settings-language-add-modal__selection-info-item">
+            {{ $t('sw-settings-language.addModal.docsHint') }}
+            <mt-link
+                v-if="documentationUrlSnippetKey"
+                type="external"
+                as="a"
+                :href="$t(documentationUrlSnippetKey)"
+                target="_blank"
+                rel="noopener"
+            >
+                {{ $t('sw-settings-language.addModal.docsLinkLabel') }}
+            </mt-link>
+        </li>
+    </ul>
+    {% endblock %}
+
+    {% block sw_settings_language_add_modal_hint %}
+    <div class="sw-settings-language-add-modal__hint">
+        <i18n-t
+            tag="span"
+            keypath="sw-settings-language.addModal.extensionStoreHint"
+        >
+            <template #extensionStoreLink>
+                <mt-link
+                    :to="{ name: 'sw.extension.store.landing-page' }"
+                    type="internal"
+                >
+                    {{ $t('sw-settings-language.addModal.extensionStoreLink') }}
+                </mt-link>
+            </template>
+        </i18n-t>
+    </div>
+    {% endblock %}
+
+    {% block sw_settings_language_add_modal_footer %}
+    <template #modal-footer>
+        {% block sw_settings_language_add_modal_footer_create_custom %}
+        <mt-link
+            class="sw-settings-language-add-modal__create-custom"
+            :to="{ name: 'sw.settings.language.create' }"
+            type="internal"
+        >
+            {{ $t('sw-settings-language.addModal.createCustomLanguage') }}
+        </mt-link>
+        {% endblock %}
+
+        {% block sw_settings_language_add_modal_footer_actions %}
+        <div class="sw-settings-language-add-modal__footer-actions">
+            {% block sw_settings_language_add_modal_footer_cancel %}
+            <mt-button
+                variant="secondary"
+                size="small"
+                @click="onClose"
+            >
+                {{ $t('global.default.cancel') }}
+            </mt-button>
+            {% endblock %}
+
+            {% block sw_settings_language_add_modal_footer_add %}
+            <mt-button
+                class="sw-settings-language-add-modal__add-action"
+                variant="primary"
+                size="small"
+                :disabled="!selectedLocale || isSaving || undefined"
+                :is-loading="isSaving"
+                @click="onAddLanguage"
+            >
+                {{ $t('sw-settings-language.addModal.buttonAdd') }}
+            </mt-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

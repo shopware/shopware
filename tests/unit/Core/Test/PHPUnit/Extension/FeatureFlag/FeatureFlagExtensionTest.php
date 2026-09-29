@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\FeatureFlag;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FeatureFlagExtension::class)]
 class FeatureFlagExtensionTest extends TestCase
 {
@@ -37,11 +39,15 @@ class FeatureFlagExtensionTest extends TestCase
         string $exceptionClass,
         string $exceptionMessage
     ): void {
+        $namespacesBefore = FeatureFlagExtension::getTestNamespaces();
+
         $this->expectExceptionObject(new $exceptionClass($exceptionMessage));
 
-        FeatureFlagExtension::addTestNamespace($namespace);
-
-        static::assertNotContains($namespace, FeatureFlagExtension::getTestNamespaces());
+        try {
+            FeatureFlagExtension::addTestNamespace($namespace);
+        } finally {
+            static::assertSame($namespacesBefore, FeatureFlagExtension::getTestNamespaces());
+        }
     }
 
     /**

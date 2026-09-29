@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SecureUrlValidator::class)]
 class SecureUrlValidatorTest extends TestCase
 {

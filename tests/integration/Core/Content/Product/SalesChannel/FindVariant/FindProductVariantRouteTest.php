@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRou
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('inventory')]
 class FindProductVariantRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

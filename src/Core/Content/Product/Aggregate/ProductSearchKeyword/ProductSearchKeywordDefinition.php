@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductSearchKeywordDefinition extends EntityDefinition
 {

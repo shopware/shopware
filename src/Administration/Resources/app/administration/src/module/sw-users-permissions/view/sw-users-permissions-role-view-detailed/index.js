@@ -7,9 +7,7 @@ import template from './sw-users-permissions-role-view-detailed.html.twig';
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
     props: {
         role: {

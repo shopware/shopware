@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -14,6 +15,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppExtractor::class)]
 class AppExtractorTest extends TestCase
 {

@@ -8,9 +8,7 @@ import './sw-settings-search-search-behaviour.scss';
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
     props: {
         searchBehaviourConfigs: {
@@ -38,14 +36,14 @@ export default {
         conditionsOptions() {
             return [
                 {
-                    name: this.$t('sw-settings-search.generalTab.labelSearchAndCondition'),
-                    value: true,
-                    description: this.$t('sw-settings-search.generalTab.textSearchAndConditionExplain'),
-                },
-                {
                     name: this.$t('sw-settings-search.generalTab.labelSearchOrCondition'),
                     value: false,
                     description: this.$t('sw-settings-search.generalTab.textSearchOrConditionExplain'),
+                },
+                {
+                    name: this.$t('sw-settings-search.generalTab.labelSearchAndCondition'),
+                    value: true,
+                    description: this.$t('sw-settings-search.generalTab.textSearchAndConditionExplain'),
                 },
             ];
         },

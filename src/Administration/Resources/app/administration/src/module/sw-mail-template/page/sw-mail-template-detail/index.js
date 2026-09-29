@@ -24,10 +24,7 @@ export default {
         'businessEventService',
     ],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -666,7 +663,7 @@ export default {
         },
 
         successfulUpload({ targetId }) {
-            if (this.mailTemplate.media.find((mailTemplateMedia) => mailTemplateMedia.mediaId === targetId)) {
+            if (this._checkIfMediaIsAlreadyUsed(targetId)) {
                 return;
             }
 
@@ -699,8 +696,11 @@ export default {
 
         onDeleteMedia(mailTemplateMediaId) {
             const foundItem = this.mailTemplate.media.find(
-                (mailTemplateMedia) => mailTemplateMedia.mediaId === mailTemplateMediaId,
+                (mailTemplateMedia) =>
+                    mailTemplateMedia.mediaId === mailTemplateMediaId &&
+                    mailTemplateMedia.languageId === Shopware.Context.api.languageId,
             );
+
             if (foundItem) {
                 this.mailTemplate.media.remove(foundItem.id);
                 this.getMailTemplateMedia();
@@ -767,14 +767,7 @@ export default {
             variables.splice(1, 0, 'properties');
             const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
 
-            return (
-                field &&
-                field.type === 'association' &&
-                [
-                    'one_to_many',
-                    'many_to_many',
-                ].includes(field.relation)
-            );
+            return field && field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation);
         },
 
         onGetTreeItems(parent) {

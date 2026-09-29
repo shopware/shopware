@@ -45,23 +45,39 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_quickactions_download %}
-                <li
-                    v-if="item.hasFile"
-                    class="sw-media-sidebar__quickaction quickaction--download"
-                >
-                    <sw-external-link
-                        :href="item.url"
-                        download
+                <template v-if="item.hasFile">
+                    <li
+                        v-if="item.private"
+                        class="sw-media-sidebar__quickaction quickaction--download"
+                        role="button"
+                        tabindex="0"
+                        @click="downloadMedia()"
+                        @keydown.enter="downloadMedia()"
                     >
-
                         <mt-icon
                             size="16px"
                             name="regular-cloud-download"
                             class="sw-media-sidebar__quickactions-icon"
                         />
                         {{ $t('sw-media.sidebar.actions.download') }}
-                    </sw-external-link>
-                </li>
+                    </li>
+                    <li
+                        v-else
+                        class="sw-media-sidebar__quickaction quickaction--download"
+                    >
+                        <sw-external-link
+                            :href="item.url"
+                            download
+                        >
+                            <mt-icon
+                                size="16px"
+                                name="regular-cloud-download"
+                                class="sw-media-sidebar__quickactions-icon"
+                            />
+                            {{ $t('sw-media.sidebar.actions.download') }}
+                        </sw-external-link>
+                    </li>
+                </template>
                 {% endblock %}
                 {% block sw_media_quickinfo_quickactions_move %}
                 <li
@@ -457,6 +473,13 @@
                     {% endblock %}
                 </template>
             </dl>
+
+            {% block sw_media_quickinfo_metadata_extension %}
+            <sw-extension-component-section
+                class="sw-media-quickinfo-metadata-extension"
+                position-identifier="sw-media-quickinfo-metadata"
+            />
+            {% endblock %}
         </template>
         {% endblock %}
     </sw-media-collapse>

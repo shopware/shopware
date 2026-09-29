@@ -9,10 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(RatingMatrix::class)]
 class RatingMatrixTest extends TestCase
 {

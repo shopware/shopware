@@ -19,7 +19,7 @@ use Twig\Error\SyntaxError;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorybookController extends AbstractController
 {
     private const BASE_TEMPLATE = <<<TWIG

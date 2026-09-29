@@ -6,9 +6,15 @@ use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'Part of the legacy document generation pipeline. DocumentV2 handles this concern internally and exposes no counterpart.',
+)]
 class DocumentEvents
 {
     public const CREDIT_NOTE_ORDER_CRITERIA_EVENT = CreditNoteRenderer::TYPE . '.document.criteria';

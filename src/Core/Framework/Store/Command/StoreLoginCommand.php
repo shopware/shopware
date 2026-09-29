@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Command;
 
 use GuzzleHttp\Exception\ClientException;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,17 +18,18 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[AsCommand(
     name: 'store:login',
     description: 'Login to the store',
 )]
-#[Package('checkout')]
 class StoreLoginCommand extends Command
 {
     /**
@@ -55,12 +55,12 @@ class StoreLoginCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $context = Context::createCLIContext();
 
         $host = $input->getOption('host');
-        if (!empty($host)) {
+        if ($host !== null && $host !== '') {
             $this->configService->set('core.store.licenseHost', $host, null, false);
         }
 

@@ -26,14 +26,14 @@ class LocaleProviderTest extends TestCase
 {
     public function testGetLocaleFromContextReturnsEnGbInSystemSource(): void
     {
-        $provider = new LocaleProvider(static::createMock(EntityRepository::class));
+        $provider = new LocaleProvider(static::createStub(EntityRepository::class));
 
         static::assertSame('en-GB', $provider->getLocaleFromContext(Context::createDefaultContext()));
     }
 
     public function testGetLocaleFromContextReturnsEnGbIfNoUserIsAssociated(): void
     {
-        $provider = new LocaleProvider(static::createMock(EntityRepository::class));
+        $provider = new LocaleProvider(static::createStub(EntityRepository::class));
 
         static::assertSame(
             'en-GB',

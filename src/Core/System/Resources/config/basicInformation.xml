@@ -61,6 +61,158 @@
     </card>
 
     <card>
+        <name>companyInformation</name>
+        <flag>DOCUMENT_GENERATION_REWORK</flag>
+        <title>Company information</title>
+        <title lang="de-DE">Unternehmensinformationen</title>
+        <subtitle>This company information is used for generated documents and appears on document templates where applicable.</subtitle>
+        <subtitle lang="de-DE">Diese Unternehmensinformationen werden für generierte Dokumente verwendet und erscheinen, wo zutreffend, in Dokumentvorlagen.</subtitle>
+
+        <component name="sw-system-config-media-upload">
+            <name>companyLogoId</name>
+            <label>Company logo</label>
+            <label lang="de-DE">Firmenlogo</label>
+        </component>
+
+        <input-field>
+            <name>companyName</name>
+            <label>Company Name</label>
+            <label lang="de-DE">Geschäftsname</label>
+            <placeholder>Enter company name...</placeholder>
+            <placeholder lang="de-DE">Geschäftsname eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyEmail</name>
+            <label>Email address</label>
+            <label lang="de-DE">E-Mail-Adresse</label>
+            <placeholder>Enter email address...</placeholder>
+            <placeholder lang="de-DE">E-Mail-Adresse eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyPhone</name>
+            <label>Phone number</label>
+            <label lang="de-DE">Telefon</label>
+            <placeholder>Enter phone number...</placeholder>
+            <placeholder lang="de-DE">Telefonnummer eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyStreet</name>
+            <label>Street</label>
+            <label lang="de-DE">Straße</label>
+            <placeholder>Enter street...</placeholder>
+            <placeholder lang="de-DE">Straße eingeben ...</placeholder>
+        </input-field>
+
+        <component name="sw-entity-single-select">
+            <name>companyCountryId</name>
+            <entity>country</entity>
+            <label>Country</label>
+            <label lang="de-DE">Land</label>
+            <placeholder>Select a country...</placeholder>
+            <placeholder lang="de-DE">Land auswählen ...</placeholder>
+        </component>
+
+        <input-field>
+            <name>companyZipcode</name>
+            <label>Postal code</label>
+            <label lang="de-DE">Postleitzahl</label>
+            <placeholder>Enter postal code...</placeholder>
+            <placeholder lang="de-DE">Postleitzahl eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyCity</name>
+            <label>City</label>
+            <label lang="de-DE">Stadt</label>
+            <placeholder>Enter city...</placeholder>
+            <placeholder lang="de-DE">Stadt eingeben ...</placeholder>
+        </input-field>
+
+        <input-field type="url">
+            <name>companyUrl</name>
+            <label>Website</label>
+            <label lang="de-DE">Webseite</label>
+            <placeholder>Enter website...</placeholder>
+            <placeholder lang="de-DE">Webseite eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyTaxNumber</name>
+            <label>Tax number</label>
+            <label lang="de-DE">Steuernummer</label>
+            <placeholder>Enter tax number...</placeholder>
+            <placeholder lang="de-DE">Steuernummer eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyTaxOffice</name>
+            <label>Tax office</label>
+            <label lang="de-DE">Finanzamt</label>
+            <placeholder>Enter tax office...</placeholder>
+            <placeholder lang="de-DE">Finanzamt eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyVatId</name>
+            <label>VAT-ID</label>
+            <label lang="de-DE">USt-Id</label>
+            <placeholder>Enter VAT-ID...</placeholder>
+            <placeholder lang="de-DE">USt-Id eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyBankName</name>
+            <label>Bank</label>
+            <label lang="de-DE">Bank</label>
+            <placeholder>Enter bank name...</placeholder>
+            <placeholder lang="de-DE">Bankname eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyBankIban</name>
+            <label>IBAN</label>
+            <label lang="de-DE">IBAN</label>
+            <placeholder>Enter IBAN...</placeholder>
+            <placeholder lang="de-DE">IBAN eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyBankBic</name>
+            <label>BIC</label>
+            <label lang="de-DE">BIC</label>
+            <placeholder>Enter BIC...</placeholder>
+            <placeholder lang="de-DE">BIC eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyPlaceOfJurisdiction</name>
+            <label>Commercial register (incl. court &amp; number)</label>
+            <label lang="de-DE">Gerichtsstand / Handelsregister-Nr.</label>
+            <placeholder>Enter place of jurisdiction...</placeholder>
+            <placeholder lang="de-DE">Gerichtsstand eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyPlaceOfFulfillment</name>
+            <label>Place of fulfillment</label>
+            <label lang="de-DE">Erfüllungsort</label>
+            <placeholder>Enter place of fulfillment...</placeholder>
+            <placeholder lang="de-DE">Erfüllungsort eingeben ...</placeholder>
+        </input-field>
+
+        <input-field>
+            <name>companyExecutiveDirector</name>
+            <label>Business executive</label>
+            <label lang="de-DE">Geschäftsführer</label>
+            <placeholder>Enter business executive...</placeholder>
+            <placeholder lang="de-DE">Geschäftsführer eingeben ...</placeholder>
+        </input-field>
+    </card>
+
+    <card>
         <title>Shop pages</title>
         <title lang="de-DE">Shopseiten</title>
 

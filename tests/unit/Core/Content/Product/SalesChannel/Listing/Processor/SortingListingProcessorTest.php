@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processo
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Events\ProductListingCollectSortingEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor;
@@ -17,15 +18,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(SortingListingProcessor::class)]
 class SortingListingProcessorTest extends TestCase
 {
@@ -41,18 +46,18 @@ class SortingListingProcessorTest extends TestCase
     #[DataProvider('prepareProvider')]
     public function testPrepare(string $sorting, bool $testWithAvailableSortings, array $expected): void
     {
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([$this->buildSortings()]);
 
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            $sortingRepository
+            $sortingRepository,
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $processor->prepare(
             new Request(['order' => $sorting, 'availableSortings' => $testWithAvailableSortings ? $this->buildAvailableSortings() : []]),
             $criteria = new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertEquals($expected, $criteria->getSorting());
@@ -70,7 +75,7 @@ class SortingListingProcessorTest extends TestCase
             ],
         ]);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
             new EntitySearchResult(
                 ProductSortingDefinition::ENTITY_NAME,
@@ -86,13 +91,14 @@ class SortingListingProcessorTest extends TestCase
             new StaticSystemConfigService([
                 'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
             ]),
-            $repository
+            $repository,
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $processor->prepare(
             $requested,
             $criteria = new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertEquals([
@@ -113,7 +119,7 @@ class SortingListingProcessorTest extends TestCase
             ],
         ]);
 
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
         $repository->method('search')->willReturn(
             new EntitySearchResult(
                 ProductSortingDefinition::ENTITY_NAME,
@@ -129,7 +135,8 @@ class SortingListingProcessorTest extends TestCase
             new StaticSystemConfigService([
                 'core.listing.defaultSearchResultSorting' => Uuid::randomHex(),
             ]),
-            $repository
+            $repository,
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $criteria = new Criteria();
@@ -137,7 +144,7 @@ class SortingListingProcessorTest extends TestCase
         $processor->prepare(
             $requested,
             $criteria,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertEquals([
@@ -152,21 +159,21 @@ class SortingListingProcessorTest extends TestCase
     {
         $sortings = $this->buildSortings();
 
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([$sortings]);
 
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            $sortingRepository
+            $sortingRepository,
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $result = new ProductListingResult($requested, 1, new ProductCollection(), null, new Criteria(), Context::createDefaultContext());
-        $result->getCriteria()->addExtension('sortings', $sortings);
+        $result->getCriteria()->addExtension(SortingListingProcessor::SORTINGS_EXTENSION, $sortings);
 
         $processor->process(
             new Request(['order' => $requested]),
             $result,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($expected, $result->getSorting());
@@ -177,21 +184,93 @@ class SortingListingProcessorTest extends TestCase
     {
         $this->expectException(ProductException::class);
 
-        /** @var StaticEntityRepository<ProductSortingCollection> $sortingRepository */
         $sortingRepository = new StaticEntityRepository([
             $this->buildSortings(),
         ]);
 
         $processor = new SortingListingProcessor(
             new StaticSystemConfigService([]),
-            $sortingRepository
+            $sortingRepository,
+            static::createStub(EventDispatcherInterface::class)
         );
 
         $processor->prepare(
             new Request(['order' => $requested]),
             new Criteria(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
+    }
+
+    #[DataProvider('runtimeSortingOrderProvider')]
+    public function testPrepareAppliesSortingRegisteredInCollectSortingEvent(string $order, string $expectedDirection): void
+    {
+        $runtimeSorting = new ProductSortingEntity();
+        $runtimeSorting->setId(Uuid::randomHex());
+        $runtimeSorting->assign([
+            'key' => 'my-custom-runtime-sort',
+            'fields' => [
+                ['field' => 'product.name', 'priority' => 1, 'order' => $order, 'naturalSorting' => 0],
+            ],
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            ProductListingCollectSortingEvent::class,
+            static function (ProductListingCollectSortingEvent $event) use ($runtimeSorting): void {
+                $event->getSortings()->add($runtimeSorting);
+            }
+        );
+
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([]),
+            new StaticEntityRepository([$this->buildSortings()]),
+            $dispatcher
+        );
+
+        $processor->prepare(
+            new Request(['order' => 'my-custom-runtime-sort']),
+            $criteria = new Criteria(),
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertEquals([
+            new FieldSorting('product.name', $expectedDirection),
+            new FieldSorting('id', FieldSorting::ASCENDING),
+        ], $criteria->getSorting());
+
+        $sortings = $criteria->getExtension(SortingListingProcessor::SORTINGS_EXTENSION);
+        static::assertInstanceOf(ProductSortingCollection::class, $sortings);
+        static::assertNotNull($sortings->getByKey('my-custom-runtime-sort'));
+    }
+
+    public function testPrepareKeepsSortingAlreadyPresentOnTheCriteria(): void
+    {
+        $processor = new SortingListingProcessor(
+            new StaticSystemConfigService([]),
+            new StaticEntityRepository([$this->buildSortings()]),
+            static::createStub(EventDispatcherInterface::class)
+        );
+
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('product.stock', FieldSorting::DESCENDING));
+
+        $processor->prepare(
+            new Request(['order' => 'foo']),
+            $criteria,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertEquals([
+            new FieldSorting('product.stock', FieldSorting::DESCENDING),
+            new FieldSorting('id', FieldSorting::ASCENDING),
+            new FieldSorting('foo', FieldSorting::DESCENDING),
+        ], $criteria->getSorting());
+    }
+
+    public static function runtimeSortingOrderProvider(): \Generator
+    {
+        yield 'ascending runtime sorting' => ['order' => 'asc', 'expectedDirection' => FieldSorting::ASCENDING];
+        yield 'descending runtime sorting' => ['order' => 'desc', 'expectedDirection' => FieldSorting::DESCENDING];
     }
 
     public static function prepareDefaultSearchResultSortingProvider(): \Generator

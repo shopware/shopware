@@ -22,6 +22,7 @@ use Shopware\Core\Content\Product\SalesChannel\Suggest\ResolvedCriteriaProductSu
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,6 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ResolvedCriteriaProductSuggestRoute::class)]
 class ResolvedCriteriaProductSuggestRouteTest extends TestCase
 {
@@ -45,7 +47,7 @@ class ResolvedCriteriaProductSuggestRouteTest extends TestCase
         $decorated = new SuggestRouteStub();
 
         $route = new ResolvedCriteriaProductSuggestRoute(
-            $this->createMock(ProductSearchBuilderInterface::class),
+            static::createStub(ProductSearchBuilderInterface::class),
             new EventDispatcher(),
             $decorated,
             new CompositeListingProcessor([
@@ -63,7 +65,7 @@ class ResolvedCriteriaProductSuggestRouteTest extends TestCase
         );
 
         $request = new Request(array_merge(['search' => 'foo'], $query));
-        $route->load($request, $this->createMock(SalesChannelContext::class), new Criteria());
+        $route->load($request, static::createStub(SalesChannelContext::class), new Criteria());
 
         static::assertInstanceOf(Criteria::class, $decorated->criteria);
         $fields = $decorated->criteria->getFilterFields();
@@ -90,12 +92,12 @@ class ResolvedCriteriaProductSuggestRouteTest extends TestCase
         $resultListener->expects($this->exactly(1))->method('__invoke');
         $dispatcher->addListener(ProductSuggestResultEvent::class, $resultListener);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $route = new ResolvedCriteriaProductSuggestRoute(
             $builder,
             $dispatcher,
-            $this->createMock(AbstractProductSuggestRoute::class),
+            static::createStub(AbstractProductSuggestRoute::class),
             new CompositeListingProcessor([])
         );
 

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 
 #[Package('framework')]
@@ -28,6 +29,7 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
         private readonly AdminSearchRegistry $registry,
         private readonly AdminElasticsearchHelper $helper,
         private readonly AdminSearcher $searcher,
+        private readonly int $maxResultWindow = ElasticsearchEntitySearcher::MAX_LIMIT,
     ) {
     }
 
@@ -69,6 +71,10 @@ class AdminElasticsearchEntitySearcher implements EntitySearcherInterface
         }
 
         if ($criteria->getIds() !== []) {
+            return false;
+        }
+
+        if (($criteria->getOffset() ?? 0) + ($criteria->getLimit() ?? 0) > $this->maxResultWindow) {
             return false;
         }
 

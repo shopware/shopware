@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 #[Entity('measurement_system', since: '6.7.1.0')]

@@ -64,7 +64,8 @@ class ProductPricingHookTest extends TestCase
         $salesChannelContext->setRuleIds([$ids->get('rule-A')]);
 
         $products = static::getContainer()->get('sales_channel.product.repository')
-            ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext);
+            ->search(new Criteria($ids->getList(['p1', 'p2', 'p3.1'])), $salesChannelContext)
+            ->getEntities();
 
         $stubs = static::getContainer()->get(ScriptPriceStubs::class);
 
@@ -88,7 +89,7 @@ class ProductPricingHookTest extends TestCase
         // allows easy debugging
         $traces = new ScriptTraces(new NativeClock());
 
-        $loader = $this->createMock(ScriptLoader::class);
+        $loader = static::createStub(ScriptLoader::class);
         $loader->method('get')->willReturn([
             new Script('foo', (string) \file_get_contents(__DIR__ . '/_fixtures/pricing-cases/product-pricing.twig'), new \DateTimeImmutable()),
         ]);

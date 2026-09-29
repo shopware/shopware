@@ -175,7 +175,7 @@ class ZugferdEmbeddedServiceTest extends TestCase
 
     private function createElectronicRendererMock(RendererResult $result): AbstractDocumentRenderer
     {
-        $mock = $this->createMock(AbstractDocumentRenderer::class);
+        $mock = static::createStub(AbstractDocumentRenderer::class);
         $mock->method('render')->willReturn($result);
 
         return $mock;

@@ -62,11 +62,7 @@ describe('orderDocumentApiService', () => {
         it('calls the correct endpoint', async () => {
             const { orderDocumentApiService, clientMock } = createOrderDocumentApiService();
 
-            const documentIds = [
-                1,
-                2,
-                3,
-            ];
+            const documentIds = [1, 2, 3];
             const additionalParams = {};
 
             orderDocumentApiService.download(documentIds, additionalParams);

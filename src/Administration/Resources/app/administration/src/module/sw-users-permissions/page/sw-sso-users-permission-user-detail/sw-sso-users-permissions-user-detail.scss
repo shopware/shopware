@@ -12,65 +12,74 @@
 
         &.sw-detail-grid__information {
             grid-template-areas:
-                "FirstName LastName"
-                "EMail EMPTY";
+                "FirstName ProfilePicture"
+                "LastName ProfilePicture"
+                "EMail EMail"
+                "Active Active";
         }
 
         &.sw-detail-grid__user-interface {
             grid-template-areas:
-                "Language ProfilePicture"
-                "Timezone ProfilePicture";
+                "Language Timezone"
+                "Theme .";
         }
 
         &.sw-detail-grid__roles-and-permissions {
             grid-template-areas:
                 "AclRoles JobTitle"
-                "IsAdmin EMPTY";
+                "IsAdmin IsAdmin";
         }
     }
 
-    .sw-detail-grid__information-firstName {
+    .sw-sso-detail-card__information-firstName {
         grid-area: FirstName;
     }
 
-    .sw-detail-grid__information-lastName {
+    .sw-sso-detail-card__information-lastName {
         grid-area: LastName;
     }
 
-    .sw-detail-grid__information-eMail {
+    .sw-sso-detail-card__information-eMail {
         grid-area: EMail;
     }
 
-    .sw-settings-user-detail__grid-username {
-        grid-area: Username;
+    .sw-sso-detail-card__information-active {
+        grid-area: Active;
+        margin-top: 0;
     }
 
-    .sw-settings-user-detail__grid-password {
-        grid-area: Password;
+    .sw-sso-detail-card__information-picture {
+        grid-area: ProfilePicture;
+        margin-bottom: var(--scale-size-32);
     }
 
-    .sw-settings-user-detail__grid-language {
+    .sw-sso-detail-card__user-interface-language {
         grid-area: Language;
     }
 
-    .sw-settings-user-detail__grid-profile-picture {
-        grid-area: ProfilePicture;
+    .sw-sso-detail-card__user-interface-theme {
+        grid-area: Theme;
     }
 
-    .sw-settings-user-detail__grid-jobTitle {
+    .sw-sso-detail-card__roles-and-permission-jobTitle {
         grid-area: JobTitle;
     }
 
-    .sw-settings-user-detail__grid-aclRoles {
+    .sw-sso-detail-card__roles-and-permission-aclRoles {
         grid-area: AclRoles;
     }
 
-    .sw-settings-user-detail__grid-is-admin {
+    .sw-sso-detail-card__roles-and-permission-is-admin {
         grid-area: IsAdmin;
     }
 
-    &__grid-timezone {
+    .sw-sso-detail-card__user-interface-timezone {
         grid-area: Timezone;
         margin-top: 0;
+    }
+
+    .mt-switch {
+        margin-top: 0;
+        margin-bottom: 0;
     }
 }

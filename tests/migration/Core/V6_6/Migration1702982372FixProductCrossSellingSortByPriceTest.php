@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1702982372FixProductCrossSellingSortByPrice;
@@ -13,6 +14,7 @@ use Shopware\Core\Migration\V6_6\Migration1702982372FixProductCrossSellingSortBy
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1702982372FixProductCrossSellingSortByPrice::class)]
 class Migration1702982372FixProductCrossSellingSortByPriceTest extends TestCase
 {

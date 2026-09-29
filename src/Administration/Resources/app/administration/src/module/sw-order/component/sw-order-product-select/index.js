@@ -70,10 +70,7 @@ export default {
             criteria.addAssociation('tax');
 
             criteria.addFilter(
-                Criteria.multi('OR', [
-                    Criteria.equals('childCount', 0),
-                    Criteria.equals('childCount', null),
-                ]),
+                Criteria.multi('OR', [Criteria.equals('childCount', 0), Criteria.equals('childCount', null)]),
             );
 
             criteria.addFilter(Criteria.equals('visibilities.salesChannelId', this.salesChannelId));

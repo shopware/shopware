@@ -5,7 +5,10 @@ namespace Shopware\Storefront\Controller\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
-#[Package('framework')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('discovery')]
 class StorefrontRouteNotFoundException extends RouteNotFoundException
 {
     public function __construct(string $route, ?\Throwable $previous = null)

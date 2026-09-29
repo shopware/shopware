@@ -46,7 +46,14 @@ export default class FormCmsHandler extends Plugin {
     }
 
     _registerEvents() {
-        this.el.addEventListener('submit', this._handleSubmit.bind(this));
+        this._onSubmit = this._handleSubmit.bind(this);
+        this.el.addEventListener('submit', this._onSubmit);
+    }
+
+    destroy() {
+        if (this._onSubmit) {
+            this.el.removeEventListener('submit', this._onSubmit);
+        }
     }
 
     _getConfirmationText() {

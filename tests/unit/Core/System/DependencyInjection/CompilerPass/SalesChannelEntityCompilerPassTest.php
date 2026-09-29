@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SalesChannelEntityCompilerPass::class)]
 class SalesChannelEntityCompilerPassTest extends TestCase
 {
@@ -41,7 +43,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $container->compile();
 
         $definition = $container->get(ProductDefinition::class);
-        $definition->compile(new StaticDefinitionInstanceRegistry([], $this->createMock(ValidatorInterface::class), $this->createMock(EntityWriteGateway::class)));
+        $definition->compile(new StaticDefinitionInstanceRegistry([], static::createStub(ValidatorInterface::class), static::createStub(EntityWriteGateway::class)));
 
         static::assertTrue($definition->getFields()->has('test'));
         static::assertInstanceOf(StringField::class, $definition->getFields()->get('test'));
@@ -65,7 +67,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $container->compile();
 
         $definition = $container->get(ProductDefinition::class);
-        $definition->compile(new StaticDefinitionInstanceRegistry([], $this->createMock(ValidatorInterface::class), $this->createMock(EntityWriteGateway::class)));
+        $definition->compile(new StaticDefinitionInstanceRegistry([], static::createStub(ValidatorInterface::class), static::createStub(EntityWriteGateway::class)));
 
         static::assertTrue($definition->getFields()->has('test'));
         static::assertInstanceOf(StringField::class, $definition->getFields()->get('test'));
@@ -101,7 +103,7 @@ class SalesChannelEntityCompilerPassTest extends TestCase
         $definition = $container->get('test_attribute_entity.definition');
         static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
 
-        $definition->compile(new StaticDefinitionInstanceRegistry([], $this->createMock(ValidatorInterface::class), $this->createMock(EntityWriteGateway::class)));
+        $definition->compile(new StaticDefinitionInstanceRegistry([], static::createStub(ValidatorInterface::class), static::createStub(EntityWriteGateway::class)));
 
         static::assertTrue($definition->getFields()->has('product'));
         static::assertInstanceOf(ManyToOneAssociationField::class, $definition->getFields()->get('product'));

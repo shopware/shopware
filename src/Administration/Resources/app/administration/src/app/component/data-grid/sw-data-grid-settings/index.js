@@ -11,9 +11,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('translate-with-fallback'),
-    ],
+    mixins: [Mixin.getByName('translate-with-fallback')],
 
     emits: [
         'change-compact-mode',

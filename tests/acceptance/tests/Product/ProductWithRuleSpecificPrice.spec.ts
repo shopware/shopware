@@ -3,7 +3,12 @@ import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 test(
     'Customer gets a special product price depending on rules.',
     {
-        tag: ['@Product', '@Prices', '@Rules', '@Storefront'],
+        tag: [
+            '@Product',
+            '@Prices',
+            '@Rules',
+            '@Storefront',
+        ],
     },
     async ({
         ShopCustomer,
@@ -42,5 +47,5 @@ test(
         await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(formatPrice(10.0));
         await ShopCustomer.attemptsTo(AddProductToCart(product));
         await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(formatPrice(8.99));
-    }
+    },
 );

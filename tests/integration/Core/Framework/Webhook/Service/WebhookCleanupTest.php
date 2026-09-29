@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,6 +18,7 @@ use Symfony\Component\Clock\MockClock;
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookCleanupTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -194,7 +196,7 @@ class WebhookCleanupTest extends TestCase
             'delivery_status' => $status,
             'event_name' => $name,
             'webhook_name' => $name,
-            'url' => 'http://localhost',
+            'url' => 'http://127.0.0.1',
             'request_content' => '{}',
             'response_content' => '{}',
             'response_status_code' => 200,

@@ -1,0 +1,8 @@
+{% set groups = hook.cookieGroups %}
+
+{% do groups.remove('cookie.groupStatistical') %}
+
+{% set appGroup = groups.get('swag.cookies.group') %}
+{% if appGroup is not null and appGroup.entries is not null %}
+    {% do appGroup.entries.remove('swag-app-conditional') %}
+{% endif %}

@@ -14,6 +14,7 @@
         {% block sw_settings_listing_default_sales_channel_select %}
         <sw-entity-multi-id-select
             v-model:value="configData[null]['core.defaultSalesChannel.salesChannel']"
+            class="sw-settings-listing-default-sales-channel__select"
             :repository="salesChannelRepository"
             :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
             :placeholder="$t('sw-product.visibility.placeholderVisibility')"

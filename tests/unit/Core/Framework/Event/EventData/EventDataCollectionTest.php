@@ -8,10 +8,12 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EventDataCollection::class)]
 class EventDataCollectionTest extends TestCase
 {
@@ -34,5 +36,25 @@ class EventDataCollectionTest extends TestCase
         ];
 
         static::assertSame($expected, $collection->toArray());
+    }
+
+    public function testOptionsAreMergedIntoTheDeclaredType(): void
+    {
+        $collection = (new EventDataCollection())
+            ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true])
+            ->add('customer', new EntityType(CustomerDefinition::class), [EventDataCollection::HIDDEN_FROM_WEBHOOK => true]);
+
+        static::assertSame([
+            'contextToken' => [
+                'type' => 'string',
+                'hiddenFromWebhook' => true,
+            ],
+            'customer' => [
+                'type' => 'entity',
+                'entityClass' => CustomerDefinition::class,
+                'entityName' => 'customer',
+                'hiddenFromWebhook' => true,
+            ],
+        ], $collection->toArray());
     }
 }

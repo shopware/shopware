@@ -24,6 +24,9 @@ async function createWrapper() {
                     'sw-product-media-form': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                    'mt-floating-ui': {
+                        template: '<div><slot /></div>',
+                    },
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
@@ -107,6 +110,6 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
 
         const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
         expect(buttons).toHaveLength(1);
-        expect(buttons.at(0).text()).toContain('Remove');
+        expect(buttons.at(0).text()).toContain('global.default.remove');
     });
 });

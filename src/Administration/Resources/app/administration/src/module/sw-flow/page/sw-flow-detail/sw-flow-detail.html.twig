@@ -42,27 +42,40 @@
 
         <sw-card-view :class="{'sw-flow-detail__template': isTemplate }">
             {% block sw_flow_tabs_header %}
-            <sw-tabs position-identifier="sw-flow-detail">
-                {% block sw_flow_tabs_header_general %}
-                <sw-tabs-item
-                    class="sw-flow-detail__tab-general"
-                    :route="routeDetailTab('general')"
-                >
-                    {{ $t('sw-flow.page.tabGeneral') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                {% block sw_flow_tabs_header_mt_tabs %}
+                <mt-tabs
+                    position-identifier="sw-flow-detail"
+                    :default-item="$route.name"
+                    :items="flowDetailTabs"
+                    :small="true"
+                />
                 {% endblock %}
+            </template>
 
-                {% block sw_flow_tabs_header_builder %}
-                <sw-tabs-item
-                    class="sw-flow-detail__tab-flow"
-                    :route="routeDetailTab('flow')"
-                >
-                    {{ $t('sw-flow.page.tabFlow') }}
-                </sw-tabs-item>
-                {% endblock %}
+            <template v-else>
+                <sw-tabs position-identifier="sw-flow-detail">
+                    {% block sw_flow_tabs_header_general %}
+                    <sw-tabs-item
+                        class="sw-flow-detail__tab-general"
+                        :route="routeDetailTab('general')"
+                    >
+                        {{ $t('sw-flow.page.tabGeneral') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_flow_tabs_header_extension %}{% endblock %}
-            </sw-tabs>
+                    {% block sw_flow_tabs_header_builder %}
+                    <sw-tabs-item
+                        class="sw-flow-detail__tab-flow"
+                        :route="routeDetailTab('flow')"
+                    >
+                        {{ $t('sw-flow.page.tabFlow') }}
+                    </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_flow_tabs_header_extension %}{% endblock %}
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             <mt-banner

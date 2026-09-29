@@ -1,9 +1,6 @@
 import template from './sw-condition-goods-count.html.twig';
 import './sw-condition-goods-count.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -37,15 +34,6 @@ export default {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, count };
             },
-        },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.count',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueCountError;
         },
     },
 };

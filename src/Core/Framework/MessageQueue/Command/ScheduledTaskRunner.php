@@ -15,11 +15,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'scheduled-task:run',
     description: 'Runs scheduled tasks',
 )]
-#[Package('framework')]
 class ScheduledTaskRunner extends Command
 {
     private bool $shouldStop = false;

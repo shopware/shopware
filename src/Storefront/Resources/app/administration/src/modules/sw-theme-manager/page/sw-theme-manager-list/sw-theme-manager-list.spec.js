@@ -22,11 +22,13 @@ describe('sw-theme-manager-list', () => {
 
     async function createWrapper({ aclCan = true, searchResult = null } = {}) {
         const component = await Shopware.Component.build('sw-theme-manager-list');
-        const themes = searchResult || (() => {
-            const result = [{ id: 'theme-id', salesChannels: [] }];
-            result.total = 1;
-            return result;
-        })();
+        const themes =
+            searchResult ||
+            (() => {
+                const result = [{ id: 'theme-id', salesChannels: [] }];
+                result.total = 1;
+                return result;
+            })();
 
         const themeRepository = {
             search: jest.fn(() => Promise.resolve(themes)),

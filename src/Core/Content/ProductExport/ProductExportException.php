@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -70,8 +71,13 @@ class ProductExportException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_NOT_ALLOWED_EXCEPTION,
-            'Only sales channels from type "Storefront" can be used for exports.'
+            'Only sales channels from type "Storefront" or "Headless" can be used for exports.'
         );
+    }
+
+    public static function salesChannelNotFound(): ShopwareHttpException
+    {
+        return new SalesChannelNotFoundException();
     }
 
     public static function salesChannelDomainNotFound(string $productExportId): self

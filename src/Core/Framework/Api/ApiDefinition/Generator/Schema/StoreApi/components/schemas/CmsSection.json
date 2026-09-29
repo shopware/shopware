@@ -1,24 +1,120 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
             "CmsSection": {
-                "type": "object",
+                "description": "Added since version: 6.0.0.0",
+                "required": [
+                    "apiAlias",
+                    "blocks",
+                    "id",
+                    "position",
+                    "type",
+                    "pageId"
+                ],
                 "properties": {
-                    "apiAlias": {
+                    "id": {
                         "type": "string",
-                        "enum": ["cms_section"]
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "cmsPageVersionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "position": {
+                        "description": "Position of occurrence of each section denoted by numerical values 0, 1, 2...",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "type": {
+                        "description": "Types of sections can be `default` or `sidebar`.",
+                        "type": "string",
+                        "enum": [
+                            "default",
+                            "sidebar"
+                        ]
+                    },
+                    "name": {
+                        "description": "Name of the CMS section defined.",
+                        "type": "string"
+                    },
+                    "sizingMode": {
+                        "description": "Sizing mode can be `boxed` or `full_width`.",
+                        "type": "string"
+                    },
+                    "mobileBehavior": {
+                        "description": "Hides the sidebar on mobile viewports. It can hold values such as 'mobile', 'wrap', any other string or be unset.",
+                        "type": "string"
+                    },
+                    "backgroundColor": {
+                        "description": "Background color of CMS page.",
+                        "type": "string"
+                    },
+                    "backgroundMediaId": {
+                        "description": "Unique identity of CMS section's background media.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "backgroundMediaMode": {
+                        "description": "Background media mode can be `cover`, `auto` or `contain`.",
+                        "type": "string"
+                    },
+                    "cssClass": {
+                        "description": "One or more CSS classes added and separated by spaces.",
+                        "type": "string"
+                    },
+                    "pageId": {
+                        "description": "Unique identity of page where CMS section is defined.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "visibility": {
+                        "properties": {
+                            "mobile": {
+                                "type": "boolean"
+                            },
+                            "desktop": {
+                                "type": "boolean"
+                            },
+                            "tablet": {
+                                "type": "boolean"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "page": {
+                        "$ref": "#/components/schemas/CmsPage"
+                    },
+                    "backgroundMedia": {
+                        "$ref": "#/components/schemas/Media"
                     },
                     "blocks": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/CmsBlock"
                         }
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "cms_section"
                     }
                 },
-                "required": ["apiAlias", "blocks"]
+                "type": "object"
             }
         }
     }

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontPluginConfiguration extends Struct
 {
     /**

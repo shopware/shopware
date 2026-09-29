@@ -24,6 +24,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -80,6 +81,13 @@ abstract class Bundle extends SymfonyBundle
         $confDir = $this->getPath() . '/Resources/config';
 
         if (\is_dir($confDir)) {
+            // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
+            foreach ([...$this->getXmlFilesRecursive($confDir . '/routes'), $confDir . '/routes.xml', $confDir . '/routes_' . $environment . '.xml'] as $path) {
+                if (is_file($path)) {
+                    $this->triggerXmlConfigDeprecation($path, \sprintf('Migrate the route definitions to PHP format (%s).', basename($path, '.xml') . '.php'));
+                }
+            }
+
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
@@ -101,6 +109,11 @@ abstract class Bundle extends SymfonyBundle
         $confDir = $this->getPath() . '/Resources/config';
 
         if ($fileSystem->exists($confDir)) {
+            // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
+            if (is_file($confDir . '/routes_overwrite.xml')) {
+                $this->triggerXmlConfigDeprecation($confDir . '/routes_overwrite.xml', 'Migrate the route definitions to PHP format (routes_overwrite.php).');
+            }
+
             $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, 'glob');
         }
     }
@@ -147,6 +160,7 @@ abstract class Bundle extends SymfonyBundle
         $locator = new FileLocator('Resources/config');
 
         $resolver = new LoaderResolver([
+            // @deprecated tag:v6.8.0 - XML configuration is deprecated, remove the XmlFileLoader together with the deprecation
             new XmlFileLoader($container, $locator),
             new YamlFileLoader($container, $locator),
             new IniFileLoader($container, $locator),
@@ -160,16 +174,17 @@ abstract class Bundle extends SymfonyBundle
 
         $confDir = $this->getPath() . '/Resources/config';
 
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML package configuration is no longer loaded
+        foreach ($this->getXmlFilesRecursive($confDir . '/packages') as $path) {
+            $this->triggerXmlConfigDeprecation($path, 'Migrate the package configuration to YAML or PHP format.');
+        }
+
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
 
         $env = $container->getParameter('kernel.environment');
         \assert(\is_string($env));
 
         $configLoader->load($confDir . '/{packages}/' . $env . '/*' . Kernel::CONFIG_EXTS, 'glob');
-
-        if ($env === 'e2e') {
-            $configLoader->load($confDir . '/{packages}/prod/*' . Kernel::CONFIG_EXTS, 'glob');
-        }
     }
 
     private function registerFilesystem(ContainerBuilder $container, string $key): void
@@ -213,6 +228,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $fileLocator = new FileLocator($this->getPath());
         $loaderResolver = new LoaderResolver([
+            // @deprecated tag:v6.8.0 - XML service definitions are deprecated, remove the XmlFileLoader together with the deprecation
             new XmlFileLoader($container, $fileLocator),
             new YamlFileLoader($container, $fileLocator),
             new PhpFileLoader($container, $fileLocator),
@@ -220,14 +236,53 @@ abstract class Bundle extends SymfonyBundle
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 
         foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services.*') as $path) {
+            // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
+            $this->triggerXmlConfigDeprecation($path, 'Migrate the service definitions to PHP format (services.php).');
             $delegatingLoader->load($path);
         }
 
         if ($container->getParameter('kernel.environment') === 'test') {
             foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services_test.*') as $testPath) {
+                // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
+                $this->triggerXmlConfigDeprecation($testPath, 'Migrate the service definitions to PHP format (services_test.php).');
                 $delegatingLoader->load($testPath);
             }
         }
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+    private function triggerXmlConfigDeprecation(string $path, string $migrationHint): void
+    {
+        if (!str_ends_with($path, '.xml')) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf(
+                'The XML configuration file "%s" in bundle "%s" is deprecated and will not be loaded in v6.8.0.0. %s',
+                $path,
+                $this->getName(),
+                $migrationHint,
+            ),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getXmlFilesRecursive(string $dir): array
+    {
+        if (!is_dir($dir)) {
+            return [];
+        }
+
+        $files = [];
+        foreach ((new Finder())->files()->in($dir)->name('*.xml')->sortByName() as $file) {
+            $files[] = $file->getPathname();
+        }
+
+        return $files;
     }
 
     /**

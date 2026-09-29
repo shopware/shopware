@@ -24,9 +24,9 @@ class QueryBuilder extends DBALQueryBuilder
     private array $selectParts = [];
 
     /**
-     * @var array<string>
+     * @var list<array{string, string}>
      */
-    private array $oderByParts = [];
+    private array $orderBy = [];
 
     private ?string $title = null;
 
@@ -97,7 +97,7 @@ class QueryBuilder extends DBALQueryBuilder
         $sql = $query->getUnmodifiedSQL();
 
         if ($this->title) {
-            $sql = '-- ' . $this->title . \PHP_EOL . $sql;
+            $sql = '-- ' . self::sanitizeSqlComment($this->title) . \PHP_EOL . $sql;
         }
 
         return $sql;
@@ -128,7 +128,7 @@ class QueryBuilder extends DBALQueryBuilder
      */
     public function orderBy(string $sort, ?string $order = null): self
     {
-        $this->oderByParts = [$sort . ' ' . ($order ?? 'ASC')];
+        $this->orderBy = [[$sort, $order ?? 'ASC']];
 
         return parent::orderBy($sort, $order);
     }
@@ -138,7 +138,7 @@ class QueryBuilder extends DBALQueryBuilder
      */
     public function addOrderBy(string $sort, ?string $order = null): self
     {
-        $this->oderByParts[] = $sort . ' ' . ($order ?? 'ASC');
+        $this->orderBy[] = [$sort, $order ?? 'ASC'];
 
         return parent::addOrderBy($sort, $order);
     }
@@ -164,7 +164,28 @@ class QueryBuilder extends DBALQueryBuilder
      */
     public function getOrderByParts(): array
     {
-        return $this->oderByParts;
+        return array_map(static fn (array $part) => $part[0] . ' ' . $part[1], $this->orderBy);
+    }
+
+    /**
+     * @internal
+     *
+     * @return list<array{string, string}> the expression and the direction of every order by clause
+     */
+    public function getOrderByPairs(): array
+    {
+        return $this->orderBy;
+    }
+
+    /**
+     * SQL has no built-in escaping for comments. Line breaks terminate a `--` comment, and other control characters
+     * can be interpreted differently by SQL parsers. Replacing Unicode control characters prevents titles from
+     * changing the query grammar.
+     */
+    private static function sanitizeSqlComment(string $comment): string
+    {
+        // https://www.php.net/manual/en/regexp.reference.unicode.php
+        return preg_replace('/\p{Cc}/u', ' ', $comment) ?? '';
     }
 
     /**

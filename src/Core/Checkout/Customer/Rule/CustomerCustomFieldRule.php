@@ -47,7 +47,7 @@ class CustomerCustomFieldRule extends Rule
             return false;
         }
 
-        $customer = $scope->getSalesChannelContext()->getCustomer();
+        $customer = $scope->getCustomer();
 
         if ($customer === null) {
             return false;

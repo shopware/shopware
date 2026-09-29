@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemUpdateFinishCommand::class)]
 class SystemUpdateFinishCommandTest extends TestCase
 {
@@ -40,7 +42,7 @@ class SystemUpdateFinishCommandTest extends TestCase
         $application
             ->expects($this->exactly(3))
             ->method('find')
-            ->willReturn($this->createMock(Command::class));
+            ->willReturn(static::createStub(Command::class));
 
         $application->method('doRun')->willReturn(Command::SUCCESS);
 
@@ -73,7 +75,7 @@ class SystemUpdateFinishCommandTest extends TestCase
         $command = new SystemUpdateFinishCommand($this->eventDispatcher, $this->systemConfigService, '6.5.0.0');
 
         $application = $this->createMock(Application::class);
-        $migrationCommand = $this->createMock(Command::class);
+        $migrationCommand = static::createStub(Command::class);
         $migrationCommand->method('run')->willReturn(Command::SUCCESS);
 
         $application

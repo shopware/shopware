@@ -22,7 +22,7 @@ class PromotionLineItemFactory implements LineItemFactoryInterface
      */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
-        $code = $data['referencedId'];
+        $code = mb_trim($data['referencedId']);
         $uniqueKey = 'promotion-' . $code;
 
         $item = new LineItem(Uuid::fromStringToHex($uniqueKey), LineItem::PROMOTION_LINE_ITEM_TYPE);

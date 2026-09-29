@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(CheckoutGateway::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGateway::class)]
 class CheckoutGatewayTest extends TestCase
 {
     public function testParse(): void

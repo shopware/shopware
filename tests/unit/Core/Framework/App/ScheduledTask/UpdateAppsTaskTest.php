@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ScheduledTask;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ScheduledTask\UpdateAppsTask;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UpdateAppsTask::class)]
 class UpdateAppsTaskTest extends TestCase
 {

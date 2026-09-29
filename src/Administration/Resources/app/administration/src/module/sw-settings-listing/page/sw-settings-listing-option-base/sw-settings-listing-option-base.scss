@@ -4,4 +4,8 @@
     .sw-page__main-content-inner {
         padding-top: 50px;
     }
+
+    &__locked-info {
+        max-width: $content-width;
+    }
 }

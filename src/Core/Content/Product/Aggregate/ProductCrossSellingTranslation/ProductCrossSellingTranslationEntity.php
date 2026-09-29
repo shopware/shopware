@@ -6,6 +6,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductCrossSellingTranslationEntity extends TranslationEntity
 {

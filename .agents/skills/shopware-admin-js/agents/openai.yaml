@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shopware Admin JS"
+  short_description: "Apply Shopware Administration JS/TS/Vue rules."
+  default_prompt: "Implement this Shopware Administration change."

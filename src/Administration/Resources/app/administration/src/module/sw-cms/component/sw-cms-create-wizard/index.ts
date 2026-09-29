@@ -10,16 +10,9 @@ const { Filter } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-        'cmsPageTypeService',
-        'customEntityDefinitionService',
-    ],
+    inject: ['feature', 'cmsPageTypeService', 'customEntityDefinitionService'],
 
-    emits: [
-        'on-section-select',
-        'wizard-complete',
-    ],
+    emits: ['on-section-select', 'wizard-complete'],
 
     props: {
         page: {
@@ -52,6 +45,25 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsPageTypeService.getVisibleTypes();
         },
 
+        pageTypeSelectionStyle() {
+            const count = this.visiblePageTypes.length;
+
+            if (count === 0) {
+                return {};
+            }
+
+            const maxPerRow = 5;
+            const tileWidth = 140;
+            const gap = 20;
+
+            const rows = Math.ceil(count / maxPerRow);
+            const columns = Math.ceil(count / rows);
+
+            return {
+                'max-width': `${columns * (tileWidth + gap) - gap}px`,
+            };
+        },
+
         currentPageType() {
             return this.cmsPageTypeService.getType(this.page.type);
         },
@@ -61,10 +73,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isCompletable() {
-            return [
-                this.page.name,
-                !this.isCustomEntityType || this.page.entity,
-            ].every((condition) => condition);
+            return [this.page.name, !this.isCustomEntityType || this.page.entity].every((condition) => condition);
         },
 
         customEntities() {

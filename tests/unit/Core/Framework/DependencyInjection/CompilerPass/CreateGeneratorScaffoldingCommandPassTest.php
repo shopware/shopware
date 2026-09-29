@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\CreateGeneratorScaffoldingCommandPass;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
@@ -18,6 +19,7 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateGeneratorScaffoldingCommandPass::class)]
 class CreateGeneratorScaffoldingCommandPassTest extends TestCase
 {

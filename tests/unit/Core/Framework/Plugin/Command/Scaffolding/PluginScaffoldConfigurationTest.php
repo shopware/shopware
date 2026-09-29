@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Stub::class)]
 class PluginScaffoldConfigurationTest extends TestCase
 {

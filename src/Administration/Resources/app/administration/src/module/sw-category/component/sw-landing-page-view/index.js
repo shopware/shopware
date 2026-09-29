@@ -9,11 +9,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         isLoading: {
@@ -30,6 +28,26 @@ export default {
 
         cmsPage() {
             return Shopware.Store.get('cmsPage').currentPage;
+        },
+
+        landingPageViewTabs() {
+            const createRouteTab = (label, routeName, additionalProperties = {}) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                    ...additionalProperties,
+                };
+            };
+
+            return [
+                createRouteTab('sw-landing-page.view.general', 'sw.category.landingPageDetail.base'),
+                createRouteTab('sw-landing-page.view.cms', 'sw.category.landingPageDetail.cms', {
+                    disabled: !this.acl.can('landing_page.editor'),
+                }),
+            ];
         },
     },
 };

@@ -16,10 +16,7 @@ export default {
 
     inject: ['acl', 'feature'],
 
-    mixins: [
-        Mixin.getByName('theme'),
-        Mixin.getByName('notification')
-    ],
+    mixins: [Mixin.getByName('theme'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -40,7 +37,7 @@ export default {
             isSaveSuccessful: false,
             mappedFields: {
                 color: 'colorpicker',
-                fontFamily: 'text'
+                fontFamily: 'text',
             },
             defaultTheme: null,
             themeCompatibleSalesChannels: [],
@@ -50,13 +47,14 @@ export default {
             removedSalesChannels: [],
             showMediaModal: false,
             activeMediaField: null,
+            activeTab: 'default',
             themeConfigErrors: {},
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.themeName)
+            title: this.$createTitle(this.themeName),
         };
     },
 
@@ -104,12 +102,12 @@ export default {
             if (this.theme && this.theme.previewMedia && this.theme.previewMedia.id && this.theme.previewMedia.url) {
                 return {
                     'background-image': `url('${this.theme.previewMedia.url}')`,
-                    'background-size': 'cover'
+                    'background-size': 'cover',
                 };
             }
 
             return {
-                'background-image': this.defaultThemeAsset
+                'background-image': this.defaultThemeAsset,
             };
         },
 
@@ -124,7 +122,7 @@ export default {
             return {
                 showDelay: 300,
                 message: this.$t('sw-theme-manager.actions.deleteDisabledToolTip'),
-                disabled: this.theme.salesChannels.length === 0
+                disabled: this.theme.salesChannels.length === 0,
             };
         },
 
@@ -167,7 +165,7 @@ export default {
                 name,
                 label: this.getTabLabel(tab.labelSnippetKey, tab.label) || name,
             }));
-        }
+        },
     },
 
     created() {
@@ -177,7 +175,7 @@ export default {
     watch: {
         themeId() {
             this.getTheme();
-        }
+        },
     },
 
     methods: {
@@ -188,8 +186,8 @@ export default {
 
         cssValue(value) {
             // Be careful what to filter here because many characters are allowed
-            if (!value) return ''
-            value = value.toString()
+            if (!value) return '';
+            value = value.toString();
             return value.replace(/`|´/g, '');
         },
 
@@ -241,11 +239,14 @@ export default {
                 this.structuredThemeFields = fields;
 
                 const configInheritance = fields.configInheritance || [];
-                this.inheritedSnippetPrefixes = configInheritance.reverse().reduce((accumulator, name) => {
-                    accumulator.push(name.replace('@', ''));
+                this.inheritedSnippetPrefixes = configInheritance.reverse().reduce(
+                    (accumulator, name) => {
+                        accumulator.push(name.replace('@', ''));
 
-                    return accumulator;
-                }, [fields.themeTechnicalName]);
+                        return accumulator;
+                    },
+                    [fields.themeTechnicalName],
+                );
             });
 
             this.themeService.getConfiguration(this.themeId).then((config) => {
@@ -301,12 +302,10 @@ export default {
         },
 
         successfulUpload(mediaItem, context) {
-            this.mediaRepository
-                .get(mediaItem.targetId)
-                .then((media) => {
-                    this.setMediaItem(media, context);
-                    return true;
-                });
+            this.mediaRepository.get(mediaItem.targetId).then((media) => {
+                this.setMediaItem(media, context);
+                return true;
+            });
         },
 
         removeMediaItem(field, updateCurrentValue, isInherited, removeInheritance) {
@@ -401,38 +400,43 @@ export default {
             const allValues = this.getCurrentChangeset();
             this.removeInheritedFromChangeset(allValues);
 
-            return this.themeService.validateFields(deepMergeObject(this.themeConfig, allValues)).then(() => {
-                this.isLoading = false;
-                this.createNotificationSuccess({
-                    title: this.$t('sw-theme-manager.detail.validate.success'),
-                    message: this.$t('sw-theme-manager.detail.validate.successMessage'),
-                    autoClose: true,
-                });
-            }).catch((error) => {
-                this.isLoading = false;
-
-                const errorObject = error.response.data.errors[0];
-                if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
-                    this.createNotificationError({
-                        title: this.$t('sw-theme-manager.detail.validate.failed'),
-                        message: this.$t('sw-theme-manager.detail.validate.failedMessage'),
-                        autoClose: false,
-                        actions: [{
-                            label: this.$t('sw-theme-manager.detail.showFullError'),
-                            method: function showFullError() {
-                                this.errorModalMessage = errorObject.detail;
-                            }.bind(this),
-                        }],
+            return this.themeService
+                .validateFields(deepMergeObject(this.themeConfig, allValues))
+                .then(() => {
+                    this.isLoading = false;
+                    this.createNotificationSuccess({
+                        title: this.$t('sw-theme-manager.detail.validate.success'),
+                        message: this.$t('sw-theme-manager.detail.validate.successMessage'),
+                        autoClose: true,
                     });
+                })
+                .catch((error) => {
+                    this.isLoading = false;
 
-                    return;
-                }
+                    const errorObject = error.response.data.errors[0];
+                    if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                        this.createNotificationError({
+                            title: this.$t('sw-theme-manager.detail.validate.failed'),
+                            message: this.$t('sw-theme-manager.detail.validate.failedMessage'),
+                            autoClose: false,
+                            actions: [
+                                {
+                                    label: this.$t('sw-theme-manager.detail.showFullError'),
+                                    method: function showFullError() {
+                                        this.errorModalMessage = errorObject.detail;
+                                    }.bind(this),
+                                },
+                            ],
+                        });
 
-                this.createNotificationError({
-                    message: errorObject.detail ?? error.toString(),
-                    autoClose: true,
+                        return;
+                    }
+
+                    this.createNotificationError({
+                        message: errorObject.detail ?? error.toString(),
+                        autoClose: true,
+                    });
                 });
-            });
         },
 
         onSaveTheme(clean = false) {
@@ -444,59 +448,64 @@ export default {
             this.isLoading = true;
 
             // Sequential to ensure config is persisted and avoid race condition
-            return this.saveThemeConfig(clean).then(() => {
-                return this.saveSalesChannels();
-            }).then(() => {
-                this.getTheme();
-                this.themeConfigErrors = {};
-            }).catch((error) => {
+            return this.saveThemeConfig(clean)
+                .then(() => {
+                    return this.saveSalesChannels();
+                })
+                .then(() => {
+                    this.getTheme();
+                    this.themeConfigErrors = {};
+                })
+                .catch((error) => {
+                    const errorObject = error.response.data.errors[0];
+                    if (errorObject.code === 'THEME__COMPILING_ERROR') {
+                        this.createNotificationError({
+                            title: this.$t('sw-theme-manager.detail.error.themeCompile.title'),
+                            message: this.$t('sw-theme-manager.detail.error.themeCompile.message'),
+                            autoClose: false,
+                            actions: [
+                                {
+                                    label: this.$t('sw-theme-manager.detail.showFullError'),
+                                    method: function showFullError() {
+                                        this.errorModalMessage = errorObject.detail;
+                                    }.bind(this),
+                                },
+                            ],
+                        });
 
-                const errorObject = error.response.data.errors[0];
-                if (errorObject.code === 'THEME__COMPILING_ERROR') {
+                        return;
+                    }
+
+                    if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
+                        this.createNotificationError({
+                            title: this.$t('sw-theme-manager.detail.error.invalidConfiguration.title'),
+                            message: this.$t('sw-theme-manager.detail.error.invalidConfiguration.message'),
+                            autoClose: true,
+                        });
+
+                        error.response.data.errors.forEach((error) => {
+                            const fieldName = error.meta.parameters.name;
+
+                            // Compatibility for issue within mt-field-error.vue
+                            // See GitHub issue: https://github.com/shopware/meteor/issues/906
+                            error.parameters = error.meta.parameters;
+
+                            if (fieldName) {
+                                this.themeConfigErrors[fieldName] = error;
+                            }
+                        });
+
+                        return;
+                    }
+
                     this.createNotificationError({
-                        title: this.$t('sw-theme-manager.detail.error.themeCompile.title'),
-                        message: this.$t('sw-theme-manager.detail.error.themeCompile.message'),
-                        autoClose: false,
-                        actions: [{
-                            label: this.$t('sw-theme-manager.detail.showFullError'),
-                            method: function showFullError() {
-                                this.errorModalMessage = errorObject.detail;
-                            }.bind(this),
-                        }],
-                    });
-
-                    return;
-                }
-
-                if (errorObject.code === 'THEME__INVALID_SCSS_VAR') {
-                    this.createNotificationError({
-                        title: this.$t('sw-theme-manager.detail.error.invalidConfiguration.title'),
-                        message: this.$t('sw-theme-manager.detail.error.invalidConfiguration.message'),
+                        message: errorObject.detail ?? error.toString(),
                         autoClose: true,
                     });
-
-                    error.response.data.errors.forEach((error) => {
-                        const fieldName = error.meta.parameters.name;
-
-                        // Compatibility for issue within mt-field-error.vue
-                        // See GitHub issue: https://github.com/shopware/meteor/issues/906
-                        error.parameters = error.meta.parameters;
-
-                        if (fieldName) {
-                            this.themeConfigErrors[fieldName] = error;
-                        }
-                    });
-
-                    return;
-                }
-
-                this.createNotificationError({
-                    message: errorObject.detail ?? error.toString(),
-                    autoClose: true,
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         saveSalesChannels() {
@@ -542,7 +551,7 @@ export default {
                     this.overwrittenSalesChannelAssignments.push({
                         id: salesChannel.id,
                         salesChannelName: this.theme.salesChannels.get(salesChannel.id).translated.name,
-                        oldThemeName: overwrittenSalesChannel.extensions.themes[0].name
+                        oldThemeName: overwrittenSalesChannel.extensions.themes[0].name,
                     });
                 }
             });
@@ -552,7 +561,7 @@ export default {
             salesChannels.forEach((salesChannel) => {
                 this.removedSalesChannels.push({
                     id: salesChannel.key,
-                    name: this.theme.getOrigin().salesChannels.get(salesChannel.key).translated.name
+                    name: this.theme.getOrigin().salesChannels.get(salesChannel.key).translated.name,
                 });
             });
         },
@@ -570,9 +579,9 @@ export default {
             const filtered = {};
             for (const [key, value] of Object.entries(allValues)) {
                 if (
-                    this.themeConfig[key] === undefined
-                    || this.themeConfig[key].type === undefined
-                    || this.themeConfig[key].type === null
+                    this.themeConfig[key] === undefined ||
+                    this.themeConfig[key].type === undefined ||
+                    this.themeConfig[key].type === null
                 ) {
                     continue;
                 }
@@ -584,28 +593,27 @@ export default {
 
         removeInheritedFromChangeset(allValues) {
             for (const key of Object.keys(allValues)) {
-                if (
-                    this.wrapperIsVisible(key)
-                    && this.$refs[`wrapper-${key}`][0].isInherited
-                ) {
+                if (this.wrapperIsVisible(key) && this.$refs[`wrapper-${key}`][0].isInherited) {
                     // Remove fields which are set to inheritance
-                    delete (allValues[`${key}`]);
+                    delete allValues[`${key}`];
                     continue;
                 }
                 if (
-                    !this.wrapperIsVisible(key)
-                    && this.inheritanceChanged[`wrapper-${key}`] !== undefined
-                    && this.inheritanceChanged[`wrapper-${key}`] === true
+                    !this.wrapperIsVisible(key) &&
+                    this.inheritanceChanged[`wrapper-${key}`] !== undefined &&
+                    this.inheritanceChanged[`wrapper-${key}`] === true
                 ) {
-                    delete (allValues[`${key}`]);
+                    delete allValues[`${key}`];
                 }
             }
         },
 
         wrapperIsVisible(key) {
-            return this.$refs[`wrapper-${key}`] !== undefined
-            && isArray(this.$refs[`wrapper-${key}`])
-            && this.$refs[`wrapper-${key}`][0] !== undefined;
+            return (
+                this.$refs[`wrapper-${key}`] !== undefined &&
+                isArray(this.$refs[`wrapper-${key}`]) &&
+                this.$refs[`wrapper-${key}`][0] !== undefined
+            );
         },
 
         saveThemeConfig(clean = false) {
@@ -628,14 +636,13 @@ export default {
             }
         },
 
-        onChangeTab() {
+        onChangeTab(activeTab = null) {
+            if (typeof activeTab === 'string') {
+                this.activeTab = activeTab;
+            }
+
             for (const [key, item] of Object.entries(this.$refs)) {
-                if (
-                    key.startsWith('wrapper-')
-                    && item !== undefined
-                    && isArray(item)
-                    && item[0] !== undefined
-                ) {
+                if (key.startsWith('wrapper-') && item !== undefined && isArray(item) && item[0] !== undefined) {
                     this.inheritanceChanged[key] = item[0].isInherited;
                 }
             }
@@ -658,9 +665,7 @@ export default {
         getSalesChannelsWithTheme() {
             const criteria = new Criteria();
             criteria.addAssociation('themes');
-            criteria.addFilter(Criteria.not('or', [
-                Criteria.equals('themes.id', null),
-            ]));
+            criteria.addFilter(Criteria.not('or', [Criteria.equals('themes.id', null)]));
 
             return this.salesChannelRepository.search(criteria).then((searchResult) => {
                 return searchResult;
@@ -672,14 +677,18 @@ export default {
             criteria.addAssociation('folder');
             criteria.addFilter(Criteria.equals('entity', this.themeRepository.schema.entity));
 
-            return this.defaultFolderRepository.search(criteria).then((searchResult) => {
-                const defaultFolder = searchResult.first();
-                if (defaultFolder.folder.id) {
-                    return defaultFolder.folder.id;
-                }
+            return this.defaultFolderRepository
+                .search(criteria, {
+                    cacheKey: ['media-default-folder', this.themeRepository.schema.entity],
+                })
+                .then((searchResult) => {
+                    const defaultFolder = searchResult.first();
+                    if (defaultFolder.folder.id) {
+                        return defaultFolder.folder.id;
+                    }
 
-                return null;
-            });
+                    return null;
+                });
         },
 
         getDefaultTheme() {
@@ -687,7 +696,7 @@ export default {
             criteria.addFilter(Criteria.equals('technicalName', 'Storefront'));
 
             return this.themeRepository.search(criteria).then((response) => {
-               return response.first();
+                return response.first();
             });
         },
 
@@ -759,14 +768,18 @@ export default {
                 }
             }
 
-            console.warn(`[DEPRECATED] v6.8.0 - Theme config labels & helpTexts will be removed entirely, use snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`);
+            console.warn(
+                `[DEPRECATED] v6.8.0 - Theme config labels & helpTexts will be removed entirely, use snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`,
+            );
 
             return fallback;
         },
 
         isFieldHandlingLabelAndHelpText(field) {
-            return ['switch', 'checkbox'].includes(field.type) ||
-                    ['sw-switch-field', 'sw-checkbox-field'].includes(field.custom?.componentName);
+            return (
+                ['switch', 'checkbox'].includes(field.type) ||
+                ['sw-switch-field', 'sw-checkbox-field'].includes(field.custom?.componentName)
+            );
         },
 
         /**

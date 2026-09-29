@@ -27,8 +27,8 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @phpstan-type CategoryMetaInformation array{id: string, level: string, path: string}
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class NavigationRoute extends AbstractNavigationRoute
 {
     final public const ALL_TAG = 'navigation';
@@ -213,10 +213,6 @@ class NavigationRoute extends AbstractNavigationRoute
             return false;
         }
 
-        if (mb_strpos($path, '|' . $rootId . '|') !== false) {
-            return true;
-        }
-
-        return false;
+        return mb_strpos($path, '|' . $rootId . '|') !== false;
     }
 }

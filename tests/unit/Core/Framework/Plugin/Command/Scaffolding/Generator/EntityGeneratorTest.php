@@ -5,16 +5,19 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generato
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityGenerator::class)]
 class EntityGeneratorTest extends TestCase
 {
@@ -42,10 +45,10 @@ class EntityGeneratorTest extends TestCase
     ): void {
         $configuration = $this->getConfig();
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturn($getOptionResponse);
 
-        $io = $this->createMock(SymfonyStyle::class);
+        $io = static::createStub(SymfonyStyle::class);
         $io->method('confirm')->willReturn($confirmResponse);
         $io->method('ask')->willReturn($entitiesAnswerInput);
 
@@ -228,6 +231,38 @@ class EntityGeneratorTest extends TestCase
         }
     }
 
+    public function testDoesNotGenerateMigrationWhenEntityMigrationAlreadyExists(): void
+    {
+        $filesystem = new Filesystem();
+        $directory = sys_get_temp_dir() . '/shopware-entity-generator-' . uniqid('', true);
+        $filesystem->dumpFile(
+            $directory . '/src/Migration/Migration123456789CreateTestTable.php',
+            '<?php'
+        );
+
+        try {
+            $stubs = new StubCollection();
+            $timestamp = (new \DateTimeImmutable('1988-01-01 00:00:00'))->getTimestamp();
+
+            (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
+                ->generateStubs(
+                    new PluginScaffoldConfiguration(
+                        'TestPlugin',
+                        'MyNamespace',
+                        $directory,
+                        [EntityGenerator::OPTION_NAME => ['Test']],
+                    ),
+                    $stubs,
+                );
+
+            static::assertCount(4, $stubs);
+            static::assertTrue($stubs->has('src/Core/Content/Test/TestEntity.php'));
+            static::assertFalse($stubs->has('src/Migration/Migration' . $timestamp . 'CreateTestTable.php'));
+        } finally {
+            $filesystem->remove($directory);
+        }
+    }
+
     public static function generateProvider(): \Generator
     {
         $timeStamp = (new \DateTimeImmutable('1988-01-01 00:00:00'))->getTimestamp();
@@ -255,7 +290,7 @@ class EntityGeneratorTest extends TestCase
         yield 'Option with entity, one stub' => [
             'config' => self::getConfig([EntityGenerator::OPTION_NAME => ['Test']]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTestTable.php',
                 'src/Core/Content/Test/TestEntity.php',
                 'src/Core/Content/Test/TestDefinition.php',
@@ -266,7 +301,7 @@ class EntityGeneratorTest extends TestCase
         yield 'Option with entity, multiple stubs' => [
             'config' => self::getConfig([EntityGenerator::OPTION_NAME => ['Test1', 'Test2']]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTest1Table.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTest2Table.php',
                 'src/Core/Content/Test1/Test1Entity.php',

@@ -14,30 +14,18 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'importExport',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'importExport', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         type: {
             type: String,
             required: false,
             default: 'import',
-            validValues: [
-                'import',
-                'export',
-            ],
+            validValues: ['import', 'export'],
             validator(value) {
-                return [
-                    'import',
-                    'export',
-                ].includes(value);
+                return ['import', 'export'].includes(value);
             },
         },
     },
@@ -84,10 +72,7 @@ export default {
 
             if (this.type === 'import') {
                 criteria.addFilter(
-                    Criteria.multi('OR', [
-                        Criteria.equals('activity', 'import'),
-                        Criteria.equals('activity', 'dryrun'),
-                    ]),
+                    Criteria.multi('OR', [Criteria.equals('activity', 'import'), Criteria.equals('activity', 'dryrun')]),
                 );
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));

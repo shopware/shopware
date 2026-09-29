@@ -15,7 +15,6 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionC
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -69,8 +68,6 @@ class ScriptRuleTest extends TestCase
      */
     private EntityRepository $appRepository;
 
-    private AppStateService $appStateService;
-
     private AbstractAppLifecycle $appLifecycle;
 
     private Context $context;
@@ -84,7 +81,6 @@ class ScriptRuleTest extends TestCase
         $this->ruleRepository = static::getContainer()->get('rule.repository');
         $this->conditionRepository = static::getContainer()->get('rule_condition.repository');
         $this->appRepository = static::getContainer()->get('app.repository');
-        $this->appStateService = static::getContainer()->get(AppStateService::class);
         $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $this->context = Context::createDefaultContext();
     }
@@ -123,7 +119,7 @@ class ScriptRuleTest extends TestCase
 
     public function testRuleScriptIsCached(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $rule = new ScriptRule();
         $container = new Container(new ParameterBag([
@@ -162,7 +158,7 @@ class ScriptRuleTest extends TestCase
         $conditionId = Uuid::randomHex();
         $expectedTrueScope = $this->getCheckoutScope($ruleId, $conditionId);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setGroupId(Uuid::randomHex());
         $salesChannelContext->method('getCustomer')->willReturn($customer);
@@ -289,7 +285,7 @@ class ScriptRuleTest extends TestCase
         $conditionId = Uuid::randomHex();
         $scope = $this->getCheckoutScope($ruleId, $conditionId);
 
-        $this->appStateService->deactivateApp($this->appId, $this->context);
+        $this->appLifecycle->deactivate($this->appId, $this->context);
 
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
         static::assertInstanceOf(RuleEntity::class, $rule);
@@ -297,7 +293,7 @@ class ScriptRuleTest extends TestCase
         static::assertInstanceOf(Rule::class, $payload);
         static::assertFalse($payload->match($scope));
 
-        $this->appStateService->activateApp($this->appId, $this->context);
+        $this->appLifecycle->activate($this->appId, $this->context);
 
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
         static::assertInstanceOf(RuleEntity::class, $rule);
@@ -322,7 +318,7 @@ class ScriptRuleTest extends TestCase
         static::assertInstanceOf(Rule::class, $payload);
         static::assertTrue($payload->match($scope));
 
-        $this->appLifecycle->delete('test', ['id' => $this->appId], $this->context);
+        $this->appLifecycle->uninstall('test', ['id' => $this->appId], $this->context);
 
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->getEntities()->get($ruleId);
         static::assertInstanceOf(RuleEntity::class, $rule);
@@ -367,7 +363,7 @@ class ScriptRuleTest extends TestCase
             ],
         ], $this->context);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
 
         $customer->setGroupId($groupId);
@@ -388,10 +384,10 @@ class ScriptRuleTest extends TestCase
     {
         $this->appLifecycle->install($manifest, new AppInstallParameters(activate: false), $this->context);
 
-        $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->first();
+        $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->getEntities()->first();
         static::assertInstanceOf(AppEntity::class, $app);
         $this->appId = $app->getId();
-        $this->appStateService->activateApp($this->appId, $this->context);
+        $this->appLifecycle->activate($this->appId, $this->context);
         $conditions = $app->getScriptConditions();
         static::assertInstanceOf(AppScriptConditionCollection::class, $conditions);
         $condition = $conditions->first();

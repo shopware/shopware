@@ -72,16 +72,11 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet')],
 
     props: {
         type: {
@@ -219,13 +214,7 @@ export default {
         },
 
         optionTranslations() {
-            if (
-                [
-                    'sw-single-select',
-                    'sw-multi-select',
-                    'mt-select',
-                ].includes(this.componentName)
-            ) {
+            if (['sw-single-select', 'sw-multi-select', 'mt-select'].includes(this.componentName)) {
                 if (!this.config.hasOwnProperty('options')) {
                     return {};
                 }
@@ -299,15 +288,7 @@ export default {
             this.$emit('update:value', data);
         },
 
-        getTranslations(
-            componentName,
-            config = this.config,
-            translatableFields = [
-                'label',
-                'placeholder',
-                'helpText',
-            ],
-        ) {
+        getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {
             if (!translatableFields) {
                 return {};
             }
@@ -364,12 +345,25 @@ export default {
         },
 
         fetchSystemCurrency() {
-            const systemCurrencyId = Shopware.Context.app.systemCurrencyId;
+            if (this.type !== 'price') {
+                return Promise.resolve();
+            }
 
-            this.createRepository('currency')
-                .get(systemCurrencyId)
-                .then((response) => {
-                    this.currency = response;
+            return this.repositoryFactory
+                .create('currency')
+                .get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api, {
+                    cacheKey: [
+                        'shared-data',
+                        'system-currency',
+                        Shopware.Context.app.systemCurrencyId,
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((currency) => {
+                    if (currency) {
+                        this.currency = currency;
+                    }
                 });
         },
 

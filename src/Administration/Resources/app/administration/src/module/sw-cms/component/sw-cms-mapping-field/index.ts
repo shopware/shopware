@@ -8,10 +8,7 @@ import './sw-cms-mapping-field.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'cmsService',
-        'repositoryFactory',
-    ],
+    inject: ['cmsService', 'repositoryFactory'],
 
     props: {
         config: {
@@ -30,16 +27,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         valueTypes: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'string',
         },
 
         entity: {
-            type: String as PropType<Extract<keyof EntitySchema.Entities, string> | null>,
+            type: String as PropType<Extract<keyof EntitySchema.EntityKeys, string> | null>,
             required: false,
             default: null,
         },
@@ -136,7 +130,9 @@ export default Shopware.Component.wrapComponentConfig({
             const fetchId = this.demoValueFetchId + 1;
             this.demoValueFetchId = fetchId;
 
-            const demoValue = this.getDemoValue(this.config.value as string);
+            const demoValue = this.getDemoValue(this.config.value as string) as EntityKey<
+                Extract<keyof EntitySchema.EntityKeys, string>
+            > | null;
             this.demoValue = demoValue;
 
             if (this.valueTypes !== 'entity' || this.entity === null || typeof demoValue !== 'string') {
@@ -191,10 +187,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 Object.keys(mappingTypes).forEach((type) => {
                     if (type === this.valueTypes || this.valueTypes.includes(type)) {
-                        types = [
-                            ...types,
-                            ...mappingTypes[type],
-                        ];
+                        types = [...types, ...mappingTypes[type]];
                         types.sort();
                     }
                 });

@@ -114,7 +114,7 @@
                 <div class="product-detail-review-form-footer">
                     {% block component_review_form_required %}
                         <p class="required-fields">
-                            {{ 'general.requiredFields'|trans|sw_sanitize }}
+                            {{ 'global.default.noteRequiredFields'|trans|sw_sanitize }}
                         </p>
                     {% endblock %}
 
@@ -126,7 +126,7 @@
                                data-bs-target=".multi-collapse"
                                aria-expanded="false"
                                aria-controls="review-form review-list">
-                                {{ 'detail.reviewFormCancelText'|trans|sw_sanitize }}
+                                {{ 'global.default.cancel'|trans|sw_sanitize }}
                             </a>
                         {% endblock %}
 

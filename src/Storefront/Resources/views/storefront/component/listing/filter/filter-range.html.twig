@@ -21,7 +21,7 @@
 {% endif %}
 
 {% if maxKey is not defined %}
-    {% set minKey = 'max-price' %}
+    {% set maxKey = 'max-price' %}
 {% endif %}
 
 {% if unit is not defined %}
@@ -49,11 +49,14 @@
 {% block component_filter_range %}
     <div class="filter-range filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
          role="listitem"
+         aria-busy="true"
          data-filter-range="true"
          data-filter-range-options="{{ filterRangeOptions|json_encode }}">
         {% block component_filter_range_toggle %}
             <button class="filter-panel-item-toggle btn"
                     aria-expanded="false"
+                    disabled
+                    data-filter-loading
                     {% if ariaLabel %}
                     aria-label="{{ ariaLabel }}"
                     {% endif %}
@@ -63,7 +66,6 @@
                     {% else %}
                     data-bs-toggle="dropdown"
                     data-boundary="viewport"
-                    data-bs-offset="0,8"
                     {% endif %}>
                 {% block component_filter_range_display_name %}
                     {{ displayName }}

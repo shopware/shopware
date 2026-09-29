@@ -24,7 +24,7 @@ class CartWeightRuleTest extends TestCase
     {
         $cartVolumeRule = new CartWeightRule();
 
-        $wrongScope = $this->createMock(RuleScope::class);
+        $wrongScope = static::createStub(RuleScope::class);
 
         static::assertFalse($cartVolumeRule->match($wrongScope));
     }
@@ -35,7 +35,7 @@ class CartWeightRuleTest extends TestCase
         $cartVolumeRule = new CartWeightRule($operator, $weight);
 
         $cart = Generator::createCartWithDelivery();
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $cartRuleScope = new CartRuleScope($cart, $context);
 

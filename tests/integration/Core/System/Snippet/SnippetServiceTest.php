@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -26,6 +27,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class SnippetServiceTest extends TestCase
 {
     use BasicTestDataBehaviour;

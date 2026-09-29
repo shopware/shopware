@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -24,8 +24,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[Group('rules')]
 class LineItemClearanceSaleRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemClearanceSaleRule $rule;
 
     protected function setUp(): void
@@ -52,7 +50,7 @@ class LineItemClearanceSaleRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithClearance($clearanceSale),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -81,11 +79,11 @@ class LineItemClearanceSaleRuleTest extends TestCase
             $this->createLineItemWithClearance(false),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -101,12 +99,12 @@ class LineItemClearanceSaleRuleTest extends TestCase
             $this->createLineItemWithClearance(false),
         ]);
 
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -128,7 +126,7 @@ class LineItemClearanceSaleRuleTest extends TestCase
     public function testMatchWithWrongScopeShouldReturnFalse(): void
     {
         $goodsCountRule = new LineItemClearanceSaleRule();
-        $wrongScope = $this->createMock(RuleScope::class);
+        $wrongScope = static::createStub(RuleScope::class);
 
         static::assertFalse($goodsCountRule->match($wrongScope));
     }
@@ -142,8 +140,34 @@ class LineItemClearanceSaleRuleTest extends TestCase
         static::assertSame('clearanceSale', $result['fields']['clearanceSale']['name']);
     }
 
+    #[DataProvider('lineItemTypeProvider')]
+    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemClearanceSaleRule(false);
+
+        $lineItem = CartRuleFixture::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    /**
+     * @return \Generator<string, array{non-empty-string, bool, bool}>
+     */
+    public static function lineItemTypeProvider(): \Generator
+    {
+        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
+        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
+        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
+        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+    }
+
     private function createLineItemWithClearance(bool $clearanceSaleEnabled): LineItem
     {
-        return $this->createLineItem()->setPayloadValue('isCloseout', $clearanceSaleEnabled);
+        return CartRuleFixture::createLineItem()->setPayloadValue('isCloseout', $clearanceSaleEnabled);
     }
 }

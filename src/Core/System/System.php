@@ -8,11 +8,9 @@ use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\DependencyInjection\CompilerPass\NumberRangeIncrementerCompilerPass;
 use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -34,30 +32,33 @@ class System extends Bundle
 
         $configLocator = new FileLocator(__DIR__ . '/DependencyInjection/');
 
-        $loader = new XmlFileLoader($container, $configLocator);
-        $loader->load('sales_channel.xml');
-        $loader->load('country.xml');
-        $loader->load('currency.xml');
-        $loader->load('custom_entity.xml');
-        $loader->load('locale.xml');
-        $loader->load('snippet.xml');
-        $loader->load('salutation.xml');
-        $loader->load('tax.xml');
-        $loader->load('tax_provider.xml');
-        $loader->load('unit.xml');
-        $loader->load('user.xml');
-        $loader->load('integration.xml');
-        $loader->load('state_machine.xml');
-        $loader->load('configuration.xml');
-        $loader->load('number_range.xml');
-        $loader->load('tag.xml');
-
         $phpLoader = new PhpFileLoader($container, $configLocator);
+        $phpLoader->load('sales_channel.php');
+        $phpLoader->load('country.php');
+        $phpLoader->load('currency.php');
+        $phpLoader->load('custom_entity.php');
+        $phpLoader->load('locale.php');
+        $phpLoader->load('snippet.php');
+        $phpLoader->load('salutation.php');
+        $phpLoader->load('tax.php');
+        $phpLoader->load('tax_provider.php');
+        $phpLoader->load('unit.php');
+        $phpLoader->load('user.php');
+        $phpLoader->load('integration.php');
+        $phpLoader->load('state_machine.php');
+        $phpLoader->load('configuration.php');
+        $phpLoader->load('number_range.php');
+        $phpLoader->load('tag.php');
+
         $phpLoader->load('consent.php');
         $phpLoader->load('usage_data.php');
 
-        $container->addCompilerPass(new SalesChannelEntityCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
-        $container->addCompilerPass(new NumberRangeIncrementerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        if ($container->getParameter('kernel.environment') === 'test') {
+            $phpLoader->load('services_test.php');
+        }
+
+        $container->addCompilerPass(new SalesChannelEntityCompilerPass());
+        $container->addCompilerPass(new NumberRangeIncrementerCompilerPass());
     }
 
     public function boot(): void

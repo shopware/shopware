@@ -2293,6 +2293,10 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
+
+The `--no-cleanup` option was removed from both commands. The commands no longer delete unused theme directories themselves, the `theme.delete_files` scheduled task does. Passing the option now fails with an unknown-option error, so drop it from deploy scripts.
+
 ## Footer collapse headlines and columns now use semantic elements
 
 In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.

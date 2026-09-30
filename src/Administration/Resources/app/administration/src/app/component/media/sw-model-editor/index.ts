@@ -199,8 +199,6 @@ export default Shopware.Component.wrapComponentConfig({
                 root.removeFromParent();
             }
 
-            // Vue's data typing flattens the class instance, so the DIVENode identity has to be
-            // restored wherever a call takes the class itself.
             this.quickView.orbitController.focusObject(this.diveModel as DIVENode);
 
             this.saveInitialProperties(this.diveModel as DIVENode);
@@ -268,7 +266,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.diveModel.setRotation({
                 x: DIVEMath.degToRad(rotation.x),
                 y: DIVEMath.degToRad(rotation.y),
-                z: DIVEMath.degToRad(rotation.z),
+                z: DIVEMath.degToRad(rotation.z)
             });
             this.syncProperties(this.diveModel as DIVENode);
         },

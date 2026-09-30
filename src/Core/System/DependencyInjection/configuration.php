@@ -18,6 +18,7 @@ use Shopware\Core\System\SystemConfig\MemoizedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRoute;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
@@ -36,7 +37,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SystemConfigValidator::class)
         ->args([
-            service(ConfigurationService::class),
+            service(SystemConfigDefinitionService::class),
             service(DataValidator::class),
         ])
         ->tag('shopware.system_config.validation');
@@ -55,6 +56,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ConfigurationService::class)
         ->args([
+            service(SystemConfigService::class),
+            service(SystemConfigDefinitionService::class),
+        ]);
+
+    $services->set(SystemConfigDefinitionService::class)
+        ->args([
             service('kernel.bundles'),
             service(ConfigReader::class),
             service(AppConfigReader::class),
@@ -68,7 +75,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SystemConfigController::class)
         ->public()
         ->args([
+            // @deprecated tag:v6.8.0 - ConfigurationService will be removed
             service(ConfigurationService::class),
+            service(SystemConfigDefinitionService::class),
             service(SystemConfigService::class),
             service(SystemConfigValidator::class),
         ])

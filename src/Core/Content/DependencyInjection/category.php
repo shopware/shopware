@@ -71,6 +71,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(CategoryTreePathResolver::class),
             service(DefaultCategoryLevelLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DefaultCategoryLevelLoader::class)

@@ -112,14 +112,14 @@ class MySQLFactory
             $parameters['primary'] = array_merge([
                 'charset' => $parameters['charset'],
             ], $dsnParameters);
-            unset($parameters['primary']['primary'], $parameters['primary']['replica'], $parameters['primary']['keepReplica']);
+            unset($parameters['primary']['primary'], $parameters['primary']['replica'], $parameters['primary']['keepReplica'], $parameters['primary']['sid']);
             $parameters['primary']['driverOptions'] = $parameters['driverOptions'] + ($dsnParameters['driverOptions'] ?? []);
 
             $parameters['replica'] = [];
 
             for ($i = 0; $replicaUrl = (string) EnvironmentHelper::getVariable('DATABASE_REPLICA_' . $i . '_URL'); ++$i) {
                 $replicaParams = self::parseDsn($dsnParser, $replicaUrl);
-                unset($replicaParams['primary'], $replicaParams['replica'], $replicaParams['keepReplica']);
+                unset($replicaParams['primary'], $replicaParams['replica'], $replicaParams['keepReplica'], $replicaParams['sid']);
 
                 $parameters['replica'][$i] = array_merge([
                     'charset' => $parameters['charset'],

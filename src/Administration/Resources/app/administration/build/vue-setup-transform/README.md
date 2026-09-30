@@ -63,7 +63,9 @@ developers working on the transform itself.
 - **Override-private namespace** — the module-root `Symbol()` (bound to `__swSetupNamespace`) used as a
   **computed** key under the reserved `__swOverride` slot-scope channel, through which an override's
   non-public bindings reach its `<sw-block extends>` template content. Emitted only when the override
-  actually forwards locals. Uniqueness comes from the symbol, so the binding name can be fixed.
+  actually forwards locals, together with the module-root accessor `__swSetupOverrideScope` that resolves
+  the namespace inside the slot scope without a `]` (a dynamic directive argument ends at the first one).
+  Uniqueness comes from the symbol, so the binding name can be fixed.
 - **Reference rewrite** — the replacement of one identifier inside `<sw-block extends>` content with the
   path it is reachable under in the generated slot scope (`__swSetupScope`). The whole scope is bound
   under one name instead of destructured, because a destructured slot prop is a plain local: reads would

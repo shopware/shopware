@@ -34,8 +34,8 @@ describe('build/vue-setup-transform override template pattern references', () =>
         const result = transformOrFail(source, 'v-for-default-reference.override.vue').code;
 
         expect(result).toContain(
-            '<p v-for="{ label = __swSetupScope.__swOverride[__swSetupNamespace].fallbackLabel } in ' +
-                '__swSetupScope.__swOverride[__swSetupNamespace].rows">{{ label }}</p>',
+            '<p v-for="{ label = __swSetupOverrideScope(__swSetupScope).fallbackLabel } in ' +
+                '__swSetupOverrideScope(__swSetupScope).rows">{{ label }}</p>',
         );
     });
 
@@ -57,8 +57,8 @@ describe('build/vue-setup-transform override template pattern references', () =>
         const result = transformOrFail(source, 'v-for-computed-key-reference.override.vue').code;
 
         expect(result).toContain(
-            '<p v-for="{ [__swSetupScope.__swOverride[__swSetupNamespace].dynamicKey]: value } in ' +
-                '__swSetupScope.__swOverride[__swSetupNamespace].rows">{{ value }}</p>',
+            '<p v-for="{ [__swSetupOverrideScope(__swSetupScope).dynamicKey]: value } in ' +
+                '__swSetupOverrideScope(__swSetupScope).rows">{{ value }}</p>',
         );
     });
 
@@ -86,9 +86,9 @@ describe('build/vue-setup-transform override template pattern references', () =>
         // the sw-block rather than being shadowed by the same-element alias.
         expect(result).toContain(
             '<Child #default="{ eventName }" ' +
-                '@[__swSetupScope.__swOverride[__swSetupNamespace].eventName]=' +
-                '"__swSetupScope.__swOverride[__swSetupNamespace].track" ' +
-                ':title="__swSetupScope.__swOverride[__swSetupNamespace].title" />',
+                '@[__swSetupOverrideScope(__swSetupScope).eventName]=' +
+                '"__swSetupOverrideScope(__swSetupScope).track" ' +
+                ':title="__swSetupOverrideScope(__swSetupScope).title" />',
         );
     });
 
@@ -110,7 +110,7 @@ describe('build/vue-setup-transform override template pattern references', () =>
 
         // Vue camelizes the argument to find the binding, so `:aria-label` reads `ariaLabel` - not
         // `aria` minus `label`, which is what parsing the raw argument as an expression would report.
-        expect(result).toContain('<Child :aria-label="__swSetupScope.__swOverride[__swSetupNamespace].ariaLabel" />');
+        expect(result).toContain('<Child :aria-label="__swSetupOverrideScope(__swSetupScope).ariaLabel" />');
     });
 
     it('leaves a nested sw-block extends to its own slot scope', () => {
@@ -139,7 +139,7 @@ describe('build/vue-setup-transform override template pattern references', () =>
         expect(result).toContain(
             `<sw-block sw-internal-component-name='nested-extends' extends="sw_example_component_footer" #default="__swSetupScope">`,
         );
-        expect(result).toContain('<p>{{ __swSetupScope.__swOverride[__swSetupNamespace].info }}</p>');
+        expect(result).toContain('<p>{{ __swSetupOverrideScope(__swSetupScope).info }}</p>');
     });
 
     it('does not expose setup state for v-for defaults that reference earlier object aliases', () => {

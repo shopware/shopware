@@ -223,7 +223,7 @@ describe('build/vue-setup-transform sourcemap original positions', () => {
         expect(result.code).toContain('__swOverride');
         expectOriginalLine(result, source, 'extends="sw_example_card"', 'extends="sw_example_card"');
         expectOriginalLine(result, source, '{{ __swSetupScope.headline }}', '{{ headline }}');
-        expectOriginalLine(result, source, '{{ __swSetupScope.__swOverride[__swSetupNamespace].info }}', '{{ info }}');
+        expectOriginalLine(result, source, '{{ __swSetupOverrideScope(__swSetupScope).info }}', '{{ info }}');
     });
 
     it('keeps mappings stable when macros, template edits, and script lowering happen together', () => {

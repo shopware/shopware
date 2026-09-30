@@ -5,16 +5,23 @@
 import { defineComponent, ref } from 'vue';
 import { mount } from '@vue/test-utils';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
+// Registers the `blockOverride` store as a side effect.
+import 'src/app/store/block-override.store';
+import createDataScopeFixture from 'src/app/component/structure/sw-block-override/sw-block-override.spec/test-utils/create-data-scope-fixture';
 import ShopwareSetupJestTransformOverride from './_mocks_/sw-jest-transform-fixture.override.vue';
 import ShopwareSetupJestTransformBase from './_mocks_/sw-jest-transform-fixture.vue';
+import ShopwareSetupJestTransformBlockOverride from './_mocks_/sw-jest-transform-block-fixture.override.vue';
+import ShopwareSetupJestTransformBlockBase from './_mocks_/sw-jest-transform-block-fixture.vue';
 
 describe('test/transformer/shopwareSetupVueTransformer', () => {
     beforeEach(() => {
         delete _overridesMap['sw-jest-transform-fixture'];
+        delete _overridesMap['sw-jest-transform-block-fixture'];
     });
 
     afterAll(() => {
         delete _overridesMap['sw-jest-transform-fixture'];
+        delete _overridesMap['sw-jest-transform-block-fixture'];
     });
 
     it('transforms and mounts Shopware setup Vue files through the real Jest Vue transformer', async () => {
@@ -88,5 +95,31 @@ describe('test/transformer/shopwareSetupVueTransformer', () => {
         expect(warn).toHaveBeenCalledWith(expect.stringContaining('computed value is readonly'));
 
         warn.mockRestore();
+    });
+
+    it('resolves override-local state inside dynamic directive arguments of <sw-block extends> content', async () => {
+        const global = {
+            components: {
+                'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+            },
+            plugins: [createDataScopeFixture()],
+        };
+
+        mount(ShopwareSetupJestTransformBlockOverride, { global });
+
+        const wrapper = mount(ShopwareSetupJestTransformBlockBase, { global });
+
+        await flushPromises();
+
+        // `@[eventName]` and `:[labelAttribute]` read override-local bindings through the rewritten
+        // slot-scope path, which Vue would cut short at the first `]` if the path contained one.
+        const button = wrapper.get('button');
+
+        expect(button.attributes('aria-label')).toBe('Increment');
+        expect(wrapper.find('.default-content').exists()).toBe(false);
+
+        await button.trigger('click');
+
+        expect(button.text()).toBe('1');
     });
 });

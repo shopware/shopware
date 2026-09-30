@@ -20,7 +20,12 @@ import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { OverrideReferenceRewrite, OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
 import { escapeSingleQuoted } from './shared';
-import { OVERRIDE_NAMESPACE_BINDING, OVERRIDE_SCOPE_BINDING, RESERVED_OVERRIDE_STATE_NAME } from '../script-analyzer/macros';
+import {
+    OVERRIDE_NAMESPACE_BINDING,
+    OVERRIDE_SCOPE_ACCESSOR,
+    OVERRIDE_SCOPE_BINDING,
+    RESERVED_OVERRIDE_STATE_NAME,
+} from '../script-analyzer/macros';
 import { transformRanges } from '../source-edits/transform-ranges';
 
 /**
@@ -55,14 +60,16 @@ function buildOverrideReturn(analysis: OverrideSetupScriptAnalysis, overridePriv
  *
  * The slot scope is the base component's data scope, so a declared override binding - which replaces
  * base state - is a property of it; everything else this override forwards sits under the reserved
- * `__swOverride` channel, keyed by the module's namespace symbol.
+ * `__swOverride` channel, keyed by the module's namespace symbol. That lookup goes through the generated
+ * accessor rather than a computed member: a reference may sit inside a dynamic directive argument
+ * (`@[eventName]`), which Vue ends at the first `]`.
  */
 function toReferencePath(rewrite: OverrideReferenceRewrite): string {
     if (rewrite.visibility === 'public') {
         return `${OVERRIDE_SCOPE_BINDING}.${rewrite.name}`;
     }
 
-    return `${OVERRIDE_SCOPE_BINDING}.${RESERVED_OVERRIDE_STATE_NAME}[${OVERRIDE_NAMESPACE_BINDING}].${rewrite.name}`;
+    return `${OVERRIDE_SCOPE_ACCESSOR}(${OVERRIDE_SCOPE_BINDING}).${rewrite.name}`;
 }
 
 /**
@@ -176,11 +183,12 @@ function buildOverrideScript(
     // Declared at module root, NOT inside the callback: the callback runs once per base-component
     // instance, so a symbol created there would be a different value every time and the state lookup
     // would never match. Module scope evaluates once, giving one stable symbol per override file - and it
-    // stays template-visible, so the generated computed key resolves.
+    // stays template-visible, so the generated accessor resolves.
     if (templateAnalysis.privateBindings.size > 0) {
         chunks.push(
             generated(
-                `const ${OVERRIDE_NAMESPACE_BINDING} = Symbol('${escapeSingleQuoted(block.componentName)}.override');\n\n`,
+                `const ${OVERRIDE_NAMESPACE_BINDING} = Symbol('${escapeSingleQuoted(block.componentName)}.override');\n` +
+                    `const ${OVERRIDE_SCOPE_ACCESSOR} = (scope) => scope.${RESERVED_OVERRIDE_STATE_NAME}[${OVERRIDE_NAMESPACE_BINDING}];\n\n`,
             ),
         );
     }

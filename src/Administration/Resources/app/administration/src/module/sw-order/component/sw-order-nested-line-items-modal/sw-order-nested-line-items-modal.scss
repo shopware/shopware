@@ -1,12 +1,12 @@
-.sw-modal__body:has(.sw-order-nested-line-items-modal__container) {
-    overflow-x: scroll;
-}
-
 .sw-order-nested-line-items-modal {
+    &.sw-modal .sw-modal__body {
+        min-height: var(--scale-size-96);
+        padding: 0;
+    }
+
     &__container {
         display: table;
         width: 100%;
-        margin: -20px 0;
     }
 
     &__header-container {
@@ -15,21 +15,23 @@
 
     &__header-item {
         flex-grow: 1;
-        padding: 10px;
-        border-bottom: 1px solid var(--color-border-secondary-default);
+        padding: var(--scale-size-10);
+        border-bottom: var(--scale-size-1) solid var(--color-border-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
         font-weight: var(--font-weight-semibold);
 
         &:first-child {
-            padding-left: 30px;
+            padding-left: var(--scale-size-32);
         }
 
         &:last-child {
-            padding-right: 30px;
+            padding-right: var(--scale-size-32);
         }
     }
 
     &__header-quantity {
-        width: 100px;
+        width: var(--scale-size-96);
         flex-grow: 0;
         text-align: right;
     }
@@ -37,13 +39,8 @@
     &__header-unit-price,
     &__header-tax,
     &__header-total-price {
-        width: 120px;
+        width: var(--scale-size-128);
         flex-grow: 0;
         text-align: right;
-    }
-
-    &.sw-modal .sw-modal__body {
-        padding: 20px 0;
-        min-height: 100px;
     }
 }

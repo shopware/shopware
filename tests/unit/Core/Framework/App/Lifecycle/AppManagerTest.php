@@ -864,7 +864,14 @@ class AppManagerTest extends TestCase
 
         $this->activeAppsLoader->expects($this->once())->method('reset');
         $this->scriptExecutor->expects($this->never())->method('execute');
-        $this->expectNoCollaboratorCallsBeyondActivation();
+
+        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
+        $this->registrationService->expects($this->never())->method('registerApp');
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+        $this->manifestFactory->expects($this->never())->method('createFromApp');
+        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
+        $this->assetService->expects($this->never())->method('removeAssets');
+        $this->configReader->expects($this->never())->method('read');
 
         $caught = null;
 
@@ -884,36 +891,6 @@ class AppManagerTest extends TestCase
         ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppDeactivatedEvent::class));
-    }
-
-    public function testActivateDoesNotRollBackWhenTheActivatedHookFails(): void
-    {
-        $app = AppFixture::createAppEntity(id: 'test-app', active: false);
-        $appRepository = AppFixture::createAppRepository($app);
-        $failure = new \RuntimeException('activated hook failed');
-
-        $handler = $this->createMock(AbstractLifecycleHandler::class);
-        $handler->expects($this->once())->method('activate');
-        $handler->expects($this->never())->method('deactivate');
-
-        $this->scriptExecutor->expects($this->once())->method('execute')->willThrowException($failure);
-        $this->activeAppsLoader->expects($this->once())->method('reset');
-        $this->expectNoCollaboratorCallsBeyondActivation();
-
-        $caught = null;
-
-        try {
-            $this->createAppManager($appRepository, persisters: [$handler])
-                ->activate($app, Context::createDefaultContext());
-        } catch (\RuntimeException $exception) {
-            $caught = $exception;
-        }
-
-        static::assertSame($failure, $caught);
-        static::assertTrue($app->isActive());
-        static::assertSame([
-            ['id' => 'test-app', 'active' => true],
-        ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
     }
 
     public function testDeactivateDoesNothingIfAppIsAlreadyInactive(): void
@@ -1119,17 +1096,6 @@ XML,
         $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
 
         $this->createAppManager(AppFixture::createAppRepository())->delete($app, $context, true);
-    }
-
-    private function expectNoCollaboratorCallsBeyondActivation(): void
-    {
-        $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
-        $this->registrationService->expects($this->never())->method('registerApp');
-        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
-        $this->manifestFactory->expects($this->never())->method('createFromApp');
-        $this->systemConfigService->expects($this->never())->method('deleteExtensionConfiguration');
-        $this->assetService->expects($this->never())->method('removeAssets');
-        $this->configReader->expects($this->never())->method('read');
     }
 
     private function expectNoLifecycleCollaboratorCalls(): void

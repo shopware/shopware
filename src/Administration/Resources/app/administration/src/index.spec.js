@@ -6,7 +6,6 @@ import 'src/index';
 
 jest.mock('src/core/shopware', () => jest.fn());
 jest.mock('src/app/main', () => jest.fn());
-jest.mock('src/app/composables/attach', () => ({}));
 
 describe('src/index', () => {
     // eslint-disable-next-line jest/expect-expect

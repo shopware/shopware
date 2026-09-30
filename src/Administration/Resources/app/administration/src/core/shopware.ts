@@ -59,7 +59,7 @@ import ExtensionApi from './extension-api';
 import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
-import type composables from '../app/composables';
+import composables from '../app/composables';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -277,10 +277,8 @@ class ShopwareClass implements CustomShopwareProperties {
 
     /**
      * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
-     *
-     * Assigned by `src/app/composables/attach`.
      */
-    declare public Composables: typeof composables;
+    public Composables = composables;
 
     public get Snippet() {
         // @ts-expect-error - type is currently not available

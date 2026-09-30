@@ -36,8 +36,8 @@ function findSlot(page: null | Entity<'cms_page'>, elementId: string): CmsSlot |
  * @private
  * @sw-package discovery
  *
- * Registered on the store singleton instead of `Shopware.Store`: `src/index.ts` loads this file through
- * `src/app/composables/attach` before it assigns the global object.
+ * Registered on the store singleton instead of `Shopware.Store`: `src/core/shopware.ts` loads this file
+ * through `Shopware.Composables` before the global object exists.
  */
 const cmsPageStore = Store.instance.register({
     id: 'cmsPage',

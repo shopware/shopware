@@ -17,7 +17,6 @@ import {
     type VirtualModuleGlobal,
 } from './definitions';
 import { readRegistry } from './index';
-import 'src/app/composables/attach';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = readRegistry(administrationRoot);

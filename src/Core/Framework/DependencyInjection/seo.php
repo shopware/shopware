@@ -193,7 +193,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('twig.extension.routing'),
             service(CategoryUrlGenerator::class),
         ])
-        ->tag('twig.extension');
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SeoUrlPlaceholderHandlerInterface::class, SeoUrlPlaceholderHandler::class)
         ->public()
@@ -287,7 +288,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.category.repository'),
             service('category.repository'),
         ])
-        ->tag('twig.extension');
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SeoUrlTwigFactory::class);
 

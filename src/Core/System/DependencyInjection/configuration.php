@@ -58,7 +58,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SystemConfigService::class),
             service(SystemConfigDefinitionService::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SystemConfigDefinitionService::class)
         ->args([
@@ -76,7 +77,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             // @deprecated tag:v6.8.0 - ConfigurationService will be removed
-            service(ConfigurationService::class),
+            service(ConfigurationService::class)->nullOnInvalid(),
             service(SystemConfigDefinitionService::class),
             service(SystemConfigService::class),
             service(SystemConfigValidator::class),

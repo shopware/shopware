@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
@@ -75,7 +77,7 @@ class SystemConfigControllerTest extends TestCase
             ->willReturn(['foo' => 'bar']);
 
         $controller = new SystemConfigController(
-            static::createStub(ConfigurationService::class),
+            null,
             $systemConfigDefinitionService,
             static::createStub(SystemConfigService::class),
             static::createStub(SystemConfigValidator::class)
@@ -89,6 +91,23 @@ class SystemConfigControllerTest extends TestCase
         $result = $controller->getSchema($request, $context);
 
         static::assertSame('{"foo":"bar"}', $result->getContent());
+    }
+
+    public function testDeprecatedRouteThrowsWithoutRemovedService(): void
+    {
+        $controller = new SystemConfigController(
+            null,
+            static::createStub(SystemConfigDefinitionService::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', 'foo');
+
+        $this->expectException(FeatureException::class);
+
+        Feature::withFeatureEnabled('v6.8.0.0', fn () => $controller->getConfiguration($request, Context::createDefaultContext()));
     }
 
     /**

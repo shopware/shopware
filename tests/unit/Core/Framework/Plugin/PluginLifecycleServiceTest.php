@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
@@ -32,7 +33,6 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -42,7 +42,6 @@ use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -841,10 +840,13 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->pluginMock->expects($this->never())->method('deactivate');
 
-        $this->expectException(PluginNotActivatedException::class);
+        $this->expectExceptionObject(PluginException::notActivated($pluginEntityMock->getName()));
 
-        $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
-        static::assertCount(0, $this->eventDispatcher->getEvents());
+        try {
+            $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
+        } finally {
+            static::assertCount(0, $this->eventDispatcher->getEvents());
+        }
     }
 
     public function testDeactivatePluginDependants(): void

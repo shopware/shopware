@@ -49,6 +49,8 @@ The unit suite is the exception: its bootstrap activates every registered flag r
 ## Using flags in PHP
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
+Version-shaped feature flag IDs use four parts, such as `v6.8.0.0`. Pass that full ID to `Feature` methods. The three-part release label in `@deprecated tag:v6.8.0` is not a feature flag ID; PHPStan rejects it in feature checks.
+
 ### Using flags in methods
 When there is no option via the container you can use additional helper functions:
 ```php
@@ -179,6 +181,32 @@ legitimate calls.
 Use a `vX.Y.Z` version, parameter names without `$`, `::class` for class references, and the
 actual default value for `NewOptionalParameter`. PHPStan validates these conventions and rejects
 attributes that do not describe a real future change.
+
+### Moving a class
+
+Use `#[ClassMoved]` when a supported class keeps its implementation but moves to a new fully qualified class name:
+
+```php
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+
+#[ClassMoved(
+    version: 'v6.8.0',
+    previousClassName: 'Shopware\OldNamespace\ExampleClass',
+)]
+class ExampleClass
+{
+}
+```
+
+Move the implementation to the canonical namespace and register the previous and canonical names in `ClassAliasRegistry::ALIASES`.
+Use a string literal for `previousClassName`: the previous name is compatibility metadata and must not become a new Core source reference.
+Update all Core callers to the canonical name.
+
+When the moved class is a dependency-injection service, keep the previous class name as a deprecated service alias of the canonical service.
+Add release information for the available replacement and an upgrade entry for removing the alias in the announced version.
+
+Do not retain a compatibility subclass or duplicate the implementation. `class_alias()` preserves one runtime class identity.
+PHPStan validates the attribute, runtime alias, optional service alias, and canonical Core references.
 
 ### Using flags in tests
 In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.

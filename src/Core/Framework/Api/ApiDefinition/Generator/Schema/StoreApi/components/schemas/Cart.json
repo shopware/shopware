@@ -26,7 +26,6 @@
                         }
                     },
                     "errors": {
-                        "type": "object",
                         "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
                         "anyOf": [
                             {

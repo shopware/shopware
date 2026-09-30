@@ -67,15 +67,15 @@ class AdminSearchRegistryTest extends TestCase
             100
         );
 
-        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, $this->createMock(LoggerInterface::class));
+        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, static::createStub(LoggerInterface::class));
         $this->registry = new AdminSearchRegistry(
             ['promotion' => $indexer, 'order' => static::getContainer()->get(OrderAdminSearchIndexer::class)],
             $this->connection,
             $this->getDiContainer()->get(MessageBusInterface::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $this->client,
             $searchHelper,
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             [
                 'settings' => [
                     'analysis' => [

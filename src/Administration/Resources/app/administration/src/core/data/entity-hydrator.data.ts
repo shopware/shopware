@@ -185,7 +185,11 @@ export default class EntityHydrator {
                 attributeValue !== null &&
                 Object.keys(attributeValue).length <= 0;
 
-            if (schema.isJsonListField(field) && (isEmptyObject || attributeValue === null)) {
+            // Inherited fields use null as the inheritance marker.
+            if (
+                schema.isJsonListField(field) &&
+                (isEmptyObject || (attributeValue === null && field.flags?.inherited !== true))
+            ) {
                 data[attributeKey] = [];
             }
         });

@@ -72,6 +72,10 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
 
+        if (vatIdInput) {
+            this._bindVatIdNormalization(vatIdInput);
+        }
+
         if (!initialCountryId) {
             return;
         }
@@ -153,6 +157,47 @@ export default class CountryStateSelectPlugin extends Plugin {
         } else {
             vatIdFieldInput.removeAttribute('pattern');
         }
+    }
+
+    /**
+     * VAT ID patterns only ever require upper case letters, so the input is normalized as the
+     * customer types while a pattern constraint is active. Without this, the native "pattern"
+     * attribute set in "_updateVatIdField" blocks submission for a technically valid VAT ID that
+     * was merely typed in lower case or grouped with spaces.
+     *
+     * @param {HTMLElement} vatIdFieldInput
+     * @private
+     */
+    _bindVatIdNormalization(vatIdFieldInput) {
+        if (vatIdFieldInput.dataset.vatIdNormalizationBound) {
+            return;
+        }
+
+        vatIdFieldInput.dataset.vatIdNormalizationBound = 'true';
+        vatIdFieldInput.addEventListener('input', this._normalizeVatIdInput.bind(this));
+    }
+
+    /**
+     * @param {Event} event
+     * @private
+     */
+    _normalizeVatIdInput(event) {
+        const input = event.target;
+
+        if (!input.hasAttribute('pattern')) {
+            return;
+        }
+
+        const normalizedValue = input.value.replace(/\s+/gu, '').toUpperCase();
+
+        if (normalizedValue === input.value) {
+            return;
+        }
+
+        const caretOffsetFromEnd = input.value.length - (input.selectionEnd ?? input.value.length);
+        input.value = normalizedValue;
+        const caretPosition = Math.max(0, normalizedValue.length - caretOffsetFromEnd);
+        input.setSelectionRange(caretPosition, caretPosition);
     }
 
     /**

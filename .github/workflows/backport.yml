@@ -166,6 +166,39 @@ jobs:
             core.setOutput('target-branches', JSON.stringify(targetBranches));
             core.setOutput('labels', JSON.stringify(filteredLabels));
 
+  collect-reviewers:
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: read
+    if: >
+      github.event.act || github.event.pull_request.merged && (
+        github.event.action == 'closed'
+          && contains(join(github.event.pull_request.labels.*.name, ','), 'backport-')
+        || (
+          github.event.action == 'labeled'
+          && contains(github.event.label.name, 'backport-')
+        )
+      )
+    outputs:
+      reviewers: ${{ steps.collect-reviewers.outputs.reviewers }}
+    steps:
+      # The pull request event only includes outstanding review requests. Fetch submitted reviewers too,
+      # so approvals and prior reviews are requested on the backport.
+      - id: collect-reviewers
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner: context.repo.owner, repo: context.repo.repo, pull_number: context.payload.pull_request.number, per_page: 100,
+            });
+            const reviewers = [
+              ...(context.payload.pull_request.assignees ?? []).map(({ login }) => login),
+              ...(context.payload.pull_request.requested_reviewers ?? []).map(({ login }) => login),
+              ...reviews.map(({ user }) => user?.login),
+            ].filter(Boolean);
+            core.setOutput('reviewers', JSON.stringify(reviewers));
+
   backport:
     runs-on: ubuntu-24.04
     permissions:
@@ -180,7 +213,7 @@ jobs:
           && contains(github.event.label.name, 'backport-')
         )
       )
-    needs: [find-linked-issue, parse-labels]
+    needs: [find-linked-issue, parse-labels, collect-reviewers]
     strategy:
       matrix:
         target-branch: ${{ fromJSON(needs.parse-labels.outputs.target-branches) }}
@@ -209,8 +242,8 @@ jobs:
             ---
           assignees: >- # Inherit original assignees
             ${{ github.event.pull_request.assignees && join(github.event.pull_request.assignees.*.login, ',') || '' }}
-          reviewers: >- # Add the original assignees, as well as the reviewers of the original PR
-            ${{ github.event.pull_request.assignees && format('{0},', join(github.event.pull_request.assignees.*.login, ',')) || '' }} ${{ github.event.pull_request.requested_reviewers && join(github.event.pull_request.requested_reviewers.*.login, ',') || '' }}
+          reviewers: >- # Inherit assignees, requested reviewers, and everyone who reviewed the original PR
+            ${{ needs.collect-reviewers.outputs.reviewers && join(fromJSON(needs.collect-reviewers.outputs.reviewers), ',') || '' }}
           labels: >- # Inherit original labels, except backport and milestone ones
             ${{ needs.parse-labels.outputs.labels && join(fromJSON(needs.parse-labels.outputs.labels), ',') || '' }}
           dry-run: ${{ github.event.act && true || false }}

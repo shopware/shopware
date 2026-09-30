@@ -119,7 +119,7 @@ class ScriptRuleTest extends TestCase
 
     public function testRuleScriptIsCached(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $scope = new CheckoutRuleScope($salesChannelContext);
         $rule = new ScriptRule();
         $container = new Container(new ParameterBag([
@@ -158,7 +158,7 @@ class ScriptRuleTest extends TestCase
         $conditionId = Uuid::randomHex();
         $expectedTrueScope = $this->getCheckoutScope($ruleId, $conditionId);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setGroupId(Uuid::randomHex());
         $salesChannelContext->method('getCustomer')->willReturn($customer);
@@ -363,7 +363,7 @@ class ScriptRuleTest extends TestCase
             ],
         ], $this->context);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
 
         $customer->setGroupId($groupId);

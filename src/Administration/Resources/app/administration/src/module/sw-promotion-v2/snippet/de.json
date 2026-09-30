@@ -65,7 +65,7 @@
                     },
                     "individual": {
                         "description": "Individuelle Aktionscodes",
-                        "emptyStateTitle": "Noch keine Aktionscodes angelegt.",
+                        "emptyStateTitle": "Noch keine Aktionscodes angelegt",
                         "generateButton": "Erstelle neue Aktionscodes",
                         "searchPlaceholder": "Durchsuche Aktionscodes ...",
                         "addButton": "Füge Aktionscodes hinzu",

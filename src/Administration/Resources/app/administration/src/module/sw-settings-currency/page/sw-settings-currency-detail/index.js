@@ -277,9 +277,15 @@ export default {
                         this.isLoading = false;
                     });
                 })
-                .catch(() => {
+                .catch((error) => {
+                    const errorCode = error?.response?.data?.errors?.[0]?.code;
+                    const isoCode = error?.response?.data?.errors?.[0]?.meta?.parameters?.isoCode;
+
                     this.createNotificationError({
-                        message: this.$t('sw-settings-currency.detail.notificationErrorMessage'),
+                        message:
+                            errorCode === 'SYSTEM__CURRENCY_ISO_CODE_NOT_UNIQUE'
+                                ? this.$t('sw-settings-currency.detail.notificationIsoCodeAlreadyExists', { isoCode })
+                                : this.$t('sw-settings-currency.detail.notificationErrorMessage'),
                     });
                     this.isLoading = false;
                 });

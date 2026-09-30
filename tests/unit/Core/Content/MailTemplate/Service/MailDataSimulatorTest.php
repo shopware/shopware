@@ -358,7 +358,7 @@ class MailDataSimulatorTest extends TestCase
 
         $firstAttributeDefinition = new AttributeEntityDefinition([
             'entity_name' => 'first_attribute_entity',
-            'entity_class' => Entity::class,
+            'entity_class' => ArrayEntity::class,
             'collection_class' => EntityCollection::class,
             'hydrator_class' => EntityHydrator::class,
             'fields' => [
@@ -379,7 +379,7 @@ class MailDataSimulatorTest extends TestCase
 
         $secondAttributeDefinition = new AttributeEntityDefinition([
             'entity_name' => 'second_attribute_entity',
-            'entity_class' => Entity::class,
+            'entity_class' => ArrayEntity::class,
             'collection_class' => EntityCollection::class,
             'hydrator_class' => EntityHydrator::class,
             'fields' => [

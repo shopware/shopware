@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -92,7 +92,7 @@ class ThemeCompilerTest extends TestCase
             static::getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
@@ -147,7 +147,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testDBException(): void
     {
-        $configService = $this->getConfigurationServiceDbException(
+        $systemConfigDefinitionService = $this->getSystemConfigDefinitionServiceDbException(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -161,7 +161,7 @@ class ThemeCompilerTest extends TestCase
 
         $event = new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($systemConfigDefinitionService, $storefrontPluginRegistry);
         $exception = null;
         try {
             $subscriber->enrichExtensionVars($event);
@@ -188,7 +188,7 @@ class ThemeCompilerTest extends TestCase
             mkdir($testFolder);
         }
 
-        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver = static::createStub(ThemeFileResolver::class);
         $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
 
         $config = new StorefrontPluginConfiguration('test');
@@ -205,10 +205,10 @@ class ThemeCompilerTest extends TestCase
             $resolver,
             true,
             static::getContainer()->get('event_dispatcher'),
-            $this->createMock(ThemeFilesystemResolver::class),
+            static::createStub(ThemeFilesystemResolver::class),
             [],
-            $this->createMock(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(CacheInvalidator::class),
+            static::createStub(LoggerInterface::class),
             $this->themePathBuilder,
             static::getContainer()->get(ScssPhpCompiler::class),
         );
@@ -271,7 +271,7 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $configService = $this->getConfigurationService(
+        $systemConfigDefinitionService = $this->getSystemConfigDefinitionService(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -283,7 +283,7 @@ PHP_EOL;
             ]
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($systemConfigDefinitionService, $storefrontPluginRegistry);
 
         $this->eventDispatcher->addSubscriber($subscriber);
 
@@ -435,9 +435,9 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationService(array $plugins): ConfigurationService
+    private function getSystemConfigDefinitionService(array $plugins): SystemConfigDefinitionService
     {
-        return new ConfigurationService(
+        return new SystemConfigDefinitionService(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -450,9 +450,9 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationServiceDbException(array $plugins): ConfigurationService
+    private function getSystemConfigDefinitionServiceDbException(array $plugins): SystemConfigDefinitionService
     {
-        return new ConfigurationServiceException(
+        return new SystemConfigDefinitionServiceException(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -467,7 +467,7 @@ PHP_EOL;
      */
     private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
     {
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel
             ->method('getBundles')
             ->willReturn($plugins);
@@ -483,7 +483,7 @@ PHP_EOL;
 /**
  * @internal
  */
-class ConfigurationServiceException extends ConfigurationService
+class SystemConfigDefinitionServiceException extends SystemConfigDefinitionService
 {
     /**
      * @throws Exception

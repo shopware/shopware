@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -27,6 +28,7 @@ final class DocumentArchiveGenerator
         private readonly MediaService $mediaService,
         private readonly Filesystem $filesystem,
         private readonly DocumentRendererRegistry $documentRendererRegistry,
+        private readonly DocumentFileNameBuilder $fileNameBuilder,
     ) {
     }
 
@@ -69,7 +71,7 @@ final class DocumentArchiveGenerator
             }
 
             return new RenderedDocument(
-                name: $this->createArchiveName($documents),
+                name: $this->fileNameBuilder->build($documents) . '.zip',
                 fileExtension: 'zip',
                 contentType: 'application/zip',
                 content: $this->filesystem->readFile($tempFile),
@@ -209,20 +211,5 @@ final class DocumentArchiveGenerator
         }
 
         return $document->getId();
-    }
-
-    private function createArchiveName(DocumentCollection $documents): string
-    {
-        if ($documents->count() !== 1) {
-            return 'documents.zip';
-        }
-
-        $document = $documents->first();
-        \assert($document !== null);
-
-        $documentNumber = $document->getConfig()['documentNumber'] ?? null;
-        $fileName = \is_string($documentNumber) && $documentNumber !== '' ? $documentNumber : $document->getId();
-
-        return $fileName . '.zip';
     }
 }

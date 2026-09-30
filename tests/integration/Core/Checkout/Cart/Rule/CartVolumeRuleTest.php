@@ -29,7 +29,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -38,7 +38,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[Group('rules')]
 class CartVolumeRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
     private CartVolumeRule $rule;
@@ -58,7 +57,7 @@ class CartVolumeRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $this->createCartDummy(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -74,13 +73,13 @@ class CartVolumeRuleTest extends TestCase
         $cart = $this->createCartDummy();
         $childLineItemCollection = $cart->getLineItems();
 
-        $containerLineItem = $this->createContainerLineItem($childLineItemCollection);
+        $containerLineItem = CartRuleFixture::createContainerLineItem($childLineItemCollection);
 
         $cart->setLineItems(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -153,11 +152,11 @@ class CartVolumeRuleTest extends TestCase
     private function createCartDummy(): Cart
     {
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItemWithDeliveryInfo(false, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
-            $this->createLineItemWithDeliveryInfo(true, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
+            CartRuleFixture::createLineItemWithDeliveryInfo(false, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
+            CartRuleFixture::createLineItemWithDeliveryInfo(true, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $deliveryPositionCollection = new DeliveryPositionCollection();
         $calculatedPrice = new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection());

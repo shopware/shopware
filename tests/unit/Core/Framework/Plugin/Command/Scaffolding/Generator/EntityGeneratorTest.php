@@ -25,9 +25,11 @@ class EntityGeneratorTest extends TestCase
     {
         $generator = new EntityGenerator(new MockClock());
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+
+        static::assertSame(EntityGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
+        static::assertTrue($option->isValueRequired());
     }
 
     /**

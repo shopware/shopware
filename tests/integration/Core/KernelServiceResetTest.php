@@ -41,6 +41,19 @@ class KernelServiceResetTest extends TestCase
         }
     }
 
+    public function testHandleOnAnUnbootedKernelRegistersThePluginBundles(): void
+    {
+        $kernel = KernelLifecycleManager::createKernel();
+
+        try {
+            $kernel->handle(Request::create('/api/_info/version'));
+
+            static::assertArrayHasKey($kernel->getPluginLoader()->getName(), $kernel->getBundles());
+        } finally {
+            $kernel->shutdown();
+        }
+    }
+
     /**
      * Symfony's `http_cache` service must not exist: `Symfony\Component\HttpKernel\Kernel::handle()`
      * would route the first request of a process through it, bypassing Shopware's own HTTP cache

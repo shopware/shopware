@@ -24,6 +24,8 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -124,6 +126,17 @@ class Kernel extends HttpKernel
     public function getProjectDir(): string
     {
         return $this->projectDir;
+    }
+
+    /**
+     * Boots first so that plugins are initialized before `parent::handle()` builds the container,
+     * `parent::handle()` itself keeps Symfony's service reset bookkeeping between requests.
+     */
+    public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
+    {
+        $this->boot();
+
+        return parent::handle($request, $type, $catch);
     }
 
     public function boot(): void

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1756296414UpdateSnippetSetBaseFiles extends MigrationStep
 {
     public function getCreationTimestamp(): int

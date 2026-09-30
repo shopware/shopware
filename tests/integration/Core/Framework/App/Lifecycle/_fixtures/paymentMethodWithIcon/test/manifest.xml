@@ -20,7 +20,9 @@
         <payment-method>
             <identifier>paymentWithIcon</identifier>
             <name>The app payment method</name>
+            <name lang="de-DE">Die App-Zahlungsart</name>
             <description>This is a description</description>
+            <description lang="de-DE">Das ist eine Beschreibung</description>
             <pay-url>https://payment.app/payment/process</pay-url>
             <finalize-url>https://payment.app/payment/finalize</finalize-url>
             <icon>icons/TestIcon.png</icon>

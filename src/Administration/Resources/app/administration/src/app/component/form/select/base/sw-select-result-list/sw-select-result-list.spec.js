@@ -59,4 +59,24 @@ describe('components/sw-select-result-list', () => {
         swSelectResultList.vm.onScroll(scrollEvent);
         expect(swSelectResultList.emitted('paginate')).toBeUndefined();
     });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'forwards popoverResizeWidth without using the deprecated resizeWidth prop',
+        async () => {
+            const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+            await swSelectResultList.setProps({ popoverResizeWidth: true });
+
+            const floatingUi = swSelectResultList.getComponent({ name: 'mt-floating-ui' });
+
+            expect(floatingUi.props('matchReferenceWidth')).toBe(true);
+            expect(floatingUi.vm.$attrs).not.toHaveProperty('resize-width');
+            expect(warnSpy).not.toHaveBeenCalledWith(
+                'sw-popover',
+                'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
+            );
+
+            warnSpy.mockRestore();
+        },
+    );
 });

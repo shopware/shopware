@@ -226,7 +226,7 @@ EOF;
     }
 
     /**
-     * @return iterable<string, array{0: list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}>, 1: list<string>, 2: CashRoundingConfig, 3?: string}>
+     * @return iterable<string, array{0: list<array{id: string, data: list<array{currencyId: string, gross: float, net: 1, linked: true}>}>, 1: list<string>, 2: CashRoundingConfig, 3?: string}>
      */
     public static function cashRoundingSortingProvider(): iterable
     {
@@ -272,7 +272,7 @@ EOF;
     }
 
     /**
-     * @param list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}> $records
+     * @param list<array{id: string, data: list<array{currencyId: string, gross: float, net: 1, linked: true}>}> $records
      * @param list<string> $expected
      */
     #[DataProvider('cashRoundingSortingProvider')]
@@ -337,7 +337,7 @@ EOF;
     }
 
     /**
-     * @return iterable<string, array{0: RangeFilter, 1: list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}>, 2: list<string>, 3: CashRoundingConfig, 4?: string}>
+     * @return iterable<string, array{0: RangeFilter, 1: list<array{id: string, data: list<array{currencyId: string, gross: float, net: 1, linked: true}>}>, 2: list<string>, 3: CashRoundingConfig, 4?: string}>
      */
     public static function cashRoundingFilterProvider(): iterable
     {
@@ -493,7 +493,7 @@ EOF;
     }
 
     /**
-     * @param list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}> $records
+     * @param list<array{id: string, data: list<array{currencyId: string, gross: float, net: 1, linked: true}>}> $records
      * @param list<string> $expected
      */
     #[DataProvider('cashRoundingFilterProvider')]

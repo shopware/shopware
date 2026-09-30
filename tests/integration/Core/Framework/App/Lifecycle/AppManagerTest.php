@@ -331,12 +331,12 @@ class AppManagerTest extends TestCase
             'webhooks' => [
                 [
                     'name' => 'hook1',
-                    'url' => 'oldUrl.com',
+                    'url' => 'https://old-url.example.com',
                     'eventName' => 'testEvent',
                 ],
                 [
                     'name' => 'shouldGetDeleted',
-                    'url' => 'test.com',
+                    'url' => 'https://test.example.com',
                     'eventName' => 'anotherTest',
                 ],
             ],
@@ -490,12 +490,12 @@ class AppManagerTest extends TestCase
             'webhooks' => [
                 [
                     'name' => 'hook1',
-                    'url' => 'oldUrl.com',
+                    'url' => 'https://old-url.example.com',
                     'eventName' => 'testEvent',
                 ],
                 [
                     'name' => 'shouldGetDeleted',
-                    'url' => 'test.com',
+                    'url' => 'https://test.example.com',
                     'eventName' => 'anotherTest',
                 ],
             ],
@@ -1226,7 +1226,7 @@ class AppManagerTest extends TestCase
 
         $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertCount(16, $privileges);
+        static::assertCount(17, $privileges);
 
         static::assertContains('product:read', $privileges);
         static::assertContains('product:create', $privileges);
@@ -1244,6 +1244,8 @@ class AppManagerTest extends TestCase
         static::assertContains('custom_field_set:update', $privileges);
         static::assertContains('order:read', $privileges);
         static::assertContains('user_change_me', $privileges);
+        // implied by the manifest's tax provider
+        static::assertContains('tax_processor', $privileges);
     }
 
     private function assertDefaultWebhooks(string $appId): void

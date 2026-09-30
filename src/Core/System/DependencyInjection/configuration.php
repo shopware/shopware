@@ -14,6 +14,7 @@ use Shopware\Core\System\SystemConfig\Command\ConfigSet;
 use Shopware\Core\System\SystemConfig\ConfiguredSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\MemoizedSystemConfigLoader;
+use Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRoute;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
@@ -87,6 +88,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ClockInterface::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(ShopSettingsRoute::class)
+        ->public()
+        ->args([
+            service(SystemConfigService::class),
+        ]);
 
     $services->set(MemoizedSystemConfigStore::class)
         ->tag('kernel.event_subscriber')

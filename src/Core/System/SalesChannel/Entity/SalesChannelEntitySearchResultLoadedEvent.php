@@ -14,6 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @template TEntityCollection of EntityCollection
  *
  * @extends EntitySearchResultLoadedEvent<TEntityCollection>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class SalesChannelEntitySearchResultLoadedEvent extends EntitySearchResultLoadedEvent implements ShopwareSalesChannelEvent

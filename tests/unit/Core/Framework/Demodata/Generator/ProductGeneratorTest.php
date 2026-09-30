@@ -105,7 +105,7 @@ class ProductGeneratorTest extends TestCase
 
         $taxRepository = new StaticEntityRepository([
             new EntitySearchResult(
-                TaxEntity::class,
+                'tax',
                 1,
                 new TaxCollection([$taxEntity]),
                 null,

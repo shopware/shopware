@@ -20,15 +20,9 @@ export default {
         'swProductDetailLoadAll',
     ],
 
-    emits: [
-        'modal-close',
-        'variations-finish-generate',
-    ],
+    emits: ['modal-close', 'variations-finish-generate'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     props: {
         product: {
@@ -363,6 +357,9 @@ export default {
                 .saveVariants(this.variantGenerationQueue)
                 .then(() => {
                     return this.variantsGenerator.saveVariantRestrictions();
+                })
+                .then(() => {
+                    return this.variantsGenerator.saveVariantListingConfig();
                 })
                 .then(() => {
                     this.addOriginalConfiguratorSettings();

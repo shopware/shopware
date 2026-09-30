@@ -16,6 +16,8 @@ test(
         const category = await TestDataService.createCategory();
         await TestDataService.assignProductCategory(product.id, category.id);
 
+        await TestDataService.clearCaches();
+
         await test.step('Navigate to homepage and verify cookie banner', async () => {
             await ShopCustomer.goesTo(StorefrontHome.url());
             await CheckVisibilityInHome(product.name)();

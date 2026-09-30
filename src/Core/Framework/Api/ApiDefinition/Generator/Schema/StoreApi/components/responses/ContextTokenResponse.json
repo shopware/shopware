@@ -9,6 +9,7 @@
                 "headers": {
                     "sw-context-token": {
                         "description": "Contains sw-context-token value",
+                        "required": true,
                         "schema": {
                             "type": "string"
                         }
@@ -21,7 +22,7 @@
                             "properties": {
                                 "redirectUrl": {
                                     "description": "Define the URL which browser will be redirected to",
-                                    "type": "string"
+                                    "type": ["string", "null"]
                                 }
                             }
                         }

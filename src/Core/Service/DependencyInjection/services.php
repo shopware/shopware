@@ -4,13 +4,13 @@ namespace Shopware\Core\Service\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppExtractor;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
-use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Notification\NotificationService;
@@ -37,11 +37,13 @@ use Shopware\Core\Service\ServiceHookableEventDescriber;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\PermissionLogger;
+use Shopware\Core\Service\ServiceRegistry\RegistryUrlProcessor;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
+use Shopware\Core\Service\ServiceWebhookPolicy;
 use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
 use Shopware\Core\Service\Subscriber\InstalledExtensionsListingLoadedSubscriber;
-use Shopware\Core\Service\Subscriber\LicenseSyncSubscriber;
+use Shopware\Core\Service\Subscriber\LicenseProviderSubscriber;
 use Shopware\Core\Service\Subscriber\PermissionsSubscriber;
 use Shopware\Core\Service\Subscriber\ServiceLifecycleSubscriber;
 use Shopware\Core\Service\Subscriber\ServiceWriteProtectionSubscriber;
@@ -60,7 +62,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
-    $parameters->set('env(SERVICE_REGISTRY_URL)', 'https://registry.services.shopware.io');
+    $parameters->set('env(SERVICE_REGISTRY_URL)', ServiceExtension::DEFAULT_REGISTRY_URL);
     $parameters->set('env(ENABLE_SERVICES)', 'auto');
 
     $services = $containerConfigurator->services();
@@ -87,9 +89,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(RegistryUrlProcessor::class)
+        ->args([
+            ServiceExtension::DEFAULT_REGISTRY_URL,
+            param('shopware.service_registry.trusted_domains'),
+        ])
+        ->tag('container.env_var_processor');
+
     $services->set(Client::class)
         ->args([
-            env('SERVICE_REGISTRY_URL'),
+            param('shopware.service_registry.url'),
             env('APP_URL'),
             service('service_registry.http_client'),
         ])
@@ -107,6 +116,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RequirementsValidator::class),
             service(Client::class),
             service(ServiceClientFactory::class),
+            service(Privileges::class),
         ]);
 
     $services->set(ServiceStorage::class)
@@ -130,8 +140,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(HttpClientInterface::class),
             service(Client::class),
             param('kernel.shopware_version'),
-            service('shopware.app_system.guzzle.middleware'),
-            service(AppPayloadServiceHelper::class),
         ]);
 
     $services->set(AllServiceInstaller::class)
@@ -201,19 +209,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.project_dir'),
         ]);
 
-    $services->set(LicenseSyncSubscriber::class)
+    $services->set(LicenseProviderSubscriber::class)
         ->args([
             service(SystemConfigService::class),
-            service(Client::class),
-            service('app.repository'),
-            service('logger'),
-            service(ServiceClientFactory::class),
             service('event_dispatcher'),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ServiceHookableEventDescriber::class)
         ->tag('shopware.hookable_event.describer');
+
+    $services->set(ServiceWebhookPolicy::class)
+        ->args([service(ActiveAppsLoader::class)])
+        ->tag('shopware.webhook.policy');
 
     $services->set(PermissionsService::class)
         ->args([
@@ -250,32 +258,29 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             env('ENABLE_SERVICES'),
             param('kernel.environment'),
-            service(Privileges::class),
             service(SystemConfigService::class),
             service(ServiceStorage::class),
             service(ServiceLifecycle::class),
             service(AllServiceInstaller::class),
             service(PermissionsService::class),
             service(Client::class),
-            service(RequirementsValidator::class),
         ]);
 
     $services->set(ServiceLifecycleSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
             service(Notification::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(PermissionsSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
+            service(ServiceLifecycle::class),
         ])
         ->tag('kernel.event_subscriber');
 
     $services->set(ShopwareAccountSubscriber::class)
         ->args([
-            service(LifecycleManager::class),
+            service(ServiceLifecycle::class),
         ])
         ->tag('kernel.event_subscriber');
 

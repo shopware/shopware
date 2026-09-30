@@ -100,7 +100,7 @@ class Migration1781862820RepairRevocationRequestTranslations extends MigrationSt
             ]);
         }
 
-        foreach ($this->getLanguageIdsByLocalePrefix($connection, 'de') as $deLanguageByteId) {
+        foreach ($this->getLanguageIdsWithDePrefix($connection) as $deLanguageByteId) {
             $this->repairMailTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $deLanguageByteId, $mailTemplateType->getDeName());
             $this->repairMailTemplateTranslation($connection, $mailTemplateByteId, $deLanguageByteId, [
                 'sender_name' => $mailTemplate->getDeSenderName(),
@@ -111,7 +111,7 @@ class Migration1781862820RepairRevocationRequestTranslations extends MigrationSt
             ]);
         }
 
-        foreach ($this->getLanguageIdsByLocalePrefix($connection, 'de', true) as $enLanguageByteId) {
+        foreach ($this->getLanguageIdsWithoutDePrefix($connection) as $enLanguageByteId) {
             $this->repairMailTemplateTypeTranslation($connection, $mailTemplateTypeByteId, $enLanguageByteId, $mailTemplateType->getEnName());
             $this->repairMailTemplateTranslation($connection, $mailTemplateByteId, $enLanguageByteId, [
                 'sender_name' => $mailTemplate->getEnSenderName(),
@@ -230,8 +230,8 @@ SQL,
 
     private function repairRevocationRequestCmsPage(Connection $connection): string
     {
-        $deLanguageByteIds = $this->getLanguageIdsByLocalePrefix($connection, 'de');
-        $enLanguageByteIds = $this->getLanguageIdsByLocalePrefix($connection, 'de', true);
+        $deLanguageByteIds = $this->getLanguageIdsWithDePrefix($connection);
+        $enLanguageByteIds = $this->getLanguageIdsWithoutDePrefix($connection);
         $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
         $cmsPageByteId = $this->createCmsPage($connection, $versionByteId, $enLanguageByteIds, $deLanguageByteIds);
@@ -415,7 +415,7 @@ SQL,
 
     private function repairCmsSlotTranslation(Connection $connection, string $cmsSlotByteId, string $versionByteId, string $languageByteId): void
     {
-        if ((bool) $connection->fetchOne(
+        if ($connection->fetchOne(
             'SELECT 1 FROM `cms_slot_translation` WHERE `cms_slot_id` = :cmsSlotId AND `cms_slot_version_id` = :versionId AND `language_id` = :languageId LIMIT 1',
             [
                 'cmsSlotId' => $cmsSlotByteId,
@@ -521,7 +521,7 @@ SQL,
             return;
         }
 
-        $configuredPageId = $this->extractCmsPageId($configuration['configuration_value'] ?? null);
+        $configuredPageId = $this->extractCmsPageId($configuration['configuration_value']);
         if ($configuredPageId !== null && $this->cmsPageExistsInLiveVersion($connection, $configuredPageId)) {
             return;
         }
@@ -544,7 +544,7 @@ SQL,
     }
 
     /**
-     * @return array{id: string, configuration_value: mixed}|null
+     * @return array{id: string, configuration_value: string}|null
      */
     private function getGlobalRevocationPageConfiguration(Connection $connection): ?array
     {
@@ -589,7 +589,7 @@ SQL,
 
     private function disableGlobalRevocationButtonIfMissing(Connection $connection): void
     {
-        if ((bool) $connection->fetchOne(
+        if ($connection->fetchOne(
             'SELECT 1 FROM `system_config` WHERE `configuration_key` = :configKey AND `sales_channel_id` IS NULL LIMIT 1',
             ['configKey' => Migration1768545322AssignRevocationPageToSystemConfigSetting::REVOCATION_BUTTON_CONFIG_KEY],
         )) {
@@ -605,12 +605,8 @@ SQL,
         ]);
     }
 
-    private function extractCmsPageId(mixed $configurationValue): ?string
+    private function extractCmsPageId(string $configurationValue): ?string
     {
-        if (!\is_string($configurationValue)) {
-            return null;
-        }
-
         $decoded = json_decode($configurationValue, true);
         if (!\is_array($decoded)) {
             return null;
@@ -652,33 +648,38 @@ SQL,
     /**
      * @return list<string>
      */
-    private function getLanguageIdsByLocalePrefix(Connection $connection, string $localePrefix, bool $invert = false): array
+    private function getLanguageIdsWithDePrefix(Connection $connection): array
     {
-        $operator = $invert ? 'NOT LIKE' : 'LIKE';
-
+        /** @var list<string> $languageIds */
         $languageIds = $connection->fetchFirstColumn(
-            \sprintf(
-                <<<'SQL'
+            <<<'SQL'
 SELECT `language`.`id`
 FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
-WHERE LOWER(`locale`.`code`) %s :localePrefix
+WHERE LOWER(`locale`.`code`) LIKE 'de-%'
 ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
-SQL,
-                $operator,
-            ),
-            ['localePrefix' => $localePrefix . '-%'],
+SQL
         );
 
-        $languageByteIds = [];
-        foreach ($languageIds as $languageId) {
-            if (!\is_string($languageId)) {
-                continue;
-            }
+        return $languageIds;
+    }
 
-            $languageByteIds[] = $languageId;
-        }
+    /**
+     * @return list<string>
+     */
+    private function getLanguageIdsWithoutDePrefix(Connection $connection): array
+    {
+        /** @var list<string> $languageIds */
+        $languageIds = $connection->fetchFirstColumn(
+            <<<'SQL'
+SELECT `language`.`id`
+FROM `language`
+INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
+WHERE LOWER(`locale`.`code`) NOT LIKE 'de-%'
+ORDER BY `language`.`created_at` ASC, `language`.`id` ASC
+SQL
+        );
 
-        return $languageByteIds;
+        return $languageIds;
     }
 }

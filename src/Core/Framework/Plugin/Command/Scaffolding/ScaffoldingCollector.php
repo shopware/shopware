@@ -49,9 +49,35 @@ EOL;
     {
     }
 
-    public function collect(PluginScaffoldConfiguration $configuration): StubCollection
-    {
+    public function collect(
+        PluginScaffoldConfiguration $configuration,
+        ?ScaffoldingGenerator $generator = null
+    ): StubCollection {
         $stubCollection = new StubCollection();
+
+        if ($generator !== null) {
+            $generator->generateStubs($configuration, $stubCollection);
+
+            $this->prepareIncrementalAggregate(
+                $stubCollection,
+                $configuration,
+                'src/Resources/config/services.php',
+                $this->servicesPhpIntro,
+                $this->servicesPhpOutro,
+            );
+
+            if ($configuration->hasOption(PluginScaffoldConfiguration::ROUTE_XML_OPTION_NAME)) {
+                $this->prepareIncrementalAggregate(
+                    $stubCollection,
+                    $configuration,
+                    'src/Resources/config/routes.php',
+                    $this->routesPhpIntro,
+                    $this->routesPhpOutro,
+                );
+            }
+
+            return $stubCollection;
+        }
 
         $stubCollection->add(Stub::raw(
             'src/Resources/config/services.php',
@@ -65,8 +91,8 @@ EOL;
             ));
         }
 
-        foreach ($this->generators as $generator) {
-            $generator->generateStubs($configuration, $stubCollection);
+        foreach ($this->generators as $availableGenerator) {
+            $availableGenerator->generateStubs($configuration, $stubCollection);
         }
 
         $stubCollection->append(
@@ -82,5 +108,32 @@ EOL;
         }
 
         return $stubCollection;
+    }
+
+    private function prepareIncrementalAggregate(
+        StubCollection $stubCollection,
+        PluginScaffoldConfiguration $configuration,
+        string $path,
+        string $intro,
+        string $outro
+    ): void {
+        if (!$stubCollection->has($path)) {
+            return;
+        }
+
+        $stub = $stubCollection->get($path);
+        $content = $stub->getContent();
+
+        if ($content === null) {
+            return;
+        }
+
+        if (is_file($configuration->directory . '/' . $path)) {
+            $stubCollection->add(Stub::append($path, $content));
+
+            return;
+        }
+
+        $stubCollection->add(Stub::raw($path, $intro . $content . $outro));
     }
 }

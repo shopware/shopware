@@ -16,7 +16,7 @@ use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(StaticFileConfigLoader::class)]
 class StaticFileConfigLoaderTest extends TestCase
 {

@@ -1,11 +1,11 @@
 /* eslint-disable sw-test-rules/test-file-max-lines-warning */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import { DOCUMENT_MAIL_TEMPLATE_MAPPING } from './index';
-import { DOCUMENT_TYPES } from '../../order.types';
+import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 
 /**
  * @sw-package checkout
@@ -288,7 +288,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await mailTemplateSelect.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-select-result__result-item-description').text()).toBe(mockMailTemplates[0].description);
+        expect(new DOMWrapper(document.body).get('.sw-select-result__result-item-description').text()).toBe(
+            mockMailTemplates[0].description,
+        );
     });
 
     it('should truncate mail template description', async () => {
@@ -303,7 +305,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection').trigger('click');
         await flushPromises();
 
-        const text = wrapper.find('.sw-select-result__result-item-description').text();
+        const text = new DOMWrapper(document.body).get('.sw-select-result__result-item-description').text();
         expect(text).toHaveLength(160);
         expect(text.endsWith('...')).toBe(true);
     });
@@ -375,16 +377,13 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             subject: 'Alt cancellation subject',
         });
 
-        const wrapper = await createWrapper(defaultProps, true, [
-            mockMailTemplates[0],
-            altCancellationTemplate,
-        ]);
+        const wrapper = await createWrapper(defaultProps, true, [mockMailTemplates[0], altCancellationTemplate]);
         await flushPromises();
 
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--1').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(
@@ -444,7 +443,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.find('.sw-entity-single-select__selection-input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--2').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--2').trigger('click');
         await flushPromises();
 
         expect(wrapper.findAll('.mt-text-field .mt-field__hint-wrapper')[0].text()).toBe('');
@@ -529,6 +528,31 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         });
     });
 
+    it('should fall back to the V2 html document file for a11y links', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            document: {
+                ...mockDocuments[0],
+                documentA11yMediaFile: null,
+                documentFiles: [
+                    {
+                        documentFormat: 'html',
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.a11yDocuments).toEqual([
+            {
+                documentId: mockDocuments[0].id,
+                deepLinkCode: '12345',
+                fileExtension: 'html',
+            },
+        ]);
+    });
+
     describe('auto select mail template by document type', () => {
         it('should have a mapping entry for every DOCUMENT_TYPES value', () => {
             Object.values(DOCUMENT_TYPES).forEach((docType) => {
@@ -537,67 +561,25 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         });
 
         it.each([
-            [
-                'invoice',
-                'invoice_mail',
-            ],
-            [
-                'delivery_note',
-                'delivery_mail',
-            ],
-            [
-                'credit_note',
-                'credit_note_mail',
-            ],
-            [
-                'storno',
-                'cancellation_mail',
-            ],
-            [
-                'zugferd_invoice',
-                'invoice_mail',
-            ],
-            [
-                'zugferd_embedded_invoice',
-                'invoice_mail',
-            ],
-            [
-                'zugferd_credit_note',
-                'credit_note_mail',
-            ],
-            [
-                'zugferd_embedded_credit_note',
-                'credit_note_mail',
-            ],
-            [
-                'zugferd_cancellation_invoice',
-                'cancellation_mail',
-            ],
-            [
-                'zugferd_embedded_cancellation_invoice',
-                'cancellation_mail',
-            ],
+            ['invoice', 'invoice_mail'],
+            ['delivery_note', 'delivery_mail'],
+            ['credit_note', 'credit_note_mail'],
+            ['storno', 'cancellation_mail'],
+            ['zugferd_invoice', 'invoice_mail'],
+            ['zugferd_embedded_invoice', 'invoice_mail'],
+            ['zugferd_credit_note', 'credit_note_mail'],
+            ['zugferd_embedded_credit_note', 'credit_note_mail'],
+            ['zugferd_cancellation_invoice', 'cancellation_mail'],
+            ['zugferd_embedded_cancellation_invoice', 'cancellation_mail'],
         ])('should map document type "%s" to mail template type "%s"', (docType, mailTemplateType) => {
             expect(DOCUMENT_MAIL_TEMPLATE_MAPPING[docType]).toBe(mailTemplateType);
         });
 
         it.each([
-            [
-                'zugferd_invoice',
-                'invoice_mail',
-            ],
-            [
-                'zugferd_embedded_invoice',
-                'invoice_mail',
-            ],
-            [
-                'zugferd_credit_note',
-                'credit_note_mail',
-            ],
-            [
-                'zugferd_cancellation_invoice',
-                'cancellation_mail',
-            ],
+            ['zugferd_invoice', 'invoice_mail'],
+            ['zugferd_embedded_invoice', 'invoice_mail'],
+            ['zugferd_credit_note', 'credit_note_mail'],
+            ['zugferd_cancellation_invoice', 'cancellation_mail'],
         ])('should auto select correct template for %s document', async (docType, mailType) => {
             const document = makeDocument(docType);
             const template = makeMailTemplate(mailType);

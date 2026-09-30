@@ -56,6 +56,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $events = TemplateDataSubscriber::getSubscribedEvents();
 
         static::assertArrayHasKey(StorefrontRenderEvent::class, $events);
@@ -80,6 +82,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testAddHreflangWithNullRoute(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $event = new StorefrontRenderEvent(
             'test',
             [],
@@ -97,6 +101,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testAddHreflangSkippedForEsiRequest(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $request = new Request();
         $request->attributes->set('_route', 'frontend.header');
         $request->attributes->set('_esi', true);
@@ -118,6 +124,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testAddHreflangWithValidRoute(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $request = new Request();
         $request->attributes->set('_route', 'frontend.home');
         $request->attributes->set('_route_params', ['param' => 'value']);
@@ -246,6 +254,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testAddShopIdParameterWithNoActiveApps(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $event = new StorefrontRenderEvent(
             'test',
             [],
@@ -269,6 +279,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testAddShopIdParameterWithUrlChangeException(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $event = new StorefrontRenderEvent(
             'test',
             [],
@@ -293,6 +305,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testShopIdAdded(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $event = new StorefrontRenderEvent(
             'test',
             [],
@@ -320,6 +334,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testAddIconSetConfigWithNoTheme(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $event = new StorefrontRenderEvent(
             'test',
             [],
@@ -339,6 +355,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testAddIconSetConfigWithNoThemeButThemeName(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $request = new Request();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
 
@@ -362,6 +380,8 @@ class TemplateDataSubscriberTest extends TestCase
 
     public function testAddIconSetConfigWithValidTheme(): void
     {
+        $this->hreflangLoader->expects($this->never())->method('load');
+
         $request = new Request();
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
 

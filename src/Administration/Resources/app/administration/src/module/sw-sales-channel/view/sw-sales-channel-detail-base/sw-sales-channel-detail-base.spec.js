@@ -39,11 +39,7 @@ async function createWrapper(options = {}) {
                 'sw-entity-single-select': true,
                 'sw-single-select': true,
                 'sw-sales-channel-defaults-select': {
-                    props: [
-                        'criteria',
-                        'disabled',
-                        'propertyName',
-                    ],
+                    props: ['criteria', 'disabled', 'propertyName'],
                     template: `
                         <sw-sales-channel-defaults-select-stub
                             :disabled="disabled"
@@ -210,18 +206,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         it.each([
-            [
-                'summer224',
-                'SUMMER224',
-            ],
-            [
-                'Summer-2026',
-                'SUMMER-2026',
-            ],
-            [
-                'eu_de',
-                'EU_DE',
-            ],
+            ['summer224', 'SUMMER224'],
+            ['Summer-2026', 'SUMMER-2026'],
+            ['eu_de', 'EU_DE'],
         ])('upper-cases letters as the merchant types (%s -> %s)', async (typed, stored) => {
             const wrapper = await createWrapper({
                 props: {
@@ -1187,26 +1174,11 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
     });
 
     it.each([
-        [
-            'currencies',
-            'name',
-        ],
-        [
-            'shippingMethods',
-            'name',
-        ],
-        [
-            'paymentMethods',
-            'distinguishableName',
-        ],
-        [
-            'countries',
-            'name',
-        ],
-        [
-            'languages',
-            'name',
-        ],
+        ['currencies', 'name'],
+        ['shippingMethods', 'name'],
+        ['paymentMethods', 'distinguishableName'],
+        ['countries', 'name'],
+        ['languages', 'name'],
     ])('should pass alphabetical sort criteria to %s defaults select', async (propertyName, sortField) => {
         const wrapper = await createWrapper();
 
@@ -1222,9 +1194,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const field = wrapper.getComponent('sw-sales-channel-defaults-select-stub[property-name="languages"]');
         const criteria = field.props('criteria');
 
-        expect(criteria.parse().filter).toEqual([
-            { type: 'equals', field: 'active', value: true },
-        ]);
+        expect(criteria.parse().filter).toEqual([{ type: 'equals', field: 'active', value: true }]);
     });
 
     it('should return filters from filter registry', async () => {
@@ -1280,6 +1250,77 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.cliCommand).toBe('php bin/console product-export:generate sc-id export-id');
     });
 
+    describe('onStorefrontSelectionChange', () => {
+        const storefront = {
+            id: 'storefront-id',
+            languageId: 'french-id',
+            language: { id: 'french-id', name: 'French' },
+            currencyId: 'currency-id',
+        };
+
+        function createLanguagesCollection(ids) {
+            return {
+                has: (id) => ids.includes(id),
+                add: jest.fn(),
+            };
+        }
+
+        async function createStorefrontSelectionWrapper(languages, entity = storefront) {
+            return createWrapper({
+                props: {
+                    salesChannel: {
+                        typeId: PRODUCT_COMPARISON_TYPE_ID,
+                        languages,
+                    },
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => Promise.resolve(entity),
+                            search: () => Promise.resolve([]),
+                        }),
+                    },
+                },
+            });
+        }
+
+        it('should add the storefront language to the sales channel languages', async () => {
+            const languages = createLanguagesCollection([]);
+            const wrapper = await createStorefrontSelectionWrapper(languages);
+
+            wrapper.vm.onStorefrontSelectionChange('storefront-id');
+            await flushPromises();
+
+            expect(wrapper.vm.salesChannel.languageId).toBe('french-id');
+            expect(languages.add).toHaveBeenCalledWith(storefront.language);
+        });
+
+        it('should not add the storefront language when it is already in the languages collection', async () => {
+            const languages = createLanguagesCollection(['french-id']);
+            const wrapper = await createStorefrontSelectionWrapper(languages);
+
+            wrapper.vm.onStorefrontSelectionChange('storefront-id');
+            await flushPromises();
+
+            expect(wrapper.vm.salesChannel.languageId).toBe('french-id');
+            expect(languages.add).not.toHaveBeenCalled();
+        });
+
+        it('should not fail when the storefront language association is not loaded', async () => {
+            const languages = createLanguagesCollection([]);
+            const wrapper = await createStorefrontSelectionWrapper(languages, {
+                ...storefront,
+                language: null,
+            });
+
+            wrapper.vm.onStorefrontSelectionChange('storefront-id');
+            await flushPromises();
+
+            expect(wrapper.vm.salesChannel.languageId).toBe('french-id');
+            expect(languages.add).not.toHaveBeenCalled();
+        });
+    });
+
     it('should build unserved languages alert with correct pluralization for single item', async () => {
         const wrapper = await createWrapper();
         const collection = [
@@ -1329,9 +1370,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it('should build payment alert with correct pluralization for single item', async () => {
         const wrapper = await createWrapper();
-        const collection = [
-            { translated: { name: 'PayPal|Invoice' } },
-        ];
+        const collection = [{ translated: { name: 'PayPal|Invoice' } }];
 
         const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
 
@@ -1351,10 +1390,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it('should build payment alert with correct pluralization for multiple items', async () => {
         const wrapper = await createWrapper();
-        const collection = [
-            { translated: { name: 'PayPal|Invoice' } },
-            { translated: { name: 'Cash on delivery' } },
-        ];
+        const collection = [{ translated: { name: 'PayPal|Invoice' } }, { translated: { name: 'Cash on delivery' } }];
 
         const snippet = 'sw-sales-channel.detail.warningDisabledPaymentMethod';
 
@@ -1374,9 +1410,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it('should build shipping alert with correct pluralization for single item', async () => {
         const wrapper = await createWrapper();
-        const collection = [
-            { translated: { name: 'Standard' } },
-        ];
+        const collection = [{ translated: { name: 'Standard' } }];
         collection.first = () => collection[0];
         collection.last = () => collection[0];
 
@@ -1397,10 +1431,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     it('should build shipping alert with correct pluralization for multiple items', async () => {
         const wrapper = await createWrapper();
-        const collection = [
-            { translated: { name: 'Standard' } },
-            { translated: { name: 'Express' } },
-        ];
+        const collection = [{ translated: { name: 'Standard' } }, { translated: { name: 'Express' } }];
         collection.first = () => collection[0];
         collection.last = () => collection[1];
 
@@ -1533,10 +1564,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
                     typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
                     languageId: 'language-1',
                     currencyId: 'currency-1',
-                    languages: [
-                        { id: 'language-1' },
-                        { id: 'language-2' },
-                    ],
+                    languages: [{ id: 'language-1' }, { id: 'language-2' }],
                     domains: [{ languageId: 'language-2' }],
                 },
             },
@@ -1681,14 +1709,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(wrapper.vm.salesChannelRepository.delete).toHaveBeenCalledWith('test-id', Shopware.Context.api);
         expect(wrapper.vm.$t.mock.calls).toEqual([
-            [
-                'global.entities.order',
-                0,
-            ],
-            [
-                'sw-sales-channel.detail.foreignKeyDelete',
-                { assignment: 'orders' },
-            ],
+            ['global.entities.order', 0],
+            ['sw-sales-channel.detail.foreignKeyDelete', { assignment: 'orders' }],
         ]);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-sales-channel.detail.foreignKeyDelete',

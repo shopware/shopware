@@ -258,8 +258,10 @@
                     <template v-if="!isLoading">
                         <mt-empty-state
                             v-if="noTaxProvidersFound"
+                            centered
                             :icon="$route.meta.$module.icon"
                             :headline="$t('sw-settings-tax.list.taxProvider.messageEmptyTitle')"
+                            description=""
                         />
 
                         <div

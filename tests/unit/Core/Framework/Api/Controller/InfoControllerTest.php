@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
@@ -69,6 +70,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfig(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->setEnvVars([
             'APP_URL' => 'https://app.url',
         ]);
@@ -126,6 +129,8 @@ class InfoControllerTest extends TestCase
         static::assertTrue($settings['enableHtmlSanitizer']);
         static::assertArrayHasKey('minSearchTermLength', $settings);
         static::assertSame(2, $settings['minSearchTermLength']);
+        static::assertArrayHasKey('hideUpdateModule', $settings);
+        static::assertFalse($settings['hideUpdateModule']);
 
         static::assertArrayHasKey('inAppPurchases', $data);
         $inAppPurchases = $data['inAppPurchases'];
@@ -153,6 +158,8 @@ class InfoControllerTest extends TestCase
     #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testConfigHidesWebhookTransportWhenWebhookReworkIsInactive(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $content = $this->createController(['webhook', 'async', 'low_priority'])
             ->config(Context::createDefaultContext(), Request::create('http://localhost'))
             ->getContent();
@@ -165,6 +172,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigKeepsWebhookTransportWhenWebhookReworkIsActive(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $content = $this->createController(['webhook', 'async', 'low_priority'])
             ->config(Context::createDefaultContext(), Request::create('http://localhost'))
             ->getContent();
@@ -177,6 +186,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigExtension(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, static function (AdminInfoConfigEvent $event): void {
             $event->addConfig('foo', 'bar');
         });
@@ -192,6 +203,8 @@ class InfoControllerTest extends TestCase
 
     public function testMessageStatsPreservesFloatingPointPrecision(): void
     {
+        $this->shopIdProvider->expects($this->never())->method('getShopId');
+
         $this->statsService->method('getStats')->willReturn(
             new MessageStatsResponseEntity(
                 true,
@@ -212,6 +225,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNull(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
 
         $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
@@ -227,6 +242,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsNullFirstMigrationDateWhenMigrationInfoReturnsNullAgain(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn(null);
 
         $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
@@ -242,6 +259,8 @@ class InfoControllerTest extends TestCase
 
     public function testConfigReturnsFirstMigrationDateFromMigrationInfo(): void
     {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
         $this->migrationInfo->method('getFirstMigrationDate')->willReturn('2020-01-01T00:00:00.123+00:00');
 
         $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
@@ -253,6 +272,21 @@ class InfoControllerTest extends TestCase
         static::assertArrayHasKey('settings', $data);
         static::assertArrayHasKey('firstMigrationDate', $data['settings']);
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
+    }
+
+    public function testConfigReturnsHideUpdateModuleWhenEnabled(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $response = $this->createController(hideUpdateModule: true)->config(Context::createDefaultContext(), Request::create('http://localhost'));
+        $content = $response->getContent();
+        static::assertIsString($content);
+
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('settings', $data);
+        static::assertArrayHasKey('hideUpdateModule', $data['settings']);
+        static::assertTrue($data['settings']['hideUpdateModule']);
     }
 
     #[DataProvider('aclProtectedRouteProvider')]
@@ -272,10 +306,31 @@ class InfoControllerTest extends TestCase
         yield 'message stats' => ['api.info.message-stats'];
     }
 
+    public function testConfigDispatchesMediaFileExtensionWhitelistEventOnlyOnce(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+
+        $dispatchCount = 0;
+        $this->eventDispatcher->addListener(
+            MediaFileExtensionWhitelistEvent::class,
+            function () use (&$dispatchCount): void {
+                ++$dispatchCount;
+            }
+        );
+
+        $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+
+        static::assertSame(
+            1,
+            $dispatchCount,
+            'MediaFileExtensionWhitelistEvent must be dispatched exactly once per /api/_info/config request'
+        );
+    }
+
     /**
      * @param list<string> $adminWorkerTransports
      */
-    private function createController(array $adminWorkerTransports = ['slow']): InfoController
+    private function createController(array $adminWorkerTransports = ['slow'], bool $hideUpdateModule = false): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
@@ -290,6 +345,7 @@ class InfoControllerTest extends TestCase
             'shopware.media.enable_url_upload_feature' => true,
             'shopware.staging.administration.show_banner' => false,
             'shopware.deployment.runtime_extension_management' => true,
+            'shopware.auto_update.hide_module' => $hideUpdateModule,
         ]);
 
         return new InfoController(

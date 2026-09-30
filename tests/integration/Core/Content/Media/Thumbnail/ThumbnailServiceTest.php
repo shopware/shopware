@@ -104,15 +104,15 @@ class ThumbnailServiceTest extends TestCase
         static::assertInstanceOf(MediaThumbnailCollection::class, $thumbnails);
         static::assertCount(2, $thumbnails);
 
+        $folder = $updatedMedia->getMediaFolder();
+        static::assertInstanceOf(MediaFolderEntity::class, $folder);
+        static::assertInstanceOf(MediaFolderConfigurationEntity::class, $folder->getConfiguration());
+
+        $sizes = $folder->getConfiguration()->getMediaThumbnailSizes();
+        static::assertInstanceOf(MediaThumbnailSizeCollection::class, $sizes);
+
         foreach ($thumbnails as $thumbnail) {
             $thumbnailPath = $thumbnail->getPath();
-
-            $folder = $updatedMedia->getMediaFolder();
-            static::assertInstanceOf(MediaFolderEntity::class, $folder);
-            static::assertInstanceOf(MediaFolderConfigurationEntity::class, $folder->getConfiguration());
-
-            $sizes = $folder->getConfiguration()->getMediaThumbnailSizes();
-            static::assertInstanceOf(MediaThumbnailSizeCollection::class, $sizes);
 
             $filtered = $sizes->filter(
                 static fn (MediaThumbnailSizeEntity $size) => $size->getId() === $thumbnail->getMediaThumbnailSizeId()

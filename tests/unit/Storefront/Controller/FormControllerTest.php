@@ -107,7 +107,6 @@ class FormControllerTest extends TestCase
     public function testNewsletterSubscribeTranslatesViolationCode(): void
     {
         $subscribeRoute = static::createStub(AbstractNewsletterSubscribeRoute::class);
-        $subscribeRoute->method('subscribe')->willThrowException($this->createViolationException());
         $subscribeRoute->method('subscribeWithResponse')->willThrowException($this->createViolationException());
 
         $controller = $this->createController(subscribeRoute: $subscribeRoute);
@@ -124,7 +123,7 @@ class FormControllerTest extends TestCase
     public function testNewsletterUnsubscribeTranslatesViolationCode(): void
     {
         $unsubscribeRoute = static::createStub(AbstractNewsletterUnsubscribeRoute::class);
-        $unsubscribeRoute->method('unsubscribe')->willThrowException($this->createViolationException());
+        $unsubscribeRoute->method('unsubscribeWithResponse')->willThrowException($this->createViolationException());
 
         $controller = $this->createController(unsubscribeRoute: $unsubscribeRoute);
 

@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -15,6 +17,11 @@ use Symfony\Component\HttpFoundation\Response;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: DocumentV2Exception::class,
+)]
 class DocumentException extends HttpException
 {
     public const INVALID_DOCUMENT_GENERATOR_TYPE_CODE = 'DOCUMENT__INVALID_GENERATOR_TYPE';
@@ -48,6 +55,8 @@ class DocumentException extends HttpException
     public const DOCUMENT_HAS_DEPENDING_DOCUMENTS = 'DOCUMENT__HAS_DEPENDING_DOCUMENTS';
 
     public const DOCUMENT_BASE_INVOICE_NOT_FOUND = 'DOCUMENT__BASE_INVOICE_NOT_FOUND';
+
+    public const DOCUMENT_AUTH_THROTTLED = 'DOCUMENT__AUTH_THROTTLED';
 
     public static function invalidDocumentGeneratorType(string $type): self
     {
@@ -150,6 +159,16 @@ class DocumentException extends HttpException
             self::INVALID_REQUEST_PARAMETER_CODE,
             'The parameter "{{ parameter }}" is invalid.',
             ['parameter' => $name]
+        );
+    }
+
+    public static function documentAuthThrottledException(int $waitTime): self
+    {
+        return new self(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            self::DOCUMENT_AUTH_THROTTLED,
+            'Document auth throttled for {{ seconds }} seconds.',
+            ['seconds' => $waitTime],
         );
     }
 

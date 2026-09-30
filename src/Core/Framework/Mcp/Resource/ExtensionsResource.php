@@ -88,7 +88,7 @@ class ExtensionsResource
     }
 
     /**
-     * @param array{name: string, type: string, install_command: string} $extension
+     * @param array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null} $extension
      */
     private function resolveInstallCommand(array $extension, string $status): ?string
     {

@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
-use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
@@ -141,9 +140,8 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
     }
 
     /**
-     * Webhook deleted between dispatch and final retry: webhook fetch returns no rows, the
-     * is_array() guard early-returns before relatedWebhooks->updateRelated would throw on
-     * the missing FK. Pins trunk's "no-throw on missing webhook" contract — uncovered on trunk.
+     * Webhook deleted between dispatch and final retry: the webhook fetch returns no rows and the
+     * is_array() guard early-returns before anything is written.
      */
     public function testTerminalFailureWithDeletedWebhookDoesNotThrow(): void
     {
@@ -351,7 +349,6 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         $subscriber = new RetryWebhookMessageFailedSubscriber(
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(WebhookOutboxStore::class),
-            static::getContainer()->get(RelatedWebhooks::class),
             WebhookFailureStrategy::Ignore->value
         );
 
@@ -586,7 +583,6 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         $subscriber = new RetryWebhookMessageFailedSubscriber(
             $this->connection,
             $this->webhookOutboxStore,
-            static::getContainer()->get(RelatedWebhooks::class),
             WebhookFailureStrategy::DisableOnThreshold->value,
         );
 
@@ -630,7 +626,6 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         $subscriber = new RetryWebhookMessageFailedSubscriber(
             $this->connection,
             $this->webhookOutboxStore,
-            static::getContainer()->get(RelatedWebhooks::class),
             WebhookFailureStrategy::Ignore->value
         );
 

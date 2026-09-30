@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Installer\Controller\ShopConfigurationController;
+use Shopware\Core\Installer\InstallerException;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 
 /**
@@ -21,7 +21,18 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
  *
  * @see \Shopware\Tests\Integration\Core\Installer\Configuration\ShopConfigurationServiceTest
  *
- * @phpstan-import-type Shop from ShopConfigurationController
+ * @phpstan-type Shop array{
+ *     name: string,
+ *     locale: string,
+ *     currency: string,
+ *     additionalCurrencies: null|list<string>,
+ *     country: string,
+ *     email: string,
+ *     host: string,
+ *     basePath: string,
+ *     schema: string,
+ *     blueGreenDeployment: bool
+ * }
  */
 #[Package('framework')]
 class ShopConfigurationService
@@ -45,13 +56,19 @@ class ShopConfigurationService
      */
     private function performUpdate(array $shop, Connection $connection): void
     {
-        if (empty($shop['locale']) || empty($shop['host'])) {
-            throw new \RuntimeException('Please fill in all required fields. (shop configuration)');
+        $locale = $shop['locale'] ?? '';
+        if (!\is_string($locale) || $locale === '') {
+            throw InstallerException::shopConfigurationRequiredValueMissing('locale');
+        }
+
+        $host = $shop['host'] ?? '';
+        if (!\is_string($host) || $host === '') {
+            throw InstallerException::shopConfigurationRequiredValueMissing('host');
         }
 
         $shopConfigurator = new ShopConfigurator($connection, $this->eventDispatcher, $this->clock);
         $shopConfigurator->updateBasicInformation($shop['name'], $shop['email']);
-        $shopConfigurator->setDefaultLanguage($shop['locale']);
+        $shopConfigurator->setDefaultLanguage($locale);
         $shopConfigurator->setDefaultCurrency($shop['currency']);
 
         $this->deleteAllSalesChannelCurrencies($connection);
@@ -192,14 +209,12 @@ SQL;
 
     private function getFirstActiveShippingMethodId(Connection $connection): string
     {
-        return $connection
-            ->fetchOne('SELECT id FROM shipping_method WHERE `active` = 1 ORDER BY position');
+        return $connection->fetchOne('SELECT id FROM shipping_method WHERE `active` = 1 ORDER BY position');
     }
 
     private function getFirstActivePaymentMethodId(Connection $connection): string
     {
-        return $connection
-            ->fetchOne('SELECT id FROM payment_method WHERE `active` = 1 ORDER BY position');
+        return $connection->fetchOne('SELECT id FROM payment_method WHERE `active` = 1 ORDER BY position');
     }
 
     private function getLanguageId(string $iso, Connection $connection): ?string
@@ -220,11 +235,11 @@ SQL;
             [$currencyName]
         );
 
-        if (!$fetchCurrencyId) {
-            throw new \RuntimeException('Currency with iso-code ' . $currencyName . ' not found');
+        if (!\is_string($fetchCurrencyId) || $fetchCurrencyId === '') {
+            throw InstallerException::currencyNotFound($currencyName);
         }
 
-        return (string) $fetchCurrencyId;
+        return $fetchCurrencyId;
     }
 
     private function getSnippetSet(string $iso, Connection $connection): ?string
@@ -239,8 +254,8 @@ SQL;
     {
         $fetchCountryId = $connection->fetchOne('SELECT id FROM country WHERE LOWER(iso3) = LOWER(?)', [$iso]);
 
-        if (!$fetchCountryId) {
-            throw new \RuntimeException('Country with iso-code ' . $iso . ' not found');
+        if (!\is_string($fetchCountryId) || $fetchCountryId === '') {
+            throw InstallerException::countryNotFound($iso);
         }
 
         return $fetchCountryId;

@@ -74,8 +74,31 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         $this->appRepository->searches = [[$foundApp]];
 
         $this->deletedAppsGateway->expects($this->once())
-            ->method('insertSecretForDeletedApp')
-            ->with('test-app', 'secret-123');
+            ->method('insertSecretsForDeletedApp')
+            ->with('test-app', 'secret-123', []);
+
+        $this->subscriber->saveSecretFromDeletedApp($event);
+    }
+
+    public function testPendingCandidatesAreSavedAlongsideTheCommittedSecret(): void
+    {
+        $appId = Uuid::randomHex();
+        $event = new AppDeletedEvent(
+            $appId,
+            Context::createDefaultContext()
+        );
+
+        $foundApp = new AppEntity();
+        $foundApp->setId($appId);
+        $foundApp->setName('test-app');
+        $foundApp->setAppSecret('committed-secret');
+        $foundApp->setUnconfirmedAppSecrets(['pending-secret']);
+
+        $this->appRepository->searches = [[$foundApp]];
+
+        $this->deletedAppsGateway->expects($this->once())
+            ->method('insertSecretsForDeletedApp')
+            ->with('test-app', 'committed-secret', ['pending-secret']);
 
         $this->subscriber->saveSecretFromDeletedApp($event);
     }
@@ -95,7 +118,7 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         $this->appRepository->searches = [[$foundApp]];
 
         $this->deletedAppsGateway->expects($this->never())
-            ->method('insertSecretForDeletedApp');
+            ->method('insertSecretsForDeletedApp');
 
         $this->subscriber->saveSecretFromDeletedApp($event);
     }
@@ -115,7 +138,7 @@ class RememberDeletedAppsSecretSubscriberTest extends TestCase
         $this->appRepository->searches = [[$foundApp]];
 
         $this->deletedAppsGateway->expects($this->never())
-            ->method('insertSecretForDeletedApp');
+            ->method('insertSecretsForDeletedApp');
 
         $this->subscriber->saveSecretFromDeletedApp($event);
     }

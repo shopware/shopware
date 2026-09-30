@@ -3,17 +3,20 @@
     "general": {
       "mainMenuItemGeneral": "Profile",
       "description": "Verwaltung Deines Profils.",
-      "headlineProfile": "Dein Profil"
+      "headlineProfile": "Profileinstellungen"
     },
     "index": {
       "titleInfoCard": "Profil-Informationen",
-      "titleImageCard": "Profilbild",
       "titlePasswordCard": "Passwort",
       "labelFirstNameField": "Vorname",
       "labelLastNameField": "Nachname",
       "labelUsernameField": "Benutzername",
       "labelEmailField": "E-Mail-Adresse",
       "labelTimezoneField": "Zeitzone",
+      "labelThemeField": "Erscheinungsbild",
+      "labelModuleIconColorsField": "Modul-Farben",
+      "optionModuleIconColorsNeutral": "Neutral",
+      "optionModuleIconColorsColored": "Farbig",
       "labelOldPassword": "Altes Passwort",
       "placeholderOldPassword": "Altes Passwort eingeben ...",
       "labelNewPassword": "Neues Passwort",
@@ -25,7 +28,7 @@
       "notificationInvalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
       "notificationSaveErrorMessage": "Deine Profilinformationen konnten nicht gespeichert werden.",
-      "labelUploadAvatar": "Lade ein Profilbild hoch",
+      "labelUploadAvatar": "Profilbild",
       "labelUseAsAvatar": "Als Profilbild nutzen",
       "placeholderNewPasswordConfirm": "Wiederhole Dein neues Passwort ...",
       "placeholderNewPassword": "Gib ein neues Passwort ein ...",
@@ -145,6 +148,14 @@
         },
         "cms_page": {
           "name": "Name"
+        },
+        "flow": {
+          "name": "Name",
+          "description": "Beschreibung"
+        },
+        "rule": {
+          "name": "Name",
+          "description": "Beschreibung"
         }
       }
     },

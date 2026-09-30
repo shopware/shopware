@@ -239,8 +239,8 @@ class SearchCasesTest extends TestCase
         // Second pass: query-time min_score now drops the weak hit, keeps the exact one.
         $scores = $this->scoresByKey($ids, 'Heckenschere');
 
-        static::assertArrayHasKey('strong', $scores, \sprintf('Exact hit should survive cutoff %.4f but was dropped. Scores: %s', $cutoff, print_r($scores, true)));
-        static::assertArrayNotHasKey('weak', $scores, \sprintf('Weak fuzzy hit should be cut by minScore %.4f but survived. Scores: %s', $cutoff, print_r($scores, true)));
+        static::assertArrayHasKey('strong', $scores, \sprintf('Exact hit should survive cutoff %.4F but was dropped. Scores: %s', $cutoff, print_r($scores, true)));
+        static::assertArrayNotHasKey('weak', $scores, \sprintf('Weak fuzzy hit should be cut by minScore %.4F but survived. Scores: %s', $cutoff, print_r($scores, true)));
     }
 
     public static function searchScenariosProvider(): \Generator
@@ -746,6 +746,44 @@ class SearchCasesTest extends TestCase
             'term' => 'bohrcraft',
             'expectedFirst' => 'k1-focused',
         ];
+    }
+
+    public function testExactPhraseMatchRanksAheadOfScatteredWordMatch(): void
+    {
+        $this->clearElasticsearch();
+
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create([
+            // contains the full phrase contiguously, but a long name -> weaker per-word BM25
+            self::product($ids, 'phrase', 'DE-PHRASE-1', 'Paper Rippers Special Edition Deluxe Collectors Bundle'),
+            // contains both words but not as a phrase, and a short name -> stronger per-word BM25
+            self::product($ids, 'scattered', 'DE-SCATTER-1', 'Rippers Paper'),
+        ], Context::createDefaultContext());
+
+        $this->setSearchConfiguration(true, ['name']);
+        $this->setSearchScores(['name' => 700]);
+
+        $this->indexElasticSearch();
+
+        $searcher = $this->createEntitySearcher();
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setTerm('Paper Rippers');
+
+        $definition = static::getContainer()->get(ProductDefinition::class);
+
+        $result = $searcher->search($definition, $criteria, Context::createDefaultContext());
+
+        // The contiguous-phrase product must win thanks to the match_phrase boost,
+        // even though its longer name gives it weaker per-word (BM25) scores. Without
+        // the phrase clause the short "Rippers Paper" would rank first.
+        $firstId = $result->firstId();
+        static::assertNotNull($firstId, print_r($result->getData(), true));
+        static::assertSame('phrase', $ids->getKey($firstId), print_r($result->getData(), true));
     }
 
     protected function getDiContainer(): ContainerInterface

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Kernel\EnvIntOrNullProcessor;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
@@ -42,7 +43,6 @@ use Shopware\Core\Framework\Adapter\Twig\Filter\LeadingSpacesFilter;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
-use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntimeResetter;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -114,6 +114,7 @@ use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\HtmlPurifierConfigProvider;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Validation\Constraint\NoHtmlValidator;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -132,6 +133,7 @@ use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetStorage;
 use Shopware\Core\System\Snippet\Filter\AddedFilter;
 use Shopware\Core\System\Snippet\Filter\AuthorFilter;
 use Shopware\Core\System\Snippet\Filter\EditedFilter;
@@ -171,8 +173,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'lowercase' => false,
     ]);
 
-    // Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes
+    // Populated by RouteScopeCompilerPass with all route prefixes from the registered RouteScopes,
+    // and with the prefixes of the RouteScopes that depend on an API context
     $parameters->set('shopware.routing.registered_api_prefixes', []);
+    $parameters->set('shopware.routing.api_context_route_prefixes', []);
 
     // Migration config
     $parameters->set('core.migration.directories', []);
@@ -214,6 +218,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(Connection::class)
         ->public()
         ->factory([Kernel::class, 'getConnection']);
+
+    $services->set(ReplicaConnectionResetter::class)
+        ->public()
+        ->args([service(Connection::class)])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(QueryDataBagResolver::class)
         ->tag('controller.argument_value_resolver', ['priority' => 1000]);
@@ -474,7 +483,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SnippetFilterFactory::class),
             service(ExtensionDispatcher::class),
             service('event_dispatcher'),
-            service('shopware.filesystem.private'),
+            service('shopware.filesystem.translation'),
             service('filesystem'),
         ]);
 
@@ -508,9 +517,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ActiveAppsLoader::class),
             service(TranslationConfig::class),
             service(TranslationLoader::class),
-            service('shopware.filesystem.private'),
-            service(SourceResolver::class),
-            service('logger'),
+            service('shopware.filesystem.translation'),
+            service(StorefrontSnippetStorage::class),
         ]);
 
     $services->set(AppSnippetFileLoader::class)
@@ -566,10 +574,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NamespaceHierarchyBuilder::class),
             service(TemplateScopeDetector::class),
         ])
-        ->tag('kernel.reset', ['method' => 'reset']);
-
-    $services->set(CachedEscaperRuntimeResetter::class)
-        ->public()
         ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(NamespaceHierarchyBuilder::class)
@@ -855,6 +859,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(HtmlPurifierConfigProvider::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(NoHtmlValidator::class)
+        ->args([
+            service(HtmlSanitizer::class),
+        ])
+        ->tag('validator.constraint_validator');
 
     $services->set(ExcludeExceptionHandler::class)
         ->decorate('monolog.handler.main', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)

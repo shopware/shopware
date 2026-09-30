@@ -49,7 +49,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('framework')]
 #[CoversClass(AbstractProductSearchQueryBuilder::class)]
 #[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase
@@ -84,34 +84,31 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     public function testBuildEmptyQuery(): void
     {
-        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
-
         $builder = $this->getBuilder([
             self::config(field: 'restockTime', ranking: 500, tokenize: true, and: false),
         ]);
 
         $criteria = new Criteria();
         $criteria->setTerm('foo');
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
 
-        static::assertSame([], $parsed->toArray());
+        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
+
+        $builder->build($criteria, Context::createDefaultContext());
     }
 
     public function testBuildWithoutFields(): void
     {
-        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
-
         $builder = $this->getBuilder(null);
 
         $criteria = new Criteria();
 
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
+        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
 
-        static::assertSame([], $parsed->toArray());
+        $builder->build($criteria, Context::createDefaultContext());
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: float}} $config
+     * @param list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}> $config
      * @param array<string, mixed> $expected
      */
     #[DataProvider('buildSingleLanguageProvider')]
@@ -128,7 +125,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}} $config
+     * @param list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}> $config
      * @param array<string, mixed> $expected
      */
     #[DataProvider('buildMultipleLanguageProvider')]
@@ -152,7 +149,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}, term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}>, term: string, expected: array<string, mixed>}>
      */
     public static function buildSingleLanguageProvider(): iterable
     {
@@ -311,7 +308,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}, term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}>, term: string, expected: array<string, mixed>}>
      */
     public static function buildMultipleLanguageProvider(): iterable
     {
@@ -611,7 +608,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             new ElasticsearchTokenizer(),
         );
 
-        static::expectException(DecorationPatternException::class);
+        static::expectExceptionObject(new DecorationPatternException(ProductSearchQueryBuilder::class));
         $builder->getDecorated();
     }
 
@@ -671,7 +668,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @param array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}|null $config
+     * @param list<array{and_logic: string, field: string, tokenize: int, ranking: float, use_exact_subfield: int}>|null $config
      */
     private function getBuilder(?array $config): ProductSearchQueryBuilder
     {
@@ -776,7 +773,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     /**
      * @param array<mixed> $queries
      *
-     * @return array{dis_max: array{queries: array<mixed>}}
+     * @return array{dis_max: array{queries: array<mixed>, boost?: float, tie_breaker?: float}}
      */
     private static function disMax(array $queries, float|int|null $boost = null, ?float $tieBreaker = 0.2): array
     {

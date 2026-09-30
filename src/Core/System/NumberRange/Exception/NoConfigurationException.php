@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\NumberRangeException;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,11 @@ class NoConfigurationException extends NumberRangeException
         string $entityName,
         ?string $salesChannelId = null
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', NumberRangeException::class)
+        );
+
         parent::__construct(
             Response::HTTP_BAD_REQUEST,
             self::NO_CONFIGURATION_FOR_ENTITY,

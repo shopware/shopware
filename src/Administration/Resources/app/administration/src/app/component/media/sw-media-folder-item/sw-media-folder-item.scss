@@ -6,11 +6,13 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        max-width: 64px;
-        width: 100%;
+
+        // Sized in container query units against the preview container
+        // (sw-media-base-item), so the folder scales with the presentation
+        // mode (small/medium/large) just like the media previews.
+        width: 40cqw;
 
         &.is--inner {
-            max-width: 20px;
             transform: translate(-50%, -30%);
         }
 
@@ -20,10 +22,17 @@
     }
 
     &.is--list {
+        // The list preview container is a fixed 40px square — fill it
+        // instead of scaling with container units.
+        .sw-media-folder-item__folder-thumbnails {
+            width: 100%;
+        }
+
+        // The !important is needed to win against the inline size that
+        // the mt-icon size prop sets.
         .sw-media-folder-item__folder-thumbnails.is--inner {
-            width: 16px;
-            height: 16px;
-            max-width: 16px;
+            width: 16px !important;
+            height: 16px !important;
             transform: translate(-50%, -40%);
 
             svg {

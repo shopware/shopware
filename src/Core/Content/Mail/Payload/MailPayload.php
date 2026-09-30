@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Content\Mail\Payload;
 
+use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @phpstan-import-type MailData from AbstractMailFactory
+ *
  * @internal
  */
 #[Package('after-sales')]
@@ -46,7 +49,7 @@ readonly class MailPayload
     }
 
     /**
-     * @return array<string,mixed>
+     * @return MailData
      */
     public function toArray(): array
     {

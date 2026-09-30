@@ -140,7 +140,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     /**
      * @param array<string, array<mixed>> $taggedServiceIds
      *
-     * @return array<string, array{entityName: string, fallback?: string}>
+     * @return array<string, array{entityName: string, fallBack?: string}>
      */
     private function formatData(
         array $taggedServiceIds,
@@ -215,8 +215,8 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param array<string, array{entityName: string}> $baseEntityDefinitions
-     * @param array<string, array{entityName: string}> $salesChannelDefinitions
+     * @param array<string, array{entityName: string, fallBack?: string}> $baseEntityDefinitions
+     * @param array<string, array{entityName: string, fallBack?: string}> $salesChannelDefinitions
      */
     private function addExtensions(ContainerBuilder $container, array $baseEntityDefinitions, array $salesChannelDefinitions): void
     {

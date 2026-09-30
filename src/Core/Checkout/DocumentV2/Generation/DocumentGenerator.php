@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\Hooks\DocumentGenerationHook;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\ReferencesDocument;
@@ -23,14 +24,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 
 /**
- * @internal
+ * @final
+ *
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
-final readonly class DocumentGenerator
+readonly class DocumentGenerator
 {
     /**
+     * @internal
+     *
      * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
@@ -41,6 +47,7 @@ final readonly class DocumentGenerator
         private DocumentDependencyResolver $dependencyResolver,
         private ReferencedDocumentResolver $referencedDocumentResolver,
         private EntityRepository $orderRepository,
+        private ScriptExecutor $scriptExecutor,
     ) {
     }
 
@@ -49,8 +56,10 @@ final readonly class DocumentGenerator
      *
      * The request must contain at least one format.
      *
-     * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
-     * both formats are rendered, but only the PDF result is persisted as a document_file.
+     * For example, if the caller requests only `zugferd_embedded_pdf`, its dependencies
+     * `pdf` and `zugferd_xml` are rendered as well but not persisted as document_files.
+     * The one exception is `html`: whenever it is rendered along the way, it is persisted
+     * as the document's accessible version.
      *
      * @throws DocumentV2Exception
      */
@@ -160,6 +169,16 @@ final readonly class DocumentGenerator
         );
 
         $generationRequest = $generationRequest->withDocumentNumber($documentNumber);
+
+        $this->scriptExecutor->execute(new DocumentGenerationHook(
+            $order->getId(),
+            $orderVersionId,
+            $order->getSalesChannelId(),
+            $generationRequest->documentType,
+            $documentNumber,
+            $requestedFormats,
+            $languageAwareContext,
+        ));
 
         $providerData = $this->collectProviderData(
             $providers,

@@ -8,14 +8,12 @@ use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * This class is responsible for sending mail using user-defined mail templates.
@@ -35,8 +33,6 @@ class SendMailTemplate
         private readonly AbstractMailService $emailService,
         private readonly EntityRepository $mailTemplateRepository,
         private readonly LoggerInterface $logger,
-        private readonly AbstractTranslator $translator,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly Connection $connection
     ) {
     }
@@ -70,16 +66,14 @@ class SendMailTemplate
         $bag->set('mediaIds', []);
         $bag->set('attachments', $params->attachments);
 
-        $this->_send($bag, $languageContext, $params->data, $params->salesChannelId);
+        $this->_send($bag, $languageContext, $params->data);
     }
 
     /**
      * @param array<string, mixed> $templateData
      */
-    private function _send(DataBag $data, Context $context, array $templateData, ?string $salesChannelId): void
+    private function _send(DataBag $data, Context $context, array $templateData): void
     {
-        $injected = $this->injectTranslator($context, $salesChannelId);
-
         try {
             $this->emailService->send($data->all(), $context, $templateData);
         } catch (\Exception $e) {
@@ -91,10 +85,6 @@ class SendMailTemplate
                 . json_encode($data->all(), \JSON_THROW_ON_ERROR) . "\n"
             );
         }
-
-        if ($injected) {
-            $this->translator->resetInjection();
-        }
     }
 
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity
@@ -104,26 +94,6 @@ class SendMailTemplate
         $criteria->setLimit(1);
 
         return $this->mailTemplateRepository->search($criteria, $context)->getEntities()->first();
-    }
-
-    private function injectTranslator(Context $context, ?string $salesChannelId): bool
-    {
-        if ($salesChannelId === null) {
-            return false;
-        }
-
-        if ($this->translator->getSnippetSetId() !== null) {
-            return false;
-        }
-
-        $this->translator->injectSettings(
-            $salesChannelId,
-            $context->getLanguageId(),
-            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
-            $context
-        );
-
-        return true;
     }
 
     private function buildContext(string $languageId, Context $context): Context

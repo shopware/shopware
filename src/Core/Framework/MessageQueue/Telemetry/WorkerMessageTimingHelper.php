@@ -38,8 +38,11 @@ class WorkerMessageTimingHelper
     }
 
     /**
-     * Returns the elapsed milliseconds since {@see start()} for the message and clears the entry, or `null`
-     * when no start was recorded (start never ran for this message).
+     * Returns the elapsed milliseconds since {@see start()} for the message, or `null` when no start was
+     * recorded (start never ran for this message).
+     *
+     * Non-consuming: several collectors (messenger, scheduled-task) read the same entry independently of
+     * their listener order. The `WeakMap` drops the entry once the worker releases the message object.
      */
     public function elapsedMs(object $message): ?float
     {
@@ -47,8 +50,6 @@ class WorkerMessageTimingHelper
         if ($start === null) {
             return null;
         }
-
-        unset($this->startTimes[$message]);
 
         return (hrtime(true) - $start) / 1_000_000;
     }

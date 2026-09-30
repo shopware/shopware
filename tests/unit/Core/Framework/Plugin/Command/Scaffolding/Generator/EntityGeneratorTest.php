@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -227,6 +228,38 @@ class EntityGeneratorTest extends TestCase
 
         foreach ($expected as $stub) {
             static::assertTrue($stubs->has($stub));
+        }
+    }
+
+    public function testDoesNotGenerateMigrationWhenEntityMigrationAlreadyExists(): void
+    {
+        $filesystem = new Filesystem();
+        $directory = sys_get_temp_dir() . '/shopware-entity-generator-' . uniqid('', true);
+        $filesystem->dumpFile(
+            $directory . '/src/Migration/Migration123456789CreateTestTable.php',
+            '<?php'
+        );
+
+        try {
+            $stubs = new StubCollection();
+            $timestamp = (new \DateTimeImmutable('1988-01-01 00:00:00'))->getTimestamp();
+
+            (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
+                ->generateStubs(
+                    new PluginScaffoldConfiguration(
+                        'TestPlugin',
+                        'MyNamespace',
+                        $directory,
+                        [EntityGenerator::OPTION_NAME => ['Test']],
+                    ),
+                    $stubs,
+                );
+
+            static::assertCount(4, $stubs);
+            static::assertTrue($stubs->has('src/Core/Content/Test/TestEntity.php'));
+            static::assertFalse($stubs->has('src/Migration/Migration' . $timestamp . 'CreateTestTable.php'));
+        } finally {
+            $filesystem->remove($directory);
         }
     }
 

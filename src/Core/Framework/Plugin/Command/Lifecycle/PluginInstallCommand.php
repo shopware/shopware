@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
+use Composer\Package\Link;
+use Composer\Package\Package as ComposerPackage;
 use Composer\Package\PackageInterface;
 use Composer\Util\PackageSorter;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -127,18 +129,55 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         // This only sorts selected plugins that are known before installation starts. The command
         // does not reload Composer's autoloader after a plugin installs new PHP packages, so later
         // plugins can use those packages only in a new CLI process.
-        $packages = [];
+        $pluginPackages = [];
         $pluginsByPackageName = [];
+        $packageAliases = [];
 
         foreach ($plugins as $plugin) {
             $package = $this->getPluginPackage($plugin);
-            $packages[] = $package;
-            $pluginsByPackageName[$package->getName()] = $plugin;
+            $packageName = strtolower($package->getName());
+
+            $pluginPackages[] = [$package, $packageName];
+            $pluginsByPackageName[$packageName] = $plugin;
+
+            // PackageSorter matches requirement targets literally. A Store plugin can have a
+            // different project-facing composer name (for example store.shopware.com/foo) than
+            // the name in the composer.json shipped inside the plugin archive.
+            $packageAliases[$packageName] = $packageName;
+
+            if ($plugin->getComposerName() !== null) {
+                $packageAliases[strtolower($plugin->getComposerName())] = $packageName;
+            }
+        }
+
+        $packages = [];
+        foreach ($pluginPackages as [$package, $packageName]) {
+            $requires = [];
+
+            foreach ($package->getRequires() as $requirement) {
+                $target = $packageAliases[strtolower($requirement->getTarget())] ?? $requirement->getTarget();
+
+                // Normalize aliases to the package node used by the sorter. Without a matching
+                // node, PackageSorter silently drops the dependency edge and may sort alphabetically.
+                $requires[$target] = $target === $requirement->getTarget()
+                    ? $requirement
+                    : new Link(
+                        $packageName,
+                        $target,
+                        $requirement->getConstraint(),
+                        Link::TYPE_REQUIRE,
+                        $requirement->getPrettyConstraint()
+                    );
+            }
+
+            $sortPackage = new ComposerPackage($packageName, $package->getVersion(), $package->getPrettyVersion());
+            $sortPackage->setRequires($requires);
+            $packages[] = $sortPackage;
         }
 
         $sortedPlugins = [];
         foreach (PackageSorter::sortPackages($packages) as $package) {
-            $sortedPlugins[] = $pluginsByPackageName[$package->getName()];
+            $sortedPlugins[] = $pluginsByPackageName[strtolower($package->getName())];
         }
 
         return new PluginCollection($sortedPlugins);

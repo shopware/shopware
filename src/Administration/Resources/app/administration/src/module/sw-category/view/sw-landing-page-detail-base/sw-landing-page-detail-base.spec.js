@@ -34,10 +34,7 @@ async function createWrapper({
                 'sw-text-field': {
                     template:
                         '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
+                    props: ['value', 'disabled'],
                 },
                 'sw-entity-tag-select': {
                     template: '<input type="select" class="sw-entity-tag-select"/>',
@@ -65,6 +62,19 @@ async function createWrapper({
 }
 
 describe('module/sw-category/view/sw-landing-page-detail-base.spec', () => {
+    it('should limit the seo fields to the 255 characters the database can store', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const seoForm = wrapper.get('.sw-landing-page-detail-base__seo-form');
+        const inputs = seoForm.findAll('input').filter((input) => !input.classes('sw-entity-tag-select'));
+        const maxLengths = inputs.map((input) => input.attributes('maxlength'));
+
+        // meta title and keywords, the url field has no limit here
+        expect(maxLengths.filter((maxLength) => maxLength === '255')).toHaveLength(2);
+        expect(seoForm.get('mt-textarea-stub').attributes('max-length')).toBe('255');
+    });
+
     it('should return true if a layout is set', async () => {
         const wrapper = await createWrapper({
             landingPage: {

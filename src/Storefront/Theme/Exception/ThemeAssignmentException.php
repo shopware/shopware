@@ -25,6 +25,8 @@ class ThemeAssignmentException extends ShopwareHttpException
         private readonly array $assignedSalesChannels,
         ?\Throwable $e = null
     ) {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', ThemeException::class));
+
         $parameters = ['themeName' => $themeName];
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
         $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';

@@ -46,8 +46,10 @@ class MakerCommandTest extends TestCase
             ->willReturn($this->getPluginEntity());
 
         $generator = new DummyScaffoldingGenerator();
+        $otherGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $otherGenerator->expects($this->never())->method('generateStubs');
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator, $otherGenerator]), $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);

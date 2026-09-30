@@ -8,7 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Migration\AddColumnTrait;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(AddColumnTrait::class)]
+#[CoversTrait(AddColumnTrait::class)]
 class AddColumnTraitTest extends TestCase
 {
     public function testReturnsFalseIfColumnExists(): void

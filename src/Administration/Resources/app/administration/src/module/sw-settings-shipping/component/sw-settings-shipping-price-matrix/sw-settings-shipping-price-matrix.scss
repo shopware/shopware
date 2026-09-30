@@ -6,7 +6,7 @@
 
     .sw-settings-shipping-price-matrix__top-container {
         padding: 32px 24px;
-        background-color: var(--color-background-tertiary-default);
+        background-color: var(--color-elevation-surface-sunken);
         border-bottom: 1px solid var(--color-border-secondary-default);
 
         .sw-select__single-selection {
@@ -52,11 +52,19 @@
 
     .sw-settings-shipping-price-matrix__price {
         display: flex;
+        flex-direction: row;
         align-items: center;
+        gap: var(--scale-size-8);
+        width: 100%;
     }
 
     .sw-settings-shipping-price-matrix__price-inherit-icon {
-        margin-right: 5px;
+        flex: 0 0 auto;
+    }
+
+    .sw-settings-shipping-price-matrix__price .sw-price-field {
+        flex: 1 1 0;
+        min-width: 0;
     }
 
     .sw-settings-shipping-price-matrix__top-container-rule-select .sw-field {

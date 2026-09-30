@@ -414,6 +414,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('salutation.repository'),
             service(PasswordValidationFactory::class),
             service(DoubleOptInService::class),
+            service(CustomerNewsletterSalesChannelsUpdater::class),
             service(ClockInterface::class),
         ]);
 

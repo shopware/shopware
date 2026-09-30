@@ -14,7 +14,7 @@ use Shopware\Core\Migration\V6_7\Migration1743151679AddContextGatewayUrl;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(Migration1696515133AddCheckoutGatewayUrl::class)]
 class Migration1743151679AddContextGatewayUrlTest extends TestCase
 {

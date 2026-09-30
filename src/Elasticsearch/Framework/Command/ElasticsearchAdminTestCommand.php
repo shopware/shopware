@@ -78,7 +78,7 @@ final class ElasticsearchAdminTestCommand extends Command
 
         $rows = [];
         foreach ($result as $data) {
-            $rows[] = [$data['index'], $data['indexer'], $data['total']];
+            $rows[] = [$data['index'] ?? '', $data['indexer'] ?? '', $data['total']];
         }
 
         $this->io->table(['Index', 'Indexer', 'total'], $rows);

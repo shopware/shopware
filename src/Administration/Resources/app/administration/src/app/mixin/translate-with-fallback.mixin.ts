@@ -13,6 +13,8 @@ import { defineComponent } from 'vue';
  * Vue-i18n v10's `$te` only checks the active locale, so translations that
  * live only in the fallback locale (typically `en-GB`) would otherwise leak
  * the raw key to the UI.
+ *
+ * Duplicated in `src/app/composables/use-translate-with-fallback`; change both together.
  */
 export default Shopware.Mixin.register(
     'translate-with-fallback',

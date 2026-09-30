@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -66,6 +67,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class RegisterRoute extends AbstractRegisterRoute
 {
     use CustomerAddressDataNormalizerTrait;
+    use CustomerVatIdNormalizerTrait;
 
     /**
      * @internal
@@ -90,6 +92,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly EntityRepository $salutationRepository,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
         private readonly DoubleOptInService $doubleOptInService,
+        private readonly CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
         private readonly ClockInterface $clock,
     ) {
     }
@@ -197,6 +200,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $writeContext->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
 
         $this->customerRepository->create([$customer], $writeContext);
+        $this->customerNewsletterSalesChannelsUpdater->update([$customer['id']], true);
 
         $criteria = new Criteria([$customer['id']]);
 
@@ -290,7 +294,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $definition->merge($additionalValidations);
         }
 
-        if ($validateStorefrontUrl) {
+        if ($validateStorefrontUrl && $this->doubleOptInService->isDoubleOptInEnabled($isGuest, $context)) {
             $definition
                 ->add('storefrontUrl', new NotBlank(), new Choice(choices: $this->getDomainUrls($context)));
         }
@@ -340,6 +344,15 @@ class RegisterRoute extends AbstractRegisterRoute
                 $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
                     countryId: $countryId
                 ));
+
+                $vatIds = $data->get('vatIds');
+                if ($vatIds instanceof DataBag) {
+                    $vatIds = $vatIds->all();
+                }
+
+                if (\is_array($vatIds) && $vatIds !== []) {
+                    $data->set('vatIds', $this->normalizeVatIds($vatIds));
+                }
             }
         }
 

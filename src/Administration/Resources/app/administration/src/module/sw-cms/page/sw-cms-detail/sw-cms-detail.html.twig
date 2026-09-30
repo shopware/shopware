@@ -25,16 +25,21 @@
                 <template #title>
                     <div class="sw-cms-detail__page-info">
                         {% block sw_cms_detail_toolbar_back_button %}
-                        <a
+                        <mt-button
                             class="sw-cms-detail__back-btn"
-                            role="link"
-                            tabindex="0"
+                            variant="tertiary"
+                            size="default"
+                            square
                             :aria-label="$t('global.default.back')"
                             @click="onClickBack"
-                            @keyup.enter="onClickBack"
                         >
-                            <mt-icon name="regular-times" />
-                        </a>
+                            <template #iconFront>
+                                <mt-icon
+                                    name="solid-times"
+                                    size="12px"
+                                />
+                            </template>
+                        </mt-button>
                         {% endblock %}
 
                         {% block sw_cms_detail_toolbar_page_name %}
@@ -113,7 +118,7 @@
                             class="sw-cms-detail__save-action"
                             :is-loading="isLoading"
                             :process-success="isSaveSuccessful"
-                            :disabled="isLoading || page.locked || !acl.can('cms.editor') || undefined"
+                            :disabled="!canSave || undefined"
                             variant="primary"
                             @update:process-success="saveFinish"
                             @click="onSave"
@@ -241,7 +246,7 @@
                             </p>
                             <sw-cms-stage-add-section
                                 :key="0"
-                                :disabled="!acl.can('cms.editor') || undefined"
+                                :disabled="!canSave || undefined"
                                 :force-choose="true"
                                 @stage-section-add="onAddSection($event, 0, true)"
                             />
@@ -262,7 +267,7 @@
                         {% block sw_cms_detail_stage_add_first_section %}
                         <sw-cms-stage-add-section
                             :key="0"
-                            :disabled="!acl.can('cms.editor') || undefined"
+                            :disabled="!canSave || undefined"
                             @stage-section-add="onAddSection($event, 0, true)"
                         />
                         {% endblock %}
@@ -280,7 +285,7 @@
                                     :page="page"
                                     :section="section"
                                     :active="selectedSection !== null && selectedSection.id === section.id"
-                                    :disabled="!acl.can('cms.editor') || undefined"
+                                    :disabled="!canSave || undefined"
                                     @page-config-open="pageConfigOpen"
                                     @block-duplicate="onBlockDuplicate"
                                 />
@@ -292,7 +297,7 @@
                         {% block sw_cms_detail_stage_add_last_section %}
                         <sw-cms-stage-add-section
                             :key="page.sections.length + 1"
-                            :disabled="!acl.can('cms.editor') || undefined"
+                            :disabled="!canSave || undefined"
                             @stage-section-add="onAddSection($event, page.sections.length, true)"
                         />
                         {% endblock %}

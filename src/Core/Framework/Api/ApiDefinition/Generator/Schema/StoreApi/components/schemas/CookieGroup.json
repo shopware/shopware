@@ -36,11 +36,21 @@
         "not": {
           "allOf": [
             {
+              "properties": {
+                "cookie": {
+                  "type": "string"
+                }
+              },
               "required": [
                 "cookie"
               ]
             },
             {
+              "properties": {
+                "entries": {
+                  "$ref": "#/components/schemas/CookieEntryCollection"
+                }
+              },
               "required": [
                 "entries"
               ]

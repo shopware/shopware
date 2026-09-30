@@ -390,7 +390,11 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
 
-        $expected = (string) file_get_contents(__DIR__ . '/_fixtures/recursion_encoding_with_layout_result.json');
+        $expected = str_replace(
+            '__stream-1__',
+            $this->ids->get('stream-1'),
+            (string) file_get_contents(__DIR__ . '/_fixtures/recursion_encoding_with_layout_result.json')
+        );
 
         $expected = json_decode($expected, true, 512, \JSON_THROW_ON_ERROR);
 

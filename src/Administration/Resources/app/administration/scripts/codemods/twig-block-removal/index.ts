@@ -66,7 +66,7 @@ function getTwigFiles() {
 async function getOptions(): Promise<TerminalOptions> {
     const terminalInterface = readlinePromises.createInterface({
         input: process.stdin,
-        output: process.stdout
+        output: process.stdout,
     });
 
     let givenAnswer = await terminalInterface.question('Is it a plugin and/or overriding defined blocks? (y/n) \n');
@@ -79,7 +79,7 @@ async function getOptions(): Promise<TerminalOptions> {
     const shouldMoveSlots = givenAnswer === 'y';
 
     terminalInterface.close();
-    return { shouldMoveConditionals, shouldMoveSlots, isOverriding }
+    return { shouldMoveConditionals, shouldMoveSlots, isOverriding };
 }
 
 function replaceBlocks(code: string) {

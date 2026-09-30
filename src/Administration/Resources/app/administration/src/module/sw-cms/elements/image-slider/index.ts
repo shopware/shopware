@@ -17,7 +17,7 @@ Shopware.Component.register('sw-cms-el-image-slider', () => import('./component'
 type ImageSliderItemConfig = {
     newTab: boolean;
     url: string;
-    mediaId: string;
+    mediaId: EntityKey<'media'>;
 };
 
 type ImageSliderItem = {

@@ -18,6 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class UnitDefinition extends EntityDefinition
 {

@@ -28,10 +28,7 @@ describe('tagApiService', () => {
         clientMock.onPost('/_admin/tag-filter-ids').reply(() => {
             didRequest = true;
 
-            return [
-                200,
-                {},
-            ];
+            return [200, {}];
         });
 
         tagApiService.filterIds({});
@@ -74,11 +71,7 @@ describe('tagApiService', () => {
                 if (bulkMergeProgress.currentAssignment === 'products') {
                     // eslint-disable-next-line jest/no-conditional-expect
                     expect(tag.products).toEqual(
-                        [
-                            200,
-                            201,
-                            202,
-                        ].map((id) => {
+                        [200, 201, 202].map((id) => {
                             return { id };
                         }),
                     );
@@ -86,21 +79,13 @@ describe('tagApiService', () => {
                 }
 
                 expect(tag[bulkMergeProgress.currentAssignment]).toEqual(
-                    [
-                        0,
-                        1,
-                        2,
-                    ].map((id) => {
+                    [0, 1, 2].map((id) => {
                         return { id };
                     }),
                 );
             }),
             syncDeleted: jest.fn((ids) => {
-                expect(ids).toEqual([
-                    't1',
-                    't2',
-                    't3',
-                ]);
+                expect(ids).toEqual(['t1', 't2', 't3']);
             }),
         };
         const generalRepositoryMock = {
@@ -124,11 +109,7 @@ describe('tagApiService', () => {
                     expect(bulkMergeProgress.total).toBe(203);
 
                     return {
-                        data: [
-                            200,
-                            201,
-                            202,
-                        ],
+                        data: [200, 201, 202],
                         total: 203,
                     };
                 }
@@ -136,11 +117,7 @@ describe('tagApiService', () => {
                 expect(criteria.page).toBe(1);
 
                 return {
-                    data: [
-                        0,
-                        1,
-                        2,
-                    ],
+                    data: [0, 1, 2],
                     total: 3,
                 };
             }),
@@ -155,11 +132,7 @@ describe('tagApiService', () => {
         };
 
         await tagApiService.merge(
-            [
-                't1',
-                't2',
-                't3',
-            ],
+            ['t1', 't2', 't3'],
             'foo',
             {
                 name: {},

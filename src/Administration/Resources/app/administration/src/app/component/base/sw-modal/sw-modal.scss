@@ -46,6 +46,10 @@ $sw-modal-gap: var(--scale-size-64);
         max-width: 900px;
     }
 
+    &.sw-modal--x-large .sw-modal__dialog {
+        max-width: 1024px;
+    }
+
     &.sw-modal--small .sw-modal__dialog {
         max-width: 500px;
     }

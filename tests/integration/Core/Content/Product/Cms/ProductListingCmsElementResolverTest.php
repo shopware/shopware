@@ -246,7 +246,7 @@ class ProductListingCmsElementResolverTest extends TestCase
 
         $actualSortings = array_values($actualSortings);
 
-        arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
+        arsort($availableSortings);
         $availableSortings = array_keys($availableSortings);
 
         static::assertSame($availableSortings, $actualSortings);

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  * info, display options and document identity. Provided once per generation run by
  * {@see \Shopware\Core\Checkout\DocumentV2\Provider\DocumentMetaProvider}
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */
@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DocumentMetaRenderData extends AbstractRenderData
 {
     /**
+     * @internal
+     *
      * @param array<string, mixed> $legacyConfig
      */
     public function __construct(

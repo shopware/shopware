@@ -74,7 +74,10 @@
                     {{ $t('global.default.edit') }}
                 </sw-context-menu-item>
 
-                <sw-context-menu-item @click="onToggleEnabled(item)">
+                <sw-context-menu-item
+                    :disabled="!acl.can('sales_channel.editor')"
+                    @click="onToggleEnabled(item)"
+                >
                     {{ getToggleLabel(item) }}
                 </sw-context-menu-item>
             </template>
@@ -92,8 +95,10 @@
 
         <mt-empty-state
             v-else
+            centered
             icon="regular-file"
             :headline="$t('sw-sales-channel.detail.agenticFiles.emptyState')"
+            description=""
         />
     </template>
 </mt-card>

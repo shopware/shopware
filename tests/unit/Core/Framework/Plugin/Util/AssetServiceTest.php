@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem as ThemeFilesystem;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -207,6 +207,7 @@ class AssetServiceTest extends TestCase
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->willThrowException(new \InvalidArgumentException('foo'));
 
@@ -238,6 +239,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('ExampleBundle')
             ->willThrowException(new \InvalidArgumentException());
@@ -365,6 +367,7 @@ class AssetServiceTest extends TestCase
         ksort($manifest);
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());
@@ -450,6 +453,7 @@ class AssetServiceTest extends TestCase
     {
         $kernel = $this->createMock(KernelInterface::class);
         $kernel
+            ->expects($this->atLeastOnce())
             ->method('getBundle')
             ->with('AdministrationBundle')
             ->willReturn(new Administration());

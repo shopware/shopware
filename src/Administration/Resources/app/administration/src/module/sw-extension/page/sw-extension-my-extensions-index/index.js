@@ -25,6 +25,7 @@ export default {
                 term: this.searchValue || undefined,
                 limit: this.$route.query.limit,
                 page: 1,
+                sorting: this.$route.query.sorting,
             };
         },
 
@@ -49,6 +50,7 @@ export default {
                     term: term || undefined,
                     limit: this.$route.query.limit,
                     page: 1,
+                    sorting: this.$route.query.sorting,
                 },
             };
 

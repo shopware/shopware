@@ -14,7 +14,7 @@ if (!\is_file(__DIR__ . '/../.env') && !\is_file(__DIR__ . '/../.env.dist') && !
     $_SERVER['APP_RUNTIME_OPTIONS']['disable_dotenv'] = true;
 }
 
-$_SERVER['APP_RUNTIME_OPTIONS']['prod_envs'] = ['prod', 'e2e'];
+$_SERVER['APP_RUNTIME_OPTIONS']['prod_envs'] = ['prod'];
 
 return function (array $context) {
     $classLoader = require __DIR__ . '/../vendor/autoload.php';

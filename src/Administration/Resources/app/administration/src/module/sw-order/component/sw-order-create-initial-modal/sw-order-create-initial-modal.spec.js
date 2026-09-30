@@ -56,9 +56,7 @@ async function createWrapper({ featureActive = false } = {}) {
         'sw-tabs-item': true,
         'mt-tabs': {
             name: 'mt-tabs',
-            emits: [
-                'new-item-active',
-            ],
+            emits: ['new-item-active'],
             props: {
                 defaultItem: {
                     type: String,
@@ -99,10 +97,7 @@ async function createWrapper({ featureActive = false } = {}) {
     );
 }
 
-const tabs = [
-    '.sw-order-create-initial-modal__tab-product',
-    '.sw-order-create-initial-modal__tab-options',
-];
+const tabs = ['.sw-order-create-initial-modal__tab-product', '.sw-order-create-initial-modal__tab-options'];
 
 describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
     beforeAll(() => {
@@ -136,6 +131,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             lineItems: [],
             deliveries: [],
         });
+        Shopware.Store.get('swOrder').setSendOrderConfirmationMail(true);
     });
 
     it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
@@ -347,6 +343,21 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.vm.disabledAutoPromotion).toBeTruthy();
     });
 
+    it('should able to get order confirmation mail value when it is toggled', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.findComponent(stubs['sw-tabs']).setData({
+            active: 'options',
+        });
+
+        expect(wrapper.vm.sendOrderConfirmationMail).toBeTruthy();
+
+        const optionsView = wrapper.findComponent('sw-order-create-options-stub');
+        optionsView.vm.$emit('send-order-confirmation-mail-toggle', false);
+
+        expect(wrapper.vm.sendOrderConfirmationMail).toBeFalsy();
+    });
+
     it('should able to get promotion codes change', async () => {
         const wrapper = await createWrapper();
 
@@ -357,15 +368,9 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.vm.promotionCodes).toEqual([]);
 
         const optionsView = wrapper.findComponent('sw-order-create-options-stub');
-        optionsView.vm.$emit('promotions-change', [
-            'DISCOUNT',
-            'XMAS',
-        ]);
+        optionsView.vm.$emit('promotions-change', ['DISCOUNT', 'XMAS']);
 
-        expect(wrapper.vm.promotionCodes).toEqual([
-            'DISCOUNT',
-            'XMAS',
-        ]);
+        expect(wrapper.vm.promotionCodes).toEqual(['DISCOUNT', 'XMAS']);
     });
 
     it('should able to get shipping cost change', async () => {
@@ -407,6 +412,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
 
         const optionsView = wrapper.findComponent('sw-order-create-options-stub');
         optionsView.vm.$emit('auto-promotion-toggle', true);
+        optionsView.vm.$emit('send-order-confirmation-mail-toggle', false);
         optionsView.vm.$emit('promotions-change', ['DISCOUNT']);
         optionsView.vm.$emit('shipping-cost-change', 100);
 
@@ -416,6 +422,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         await flushPromises();
 
         expect(wrapper.emitted('order-preview')).toBeTruthy();
+        expect(Shopware.Store.get('swOrder').sendOrderConfirmationMail).toBeFalsy();
     });
 
     it('should update context when salesChannelContext change', async () => {
@@ -433,9 +440,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         Shopware.Store.get('swOrder').setContext({
             context: {
                 currencyId: 'euro',
-                languageIdChain: [
-                    'english',
-                ],
+                languageIdChain: ['english'],
             },
             shippingMethod: {
                 id: 'standard',

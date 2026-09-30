@@ -19,12 +19,14 @@ test(
         const flowName = 'Test flow - ' + uniqueId;
 
         await test.step('Go to flow template detail page and retrieve template UUID', async () => {
-            // todo: add search term to url() method as soon as NEXT-40094 is resolved
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
-            await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
-            const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
-            await adminFlowBuilderTemplatesRow.templateDetailLink.click();
+            const templateRow = await AdminFlowBuilderTemplates.searchLineItemByFlowName(
+                flowTemplateSearchTerm,
+                flowTemplateName,
+            );
+            await ShopAdmin.expects(templateRow.lineItem).toBeVisible();
+            await templateRow.templateDetailLink.click();
             await ShopAdmin.expects(AdminFlowBuilderDetail.generalTab).toBeVisible();
             await ShopAdmin.expects(AdminFlowBuilderDetail.templateName).toHaveValue(flowTemplateName);
             await ShopAdmin.expects(AdminFlowBuilderDetail.alertWarning).toContainText('Flow templates cannot be edited.');
@@ -35,9 +37,12 @@ test(
             const flowTemplateId = flowTemplateUrl[flowTemplateUrl.length - 2];
             await ShopAdmin.goesTo(AdminFlowBuilderTemplates.url());
             await ShopAdmin.expects(AdminFlowBuilderTemplates.searchBar).toBeVisible();
-            await AdminFlowBuilderTemplates.searchBar.fill(flowTemplateSearchTerm);
-            const adminFlowBuilderTemplatesRow = await AdminFlowBuilderTemplates.getLineItemByFlowName(flowTemplateName);
-            await adminFlowBuilderTemplatesRow.createFlowLink.click();
+            const templateRow = await AdminFlowBuilderTemplates.searchLineItemByFlowName(
+                flowTemplateSearchTerm,
+                flowTemplateName,
+            );
+            await ShopAdmin.expects(templateRow.lineItem).toBeVisible();
+            await templateRow.createFlowLink.click();
             await ShopAdmin.expects(AdminFlowBuilderCreate.smartBarHeader).toContainText(flowTemplateName);
             await AdminFlowBuilderCreate.nameField.fill(flowName);
             await AdminFlowBuilderCreate.saveButton.click();

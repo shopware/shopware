@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 class CartPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -54,7 +54,7 @@ class CartPageTest extends TestCase
 
         $context = $this->createSalesChannelContextWithNavigation();
 
-        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService = static::createStub(StorefrontCartFacade::class);
         $cartService
             ->method('getWithCheckoutGateway')
             ->willReturn(new StorefrontCartGatewayResult(new Cart($context->getToken()), $response));

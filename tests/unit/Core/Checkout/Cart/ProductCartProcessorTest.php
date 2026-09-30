@@ -39,7 +39,7 @@ use Shopware\Core\Test\Stub\Checkout\EmptyPrice;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('inventory')]
 #[CoversClass(ProductCartProcessor::class)]
 class ProductCartProcessorTest extends TestCase
 {

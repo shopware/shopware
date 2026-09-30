@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterRemoval;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,9 +21,7 @@ class CustomerPasswordMatches extends Constraint
         self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
     ];
 
-    /**
-     * @deprecated tag:v6.8.0 - $message property access modifier will be changed to protected and is injectable via constructor
-     */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'protected', description: 'Use getMessage() instead.')]
     public string $message = 'Your password is wrong';
 
     /**
@@ -36,7 +35,7 @@ class CustomerPasswordMatches extends Constraint
     protected SalesChannelContext $salesChannelContext;
 
     /**
-     * @param ?array{salesChannelContext: SalesChannelContext} $options
+     * @param array{salesChannelContext?: SalesChannelContext, context?: SalesChannelContext}|null $options
      *
      * The `$message` property will be natively typed via constructor property promotion in v6.8.0.
      *

@@ -80,12 +80,12 @@ This filter item should only be used inside a filter panel.
 .filter-rating-select-item-checkmark {
     width: 20px;
     height: 20px;
-    background-color: $gray-600;
+    background-color: $primary;
     position: absolute;
     border: 1px solid $white;
     border-radius: 50%;
-    top: -8px;
-    left: -8px;
+    top: 2px;
+    right: 15px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -81,16 +81,12 @@ async function createWrapper({
                     'sw-tabs': {
                         name: 'sw-tabs',
                         template: '<div class="sw-tabs"><slot></slot></div>',
-                        props: [
-                            'positionIdentifier',
-                        ],
+                        props: ['positionIdentifier'],
                     },
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
                         template: '<div class="sw-tabs-item"><slot></slot></div>',
-                        props: [
-                            'route',
-                        ],
+                        props: ['route'],
                     },
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-confirm-modal': await wrapTestComponent('sw-confirm-modal'),

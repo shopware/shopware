@@ -181,13 +181,45 @@ class TranslationConfigLoaderTest extends TestCase
         static::assertNull($config->pluginMapping->get('SwagPublisher'));
     }
 
+    public function testOverrideCommunityTranslationsUrl(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['community_translations_url' => 'https://example.com/translate']);
+
+        static::assertSame('https://example.com/translate', $loader->load()->communityTranslationsUrl?->__toString());
+    }
+
+    public function testOverrideDocumentationUrlSnippet(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['documentation_url_snippet_key' => 'my.custom.docs']);
+
+        static::assertSame('my.custom.docs', $loader->load()->documentationUrlSnippetKey);
+    }
+
+    public function testOverrideCompletenessThreshold(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['completeness_threshold' => 75]);
+
+        static::assertSame(75, $loader->load()->completenessThreshold);
+    }
+
+    public function testOverridePseudoLocalesReplacesList(): void
+    {
+        $loader = new TestableTranslationConfigLoader(new Filesystem(), ['pseudo_locales' => ['xx-XX']]);
+
+        static::assertSame(['xx-XX'], $loader->load()->pseudoLocales);
+    }
+
     public function testNullOverridesFallBackToConfigFile(): void
     {
         $loader = new TestableTranslationConfigLoader(new Filesystem(), [
             'repository_url' => null,
             'metadata_url' => null,
+            'community_translations_url' => null,
+            'documentation_url_snippet_key' => null,
+            'completeness_threshold' => null,
             'plugins' => null,
             'excluded_locales' => null,
+            'pseudo_locales' => null,
             'plugin_mapping' => null,
             'languages' => null,
         ]);

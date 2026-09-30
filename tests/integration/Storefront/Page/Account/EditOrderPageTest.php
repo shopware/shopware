@@ -99,6 +99,23 @@ class EditOrderPageTest extends TestCase
         static::assertCount(0, $page->getPaymentMethods());
     }
 
+    public function testEditOrderPageSelectsThePaymentMethodOfTheOrder(): void
+    {
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $orderId = $this->placeRandomOrder($context);
+        $orderPaymentMethodId = $context->getPaymentMethod()->getId();
+
+        // the customer selected another payment method after the order was placed
+        $context->assign(['paymentMethod' => $this->createCustomPaymentMethod($context, [])]);
+
+        $request = new Request();
+        $request->attributes->set('orderId', $orderId);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertSame($orderPaymentMethodId, $page->getSelectedPaymentMethodId());
+    }
+
     public function testEditPageNotAvailableOrderIsPaid(): void
     {
         $request = new Request();

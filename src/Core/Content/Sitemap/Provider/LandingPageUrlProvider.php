@@ -62,7 +62,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $ids = array_column($landingPages, 'id');
 
-        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(LandingPageDefinition::ENTITY_NAME);
+        $routeName = $this->entityRouteResolver->getRouteNameForEntityName(LandingPageDefinition::ENTITY_NAME, $context->getSalesChannel()->getTypeId());
         $seoUrls = $this->getSeoUrls($ids, $routeName, $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
@@ -75,7 +75,7 @@ class LandingPageUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$landingPage['id']])) {
                 $url->setLoc($seoUrls[$landingPage['id']]['seo_path_info']);
             } else {
-                $url->setLoc($this->entityRouteResolver->generateUrl(LandingPageDefinition::ENTITY_NAME, $landingPage['id']));
+                $url->setLoc($this->entityRouteResolver->generateUrl(LandingPageDefinition::ENTITY_NAME, $landingPage['id'], $context->getSalesChannel()->getTypeId()));
             }
 
             $lastMod = $landingPage['updated_at'] ?: $landingPage['created_at'];

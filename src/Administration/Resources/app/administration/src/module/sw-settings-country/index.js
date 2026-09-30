@@ -46,9 +46,9 @@ Module.register('sw-settings-country', {
     name: 'settings-country',
     title: 'sw-settings-country.general.mainMenuItemGeneral',
     description: 'Country section in the settings module',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-map',
+    favicon: 'icon-module-settings.svg',
     entity: 'country',
 
     routes: {
@@ -65,10 +65,7 @@ Module.register('sw-settings-country', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.country.index',
-                privileges: [
-                    'country.viewer',
-                    'country.editor',
-                ],
+                privileges: ['country.viewer', 'country.editor'],
             },
 
             redirect: {
@@ -81,10 +78,7 @@ Module.register('sw-settings-country', {
                     path: 'general',
                     meta: {
                         parentPath: 'sw.settings.country.index',
-                        privileges: [
-                            'country.editor',
-                            'country.creator',
-                        ],
+                        privileges: ['country.editor', 'country.creator'],
                     },
                 },
 
@@ -93,10 +87,7 @@ Module.register('sw-settings-country', {
                     path: 'state',
                     meta: {
                         parentPath: 'sw.settings.country.index',
-                        privileges: [
-                            'country.editor',
-                            'country.creator',
-                        ],
+                        privileges: ['country.editor', 'country.creator'],
                     },
                 },
 
@@ -105,10 +96,7 @@ Module.register('sw-settings-country', {
                     path: 'address-handling',
                     meta: {
                         parentPath: 'sw.settings.country.index',
-                        privileges: [
-                            'country.editor',
-                            'country.creator',
-                        ],
+                        privileges: ['country.editor', 'country.creator'],
                     },
                 },
             },

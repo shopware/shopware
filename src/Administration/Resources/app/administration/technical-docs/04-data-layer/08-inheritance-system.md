@@ -55,7 +55,7 @@ The `sw-inherit-wrapper` component is the foundation of inheritance UI. It wraps
     v-model:value="product.name"
     :has-parent="!!parentProduct.id"
     :inherited-value="parentProduct.translated.name"
-    :label="$tc('sw-product.basicForm.labelName')"
+    :label="$t('sw-product.basicForm.labelName')"
 >
     <template #content="props">
         <mt-text-field

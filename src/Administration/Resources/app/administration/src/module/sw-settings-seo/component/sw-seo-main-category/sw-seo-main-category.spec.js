@@ -57,9 +57,7 @@ describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
 
         await wrapper.setProps({
             mainCategories: [mainCategory],
-            categories: [
-                { id: 'categoryId1', translated: { name: 'Category 1' } },
-            ],
+            categories: [{ id: 'categoryId1', translated: { name: 'Category 1' } }],
             currentSalesChannelId: 'salesChannelId1',
         });
         await wrapper.vm.$nextTick();

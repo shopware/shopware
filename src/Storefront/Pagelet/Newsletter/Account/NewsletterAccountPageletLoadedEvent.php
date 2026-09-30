@@ -7,6 +7,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class NewsletterAccountPageletLoadedEvent extends PageletLoadedEvent
 {

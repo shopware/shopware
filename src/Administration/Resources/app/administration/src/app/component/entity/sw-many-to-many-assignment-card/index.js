@@ -23,15 +23,9 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
-    emits: [
-        'update:entityCollection',
-        'paginate',
-    ],
+    emits: ['update:entityCollection', 'paginate'],
 
     props: {
         columns: {
@@ -118,6 +112,7 @@ export default {
             isLoadingGrid: false,
             selectedIds: [],
             resultCollection: null,
+            resultRequestId: 0,
             gridData: [],
             searchTerm: '',
             totalAssigned: 0,
@@ -228,24 +223,44 @@ export default {
             this.debouncedSearch();
         },
 
+        onClear() {
+            this.searchTerm = null;
+
+            if (this.$refs.selectBase?.expanded) {
+                this.resetSearchCriteria();
+                this.loadResultCollection();
+                return;
+            }
+
+            if (!this.localMode) {
+                this.paginateGrid();
+            }
+        },
+
+        loadResultCollection() {
+            const requestId = ++this.resultRequestId;
+
+            return this.searchItems().then((searchResult) => {
+                if (requestId === this.resultRequestId) {
+                    this.resultCollection = searchResult;
+                }
+            });
+        },
+
         debouncedSearch: debounce(function debouncedSearch() {
             this.resetSearchCriteria();
             this.searchCriteria.term = this.searchTerm || null;
 
             this.addContainsFilter(this.searchCriteria);
 
-            this.searchItems().then((searchResult) => {
-                this.resultCollection = searchResult;
-            });
+            this.loadResultCollection();
         }, 500),
 
         onSelectExpanded() {
             this.resetSearchCriteria();
             this.focusEl.select();
 
-            this.searchItems().then((searchResult) => {
-                this.resultCollection = searchResult;
-            });
+            this.loadResultCollection();
         },
 
         paginateResult() {
@@ -388,10 +403,7 @@ export default {
                     return Criteria.contains(field, criteria.term);
                 });
 
-                criteria.filters = [
-                    ...this.criteria.filters,
-                    Criteria.multi('OR', containsFilter),
-                ];
+                criteria.filters = [...this.criteria.filters, Criteria.multi('OR', containsFilter)];
                 criteria.term = null;
             }
         },

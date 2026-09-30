@@ -69,5 +69,15 @@ class MailErrorEventTest extends TestCase
         static::assertSame('mail.sent.error', $event->getName());
         static::assertSame($context, $event->getContext());
         static::assertSame($exception, $event->getThrowable());
+        static::assertSame('{{ subject }}', $event->getTemplate());
+        static::assertSame([
+            'eventName' => 'checkout.order.placed',
+            'shopName' => 'Storefront',
+        ], $event->getTemplateData());
+    }
+
+    public function testAvailableDataDescribesTheFlowPayload(): void
+    {
+        static::assertSame(['name'], array_keys(MailErrorEvent::getAvailableData()->toArray()));
     }
 }

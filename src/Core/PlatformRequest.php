@@ -71,11 +71,13 @@ final class PlatformRequest
     public const ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT = 'sw-sales-channel-context';
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'sw-sales-channel-id';
     public const ATTRIBUTE_IMITATING_USER_ID = 'sw-imitating-user-id';
+    public const ATTRIBUTE_CRITERIA = 'sw-criteria';
 
     public const ATTRIBUTE_ACL = '_acl';
     public const ATTRIBUTE_CAPTCHA = '_captcha';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
     public const ATTRIBUTE_ENTITY = '_entity';
+    public const ATTRIBUTE_OPENAPI = '_openapi';
     public const ATTRIBUTE_NO_STORE = '_noStore';
     public const ATTRIBUTE_HTTP_CACHE = '_httpCache';
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';

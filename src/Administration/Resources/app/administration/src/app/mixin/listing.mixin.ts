@@ -15,14 +15,13 @@ export {};
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-listing`; change both together.
  */
 export default Shopware.Mixin.register(
     'listing',
     defineComponent({
-        inject: [
-            'searchRankingService',
-            'feature',
-        ],
+        inject: ['searchRankingService', 'feature'],
 
         data(): {
             page: number;

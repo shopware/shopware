@@ -3,13 +3,12 @@
 namespace Shopware\Core\Content\ProductStream\Service;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
-use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Content\ProductStream\ProductStreamEntity;
+use Shopware\Core\Content\ProductStream\ProductStreamException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -64,7 +63,7 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
             ->get($id);
 
         if (!$stream) {
-            throw new EntityNotFoundException('product_stream', $id);
+            throw ProductStreamException::productStreamNotFound($id);
         }
 
         return $stream;
@@ -77,7 +76,13 @@ class ProductStreamBuilder extends AbstractProductStreamBuilder implements Produ
     {
         $data = $stream->getApiFilter();
         if (!$data) {
-            throw new NoFilterException($id);
+            // Empty api_filter ([]) on a valid stream means all filters were removed; a broken/invalid
+            // stream (api_filter null or invalid) stays a NoFilterException so callers can tell them apart.
+            if ($data === [] && !$stream->isInvalid()) {
+                throw ProductStreamException::emptyProductStream($id);
+            }
+
+            throw ProductStreamException::noFilters($id);
         }
 
         $filters = [];

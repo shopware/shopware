@@ -628,7 +628,7 @@ describe("Cookie reCAPTCHA Integration tests", () => {
 		// consent. '_GRECAPTCHA' is a technically-required cookie that is not removed
 		// on revoke, while 'cookie-preference' is. The validator must not trust the
 		// stale '_GRECAPTCHA' cookie, otherwise the form submits without a token and
-		// fails server-side with a 500 (CaptchaException).
+		// is rejected server-side as a failed captcha.
 		CookieStorage.getItem.mockImplementation((cookieName) => {
 			if (cookieName === "cookie-preference") return null; // Consent revoked
 			if (cookieName === "_GRECAPTCHA") return "1"; // Stale cookie remains

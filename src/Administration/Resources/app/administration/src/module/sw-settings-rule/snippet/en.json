@@ -4,7 +4,7 @@
       "INVALID_DATE_RANGE": "Invalid date range: The start date must precede the end date."
     },
     "general": {
-      "mainMenuItemGeneral": "Rule builder",
+      "mainMenuItemGeneral": "Rule Builder",
       "placeholderSearchBar": "Search all rules...",
       "descriptionTextModule": "Manage rules here."
     },
@@ -42,7 +42,7 @@
     "list": {
       "columnTaxProviders": "Tax Provider assignments",
       "columnWarehouseGroup": "Warehouse group assignments",
-      "textHeadline": "Rule builder",
+      "textHeadline": "Rule Builder",
       "buttonAddRule": "Create rule",
       "columnName": "Rule",
       "columnDescription": "Description",
@@ -171,7 +171,7 @@
   "sw-privileges": {
     "permissions": {
       "rule": {
-        "label": "Rule builder"
+        "label": "Rule Builder"
       }
     }
   }

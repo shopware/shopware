@@ -43,9 +43,11 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
                 continue;
             }
 
-            // use code for individual or global codes (reduces conflicts) and promotionId for automatic promotions
+            // A global redemption limit applies to all codes of a promotion.
             $code = $lineItem->getPayloadValue('code');
-            $key = \is_string($code) && $code !== '' ? \mb_strtolower($code) : $lineItem->getPayloadValue('promotionId');
+            $key = $lineItem->getPayloadValue('hasGlobalRedemptionLimit')
+                ? $lineItem->getPayloadValue('promotionId')
+                : (\is_string($code) && $code !== '' ? \mb_strtolower($code) : $lineItem->getPayloadValue('promotionId'));
 
             if (!\is_string($key) || $key === '') {
                 continue;

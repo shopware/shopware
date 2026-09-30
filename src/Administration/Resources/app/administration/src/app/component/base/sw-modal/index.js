@@ -49,6 +49,7 @@ export default {
                 'default',
                 'small',
                 'large',
+                'x-large',
                 'full',
             ],
             validator(value) {
@@ -59,6 +60,7 @@ export default {
                     'default',
                     'small',
                     'large',
+                    'x-large',
                     'full',
                 ].includes(value);
             },
@@ -93,6 +95,12 @@ export default {
             required: false,
             default: true,
         },
+
+        zIndex: {
+            type: Number,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -110,10 +118,7 @@ export default {
         },
 
         modalDialogClasses() {
-            return [
-                `sw-modal--${this.id}`,
-                { 'has--header': this.showHeader },
-            ];
+            return [`sw-modal--${this.id}`, { 'has--header': this.showHeader }];
         },
 
         modalBodyClasses() {

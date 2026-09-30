@@ -21,30 +21,16 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: [
-                'document_base_config:update',
-            ],
-            dependencies: [
-                'document.viewer',
-            ],
+            privileges: ['document_base_config:update'],
+            dependencies: ['document.viewer'],
         },
         creator: {
-            privileges: [
-                'document_base_config:create',
-                'document_base_config_sales_channel:create',
-            ],
-            dependencies: [
-                'document.viewer',
-                'document.editor',
-            ],
+            privileges: ['document_base_config:create', 'document_base_config_sales_channel:create'],
+            dependencies: ['document.viewer', 'document.editor'],
         },
         deleter: {
-            privileges: [
-                'document_base_config:delete',
-            ],
-            dependencies: [
-                'document.viewer',
-            ],
+            privileges: ['document_base_config:delete'],
+            dependencies: ['document.viewer'],
         },
     },
 });

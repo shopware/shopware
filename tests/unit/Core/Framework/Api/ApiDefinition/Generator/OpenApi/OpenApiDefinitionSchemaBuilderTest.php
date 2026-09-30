@@ -12,6 +12,8 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Def
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\PluginExtensionForJsonOverride;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\ComplexDefinition;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\DefinitionWithHiddenRequiredTranslation;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\DefinitionWithHiddenRequiredTranslationTranslation;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixtures\SimpleExtendedDefinition;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -35,6 +37,8 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
                 ComplexDefinition::class,
                 SimpleExtendedDefinition::class,
                 DefinitionWithJsonOverride::class,
+                DefinitionWithHiddenRequiredTranslation::class,
+                DefinitionWithHiddenRequiredTranslationTranslation::class,
             ],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
@@ -61,6 +65,39 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
         );
         static::assertArrayHasKey('Complex', $schema);
         static::assertArrayHasKey('ComplexJsonApi', $schema);
+    }
+
+    public function testRequiredAssociationIsOnlyRequiredInFlatSchema(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ComplexDefinition::class),
+            '/complex',
+            false
+        );
+        $flatSchema = json_decode($schema['Complex']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+        $jsonApiSchema = json_decode($schema['ComplexJsonApi']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertContains('idField', $flatSchema['required']);
+        static::assertContains('simpleManys', $flatSchema['required']);
+        static::assertContains('idField', $jsonApiSchema['allOf'][1]['required']);
+        static::assertNotContains('simpleManys', $jsonApiSchema['allOf'][1]['required']);
+    }
+
+    public function testRequiredFieldsAreLimitedToGeneratedProperties(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(DefinitionWithHiddenRequiredTranslation::class),
+            '/definition-with-hidden-required-translation',
+            true
+        );
+
+        $flatSchema = json_decode($schema['DefinitionWithHiddenRequiredTranslation']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+        $jsonApiSchema = json_decode($schema['DefinitionWithHiddenRequiredTranslationJsonApi']->toJson(), true, flags: \JSON_THROW_ON_ERROR);
+
+        static::assertSame(['id', 'visible'], $flatSchema['required']);
+        static::assertSame(['id', 'visible'], $jsonApiSchema['allOf'][1]['required']);
+        static::assertArrayNotHasKey('hiddenTranslated', $flatSchema['properties']);
+        static::assertArrayNotHasKey('hiddenTranslated', $jsonApiSchema['allOf'][1]['properties']);
     }
 
     public function testTypeConversion(): void

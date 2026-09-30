@@ -25,6 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class DocumentBaseConfigDefinition extends EntityDefinition
 {
@@ -67,12 +70,13 @@ class DocumentBaseConfigDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the document base config.'),
 
-            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the document type.'),
+            (new StringField('type_name', 'typeName'))->addFlags(new ApiAware())->setDescription('Technical name of the document type.'),
             (new FkField('logo_id', 'logoId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of the company logo.'),
 
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required())->setDescription('Name of the document.'),
             (new StringField('filename_prefix', 'filenamePrefix'))->addFlags(new ApiAware())->setDescription('A prefix name added to the file name separated by an underscore.'),
             (new StringField('filename_suffix', 'filenameSuffix'))->addFlags(new ApiAware())->setDescription('A suffix name added to the file name separated by an underscore.'),
+            (new JsonField('filename_infixes', 'filenameInfixes'))->addFlags(new ApiAware())->setDescription('A map of document format to an infix added to the file name for that format, separated by an underscore.'),
             (new BoolField('global', 'global'))->addFlags(new ApiAware(), new Required())->setDescription('When set to `true`, the document can be used across all sales channels.'),
             (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware())->setDescription('Unique number associated with every document.'),
             (new StringField('page_size', 'pageSize', 32))->setDescription('The page size of the document.'),
@@ -87,11 +91,12 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new CreatedAtField())->addFlags(new ApiAware()),
 
-            new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'),
             (new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware())->setDescription('Logo in the document at the top-right corner.'),
             (new OneToManyAssociationField('salesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_base_config_id', 'id'))->addFlags(new CascadeDelete()),
 
-            (new JsonField('config', 'config'))->addFlags(new ApiAware(), new Deprecated('v6.7.11.0', 'v6.8.0.0', 'type'))->setDescription('Specifies detailed information about the component.'),
+            (new JsonField('config', 'config'))->addFlags(new ApiAware(), new Deprecated('v6.7.11.0', 'v6.9.0.0', 'type'))->setDescription('Specifies detailed information about the component.'),
+            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware(), new Required(), new Deprecated('v6.7.14.0', 'v6.9.0.0', 'typeName'))->setDescription('Unique identity of the document type.'),
+            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new Deprecated('v6.7.14.0', 'v6.9.0.0', 'typeName')),
         ]);
     }
 }

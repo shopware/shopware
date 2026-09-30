@@ -14,11 +14,7 @@ const { get, format } = Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'orderService', 'acl'],
 
     emits: [
         'item-edit',
@@ -222,11 +218,21 @@ export default {
             });
         },
 
-        onInlineEditCancel() {
+        onInlineEditCancel(item) {
+            if (item.isNew()) {
+                const itemIndex = this.order.lineItems.findIndex((lineItem) => lineItem?.id === item.id);
+                this.order.lineItems.splice(itemIndex, 1);
+
+                return;
+            }
+
             this.$emit('item-cancel');
         },
 
         createNewOrderLineItem() {
+            this.searchTerm = '';
+            this.$refs.itemFilter.term = '';
+
             const item = this.orderLineItemRepository.create();
             item.versionId = this.order.versionId;
             item.priceDefinition = {
@@ -257,20 +263,28 @@ export default {
             const item = this.createNewOrderLineItem();
             item.description = 'custom line item';
             item.type = this.lineItemTypes.CUSTOM;
-            this.order.lineItems.unshift(item);
+            this.insertLineItem(item);
         },
 
         onInsertExistingItem() {
             const item = this.createNewOrderLineItem();
             item.type = this.lineItemTypes.PRODUCT;
-            this.order.lineItems.unshift(item);
+            this.insertLineItem(item);
         },
 
         onInsertCreditItem() {
             const item = this.createNewOrderLineItem();
             item.description = 'credit line item';
             item.type = this.lineItemTypes.CREDIT;
+            this.insertLineItem(item);
+        },
+
+        insertLineItem(item) {
             this.order.lineItems.unshift(item);
+
+            this.$nextTick(() => {
+                this.$refs.dataGrid?.onDbClickCell(item);
+            });
         },
 
         onSelectionChanged(selection) {

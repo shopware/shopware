@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<StateMachineEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class StateMachineCollection extends EntityCollection

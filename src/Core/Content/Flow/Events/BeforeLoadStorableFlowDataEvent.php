@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Events;
 
+use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\GenericEvent;
@@ -21,6 +22,10 @@ class BeforeLoadStorableFlowDataEvent extends Event implements ShopwareEvent, Ge
         private readonly Criteria $criteria,
         private readonly Context $context,
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', MailFlowDataCriteriaEvent::class)
+        );
     }
 
     public function getName(): string

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<AppAdministrationSnippetEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class AppAdministrationSnippetCollection extends EntityCollection

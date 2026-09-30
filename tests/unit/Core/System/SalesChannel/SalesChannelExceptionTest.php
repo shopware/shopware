@@ -30,6 +30,13 @@ class SalesChannelExceptionTest extends TestCase
      */
     public static function exceptionDataProvider(): iterable
     {
+        yield SalesChannelException::CRITERIA_TOO_MANY_NESTED_CRITERIA => [
+            'exception' => SalesChannelException::tooManyNestedCriteria(100),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => SalesChannelException::CRITERIA_TOO_MANY_NESTED_CRITERIA,
+            'message' => 'The criteria contains more than 100 nested criteria.',
+        ];
+
         yield SalesChannelException::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION => [
             'exception' => SalesChannelException::providedLanguageNotAvailable('myCustomScn', ['scn1', 'scn2']),
             'statusCode' => Response::HTTP_PRECONDITION_FAILED,

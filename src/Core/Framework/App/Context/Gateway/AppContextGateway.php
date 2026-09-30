@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Context\Payload\AppContextGatewayPayloadService;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\ContextGateway;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -38,6 +40,7 @@ class AppContextGateway
         private readonly EntityRepository $appRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ExceptionLogger $logger,
+        private readonly AppCapability $appCapability,
     ) {
     }
 
@@ -49,11 +52,19 @@ class AppContextGateway
         }
         $app = $this->getApp($appName, $payload->getSalesChannelContext()->getContext());
 
-        $contextGatewayUrl = $app->getContextGatewayUrl();
-
-        if (!$contextGatewayUrl) {
-            throw AppException::gatewayNotConfigured($app->getName(), 'context');
+        // the app calls this gateway itself, so reject the request instead of silently ignoring it.
+        // no cart/customer data is pushed to an app that has not been granted the permission.
+        if (!$this->appCapability->can($app->getId(), ContextGateway::PERMISSION)) {
+            throw AppException::capabilityNotGranted($app->getName(), ContextGateway::PERMISSION);
         }
+
+        return $this->dispatchToApp($app, $payload);
+    }
+
+    private function dispatchToApp(AppEntity $app, ContextGatewayPayloadStruct $payload): ContextTokenResponse
+    {
+        $contextGatewayUrl = $app->getContextGatewayUrl();
+        \assert(\is_string($contextGatewayUrl));
 
         $appResponse = $this->payloadService->request($contextGatewayUrl, $payload, $app);
 

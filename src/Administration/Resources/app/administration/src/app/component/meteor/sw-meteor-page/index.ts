@@ -37,9 +37,7 @@ type VNodeChildrenWithDefaultSlot = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     props: {
         fullWidth: {
@@ -49,6 +47,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hideIcon: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        hideSmartBar: {
             type: Boolean,
             required: false,
             default: false,
@@ -72,6 +76,7 @@ export default Shopware.Component.wrapComponentConfig({
         pageClasses(): object {
             return {
                 'sw-meteor-page--full-width': this.fullWidth,
+                'sw-meteor-page--hide-smart-bar': this.hideSmartBar,
             };
         },
 
@@ -99,10 +104,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return this.tabItems[0]?.name ?? '';
-        },
-
-        pageColor(): string {
-            return this.module?.color ?? '#d8dde6';
         },
     },
 

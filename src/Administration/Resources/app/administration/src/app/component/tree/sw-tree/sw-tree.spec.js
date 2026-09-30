@@ -216,10 +216,7 @@ describe('src/app/component/tree/sw-tree', () => {
         const treeItems = wrapper.props('items');
 
         const rootCategoryId = 'a1d1da1e6d434902a2e5ffed7784c951';
-        const testCategoryIds = [
-            'd3aabfa637cf435e8ad3c9bf1d2de565',
-            '8da86665f27740dd8160c92e27b1c4c8',
-        ];
+        const testCategoryIds = ['d3aabfa637cf435e8ad3c9bf1d2de565', '8da86665f27740dd8160c92e27b1c4c8'];
         const rootCategory = treeItems.find((element) => element.id === rootCategoryId);
         const testCategories = testCategoryIds.map((id) => {
             return treeItems.find((element) => element.id === id);
@@ -247,6 +244,21 @@ describe('src/app/component/tree/sw-tree', () => {
             expect(category.parentId).toBeNull();
             expect(rootCategory.parentId).toBeNull();
         });
+    });
+
+    it('should move a category into the hovered folder after a delayed drag hover', async () => {
+        const wrapper = await createWrapper();
+        const home = wrapper.vm.treeItems.find((item) => item.data.name === 'Home');
+        const draggedCategory = home.children.find((item) => item.data.name === 'Health & Games');
+        const targetCategory = home.children.find((item) => item.data.name === 'Shoes');
+
+        wrapper.vm.startDrag({ item: draggedCategory });
+        wrapper.vm.moveDrag(draggedCategory, targetCategory, true);
+        wrapper.vm.endDrag();
+
+        expect(draggedCategory.parentId).toBe(targetCategory.id);
+        expect(targetCategory.children[0]).toBe(draggedCategory);
+        expect(wrapper.emitted('drag-end')[0][0].newParentId).toBe(targetCategory.id);
     });
 
     it('should focus on the active tree item when focusin', async () => {

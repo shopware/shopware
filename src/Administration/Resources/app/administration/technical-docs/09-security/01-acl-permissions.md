@@ -226,14 +226,14 @@ Use ACL checks in Vue components through dependency injection:
         <sw-button 
             v-if="acl.can('example:create')"
             @click="onCreate">
-            {{ $tc('sw-example.detail.buttonCreate') }}
+            {{ $t('sw-example.detail.buttonCreate') }}
         </sw-button>
         
         <sw-button 
             v-if="acl.can('example:delete')"
             variant="danger"
             @click="onDelete">
-            {{ $tc('sw-example.detail.buttonDelete') }}
+            {{ $t('sw-example.detail.buttonDelete') }}
         </sw-button>
     </div>
 </template>

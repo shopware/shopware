@@ -24,6 +24,10 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "401": {
+            "$ref": "#/components/responses/401",
+            "description": "The `sw-access-key` header is missing."
           }
         },
         "security": [

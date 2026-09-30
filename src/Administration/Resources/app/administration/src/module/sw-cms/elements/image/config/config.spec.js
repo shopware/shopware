@@ -157,6 +157,41 @@ describe('src/module/sw-cms/elements/image/config', () => {
         expect(wrapper.vm.element.config.minHeight.value).toBe('');
     });
 
+    it('should use the media entity as preview source when element data holds one', async () => {
+        const wrapper = await createWrapper();
+        const media = {
+            id: 'media-id',
+            url: 'http://shop.example/media/preview.png',
+        };
+
+        wrapper.vm.element.data.media = media;
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.previewSource).toStrictEqual(media);
+    });
+
+    it('should use the config value as preview source for a static media source', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.element.config.media.value = 'media-id';
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.previewSource).toBe('media-id');
+    });
+
+    it('should build an asset url as preview source for a default media source', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.element.config.media.source = 'default';
+        wrapper.vm.element.config.media.value = Shopware.Constants.CMS.MEDIA.previewMountain;
+        await wrapper.vm.$nextTick();
+
+        const previewSource = wrapper.vm.previewSource;
+
+        expect(previewSource).toBeInstanceOf(URL);
+        expect(previewSource.pathname).toContain('administration/administration/static/img/cms/preview_mountain_large.webp');
+    });
+
     it('should change the isDecorative value', async () => {
         const wrapper = await createWrapper();
         const isDecorativeSwitch = wrapper.find('.sw-cms-el-config-image__is-decorative input');

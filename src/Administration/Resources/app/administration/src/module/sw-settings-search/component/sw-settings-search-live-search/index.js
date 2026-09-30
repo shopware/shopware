@@ -12,19 +12,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'liveSearchService',
-    ],
+    inject: ['repositoryFactory', 'liveSearchService'],
 
-    emits: [
-        'live-search-results-change',
-        'sales-channel-change',
-    ],
+    emits: ['live-search-results-change', 'sales-channel-change'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         currentSalesChannelId: {

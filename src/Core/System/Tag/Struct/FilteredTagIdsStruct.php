@@ -5,6 +5,9 @@ namespace Shopware\Core\System\Tag\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@framework')]
 class FilteredTagIdsStruct extends Struct
 {

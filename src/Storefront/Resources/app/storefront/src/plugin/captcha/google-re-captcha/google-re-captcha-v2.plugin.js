@@ -43,6 +43,26 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
         };
     }
 
+    /**
+     * Resets the reCAPTCHA v2 widget so a fresh challenge has to be solved before the next
+     * submission. The cached token and hidden input are cleared as well, so the invisible
+     * variant requests a new token via `execute()` instead of reusing the consumed one, and the
+     * visible variant requires the checkbox to be solved again.
+     */
+    resetGreCaptcha() {
+        if (this.grecaptchaWidgetId === null) {
+            return;
+        }
+
+        this.grecaptcha.reset(this.grecaptchaWidgetId);
+        this.currentToken = null;
+        this.grecaptchaInput.value = '';
+
+        if (!this.options.invisible && this.grecaptchaContainerIframe) {
+            this.grecaptchaContainerIframe.classList.remove(this.options.grecaptchaIframeHasErrorClassSelector);
+        }
+    }
+
     onFormSubmit() {
         if (this.options.invisible) {
             if (this.grecaptchaWidgetId === null) {

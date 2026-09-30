@@ -60,9 +60,19 @@ class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
             return $this->domains;
         }
 
-        $value = $this->cache->get(self::CACHE_KEY, fn (ItemInterface $item) => CacheValueCompressor::compress(
-            $this->getDecorated()->load()
-        ));
+        $fresh = null;
+
+        $value = $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) use (&$fresh): string {
+            $fresh = $this->getDecorated()->load();
+
+            return CacheValueCompressor::compress($fresh);
+        });
+
+        // the domains were loaded in this call, return them directly instead of
+        // uncompressing the cache payload that was just compressed from them
+        if ($fresh !== null) {
+            return $this->domains = $fresh;
+        }
 
         /** @var array<string, Domain> $value */
         $value = CacheValueCompressor::uncompress($value);
@@ -76,9 +86,19 @@ class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
             return $this->domainCollection;
         }
 
-        $value = $this->cache->get(self::DOMAIN_COLLECTION_CACHE_KEY, fn (ItemInterface $item) => CacheValueCompressor::compress(
-            $this->getDecorated()->loadDomains()
-        ));
+        $fresh = null;
+
+        $value = $this->cache->get(self::DOMAIN_COLLECTION_CACHE_KEY, function (ItemInterface $item) use (&$fresh): string {
+            $fresh = $this->getDecorated()->loadDomains();
+
+            return CacheValueCompressor::compress($fresh);
+        });
+
+        // the domains were loaded in this call, return them directly instead of
+        // uncompressing the cache payload that was just compressed from them
+        if ($fresh instanceof DomainCollection) {
+            return $this->domainCollection = $fresh;
+        }
 
         /** @var DomainCollection $value */
         $value = CacheValueCompressor::uncompress($value);

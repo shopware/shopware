@@ -21,7 +21,6 @@ class AllStoreApiSchemaMigrationScopeProviderTest extends TestCase
         $provider = new AllStoreApiSchemaMigrationScopeProvider(
             new BundleSchemaPathCollection([new ShopwareBundleWithName()]),
             '/schema',
-            '/allowlist.json',
         );
 
         static::assertSame('all', $provider->getScope());
@@ -30,7 +29,6 @@ class AllStoreApiSchemaMigrationScopeProviderTest extends TestCase
             '/schema',
             __DIR__ . '/_fixtures/CustomBundleWithApiSchema/Resources/Schema/StoreApi',
         ], $provider->getSchemaPaths());
-        static::assertSame('/allowlist.json', $provider->getAllowlistPath());
         static::assertTrue($provider->includesAllDefinitions());
     }
 }

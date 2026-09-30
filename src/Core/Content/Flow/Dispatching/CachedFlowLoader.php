@@ -47,11 +47,21 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
             return $this->flows;
         }
 
-        $value = $this->cache->get(self::KEY, function (ItemInterface $item) {
+        $fresh = null;
+
+        $value = $this->cache->get(self::KEY, function (ItemInterface $item) use (&$fresh) {
             $item->tag([self::KEY]);
 
-            return CacheValueCompressor::compress($this->decorated->load());
+            $fresh = $this->decorated->load();
+
+            return CacheValueCompressor::compress($fresh);
         });
+
+        // the flows were loaded in this call, return them directly instead of
+        // uncompressing the cache payload that was just compressed from them
+        if ($fresh !== null) {
+            return $this->flows = $fresh;
+        }
 
         return $this->flows = CacheValueCompressor::uncompress($value);
     }

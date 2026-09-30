@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
@@ -91,6 +92,35 @@ class AuthMiddlewareTest extends TestCase
         static::assertNotNull($request);
 
         static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $request->getHeaders());
+
+        $historyCollector = static::getContainer()->get(GuzzleHistoryCollector::class);
+        static::assertInstanceOf(GuzzleHistoryCollector::class, $historyCollector);
+        static::assertSame(['example.local:443:93.184.216.34'], $historyCollector->getHistory()[0]['options']['curl'][\CURLOPT_RESOLVE] ?? null);
+    }
+
+    public function testSignsForwardedRequestWhenFollowingRedirect(): void
+    {
+        $this->appendNewResponse(new Response(301, ['Location' => 'https://example.local/moved']));
+        $this->appendNewResponse(new Response(200));
+
+        $client = static::getContainer()->get('shopware.app_system.guzzle');
+        $client->post(new Uri('https://example.local'), [
+            AuthMiddleware::APP_REQUEST_TYPE => [AuthMiddleware::APP_SECRET => 'secret'],
+            'body' => 'test',
+        ]);
+
+        static::assertSame(2, $this->getRequestCount());
+
+        // Without the strict redirect policy Guzzle would downgrade this to a bodyless GET,
+        // which makes the signer skip the signature and the app receive an unsigned request.
+        $forwarded = $this->getPastRequest(1);
+        static::assertSame('https://example.local/moved', (string) $forwarded->getUri());
+        static::assertSame('POST', $forwarded->getMethod());
+        static::assertSame('test', $forwarded->getBody()->getContents());
+        static::assertSame(
+            hash_hmac('sha256', 'test', 'secret'),
+            $forwarded->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE)
+        );
     }
 
     public function testMissingRequiredResponseHeader(): void
@@ -98,7 +128,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = static::getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri('\'https://example.local\''));
+        $client->post(new Uri('https://example.local'));
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -114,7 +144,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = static::getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri('\'https://example.local\''), $optionsRequest);
+        $client->post(new Uri('https://example.local'), $optionsRequest);
     }
 
     public function testIncorrectAppContextInstanceOfOptionRequest(): void
@@ -125,7 +155,7 @@ class AuthMiddlewareTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $client = static::getContainer()->get('shopware.app_system.guzzle');
-        $client->post(new Uri('\'https://example.local\''), $optionsRequest);
+        $client->post(new Uri('https://example.local'), $optionsRequest);
     }
 
     public function testInCorrectAuthenticResponse(): void

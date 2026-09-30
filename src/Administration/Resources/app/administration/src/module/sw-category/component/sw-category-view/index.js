@@ -11,14 +11,9 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
-    mixins: [
-        'placeholder',
-    ],
+    mixins: ['placeholder'],
 
     props: {
         isLoading: {

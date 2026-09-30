@@ -70,9 +70,7 @@ describe('module/sw-import-export/component/profile-wizard/sw-import-export-new-
 
         const fileInput = wrapper.findComponent('.sw-import-export-new-profile-wizard-csv-page__file-upload');
 
-        expect(fileInput.props('allowedFileExtensions')).toEqual([
-            'csv',
-        ]);
+        expect(fileInput.props('allowedFileExtensions')).toEqual(['csv']);
     });
 
     it('should import the mapping when the uploaded file has csv extension', async () => {

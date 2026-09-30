@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 use ShipMonk\ComposerDependencyAnalyser\Config\Configuration;
 use ShipMonk\ComposerDependencyAnalyser\Config\ErrorType;
-use Symfony\Component\Finder\Finder;
 
 require __DIR__ . '/vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php'; // function declarations inside
 
 $config = new Configuration();
 
 configureImagickSupport($config);
-considerXMLServiceConfigFiles($config);
 
 return $config
     /** Scanned as prod, which might cause some false positives */
@@ -102,41 +100,4 @@ function configureImagickSupport(Configuration $config): void
     } else {
         $config->ignoreUnknownClasses(['Imagick', 'ImagickPixel']);
     }
-}
-
-/**
- * @deprecated tag:v6.8.0 - Can be removed once all service definitions are converted to PHP files
- */
-function considerXMLServiceConfigFiles(Configuration $config): void
-{
-    $classNameRegex = '[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*'; // https://www.php.net/manual/en/language.oop5.basic.php
-
-    $xmlFilesToCheck = (new Finder())
-        ->files()
-        ->in(__DIR__ . '/src')
-        ->path('DependencyInjection')
-        ->name('*.xml')
-        ->notName(['*_dev.xml', '*_test.xml', '*_e2e.xml']);
-
-    $classNames = [];
-
-    foreach ($xmlFilesToCheck as $file) {
-        preg_match_all(
-            "~$classNameRegex(?:\\\\$classNameRegex)+~", // at least one backslash
-            $file->getContents(),
-            $matches
-        );
-
-        $classNames[] = $matches[0];
-    }
-
-    $classNames = array_merge([], ...$classNames);
-
-    // No need to add Shopware classes
-    $classNames = array_values(array_unique(array_filter(
-        $classNames,
-        static fn (string $className): bool => !str_starts_with($className, 'Shopware\\')
-    )));
-
-    $config->addForceUsedSymbols($classNames);
 }

@@ -21,6 +21,9 @@ class ProductExportResult
         private readonly int $offset = 0,
         private readonly bool $hasNextBatch = false
     ) {
+        if ($total !== 0) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Passing $total is deprecated');
+        }
     }
 
     public function getContent(): string

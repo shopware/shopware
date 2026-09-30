@@ -10,15 +10,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -115,16 +109,10 @@ export default {
             const cacheService = Shopware.Service('cacheService');
 
             cacheService.invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'currencies',
-                ],
+                cacheKey: ['shared-data', 'currencies'],
             });
             cacheService.invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'system-currency',
-                ],
+                cacheKey: ['shared-data', 'system-currency'],
             });
         },
 

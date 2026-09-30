@@ -115,6 +115,7 @@ class DatabaseImportControllerTest extends TestCase
     {
         $this->databaseMigrator->expects($this->never())->method('migrate');
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $session = new Session(new MockArraySessionStorage());
         $request = Request::create('/installer/database-import');
@@ -131,6 +132,7 @@ class DatabaseImportControllerTest extends TestCase
     public function testDatabaseMigrateWithoutOffset(): void
     {
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $connection = static::createStub(Connection::class);
         $this->connectionFactory->method('getConnection')
@@ -161,6 +163,7 @@ class DatabaseImportControllerTest extends TestCase
     public function testDatabaseMigrateWillReportException(): void
     {
         $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
 
         $connection = static::createStub(Connection::class);
         $this->connectionFactory->method('getConnection')

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class LineItemGroupDefinition
 {

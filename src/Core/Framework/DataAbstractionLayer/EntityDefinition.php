@@ -66,6 +66,19 @@ abstract class EntityDefinition
      */
     public function __construct()
     {
+        // When a child calls parent::__construct(), the next stack frame is that child's constructor.
+        // An inherited constructor has its instantiation site as the caller instead, so it remains compatible with the removal.
+        $caller = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1] ?? [];
+        $callerClass = $caller['class'] ?? null;
+
+        if (($caller['function'] ?? null) !== '__construct' || !\is_string($callerClass) || !\is_subclass_of($callerClass, self::class)) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
     }
 
     /**
@@ -210,8 +223,13 @@ abstract class EntityDefinition
         }
 
         foreach ($this->extensions as $extension) {
-            // To prevent adding or removing fields we use a new FieldCollection which just contains the references to the fields
-            $extension->modifyFields(new FieldCollection($fields));
+            // To prevent adding or removing fields we use a new FieldCollection which just contains the references to the fields.
+            // Key by property name so extensions can look fields up via FieldCollection::get().
+            $modifiable = new FieldCollection();
+            foreach ($fields as $field) {
+                $modifiable->set($field->getPropertyName(), $field);
+            }
+            $extension->modifyFields($modifiable);
         }
 
         $this->fields = $fields->compile($this->registry);

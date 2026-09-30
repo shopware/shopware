@@ -28,9 +28,7 @@ describe('src/app/plugin/virtual-call-stack.plugin.ts', () => {
             },
             {
                 global: {
-                    plugins: [
-                        VirtualCallStackPlugin,
-                    ],
+                    plugins: [VirtualCallStackPlugin],
                 },
             },
         );

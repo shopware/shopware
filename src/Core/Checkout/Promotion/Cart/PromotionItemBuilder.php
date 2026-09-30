@@ -46,6 +46,8 @@ class PromotionItemBuilder
      */
     public function buildPlaceholderItem(string $code): LineItem
     {
+        $code = mb_trim($code);
+
         // void duplicate codes with other items
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;
@@ -206,6 +208,17 @@ class PromotionItemBuilder
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();
 
+        // indicates whether the promotion restricts usage to specific customers or customer groups
+        $payload['hasPersonaRestriction'] = ($promotion->getPersonaRules()?->count() > 0)
+            || ($promotion->getPersonaCustomers()?->count() > 0);
+
+        // all condition rule entity IDs (cart, order, persona) for rule-specific snippet fallback
+        $payload['conditionRuleIds'] = array_values(array_unique(array_merge(
+            $promotion->getCartRules()?->getIds() ?? [],
+            $promotion->getOrderRules()?->getIds() ?? [],
+            $promotion->getPersonaRules()?->getIds() ?? [],
+        )));
+
         // set promotion priority for sorting
         $payload['priority'] = $promotion->getPriority();
 
@@ -248,6 +261,8 @@ class PromotionItemBuilder
         $payload['limitedRedemptions'] = $promotion->getMaxRedemptionsGlobal()
             || $promotion->getMaxRedemptionsPerCustomer()
             || $promotion->isUseIndividualCodes();
+        $payload['hasGlobalRedemptionLimit'] = $promotion->getMaxRedemptionsGlobal() !== null
+            && $promotion->getMaxRedemptionsGlobal() > 0;
 
         // If all combinations are prevented the exclusions dont matter
         // otherwise sets a list of excluded promotion ids

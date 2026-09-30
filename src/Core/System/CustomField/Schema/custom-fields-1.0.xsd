@@ -152,6 +152,8 @@
             <xs:element name="customer" type="empty" minOccurs="0"/>
             <xs:element name="customer_address" type="empty" minOccurs="0"/>
             <xs:element name="media" type="empty" minOccurs="0"/>
+            <xs:element name="media_folder" type="empty" minOccurs="0"/>
+            <xs:element name="media_folder_configuration" type="empty" minOccurs="0"/>
             <xs:element name="product_manufacturer" type="empty" minOccurs="0"/>
             <xs:element name="sales_channel" type="empty" minOccurs="0"/>
             <xs:element name="landing_page" type="empty" minOccurs="0"/>

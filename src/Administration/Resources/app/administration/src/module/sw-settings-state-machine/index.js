@@ -24,9 +24,9 @@ Module.register('sw-settings-state-machine', {
     name: 'settings-state-machine',
     title: 'sw-settings-state-machine.general.mainMenuItemGeneral',
     description: 'State machine section in the settings module',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-history',
+    favicon: 'icon-module-settings.svg',
     entity: 'state_machine',
 
     routes: {

@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('checkout')]
 class FinishPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

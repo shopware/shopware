@@ -48,7 +48,7 @@ class SnippetService
         private readonly SnippetFilterFactory $snippetFilterFactory,
         private readonly ExtensionDispatcher $extensionDispatcher,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly FilesystemOperator $privateFileSystem,
+        private readonly FilesystemOperator $translationFilesystem,
         private readonly Filesystem $localFileSystem,
     ) {
     }
@@ -248,11 +248,7 @@ class SnippetService
             ['locales' => ArrayParameterType::STRING]
         );
 
-        if (isset($sets[$locale])) {
-            return $sets[$locale];
-        }
-
-        return array_pop($sets);
+        return $sets[$locale] ?? array_pop($sets);
     }
 
     /**
@@ -605,7 +601,7 @@ class SnippetService
     private function decodeSnippetFileJson(AbstractSnippetFile $snippetFile): array
     {
         if ($snippetFile instanceof RemoteSnippetFile) {
-            $content = $this->privateFileSystem->read($snippetFile->getPath());
+            $content = $this->translationFilesystem->read($snippetFile->getPath());
         } else {
             $content = $this->localFileSystem->readFile($snippetFile->getPath());
         }

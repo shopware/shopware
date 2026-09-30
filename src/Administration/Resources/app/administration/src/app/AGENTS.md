@@ -56,7 +56,7 @@ export default {
     async save() {
       await this.repository.save(this.entity, Shopware.Context.api);
       this.entity = await this.repository.get(this.entity.id, Shopware.Context.api);
-      this.createNotificationSuccess({ message: this.$tc('saved') });
+      this.createNotificationSuccess({ message: this.$t('saved') });
     }
   }
 };

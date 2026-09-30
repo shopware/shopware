@@ -37,6 +37,7 @@ body:
               - Extension:Image-Editor
               - Extension:Copilot
               - Extension:AgenticCommerce
+              - Extension:Shopware-Payments
       validations:
           required: true
     - type: textarea

@@ -42,7 +42,7 @@ class DiscountFixedPriceCalculator
         // now calculate the correct price
         // from our collected total discount price
         $discountPrice = $this->absolutePriceCalculator->calculate(
-            -abs($discountDiff),
+            -max(0.0, $discountDiff),
             $affectedPrices,
             $context
         );

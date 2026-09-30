@@ -83,15 +83,27 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(FilenamePathStrategy::class)
+        ->args([
+            '$pathCacheBuster' => param('shopware.cdn.path_cache_buster'),
+        ])
         ->tag('shopware.path.strategy');
 
     $services->set(IdPathStrategy::class)
+        ->args([
+            '$pathCacheBuster' => param('shopware.cdn.path_cache_buster'),
+        ])
         ->tag('shopware.path.strategy');
 
     $services->set(PhysicalFilenamePathStrategy::class)
+        ->args([
+            '$pathCacheBuster' => param('shopware.cdn.path_cache_buster'),
+        ])
         ->tag('shopware.path.strategy');
 
     $services->set(PlainPathStrategy::class)
+        ->args([
+            '$pathCacheBuster' => param('shopware.cdn.path_cache_buster'),
+        ])
         ->tag('shopware.path.strategy');
 
     $services->set(AbstractMediaUrlGenerator::class, MediaUrlGenerator::class)

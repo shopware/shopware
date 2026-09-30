@@ -378,7 +378,7 @@ class AuthControllerTest extends TestCase
     {
         $this->request('GET', '/account/login', []);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -643,7 +643,7 @@ class AuthControllerTest extends TestCase
             'redirectParameters' => ['deepLinkCode' => 'foo'],
         ]);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -879,14 +879,14 @@ class AuthControllerTest extends TestCase
 
     private function getAuthController(?AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController
     {
-        $sendPasswordRecoveryMailRoute ??= $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
+        $sendPasswordRecoveryMailRoute ??= static::createStub(AbstractSendPasswordRecoveryMailRoute::class);
 
         $controller = new AuthController(
             static::getContainer()->get(AccountLoginPageLoader::class),
             $sendPasswordRecoveryMailRoute,
             static::getContainer()->get(ResetPasswordRoute::class),
             static::getContainer()->get(LoginRoute::class),
-            $this->createMock(AbstractLogoutRoute::class),
+            static::createStub(AbstractLogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class),

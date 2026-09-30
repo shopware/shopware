@@ -71,7 +71,7 @@ class ProductExportException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SALES_CHANNEL_NOT_ALLOWED_EXCEPTION,
-            'Only sales channels from type "Storefront" can be used for exports.'
+            'Only sales channels from type "Storefront" or "Headless" can be used for exports.'
         );
     }
 

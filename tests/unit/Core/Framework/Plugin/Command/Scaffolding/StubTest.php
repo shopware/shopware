@@ -37,6 +37,15 @@ class StubTest extends TestCase
         static::assertSame($content, $stub->getContent());
     }
 
+    public function testAppendConstructor(): void
+    {
+        $stub = Stub::append('/path/to/destination', 'Appended content');
+
+        static::assertSame('/path/to/destination', $stub->getPath());
+        static::assertSame(Stub::TYPE_APPEND, $stub->getType());
+        static::assertSame('Appended content', $stub->getContent());
+    }
+
     /**
      * @param array<string, string> $params
      */

@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\Traits\TestShortHands;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -31,6 +33,15 @@ class ProductCartTest extends TestCase
     {
         // the product builder has a helper function to write the product values to the database, including all dependencies (rules, currencies, properties, etc)
         $builder->write(static::getContainer());
+
+        if (\is_string($contextOptions['currencyId'] ?? null)) {
+            static::getContainer()->get('sales_channel_currency.repository')->create([
+                [
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'currencyId' => $contextOptions['currencyId'],
+                ],
+            ], Context::createDefaultContext());
+        }
 
         $context = $this->getContext(Uuid::randomHex(), $contextOptions);
 

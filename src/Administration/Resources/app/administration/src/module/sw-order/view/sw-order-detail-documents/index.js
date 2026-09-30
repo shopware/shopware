@@ -10,10 +10,7 @@ const { Store } = Shopware;
 export default {
     template,
 
-    emits: [
-        'save-and-reload',
-        'update-loading',
-    ],
+    emits: ['save-and-reload', 'update-loading'],
 
     inject: {
         swOrderDetailOnSaveAndReload: {
@@ -34,6 +31,13 @@ export default {
         versionContext: () => Store.get('swOrderDetail').versionContext,
 
         isEditing: () => Store.get('swOrderDetail').isEditing,
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        isV68Active() {
+            return this.feature?.isActive('v6.8.0.0');
+        },
     },
 
     methods: {

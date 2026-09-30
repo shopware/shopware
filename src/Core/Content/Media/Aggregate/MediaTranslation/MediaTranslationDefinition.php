@@ -6,11 +6,13 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class MediaTranslationDefinition extends EntityTranslationDefinition
 {
@@ -45,7 +47,7 @@ class MediaTranslationDefinition extends EntityTranslationDefinition
     {
         return new FieldCollection([
             (new StringField('title', 'title'))->addFlags(new ApiAware()),
-            (new LongTextField('alt', 'alt'))->addFlags(new ApiAware()),
+            (new StringField('alt', 'alt'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }

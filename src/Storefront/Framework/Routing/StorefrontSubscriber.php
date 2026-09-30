@@ -299,15 +299,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        if ($ex instanceof CustomerNotLoggedInRoutingException) {
-            return true;
-        }
-
-        if ($ex instanceof CustomerNotLoggedInException) {
-            return true;
-        }
-
-        return false;
+        return $ex instanceof CustomerNotLoggedInRoutingException || $ex instanceof CustomerNotLoggedInException;
     }
 
     /**

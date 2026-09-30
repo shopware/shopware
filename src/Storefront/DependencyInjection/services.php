@@ -79,6 +79,7 @@ use Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
+use Shopware\Storefront\Framework\Guard\DoubleSubmitGuard;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Shopware\Storefront\Framework\Media\Validator\StorefrontMediaDocumentValidator;
@@ -103,6 +104,7 @@ use Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
 use Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacadeHookFactory;
 use Shopware\Storefront\Framework\Store\Subscriber\ExtensionThemeDetectionSubscriber;
+use Shopware\Storefront\Framework\Store\ThemeExtensionRemovalValidator;
 use Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck;
 use Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck;
@@ -240,6 +242,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(DoubleSubmitGuard::class)
+        ->args([
+            service('lock.factory'),
+            service('cache.double_submit'),
+            service('logger'),
+        ]);
+
     $services->set(StorefrontScriptResponseFactoryFacadeHookFactory::class)
         ->public()
         ->args([
@@ -253,6 +262,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber')
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(ThemeExtensionRemovalValidator::class)
+        ->args([
+            service('theme.repository'),
+            service('sales_channel.repository'),
+        ])
+        ->tag('shopware.store.extension_removal_validator');
 
     $services->set(CachedDomainLoader::class)
         ->decorate(DomainLoader::class, null, -1000)
@@ -282,6 +298,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoResolver::class),
             param('shopware.routing.registered_api_prefixes'),
             service(DomainLoader::class),
+            param('shopware.routing.api_context_route_prefixes'),
         ]);
 
     $services->set(Router::class)

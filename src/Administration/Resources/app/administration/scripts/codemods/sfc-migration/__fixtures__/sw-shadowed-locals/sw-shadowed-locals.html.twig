@@ -1,0 +1,7 @@
+{% block sw_shadowed_locals %}
+    <div ref="modalContent" class="sw-shadowed-locals">
+        <h2>{{ heading }}</h2>
+        <p>{{ countItems() }} / {{ displayedPages.length }}</p>
+        <button @click="setFocus(true)">{{ currentLocation().name }}</button>
+    </div>
+{% endblock %}

@@ -30,6 +30,22 @@
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "description": "Technical name of the document v2 format to return. Defaults to `pdf` Ignored for v1 documents.",
+                        "schema": {
+                            "type": "string",
+                            "default": "pdf",
+                            "examples": [
+                                "pdf",
+                                "html",
+                                "zugferd_xml",
+                                "zugferd_embedded_pdf"
+                            ]
+                        }
                     }
                 ],
                 "requestBody": {
@@ -76,8 +92,22 @@
                     "204": {
                         "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
                     "403": {
                         "description": "Forbidden."
+                    },
+                    "429": {
+                        "description": "Too many guest authentication attempts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Document not found."
@@ -138,6 +168,22 @@
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "description": "Technical name of the document v2 format to return. Defaults to `pdf` Ignored for v1 documents.",
+                        "schema": {
+                            "type": "string",
+                            "default": "pdf",
+                            "examples": [
+                                "pdf",
+                                "html",
+                                "zugferd_xml",
+                                "zugferd_embedded_pdf"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -165,8 +211,22 @@
                     "204": {
                         "description": "DEPRECATED: Returns a no content response when no document is found. Will be changed in v6.8.0.0 and returns a 404 response instead."
                     },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
                     "403": {
                         "description": "Forbidden."
+                    },
+                    "429": {
+                        "description": "Too many guest authentication attempts.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Document not found."

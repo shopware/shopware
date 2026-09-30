@@ -80,6 +80,52 @@ class ErrorControllerTest extends TestCase
         );
     }
 
+    public function testOnCaptchaFailureFlashesUnboundViolations(): void
+    {
+        $request = new Request();
+        $request->request->set('errorRoute', 'frontend.account.convert.page');
+
+        $violations = new ConstraintViolationList([
+            // Unbound (e.g. reCAPTCHA): must be flashed so it is visible on every form.
+            new ConstraintViolation('', '', [], '', '', '', null, 'VIOLATION::RECAPTCHA_COOKIE_REQUIRED'),
+            // Field-bound (e.g. basic captcha): rendered at the field, must not be flashed.
+            new ConstraintViolation('', '', [], '', '/shopware_basic_captcha_confirm', '', null, 'captcha.basic-captcha-invalid'),
+        ]);
+
+        $this->controller->onCaptchaFailure($violations, $request);
+
+        static::assertSame(
+            ['danger' => ['error.VIOLATION::RECAPTCHA_COOKIE_REQUIRED']],
+            $this->controller->flashBag
+        );
+        static::assertSame('frontend.account.convert.page', $this->controller->forwardToRoute);
+    }
+
+    public function testOnCaptchaFailureDoesNotFlashOnXmlHttpRequest(): void
+    {
+        $request = new Request();
+        $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+
+        $this->controller->onCaptchaFailure(new ConstraintViolationList([
+            new ConstraintViolation('', '', [], '', '', '', null, 'VIOLATION::RECAPTCHA_COOKIE_REQUIRED'),
+        ]), $request);
+
+        static::assertSame([], $this->controller->flashBag);
+    }
+
+    public function testOnCaptchaFailureForwardsErrorParameters(): void
+    {
+        $request = new Request();
+        $request->request->set('errorRoute', 'frontend.account.customer-group-registration.page');
+        $request->request->set('errorParameters', (string) json_encode(['customerGroupId' => 'group-123']));
+
+        $this->controller->onCaptchaFailure($this->violations, $request);
+
+        // Routes with required parameters (e.g. {customerGroupId}) need them carried through.
+        static::assertSame('frontend.account.customer-group-registration.page', $this->controller->forwardToRoute);
+        static::assertSame(['customerGroupId' => 'group-123'], $this->controller->forwardToRouteParameters);
+    }
+
     public function testOnCaptchaFailureWithRouteAttributeFallback(): void
     {
         $request = new Request();

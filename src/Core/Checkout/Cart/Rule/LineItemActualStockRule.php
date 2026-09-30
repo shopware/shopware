@@ -79,6 +79,10 @@ class LineItemActualStockRule extends Rule
             throw CartException::unsupportedValue(\gettype($this->stock), self::class);
         }
 
+        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+            return false;
+        }
+
         $actualStock = $lineItem->getPayloadValue('stock');
         if ($actualStock === null) {
             return false;

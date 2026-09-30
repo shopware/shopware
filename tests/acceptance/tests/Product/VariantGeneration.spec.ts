@@ -45,8 +45,7 @@ test(
             '@Storefront',
         ],
     },
-    async ({ ShopCustomer, TestDataService, StorefrontProductDetail, CheckVisibilityInHome, InstanceMeta }) => {
-        test.slow(InstanceMeta.isSaaS);
+    async ({ ShopCustomer, TestDataService, StorefrontProductDetail, CheckVisibilityInHome }) => {
         await TestDataService.setSystemConfig({ 'core.listing.disableEmptyFilterOptions': true });
         const color = await TestDataService.createColorPropertyGroup({
             name: 'Color',
@@ -59,14 +58,13 @@ test(
             description: 'Color Description Manufacturer',
         });
         const parentProductColor = await TestDataService.createBasicProduct({ manufacturerId: colorManufacturer.id });
+
+        const variantProductColor = await TestDataService.createVariantProducts(parentProductColor, propertyGroupsColor, {
+            description: 'Variant description',
+        });
+        await TestDataService.clearCaches();
+
         await test.step('Verify property display on the product detail page', async () => {
-            const variantProductColor = await TestDataService.createVariantProducts(
-                parentProductColor,
-                propertyGroupsColor,
-                {
-                    description: 'Variant description',
-                },
-            );
             await CheckVisibilityInHome(variantProductColor.at(0).name)();
             await ShopCustomer.goesTo(StorefrontProductDetail.url(variantProductColor.at(0)));
             await ShopCustomer.expects(StorefrontProductDetail.addToCartButton).toBeVisible();

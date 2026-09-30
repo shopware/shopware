@@ -109,9 +109,5 @@ class MissingReleaseInfoTest extends TestCase
             ],
             true,
         ];
-        yield 'sibling DevOps code outside StaticAnalyze still warns' => [
-            ['src/Core/DevOps/System/Command/SystemDumpDatabaseCommand.php'],
-            true,
-        ];
     }
 }

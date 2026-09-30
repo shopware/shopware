@@ -21,7 +21,7 @@ class ScheduledTaskController extends AbstractController
     {
     }
 
-    #[Route(path: '/api/_action/scheduled-task/run', name: 'api.action.scheduled-task.run', methods: ['POST'])]
+    #[Route(path: '/api/_action/scheduled-task/run', name: 'api.action.scheduled-task.run', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:queue:process']], methods: ['POST'])]
     public function runScheduledTasks(): JsonResponse
     {
         $this->taskScheduler->queueScheduledTasks();
@@ -29,7 +29,7 @@ class ScheduledTaskController extends AbstractController
         return new JsonResponse(['message' => 'Success']);
     }
 
-    #[Route(path: '/api/_action/scheduled-task/min-run-interval', name: 'api.action.scheduled-task.min-run-interval', methods: ['GET'])]
+    #[Route(path: '/api/_action/scheduled-task/min-run-interval', name: 'api.action.scheduled-task.min-run-interval', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['scheduled_task:read']], methods: ['GET'])]
     public function getMinRunInterval(): JsonResponse
     {
         return new JsonResponse(['minRunInterval' => $this->taskScheduler->getMinRunInterval()]);

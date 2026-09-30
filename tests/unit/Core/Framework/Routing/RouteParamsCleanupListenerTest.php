@@ -47,6 +47,13 @@ class RouteParamsCleanupListenerTest extends TestCase
             ],
         ];
 
+        yield 'openapi default filled gets dropped' => [
+            new Request(attributes: ['_route_params' => [PlatformRequest::ATTRIBUTE_OPENAPI => false]]),
+            [
+                '_route_params' => [],
+            ],
+        ];
+
         yield 'other properties stays' => [
             new Request(attributes: ['_route_params' => ['test' => []]]),
             [

@@ -11,7 +11,7 @@ Three loading tiers, one registry, discovered by one compiler pass — the same 
 
 ## What Core Ships
 
-Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry. Every core binding specification is a synthesized default — six in all, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
+Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry. Every core binding specification is a synthesized default — seven in all, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
 
 | Specification | Property from storage key | File | Loader |
 |---|---|---|---|
@@ -21,5 +21,6 @@ Core ships no dedicated binding-specification directory and no authored inline `
 | `core:Sw:Media:Vimeo` | `previewMedia` from `previewMediaId` | `media/vimeo.yaml` | `entity` |
 | `core:Sw:Media:Gallery` | `mediaItems` from `mediaIds` | `media/gallery.yaml` | `entity_collection` |
 | `core:Sw:Navigation:Tree` | `navigationTree` | `navigation/tree.yaml` | `navigation` |
+| `core:Sw:Product:Slider` | `products` from `productIds` | `product/slider.yaml` | `entity_collection` |
 
 `Sw:Media:Gallery` uses `entity_collection` because its property is a `MediaCollection` rather than a `MediaEntity`. `Sw:Navigation:Tree` is the one whose `resolvedBy` is a tier-B loader block (`navigation: {rootId: main-navigation}`) rather than a bare storage key — it wires the `navigation` loader and names no storage key at all.

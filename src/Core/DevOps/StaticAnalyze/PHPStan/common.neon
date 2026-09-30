@@ -77,6 +77,10 @@ parameters:
         # runs against a database on purpose
         kernelInUnitTestsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
+        # narrows NoSharedTwigRenderWithoutRequestRule to the suites sharing one kernel (and its `twig`) across tests;
+        # consumers append their integration test namespaces
+        sharedTwigRenderEnabledNamespaces:
+            - 'Shopware\Tests\Integration\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -90,4 +94,5 @@ parametersSchema:
         allowedUnitTestClassNamespaces: list(string),
         createMockWithoutExpectationsEnabledNamespaces: list(string),
         kernelInUnitTestsEnabledNamespaces: list(string),
+        sharedTwigRenderEnabledNamespaces: list(string),
 ])

@@ -40,6 +40,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelLifecycleManagerInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelBootInSetUpBeforeClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoSharedTwigRenderWithoutRequestRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoUnreachableAssertionAfterExpectExceptionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule
@@ -62,6 +63,23 @@ rules:
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
 
 services:
+    - # the four collectors feed NoSharedTwigRenderWithoutRequestRule
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\SharedTwig\TwigRenderCollector
+        tags:
+            - phpstan.collector
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\SharedTwig\TwigEnvironmentOriginCollector
+        tags:
+            - phpstan.collector
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\SharedTwig\RequestStackPushCollector
+        tags:
+            - phpstan.collector
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\SharedTwig\SalesChannelContextAttributeCollector
+        tags:
+            - phpstan.collector
+
     - # needs the analysis parser to read inherited fixture methods from abstract test-case ancestors
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutExpectationsRule
         arguments:

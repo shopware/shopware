@@ -56,4 +56,12 @@ final readonly class Configuration
     {
         return $this->parameters['kernelInUnitTestsEnabledNamespaces'] ?? [];
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getSharedTwigRenderEnabledNamespaces(): array
+    {
+        return $this->parameters['sharedTwigRenderEnabledNamespaces'] ?? [];
+    }
 }

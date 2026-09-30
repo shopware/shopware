@@ -177,6 +177,7 @@ class ShippingMethodValidatorTest extends TestCase
 
         $replacement = $this->shippingMethodPriceRepository
             ->search(new Criteria([$this->ids->get('replacement')]), $this->context)
+            ->getEntities()
             ->first();
         static::assertNotNull($replacement);
         static::assertSame(2, $replacement->getCalculation());

@@ -72,6 +72,14 @@ class EntityRouteResolver
         string $primaryKey,
         string $salesChannelTypeId
     ): array {
+        $belongsToFamily = $salesChannelTypeId === Defaults::SALES_CHANNEL_TYPE_API
+            ? $this->findEntitySeoUrlRoute($routeName) !== null
+            : $this->registry->findByRouteName($routeName) !== null;
+
+        if ($belongsToFamily) {
+            return [];
+        }
+
         try {
             $routeNameByEntity = $this->getRouteNameForEntityName(
                 $entityName,

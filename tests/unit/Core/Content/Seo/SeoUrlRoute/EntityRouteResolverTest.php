@@ -11,6 +11,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteLoaderInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -171,6 +172,45 @@ class EntityRouteResolverTest extends TestCase
         static::assertSame([], $resolver->getSeoUrlRouteNameAndPathInfo(
             'product',
             'store-api.product.detail',
+            'abc123',
+            Defaults::SALES_CHANNEL_TYPE_API,
+        ));
+    }
+
+    public function testGetSeoUrlRouteNameAndPathInfoReturnsEmptyForAnotherStorefrontRouteOfTheEntity(): void
+    {
+        $loader = static::createStub(SeoUrlRouteLoaderInterface::class);
+        $loader->method('load')->willReturn([$this->createSeoUrlRoute('product', 'storefront.app.MyApp.product-detail', 'id')]);
+
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([$this->createSeoUrlRoute('product', ProductPageSeoUrlRoute::ROUTE_NAME, 'productId')], [$loader]),
+            $this->placeholderHandler,
+            $this->router,
+        );
+
+        static::assertSame([], $resolver->getSeoUrlRouteNameAndPathInfo(
+            'product',
+            'storefront.app.MyApp.product-detail',
+            'abc123',
+            Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+        ));
+    }
+
+    public function testGetSeoUrlRouteNameAndPathInfoReturnsEmptyForAnotherStoreApiRouteOfTheEntity(): void
+    {
+        $resolver = new EntityRouteResolver(
+            new SeoUrlRouteRegistry([]),
+            $this->placeholderHandler,
+            $this->router,
+            [
+                $this->createEntitySeoUrlRoute('product', 'store-api.product.detail', 'productId'),
+                $this->createEntitySeoUrlRoute('product', 'store-api.plugin.product-detail', 'productId'),
+            ],
+        );
+
+        static::assertSame([], $resolver->getSeoUrlRouteNameAndPathInfo(
+            'product',
+            'store-api.plugin.product-detail',
             'abc123',
             Defaults::SALES_CHANNEL_TYPE_API,
         ));

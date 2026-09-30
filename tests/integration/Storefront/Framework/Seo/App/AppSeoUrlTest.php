@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlIndexer;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -42,6 +44,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('inventory')]
 class AppSeoUrlTest extends TestCase
 {
+    use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
     use BasicTestDataBehaviour;
     use CacheTestBehaviour;
@@ -186,6 +189,31 @@ class AppSeoUrlTest extends TestCase
         $this->runWorker();
 
         static::assertSame(['products/app-product-1'], $this->fetchCanonicalSeoPaths(self::PRODUCT_ROUTE));
+    }
+
+    public function testEditingTheCanonicalUrlOfTheAppRouteKeepsTheAppRoute(): void
+    {
+        $salesChannelId = $this->getSalesChannelId();
+        $this->installApp();
+        $productId = $this->createProduct(visibleIn: $salesChannelId)->get('app-product-1');
+        $this->runWorker();
+
+        $detailPageSeoUrls = $this->fetchSeoUrls(ProductPageSeoUrlRoute::ROUTE_NAME, $salesChannelId);
+        static::assertContains($productId, array_column($detailPageSeoUrls, 'foreignKey'));
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [
+            'routeName' => self::PRODUCT_ROUTE,
+            'foreignKey' => $productId,
+            'salesChannelId' => $salesChannelId,
+            'pathInfo' => '/storefront/script/app-product?id=' . $productId,
+            'seoPathInfo' => 'my-app-product',
+            'isCanonical' => true,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        static::assertSame(['my-app-product'], $this->fetchCanonicalSeoPaths(self::PRODUCT_ROUTE));
+        static::assertSame($detailPageSeoUrls, $this->fetchSeoUrls(ProductPageSeoUrlRoute::ROUTE_NAME, $salesChannelId));
     }
 
     public function testTheStorefrontServesTheGeneratedSeoUrlWithTheEntityIdInTheQuery(): void
@@ -421,18 +449,21 @@ class AppSeoUrlTest extends TestCase
         return $app;
     }
 
-    private function createProduct(): IdsCollection
+    private function createProduct(?string $visibleIn = null): IdsCollection
     {
         $ids = new IdsCollection();
 
+        $product = (new ProductBuilder($ids, 'app-product-1'))
+            ->price(100)
+            ->manufacturer('m1');
+
+        if ($visibleIn !== null) {
+            $product->visibility($visibleIn);
+        }
+
         /** @var EntityRepository<ProductCollection> $repository */
         $repository = static::getContainer()->get('product.repository');
-        $repository->create([
-            (new ProductBuilder($ids, 'app-product-1'))
-                ->price(100)
-                ->manufacturer('m1')
-                ->build(),
-        ], $this->context);
+        $repository->create([$product->build()], $this->context);
 
         return $ids;
     }

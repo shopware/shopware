@@ -17,8 +17,12 @@ use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSea
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -141,12 +145,13 @@ class ProductListingLoader
 
     /**
      * @param array<string> $ids
+     * @param list<Filter> $postFilters
      *
      * @throws \JsonException
      *
      * @return array<string>
      */
-    private function loadPreviews(array $ids, SalesChannelContext $context): array
+    private function loadPreviews(array $ids, SalesChannelContext $context, array $postFilters): array
     {
         $ids = array_combine($ids, $ids);
 
@@ -170,6 +175,7 @@ class ProductListingLoader
         );
 
         $mapping = [];
+        $mainVariantIds = [];
         foreach ($config as $item) {
             if ($item['variantListingConfig'] === null) {
                 continue;
@@ -178,10 +184,12 @@ class ProductListingLoader
 
             if (isset($variantListingConfig['mainVariantId']) && $variantListingConfig['mainVariantId']) {
                 $mapping[$item['id']] = $variantListingConfig['mainVariantId'];
+                $mainVariantIds[$item['id']] = $variantListingConfig['mainVariantId'];
             }
 
             if (isset($variantListingConfig['displayParent']) && $variantListingConfig['displayParent']) {
                 $mapping[$item['id']] = $item['parentId'];
+                unset($mainVariantIds[$item['id']]);
             }
         }
 
@@ -207,6 +215,18 @@ class ProductListingLoader
             new ProductListingPreviewCriteriaEvent($criteria, $context)
         );
 
+        // main variant is only used as preview if it matches the post filters
+        // parent is always kept, as it represents all of its variants
+        if ($postFilters !== [] && $mainVariantIds !== []) {
+            $matchesActiveFilters = new AndFilter($postFilters);
+            $parentIds = array_values(array_unique(array_diff($mapping, $mainVariantIds)));
+
+            $criteria->addFilter($parentIds === [] ? $matchesActiveFilters : new OrFilter([
+                new EqualsAnyFilter('id', $parentIds),
+                $matchesActiveFilters,
+            ]));
+        }
+
         $available = $this->productRepository->searchIds($criteria, $context);
 
         $remapped = [];
@@ -222,7 +242,7 @@ class ProductListingLoader
             // get access to main variant id over the fetched config mapping
             $main = $mapping[$id];
 
-            // main variant is configured but not active/available - keep old id
+            // main variant is configured but not active/available or does not match the post filters - keep old id
             if (!$available->has($main)) {
                 $remapped[$id] = $id;
 
@@ -289,42 +309,30 @@ class ProductListingLoader
     {
         $mapping = array_combine($keys, $keys);
 
-        $hasOptionFilter = $this->hasOptionFilter($criteria);
-
-        $shouldLoadPreviews = $this->shouldLoadPreviews($hasOptionFilter, $criteria, $context);
+        $shouldLoadPreviews = $this->shouldLoadPreviews($criteria, $context);
 
         if ($shouldLoadPreviews) {
             $mapping = $this->extensions->publish(
                 name: LoadPreviewExtension::NAME,
-                extension: new LoadPreviewExtension($keys, $context),
+                extension: new LoadPreviewExtension($keys, $context, $criteria->getPostFilters()),
                 function: $this->loadPreviews(...)
             );
         }
 
-        $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);
+        $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $this->hasOptionFilter($criteria));
         $this->dispatcher->dispatch($event);
 
         return $event->getMapping();
     }
 
-    private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
+    private function shouldLoadPreviews(Criteria $criteria, SalesChannelContext $context): bool
     {
-        $loadPreview = !$this->systemConfigService->getBool(
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        return !$isSearchRoute || !$this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         );
-
-        if ($hasOptionFilter === true) {
-            return $loadPreview;
-        }
-
-        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
-
-        if ($loadPreview && $isSearchRoute) {
-            return true;
-        }
-
-        return !$isSearchRoute;
     }
 
     /**

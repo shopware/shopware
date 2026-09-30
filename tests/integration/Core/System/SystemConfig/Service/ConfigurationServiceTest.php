@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\System;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Tests\Integration\Core\System\SystemConfig\Service\_fixtures\BrokenConfigPlugin\BrokenConfigPlugin;
@@ -20,6 +21,8 @@ use Shopware\Tests\Integration\Core\System\SystemConfig\Service\_fixtures\ValidC
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - will be removed
  */
 #[Package('framework')]
 class ConfigurationServiceTest extends TestCase
@@ -28,6 +31,8 @@ class ConfigurationServiceTest extends TestCase
 
     public function testCheckConfigurationReturnsFalseForBrokenConfigXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $configurationService = $this->createConfigurationService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
@@ -40,6 +45,8 @@ class ConfigurationServiceTest extends TestCase
 
     public function testCheckConfigurationReturnsTrueForValidConfigXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $configurationService = $this->createConfigurationService([
             new ValidConfigPlugin(true, __DIR__ . '/_fixtures/ValidConfigPlugin'),
         ]);
@@ -51,6 +58,8 @@ class ConfigurationServiceTest extends TestCase
 
     public function testGetConfigurationThrowsExceptionForBrokenConfigXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $configurationService = $this->createConfigurationService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
@@ -62,6 +71,8 @@ class ConfigurationServiceTest extends TestCase
 
     public function testGetResolvedConfigurationReturnsEmptyArrayForBrokenConfigXml(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $configurationService = $this->createConfigurationService([
             new BrokenConfigPlugin(true, __DIR__ . '/_fixtures/BrokenConfigPlugin'),
         ]);
@@ -77,6 +88,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testBasicInformationContainsCompanyInformationCardWhenFeatureFlagIsActive(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         Feature::skipTestIfInActive('DOCUMENT_GENERATION_REWORK', $this);
 
         $configuration = $this->createConfigurationService([])->getConfiguration(
@@ -92,6 +104,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testBasicInformationDoesNotContainCompanyInformationCardWhenFeatureFlagIsInactive(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         Feature::skipTestIfActive('DOCUMENT_GENERATION_REWORK', $this);
 
         $configuration = $this->createConfigurationService([])->getConfiguration(
@@ -110,7 +123,8 @@ class ConfigurationServiceTest extends TestCase
      */
     private function createConfigurationService(array $plugins): ConfigurationService
     {
-        return new ConfigurationService(
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $systemConfigDefinitionService = new SystemConfigDefinitionService(
             [
                 new System(),
                 ...$plugins,
@@ -118,8 +132,13 @@ class ConfigurationServiceTest extends TestCase
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
             static::getContainer()->get('app.repository'),
-            static::getContainer()->get(SystemConfigService::class),
+            $systemConfigService,
             static::getContainer()->get(LoggerInterface::class)
+        );
+
+        return new ConfigurationService(
+            $systemConfigService,
+            $systemConfigDefinitionService
         );
     }
 }

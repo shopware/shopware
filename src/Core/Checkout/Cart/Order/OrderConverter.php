@@ -449,7 +449,7 @@ class OrderConverter
     {
         $address = new CustomerAddressEntity();
         $address->assign([
-            'id' => $orderAddress->getId(),
+            'id' => Uuid::randomHex(),
             'countryId' => $orderAddress->getCountryId(),
             'countryStateId' => $orderAddress->getCountryStateId(),
             'salutationId' => $orderAddress->getSalutationId(),

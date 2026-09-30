@@ -46,6 +46,7 @@ use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\FormController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -404,7 +405,8 @@ class ControllerRateLimiterTest extends TestCase
             static::createStub(GenericPageLoader::class),
             static::createStub(EventDispatcher::class),
             $orderRoute,
-            static::createStub(AbstractTranslator::class)
+            static::createStub(AbstractTranslator::class),
+            static::createStub(OrderProductAvailabilityResolver::class)
         );
 
         $controller->load(new Request([

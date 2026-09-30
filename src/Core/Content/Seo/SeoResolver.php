@@ -74,26 +74,41 @@ class SeoResolver extends AbstractSeoResolver
             ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)')
             ->andWhere('seo_url.is_deleted = 0');
 
-        $seoPathConditions = [
-            'seo_path_info = :seoPath',
-            'seo_path_info = :seoPathWithSlash',
-        ];
-
         $query->setParameter('language_id', Uuid::fromHexToBytes($context->languageId))
-            ->setParameter('sales_channel_id', Uuid::fromHexToBytes($context->salesChannelId))
-            ->setParameter('seoPath', $seoPathInfo)
-            ->setParameter('seoPathWithSlash', $seoPathInfo . '/');
+            ->setParameter('sales_channel_id', Uuid::fromHexToBytes($context->salesChannelId));
+
+        // The request path stays percent-encoded (e.g. "Baby%C3%B6l"), while manually entered SEO paths
+        // may be stored with raw non-ASCII characters (e.g. "Babyöl"), so the decoded path is matched as well.
+        $pathCandidates = [$seoPathInfo];
+        $decodedSeoPathInfo = rawurldecode($seoPathInfo);
+        if ($decodedSeoPathInfo !== $seoPathInfo && mb_check_encoding($decodedSeoPathInfo, 'UTF-8')) {
+            $pathCandidates[] = $decodedSeoPathInfo;
+        }
 
         $queryCandidates = array_values(array_unique(array_filter(
             [$normalizedQueryString, $context->queryString],
             static fn (?string $query): bool => $query !== null && $query !== ''
         )));
 
-        foreach ($queryCandidates as $index => $candidate) {
-            $seoPathConditions[] = "seo_path_info = :seoPathWithQuery{$index}";
-            $seoPathConditions[] = "seo_path_info = :seoPathWithSlashAndQuery{$index}";
-            $query->setParameter("seoPathWithQuery{$index}", $seoPathInfo . '?' . $candidate)
-                ->setParameter("seoPathWithSlashAndQuery{$index}", $seoPathInfo . '/?' . $candidate);
+        $literalSeoPaths = [$seoPathInfo, $seoPathInfo . '/'];
+        foreach ($queryCandidates as $candidate) {
+            $literalSeoPaths[] = $seoPathInfo . '?' . $candidate;
+            $literalSeoPaths[] = $seoPathInfo . '/?' . $candidate;
+        }
+
+        $seoPathConditions = [];
+        foreach ($pathCandidates as $pathIndex => $pathCandidate) {
+            $seoPathConditions[] = "seo_path_info = :seoPath{$pathIndex}";
+            $seoPathConditions[] = "seo_path_info = :seoPathWithSlash{$pathIndex}";
+            $query->setParameter("seoPath{$pathIndex}", $pathCandidate)
+                ->setParameter("seoPathWithSlash{$pathIndex}", $pathCandidate . '/');
+
+            foreach ($queryCandidates as $index => $candidate) {
+                $seoPathConditions[] = "seo_path_info = :seoPathWithQuery{$pathIndex}_{$index}";
+                $seoPathConditions[] = "seo_path_info = :seoPathWithSlashAndQuery{$pathIndex}_{$index}";
+                $query->setParameter("seoPathWithQuery{$pathIndex}_{$index}", $pathCandidate . '?' . $candidate)
+                    ->setParameter("seoPathWithSlashAndQuery{$pathIndex}_{$index}", $pathCandidate . '/?' . $candidate);
+            }
         }
 
         $query->andWhere('(' . implode(' OR ', $seoPathConditions) . ')');
@@ -102,7 +117,7 @@ class SeoResolver extends AbstractSeoResolver
         /** @var list<array{id: string, pathInfo: string, seoPathInfo: string, isCanonical: string|null, salesChannelId: string|null}> $seoPaths */
         $seoPaths = $query->executeQuery()->fetchAllAssociative();
 
-        usort($seoPaths, function ($a, $b) use ($normalizedQueryString) {
+        usort($seoPaths, function ($a, $b) use ($normalizedQueryString, $literalSeoPaths) {
             if ($a['isCanonical'] === null) {
                 return 1;
             }
@@ -125,6 +140,13 @@ class SeoResolver extends AbstractSeoResolver
                 if ($aMatches !== $bMatches) {
                     return $aMatches ? -1 : 1;
                 }
+            }
+
+            // prefer an exact match of the requested (still encoded) path over a match of its decoded form
+            $aIsLiteral = \in_array($a['seoPathInfo'], $literalSeoPaths, true);
+            $bIsLiteral = \in_array($b['seoPathInfo'], $literalSeoPaths, true);
+            if ($aIsLiteral !== $bIsLiteral) {
+                return $aIsLiteral ? -1 : 1;
             }
 
             return 0;

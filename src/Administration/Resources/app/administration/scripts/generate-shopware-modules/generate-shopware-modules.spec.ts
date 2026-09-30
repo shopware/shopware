@@ -33,6 +33,7 @@ describe('scripts/generate-shopware-modules', () => {
         it('gives the branch-backed families root exports and the registry-backed ones none', () => {
             expect(registry['shopware:utils'].exports.length).toBeGreaterThan(0);
             expect(registry['shopware:data'].exports.length).toBeGreaterThan(0);
+            expect(registry['shopware:composables'].exports.length).toBeGreaterThan(0);
             expect(registry['shopware:mixins'].exports).toEqual([]);
             expect(registry['shopware:stores'].exports).toEqual([]);
         });
@@ -40,6 +41,12 @@ describe('scripts/generate-shopware-modules', () => {
         it('makes every root export a subpath of its own', () => {
             expect(Object.keys(registry['shopware:utils'].subpaths)).toEqual(registry['shopware:utils'].exports);
             expect(Object.keys(registry['shopware:data'].subpaths)).toEqual(registry['shopware:data'].exports);
+        });
+
+        it('reads the composables from their barrel, without subpaths', () => {
+            expect(registry['shopware:composables'].exports).toContain('useListing');
+            expect(registry['shopware:composables'].exports).not.toContain('useContext');
+            expect(registry['shopware:composables'].subpaths).toEqual({});
         });
 
         it('reads the utility namespaces that can be destructured', () => {
@@ -74,6 +81,13 @@ describe('scripts/generate-shopware-modules', () => {
 
             expect(criteriaDeclaration).toContain('export default member;');
             expect(criteriaDeclaration).not.toContain('export const');
+        });
+
+        it('marks the composables with the stability of their own sources', () => {
+            expect(declarations).toContain(
+                "/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */\ndeclare module 'shopware:composables' {",
+            );
+            expect(declarations).toContain("/** @experimental stableVersion:v6.8.0 */\ndeclare module 'shopware:data' {");
         });
     });
 });

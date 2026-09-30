@@ -71,6 +71,45 @@ Shopware.Context = useContext();  // Current application context
 Shopware.Defaults = { /* ... */ }; // System default IDs and values
 ```
 
+### Composables (experimental)
+```javascript
+Shopware.Composables = composables; // The composables that replace mixins, e.g. useListing
+```
+
+`Shopware.Composables` holds the composables listed in `src/app/composables/index.ts`, every one of which
+replaces a mixin. Like the composables themselves, it is
+`@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES`: names and signatures can still
+change before 6.9. Extensions written in TypeScript or as SFCs import them from
+[`shopware:composables`](04-virtual-modules.md) instead, which reads the same object.
+
+```ts
+// Before: Options API with the listing mixin
+Shopware.Component.register('my-list', {
+    mixins: [Shopware.Mixin.getByName('listing')],
+    methods: {
+        async getList() { /* load this.page / this.limit */ },
+    },
+});
+
+// After: in <script setup> or setup()
+import { useListing } from 'shopware:composables';
+
+async function getList() { /* load page.value / limit.value */ }
+
+const { page, limit, total, onPageChange } = useListing({ getList });
+```
+
+- Call a composable in `setup()` only, never in `created()` or other Options API hooks, and never in a
+  component that still declares the mixin it replaces: both would register their watchers and loads.
+- `Shopware.Composables` is assigned while `src/app/main` loads. `_swLoginOverrides` run earlier and
+  cannot use it.
+- The Administration imports each composable from its file. Replacing an entry of
+  `Shopware.Composables` therefore changes what extensions get, not what core components run.
+- In an extension's Jest specs, mock the module: `jest.mock('shopware:composables', () => ({ ... }))`.
+- These mixins have no composable yet, so a component using one of them stays on the Options API:
+  `generic-condition`, `sw-form-field`, `remove-api-error`, `discard-detail-page-changes`,
+  `sw-settings-list`.
+
 ## Creation Process
 
 1. **Initialization**: Created in `src/core/shopware.ts` as `ShopwareClass` singleton
@@ -126,6 +165,8 @@ if (Shopware.Feature.isActive('MY_FEATURE')) {
 While the global object remains for compatibility, newer patterns include:
 - **`shopware:*` modules**: `import { createId } from 'shopware:utils'` reaches the same global object
   through ordinary named imports. See [`shopware:*` Modules](04-virtual-modules.md).
+- **Composables instead of mixins**: `Shopware.Composables.useListing()` or
+  `import { useListing } from 'shopware:composables'`.
 - **Composition API**: `useContext()`, service injection via composables
 - **Direct Imports**: Import specific services/factories directly
 - **Dependency Injection**: Use the underlying BottleJS container

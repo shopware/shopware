@@ -135,6 +135,22 @@ function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): stri
 }
 
 /**
+ * The import lines of the composables replacing the mixins. The Administration imports each one from its
+ * file; an extension has no Administration source and imports them from `shopware:composables`.
+ */
+function composableImports(ctx: Ctx, composables: ResolvedComposable[]): string[] {
+    if (!ctx.extensionTarget) {
+        return composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`);
+    }
+
+    return composables.length > 0
+        ? [
+              `import { ${composables.map(({ descriptor }) => descriptor.import.name).join(', ')} } from 'shopware:composables';`,
+          ]
+        : [];
+}
+
+/**
  * The render phase: collected descriptors plus the rewritten MagicString become the `<script setup>`
  * body. Every `snip()` below reads text the rewrite pass already touched, so this must run last.
  */
@@ -171,7 +187,7 @@ function renderScript(
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
-        ...composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`),
+        ...composableImports(ctx, composables),
     ]
         .filter(Boolean)
         .join('\n');
@@ -274,6 +290,7 @@ function transformScript(
         templateImportRange: { start: number; end: number };
         templateIdentifiers: ReadonlySet<string>;
         templateComponentTags: ReadonlySet<string>;
+        extensionTarget?: boolean;
     },
 ): ScriptResult {
     const ctx: Ctx = {
@@ -289,6 +306,7 @@ function transformScript(
         helpers: new Set(),
         inferredEmits: [],
         reports: [],
+        extensionTarget: transformOptions.extensionTarget ?? false,
     };
 
     const reasonsOf = (kind: ReportKind): string[] =>

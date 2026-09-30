@@ -23,6 +23,19 @@ function read(specifier, member) {
     }
 }
 
+/**
+ * The Jest counterpart of the host preamble's `src/app/composables/attach` import.
+ *
+ * Deferred to the first spec that imports the family rather than done in the setup files: those run
+ * before a spec's hoisted `jest.mock` calls, so preloading would pin every composable to its real
+ * dependencies. Assigned on the global itself, so a spec that called `jest.resetModules()` still sees it.
+ */
+function attachComposables() {
+    if (global.Shopware && !global.Shopware.Composables) {
+        global.Shopware.Composables = require(path.resolve(__dirname, '../../../src/app/composables/index')).default;
+    }
+}
+
 /** The value one `shopware:*` specifier publishes, read off the global object the test env set up. */
 module.exports = function resolveShopwareModule(specifier) {
     const parsed = parseSpecifier(specifier);
@@ -30,6 +43,10 @@ module.exports = function resolveShopwareModule(specifier) {
 
     if (!parsed || !members) {
         throw new Error(`"${specifier}" is not a Shopware virtual module.`);
+    }
+
+    if (parsed.family === 'shopware:composables') {
+        attachComposables();
     }
 
     if (members.length > 0) {

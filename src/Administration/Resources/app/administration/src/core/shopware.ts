@@ -59,6 +59,7 @@ import ExtensionApi from './extension-api';
 import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
+import type composables from '../app/composables';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -273,6 +274,14 @@ class ShopwareClass implements CustomShopwareProperties {
     };
 
     public Data = data;
+
+    /**
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
+     *
+     * Assigned by `src/app/composables/attach` while `src/app/main` loads, because the composables need
+     * the global object when they are evaluated. `_swLoginOverrides` run before that and don't see it.
+     */
+    declare public Composables: typeof composables;
 
     public get Snippet() {
         // @ts-expect-error - type is currently not available

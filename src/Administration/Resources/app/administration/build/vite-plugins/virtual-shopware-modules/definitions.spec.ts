@@ -17,6 +17,7 @@ import {
     type VirtualModuleGlobal,
 } from './definitions';
 import { readRegistry } from './index';
+import 'src/app/composables/attach';
 
 const administrationRoot = path.resolve(__dirname, '../../..');
 const registry = readRegistry(administrationRoot);
@@ -54,6 +55,13 @@ function createProbeGlobal(): VirtualModuleGlobal {
     return {
         Utils: branchOf('shopware:utils', 'Utils') as unknown as VirtualModuleGlobal['Utils'],
         Data: branchOf('shopware:data', 'Data') as unknown as VirtualModuleGlobal['Data'],
+        // A root-only family, so its markers come from the root exports instead of the subpaths.
+        Composables: Object.fromEntries(
+            registry['shopware:composables'].exports.map((key) => [
+                key,
+                `Composables:${key}`,
+            ]),
+        ) as unknown as VirtualModuleGlobal['Composables'],
         Mixin: { getByName: (key) => `Mixin:${key}` },
         Store: { get: (id) => `Store:${id}` },
     };
@@ -89,6 +97,7 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it('splits a bare import of any known family', () => {
             expect(parseSpecifier('shopware:utils')).toEqual({ family: 'shopware:utils' });
             expect(parseSpecifier('shopware:data')).toEqual({ family: 'shopware:data' });
+            expect(parseSpecifier('shopware:composables')).toEqual({ family: 'shopware:composables' });
             expect(parseSpecifier('shopware:mixins')).toEqual({ family: 'shopware:mixins' });
             expect(parseSpecifier('shopware:stores')).toEqual({ family: 'shopware:stores' });
         });
@@ -107,6 +116,7 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it.each([
             'shopware:utils',
             'shopware:data',
+            'shopware:composables',
         ])('serves %s, because it publishes root exports', (family) => {
             expect(registry[family].exports.length).toBeGreaterThan(0);
             expect(exportNames(registry, parseSpecifier(family)!)).toEqual(registry[family].exports);
@@ -131,6 +141,10 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
             '__proto__',
         ])('refuses the inherited subpath %s', (subpath) => {
             expect(exportNames(registry, parseSpecifier(`shopware:utils/${subpath}`)!)).toBeUndefined();
+        });
+
+        it('refuses a composable subpath, because the family is root-only', () => {
+            expect(exportNames(registry, parseSpecifier('shopware:composables/useListing')!)).toBeUndefined();
         });
     });
 
@@ -170,6 +184,11 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
             expect(Object.keys(registry[family].subpaths).sort()).toEqual(Object.keys(branch()).sort());
         });
 
+        it('shopware:composables publishes exactly the keys of its branch, and no subpaths', () => {
+            expect(registry['shopware:composables'].exports.sort()).toEqual(Object.keys(Shopware.Composables).sort());
+            expect(registry['shopware:composables'].subpaths).toEqual({});
+        });
+
         it('promises no named export a utility namespace does not have', () => {
             const utils = Shopware.Utils as unknown as Record<string, unknown>;
 
@@ -206,6 +225,12 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it('names the module when a root import has no such export', () => {
             expect(() => resolveVirtualExport(registry, 'shopware:utils', 'notAUtil', Shopware as never)).toThrow(
                 '"notAUtil" does not exist on Shopware.Utils.',
+            );
+        });
+
+        it('names the branch when a composable does not exist', () => {
+            expect(() => resolveVirtualExport(registry, 'shopware:composables', 'useNothing', Shopware as never)).toThrow(
+                '"useNothing" does not exist on Shopware.Composables.',
             );
         });
 

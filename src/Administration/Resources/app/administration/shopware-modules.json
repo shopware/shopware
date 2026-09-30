@@ -147,6 +147,28 @@
             "FilterFactory": []
         }
     },
+    "shopware:composables": {
+        "exports": [
+            "useCmsElement",
+            "useCmsState",
+            "useInlineSnippet",
+            "useListing",
+            "useMediaGridListener",
+            "useMediaSidebarModal",
+            "useNotification",
+            "useNotificationTranslation",
+            "usePlaceholder",
+            "usePosition",
+            "useRuleBetweenOperator",
+            "useRuleContainer",
+            "useSalutation",
+            "useTranslateWithFallback",
+            "useUserSettings",
+            "useValidation",
+            "useVideoCover"
+        ],
+        "subpaths": {}
+    },
     "shopware:mixins": {
         "exports": [],
         "subpaths": {

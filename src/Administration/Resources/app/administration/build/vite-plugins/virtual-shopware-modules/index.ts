@@ -55,20 +55,34 @@ export function readRegistry(administrationRoot: string): ModuleRegistry {
 export { allSpecifiers, exportNames };
 
 /**
+ * The module a host family imports for its side effect before it reads the global object: the mixin
+ * registry's eager glob registers every mixin, and the composables module assigns
+ * `Shopware.Composables`.
+ *
+ * Both of them read the bare global `Shopware` while they evaluate, so a family listed here is only
+ * safe once `src/index.ts` has assigned it. `src/core` must not import these families.
+ */
+const HOST_SIDE_EFFECTS: Record<string, string> = {
+    'shopware:mixins': 'src/app/mixin',
+    'shopware:composables': 'src/app/composables/attach',
+};
+
+/**
  * How a generated module gets hold of the `Shopware` object.
  *
- * The host imports it, which is what makes these modules safe anywhere: a static import is evaluated
- * before the module that needs it, so there is no moment when the instance is missing. A mixin subpath
- * imports the mixin registry for the same reason — the registry is an eager glob, so importing it
- * registers every mixin it owns before the lookup below runs.
+ * The host imports it, so the instance exists before the module that needs it is evaluated. A family in
+ * `HOST_SIDE_EFFECTS` also imports the module that fills its branch, so the branch is populated before
+ * the reads below run.
  *
  * An extension bundle cannot import Administration source, so it reads the global the host assigned.
- * Extension code always runs after boot, and the guard says so if that ever stops being true.
+ * Extension code always runs after boot, and the guards say so if that ever stops being true.
  */
 function preamble(parsed: ParsedSpecifier, consumer: Consumer): string[] {
     if (consumer === 'host') {
+        const sideEffect = HOST_SIDE_EFFECTS[parsed.family];
+
         return [
-            ...(parsed.family === 'shopware:mixins' ? ["import 'src/app/mixin';"] : []),
+            ...(sideEffect ? [`import '${sideEffect}';`] : []),
             "import { ShopwareInstance as shopware } from 'src/core/shopware';",
         ];
     }
@@ -77,11 +91,22 @@ function preamble(parsed: ParsedSpecifier, consumer: Consumer): string[] {
         'The global Shopware object did not exist yet. An extension bundle is loaded after the ' +
         'Administration has booted, so this should be unreachable.';
 
+    const composablesTooEarly =
+        'Shopware.Composables did not exist yet. It is assigned while the Administration boots, so it is ' +
+        'not available to login overrides.';
+
     return [
         'const shopware = globalThis.Shopware;',
         'if (!shopware) {',
         `    throw new Error(${JSON.stringify(tooEarly)});`,
         '}',
+        ...(parsed.family === 'shopware:composables'
+            ? [
+                  'if (!shopware.Composables) {',
+                  `    throw new Error(${JSON.stringify(composablesTooEarly)});`,
+                  '}',
+              ]
+            : []),
     ];
 }
 

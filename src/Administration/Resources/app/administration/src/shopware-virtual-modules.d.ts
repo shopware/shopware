@@ -7,7 +7,7 @@
  * imports. `build/vite-plugins/virtual-shopware-modules` generates their runtime counterpart from
  * the same `shopware-modules.json`.
  *
- * Generated. Run `composer admin:generate-shopware-modules` after adding a utility, DAL class, mixin, or store.
+ * Generated. Run `composer admin:generate-shopware-modules` after adding a utility, DAL class, composable, mixin, or store.
  */
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations -- Intentional public facade. */
@@ -400,6 +400,32 @@ declare module 'shopware:data/FilterFactory' {
     const member: (typeof branch)['FilterFactory'];
 
     export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables' {
+    import type branch from 'src/app/composables/index';
+
+    const members: typeof branch;
+
+    export default members;
+    export const useCmsElement: (typeof members)['useCmsElement'];
+    export const useCmsState: (typeof members)['useCmsState'];
+    export const useInlineSnippet: (typeof members)['useInlineSnippet'];
+    export const useListing: (typeof members)['useListing'];
+    export const useMediaGridListener: (typeof members)['useMediaGridListener'];
+    export const useMediaSidebarModal: (typeof members)['useMediaSidebarModal'];
+    export const useNotification: (typeof members)['useNotification'];
+    export const useNotificationTranslation: (typeof members)['useNotificationTranslation'];
+    export const usePlaceholder: (typeof members)['usePlaceholder'];
+    export const usePosition: (typeof members)['usePosition'];
+    export const useRuleBetweenOperator: (typeof members)['useRuleBetweenOperator'];
+    export const useRuleContainer: (typeof members)['useRuleContainer'];
+    export const useSalutation: (typeof members)['useSalutation'];
+    export const useTranslateWithFallback: (typeof members)['useTranslateWithFallback'];
+    export const useUserSettings: (typeof members)['useUserSettings'];
+    export const useValidation: (typeof members)['useValidation'];
+    export const useVideoCover: (typeof members)['useVideoCover'];
 }
 
 /** @experimental stableVersion:v6.8.0 */

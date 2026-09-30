@@ -24,6 +24,14 @@ import utils, { createId, debounce } from 'shopware:utils';
 import data, { Criteria } from 'shopware:data';
 ```
 
+`shopware:composables` provides `Shopware.Composables`, the composables that replace mixins, as default
+and named exports. It has no subpaths. Its exports are marked
+`@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES`, like the composables themselves.
+
+```ts
+import { useListing, useNotification } from 'shopware:composables';
+```
+
 Each member also has a subpath with a default export. Utility namespaces can have explicit named
 exports. For example, `shopware:utils/debug` provides `warn` and `error`.
 
@@ -40,14 +48,15 @@ import swFormFieldMixin from 'shopware:mixins/sw-form-field';
 import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 ```
 
-| Specifier                 | Exports                                                      |
-| ------------------------- | ------------------------------------------------------------ |
-| `shopware:utils`          | `Shopware.Utils` as default and its members as named exports |
-| `shopware:utils/<member>` | The member as default, plus declared namespace exports       |
-| `shopware:data`           | `Shopware.Data` as default and its classes as named exports  |
-| `shopware:data/<Class>`   | The class as default                                         |
-| `shopware:mixins/<name>`  | The registered mixin as default, for mixins in `src/app/mixin` |
-| `shopware:stores/<id>`    | A store composable as default                                |
+| Specifier                 | Exports                                                                |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `shopware:utils`          | `Shopware.Utils` as default and its members as named exports           |
+| `shopware:utils/<member>` | The member as default, plus declared namespace exports                 |
+| `shopware:data`           | `Shopware.Data` as default and its classes as named exports            |
+| `shopware:data/<Class>`   | The class as default                                                   |
+| `shopware:composables`    | `Shopware.Composables` as default and its composables as named exports |
+| `shopware:mixins/<name>`  | The registered mixin as default, for mixins in `src/app/mixin`         |
+| `shopware:stores/<id>`    | A store composable as default                                          |
 
 A store subpath returns a composable that defers the registry lookup until the composable runs. Store
 subpaths have no named exports because destructuring a Pinia store removes reactivity. Use `storeToRefs`
@@ -57,7 +66,7 @@ The mixin and store families have individual subpaths and no root module.
 
 ## Resolution timing
 
-Production imports of utilities, data classes, and mixins capture their initial values when the module
+Production imports of utilities, data classes, composables, and mixins capture their initial values when the module
 evaluates. A store module captures the global object but defers its registry lookup until its exported
 function runs.
 
@@ -65,6 +74,17 @@ A generated module does not read a global in the Administration build. It import
 `src/core/shopware`, so evaluation order guarantees the object exists, and a `shopware:*` import is safe
 at any point in the boot sequence. A mixin subpath additionally imports `src/app/mixin`, whose eager glob
 registers every mixin in that directory, so the lookup cannot run before registration.
+
+`shopware:composables` is the exception to "any point". Its host module imports
+`src/app/composables/attach`, which assigns `Shopware.Composables`, and evaluating the composables needs
+the global `Shopware` object: `use-cms-state` registers the `cmsPage` store as it loads. `src/core` runs
+before `src/index.ts` assigns the global, and `src/app/composables` is the module being imported, so a lint
+rule forbids `shopware:composables` in both. Import a composable from its file there instead. Everywhere
+else in `src/app` and `src/module`, code evaluates after `src/app/main` started loading, so the import is
+safe.
+
+In an extension, the generated module also checks `Shopware.Composables`. It is assigned while
+`src/app/main` loads, which is after `_swLoginOverrides` run, so a login override cannot use it.
 
 An extension bundle has no Administration source to import and reads the global instead. Extension code
 runs after the Administration has booted, so the object is always there; the generated module throws with
@@ -85,7 +105,7 @@ or mixin that the extension registers at runtime. Use the extension's own compos
 
 ## Generated files
 
-Run this command after you add a utility, DAL class, mixin, or store:
+Run this command after you add a utility, DAL class, composable, mixin, or store:
 
 ```bash
 composer admin:generate-shopware-modules

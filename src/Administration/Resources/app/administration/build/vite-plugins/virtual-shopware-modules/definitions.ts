@@ -10,10 +10,10 @@ import type { ShopwareClass } from 'src/core/shopware';
 /**
  * @private
  *
- * `Utils` and `Data` keep their exact `ShopwareClass` types. The registry methods accept strings because
- * their keys come from `shopware-modules.json`.
+ * `Utils`, `Data` and `Composables` keep their exact `ShopwareClass` types. The registry methods accept
+ * strings because their keys come from `shopware-modules.json`.
  */
-export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data'> & {
+export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data' | 'Composables'> & {
     Mixin: { getByName: (name: string) => unknown };
     Store: { get: (id: string) => unknown };
 };
@@ -76,6 +76,16 @@ const BRANCHES: Record<string, Branch> = {
         subpath: {
             emit: (subpath) => `shopware.Data[${JSON.stringify(subpath)}]`,
             read: (shopware, subpath) => readOwn(shopware.Data, subpath, 'Shopware.Data'),
+        },
+    },
+    'shopware:composables': {
+        root: {
+            emit: () => 'shopware.Composables',
+            read: (shopware) => shopware.Composables,
+        },
+        subpath: {
+            emit: (subpath) => `shopware.Composables[${JSON.stringify(subpath)}]`,
+            read: (shopware, subpath) => readOwn(shopware.Composables, subpath, 'Shopware.Composables'),
         },
     },
     'shopware:mixins': {

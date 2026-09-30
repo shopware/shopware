@@ -131,4 +131,96 @@ describe('src/app/adapter/composition-extension-system/options-api-setup-shim - 
         expect(wrapper.text()).toBe('true');
         expect((wrapper.vm as unknown as BaseVm).$data.isLoading).toBe(false);
     });
+
+    describe('writable computed', () => {
+        type FieldVm = { onInput: (value: string) => void };
+
+        // The v-model pattern of most form fields: the computed setter emits instead of storing.
+        function createFieldConfig(): ComponentConfig {
+            return {
+                template: '<p>{{ currentValue }}</p>',
+                props: {
+                    value: { type: String, default: 'base' },
+                },
+                emits: ['update:value'],
+                computed: {
+                    currentValue: {
+                        get(this: { value: string }) {
+                            return this.value;
+                        },
+                        set(this: { $emit: (event: string, value: unknown) => void }, value: unknown) {
+                            this.$emit('update:value', value);
+                        },
+                    },
+                },
+                methods: {
+                    onInput(this: { currentValue: unknown }, value: string) {
+                        this.currentValue = value;
+                    },
+                },
+            } as unknown as ComponentConfig;
+        }
+
+        it('lets the base write a computed setter an override derives from previousState', async () => {
+            _overridesMap['sw-shim-base-write-computed-setter'] = [
+                (previousState: PreviousState) => ({
+                    currentValue: computed(() => `overridden ${String(previousState.currentValue.value)}`),
+                }),
+            ] as never;
+
+            const config = createFieldConfig();
+            attachSetupOverrideShim('sw-shim-base-write-computed-setter', config);
+
+            const wrapper = mount(
+                config as never,
+                {
+                    props: {
+                        value: 'base',
+                        'onUpdate:value': async (value: string) => {
+                            await wrapper.setProps({ value } as never);
+                        },
+                    },
+                } as never,
+            );
+            await flushPromises();
+            expect(wrapper.text()).toBe('overridden base');
+
+            (wrapper.vm as unknown as FieldVm).onInput('typed');
+            await flushPromises();
+
+            // Without routing, the write would hit the read-only computed in setupState: Vue warns, the base
+            // setter never emits and a v-model on the component stops working.
+            expect(wrapper.emitted('update:value')).toEqual([['typed']]);
+            expect(wrapper.text()).toBe('overridden typed');
+            expect(warnSpy).not.toHaveBeenCalled();
+            expect(errorSpy).not.toHaveBeenCalled();
+        });
+
+        it('sends base writes to a writable computed the override owns instead of the computed setter', async () => {
+            const ownSetter = jest.fn();
+
+            _overridesMap['sw-shim-base-write-computed-setter-own-computed'] = [
+                (previousState: PreviousState) => ({
+                    currentValue: computed({
+                        get: () => `overridden ${String(previousState.currentValue.value)}`,
+                        set: ownSetter,
+                    }),
+                }),
+            ] as never;
+
+            const config = createFieldConfig();
+            attachSetupOverrideShim('sw-shim-base-write-computed-setter-own-computed', config);
+
+            const wrapper = mount(config as never);
+            await flushPromises();
+
+            (wrapper.vm as unknown as FieldVm).onInput('typed');
+            await flushPromises();
+
+            // A setter of its own means the override takes over writes, so the base setter must not emit.
+            expect(ownSetter).toHaveBeenCalledWith('typed');
+            expect(wrapper.emitted('update:value')).toBeUndefined();
+            expect(wrapper.text()).toBe('overridden base');
+        });
+    });
 });

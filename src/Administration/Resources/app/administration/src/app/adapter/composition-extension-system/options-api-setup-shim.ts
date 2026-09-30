@@ -165,26 +165,51 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                 });
             };
 
-            // The base component keeps writing `this.x = …`, and Vue sends that to setupState before data.
-            // For a data-backed key the write would land on the override's value: a read-only ref warns and
-            // drops it, a plain value is replaced. Either way data never changes, and an override deriving
-            // from previousState.x stays stuck on the old value. Migrated components do not have this
-            // problem because their script writes to its own local ref, so the write is sent back to data.
-            // A writable ref the override returns keeps receiving writes: the override owns that state, and
-            // a v-model in its template has to reach it.
-            const routeBaseWritesToData = (key: string, value: unknown): unknown => {
+            // Where a base write `this.x = …` ends up without an override: data for a data-backed key, the
+            // computed's own setter for a computed option - typically a `currentValue` that emits
+            // `update:value`. Vue defines every computed option as an accessor on ctx, with a setter that
+            // already warns for getter-only ones. Only computed options are looked up there: in dev builds
+            // props and setup state are exposed on ctx with no-op setters as well.
+            const resolveBaseWrite = (key: string): ((newValue: unknown) => void) | undefined => {
                 const data = instance.data as AnyRecord;
-                const ownsState = isRef(value) && !isReadonly(value) && !previousStateRefs.has(value);
 
-                if (!data || !(key in data) || ownsState) {
+                if (data && key in data) {
+                    return (newValue) => {
+                        data[key] = newValue;
+                    };
+                }
+
+                const computedOptions = (instance.proxy?.$options.computed ?? {}) as AnyRecord;
+                if (!Object.hasOwn(computedOptions, key)) {
+                    return undefined;
+                }
+
+                const ctx = (instance as unknown as { ctx: AnyRecord }).ctx;
+
+                return (newValue) => {
+                    ctx[key] = newValue;
+                };
+            };
+
+            // The base component keeps writing `this.x = …`, and Vue sends that to setupState before data
+            // and computed. For a data- or computed-backed key the write would land on the override's value:
+            // a read-only ref warns and drops it, a plain value is replaced. Either way data never changes
+            // and a computed setter never runs, so an override deriving from previousState.x stays stuck on
+            // the old value and a v-model relying on the setter's emit breaks. Migrated components do not
+            // have this problem because their script writes to its own local ref, so the write is sent back
+            // to where the base would have written it. A writable ref the override returns keeps receiving
+            // writes: the override owns that state, and a v-model in its template has to reach it.
+            const routeBaseWrites = (key: string, value: unknown): unknown => {
+                const ownsState = isRef(value) && !isReadonly(value) && !previousStateRefs.has(value);
+                const baseWrite = ownsState ? undefined : resolveBaseWrite(key);
+
+                if (!baseWrite) {
                     return value;
                 }
 
                 return computed({
                     get: () => unref(value),
-                    set: (newValue) => {
-                        data[key] = newValue;
-                    },
+                    set: baseWrite,
                 });
             };
 
@@ -214,7 +239,7 @@ export function attachSetupOverrideShim(componentName: string, config: Component
                         return;
                     }
 
-                    bag[key] = routeBaseWritesToData(key, result[key]);
+                    bag[key] = routeBaseWrites(key, result[key]);
                     // Vue memoises which bucket a key resolved from on first access. Anything that read the
                     // key earlier - an immediate watcher, a preceding created hook - pinned it to `data`,
                     // and setupState would never be consulted again.

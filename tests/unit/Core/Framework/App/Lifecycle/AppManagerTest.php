@@ -837,7 +837,7 @@ class AppManagerTest extends TestCase
         ], $appRepository->getPayloads(StaticEntityRepository::UPDATE));
     }
 
-    public function testActivateRollsBackTheAttemptedHandlersWhenOneFails(): void
+    public function testActivateRollsBackEveryHandlerWhenOneFails(): void
     {
         $app = AppFixture::createAppEntity(id: 'test-app', active: false);
         $appRepository = AppFixture::createAppRepository($app);
@@ -861,7 +861,8 @@ class AppManagerTest extends TestCase
 
         $notReached = $this->createMock(AbstractLifecycleHandler::class);
         $notReached->expects($this->never())->method('activate');
-        $notReached->expects($this->never())->method('deactivate');
+        $notReached->expects($this->once())->method('deactivate')
+            ->willReturnCallback(static function () use (&$calls): void { $calls[] = 'notReached::deactivate'; });
 
         $this->activeAppsLoader->expects($this->once())->method('reset');
         $this->scriptExecutor->expects($this->never())->method('execute');
@@ -877,7 +878,7 @@ class AppManagerTest extends TestCase
         }
 
         static::assertSame($failure, $caught);
-        static::assertSame(['first::activate', 'failing::activate', 'failing::deactivate', 'first::deactivate'], $calls);
+        static::assertSame(['first::activate', 'failing::activate', 'first::deactivate', 'failing::deactivate', 'notReached::deactivate'], $calls);
         static::assertFalse($app->isActive());
         static::assertSame([
             ['id' => 'test-app', 'active' => true],

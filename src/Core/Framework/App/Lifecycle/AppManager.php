@@ -253,15 +253,10 @@ class AppManager
         $app->setActive(true);
         $activateContext = new AppActivationContext($app, $context);
 
-        $attempted = [];
-
         try {
-            foreach ($this->lifecycleHandlers as $handler) {
-                $attempted[] = $handler;
-                $handler->activate($activateContext);
-            }
+            $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
         } catch (\Throwable $e) {
-            $this->rollBackActivation($app, $attempted, $context);
+            $this->rollBackActivation($app, $context);
 
             throw $e;
         }
@@ -783,10 +778,7 @@ class AppManager
         }
     }
 
-    /**
-     * @param list<AbstractLifecycleHandler> $attempted
-     */
-    private function rollBackActivation(AppEntity $app, array $attempted, Context $context): void
+    private function rollBackActivation(AppEntity $app, Context $context): void
     {
         try {
             $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
@@ -800,7 +792,7 @@ class AppManager
 
         $deactivateContext = new AppActivationContext($app, $context);
 
-        foreach (array_reverse($attempted) as $handler) {
+        $this->runHandlers(function (AbstractLifecycleHandler $handler) use ($app, $deactivateContext): void {
             try {
                 $handler->deactivate($deactivateContext);
             } catch (\Throwable $e) {
@@ -810,7 +802,7 @@ class AppManager
                     'exception' => $e,
                 ]);
             }
-        }
+        });
 
         $this->activeAppsLoader->reset();
     }

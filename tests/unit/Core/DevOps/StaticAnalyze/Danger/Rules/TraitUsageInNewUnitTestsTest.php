@@ -116,6 +116,20 @@ class TraitUsageInNewUnitTestsTest extends TestCase
             self::testClass("use Shopware\\Tests\\Unit\\Core\\Checkout\\Helper\\CartHelperTrait;\n", "    use CartHelperTrait;\n"),
             null,
         ];
+
+        yield 'a file without a namespace is skipped, nothing to resolve the trait names against' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_ADDED,
+            "<?php declare(strict_types=1);\n\nclass CartTest extends \\PHPUnit\\Framework\\TestCase\n{\n    use CartHelperTrait;\n}\n",
+            null,
+        ];
+
+        yield 'a test file that declares no *Test class is skipped, an abstract base case may compose a trait' => [
+            'tests/unit/Core/Checkout/CartTest.php',
+            File::STATUS_ADDED,
+            "<?php declare(strict_types=1);\n\nnamespace Shopware\\Tests\\Unit\\Core\\Checkout;\n\nuse PHPUnit\\Framework\\TestCase;\nuse Shopware\\Tests\\Unit\\Core\\Checkout\\Helper\\CartHelperTrait;\n\nabstract class CartTestCase extends TestCase\n{\n    use CartHelperTrait;\n}\n",
+            null,
+        ];
     }
 
     private static function testClass(string $imports, string $body): string

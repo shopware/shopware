@@ -95,8 +95,8 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
                 return new SeoUrlTemplateCollection([
                     self::template(self::PRODUCT_TEASER_ROUTE),
-                    self::template(self::BLOG_DETAIL_ROUTE),
-                    self::template(self::BLOG_DETAIL_ROUTE, salesChannelId: self::SALES_CHANNEL_ID),
+                    self::template(self::BLOG_DETAIL_ROUTE, entityName: 'ce_blog'),
+                    self::template(self::BLOG_DETAIL_ROUTE, entityName: 'ce_blog', salesChannelId: self::SALES_CHANNEL_ID),
                     self::template(self::IMPRINT_ROUTE),
                 ]);
             },
@@ -114,6 +114,28 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
         static::assertSame([[['id' => self::TEMPLATE_ID], ['id' => self::OTHER_TEMPLATE_ID]]], $this->seoUrlTemplateRepository->deletes);
         static::assertSame([], $this->seoUrlRepository->updates);
+    }
+
+    public function testInstallDeletesKeptTemplatesOfARouteTheManifestRedeclaresWithAnotherEntity(): void
+    {
+        $this->seoUrlTemplateRepository->addSearch(
+            new SeoUrlTemplateCollection([
+                self::template(self::PRODUCT_TEASER_ROUTE),
+                self::template(self::CATEGORY_TEASER_ROUTE, entityName: 'category'),
+                self::template(self::CATEGORY_TEASER_ROUTE, entityName: 'category', salesChannelId: self::SALES_CHANNEL_ID),
+            ]),
+            static function (Criteria $criteria): array {
+                static::assertEquals([new EqualsAnyFilter('routeName', [self::CATEGORY_TEASER_ROUTE])], $criteria->getFilters());
+
+                return [self::TEMPLATE_ID, self::OTHER_TEMPLATE_ID];
+            },
+        );
+
+        $this->handler()->install(self::installContext(self::manifest(
+            entitySeoUrls: ['product-teaser' => 'product', 'category-teaser' => 'product'],
+        )));
+
+        static::assertSame([[['id' => self::TEMPLATE_ID], ['id' => self::OTHER_TEMPLATE_ID]]], $this->seoUrlTemplateRepository->deletes);
     }
 
     public function testInstallIgnoresTemplatesOfAnotherAppWhoseNameStartsWithTheAppName(): void
@@ -215,7 +237,7 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
      * @param array<string, string> $declaredEntitySeoUrls
      */
     #[DataProvider('routesStillDeclaredAsEntitySeoUrl')]
-    public function testUpdateMarksTheSeoUrlsOfARedeclaredRouteAsDeletedButKeepsItsTemplate(
+    public function testUpdateMarksTheSeoUrlsOfARedeclaredRouteAsDeletedAndDeletesItsTemplates(
         array $storedSeoUrls,
         array $storedEntitySeoUrls,
         array $declaredEntitySeoUrls,
@@ -232,12 +254,17 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
             return [self::SEO_URL_ID];
         });
+        $this->seoUrlTemplateRepository->addSearch(static function (Criteria $criteria) use ($expectedRouteName): array {
+            static::assertEquals([new EqualsAnyFilter('routeName', [$expectedRouteName])], $criteria->getFilters());
+
+            return [self::TEMPLATE_ID, self::OTHER_TEMPLATE_ID];
+        });
 
         $this->handler(storedSeoUrls: $storedSeoUrls, storedEntitySeoUrls: $storedEntitySeoUrls)
             ->update(self::updateContext(self::manifest(entitySeoUrls: $declaredEntitySeoUrls)));
 
         static::assertSame([[['id' => self::SEO_URL_ID, 'isDeleted' => true]]], $this->seoUrlRepository->updates);
-        static::assertSame([], $this->seoUrlTemplateRepository->deletes);
+        static::assertSame([[['id' => self::TEMPLATE_ID], ['id' => self::OTHER_TEMPLATE_ID]]], $this->seoUrlTemplateRepository->deletes);
     }
 
     /**
@@ -570,11 +597,12 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
         return $manifest;
     }
 
-    private static function template(string $routeName, ?string $salesChannelId = null): SeoUrlTemplateEntity
+    private static function template(string $routeName, string $entityName = 'product', ?string $salesChannelId = null): SeoUrlTemplateEntity
     {
         $template = new SeoUrlTemplateEntity();
         $template->setId(Uuid::randomHex());
         $template->setRouteName($routeName);
+        $template->setEntityName($entityName);
         $template->setSalesChannelId($salesChannelId);
 
         return $template;

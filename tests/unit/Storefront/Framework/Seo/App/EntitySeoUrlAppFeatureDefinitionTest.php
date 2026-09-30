@@ -143,7 +143,7 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
         static::assertSame([], $repository->updates);
     }
 
-    public function testPersistedKeepsAnExistingTemplateForTheSameEntity(): void
+    public function testPersistedKeepsAnExistingDefaultTemplate(): void
     {
         $repository = new StaticEntityRepository([
             new SeoUrlTemplateCollection([$this->template(entityName: 'product', template: 'my-teaser/{{ product.translated.name }}')]),
@@ -153,21 +153,6 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
 
         static::assertSame([], $repository->creates);
         static::assertSame([], $repository->updates);
-    }
-
-    public function testPersistedResetsTheTemplateWhenTheSeoUrlIsBoundToAnotherEntity(): void
-    {
-        $existing = $this->template(entityName: 'category', template: 'teaser/{{ category.translated.name }}');
-        $repository = new StaticEntityRepository([new SeoUrlTemplateCollection([$existing])]);
-
-        (new EntitySeoUrlAppFeatureDefinition($repository))->persisted([$this->config()], $this->persistContext());
-
-        static::assertSame([], $repository->creates);
-        static::assertSame([[
-            'id' => $existing->getId(),
-            'entityName' => 'product',
-            'template' => 'teaser/{{ product.productNumber }}',
-        ]], $repository->getPayloads(StaticEntityRepository::UPDATE));
     }
 
     public function testPersistedSeedsTheMissingTemplateOfEveryDeclaredEntitySeoUrl(): void

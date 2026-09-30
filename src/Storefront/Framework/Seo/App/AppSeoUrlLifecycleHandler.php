@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Framework\Seo\App;
 
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
-use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateIndexingMessage;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
@@ -60,12 +59,19 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
         $routeNamePrefix = AppSeoUrlRoute::routeNamePrefix($context->app->getName());
         $declared = $this->declaredEntityRoutes($context->manifest);
 
-        $keptRouteNames = array_filter(
-            $this->templateRouteNames($routeNamePrefix, $context->context),
-            static fn (string $routeName): bool => !str_contains(substr($routeName, \strlen($routeNamePrefix)), '.')
-        );
+        $staleRouteNames = [];
 
-        $this->deleteTemplates(array_values(array_diff($keptRouteNames, array_keys($declared))), $context->context);
+        foreach ($this->keptTemplateEntityNames($routeNamePrefix, $context->context) as $routeName => $entityName) {
+            if (str_contains(substr($routeName, \strlen($routeNamePrefix)), '.')) {
+                continue;
+            }
+
+            if (($declared[$routeName] ?? null) !== $entityName) {
+                $staleRouteNames[] = $routeName;
+            }
+        }
+
+        $this->deleteTemplates($staleRouteNames, $context->context);
     }
 
     public function update(AppPersistContext $context): void
@@ -88,7 +94,7 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
         }
 
         $this->markSeoUrlsAsDeleted($removed, $context->context);
-        $this->deleteTemplates(array_values(array_diff($removed, array_keys($declaredEntity))), $context->context);
+        $this->deleteTemplates($removed, $context->context);
     }
 
     public function activate(AppActivationContext $context): void
@@ -202,19 +208,21 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
     }
 
     /**
-     * @return list<string>
+     * @return array<string, string> route name => entity name
      */
-    private function templateRouteNames(string $routeNamePrefix, Context $context): array
+    private function keptTemplateEntityNames(string $routeNamePrefix, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->setTitle('app-seo-url::kept-templates');
         $criteria->addFilter(new PrefixFilter('routeName', $routeNamePrefix));
 
-        return array_values(array_unique(
-            $this->seoUrlTemplateRepository->search($criteria, $context)->getEntities()->map(
-                static fn (SeoUrlTemplateEntity $template): string => $template->getRouteName()
-            )
-        ));
+        $entityNames = [];
+
+        foreach ($this->seoUrlTemplateRepository->search($criteria, $context)->getEntities() as $template) {
+            $entityNames[$template->getRouteName()] = $template->getEntityName();
+        }
+
+        return $entityNames;
     }
 
     /**

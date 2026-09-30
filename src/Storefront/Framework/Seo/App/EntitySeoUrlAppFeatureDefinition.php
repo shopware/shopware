@@ -107,28 +107,16 @@ final class EntitySeoUrlAppFeatureDefinition extends AppFeatureDefinition
         $criteria->addFilter(new EqualsFilter('routeName', $config->getRouteName()));
         $criteria->addFilter(new EqualsFilter('salesChannelId', null));
 
-        $existing = $this->seoUrlTemplateRepository->search($criteria, $context)->getEntities()->first();
-
-        if ($existing === null) {
-            $this->seoUrlTemplateRepository->create([[
-                'routeName' => $config->getRouteName(),
-                'entityName' => $config->getEntityName(),
-                'template' => $config->getDefaultTemplate(),
-                'isValid' => true,
-                'isHeadless' => false,
-            ]], $context);
-
+        if ($this->seoUrlTemplateRepository->search($criteria, $context)->getEntities()->first() !== null) {
             return;
         }
 
-        if ($existing->getEntityName() === $config->getEntityName()) {
-            return;
-        }
-
-        $this->seoUrlTemplateRepository->update([[
-            'id' => $existing->getId(),
+        $this->seoUrlTemplateRepository->create([[
+            'routeName' => $config->getRouteName(),
             'entityName' => $config->getEntityName(),
             'template' => $config->getDefaultTemplate(),
+            'isValid' => true,
+            'isHeadless' => false,
         ]], $context);
     }
 }

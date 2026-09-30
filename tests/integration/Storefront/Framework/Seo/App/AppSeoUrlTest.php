@@ -329,13 +329,15 @@ class AppSeoUrlTest extends TestCase
             'title' => 'excellent',
             'content' => 'Does what it says on the box',
         ]], $this->context);
+        $this->createSalesChannelTemplate(self::PRODUCT_REVIEWS_ROUTE, 'product', 'my-reviews/{{ product.productNumber }}');
+        $this->runWorker();
 
         $this->updateApp('next-version/SwagStorefrontSeoUrl');
 
         static::assertSame([1], array_values(array_unique($this->fetchDeletedFlags(self::PRODUCT_REVIEWS_ROUTE))));
         static::assertSame(
-            ['product_review', 'product-reviews/{{ productReview.title }}'],
-            $this->fetchDefaultTemplate(self::PRODUCT_REVIEWS_ROUTE)
+            [['salesChannelId' => null, 'entityName' => 'product_review', 'template' => 'product-reviews/{{ productReview.title }}']],
+            $this->fetchTemplates(self::PRODUCT_REVIEWS_ROUTE)
         );
 
         $this->runWorker();
@@ -470,6 +472,23 @@ class AppSeoUrlTest extends TestCase
         static::assertSame(['product', 'merchant/{{ product.productNumber }}'], $this->fetchDefaultTemplate(self::PRODUCT_ROUTE));
     }
 
+    public function testReinstallingWithKeptUserDataResetsEveryTemplateOfARouteTheNewVersionBindsToAnotherEntity(): void
+    {
+        $this->installApp('previous-version/SwagStorefrontSeoUrl');
+        $this->createSalesChannelTemplate(self::PRODUCT_REVIEWS_ROUTE, 'product', 'my-reviews/{{ product.productNumber }}');
+
+        static::getContainer()->get(AppManager::class)->uninstall($this->loadApp(), $this->context, keepUserData: true);
+
+        static::assertCount(2, $this->fetchTemplates(self::PRODUCT_REVIEWS_ROUTE));
+
+        $this->installApp('next-version/SwagStorefrontSeoUrl');
+
+        static::assertSame(
+            [['salesChannelId' => null, 'entityName' => 'product_review', 'template' => 'product-reviews/{{ productReview.title }}']],
+            $this->fetchTemplates(self::PRODUCT_REVIEWS_ROUTE)
+        );
+    }
+
     private function installApp(string $fixture = 'SwagStorefrontSeoUrl'): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/' . $fixture);
@@ -543,6 +562,19 @@ class AppSeoUrlTest extends TestCase
         $repository->update([['id' => $templateId, 'template' => $template]], $this->context);
     }
 
+    private function createSalesChannelTemplate(string $routeName, string $entityName, string $template): void
+    {
+        /** @var EntityRepository<SeoUrlTemplateCollection> $repository */
+        $repository = static::getContainer()->get('seo_url_template.repository');
+        $repository->create([[
+            'salesChannelId' => $this->getSalesChannelId(),
+            'routeName' => $routeName,
+            'entityName' => $entityName,
+            'template' => $template,
+            'isValid' => true,
+        ]], $this->context);
+    }
+
     /**
      * @return list<array<string, mixed>>
      */
@@ -609,6 +641,23 @@ class AppSeoUrlTest extends TestCase
                 ['routeName' => $routeName]
             )
         );
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function fetchTemplates(string $routeName): array
+    {
+        /** @var list<array<string, mixed>> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(`sales_channel_id`)) AS `salesChannelId`, `entity_name` AS `entityName`, `template`
+             FROM `seo_url_template`
+             WHERE `route_name` = :routeName
+             ORDER BY `sales_channel_id`',
+            ['routeName' => $routeName]
+        );
+
+        return $rows;
     }
 
     /**

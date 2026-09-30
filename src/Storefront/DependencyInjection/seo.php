@@ -105,7 +105,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.repository'),
             service(SeoUrlPersister::class),
             service(LanguageLocaleCodeProvider::class),
-            service('router'),
+            service('router.default'),
             service('request_stack'),
         ]);
 

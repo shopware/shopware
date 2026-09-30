@@ -43,7 +43,7 @@ The legacy document classes that document generation v2 keeps moved from `Shopwa
 | `Renderer\RenderedDocument` | `Struct\RenderedDocument` |
 | `SalesChannel\AbstractDocumentRoute` | `SalesChannel\AbstractDocumentRoute` |
 | `SalesChannel\DocumentRoute` | `SalesChannel\DocumentRoute` |
-| `Service\ReferenceInvoiceLoader` | `Service\ReferenceInvoiceLoader` (internal, no alias) |
+| `Service\ReferenceInvoiceLoader` | `Service\ReferenceInvoiceLoader` |
 
 # 6.7.15.0
 

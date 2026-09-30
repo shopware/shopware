@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
 use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\SalesChannel\AbstractDocumentRoute;
 use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
+use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
@@ -46,6 +47,7 @@ final class ClassAliasRegistry
         'Shopware\Core\Checkout\Document\Renderer\RenderedDocument' => RenderedDocument::class,
         'Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute' => AbstractDocumentRoute::class,
         'Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute' => DocumentRoute::class,
+        'Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader' => ReferenceInvoiceLoader::class,
         'Shopware\Core\Framework\Plugin\Util\AssetService' => AssetService::class,
         'Shopware\Administration\Controller\NotificationController' => NotificationController::class,
         'Shopware\Administration\Notification\NotificationCollection' => NotificationCollection::class,
@@ -151,6 +153,7 @@ final class ClassAliasRegistry
         class_alias(RenderedDocument::class, 'Shopware\Core\Checkout\Document\Renderer\RenderedDocument');
         class_alias(AbstractDocumentRoute::class, 'Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute');
         class_alias(DocumentRoute::class, 'Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute');
+        class_alias(ReferenceInvoiceLoader::class, 'Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader');
         class_alias(AssetService::class, 'Shopware\Core\Framework\Plugin\Util\AssetService');
         class_alias(NotificationController::class, 'Shopware\Administration\Controller\NotificationController');
         class_alias(NotificationCollection::class, 'Shopware\Administration\Notification\NotificationCollection');

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
 #[Package('after-sales')]
+#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader')]
 final readonly class ReferenceInvoiceLoader
 {
     /**

@@ -90,7 +90,7 @@ the removal of v1 in 6.9, following [Use runtime aliases for moved PHP classes](
 
 **Amendment 2026-09-29:** the reused v1 classes move during 6.7 instead of with the removal of v1 in 6.9. Runtime class
 aliases keep the previous and the canonical name working as one class, so extension authors can migrate early and v1
-keeps running on the moved classes. The internal `ReferenceInvoiceLoader` moves without an alias.
+keeps running on the moved classes.
 
 ### Deprecations and Entity Removal
 

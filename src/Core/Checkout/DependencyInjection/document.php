@@ -94,6 +94,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->deprecate('shopware/core', '6.7.16.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.9.0. Use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute instead.');
 
+    $services->alias(
+        'Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader',
+        ReferenceInvoiceLoader::class,
+    )->deprecate('shopware/core', '6.7.16.0', 'The "%alias_id%" service alias is deprecated and will be removed in v6.9.0. Use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader instead.');
+
     $services->set(DocumentTemplateRenderer::class)
         ->args([
             service(TemplateFinder::class),

@@ -68,12 +68,11 @@ The legacy document classes that document generation v2 keeps moved into `Shopwa
 | `Shopware\Core\Checkout\Document\Renderer\RenderedDocument` | `Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument` |
 | `Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute` | `Shopware\Core\Checkout\DocumentV2\SalesChannel\AbstractDocumentRoute` |
 | `Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute` | `Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute` |
+| `Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader` | `Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader` |
 
 Update imports, type declarations, static references, and service IDs to the canonical names. Entity names, repositories, and the `/store-api/document/download` route are unchanged.
 
 A decorator of the route takes effect only when it decorates the canonical service ID. `RenderedDocument::getApiAlias()` keeps returning `shopware_core_checkout_document_renderer_rendered_document` until 6.8.
-
-The internal `ReferenceInvoiceLoader` moved to `Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader` without an alias.
 
 ### Merged document downloads have a speaking file name
 

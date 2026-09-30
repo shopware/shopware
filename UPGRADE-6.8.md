@@ -326,9 +326,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## Removal of deprecated `ConfigurationService` class
+## Removal of legacy `ConfigurationService` getters
 
-The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.
+Replace calls with `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
 
 ## `Feature` is final
 

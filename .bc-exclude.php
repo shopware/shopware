@@ -125,5 +125,8 @@ return [
 
         // Not sure why an external library is complained about
         preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
+
+        // Not released yet, so safe to be removed again
+        preg_quote('REMOVED: Class Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService has been deleted', '/'),
     ],
 ];

@@ -13,9 +13,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
-use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -24,8 +26,6 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
- *
- * @deprecated tag:v6.8.0 - will be removed
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
@@ -36,73 +36,100 @@ class ConfigurationServiceTest extends TestCase
     use EnvTestBehaviour;
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testInvalidDomain(): void
+    public function testInvalidDomainDeprecated(): void
     {
         $this->expectExceptionObject(SystemConfigException::invalidDomain());
 
-        $appRepository = new StaticEntityRepository([]);
-        $systemConfigService = new StaticSystemConfigService([]);
-        $configDefinitionService = new SystemConfigDefinitionService(
+        $configService = new ConfigurationService(
             [],
             new ConfigReader(),
             static::createStub(AppConfigReader::class),
-            $appRepository,
-            $systemConfigService,
+            new StaticEntityRepository([]),
+            new StaticSystemConfigService([]),
             new NullLogger()
-        );
-        $configService = new ConfigurationService(
-            $systemConfigService,
-            $configDefinitionService
         );
 
         $configService->getConfiguration('invalid!', Context::createDefaultContext());
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testCheckConfigurationWithInvalidDomain(): void
+    public function testInvalidDomain(): void
     {
-        $appRepository = new StaticEntityRepository([]);
-        $systemConfigService = new StaticSystemConfigService([]);
-        $configDefinitionService = new SystemConfigDefinitionService(
+        $this->expectExceptionObject(SystemConfigException::invalidDomain());
+
+        $configService = new ConfigurationService(
             [],
             new ConfigReader(),
             static::createStub(AppConfigReader::class),
-            $appRepository,
-            $systemConfigService,
+            new StaticEntityRepository([]),
+            new StaticSystemConfigService([]),
             new NullLogger()
         );
+
+        $configService->getSystemConfigDefinition('invalid!', Context::createDefaultContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testCheckConfigurationWithInvalidDomainDeprecated(): void
+    {
         $configService = new ConfigurationService(
-            $systemConfigService,
-            $configDefinitionService
+            [],
+            new ConfigReader(),
+            static::createStub(AppConfigReader::class),
+            new StaticEntityRepository([]),
+            new StaticSystemConfigService([]),
+            new NullLogger()
+        );
+
+        static::assertFalse($configService->checkConfiguration('invalid!', Context::createDefaultContext()));
+    }
+
+    public function testCheckConfigurationWithInvalidDomain(): void
+    {
+        $configService = new ConfigurationService(
+            [],
+            new ConfigReader(),
+            static::createStub(AppConfigReader::class),
+            new StaticEntityRepository([]),
+            new StaticSystemConfigService([]),
+            new NullLogger()
         );
 
         static::assertFalse($configService->checkConfiguration('invalid!', Context::createDefaultContext()));
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testMissingConfig(): void
+    public function testMissingConfigDeprecated(): void
     {
-        $appRepository = new StaticEntityRepository([new AppCollection([])]);
-        $systemConfigService = new StaticSystemConfigService([]);
-        $configDefinitionService = new SystemConfigDefinitionService(
+        $configService = new ConfigurationService(
             [],
             new ConfigReader(),
             static::createStub(AppConfigReader::class),
-            $appRepository,
-            $systemConfigService,
+            new StaticEntityRepository([new AppCollection([])]),
+            new StaticSystemConfigService([]),
             new NullLogger()
-        );
-        $configService = new ConfigurationService(
-            $systemConfigService,
-            $configDefinitionService
         );
 
         $this->expectExceptionObject(SystemConfigException::configurationNotFound('missing'));
         $configService->getConfiguration('missing', Context::createDefaultContext());
     }
 
+    public function testMissingConfig(): void
+    {
+        $configService = new ConfigurationService(
+            [],
+            new ConfigReader(),
+            static::createStub(AppConfigReader::class),
+            new StaticEntityRepository([new AppCollection([])]),
+            new StaticSystemConfigService([]),
+            new NullLogger()
+        );
+
+        $this->expectExceptionObject(SystemConfigException::configurationNotFound('missing'));
+        $configService->getSystemConfigDefinition('missing', Context::createDefaultContext());
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testConfigurationFeatureFlag(): void
+    public function testConfigurationFeatureFlagDeprecated(): void
     {
         $this->setEnvVars([
             'FEATURE_NEXT_101' => '1',
@@ -114,15 +141,32 @@ class ConfigurationServiceTest extends TestCase
 
         $actualConfig = $this->getConfiguration($this->getAppConfig());
 
-        $expectedConfigWithoutValues = $this->getConfigWithoutValues();
+        $expectedConfigWithoutValues = $this->getLegacyConfigWithoutValues();
 
         static::assertEquals($expectedConfigWithoutValues, $actualConfig);
         static::assertEquals($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
         static::assertEquals($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
     }
 
+    public function testConfigurationFeatureFlag(): void
+    {
+        $this->setEnvVars([
+            'FEATURE_NEXT_101' => '1',
+            'FEATURE_NEXT_102' => '1',
+        ]);
+
+        static::assertTrue(Feature::isActive('FEATURE_NEXT_101'));
+        static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
+
+        $actualConfig = $this->getSystemConfigDefinition($this->getAppConfig());
+
+        $expectedConfigWithoutValues = $this->getConfigWithoutValues();
+
+        static::assertEquals($expectedConfigWithoutValues, $actualConfig);
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
+    public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabledDeprecated(): void
     {
         $this->setEnvVars([
             'FEATURE_NEXT_101' => '0',
@@ -156,24 +200,74 @@ class ConfigurationServiceTest extends TestCase
         static::assertCount(1, $actualConfig[0]['elements']);
     }
 
+    public function testConfigurationIsSequentiallyIndexedWhenFeatureFlagNotEnabled(): void
+    {
+        $this->setEnvVars([
+            'FEATURE_NEXT_101' => '0',
+            'FEATURE_NEXT_102' => '0',
+        ]);
+
+        static::assertFalse(Feature::isActive('FEATURE_NEXT_101'));
+        static::assertFalse(Feature::isActive('FEATURE_NEXT_102'));
+
+        $config = $this->getAppConfig();
+
+        unset($config[0]['cards'][0]['flag']); // make card not rely on feature flag (won't be removed)
+        $config[0]['cards'][0]['elements'][0]['flag'] = 'FEATURE_NEXT_102'; // make first element rely on feature flag (will be removed)
+
+        // create new card at position 0 and make it rely on feature flag (will be removed)
+        array_unshift($config[0]['cards'], [
+            'title' => [
+                'en-GB' => 'Advanced configuration',
+                'de-DE' => 'Grundeinstellungen',
+            ],
+            'name' => null,
+            'elements' => [],
+            'flag' => 'FEATURE_NEXT_101',
+        ]);
+
+        $actualConfig = $this->getSystemConfigDefinition($config);
+
+        static::assertIsList($actualConfig);
+        static::assertCount(1, $actualConfig);
+        static::assertIsList($actualConfig[0]->cards);
+        static::assertCount(1, $actualConfig[0]->cards);
+        static::assertIsList($actualConfig[0]->cards[0]->elements);
+        static::assertCount(1, $actualConfig[0]->cards[0]->elements);
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testConfigurationNoFeatureFlag(): void
+    public function testConfigurationNoFeatureFlagDeprecated(): void
     {
         $actualConfig = $this->getConfiguration($this->getAppConfig());
 
         static::assertEmpty($actualConfig);
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testEmptyConfigThrowsError(): void
+    public function testConfigurationNoFeatureFlag(): void
     {
-        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTestDeprecated'));
+        $actualConfig = $this->getSystemConfigDefinition($this->getAppConfig());
+
+        static::assertSame([], $actualConfig[0]->cards);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testEmptyConfigThrowsErrorDeprecated(): void
+    {
+        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTest'));
 
         $this->getConfiguration([]);
     }
 
+    public function testEmptyConfigThrowsError(): void
+    {
+        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTest'));
+
+        $this->getSystemConfigDefinition([]);
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testElementWithFlag(): void
+    public function testElementWithFlagDeprecated(): void
     {
         $config = [
             [
@@ -188,7 +282,7 @@ class ConfigurationServiceTest extends TestCase
                         'name' => null,
                         'elements' => [
                             [
-                                'name' => 'SwagExampleTestDeprecated.email',
+                                'name' => 'SwagExampleTest.email',
                                 'type' => 'text',
                                 'flag' => 'FEATURE_NEXT_101',
                                 'config' => [
@@ -214,8 +308,49 @@ class ConfigurationServiceTest extends TestCase
         static::assertSame([], $actualConfig[0]['elements']);
     }
 
+    public function testElementWithFlag(): void
+    {
+        $config = [
+            [
+                'title' => null,
+                'name' => null,
+                'cards' => [
+                    [
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
+                        ],
+                        'name' => null,
+                        'elements' => [
+                            [
+                                'name' => 'SwagExampleTest.email',
+                                'type' => 'text',
+                                'flag' => 'FEATURE_NEXT_101',
+                                'config' => [
+                                    'copyable' => true,
+                                    'label' => [
+                                        'en-GB' => 'eMail',
+                                        'de-DE' => 'E-Mail',
+                                    ],
+                                    'placeholder' => [
+                                        'en-GB' => 'Enter your eMail address',
+                                        'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $actualConfig = $this->getSystemConfigDefinition($config);
+
+        static::assertSame([], $actualConfig[0]->cards[0]->elements);
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testCacheRelevantMetadataIsExposedInElementConfig(): void
+    public function testCacheRelevantMetadataIsExposedInElementConfigDeprecated(): void
     {
         $config = [
             [
@@ -244,8 +379,37 @@ class ConfigurationServiceTest extends TestCase
         static::assertTrue($actualConfig[0]['elements'][0]['config']['cacheRelevant']);
     }
 
+    public function testCacheRelevantMetadataIsExposedInElementConfig(): void
+    {
+        $config = [
+            [
+                'title' => null,
+                'name' => null,
+                'cards' => [
+                    [
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                        ],
+                        'name' => null,
+                        'elements' => [
+                            [
+                                'name' => 'storefrontVisibility',
+                                'type' => 'bool',
+                                'cacheRelevant' => true,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $actualConfig = $this->getSystemConfigDefinition($config);
+
+        static::assertTrue($actualConfig[0]->cards[0]->elements[0]->config['cacheRelevant']);
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testConfigFromPlugin(): void
+    public function testConfigFromPluginDeprecated(): void
     {
         $config = [
             [
@@ -285,9 +449,9 @@ class ConfigurationServiceTest extends TestCase
 
         $appRepository = new StaticEntityRepository([new AppCollection()]);
         $systemConfigService = new StaticSystemConfigService([]);
-        $configDefinitionService = new SystemConfigDefinitionService(
+        $service = new ConfigurationService(
             [
-                new SwagExampleTestDeprecated(true, ''),
+                new SwagExampleTest(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
@@ -295,19 +459,132 @@ class ConfigurationServiceTest extends TestCase
             $systemConfigService,
             new NullLogger()
         );
-        $service = new ConfigurationService(
-            $systemConfigService,
-            $configDefinitionService
-        );
 
-        $actualConfig = $service->getConfiguration('SwagExampleTestDeprecated', Context::createDefaultContext());
+        $actualConfig = $service->getConfiguration('SwagExampleTest', Context::createDefaultContext());
 
         static::assertCount(1, $actualConfig);
         static::assertCount(1, $actualConfig[0]['elements']);
-        static::assertSame('SwagExampleTestDeprecated.email', $actualConfig[0]['elements'][0]['name']);
+        static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
+    }
+
+    public function testConfigFromPlugin(): void
+    {
+        $config = [
+            [
+                'title' => null,
+                'name' => null,
+                'cards' => [
+                    [
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
+                        ],
+                        'name' => null,
+                        'elements' => [
+                            [
+                                'name' => 'email',
+                                'type' => 'text',
+                                'config' => [
+                                    'copyable' => true,
+                                    'label' => [
+                                        'en-GB' => 'eMail',
+                                        'de-DE' => 'E-Mail',
+                                    ],
+                                    'placeholder' => [
+                                        'en-GB' => 'Enter your eMail address',
+                                        'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $configReader = static::createStub(ConfigReader::class);
+        $configReader->method('getConfigFromBundle')->willReturn($config);
+
+        $appRepository = new StaticEntityRepository([new AppCollection()]);
+        $service = new ConfigurationService(
+            [
+                new SwagExampleTest(true, ''),
+            ],
+            $configReader,
+            static::createStub(AppConfigReader::class),
+            $appRepository,
+            new StaticSystemConfigService([]),
+            new NullLogger()
+        );
+
+        $actualConfig = $service->getSystemConfigDefinition('SwagExampleTest', Context::createDefaultContext());
+
+        static::assertCount(1, $actualConfig);
+        static::assertCount(1, $actualConfig[0]->cards);
+        static::assertCount(1, $actualConfig[0]->cards[0]->elements);
+        static::assertSame('SwagExampleTest.email', $actualConfig[0]->cards[0]->elements[0]->name);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
+    public function testEnrichConfigDeprecated(): void
+    {
+        $config = [
+            [
+                'title' => null,
+                'name' => null,
+                'cards' => [
+                    [
+                        'title' => [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
+                        ],
+                        'elements' => [
+                            [
+                                'name' => 'email',
+                                'type' => 'text',
+                                'config' => [
+                                    'copyable' => true,
+                                    'label' => [
+                                        'en-GB' => 'eMail',
+                                        'de-DE' => 'E-Mail',
+                                    ],
+                                    'placeholder' => [
+                                        'en-GB' => 'Enter your eMail address',
+                                        'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $configReader = static::createStub(ConfigReader::class);
+        $configReader->method('getConfigFromBundle')->willReturn($config);
+
+        $repository = new StaticEntityRepository([new AppCollection()]);
+
+        $systemConfigService = new StaticSystemConfigService(['SwagExampleTest.email' => 'foo']);
+        $service = new ConfigurationService(
+            [
+                new SwagExampleTest(true, ''),
+            ],
+            $configReader,
+            static::createStub(AppConfigReader::class),
+            $repository,
+            $systemConfigService,
+            new NullLogger()
+        );
+
+        $actualConfig = $service->getResolvedConfiguration('SwagExampleTest', Context::createDefaultContext());
+
+        static::assertCount(1, $actualConfig);
+        static::assertCount(1, $actualConfig[0]['elements']);
+        static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
+        static::assertSame('foo', $actualConfig[0]['elements'][0]['value']);
+    }
+
     public function testEnrichConfig(): void
     {
         $config = [
@@ -347,32 +624,28 @@ class ConfigurationServiceTest extends TestCase
 
         $repository = new StaticEntityRepository([new AppCollection()]);
 
-        $systemConfigService = new StaticSystemConfigService(['SwagExampleTestDeprecated.email' => 'foo']);
-        $configDefinitionService = new SystemConfigDefinitionService(
+        $service = new ConfigurationService(
             [
-                new SwagExampleTestDeprecated(true, ''),
+                new SwagExampleTest(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
             $repository,
-            $systemConfigService,
+            new StaticSystemConfigService(['SwagExampleTest.email' => 'foo']),
             new NullLogger()
         );
-        $service = new ConfigurationService(
-            $systemConfigService,
-            $configDefinitionService
-        );
 
-        $actualConfig = $service->getResolvedConfiguration('SwagExampleTestDeprecated', Context::createDefaultContext());
+        $actualConfig = $service->getResolvedSystemConfigDefinition('SwagExampleTest', Context::createDefaultContext());
 
         static::assertCount(1, $actualConfig);
-        static::assertCount(1, $actualConfig[0]['elements']);
-        static::assertSame('SwagExampleTestDeprecated.email', $actualConfig[0]['elements'][0]['name']);
-        static::assertSame('foo', $actualConfig[0]['elements'][0]['value']);
+        static::assertCount(1, $actualConfig[0]->cards);
+        static::assertCount(1, $actualConfig[0]->cards[0]->elements);
+        static::assertSame('SwagExampleTest.email', $actualConfig[0]->cards[0]->elements[0]->name);
+        static::assertSame('foo', $actualConfig[0]->cards[0]->elements[0]->value);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testCheckConfigurationReturnsFalseOnXmlParsingException(): void
+    public function testCheckConfigurationReturnsFalseOnXmlParsingExceptionDeprecated(): void
     {
         $configReader = static::createStub(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willThrowException(
@@ -381,9 +654,9 @@ class ConfigurationServiceTest extends TestCase
 
         $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $systemConfigService = new StaticSystemConfigService([]);
-        $configDefinitionService = new SystemConfigDefinitionService(
+        $configService = new ConfigurationService(
             [
-                new SwagExampleTestDeprecated(true, ''),
+                new SwagExampleTest(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
@@ -391,13 +664,30 @@ class ConfigurationServiceTest extends TestCase
             $systemConfigService,
             new NullLogger()
         );
+
+        // checkConfiguration should return false instead of throwing the exception
+        static::assertFalse($configService->checkConfiguration('SwagExampleTest.config', Context::createDefaultContext()));
+    }
+
+    public function testCheckConfigurationReturnsFalseOnXmlParsingException(): void
+    {
+        $configReader = static::createStub(ConfigReader::class);
+        $configReader->method('getConfigFromBundle')->willThrowException(
+            UtilException::xmlParsingException('/path/to/config.xml', 'Invalid XML: element name contains underscores')
+        );
+
+        $appRepository = new StaticEntityRepository([new AppCollection([])]);
         $configService = new ConfigurationService(
-            $systemConfigService,
-            $configDefinitionService
+            [new SwagExampleTest(true, '')],
+            $configReader,
+            static::createStub(AppConfigReader::class),
+            $appRepository,
+            new StaticSystemConfigService([]),
+            new NullLogger()
         );
 
         // checkConfiguration should return false instead of throwing the exception
-        static::assertFalse($configService->checkConfiguration('SwagExampleTestDeprecated.config', Context::createDefaultContext()));
+        static::assertFalse($configService->checkConfiguration('SwagExampleTest.config', Context::createDefaultContext()));
     }
 
     /**
@@ -405,9 +695,9 @@ class ConfigurationServiceTest extends TestCase
      *
      * @return array<mixed>
      */
-    public function getConfiguration(array $config): array
+    private function getConfiguration(array $config): array
     {
-        $app = (new AppEntity())->assign(['name' => 'SwagExampleTestDeprecated', '_uniqueIdentifier' => 'test']);
+        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
 
         $appConfigReader = static::createStub(AppConfigReader::class);
         $appConfigReader->method('read')->willReturnMap([[$app, $config]]);
@@ -417,7 +707,7 @@ class ConfigurationServiceTest extends TestCase
             new AppCollection([$app]),
         ]);
         $systemConfigService = new StaticSystemConfigService([]);
-        $configDefinitionService = new SystemConfigDefinitionService(
+        $configService = new ConfigurationService(
             [],
             new ConfigReader(),
             $appConfigReader,
@@ -425,22 +715,50 @@ class ConfigurationServiceTest extends TestCase
             $systemConfigService,
             new NullLogger()
         );
+
+        if ($config !== []) {
+            static::assertTrue($configService->checkConfiguration('SwagExampleTest', Context::createDefaultContext()));
+        }
+
+        return $configService->getConfiguration('SwagExampleTest', Context::createDefaultContext());
+    }
+
+    /**
+     * @param array<mixed> $config
+     *
+     * @return list<SystemConfigTab>
+     */
+    private function getSystemConfigDefinition(array $config): array
+    {
+        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
+
+        $appConfigReader = static::createStub(AppConfigReader::class);
+        $appConfigReader->method('read')->willReturnMap([[$app, $config]]);
+
+        $appRepository = new StaticEntityRepository([
+            new AppCollection([$app]),
+            new AppCollection([$app]),
+        ]);
         $configService = new ConfigurationService(
-            $systemConfigService,
-            $configDefinitionService
+            [],
+            new ConfigReader(),
+            $appConfigReader,
+            $appRepository,
+            new StaticSystemConfigService([]),
+            new NullLogger()
         );
 
         if ($config !== []) {
-            static::assertTrue($configService->checkConfiguration('SwagExampleTestDeprecated', Context::createDefaultContext()));
+            static::assertTrue($configService->checkConfiguration('SwagExampleTest', Context::createDefaultContext()));
         }
 
-        return $configService->getConfiguration('SwagExampleTestDeprecated', Context::createDefaultContext());
+        return $configService->getSystemConfigDefinition('SwagExampleTest', Context::createDefaultContext());
     }
 
     /**
      * @return array<mixed>
      */
-    private function getConfigWithoutValues(): array
+    private function getLegacyConfigWithoutValues(): array
     {
         return [
             [
@@ -451,7 +769,7 @@ class ConfigurationServiceTest extends TestCase
                 'name' => null,
                 'elements' => [
                     [
-                        'name' => 'SwagExampleTestDeprecated.email',
+                        'name' => 'SwagExampleTest.email',
                         'type' => 'text',
                         'config' => [
                             'copyable' => true,
@@ -467,13 +785,13 @@ class ConfigurationServiceTest extends TestCase
                         'value' => null,
                     ],
                     [
-                        'name' => 'SwagExampleTestDeprecated.withoutAnyConfig',
+                        'name' => 'SwagExampleTest.withoutAnyConfig',
                         'type' => 'int',
                         'config' => [],
                         'value' => null,
                     ],
                     [
-                        'name' => 'SwagExampleTestDeprecated.mailMethod',
+                        'name' => 'SwagExampleTest.mailMethod',
                         'type' => 'single-select',
                         'config' => [
                             'options' => [
@@ -506,6 +824,79 @@ class ConfigurationServiceTest extends TestCase
                 'subtitle' => null,
                 'flag' => 'FEATURE_NEXT_101',
             ],
+        ];
+    }
+
+    /**
+     * @return list<SystemConfigTab>
+     */
+    private function getConfigWithoutValues(): array
+    {
+        return [
+            new SystemConfigTab(
+                [
+                    new SystemConfigCard(
+                        [
+                            new SystemConfigElement(
+                                'SwagExampleTest.email',
+                                [
+                                    'copyable' => true,
+                                    'label' => [
+                                        'en-GB' => 'eMail',
+                                        'de-DE' => 'E-Mail',
+                                    ],
+                                    'placeholder' => [
+                                        'en-GB' => 'Enter your eMail address',
+                                        'de-DE' => 'Bitte gib deine E-Mail Adresse ein',
+                                    ],
+                                ],
+                                'text'
+                            ),
+                            new SystemConfigElement(
+                                'SwagExampleTest.withoutAnyConfig',
+                                [],
+                                'int'
+                            ),
+                            new SystemConfigElement(
+                                'SwagExampleTest.mailMethod',
+                                [
+                                    'options' => [
+                                        [
+                                            'id' => 'smtp',
+                                            'name' => [
+                                                'en-GB' => 'SMTP',
+                                            ],
+                                        ],
+                                        [
+                                            'id' => 'pop3',
+                                            'name' => [
+                                                'en-GB' => 'POP3',
+                                            ],
+                                        ],
+                                    ],
+                                    'label' => [
+                                        'en-GB' => 'Mailing protocol',
+                                        'de-DE' => 'E-Mail Versand Protokoll',
+                                    ],
+                                    'placeholder' => [
+                                        'en-GB' => 'Choose your preferred transfer method',
+                                        'de-DE' => 'Bitte wähle dein bevorzugtes Versand Protokoll',
+                                    ],
+                                    'flag' => 'FEATURE_NEXT_102',
+                                ],
+                                'single-select'
+                            ),
+                        ],
+                        [
+                            'en-GB' => 'Basic configuration',
+                            'de-DE' => 'Grundeinstellungen',
+                        ],
+                        null,
+                        null,
+                        'FEATURE_NEXT_101',
+                    ),
+                ]
+            ),
         ];
     }
 
@@ -582,6 +973,6 @@ class ConfigurationServiceTest extends TestCase
 /**
  * @internal
  */
-class SwagExampleTestDeprecated extends Plugin
+class SwagExampleTest extends Plugin
 {
 }

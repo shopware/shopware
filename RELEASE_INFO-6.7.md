@@ -264,6 +264,12 @@ when called.
 Existing `Shopware.*` access remains supported. Use `Shopware.Store.get()` and
 `Shopware.Mixin.getByName()` for registrations that an extension creates at runtime.
 
+### Administration deprecation notices go through the feature lifecycle
+
+The hand-rolled deprecation warnings in the Administration now use the guard, so they throw once their major flag is active instead of staying a console message forever. This covers `$tc`, `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items` prop of `sw-entity-listing` and the Options API compatibility shim.
+
+A new `sw-deprecation-rules/no-manual-deprecation-notices` ESLint rule rejects new ones. Where a removal version genuinely does not exist yet, such as the legacy Twig override shim and deprecated extension position identifiers, the notice stays a warning and records why on the line.
+
 ## Storefront
 
 ### Display the complete legal guarantee notice at checkout

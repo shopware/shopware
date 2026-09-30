@@ -1222,34 +1222,34 @@ describe('src/app/adapter/options-composition-shim', () => {
     });
 
     describe('Deprecation warning:', () => {
-        it('should log deprecation warning when shim is activated', () => {
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        it('should guard the shim as deprecated when it is activated', () => {
+            const guard = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
 
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: { foo() {} },
             });
 
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('[Deprecation Warning]'));
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('originalComponent'));
-            expect(consoleWarn).toHaveBeenCalledWith(expect.stringContaining('overrideComponentSetup()'));
+            expect(guard).toHaveBeenCalledWith('V6_8_0_0', expect.stringContaining('originalComponent'));
+            expect(guard).toHaveBeenCalledWith('V6_8_0_0', expect.stringContaining('overrideComponentSetup()'));
 
-            consoleWarn.mockRestore();
+            guard.mockRestore();
         });
 
         it('should include migration docs link in deprecation warning', () => {
-            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const guard = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation(() => {});
 
             convertOptionsApiOverrideToCompositionApi('originalComponent', {
                 methods: { foo() {} },
             });
 
-            expect(consoleWarn).toHaveBeenCalledWith(
+            expect(guard).toHaveBeenCalledWith(
+                'V6_8_0_0',
                 expect.stringContaining(
                     'https://developer.shopware.com/docs/resources/references/core-reference/administration-reference/composition-api',
                 ),
             );
 
-            consoleWarn.mockRestore();
+            guard.mockRestore();
         });
     });
 

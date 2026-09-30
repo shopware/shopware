@@ -85,6 +85,14 @@ describe('src/app/plugin/deprecation.plugin', () => {
             );
         });
 
+        it.activeFeatureFlags(['v7.0.0.0'])('throws for a prop the parent passes at its default value', () => {
+            const template = '<sw-image empty-image-path="/empty.svg" />';
+
+            expect(() => mountInPage(template)).toThrow(
+                'The prop "emptyImagePath" of the component "sw-image" is deprecated',
+            );
+        });
+
         it.activeFeatureFlags(['v7.0.0.0'])('does not guard props the parent does not pass', () => {
             const template = '<sw-image :empty-icon="undefined" />';
 

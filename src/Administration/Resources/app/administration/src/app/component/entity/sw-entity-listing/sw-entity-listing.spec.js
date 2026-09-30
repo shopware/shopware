@@ -234,8 +234,8 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(wrapper.vm.records).toHaveLength(2);
     });
 
-    it('should show deprecation warning when items prop is used', async () => {
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    it('should guard the deprecated items prop', async () => {
+        const guardSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow').mockImplementation();
 
         await createWrapper(
             {
@@ -245,12 +245,12 @@ describe('src/app/component/entity/sw-entity-listing', () => {
             { suppressWarnings: false },
         );
 
-        expect(consoleWarnSpy).toHaveBeenCalledWith(
-            expect.stringContaining('[Deprecation] sw-entity-listing: The "items" prop is deprecated'),
-            expect.anything(),
+        expect(guardSpy).toHaveBeenCalledWith(
+            'V6_8_0_0',
+            expect.stringContaining('sw-entity-listing: The "items" prop is deprecated'),
         );
 
-        consoleWarnSpy.mockRestore();
+        guardSpy.mockRestore();
     });
 
     it('should prefer dataSource over items when both are provided', async () => {

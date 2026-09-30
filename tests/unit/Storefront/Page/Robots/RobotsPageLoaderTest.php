@@ -75,7 +75,7 @@ class RobotsPageLoaderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannelId = 'test-sales-channel-id';
 
-        $domain = $this->createExampleComDomain($salesChannelId);
+        $domain = $this->createDomain('https://example.com', $salesChannelId);
         $domains = [$domain];
 
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -115,7 +115,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
             'core.basicInformation.robotsRules' => [
@@ -174,7 +177,7 @@ class RobotsPageLoaderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannelId = 'test-sales-channel-id';
 
-        $domain = $this->createExampleComDomain($salesChannelId);
+        $domain = $this->createDomain('https://example.com', $salesChannelId);
         $domains = [$domain];
 
         // Expect event to be dispatched twice (once per load call)
@@ -208,8 +211,8 @@ class RobotsPageLoaderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannelId = 'test-sales-channel-id';
 
-        $httpDomain = $this->createExampleComHttpDomain($salesChannelId);
-        $httpsDomain = $this->createExampleComDomain($salesChannelId);
+        $httpDomain = $this->createDomain('http://example.com', $salesChannelId);
+        $httpsDomain = $this->createDomain('https://example.com', $salesChannelId);
         $domains = [$httpDomain, $httpsDomain];
 
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -246,10 +249,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId2 = 'test-sales-channel-id-2';
 
         // Domain for example.com
-        $domain1 = $this->createExampleComDomain($salesChannelId1);
+        $domain1 = $this->createDomain('https://example.com', $salesChannelId1);
 
         // Domain for different.org (different hostname)
-        $domain2 = $this->createDifferentOrgDomain($salesChannelId2);
+        $domain2 = $this->createDomain('https://different.org', $salesChannelId2);
 
         $domains = [$domain1, $domain2];
 
@@ -436,7 +439,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         // Configure robots rules with User-agent blocks for both sales channels
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -495,7 +501,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         // Configure robots rules with User-agent blocks that have only non-path directives
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -529,7 +538,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         // Configure robots rules with User-agent blocks that have only path directives
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -572,7 +584,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         // Configure robots rules with different User-agent blocks
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -614,62 +629,6 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(2, $page->getDomainRules());
     }
 
-    /**
-     * Creates a standard test domain for example.com
-     */
-    private function createExampleComDomain(string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
-    {
-        $domain = new SalesChannelDomainEntity();
-        $domain->setId('test-domain-id');
-        $domain->setUrl('https://example.com');
-        $domain->setSalesChannelId($salesChannelId);
-
-        return $domain;
-    }
-
-    /**
-     * Creates a standard test domain for example.com/en
-     */
-    private function createExampleComEnDomain(string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
-    {
-        $domain = new SalesChannelDomainEntity();
-        $domain->setId('test-domain-id-en');
-        $domain->setUrl('https://example.com/en');
-        $domain->setSalesChannelId($salesChannelId);
-
-        return $domain;
-    }
-
-    /**
-     * Creates a standard test domain for example.com with HTTP
-     */
-    private function createExampleComHttpDomain(string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
-    {
-        $domain = new SalesChannelDomainEntity();
-        $domain->setId('test-domain-id-http');
-        $domain->setUrl('http://example.com');
-        $domain->setSalesChannelId($salesChannelId);
-
-        return $domain;
-    }
-
-    /**
-     * Creates a standard test domain for different.org
-     */
-    private function createDifferentOrgDomain(string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
-    {
-        $domain = new SalesChannelDomainEntity();
-        $domain->setId('test-domain-id-different');
-        $domain->setUrl('https://different.org');
-        $domain->setSalesChannelId($salesChannelId);
-
-        return $domain;
-    }
-
-    /**
-     * Creates a test domain with an arbitrary URL, for cases where the standard
-     * fixed-hostname helpers above don't fit (e.g. overlapping-substring hostnames).
-     */
     private function createDomain(string $url, string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
     {
         $domain = new SalesChannelDomainEntity();
@@ -678,19 +637,6 @@ class RobotsPageLoaderTest extends TestCase
         $domain->setSalesChannelId($salesChannelId);
 
         return $domain;
-    }
-
-    /**
-     * Creates standard two-domain setup for example.com and example.com/en
-     *
-     * @return SalesChannelDomainEntity[]
-     */
-    private function createStandardDomains(string $salesChannelId1 = 'test-sales-channel-id-1', string $salesChannelId2 = 'test-sales-channel-id-2'): array
-    {
-        return [
-            $this->createExampleComDomain($salesChannelId1),
-            $this->createExampleComEnDomain($salesChannelId2),
-        ];
     }
 
     /**

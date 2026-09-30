@@ -17,16 +17,11 @@ export default class FormCmsHandler extends Plugin {
          * @deprecated tag:v6.8.0 - Option contentType will be removed.
          * The option was never effecting the actual request because the HttpClient automatically resets the Content-Type for FormData requests.
          */
-        contentType: window.Feature.isActive('v6.8.0.0') ? undefined : 'application/x-www-form-urlencoded',
+        contentType: 'application/x-www-form-urlencoded',
     };
 
     init() {
-        if (window.Feature.isActive('v6.8.0.0') && this.options.contentType !== undefined) {
-            window.Feature.triggerDeprecationOrThrow(
-                'v6.8.0.0', 
-                'Option "contentType" will be removed in v6.8.0.0. It had no effect on the actual request.'
-            );
-        }
+        this._deprecateOption('contentType', 'v6.8.0.0', 'The option was never effecting the actual request because the HttpClient automatically resets the Content-Type for FormData requests.');
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         if (!window.Feature.isActive('v6.8.0.0')) {

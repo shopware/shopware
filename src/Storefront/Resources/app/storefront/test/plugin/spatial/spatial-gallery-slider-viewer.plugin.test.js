@@ -4,7 +4,7 @@ import SpatialBaseViewerPlugin from 'src/plugin/spatial/spatial-base-viewer.plug
 jest.mock('src/plugin/spatial/utils/spatial-dive-load-util');
 
 const mockDive = {
-    start: jest.fn(),
+    startAsync: jest.fn(),
     stop: jest.fn(),
 };
 window.DIVEQuickViewPlugin = {
@@ -107,6 +107,6 @@ describe('SpatialGallerySliderViewerPlugin tests', () => {
 
         await process.nextTick(() => {});
 
-        expect(mockDive.start).toHaveBeenCalled();
+        expect(mockDive.startAsync).toHaveBeenCalled();
     });
 });

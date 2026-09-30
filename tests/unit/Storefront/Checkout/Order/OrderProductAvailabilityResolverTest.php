@@ -9,18 +9,15 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
-use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
-use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
@@ -59,8 +56,8 @@ class OrderProductAvailabilityResolverTest extends TestCase
         $lineItem = $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, null);
         $order = $this->createOrder([$lineItem]);
 
-        $route = static::createMock(AbstractProductListRoute::class);
-        $route->expects($this->never())->method('load');
+        $route = static::createMock(SalesChannelRepository::class);
+        $route->expects($this->never())->method('searchIds');
 
         $this->createResolver([], $route)->addAvailability([$order], Generator::generateSalesChannelContext());
 
@@ -74,9 +71,9 @@ class OrderProductAvailabilityResolverTest extends TestCase
         $promotion = $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex());
         $order = $this->createOrder([$promotion]);
 
-        $route = static::createMock(AbstractProductListRoute::class);
+        $route = static::createMock(SalesChannelRepository::class);
         // an order without products must not run an unfiltered, unlimited criteria over the catalogue
-        $route->expects($this->never())->method('load');
+        $route->expects($this->never())->method('searchIds');
 
         $this->createResolver([], $route)->addAvailability([$order], Generator::generateSalesChannelContext());
 
@@ -94,13 +91,12 @@ class OrderProductAvailabilityResolverTest extends TestCase
             $this->createOrder([$this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $first)]),
         ];
 
-        $route = static::createMock(AbstractProductListRoute::class);
+        $route = static::createMock(SalesChannelRepository::class);
         $route
             ->expects($this->once())
-            ->method('load')
+            ->method('searchIds')
             ->with(static::callback(static function (Criteria $criteria) use ($first, $second): bool {
                 static::assertEqualsCanonicalizing([$first, $second], array_values($criteria->getIds()));
-                static::assertSame(['id'], $criteria->getFields(), 'the lookup must stay a partial load');
 
                 return true;
             }))
@@ -117,10 +113,10 @@ class OrderProductAvailabilityResolverTest extends TestCase
         $productId = Uuid::randomHex();
         $order = $this->createOrder([$this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $productId)]);
 
-        $route = static::createMock(AbstractProductListRoute::class);
+        $route = static::createMock(SalesChannelRepository::class);
         $route
             ->expects($this->once())
-            ->method('load')
+            ->method('searchIds')
             ->with(static::callback(static function (Criteria $criteria): bool {
                 static::assertCount(1, $criteria->getFilters());
                 static::assertInstanceOf(ProductCloseoutFilter::class, $criteria->getFilters()[0]);
@@ -146,15 +142,16 @@ class OrderProductAvailabilityResolverTest extends TestCase
 
     /**
      * @param list<string> $visibleIds
+     * @param SalesChannelRepository<ProductCollection>|null $route
      */
     private function createResolver(
         array $visibleIds,
-        ?AbstractProductListRoute $route = null,
+        ?SalesChannelRepository $route = null,
         bool $closeoutHidden = false
     ): OrderProductAvailabilityResolver {
         if ($route === null) {
-            $route = static::createStub(AbstractProductListRoute::class);
-            $route->method('load')->willReturn($this->createResponse($visibleIds));
+            $route = static::createStub(SalesChannelRepository::class);
+            $route->method('searchIds')->willReturn($this->createResponse($visibleIds));
         }
 
         $closeoutFilterFactory = static::createStub(AbstractProductCloseoutFilterFactory::class);
@@ -170,25 +167,15 @@ class OrderProductAvailabilityResolverTest extends TestCase
     /**
      * @param list<string> $visibleIds
      */
-    private function createResponse(array $visibleIds): ProductListResponse
+    private function createResponse(array $visibleIds): IdSearchResult
     {
-        $products = new ProductCollection();
+        $data = [];
 
         foreach ($visibleIds as $id) {
-            $product = new ProductEntity();
-            $product->setId($id);
-            $product->setUniqueIdentifier($id);
-            $products->add($product);
+            $data[$id] = ['primaryKey' => $id, 'data' => []];
         }
 
-        return new ProductListResponse(new EntitySearchResult(
-            ProductDefinition::ENTITY_NAME,
-            $products->count(),
-            $products,
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
-        ));
+        return new IdSearchResult(\count($data), $data, new Criteria(), Context::createDefaultContext());
     }
 
     /**

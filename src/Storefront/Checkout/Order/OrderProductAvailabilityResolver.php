@@ -4,11 +4,12 @@ namespace Shopware\Storefront\Checkout\Order;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
-use Shopware\Core\Content\Product\SalesChannel\AbstractProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -24,9 +25,11 @@ class OrderProductAvailabilityResolver
 
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        private readonly AbstractProductListRoute $productListRoute,
+        private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
@@ -78,18 +81,13 @@ class OrderProductAvailabilityResolver
         $criteria = new Criteria($productIds);
         $criteria->setTitle('order-line-item::product-availability');
 
-        // ids only, so the definition skips its price, unit, delivery time, cover and tax associations, which is
-        // what keeps the price calculator out of this lookup
-        $criteria->addFields(['id']);
-
         // mirrors ProductDetailRoute, so the answer matches whether the detail page resolves
         if ($this->systemConfigService->getBool('core.listing.hideCloseoutProductsWhenOutOfStock', $context->getSalesChannelId())) {
             $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
         }
 
-        // getProducts() would only work while the result is empty, a partial load carries no product collection
-        $result = $this->productListRoute->load($criteria, $context)->getObject();
-
-        return array_flip($result->getEntities()->getIds());
+        // searchIds() reads no entities, so no product is loaded and ProductPriceCalculator never publishes its
+        // extension, which a plugin listener may type hint as ProductEntity
+        return array_flip($this->productRepository->searchIds($criteria, $context)->getIds());
     }
 }

@@ -9,12 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Twig\Environment;
 
 /**
  * @internal
@@ -80,7 +75,7 @@ class ProductFeatureTemplateTest extends TestCase
     {
         $context = $this->createSalesChannelContext();
 
-        return $this->renderInStorefrontRequest('@Storefront/storefront/component/product/feature/list.html.twig', [
+        return StorefrontTwigRenderer::render(static::getContainer(), '@Storefront/storefront/component/product/feature/list.html.twig', [
             'context' => $context,
             'lineItem' => new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE),
             'features' => [
@@ -91,32 +86,5 @@ class ProductFeatureTemplateTest extends TestCase
                 ],
             ],
         ], $context);
-    }
-
-    /**
-     * Renders inside a Storefront request, so `TemplateDataExtension` resolves real globals instead of caching
-     * them empty in the shared environment. Resets the globals before, so a set an earlier test resolved without a
-     * request is not reused, and afterwards, so later tests resolve their own.
-     *
-     * @param array<string, mixed> $parameters
-     */
-    private function renderInStorefrontRequest(string $template, array $parameters, SalesChannelContext $context): string
-    {
-        $twig = static::getContainer()->get('twig');
-        static::assertInstanceOf(Environment::class, $twig);
-        $requestStack = static::getContainer()->get(RequestStack::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        // drop globals an earlier test may have resolved without a request, otherwise Twig hands back that cached set
-        $twig->resetGlobals();
-        $requestStack->push($request);
-
-        try {
-            return $twig->render($template, $parameters);
-        } finally {
-            $requestStack->pop();
-            $twig->resetGlobals();
-        }
     }
 }

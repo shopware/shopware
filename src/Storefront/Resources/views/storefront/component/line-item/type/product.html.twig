@@ -13,7 +13,7 @@
     {% set showSubtotal = true %}
 {% endif %}
 
-{# `productAvailability` comes from the order route and is absent outside order display mode, hence the default #}
+{# `productAvailability` comes from the page loader and is absent outside order display mode, hence the default #}
 {% set isProductVisible = displayMode !== 'order' or (lineItem.productId and (lineItem.extensions.productAvailability.visible ?? true)) %}
 
 {% set lineItemClasses = 'line-item line-item-' ~ lineItem.type ~ ' is-' ~ displayMode %}

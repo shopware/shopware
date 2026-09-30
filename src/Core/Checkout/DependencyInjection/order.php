@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
-use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemProductAvailabilityExtension;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
@@ -36,7 +35,6 @@ use Shopware\Core\Checkout\Order\OrderAddressService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderExceptionHandler;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
-use Shopware\Core\Checkout\Order\SalesChannel\OrderProductAvailabilityRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
@@ -45,7 +43,6 @@ use Shopware\Core\Checkout\Order\Subscriber\OrderTransactionVersionMergeSubscrib
 use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
-use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
@@ -197,19 +194,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ClockInterface::class),
             service(ExtensionDispatcher::class),
             param('shopware.order.deep_link.expire_days'),
-        ]);
-
-    $services->set(OrderLineItemProductAvailabilityExtension::class)
-        ->tag('shopware.entity.extension');
-
-    $services->set(OrderProductAvailabilityRoute::class)
-        ->public()
-        ->decorate(OrderRoute::class)
-        ->args([
-            service('.inner'),
-            service('sales_channel.product.repository'),
-            service(SystemConfigService::class),
-            service(ProductCloseoutFilterFactory::class),
         ]);
 
     $services->set(CancelOrderRoute::class)

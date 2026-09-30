@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Robots;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -280,127 +282,93 @@ class RobotsPageLoaderTest extends TestCase
     }
 
     /**
-     * #17735 — a domain whose host is a substring of another domain's host (or vice
-     * versa) must not be selected for a request to the other host. Both directions
-     * are covered since the underlying bug (a raw substring split) is order-dependent.
+     * @param list<string> $domainUrls
      */
-    public function testLoadDoesNotSelectDomainWithOverlappingSubstringHostname(): void
+    #[DataProvider('selectsDomainMatchingTheRequestedHostProvider')]
+    #[TestDox('selects the domain for the requested host: $_dataName')]
+    public function testSelectsDomainMatchingTheRequestedHost(string $httpHost, array $domainUrls, string $expectedSitemap, string $expectedDirective): void
     {
-        $request = new Request(server: ['HTTP_HOST' => 'tuev-thueringen.de']);
-        $context = Context::createDefaultContext();
-        $salesChannelId1 = 'test-sales-channel-id-1';
-        $salesChannelId2 = 'test-sales-channel-id-2';
+        $request = new Request(server: ['HTTP_HOST' => $httpHost]);
 
-        // A different sales channel's domain whose host contains the requested
-        // hostname as a substring, but is not an exact match.
-        $unrelatedDomain = $this->createDomain('https://www.tuev-thueringen.de', $salesChannelId1);
-        $matchingDomain = $this->createDomain('https://tuev-thueringen.de', $salesChannelId2);
-
-        $domains = [$unrelatedDomain, $matchingDomain];
+        // Every domain belongs to its own sales channel with its own rule
+        $domains = [];
+        $rules = [];
+        foreach ($domainUrls as $index => $url) {
+            $domains[] = $this->createDomain($url, 'sales-channel-' . $index);
+            $rules[] = 'Disallow: /sales-channel-' . $index . '/';
+        }
 
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
-            'core.basicInformation.robotsRules' => [
-                'Disallow: /unrelated-sales-channel/',
-                'Disallow: /matching-sales-channel/',
-            ],
-        ]);
-
-        $this->setupEventDispatcherExpectation();
-
-        $page = $this->robotsPageLoader->load($request, $context);
-
-        // Only the exact-host domain's sitemap and rules should be present.
-        static::assertEquals(['https://tuev-thueringen.de/sitemap.xml'], $page->getSitemaps());
-
-        $domainRule = $page->getDomainRules()->first();
-        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
-        static::assertCount(1, $domainRule->getDirectives());
-        static::assertSame('/matching-sales-channel/', $domainRule->getDirectives()[0]->value);
-    }
-
-    public function testLoadDoesNotSelectDomainWithOverlappingSubstringHostnameReversed(): void
-    {
-        $request = new Request(server: ['HTTP_HOST' => 'www.tuev-thueringen.de']);
-        $context = Context::createDefaultContext();
-        $salesChannelId1 = 'test-sales-channel-id-1';
-        $salesChannelId2 = 'test-sales-channel-id-2';
-
-        // The requested host is itself a superstring of this unrelated domain's host.
-        $unrelatedDomain = $this->createDomain('https://tuev-thueringen.de', $salesChannelId1);
-        $matchingDomain = $this->createDomain('https://www.tuev-thueringen.de', $salesChannelId2);
-
-        $domains = [$unrelatedDomain, $matchingDomain];
-
-        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
-            'core.basicInformation.robotsRules' => [
-                'Disallow: /unrelated-sales-channel/',
-                'Disallow: /matching-sales-channel/',
-            ],
-        ]);
-
-        $this->setupEventDispatcherExpectation();
-
-        $page = $this->robotsPageLoader->load($request, $context);
-
-        static::assertEquals(['https://www.tuev-thueringen.de/sitemap.xml'], $page->getSitemaps());
-
-        $domainRule = $page->getDomainRules()->first();
-        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
-        static::assertCount(1, $domainRule->getDirectives());
-        static::assertSame('/matching-sales-channel/', $domainRule->getDirectives()[0]->value);
-    }
-
-    public function testLoadMatchesHostIgnoringPortAndCase(): void
-    {
-        $request = new Request(server: ['HTTP_HOST' => 'Example.COM:8000']);
-
-        $this->robotsPageLoader = $this->setupLoaderWithDomains([
-            $this->createDomain('https://www.example.com', 'test-sales-channel-id-1'),
-            $this->createDomain('https://EXAMPLE.com:8000', 'test-sales-channel-id-2'),
-        ], [
-            'core.basicInformation.robotsRules' => [
-                'Disallow: /www-sales-channel/',
-                'Disallow: /matching-sales-channel/',
-            ],
+            'core.basicInformation.robotsRules' => $rules,
         ]);
 
         $this->setupEventDispatcherExpectation();
 
         $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
 
-        static::assertEquals(['https://EXAMPLE.com:8000/sitemap.xml'], $page->getSitemaps());
+        static::assertEquals([$expectedSitemap], $page->getSitemaps());
 
         $domainRule = $page->getDomainRules()->first();
         static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
         static::assertCount(1, $domainRule->getDirectives());
-        static::assertSame('/matching-sales-channel/', $domainRule->getDirectives()[0]->value);
+        static::assertSame($expectedDirective, $domainRule->getDirectives()[0]->value);
+        static::assertSame('', $domainRule->getBasePath());
     }
 
-    public function testLoadFallsBackToContainingHostWhenNoDomainMatchesExactly(): void
+    public static function selectsDomainMatchingTheRequestedHostProvider(): iterable
+    {
+        yield 'exact host wins over a subdomain of another sales channel (#17735)' => [
+            'httpHost' => 'tuev-thueringen.de',
+            'domainUrls' => ['https://www.tuev-thueringen.de', 'https://tuev-thueringen.de'],
+            'expectedSitemap' => 'https://tuev-thueringen.de/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'parent host of another sales channel is never selected (#17735)' => [
+            'httpHost' => 'www.tuev-thueringen.de',
+            'domainUrls' => ['https://tuev-thueringen.de', 'https://www.tuev-thueringen.de'],
+            'expectedSitemap' => 'https://www.tuev-thueringen.de/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'host comparison ignores the port and letter case' => [
+            'httpHost' => 'Example.COM:8000',
+            'domainUrls' => ['https://www.example.com', 'https://EXAMPLE.com:8000'],
+            'expectedSitemap' => 'https://EXAMPLE.com:8000/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'bare host falls back to its subdomain when nothing matches exactly' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['https://www.example.com', 'https://different.org'],
+            'expectedSitemap' => 'https://www.example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-0/',
+        ];
+
+        yield 'fallback ignores hosts that only end with the requested host' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['https://myexample.com', 'https://www.example.com'],
+            'expectedSitemap' => 'https://www.example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+    }
+
+    public function testSelectsNoDomainWhenNoHostMatchesOrIsASubdomain(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com']);
 
+        // `getDomains()` returns this for `example.com`, but it is a different shop
         $this->robotsPageLoader = $this->setupLoaderWithDomains([
-            $this->createDomain('https://www.example.com'),
-            $this->createDifferentOrgDomain('test-sales-channel-id-2'),
+            $this->createDomain('https://myexample.com'),
         ], [
-            'core.basicInformation.robotsRules' => [
-                'Disallow: /www-sales-channel/',
-                'Disallow: /different-sales-channel/',
-            ],
+            'core.basicInformation.robotsRules' => 'Disallow: /unrelated-sales-channel/',
         ]);
 
         $this->setupEventDispatcherExpectation();
 
         $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
 
-        static::assertEquals(['https://www.example.com/sitemap.xml'], $page->getSitemaps());
-
-        $domainRule = $page->getDomainRules()->first();
-        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
-        static::assertCount(1, $domainRule->getDirectives());
-        static::assertSame('/www-sales-channel/', $domainRule->getDirectives()[0]->value);
-        static::assertSame('', $domainRule->getBasePath());
+        $this->assertBasicPageStructure($page, 0, 0, 0);
     }
 
     public function testLoadWithGlobalUserAgentBlocks(): void

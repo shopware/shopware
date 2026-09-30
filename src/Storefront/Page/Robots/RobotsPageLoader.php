@@ -156,8 +156,8 @@ class RobotsPageLoader
 
     /**
      * Selects domains matching the given hostname exactly, preferring HTTPS over HTTP
-     * when the same host has both. Falls back to domains whose host merely contains
-     * the hostname when no domain matches exactly.
+     * when the same host has both. Falls back to subdomains of the hostname (e.g.
+     * `www.example.com` for `example.com`) when no domain matches exactly.
      *
      * @param non-empty-string $hostname
      *
@@ -173,24 +173,24 @@ class RobotsPageLoader
         $requestHost = strtolower(parse_url('http://' . $hostname, \PHP_URL_HOST) ?: $hostname);
 
         $exactMatches = [];
-        $partialMatches = [];
+        $subdomainMatches = [];
 
         foreach ($domains as $domain) {
             $domainHost = strtolower((string) parse_url($domain->getUrl(), \PHP_URL_HOST));
 
             if ($domainHost === $requestHost) {
                 $exactMatches[] = $domain;
-            } elseif (str_contains($domainHost, $requestHost)) {
-                $partialMatches[] = $domain;
+            } elseif (str_ends_with($domainHost, '.' . $requestHost)) {
+                $subdomainMatches[] = $domain;
             }
         }
 
-        // `getDomains()` uses a substring filter, so a host like `www.example.com` shows up for
-        // `example.com` as well. Only use those when nothing matches exactly: crawlers always
-        // fetch robots.txt on the bare host (see FriendsOfShopware/FroshRobotsTxt#3).
+        // `getDomains()` uses a substring filter, so hosts like `www.example.com` or `myexample.com`
+        // show up for `example.com` as well. Only subdomains are used, and only when nothing matches
+        // exactly: crawlers always fetch robots.txt on the bare host (see FriendsOfShopware/FroshRobotsTxt#3).
         $selectedDomains = [];
 
-        foreach ($exactMatches ?: $partialMatches as $domain) {
+        foreach ($exactMatches ?: $subdomainMatches as $domain) {
             $domainUrl = $domain->getUrl();
             $domainPath = (string) (parse_url($domainUrl, \PHP_URL_PATH) ?? '');
 

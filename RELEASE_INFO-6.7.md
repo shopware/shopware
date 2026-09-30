@@ -98,7 +98,7 @@ public static function getSubscribedEvents(): array
 }
 ```
 
-Use `onPre()` to adjust inputs or replace the result, `onPost()` to change the result, and `onError()` to provide a fallback. Decorating the abstract route classes keeps working. A decorator wraps the whole route: it runs before `onPre()` and after `onPost()` listeners, and a decorator that does not call the decorated route skips the extension events.
+Use `onPre()` to adjust inputs or replace the result, `onPost()` to change the result, and `onError()` to provide a fallback. Decorating the abstract route classes keeps working.
 
 ### Digital products follow their max. order quantity again
 

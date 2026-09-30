@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CartItemAddRoute::class)]
 class CartItemAddRouteTest extends TestCase
 {
+    private const SALES_CHANNEL_ID = 'af0eb8b68a5f4e6d95f1cbd4f0bdcb45';
+
     public function testGetDecoratedThrows(): void
     {
         static::expectExceptionObject(new DecorationPatternException(CartItemAddRoute::class));
@@ -61,7 +63,7 @@ class CartItemAddRouteTest extends TestCase
 
     public function testRateLimitationId(): void
     {
-        $cartItemAddRoute = $this->createCartItemAddRoute('line-item-id-127.0.0.1');
+        $cartItemAddRoute = $this->createCartItemAddRoute('line-item-id-127.0.0.1-' . self::SALES_CHANNEL_ID);
 
         $item = [
             'id' => 'line-item-id',
@@ -72,14 +74,14 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item),
             new Cart(Uuid::randomHex()),
-            static::createStub(SalesChannelContext::class),
+            $this->createSalesChannelContext(),
             null
         );
     }
 
     public function testRateLimitationReferenceId(): void
     {
-        $cartItemAddRoute = $this->createCartItemAddRoute('line-item-referenced-id-127.0.0.1');
+        $cartItemAddRoute = $this->createCartItemAddRoute('line-item-referenced-id-127.0.0.1-' . self::SALES_CHANNEL_ID);
 
         $item = [
             'id' => 'line-item-id',
@@ -91,7 +93,7 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item),
             new Cart(Uuid::randomHex()),
-            static::createStub(SalesChannelContext::class),
+            $this->createSalesChannelContext(),
             null
         );
     }
@@ -151,9 +153,10 @@ class CartItemAddRouteTest extends TestCase
         $rateLimiter
             ->expects($this->exactly($expectedCacheKey === null ? 0 : 1))
             ->method('ensureAccepted')
-            ->willReturnCallback(static function (string $route, string $key) use ($expectedCacheKey): void {
+            ->willReturnCallback(static function (string $route, string $key, ?string $salesChannelId = null) use ($expectedCacheKey): void {
                 static::assertSame($route, RateLimiter::CART_ADD_LINE_ITEM);
                 static::assertSame($expectedCacheKey, $key);
+                static::assertSame(self::SALES_CHANNEL_ID, $salesChannelId);
             });
 
         $lineItemFactory = $this->createMock(LineItemFactoryRegistry::class);
@@ -177,6 +180,14 @@ class CartItemAddRouteTest extends TestCase
             $rateLimiter,
             $cartLocker
         );
+    }
+
+    private function createSalesChannelContext(): SalesChannelContext
+    {
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getSalesChannelId')->willReturn(self::SALES_CHANNEL_ID);
+
+        return $context;
     }
 
     /**

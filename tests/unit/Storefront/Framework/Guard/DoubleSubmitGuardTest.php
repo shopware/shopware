@@ -65,7 +65,7 @@ class DoubleSubmitGuardTest extends TestCase
         $marker->expects($this->once())->method('expiresAfter')->with(10);
 
         $cache = $this->createMock(CacheItemPoolInterface::class);
-        $cache->method('getItem')->with(self::markerKey())->willReturn($marker);
+        $cache->expects($this->exactly(3))->method('getItem')->with(self::markerKey())->willReturn($marker);
         $cache->expects($this->once())->method('save')->with($marker)->willReturn(true);
 
         $lock = $this->createAcquiredLock();

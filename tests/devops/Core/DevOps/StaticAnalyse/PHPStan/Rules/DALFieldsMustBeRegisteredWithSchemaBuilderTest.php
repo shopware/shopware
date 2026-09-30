@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DALFieldsMustBeRegisteredWithSchemaBuilder;
 use Shopware\Core\Framework\Log\Package;
 
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DALFieldsMustBeRegisteredWithSchemaBuilderTest extends RuleTestCase
 {
-    #[RunInSeparateProcess]
     public function testRule(): void
     {
         // not in namespace, autoload is passed as true, error

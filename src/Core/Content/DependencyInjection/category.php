@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -70,6 +71,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(CategoryTreePathResolver::class),
             service(DefaultCategoryLevelLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DefaultCategoryLevelLoader::class)

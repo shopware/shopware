@@ -7,7 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -22,7 +23,7 @@ class SystemConfigValidator
      * @internal
      */
     public function __construct(
-        private readonly ConfigurationService $configurationService,
+        private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
         private readonly DataValidator $validator
     ) {
     }
@@ -70,7 +71,7 @@ class SystemConfigValidator
     }
 
     /**
-     * @param array<string, mixed> $formConfig
+     * @param list<SystemConfigTab> $formConfig
      * @param array<string> $inputConfigKeys
      *
      * @return array<string, Constraint[]>
@@ -79,17 +80,15 @@ class SystemConfigValidator
     {
         $constraints = [];
 
-        foreach ($formConfig as $card) {
-            $elements = $card['elements'] ?? [];
+        foreach ($formConfig as $tab) {
+            foreach ($tab->cards as $card) {
+                foreach ($card->elements as $element) {
+                    if (!\in_array($element->name, $inputConfigKeys, true)) {
+                        continue;
+                    }
 
-            foreach ($elements as $element) {
-                if (!\in_array($element['name'], $inputConfigKeys, true)) {
-                    continue;
+                    $constraints[$element->name] = $this->buildConstraintsWithConfigs($element->config, $allowNulls);
                 }
-
-                $elementConfig = $element['config'];
-
-                $constraints[$element['name']] = $this->buildConstraintsWithConfigs($elementConfig, $allowNulls);
             }
         }
 
@@ -129,12 +128,12 @@ class SystemConfigValidator
     }
 
     /**
-     * @return array<string, mixed>
+     * @return list<SystemConfigTab>
      */
     private function getSystemConfigByDomain(string $domain, Context $context): array
     {
         try {
-            return $this->configurationService->getConfiguration($domain, $context);
+            return $this->systemConfigDefinitionService->getConfiguration($domain, $context);
         } catch (SystemConfigException) {
             return [];
         }

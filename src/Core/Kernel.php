@@ -323,7 +323,8 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        asort($plugins);
+        // sort by name, so the hash does not depend on the order in which the plugin loader returns the plugins
+        ksort($plugins);
 
         return Hasher::hash([
             $this->cacheId,

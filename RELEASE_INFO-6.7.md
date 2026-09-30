@@ -162,7 +162,7 @@ public static function getSubscribedEvents(): array
 }
 ```
 
-Use `onPre()` to adjust inputs or replace the result, `onPost()` to change the result, and `onError()` to provide a fallback. Decorating the abstract route classes keeps working.
+Use `onPre()` to change input objects such as the `Criteria` in place or to replace the result, `onPost()` to change the result, and `onError()` to provide a fallback. Decorating the abstract route classes keeps working.
 
 ### Digital products follow their max. order quantity again
 

@@ -95,6 +95,12 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 
 Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
 
+### GARAN labels in mails come from the `garanLabels` template variable
+
+The order confirmation mail reads the GARAN label from the new `garanLabels` template variable. The `sw_garan_label_mail` Twig filter is deprecated. A migration updates the template for shops that never edited it.
+
+If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
@@ -436,9 +442,7 @@ As with the original change, a migration re-applies the template only for shops 
 
 ### GARAN label in the order confirmation mail is embedded as an inline PNG
 
-The order confirmation mail now attaches the GARAN label as an inline PNG instead of an SVG `data:` URI, which Gmail and Outlook do not display. If you customized that template, replace `{% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}` with `{% set garanLabel = garanLabels[nestedItem.productId] ?? null %}` and use the markup from `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
-
-The labels are passed as the template variable `garanLabels`, to mail templates that reference it and have an `order` in their data.
+The order confirmation mail now attaches the GARAN label as an inline PNG instead of an SVG `data:` URI, which Gmail and Outlook do not display. If you customized that template, replace `sw_garan_label_nested_uri` with the new `sw_garan_label_mail` filter as shown in `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
 
 ### Primary/replica connections switch back to the replica between requests
 

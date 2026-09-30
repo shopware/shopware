@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -70,9 +71,14 @@ class GaranLabelMailSubscriber implements EventSubscriberInterface
         $criteria = new Criteria($productIds);
         $criteria->addAssociation('manufacturer');
 
+        // variants inherit the guarantee and manufacturer, admin-triggered mails do not consider inheritance by default
+        $products = $event->getContext()->enableInheritance(
+            fn (Context $context): ProductCollection => $this->productRepository->search($criteria, $context)->getEntities()
+        );
+
         $labels = [];
 
-        foreach ($this->productRepository->search($criteria, $event->getContext())->getEntities() as $product) {
+        foreach ($products as $product) {
             $duration = $this->resolver->resolveDuration($product);
 
             if ($duration === null) {

@@ -310,6 +310,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GaranLabelDurationFormatter::class),
             service('product.repository'),
             service(GaranLabelResolver::class),
+            service(GaranLabelInlineImage::class),
         ])
         ->tag('twig.extension');
 

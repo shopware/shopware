@@ -73,6 +73,23 @@ class GaranLabelMailSubscriberTest extends TestCase
         );
     }
 
+    public function testLoadsProductsWithInheritanceSoVariantsGetTheirParentsLabel(): void
+    {
+        $event = $this->createEvent(['product-id']);
+        static::assertFalse($event->getContext()->considerInheritance(), 'admin-triggered mails come without inheritance');
+
+        $this->createSubscriber([
+            static function (Criteria $criteria, Context $context): ProductCollection {
+                static::assertTrue($context->considerInheritance());
+
+                return new ProductCollection([self::createProduct('product-id', guaranteeConfirmed: true)]);
+            },
+        ])->addLabels($event);
+
+        static::assertArrayHasKey('product-id', $event->getTemplateData()['garanLabels']);
+        static::assertFalse($event->getContext()->considerInheritance(), 'the mail context is left as it was');
+    }
+
     public function testKeepsTheDurationWithoutPreRenderedImage(): void
     {
         $event = $this->createEvent(['product-id']);

@@ -2,13 +2,20 @@
 
 namespace Shopware\Core\Content\Product\Garan;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Mime\Part\DataPart;
 
 /**
- * Attaches the nested label PNGs that a mail references through `sw_garan_label_mail` as inline parts.
+ * Passes the GARAN labels of an order's products to mail templates as `garanLabels`,
+ * and attaches the label PNGs the rendered mail references as inline parts.
  * Symfony Mime links each `cid:<name>` reference to the part with that name when the mail is sent.
  *
  * @internal
@@ -16,15 +23,72 @@ use Symfony\Component\Mime\Part\DataPart;
 #[Package('inventory')]
 class GaranLabelMailSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly GaranLabelInlineImage $inlineImage)
-    {
+    private const TEMPLATE_DATA_KEY = 'garanLabels';
+
+    /**
+     * @param EntityRepository<ProductCollection> $productRepository
+     */
+    public function __construct(
+        private readonly GaranLabelInlineImage $inlineImage,
+        private readonly EntityRepository $productRepository,
+        private readonly GaranLabelResolver $resolver,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
+            MailBeforeValidateEvent::class => 'addLabels',
             MailBeforeSentEvent::class => 'embedLabelImages',
         ];
+    }
+
+    public function addLabels(MailBeforeValidateEvent $event): void
+    {
+        $data = $event->getData();
+        $template = ($data['contentHtml'] ?? '') . ($data['contentPlain'] ?? '');
+
+        if (!str_contains($template, self::TEMPLATE_DATA_KEY)) {
+            return;
+        }
+
+        $order = $event->getTemplateData()['order'] ?? null;
+
+        if (!$order instanceof OrderEntity) {
+            return;
+        }
+
+        $productIds = array_values(array_unique(
+            $order->getLineItems()?->fmap(static fn (OrderLineItemEntity $lineItem): ?string => $lineItem->getProductId()) ?? []
+        ));
+
+        // empty criteria would load every product
+        if ($productIds === []) {
+            return;
+        }
+
+        $criteria = new Criteria($productIds);
+        $criteria->addAssociation('manufacturer');
+
+        $labels = [];
+
+        foreach ($this->productRepository->search($criteria, $event->getContext())->getEntities() as $product) {
+            $duration = $this->resolver->resolveDuration($product);
+
+            if ($duration === null) {
+                continue;
+            }
+
+            // `cid` is null for durations without an image, so the template falls back to the duration text
+            $name = $this->inlineImage->getName((int) $product->getGuaranteeMonths());
+
+            $labels[$product->getId()] = [
+                'cid' => $name !== null ? 'cid:' . $name : null,
+                'duration' => $duration,
+            ];
+        }
+
+        $event->addTemplateData(self::TEMPLATE_DATA_KEY, $labels);
     }
 
     public function embedLabelImages(MailBeforeSentEvent $event): void

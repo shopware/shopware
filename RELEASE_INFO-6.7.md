@@ -436,7 +436,9 @@ As with the original change, a migration re-applies the template only for shops 
 
 ### GARAN label in the order confirmation mail is embedded as an inline PNG
 
-The order confirmation mail now attaches the GARAN label as an inline PNG instead of an SVG `data:` URI, which Gmail and Outlook do not display. If you customized that template, replace `sw_garan_label_nested_uri` with the new `sw_garan_label_mail` filter as shown in `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
+The order confirmation mail now attaches the GARAN label as an inline PNG instead of an SVG `data:` URI, which Gmail and Outlook do not display. If you customized that template, replace `{% set garanLabelDataUri = nestedItem.productId|sw_garan_label_nested_uri(context) %}` with `{% set garanLabel = garanLabels[nestedItem.productId] ?? null %}` and use the markup from `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
+
+The labels are passed as the template variable `garanLabels`, to mail templates that reference it and have an `order` in their data.
 
 ### Primary/replica connections switch back to the replica between requests
 

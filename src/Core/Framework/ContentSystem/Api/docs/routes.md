@@ -43,8 +43,8 @@ Load the layout named by `{layoutId}`, apply the operation, and commit through t
 
 ## Introspection
 
-Served by `Framework/Api/Controller/InfoController`, paired with these actions by the Admin UI: `content-system-element-types`, `content-system-data-loaders`, `content-system-entity-types`, `content-system-style-options`, `content-system-root-sources`.
+Served by `Framework/Api/Controller/InfoController`, paired with these actions by the Admin UI: `content-system-element-types`, `content-system-data-loaders`, `content-system-entity-types`, `content-system-style-options`, `content-system-root-sources`, `content-system-layout-presets` (the preset ids `insert-preset` takes).
 
 ## OpenAPI
 
-Every route above carries an entry under `AdminApi/paths/`: `content-system-preview.json`, `content-system-diagnose.json`, `content-system-layout-mutation.json`, `content-system-layout-persisted-mutation.json`, plus one file per introspection route (`content-system-{element,data-loader,entity}-types.json`, `content-system-style-options.json`, `content-system-root-sources.json`). The path files carry the request and response schemas; the human contract with its error model and examples is indexed in [../README.md](../README.md#endpoint-reference).
+Every route above carries an entry under `AdminApi/paths/`: `content-system-preview.json`, `content-system-diagnose.json`, `content-system-layout-mutation.json`, `content-system-layout-persisted-mutation.json`, plus one file per introspection route (`content-system-{element,data-loader,entity}-types.json`, `content-system-style-options.json`, `content-system-root-sources.json`, `content-system-layout-presets.json`). The path files carry the request and response schemas; the human contract with its error model and examples is indexed in [../README.md](../README.md#endpoint-reference).

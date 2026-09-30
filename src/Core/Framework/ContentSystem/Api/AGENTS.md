@@ -7,7 +7,7 @@
 - `ContentPreviewController` - One route, mints a token-addressed preview URL; delegates orchestration to `ContentPreviewPageBuilder`
 - `ContentPreviewPayloadStore` - `store()` / `load()` for the token-addressed preview envelope, cached for five minutes
 - `ContentDiagnoseController` - Resolve-and-diagnose over a request draft; never reads or writes the stored `content_layout` entity
-- `LayoutMutationController` - Ten draft routes, one per `Mutation/Op`, each returning `MutationResponse` without persisting
+- `LayoutMutationController` - Ten draft routes, one per `Mutation/Op`, each returning `MutationResponse` without persisting; `insert-preset` alone resolves its operand from the preset registry rather than the request
 - `ContentLayoutMutationController` - The persisted counterpart: nine routes that delegate to `Mutation/PersistedLayoutMutator::mutate()`
 - Request DTOs - One envelope per action, bound with `#[MapRequestPayload]` on the action parameter
 - `DraftLayoutDecoder` - The one decode path for a request-supplied tree: `decode()`, `decodeOne()`, `decodeLintable()`

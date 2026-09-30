@@ -463,6 +463,10 @@ PHP_EOL,
             ThemeFileResolver::STYLE_FILES => new FileCollection(),
         ]);
 
+        // The MD5 path builder compiles into the same directory, so there is no previous one to retire
+        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
+        $this->unusedThemeDirectoryDeleter->expects($this->never())->method('markAsRetired');
+
         $compiler = $this->getThemeCompiler();
 
         $config = new StorefrontPluginConfiguration('test');
@@ -637,6 +641,9 @@ PHP_EOL,
         $scssPhpCompiler = $this->createMock(ScssPhpCompiler::class);
         $scssPhpCompiler->expects($this->once())->method('compileString')->willThrowException(new \Exception());
 
+        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
+        $this->unusedThemeDirectoryDeleter->expects($this->never())->method('markAsRetired');
+
         $compiler = $this->getThemeCompiler(scssPhpCompiler: $scssPhpCompiler);
 
         $config = new StorefrontPluginConfiguration('test');
@@ -686,6 +693,9 @@ PHP_EOL,
         $this->pathBuilder->method('assemblePath')->willReturn('current');
         $this->pathBuilder->method('generateNewPath')->willReturn('new');
         $this->pathBuilder->expects($this->never())->method('saveSeed');
+
+        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
+        $this->unusedThemeDirectoryDeleter->expects($this->never())->method('markAsRetired');
 
         $compiler = $this->getThemeCompiler(
             copyBatchInputFactory: $copyBatchInputFactory,
@@ -748,6 +758,51 @@ PHP_EOL,
             ->with(TestDefaults::SALES_CHANNEL, 'test');
 
         $compiler = $this->getThemeCompiler(scssPhpCompiler: $scssPhpCompiler);
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['assets']);
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'test',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            true,
+            Context::createDefaultContext()
+        );
+
+        static::assertTrue($this->filesystem->fileExists('theme/current/all.js'));
+    }
+
+    public function testFailingRetiredMarkerDoesNotFailCompilation(): void
+    {
+        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
+        $this->unusedThemeDirectoryDeleter->expects($this->once())
+            ->method('markAsRetired')
+            ->willThrowException(UnableToWriteFile::atLocation('theme/current/.retired'));
+
+        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $this->cacheInvalidator->expects($this->once())->method('invalidate');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::stringContains('theme directory "current"'));
+
+        $this->themeFileResolver->method('resolveFiles')->willReturn(
+            [
+                ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
+                ThemeFileResolver::STYLE_FILES => new FileCollection()]
+        );
+
+        $this->filesystem->createDirectory('theme/current');
+        $this->filesystem->write('theme/current/all.js', '');
+
+        $this->pathBuilder = static::createStub(MD5ThemePathBuilder::class);
+        $this->pathBuilder->method('assemblePath')->willReturn('current');
+        $this->pathBuilder->method('generateNewPath')->willReturn('new');
+
+        $compiler = $this->getThemeCompiler(logger: $logger);
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['assets']);

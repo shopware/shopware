@@ -15,15 +15,15 @@ use Shopware\Core\Framework\Log\Package;
  * The compiler marks the previous directory when it switches a sales channel to a new one,
  * so the grace period starts at the switch and cached responses referencing the previous
  * directory keep working. Directories without a marker are only marked here once their
- * files are older than the grace period, so a compilation that is still writing its
- * directory is never mistaken for a retired one.
+ * files are older than the grace period or when they contain no files at all, so a
+ * compilation that is still writing its directory is never mistaken for a retired one.
  *
  * @internal
  */
 #[Package('discovery')]
 class UnusedThemeDirectoryDeleter
 {
-    public const RETIRED_MARKER_FILE = '.retired';
+    private const RETIRED_MARKER_FILE = '.retired';
 
     private const GRACE_PERIOD_HOURS = 24;
 
@@ -82,7 +82,7 @@ class UnusedThemeDirectoryDeleter
             $retiredAt = $this->getRetiredAt($markerPath);
             if ($retiredAt === null) {
                 $newestFileTimestamp = $this->getNewestFileTimestamp($themePath);
-                if ($newestFileTimestamp !== null && $newestFileTimestamp <= $graceBoundary) {
+                if ($newestFileTimestamp === null || $newestFileTimestamp <= $graceBoundary) {
                     $this->markAsRetired($themePath);
                 }
 

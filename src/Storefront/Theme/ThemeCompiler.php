@@ -135,13 +135,23 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
-        if ($themePrefix !== $oldThemePrefix) {
-            $this->unusedThemeDirectoryDeleter->markAsRetired('theme' . \DIRECTORY_SEPARATOR . $oldThemePrefix);
-        }
-
         $this->cacheInvalidator->invalidate([
             ThemeConfigCacheInvalidator::buildCacheTag($themeId),
         ]);
+
+        if ($themePrefix === $oldThemePrefix) {
+            return;
+        }
+
+        // The marker only schedules the cleanup, a failed write must not fail the compilation
+        try {
+            $this->unusedThemeDirectoryDeleter->markAsRetired('theme' . \DIRECTORY_SEPARATOR . $oldThemePrefix);
+        } catch (FilesystemException $e) {
+            $this->logger->warning(
+                \sprintf('Could not mark previous theme directory "%s" as retired: %s', $oldThemePrefix, $e->getMessage()),
+                ['exception' => $e]
+            );
+        }
     }
 
     /**

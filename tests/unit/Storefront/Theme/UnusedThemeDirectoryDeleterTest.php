@@ -91,6 +91,15 @@ class UnusedThemeDirectoryDeleterTest extends TestCase
         static::assertFalse($this->filesystem->fileExists('theme/inProgressPrefix/.retired'));
     }
 
+    public function testEmptyDirectoryIsMarkedAsRetired(): void
+    {
+        $this->filesystem->createDirectory('theme/emptyPrefix');
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+
+        static::assertSame((string) $this->timestamp(), $this->filesystem->read('theme/emptyPrefix/.retired'));
+    }
+
     public function testMarkAsRetiredWritesMarker(): void
     {
         $this->filesystem->write('theme/oldPrefix/css/all.css', 'css');

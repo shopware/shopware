@@ -28,7 +28,7 @@ use function Symfony\Component\String\u;
  *
  * @extends AbstractContentDataLoader<CategoryCollection>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ServiceMenuDataLoader extends AbstractContentDataLoader
 {
     public const SOURCE = 'service_menu';

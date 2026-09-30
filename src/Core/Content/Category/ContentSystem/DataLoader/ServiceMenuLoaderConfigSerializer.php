@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ServiceMenuLoaderConfigSerializer extends AbstractContentDataLoaderConfigSerializer
 {
     public static function getSource(): string

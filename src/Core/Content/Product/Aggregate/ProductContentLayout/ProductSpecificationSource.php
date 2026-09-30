@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @final
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class ProductSpecificationSource extends AbstractSpecificationSource
 {
     /**

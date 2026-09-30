@@ -138,15 +138,12 @@ export function styleOptionToElementProperty(
                   'object',
               ]
             : option.type,
-        // Unused while mappable stays false, but the field is not optional and a style option is a single
-        // value either way.
         contextTypes: ['single'],
         translatable: false,
         enum: option.enum,
         default: option.default,
         required: false,
-        // A style option is presentation, not content: there is nothing on the layout's entity to map it to, inline
-        // or otherwise.
+        // A style option is presentation, not content: there is nothing to map.
         mappable: false,
         inlineMappable: false,
         title: typeof adminUI.label === 'string' && adminUI.label.length > 0 ? adminUI.label : key,

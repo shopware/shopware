@@ -35,7 +35,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class ProductMappingCandidateProvider extends AbstractMappingCandidateProvider
 {
     private const SNIPPET_ROOT = 'sw-experience-studio.mapping.product';

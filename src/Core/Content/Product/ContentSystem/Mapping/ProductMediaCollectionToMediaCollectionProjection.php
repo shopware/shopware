@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class ProductMediaCollectionToMediaCollectionProjection extends AbstractContentPropertyProjection
 {
     final public const NAME = 'product_media_collection_to_media_collection';

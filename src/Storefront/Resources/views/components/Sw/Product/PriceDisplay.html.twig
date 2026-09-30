@@ -12,7 +12,6 @@
     product = null,
     showTaxInfo = false,
     advancedPricing = true,
-    jsonLd = false,
 %}
 
 {% set attributeDefaults = {
@@ -150,34 +149,6 @@
             {% if advancedPricing %}
                 <twig:Sw:Product:AdvancedPrices :product="product" />
             {% endif %}
-
-            {#
-                Structured pricing data for search engines — a product detail page extra: a single Offer,
-                or an AggregateOffer spanning the tiered price range.
-            #}
-            {% block component_product_price_json_ld %}
-                {% if jsonLd %}
-                    {% if product.calculatedPrices.count > 1 %}
-                        {% set unitPrices = product.calculatedPrices|map(tier => tier.unitPrice) %}
-                        {% set offer = {
-                            '@type': 'AggregateOffer',
-                            priceCurrency: context.currency.isoCode,
-                            lowPrice: min(unitPrices),
-                            highPrice: max(unitPrices),
-                            offerCount: product.calculatedPrices.count,
-                        } %}
-                    {% else %}
-                        {% set offerPrice = product.calculatedPrices.count == 1 ? product.calculatedPrices.first : product.calculatedPrice %}
-                        {% set offer = {
-                            '@type': 'Offer',
-                            priceCurrency: context.currency.isoCode,
-                            price: offerPrice.unitPrice,
-                        } %}
-                    {% endif %}
-
-                    <script type="application/ld+json">{{ {'@context': 'https://schema.org'}|merge(offer)|json_encode|raw }}</script>
-                {% endif %}
-            {% endblock %}
         {% endif %}
     </div>
 {% endblock %}

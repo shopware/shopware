@@ -69,8 +69,6 @@ describe('src/app/filter/media-name.filter.js', () => {
     });
 
     it('falls back when a representing media has no name at all', () => {
-        expect(
-            mediaNameFilter({ mediaType: { name: 'SPATIAL_SCENE' } }, 'fallback'),
-        ).toBe('fallback');
+        expect(mediaNameFilter({ mediaType: { name: 'SPATIAL_SCENE' } }, 'fallback')).toBe('fallback');
     });
 });

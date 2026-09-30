@@ -143,7 +143,7 @@ class ContainerCartProcessorTest extends TestCase
                 ]),
             ]),
             // v6.8: PercentagePriceCalculator scales and rounds each calculated tax instead of recalculating
-            new CalculatedPrice(97.56, 97.56, new CalculatedTaxes(Feature::isActive('v6.8.0.0') ? [19 => 7.78, 7 => 3.19] : [19 => 7.77, 7 => 3.20]), new HighTaxes()),
+            new CalculatedPrice(97.56, 97.56, new CalculatedTaxes(Feature::isActive('PROPORTIONAL_CART_TAXES') ? [19 => 7.78, 7 => 3.19] : [19 => 7.77, 7 => 3.20]), new HighTaxes()),
         ];
     }
 }

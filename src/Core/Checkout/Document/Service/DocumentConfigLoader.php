@@ -101,7 +101,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      */
     private function encodeLogoUrl(DocumentConfiguration $config): void
     {
-        if (Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('MEDIA_URL_PATH_ENCODING')) {
             return;
         }
 

@@ -71,9 +71,10 @@
         {% endif %}
 
         {% for thumbnail in thumbnails %}
-            {% set thumbnailUrl = thumbnail.url|sw_encode_url %}
-            {% if feature('v6.8.0.0') %}
+            {% if feature('MEDIA_URL_PATH_ENCODING') %}
                 {% set thumbnailUrl = thumbnail.url %}
+            {% else %}
+                {% set thumbnailUrl = thumbnail.url|sw_encode_url %}
             {% endif %}
 
             {% set srcsetValues = srcsetValues|merge([thumbnailUrl ~ ' ' ~ thumbnail.width ~ 'w']) %}

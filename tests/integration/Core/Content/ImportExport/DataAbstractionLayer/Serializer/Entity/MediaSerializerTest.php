@@ -150,9 +150,12 @@ class MediaSerializerTest extends TestCase
         $eventDispatcher->dispatch($writtenEvent, 'media.written');
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
     public function testUrlWithWhitespaces(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestIfActive('MEDIA_URL_PATH_ENCODING', $this);
         $context = Context::createDefaultContext();
         $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);
         $mediaDefinition = static::getContainer()->get(MediaDefinition::class);

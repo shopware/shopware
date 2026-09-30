@@ -1,4 +1,5 @@
 import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
+import { isFilelessMediaType } from 'src/core/service/utils/media-type.utils';
 import template from './sw-media-preview-v2.html.twig';
 import './sw-media-preview-v2.scss';
 
@@ -177,6 +178,12 @@ export default {
         },
 
         placeholderIcon() {
+            // Checked before the mime type, because media that never carries a file has none and
+            // would otherwise be rendered as broken.
+            if (isFilelessMediaType(this.trueSource)) {
+                return 'icons-multicolor-file-thumbnail-glb';
+            }
+
             if (!this.mimeType) {
                 return 'icons-multicolor-file-thumbnail-broken';
             }

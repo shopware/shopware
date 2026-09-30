@@ -108,7 +108,7 @@ export default class SpatialProductSliderRenderUtil {
      * @param a
      * @private
      */
-    private indexChangedEvent(a: { index: number }) {
+    private  indexChangedEvent(a: { index: number }) {
         const active = this.plugin.sliderIndex == a.index;
 
         // Start or stop rendering when the slide is active or not

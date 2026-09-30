@@ -73,7 +73,7 @@ class CriteriaQueryBuilder
 
         $this->addQueries($definition, $criteria, $query, $context);
 
-        if ($criteria->getLimit() === 1) {
+        if ($criteria->getLimit() === 1 && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NONE) {
             $query->removeState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
         }
 

@@ -415,6 +415,62 @@ class EntitySearcherTest extends TestCase
         yield 'empty page past the end' => [['offset' => 5, 'limit' => 1, 'expectedEntities' => 0]];
     }
 
+    #[DataProvider('limitProvider')]
+    public function testExactTotalCountsEntitiesWithAToManyFilter(int $limit): void
+    {
+        $ids = $this->createProductsWithTwoMatchingTagsEach();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', $ids->getList(['p1', 'p2'])));
+        $criteria->addFilter(new ContainsFilter('product.tags.name', 'limit-one'));
+        $criteria->setLimit($limit);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+    }
+
+    #[DataProvider('limitProvider')]
+    public function testExactTotalCountsEntitiesWithASearchTerm(int $limit): void
+    {
+        $ids = $this->createProductsWithTwoMatchingTagsEach();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', $ids->getList(['p1', 'p2'])));
+        $criteria->setTerm('limit one total');
+        $criteria->setLimit($limit);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+    }
+
+    public function testNextPagesTotalCountsEntitiesWithAToManyFilterAndALimitOfOne(): void
+    {
+        $ids = $this->createProductsWithTwoMatchingTagsEach();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', $ids->getList(['p1', 'p2'])));
+        $criteria->addFilter(new ContainsFilter('product.tags.name', 'limit-one'));
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertSame(2, $result->getTotal());
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function limitProvider(): iterable
+    {
+        yield 'limit 1' => [1];
+        yield 'limit 2' => [2];
+    }
+
     public function testJsonListEqualsAnyFilter(): void
     {
         $redId = Uuid::randomHex();
@@ -711,5 +767,19 @@ class EntitySearcherTest extends TestCase
         );
 
         static::assertSame(0, $result->getTotal());
+    }
+
+    private function createProductsWithTwoMatchingTagsEach(): IdsCollection
+    {
+        $ids = new IdsCollection();
+
+        $this->productRepository->create([
+            (new ProductBuilder($ids, 'p1'))->name('limit one total')->price(100)
+                ->tag('limit-one-a')->tag('limit-one-b')->build(),
+            (new ProductBuilder($ids, 'p2'))->name('limit one total')->price(100)
+                ->tag('limit-one-c')->tag('limit-one-d')->build(),
+        ], Context::createDefaultContext());
+
+        return $ids;
     }
 }

@@ -91,6 +91,11 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
 
+### MCP servers run on `symfony/mcp-bundle` 0.14
+
+Shopware now requires `symfony/mcp-bundle` 0.14.1, still on `mcp/sdk` 0.8. The extension tags and the registration described for 6.7.15.0 are unchanged.
+
+One behaviour changes for extensions: a `%` in MCP metadata, for example a tool description or schema such as "discount in %", is now kept as written. Before, the bundle read it as a container parameter placeholder, which either broke the container build ("non-existent parameter") or changed the text. If your extension worked around that by writing `%%`, remove the workaround, or the description now shows `%%`.
 ### Digital products follow their max. order quantity again
 
 Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.

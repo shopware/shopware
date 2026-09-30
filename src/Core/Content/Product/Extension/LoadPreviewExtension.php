@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Extension;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\Extensions\Extension;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,7 +40,15 @@ final class LoadPreviewExtension extends Extension
          *
          * @description Allows you to access to the current customer/sales-channel context
          */
-        public readonly SalesChannelContext $context
+        public readonly SalesChannelContext $context,
+        /**
+         * @public
+         *
+         * @description The active post filters of the listing. A configured main variant is only used as preview if it matches them.
+         *
+         * @var list<Filter>
+         */
+        public readonly array $postFilters = []
     ) {
     }
 }

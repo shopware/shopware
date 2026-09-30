@@ -33,6 +33,17 @@ runs:
         keep-composer-tools: ${{ inputs.keep-composer-tools }}
         shopware-version: ${{ github.ref }}
         shopware-repository: ${{ github.repository }}
+        # setup-shopware's default extension list plus zstd, which CartCompressorTest and RedisCartPersisterTest
+        # skip without; keep in sync with the action's default when it changes.
+        php-extensions: "gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath, pcov, zip, zstd"
+
+    - name: Verify the PHP extensions the suites guard on are loaded
+      shell: bash
+      # a missing extension must fail the run, the tests that need it would only skip
+      run: |
+        for extension in imagick pdo_sqlite zstd; do
+          php -m | grep -qix "$extension" || { echo "The $extension PHP extension is not loaded"; exit 1; }
+        done
 
     - name: Wait for OpenSearch/Elasticsearch
       if: ${{ inputs.needs-opensearch == 'true' }}

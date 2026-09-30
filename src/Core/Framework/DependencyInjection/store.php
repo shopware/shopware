@@ -58,7 +58,7 @@ use Shopware\Core\Framework\Store\Services\TrackingEventClient;
 use Shopware\Core\Framework\Store\Subscriber\ExtensionChangedSubscriber;
 use Shopware\Core\Framework\Store\Subscriber\LicenseHostChangedSubscriber;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
@@ -199,7 +199,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AppLoader::class),
             service(SourceResolver::class),
-            service(ConfigurationService::class),
+            service(SystemConfigDefinitionService::class),
             service(LocaleProvider::class),
             service(LanguageLocaleCodeProvider::class),
             service(InAppPurchase::class),
@@ -238,8 +238,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppLoader::class),
             service(AppLifecycle::class),
             service(AppStorage::class),
-            service('sales_channel.repository'),
-            service('theme.repository')->nullOnInvalid(),
+            tagged_iterator('shopware.store.extension_removal_validator'),
             service(AppConfirmationDeltaProvider::class),
         ]);
 

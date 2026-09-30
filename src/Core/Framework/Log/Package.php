@@ -18,6 +18,14 @@ final class Package
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';
 
     /**
+     * Cache of the resolved package name per class. The `#[Package]` attribute is immutable metadata,
+     * so the reflection only needs to run once per class (this is invoked per Monolog record).
+     *
+     * @var array<string, string|null>
+     */
+    private static array $packageCache = [];
+
+    /**
      * @param PackageString $package
      */
     public function __construct(public string $package)
@@ -48,14 +56,14 @@ final class Package
      */
     private static function evaluateAttributes(string $class): ?string
     {
+        if (\array_key_exists($class, self::$packageCache)) {
+            return self::$packageCache[$class];
+        }
+
         $reflection = new \ReflectionClass($class);
 
         $attrs = $reflection->getAttributes(Package::class);
 
-        if ($attrs !== []) {
-            return $attrs[0]->getArguments()[0] ?? null;
-        }
-
-        return null;
+        return self::$packageCache[$class] = $attrs !== [] ? ($attrs[0]->getArguments()[0] ?? null) : null;
     }
 }

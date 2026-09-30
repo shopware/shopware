@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core;
 
+use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -29,6 +30,8 @@ use Symfony\UX\TwigComponent\TwigComponentBundle;
 #[CoversClass(Kernel::class)]
 class KernelTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     /**
      * A path that is never touched: the tests below only compose strings from it.
      */
@@ -53,12 +56,48 @@ class KernelTest extends TestCase
         static::assertStringStartsWith(self::PROJECT_DIR . '/var/cache/fooBar_h', $this->createKernel()->getCacheDir());
     }
 
+    public function testMajorFeatureEnvironmentChangesCacheDir(): void
+    {
+        $kernel = $this->createKernel();
+
+        $this->setEnvVars(['FEATURE_ALL' => 'false', 'V6_8_0_0' => 'false']);
+        $inactiveCacheDir = $kernel->getCacheDir();
+
+        $this->setEnvVars(['V6_8_0_0' => 'true']);
+        static::assertNotSame($inactiveCacheDir, $kernel->getCacheDir());
+
+        $this->setEnvVars(['V6_8_0_0' => null, 'FEATURE_ALL' => 'v6.8.0.0']);
+        static::assertNotSame($inactiveCacheDir, $kernel->getCacheDir());
+    }
+
+    public function testUnrelatedFeatureEnvironmentDoesNotChangeCacheDir(): void
+    {
+        $kernel = $this->createKernel();
+
+        $this->setEnvVars(['FEATURE_ALL' => 'false', 'TELEMETRY_METRICS' => 'false']);
+        $cacheDir = $kernel->getCacheDir();
+
+        $this->setEnvVars(['TELEMETRY_METRICS' => 'true']);
+        static::assertSame($cacheDir, $kernel->getCacheDir());
+
+        $this->setEnvVars(['V9_9_9_9' => 'true']);
+        static::assertSame($cacheDir, $kernel->getCacheDir());
+    }
+
+    public function testConfiguredBuildDirDoesNotVaryWithMajorFeature(): void
+    {
+        $this->setEnvVars(['APP_BUILD_DIR' => '/build-dir', 'V6_8_0_0' => 'false']);
+        $kernel = $this->createKernel();
+
+        static::assertSame('/build-dir/fooBar', $kernel->getBuildDir());
+
+        $this->setEnvVars(['V6_8_0_0' => 'true']);
+        static::assertSame('/build-dir/fooBar', $kernel->getBuildDir());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRegisterBundlesAutoAddsTwigComponentBundleWhenMissingPreV68(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
-        $this->expectUserDeprecationMessageMatches('/TwigComponentBundle bundle should be added/');
-
         $kernel = $this->createKernel(projectDir: self::PROJECT_WITHOUT_TWIG_COMPONENT_BUNDLE);
 
         $bundles = iterator_to_array($kernel->registerBundles());
@@ -69,10 +108,9 @@ class KernelTest extends TestCase
         )));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testRegisterBundlesDoesNotDuplicateTwigComponentBundleWhenConfiguredPreV68(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $kernel = $this->createKernel(projectDir: self::PROJECT_WITH_TWIG_COMPONENT_BUNDLE);
 
         $bundles = iterator_to_array($kernel->registerBundles());
@@ -200,7 +238,7 @@ class KernelTest extends TestCase
         return new KernelStub(
             $environment,
             true,
-            static::createStub(StaticKernelPluginLoader::class),
+            new StaticKernelPluginLoader(new ClassLoader()),
             'cacheId',
             '6.6.6',
             static::createStub(Connection::class),

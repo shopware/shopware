@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -37,6 +38,13 @@ class CustomerMailGreetingTest extends TestCase
         'de-plain.html.twig',
         'de-html.html.twig',
     ];
+
+    private HtmlSanitizer $sanitizer;
+
+    protected function setUp(): void
+    {
+        $this->sanitizer = new HtmlSanitizer(cacheEnabled: false);
+    }
 
     #[DataProvider('templateProvider')]
     public function testACompanyAccountWithoutAContactPersonIsGreetedByItsCompany(string $type, string $file): void
@@ -131,7 +139,7 @@ class CustomerMailGreetingTest extends TestCase
     {
         foreach (explode("\n", $rendered) as $line) {
             if (str_contains($line, 'Acme GmbH') || str_contains($line, 'Lovelace')) {
-                return trim(strip_tags($line));
+                return trim($this->sanitizer->stripTags($line));
             }
         }
 

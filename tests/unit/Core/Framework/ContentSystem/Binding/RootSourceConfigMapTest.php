@@ -98,4 +98,47 @@ class RootSourceConfigMapTest extends TestCase
 
         static::assertSame(['entity' => 'media'], RootSourceConfigMap::collapse($config, null));
     }
+
+    #[TestDox('branches returns the config as a single branch when it carries no scoped map')]
+    public function testBranchesReturnsSingleBranchForUnscopedConfig(): void
+    {
+        $config = ['entity' => 'media', 'property' => 'mediaId'];
+
+        static::assertSame([$config], RootSourceConfigMap::branches($config));
+    }
+
+    #[TestDox('branches returns a single empty branch for an empty config')]
+    public function testBranchesReturnsSingleBranchForEmptyConfig(): void
+    {
+        static::assertSame([[]], RootSourceConfigMap::branches([]));
+    }
+
+    #[TestDox('branches returns one collapsed config per root source a scoped map names')]
+    public function testBranchesCollapsesOnePerRootSource(): void
+    {
+        $config = [
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+            'type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']],
+            'referrerCategoryProperty' => '{{referrerCategoryId}}',
+        ];
+
+        static::assertSame([
+            ['property' => 'productId', 'type' => 'product', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
+            ['property' => 'categoryId', 'type' => 'category', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
+        ], RootSourceConfigMap::branches($config));
+    }
+
+    #[TestDox('branches unions the root sources across scoped maps, dropping a key absent for a branch')]
+    public function testBranchesUnionsRootSourcesAcrossScopedMaps(): void
+    {
+        $config = [
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+            'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
+        ];
+
+        static::assertSame([
+            ['property' => 'productId', 'type' => 'product'],
+            ['property' => 'categoryId'],
+        ], RootSourceConfigMap::branches($config));
+    }
 }

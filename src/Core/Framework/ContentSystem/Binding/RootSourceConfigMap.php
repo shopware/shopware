@@ -58,4 +58,26 @@ final class RootSourceConfigMap
 
         return $collapsed;
     }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function branches(array $config): array
+    {
+        $rootSources = array_unique(array_merge(...array_map(
+            static fn (mixed $value): array => array_keys(self::scopeMap($value) ?? []),
+            array_values($config)
+        )));
+
+        if ($rootSources === []) {
+            return [$config];
+        }
+
+        return array_map(
+            static fn (string $rootSource): array => self::collapse($config, $rootSource),
+            array_values($rootSources),
+        );
+    }
 }

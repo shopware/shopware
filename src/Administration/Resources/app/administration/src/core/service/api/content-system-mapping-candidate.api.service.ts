@@ -16,6 +16,7 @@ import ApiService from '../api.service';
  */
 export interface ContentSystemMappingCandidate {
     path: string;
+    source: { type: string; id: string; config?: Record<string, unknown>; path?: string };
     label: string;
     description: string;
     group: string;

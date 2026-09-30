@@ -15,8 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  * against the root-ambient set — `Sw:Product:Listing` receives the page's listing as a root-scoped consumer
  * keyed `productListing` aliased onto its declared `listing` property.
  *
- * A mapping carries its catalogued path explicitly in {@see ContextConsumer::$sourcePath}; ordinary wiring
- * never does. Its consumer-map key names the destination property, so one path may feed several properties.
+ * A mapping carries a typed source reference in {@see ContextConsumer::$source}; ordinary wiring never does. Its consumer-map key names the destination property, so one path may feed several properties.
  *
  * This lives in one place because three layers ask the question and must answer it identically:
  * {@see StoredMappingInspector} decides admissibility for the write gate and the diagnose routes,
@@ -33,7 +32,7 @@ final class MappingConsumers
 {
     public function isMapping(ContextConsumer $consumer): bool
     {
-        return $consumer->sourcePath !== null;
+        return $consumer->source !== null;
     }
 
     /**
@@ -50,12 +49,12 @@ final class MappingConsumers
         $paths = [];
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            if (!$this->isMapping($consumer)) {
+            $source = $consumer->source;
+            if ($source === null) {
                 continue;
             }
 
-            // Non-null by isMapping().
-            $paths[(string) $consumerKey] = (string) $consumer->sourcePath;
+            $paths[(string) $consumerKey] = $source->displayName();
         }
 
         return $paths;

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
@@ -28,7 +29,7 @@ final class MapProperty extends AbstractLayoutMutation
         private readonly string $rootSource,
         private readonly string $elementId,
         private readonly string $propertyKey,
-        private readonly string $sourcePath,
+        private readonly MappingSourceReference $source,
     ) {
     }
 
@@ -47,10 +48,10 @@ final class MapProperty extends AbstractLayoutMutation
             throw ContentSystemException::propertyNotMappable($node->component, $this->propertyKey);
         }
 
-        $candidate = $this->candidateRegistry->forRootSource($this->rootSource)[$this->sourcePath] ?? null;
+        $candidate = $this->candidateRegistry->forRootSource($this->rootSource)[$this->source->displayName()] ?? null;
 
-        if ($candidate === null) {
-            throw ContentSystemException::unknownMappingPath($this->sourcePath, $this->rootSource);
+        if ($candidate === null || !$candidate->source->isSameAs($this->source)) {
+            throw ContentSystemException::unknownMappingPath($this->source->displayName(), $this->rootSource);
         }
 
         $declaredType = $property->type()->type();
@@ -73,7 +74,7 @@ final class MapProperty extends AbstractLayoutMutation
                 continue;
             }
 
-            if ((string) $contextKey !== $this->propertyKey || $consumer->sourcePath === null) {
+            if ((string) $contextKey !== $this->propertyKey || $consumer->source === null) {
                 throw ContentSystemException::propertyAliasCollision($this->propertyKey, (string) $contextKey, $this->propertyKey);
             }
         }
@@ -83,7 +84,7 @@ final class MapProperty extends AbstractLayoutMutation
             required: false,
             scope: ConsumerScope::Root,
             projection: $candidate->projection,
-            sourcePath: $candidate->path,
+            source: $candidate->source,
         );
 
         $replacement = $node->withContextDefinitions(new ContextDefinitions(

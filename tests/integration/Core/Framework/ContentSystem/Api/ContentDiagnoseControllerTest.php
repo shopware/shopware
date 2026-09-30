@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -264,7 +265,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 'component' => 'Sw:Media:Gallery',
                 'properties' => [],
                 'acceptsContext' => [
-                    'mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'sourcePath' => 'category.media'],
+                    'mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('category.media')->jsonSerialize()],
                 ],
             ]],
         ]);
@@ -295,7 +296,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 'component' => 'Sw:Media:Gallery',
                 'properties' => [],
                 'acceptsContext' => [
-                    'mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'sourcePath' => 'category.media'],
+                    'mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('category.media')->jsonSerialize()],
                 ],
             ]],
         ]);
@@ -313,7 +314,7 @@ class ContentDiagnoseControllerTest extends TestCase
                 'component' => 'Sw:Content:Text',
                 'properties' => [],
                 'acceptsContext' => [
-                    'text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'sourcePath' => 'category.name'],
+                    'text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('category.name')->jsonSerialize()],
                 ],
             ]],
         ]);

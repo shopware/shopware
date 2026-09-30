@@ -10,10 +10,13 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class ContentLayoutMapPropertyRequest
 {
+    /**
+     * @param array<string, mixed> $source
+     */
     public function __construct(
         public readonly string $elementId,
         public readonly string $propertyKey,
-        public readonly string $sourcePath,
+        public readonly array $source,
         public readonly ?string $expectedVersion,
     ) {
     }

@@ -66,7 +66,7 @@ The default-specification synthesizer runs on every type file, whether or not it
 
 ### `mappable`
 
-`mappable: true` lets a layout author replace the property's authored value with a path into the page's entity data — on a category layout, pointing a text property at `category.name`. It defaults to **false**, so a property is never mappable unless you say so, and that default is the switch for the distinction below.
+`mappable: true` lets a layout author fill the property from a registered data source — for example, a text property from `category.name` or an entity property from the whole root product. It defaults to **false**, so a property is never mappable unless you say so, and that default is the switch for the distinction below.
 
 ```yaml
 properties:
@@ -77,9 +77,9 @@ properties:
 
 **Do not set it on a property the element needs in order to work.** A property you fill yourself — through `dataRequirements`, a binding specification, or root-ambient context the page supplies — is your contract with the element, not a choice to hand the author. `Sw:Product:Listing`'s `listing` property is the reference case: the page loads the listing once and delivers it as root-scoped context, the element cannot render without it, and it stays silent on `mappable`. Leaving the flag off is enough; `Validation/StoredMappingValidator` then rejects any write that tries to map it, so no client can map it behind your back.
 
-A mapping is keyed by the destination property and carries the catalogued dotted path in `sourcePath`; ordinary and server-mirrored context wiring never carries `sourcePath`. Use the dedicated mapping mutations rather than writing this metadata in a client: the server derives cardinality and projection from the candidate catalogue.
+A mapping is keyed by the destination property and carries a typed source reference (`type`, `id`, and optional `path`/`config`); ordinary and server-mirrored context wiring carries no source. Use the dedicated mapping mutations rather than writing this metadata in a client: the server derives cardinality and projection from the candidate catalogue. If the selected source cannot supply a value while rendering, the mapped property is omitted, including any authored value stored beneath it.
 
-If you do mark a property both mappable and self-filled, a mapping **wins**: `Output/Index/ValueOrigin` ranks `DeliveredContext` above `LoaderResolved`, and nothing warns you. That combination is only meaningful when overriding your loader is a feature you intend to offer — which is how `Sw:Media:Image.media` works, where mapping the category's image and picking one by hand are two ways to say the same thing.
+If you do mark a property both mappable and self-filled, a mapping takes precedence when it supplies a value. If it cannot, the mapped property is omitted. That combination is only meaningful when overriding your loader is a feature you intend to offer — which is how `Sw:Media:Image.media` works, where mapping the category's image and picking one by hand are two ways to say the same thing.
 
 Note what that means for a **required** reference with a `resolvedBy` storage key. Mapping it and filling the storage key are alternatives, so an author who maps leaves the key empty, and the diagnostics rule that would normally call an empty required loader input a defect (`UnfilledRequiredInput`) stands down for a mapped property. You get that for free; it is not something a type file opts into.
 
@@ -106,3 +106,6 @@ Reference: [Layout/Type/README.md](../README.md), `Layout/Type/Definitions/` (5 
 ## Discoverability
 
 A registered type appears in `GET /api/_info/content-system-element-types.json`, which the Administration reads to offer the type (with its property and slot schema) in the layout editor. See [introspection.md](introspection.md).
+
+
+A mappable property may declare `defaultMapping` as a typed source reference, for example `defaultMapping: {type: root, id: product}`. On element insertion, the layout mutation pipeline creates the mapped state only when the bound layout root offers that candidate and its effective type fits. The element can then be unmapped to expose its authored or resolved-by control (for example, an entity selector for a specific product). Layouts with another root source leave the property unmapped.

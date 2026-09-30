@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Inline;
 
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Replaces every `{{map:path}}` token in a forest's `inlineMappable` string properties with the text it resolves to,
@@ -42,12 +45,20 @@ final readonly class InlineMappingExpander
     /**
      * @param list<StoredElement> $forest
      * @param array<string, mixed> $ambient root-ambient values keyed by page-level data requirement key
+     * @param array<string, array<string, mixed>> $loaderValues values keyed by element id, then requirement key
      * @param string|null $rootSource the layout's root source, from `RenderingSpecification::$rootSource`
      *
      * @return list<StoredElement> the same forest when nothing held a token
      */
-    public function expand(array $forest, array $ambient, ?string $rootSource): array
-    {
+    public function expand(
+        array $forest,
+        array $ambient,
+        ?string $rootSource,
+        ?SalesChannelContext $salesChannelContext = null,
+        ?Request $request = null,
+        ?RenderingCacheContext $cacheContext = null,
+        array $loaderValues = [],
+    ): array {
         // No root source means no catalogue, and every token would resolve to nothing and stay verbatim. Skipping
         // outright rather than walking to the same answer keeps a context-free layout's render free of this step.
         if ($rootSource === null) {
@@ -55,7 +66,7 @@ final readonly class InlineMappingExpander
         }
 
         return array_map(
-            fn (StoredElement $element): StoredElement => $this->expandElement($element, $ambient, $rootSource),
+            fn (StoredElement $element): StoredElement => $this->expandElement($element, $ambient, $rootSource, $salesChannelContext, $request, $cacheContext, $loaderValues),
             $forest
         );
     }
@@ -63,8 +74,15 @@ final readonly class InlineMappingExpander
     /**
      * @param array<string, mixed> $ambient
      */
-    private function expandElement(StoredElement $element, array $ambient, string $rootSource): StoredElement
-    {
+    private function expandElement(
+        StoredElement $element,
+        array $ambient,
+        string $rootSource,
+        ?SalesChannelContext $salesChannelContext,
+        ?Request $request,
+        ?RenderingCacheContext $cacheContext,
+        array $loaderValues,
+    ): StoredElement {
         $properties = $element->properties();
         $rewritten = $properties;
 
@@ -88,7 +106,12 @@ final readonly class InlineMappingExpander
                         $path,
                         $ambient,
                         $rootSource,
-                        $element->id
+                        $element->id,
+                        $element,
+                        $salesChannelContext,
+                        $request,
+                        $cacheContext,
+                        $loaderValues[$element->id] ?? []
                     )
                 )
             );
@@ -97,7 +120,7 @@ final readonly class InlineMappingExpander
         $slots = [];
         foreach ($element->slots as $slotName => $children) {
             $slots[$slotName] = array_map(
-                fn (StoredElement $child): StoredElement => $this->expandElement($child, $ambient, $rootSource),
+                fn (StoredElement $child): StoredElement => $this->expandElement($child, $ambient, $rootSource, $salesChannelContext, $request, $cacheContext, $loaderValues),
                 $children
             );
         }

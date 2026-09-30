@@ -42,6 +42,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSyste
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
@@ -1100,7 +1101,7 @@ class LayoutDiagnosticsTest extends TestCase
     private function diagnoseMapping(string $path, ?string $rootSource, array $candidates = []): LayoutAnalysis
     {
         $element = StoredElementBuilder::create('Sw:Content:Text', 'el-1')
-            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: $path)
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath($path))
             ->build();
 
         return $this->diagnostics(

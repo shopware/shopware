@@ -28,7 +28,6 @@ import type {
 } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import { getPropertyControlType } from 'src/module/sw-experience-studio/util/element-settings.util';
-import { getPropertyControlType } from 'src/module/sw-experience-studio/util/element-settings.util';
 import {
     findElementLocation,
     updateElementPropertiesInLayout,
@@ -1044,7 +1043,7 @@ export default Shopware.Component.wrapComponentConfig({
         async onElementMappingChange(payload: {
             elementId: string;
             propertyKey: string;
-            path: string | null;
+            source: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
             contextType: 'single' | 'collection' | null;
             projection?: string | null;
         }): Promise<void> {
@@ -1053,19 +1052,19 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const rootSource = this.resolveMutationRootSource();
-            if (payload.path !== null && rootSource === null) {
+            if (payload.source !== null && rootSource === null) {
                 this.notifyMutationError(['CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE']);
 
                 return;
             }
 
             await this.executeStructuralDraftMutation(
-                payload.path === null ? 'unmap-property' : 'map-property',
+                payload.source === null ? 'unmap-property' : 'map-property',
                 this.layout.layout,
                 {
                     elementId: payload.elementId,
                     propertyKey: payload.propertyKey,
-                    ...(payload.path === null ? {} : { sourcePath: payload.path }),
+                    ...(payload.source === null ? {} : { source: payload.source }),
                 },
                 () => payload.elementId,
             );

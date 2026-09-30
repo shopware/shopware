@@ -32,7 +32,7 @@ use Shopware\Core\Framework\Log\Package;
  * source id, and a resolved context cannot supply one. That is the reason this is not simply another check
  * inside the analysis, and the reason both callers have to be handed the source explicitly.
  *
- * WHAT COUNTS AS A MAPPING is the load-bearing decision here. A mapping carries an explicit `sourcePath`;
+ * WHAT COUNTS AS A MAPPING is the load-bearing decision here. A mapping carries an explicit typed source reference;
  * {@see ContextConsumerMirror} never writes one for the root-scoped reference wiring it derives.
  *
  * That test lives in {@see MappingConsumers}, shared with the diagnostics layer so the two cannot drift.
@@ -40,7 +40,7 @@ use Shopware\Core\Framework\Log\Package;
  * Ordinary root- and parent-scoped consumers remain outside these rules.
  *
  * TWO KINDS OF MAPPING ARE JUDGED HERE, and they are found in different places. A whole-field mapping is a context
- * CONSUMER carrying a `sourcePath`, so it is declared and can be enumerated. An INLINE mapping is a `{{map:path}}`
+ * CONSUMER carrying a typed source, so it is declared and can be enumerated. An INLINE mapping is a `{{map:path}}`
  * token inside an `inlineMappable` string PROPERTY: nothing declares it, so {@see inspectElementInline()} scans the
  * text for it. Both report through {@see MappingProblem} and both are errors.
  *
@@ -141,7 +141,7 @@ final class StoredMappingInspector
 
             if ($property === null) {
                 $exception = ContentSystemException::propertyNotMappable($element->component, $propertyKey);
-                $problems[] = new MappingProblem($element->id, $propertyKey, (string) $consumer->sourcePath, $exception);
+                $problems[] = new MappingProblem($element->id, $propertyKey, $consumer->source?->displayName() ?? (string) $consumerKey, $exception);
 
                 continue;
             }
@@ -152,7 +152,7 @@ final class StoredMappingInspector
                 continue;
             }
 
-            $problems[] = new MappingProblem($element->id, $propertyKey, (string) $consumer->sourcePath, $exception);
+            $problems[] = new MappingProblem($element->id, $propertyKey, $consumer->source?->displayName() ?? (string) $consumerKey, $exception);
         }
 
         return $problems;
@@ -273,11 +273,14 @@ final class StoredMappingInspector
         }
 
         // Non-null by MappingConsumers::isMapping(), checked at the call site.
-        $sourcePath = (string) $consumer->sourcePath;
-        $candidate = $candidates[$sourcePath] ?? null;
+        $sourceName = $consumer->source?->displayName() ?? $propertyKey;
+        $candidate = $candidates[$sourceName] ?? null;
+        if ($candidate !== null && ($consumer->source === null || !$candidate->source->isSameAs($consumer->source))) {
+            $candidate = null;
+        }
 
         if ($candidate === null) {
-            return ContentSystemException::unknownMappingPath($sourcePath, $rootSource);
+            return ContentSystemException::unknownMappingPath($sourceName, $rootSource);
         }
 
         // The candidate owns the pairing of path and projection, so the stored mapping has to carry the
@@ -288,14 +291,14 @@ final class StoredMappingInspector
         $projection = $consumer->projection;
 
         if ($projection !== $candidate->projection) {
-            return ContentSystemException::mappingProjectionMismatch($sourcePath, $projection, $candidate->projection);
+            return ContentSystemException::mappingProjectionMismatch($sourceName, $projection, $candidate->projection);
         }
 
         if ($projection !== null && $this->projections->get($projection) === null) {
             // The name came from the candidate, so a provider is offering a transform the container does not
             // have. Reported rather than thrown so one broken provider fails the layouts that use it instead
             // of every layout.
-            return ContentSystemException::unknownPropertyProjection($projection, $sourcePath);
+            return ContentSystemException::unknownPropertyProjection($projection, $sourceName);
         }
 
         $declaredType = $property->type()->type();

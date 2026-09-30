@@ -4,7 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mapping\Registry;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -64,6 +67,25 @@ class ContentSystemMappingCandidateRegistryTest extends TestCase
         static::assertSame($specific, $registry->forRootSource('category')['category.name']);
     }
 
+    public function testSourceResolutionUsesTheFirstProviderThatClaimsTheSource(): void
+    {
+        $source = new MappingSourceReference('plugin', 'example');
+        $context = new MappingSourceResolutionContext(
+            new StoredElement('element-id', 'test-element'),
+            [],
+            [],
+            null,
+            null,
+            null,
+        );
+        $registry = new ContentSystemMappingCandidateRegistry([
+            new SourceResolvingProvider(['product'], 'first'),
+            new SourceResolvingProvider(['product'], 'second'),
+        ]);
+
+        static::assertSame('first', $registry->resolveSource($source, $context));
+    }
+
     public function testARootSourceNobodyClaimsYieldsAnEmptyCatalogueRatherThanThrowing(): void
     {
         $registry = new ContentSystemMappingCandidateRegistry([
@@ -117,5 +139,29 @@ class StaticMappingCandidateProvider extends AbstractMappingCandidateProvider
     public function provide(string $rootSource): array
     {
         return $this->candidates;
+    }
+}
+
+/**
+ * @internal
+ */
+class SourceResolvingProvider extends StaticMappingCandidateProvider
+{
+    /**
+     * @param list<string> $rootSources
+     */
+    public function __construct(array $rootSources, private readonly string $result)
+    {
+        parent::__construct($rootSources, []);
+    }
+
+    public function supportsSource(MappingSourceReference $source): bool
+    {
+        return $source->type === 'plugin' && $source->id === 'example';
+    }
+
+    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): mixed
+    {
+        return $this->result;
     }
 }

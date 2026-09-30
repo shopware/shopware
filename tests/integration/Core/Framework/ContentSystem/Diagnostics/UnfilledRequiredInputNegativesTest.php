@@ -19,6 +19,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Di
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Log\Package;
@@ -106,7 +107,7 @@ class UnfilledRequiredInputNegativesTest extends TestCase
                 type: ContextType::Single,
                 required: false,
                 scope: ConsumerScope::Root,
-                sourcePath: 'category.media',
+                source: MappingSourceReference::fromRootPath('category.media'),
             )]),
         );
 

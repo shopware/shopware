@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleOptionConstraintDeriver;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
@@ -404,7 +405,7 @@ class StoredTreeShapeConformanceTest extends TestCase
                     'required' => false,
                     'scope' => 'root',
                     'projection' => 'product_media_to_media',
-                    'sourcePath' => 'product.cover',
+                    'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
                 ],
             ]]),
             self::ACCEPTED,
@@ -437,7 +438,7 @@ class StoredTreeShapeConformanceTest extends TestCase
 
         yield 'a mapping source without dot notation' => [
             self::forest(['acceptsContext' => [
-                'text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'sourcePath' => 'product'],
+                'text' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('product')->jsonSerialize()],
             ]]),
             self::REJECTED,
             '',
@@ -445,7 +446,7 @@ class StoredTreeShapeConformanceTest extends TestCase
 
         yield 'a required mapping consumer' => [
             self::forest(['acceptsContext' => [
-                'text' => ['type' => 'single', 'required' => true, 'scope' => 'root', 'sourcePath' => 'product.name'],
+                'text' => ['type' => 'single', 'required' => true, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('product.name')->jsonSerialize()],
             ]]),
             self::REJECTED,
             '',

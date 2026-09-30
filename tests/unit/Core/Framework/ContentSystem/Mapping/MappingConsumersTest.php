@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextConsumer
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -92,7 +93,7 @@ class MappingConsumersTest extends TestCase
             type: ContextType::Single,
             required: false,
             scope: ConsumerScope::Root,
-            sourcePath: $sourcePath,
+            source: MappingSourceReference::fromRootPath($sourcePath),
         );
     }
 }

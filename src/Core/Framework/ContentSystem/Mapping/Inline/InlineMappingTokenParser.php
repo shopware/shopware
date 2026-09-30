@@ -26,8 +26,8 @@ use Shopware\Core\Framework\Log\Package;
  *   {@see PlaceholderValues::from()} DROPS a `map:`-prefixed key to keep the two namespaces disjoint by enforcement
  *   rather than by convention. It drops rather than throws because placeholder keys include request query
  *   parameters, so rejecting would let any visitor error a page with a crafted query string.
- * - **The dot is required**, mirroring {@see MappingCandidate}'s constructor. Mapping exposes members of
- *   root-ambient data; consuming an ambient value whole is ordinary context wiring, not a mapping.
+ * - **The dot is required**, mirroring {@see MappingCandidate}'s constructor. Mapping exposes members of a typed
+ *   source; consuming a source whole is ordinary context wiring, not a mapping.
  *
  * The path character class admits neither `<`, `>`, `"` nor `'`, so a path cannot carry markup out of a token even
  * before escaping.
@@ -42,7 +42,7 @@ final class InlineMappingTokenParser
      */
     public const TOKEN_PREFIX = 'map:';
 
-    private const TOKEN_PATTERN = '/\{\{\s*map:(?<path>[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+)\s*\}\}/';
+    private const TOKEN_PATTERN = '/\{\{\s*map:(?<path>(?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_]+)+)\s*\}\}/';
 
     /**
      * Cheap guard so callers can skip a string without running the full match. Every token contains the prefix,

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -124,7 +125,7 @@ class DuplicateElementTest extends TestCase
     public function testDuplicatePreservesPropertyMappingOnClone(): void
     {
         $original = StoredElementBuilder::create('Sw:Card', 'original')
-            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.name')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
             ->build();
         $tree = new StoredTree([$original]);
 
@@ -135,7 +136,7 @@ class DuplicateElementTest extends TestCase
         $consumer = $clone->contextDefinitions->getAllConsumers()['text'] ?? null;
         static::assertInstanceOf(ContextConsumer::class, $consumer);
         static::assertSame(ConsumerScope::Root, $consumer->scope);
-        static::assertSame('product.name', $consumer->sourcePath);
+        static::assertSame('product.name', $consumer->source?->displayName());
     }
 
     #[TestDox('carries attributed specifications over to the reconstructed clone unchanged')]

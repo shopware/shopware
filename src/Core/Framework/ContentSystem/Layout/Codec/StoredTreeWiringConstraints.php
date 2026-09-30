@@ -90,7 +90,12 @@ final class StoredTreeWiringConstraints
                             // present null would pass the write and then fail every decode.
                             'scope' => new Optional($this->nonNull(new Choice(choices: ConsumerScope::values()))),
                             'projection' => new Optional([new Type('string')]),
-                            'sourcePath' => new Optional([new NotBlank(), new Type('string')]),
+                            'source' => new Optional($this->nonNull(new Type('array'), new Collection(fields: [
+                                'type' => $this->nonNull(new NotBlank(), new Type('string')),
+                                'id' => $this->nonNull(new NotBlank(), new Type('string')),
+                                'config' => new Optional([new Type('array')]),
+                                'path' => new Optional([new NotBlank(), new Type('string')]),
+                            ], allowExtraFields: false, allowMissingFields: false))),
                         ],
                         allowExtraFields: false,
                         allowMissingFields: false
@@ -241,25 +246,24 @@ final class StoredTreeWiringConstraints
 
     private function validateMappingConsumer(mixed $value, ExecutionContextInterface $context): void
     {
-        if (!\is_array($value) || !isset($value['sourcePath']) || !\is_string($value['sourcePath'])) {
+        if (!\is_array($value) || !isset($value['source']) || !\is_array($value['source'])) {
             return;
         }
 
-        if (!str_contains($value['sourcePath'], '.')) {
-            $context->buildViolation('This value should be a dotted mapping path.')
-                ->atPath('[sourcePath]')
-                ->addViolation();
+        $sourceType = $value['source']['type'] ?? null;
+        if (!\is_string($sourceType)) {
+            return;
         }
 
         if (
-            ($value['scope'] ?? null) !== ConsumerScope::Root->value
-            || ($value['required'] ?? null) !== false
+            ($value['required'] ?? null) !== false
             || ($value['redistribute'] ?? false) === true
             || ($value['consumerAlias'] ?? null) !== null
             || ($value['propertyAlias'] ?? null) !== null
+            || ($value['scope'] ?? null) !== ConsumerScope::Root->value
         ) {
             $context->buildViolation('A mapping must be optional, root-scoped, unaliased and non-redistributing.')
-                ->atPath('[sourcePath]')
+                ->atPath('[source]')
                 ->addViolation();
         }
     }
@@ -337,8 +341,8 @@ final class StoredTreeWiringConstraints
     }
 
     /**
-     * A projection reshapes a mapped value, and `Rendering/ContextDeliveryResolver::ambientValueFor()` applies
-     * one only to a root-scoped consumer keyed by a dotted path. Declared on anything else it would be stored
+     * A projection reshapes a mapped value, and `Rendering/ContextDeliveryResolver` applies it only to a consumer
+     * carrying a typed mapping source. Declared on anything else it would be stored
      * and then silently never run, so it is rejected instead. Like the rule above, this needs the map key.
      */
     private function validateProjectionKeyShape(mixed $value, ExecutionContextInterface $context): void
@@ -356,7 +360,7 @@ final class StoredTreeWiringConstraints
                 continue;
             }
 
-            if (\is_string($consumer['sourcePath'] ?? null)) {
+            if (\is_array($consumer['source'] ?? null)) {
                 continue;
             }
 

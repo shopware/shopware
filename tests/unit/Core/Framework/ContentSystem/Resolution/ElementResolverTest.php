@@ -22,6 +22,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
@@ -72,7 +73,7 @@ class ElementResolverTest extends TestCase
     public function testResolvesMappedPrimitiveToRootCandidate(): void
     {
         $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'category.name')
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('category.name'))
             ->build();
 
         $resolutions = $this->resolveElement(

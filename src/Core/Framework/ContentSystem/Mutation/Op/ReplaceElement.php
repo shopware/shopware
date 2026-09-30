@@ -223,7 +223,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             $propertyKey = $consumer->propertyAlias ?? $key;
 
             if (
-                $consumer->sourcePath !== null
+                $consumer->source !== null
                 && $this->mappingInspector !== null
                 && $this->rootSource !== null
                 && isset($newTypeProperties[$propertyKey])
@@ -234,7 +234,7 @@ final class ReplaceElement extends AbstractLayoutMutation
             }
 
             if (
-                $consumer->sourcePath === null
+                $consumer->source === null
                 && isset($newTypeProperties[$propertyKey])
                 && !$newTypeProperties[$propertyKey]->type()->isPrimitive()
             ) {

@@ -2,20 +2,24 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Inline;
 
+use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Resolves one `{{map:path}}` token against a layout's root-ambient data and renders it as text.
+ * Resolves one `{{map:path}}` token against its catalogued source and renders it as text.
  *
- * The steps mirror `Rendering/ContextDeliveryResolver::ambientValueFor()`, deliberately: an inline token and a
- * whole-field mapping read the same catalogue through the same path resolver and apply the same projections, and the
- * two must not drift on what a path means.
+ * Root candidates use the same path resolver as whole-field mappings. Other typed sources go through their registered
+ * provider with the same render context used by field mapping, so source-specific resolution stays behind that provider.
  *
  * Three outcomes, and keeping them apart is the point:
  *
@@ -52,8 +56,7 @@ final class InlineMappingInterpolator
      * token that passes validation and then renders empty.
      *
      * A DATE is excluded on purpose, even though it is one cast away from a string. Rendering one in prose needs the
-     * locale and timezone of the sales-channel context to read as anything but machine output, and this class has
-     * neither — it runs per token with nothing but the ambient data. A candidate wanting an inline date should
+     * locale and timezone formatting to read as anything but machine output. A candidate wanting an inline date should
      * declare a projection that formats it and advertise `string`, which is what projections are for.
      */
     public const STRINGIFIABLE_TYPES = PropertyType::PRIMITIVE_TYPES;
@@ -67,11 +70,21 @@ final class InlineMappingInterpolator
 
     /**
      * @param array<string, mixed> $ambient root-ambient values keyed by page-level data requirement key
+     * @param array<string, mixed> $loaderValues resolved values for this element
      *
      * @return string|null the replacement text, or null when the path is not catalogued and the token must stay
      */
-    public function interpolate(string $path, array $ambient, string $rootSource, string $elementId): ?string
-    {
+    public function interpolate(
+        string $path,
+        array $ambient,
+        string $rootSource,
+        string $elementId,
+        ?StoredElement $element = null,
+        ?SalesChannelContext $salesChannelContext = null,
+        ?Request $request = null,
+        ?RenderingCacheContext $cacheContext = null,
+        array $loaderValues = [],
+    ): ?string {
         $candidate = $this->candidateRegistry->forRootSource($rootSource)[$path] ?? null;
 
         if ($candidate === null) {
@@ -82,7 +95,7 @@ final class InlineMappingInterpolator
             return '';
         }
 
-        $resolved = $this->resolve($candidate, $ambient, $elementId);
+        $resolved = $this->resolve($candidate, $ambient, $elementId, $element, $salesChannelContext, $request, $cacheContext, $loaderValues);
 
         if ($resolved === null) {
             return '';
@@ -98,17 +111,42 @@ final class InlineMappingInterpolator
     }
 
     /**
-     * Walks the candidate's path into the ambient value the first segment names, then applies the candidate's
-     * projection if it declares one.
+     * Resolves the candidate through its source provider or ambient value, then applies its projection if declared.
      *
      * Everything is resolved as OPTIONAL (`required: false`), so an untraversable path yields null instead of
      * throwing mid-render. An inline token is one character among many in a paragraph; it must not be able to take
      * a storefront page down.
      *
      * @param array<string, mixed> $ambient
+     * @param array<string, mixed> $loaderValues
      */
-    private function resolve(MappingCandidate $candidate, array $ambient, string $elementId): mixed
-    {
+    private function resolve(
+        MappingCandidate $candidate,
+        array $ambient,
+        string $elementId,
+        ?StoredElement $element,
+        ?SalesChannelContext $salesChannelContext,
+        ?Request $request,
+        ?RenderingCacheContext $cacheContext,
+        array $loaderValues,
+    ): mixed {
+        if ($candidate->source->type !== 'root') {
+            if ($element === null) {
+                return null;
+            }
+
+            $resolved = $this->candidateRegistry->resolveSource(
+                $candidate->source,
+                new MappingSourceResolutionContext($element, $ambient, $loaderValues, $salesChannelContext, $request, $cacheContext),
+            );
+
+            if ($resolved === null || $candidate->projection === null) {
+                return $resolved;
+            }
+
+            return $this->project($candidate->projection, $resolved);
+        }
+
         $segments = $this->pathResolver->parseContextKey($candidate->path);
         $ambientKey = explode('.', $candidate->path)[0];
 

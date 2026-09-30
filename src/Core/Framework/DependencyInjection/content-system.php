@@ -86,12 +86,14 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
+use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Provider\StorefrontContextMappingCandidateProvider;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
@@ -331,6 +333,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContextPathResolver::class),
             service(ContentSystemPropertyProjectionRegistry::class),
             service(MappingTypeCompatibility::class),
+            service(ContentSystemMappingCandidateRegistry::class),
         ]);
 
     $services->set(RenderedTreeFactory::class)
@@ -745,6 +748,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('content_system.mapping_candidate_provider'),
         ]);
 
+    $services->set(StorefrontContextMappingCandidateProvider::class)
+        ->tag('content_system.mapping_candidate_provider', ['priority' => -100]);
+
     // Value reshaping between a mapped path and the property it fills; read by the write gate, by
     // ContextDeliveryResolver above, and by the introspection endpoint
     $services->set(ContentSystemPropertyProjectionRegistry::class)
@@ -864,6 +870,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(LayoutDiagnostics::class),
             service(ContextConsumerMirror::class),
+            service(DefaultMappingSeeder::class),
+        ]);
+    $services->set(DefaultMappingSeeder::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(ContentSystemMappingCandidateRegistry::class),
+            service(MappingTypeCompatibility::class),
         ]);
 
     // Layout Mutation Actions (Admin API)
@@ -889,6 +902,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('content_layout.repository'),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
+            service(DefaultMappingSeeder::class),
         ]);
 
     // Persisted Layout Mutation Actions (Admin API)

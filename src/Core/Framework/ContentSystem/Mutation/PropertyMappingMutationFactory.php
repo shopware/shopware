@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MapProperty;
@@ -24,7 +25,7 @@ final readonly class PropertyMappingMutationFactory
     ) {
     }
 
-    public function map(string $rootSource, string $elementId, string $propertyKey, string $sourcePath): MapProperty
+    public function map(string $rootSource, string $elementId, string $propertyKey, MappingSourceReference $source): MapProperty
     {
         return new MapProperty(
             $this->typeRegistry,
@@ -33,7 +34,7 @@ final readonly class PropertyMappingMutationFactory
             $rootSource,
             $elementId,
             $propertyKey,
-            $sourcePath,
+            $source,
         );
     }
 

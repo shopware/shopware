@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Type\Specification;
 
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,7 +18,8 @@ use Shopware\Core\Framework\Log\Package;
  *     inlineMappable: bool,
  *     title: string,
  *     description: string,
- *     adminUI: array<string, mixed>|null
+ *     adminUI: array<string, mixed>|null,
+ *     defaultMapping: array{type: string, id: string, config?: array<string, mixed>, path?: string}|null
  * }
  */
 #[Package('framework')]
@@ -35,6 +37,7 @@ final readonly class PropertySpecification
         private ?array $adminUI,
         private bool $mappable = false,
         private bool $inlineMappable = false,
+        private ?MappingSourceReference $defaultMapping = null,
     ) {
     }
 
@@ -75,6 +78,11 @@ final readonly class PropertySpecification
         return $this->inlineMappable;
     }
 
+    public function defaultMapping(): ?MappingSourceReference
+    {
+        return $this->defaultMapping;
+    }
+
     /**
      * @return PropertySchema
      */
@@ -88,6 +96,7 @@ final readonly class PropertySpecification
             'title' => $this->title,
             'description' => $this->description,
             'adminUI' => $this->adminUI,
+            'defaultMapping' => $this->defaultMapping?->jsonSerialize(),
         ];
     }
 }

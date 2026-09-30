@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation;
 
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Log\Package;
 
@@ -18,6 +19,7 @@ class MutationPipeline
     public function __construct(
         private readonly LayoutDiagnostics $diagnostics,
         private readonly ContextConsumerMirror $contextMirror,
+        private readonly ?DefaultMappingSeeder $defaultMappingSeeder = null,
     ) {
     }
 
@@ -29,6 +31,9 @@ class MutationPipeline
     public function run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext, ?string $rootSource = null): MutationResult
     {
         $mutated = $mutation->apply($tree);
+        if ($this->defaultMappingSeeder !== null) {
+            $mutated = $this->defaultMappingSeeder->seed($mutated, $rootSource, $mutation->created());
+        }
 
         $analysis = $this->diagnostics->analyze($mutated->roots, $rootContext, $rootSource);
 

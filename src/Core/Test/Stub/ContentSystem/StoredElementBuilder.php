@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataReq
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -112,9 +113,9 @@ class StoredElementBuilder
         ?string $propertyAlias = null,
         ConsumerScope $scope = ConsumerScope::Parent,
         ?string $projection = null,
-        ?string $sourcePath = null,
+        ?MappingSourceReference $source = null,
     ): self {
-        $this->consumers[$key] = new ContextConsumer($type, $required, $redistribute, $consumerAlias, $propertyAlias, $scope, $projection, $sourcePath);
+        $this->consumers[$key] = new ContextConsumer($type, $required, $redistribute, $consumerAlias, $propertyAlias, $scope, $projection, $source);
 
         return $this;
     }

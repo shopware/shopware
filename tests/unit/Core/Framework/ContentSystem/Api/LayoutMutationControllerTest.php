@@ -208,7 +208,7 @@ class LayoutMutationControllerTest extends TestCase
         yield 'wrap' => [static fn (LayoutMutationController $c): Response => $c->wrap(new WrapElementsRequest(['a'], 'Sw:Container'), $context), WrapElements::class];
         yield 'unwrap' => [static fn (LayoutMutationController $c): Response => $c->unwrap(new UnwrapElementRequest('el'), $context), UnwrapElement::class];
         yield 'attach' => [static fn (LayoutMutationController $c): Response => $c->attach(new AttachElementRequest(['id' => 'incoming', 'component' => 'Sw:Card']), $context), AttachElement::class];
-        yield 'map property' => [static fn (LayoutMutationController $c): Response => $c->mapProperty(new MapPropertyRequest('el', 'text', 'product.name', 'product'), $context), MapProperty::class];
+        yield 'map property' => [static fn (LayoutMutationController $c): Response => $c->mapProperty(new MapPropertyRequest('el', 'text', ['type' => 'root', 'id' => 'product', 'path' => 'name'], 'product'), $context), MapProperty::class];
         yield 'unmap property' => [static fn (LayoutMutationController $c): Response => $c->unmapProperty(new UnmapPropertyRequest('el', 'text'), $context), UnmapProperty::class];
         yield 'bind' => [static fn (LayoutMutationController $c): Response => $c->bind(new BindElementRequest('el', 'source:spec'), $context), BindElement::class];
     }

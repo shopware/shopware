@@ -33,6 +33,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\SlotSpecific
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
@@ -484,7 +485,7 @@ class ReplaceElementTest extends TestCase
             new InlineMappingTokenParser(),
         );
         $old = StoredElementBuilder::create('Sw:Old', 'el')
-            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.name')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
             ->build();
         $replace = new ReplaceElement(
             $registry,

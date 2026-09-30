@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaToMediaProje
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\Provider\AbstractMappingCandidateProvider;
 use Shopware\Core\Framework\Log\Package;
 
@@ -52,6 +53,14 @@ class ProductMappingCandidateProvider extends AbstractMappingCandidateProvider
     public function provide(string $rootSource): array
     {
         return [
+            new MappingCandidate(
+                path: $rootSource,
+                label: self::SNIPPET_ROOT . '.entity.label',
+                description: self::SNIPPET_ROOT . '.entity.description',
+                group: 'basic',
+                valueType: SalesChannelProductEntity::class,
+                source: MappingSourceReference::root($rootSource),
+            ),
             $this->text('name', 'basic'),
             $this->text('description', 'basic'),
             $this->text('productNumber', 'basic'),

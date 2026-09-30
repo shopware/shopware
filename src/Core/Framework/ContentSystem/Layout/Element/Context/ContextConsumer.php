@@ -3,22 +3,19 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
-use Shopware\Core\Framework\ContentSystem\Rendering\ContextDeliveryResolver;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 final readonly class ContextConsumer implements \JsonSerializable
 {
     /**
-     * `$sourcePath` marks this as a data mapping. The consumer map key is then the destination property and the
-     * source path is the catalogued dotted path read from root context. This separation lets several properties
-     * consume the same source path without colliding in the map.
+     * `$source` identifies the typed data source for a mapping. The consumer map key remains the destination
+     * property, so several properties may use the same source reference.
      *
      * `$projection` names a registered {@see AbstractContentPropertyProjection} applied to the mapped value.
-     * Both the decoder and the write-path constraints refuse it on a consumer without `$sourcePath`, because
-     * {@see ContextDeliveryResolver::ambientValueFor()} applies it only there and a projection anywhere else
-     * would quietly do nothing.
+     * It is valid only when `$source` is present.
      */
     public function __construct(
         public ContextType $type,
@@ -28,7 +25,7 @@ final readonly class ContextConsumer implements \JsonSerializable
         public ?string $propertyAlias = null,
         public ConsumerScope $scope = ConsumerScope::Parent,
         public ?string $projection = null,
-        public ?string $sourcePath = null,
+        public ?MappingSourceReference $source = null,
     ) {
     }
 
@@ -62,8 +59,8 @@ final readonly class ContextConsumer implements \JsonSerializable
             $data['projection'] = $this->projection;
         }
 
-        if ($this->sourcePath !== null) {
-            $data['sourcePath'] = $this->sourcePath;
+        if ($this->source !== null) {
+            $data['source'] = $this->source->jsonSerialize();
         }
 
         return $data;

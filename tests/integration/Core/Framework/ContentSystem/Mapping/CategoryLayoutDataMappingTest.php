@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -29,11 +30,10 @@ use Symfony\Component\HttpFoundation\Response;
  * fills it itself from a picked `mediaId`, so mapping competes with an existing source rather than with a
  * plain authored value.
  *
- * The fallback cases pin the other half of that competition: a mapped path that resolves to nothing yields
- * to whatever the author left behind, rather than blanking the element with a delivered null.
+ * Missing mapped data is omitted from the rendered element, even if an authored value is stored beneath it.
  *
- * A mapping is a root-scoped context consumer keyed by the property it fills and carrying its dotted
- * `sourcePath` into the page-level data, and the
+ * A mapping is a root-scoped context consumer keyed by the property it fills and carrying a typed source
+ * reference into the page-level data, and the
  * delivered-context tier already outranks the authored tier at `RenderedElementFactory`. What the feature adds
  * on top is the declaration (`mappable: true` in the element type), the curated catalogue of offerable paths,
  * and the write gate that admits only a mapping satisfying both — so those are what the write-rejection cases
@@ -99,7 +99,7 @@ class CategoryLayoutDataMappingTest extends TestCase
         $stored = $this->rawStoredRoots()[0]['slots']['content'][0];
 
         static::assertSame(self::AUTHORED_TEXT, $stored['properties']['text']);
-        static::assertSame('category.name', $stored['acceptsContext']['text']['sourcePath']);
+        static::assertSame(['type' => 'root', 'id' => 'category', 'path' => 'name'], $stored['acceptsContext']['text']['source']);
     }
 
     #[TestDox('rejects a mapping onto a path the category catalogue does not offer')]
@@ -186,7 +186,7 @@ class CategoryLayoutDataMappingTest extends TestCase
         $this->createCategory($this->ids->get('category-media'));
         $this->persistLayout($this->imageElement(mappedTo: null, mediaId: $this->ids->get('picked-media')));
 
-        static::assertSame($this->ids->get('picked-media'), $this->servedMediaId());
+        static::assertArrayNotHasKey('media', $this->servedProperties());
     }
 
     /**
@@ -206,30 +206,28 @@ class CategoryLayoutDataMappingTest extends TestCase
     }
 
     /**
-     * The fallback rule, on a primitive. The fixture category has no description, so the mapped path
-     * resolves to nothing — and the value the author typed is what they meant to show when it does.
+     * A missing mapped member omits the property, even when the layout stores an authored value.
      */
-    #[TestDox('serves the authored copy when the mapped path resolves to nothing')]
-    public function testAMappedPathResolvingToNullFallsBackToTheAuthoredValue(): void
+    #[TestDox('omits the mapped property when the source member is unavailable')]
+    public function testAMappedPathResolvingToNullOmitsTheProperty(): void
     {
         $this->createCategory();
         $this->persistLayout($this->textElement(mappedTo: 'category.description'));
 
-        static::assertSame(self::AUTHORED_TEXT, $this->servedText());
+        static::assertArrayNotHasKey('text', $this->servedProperties());
     }
 
     /**
-     * The same rule on a reference, which is where it stops being a nicety: an image whose mapped category
-     * has none would otherwise render blank even though the author picked a media for exactly this case.
+     * A missing mapped entity value also omits the property rather than exposing an authored selection.
      */
-    #[TestDox('serves the picked media when the mapped category has none')]
-    public function testAMappedReferenceResolvingToNullFallsBackToThePickedValue(): void
+    #[TestDox('omits the mapped reference when the category has no media')]
+    public function testAMappedReferenceResolvingToNullOmitsTheProperty(): void
     {
         $this->createMedia('picked-media');
         $this->createCategory();
         $this->persistLayout($this->imageElement(mappedTo: 'category.media', mediaId: $this->ids->get('picked-media')));
 
-        static::assertSame($this->ids->get('picked-media'), $this->servedMediaId());
+        static::assertArrayNotHasKey('media', $this->servedProperties());
     }
 
     /**
@@ -272,7 +270,7 @@ class CategoryLayoutDataMappingTest extends TestCase
                     'type' => 'single',
                     'required' => false,
                     'scope' => 'root',
-                    'sourcePath' => $mappedTo,
+                    'source' => MappingSourceReference::fromRootPath($mappedTo)->jsonSerialize(),
                 ],
             ];
         }
@@ -304,7 +302,7 @@ class CategoryLayoutDataMappingTest extends TestCase
                     'type' => 'single',
                     'required' => false,
                     'scope' => 'root',
-                    'sourcePath' => $mappedTo,
+                    'source' => MappingSourceReference::fromRootPath($mappedTo)->jsonSerialize(),
                 ],
             ];
         }

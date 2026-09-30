@@ -153,7 +153,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         yield 'wrap' => [static fn (ContentLayoutMutationController $c): Response => $c->wrap('l', new ContentLayoutWrapElementsRequest(['a'], 'Sw:Container', null), $context), WrapElements::class];
         yield 'unwrap' => [static fn (ContentLayoutMutationController $c): Response => $c->unwrap('l', new ContentLayoutUnwrapRequest('el', null), $context), UnwrapElement::class];
         yield 'attach' => [static fn (ContentLayoutMutationController $c): Response => $c->attach('l', new ContentLayoutAttachRequest(['id' => 'incoming', 'component' => 'Sw:Card'], null), $context), AttachElement::class];
-        yield 'map property' => [static fn (ContentLayoutMutationController $c): Response => $c->mapProperty('l', new ContentLayoutMapPropertyRequest('el', 'text', 'product.name', null), $context), MapProperty::class];
+        yield 'map property' => [static fn (ContentLayoutMutationController $c): Response => $c->mapProperty('l', new ContentLayoutMapPropertyRequest('el', 'text', ['type' => 'root', 'id' => 'product', 'path' => 'name'], null), $context), MapProperty::class];
         yield 'unmap property' => [static fn (ContentLayoutMutationController $c): Response => $c->unmapProperty('l', new ContentLayoutUnmapPropertyRequest('el', 'text', null), $context), UnmapProperty::class];
     }
 

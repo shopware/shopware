@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\ContentSystem\Mapping\Provider;
 
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceResolutionContext;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -28,4 +30,22 @@ abstract class AbstractMappingCandidateProvider
      * @return list<MappingCandidate>
      */
     abstract public function provide(string $rootSource): array;
+
+    /**
+     * Whether this provider can resolve the supplied non-root source reference. Candidate catalogues remain the
+     * admission boundary: the renderer calls this only after the stored reference has been catalogued.
+     */
+    public function supportsSource(MappingSourceReference $source): bool
+    {
+        return false;
+    }
+
+    /**
+     * Resolve an admitted non-root reference. Returning null means the provider is unavailable or has no value;
+     * the renderer omits the mapped property and continues rendering.
+     */
+    public function resolveSource(MappingSourceReference $source, MappingSourceResolutionContext $context): mixed
+    {
+        return null;
+    }
 }

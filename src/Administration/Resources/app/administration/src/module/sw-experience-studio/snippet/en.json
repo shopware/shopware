@@ -35,6 +35,10 @@
         }
       },
       "product": {
+        "entity": {
+          "label": "Product entity",
+          "description": "The full product shown on the page."
+        },
         "name": {
           "label": "Product name",
           "description": "The name of the product the page shows."
@@ -88,6 +92,24 @@
         "keywords": {
           "label": "Keywords",
           "description": "The SEO keywords of the landing page."
+        }
+      },
+      "context": {
+        "currencyIsoCode": {
+          "label": "Currency ISO code",
+          "description": "The ISO 4217 code of the current Storefront currency."
+        },
+        "currencySymbol": {
+          "label": "Currency symbol",
+          "description": "The symbol of the current Storefront currency."
+        },
+        "languageLocale": {
+          "label": "Language locale",
+          "description": "The locale code of the current Storefront language."
+        },
+        "taxState": {
+          "label": "Tax state",
+          "description": "The current Storefront tax state."
         }
       }
     },
@@ -207,7 +229,14 @@
             "basic": "Basic information",
             "seo": "SEO",
             "media": "Media",
-            "customFields": "Custom Fields"
+            "customFields": "Custom Fields",
+            "storefront-context": "Storefront context"
+          },
+          "sources": {
+            "rootEntity": "Root entity",
+            "storefrontContext": "Storefront context",
+            "navigationLabel": "Data sources",
+            "sourceIntro": "Choose a property to use for this field."
           }
         }
       },

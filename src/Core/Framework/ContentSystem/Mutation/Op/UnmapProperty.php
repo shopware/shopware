@@ -34,7 +34,7 @@ final class UnmapProperty extends AbstractLayoutMutation
         $consumers = $definitions->getAllConsumers();
         $consumer = $consumers[$this->propertyKey] ?? null;
 
-        if ($consumer === null || $consumer->sourcePath === null) {
+        if ($consumer === null || $consumer->source === null) {
             return $tree;
         }
 

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Br
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IndexedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
@@ -380,7 +381,7 @@ class ContextDeliveryResolverTest extends TestCase
     /**
      * The optional twin of the rejection above. A dotted path needs a Struct to traverse, and an optional
      * consumer that cannot get one delivers nothing — it does NOT write the present null that every other
-     * resolution-found-nothing writes. See the fallback rule on the sibling case below for why.
+     * resolution-found-nothing writes. A mapped property with no delivery is omitted when the rendered element is created.
      */
     #[TestDox('writes no key for an optional dotted root-scoped consumer over a non-Struct ambient value')]
     public function testOptionalDottedRootScopedConsumerWritesNoKeyOverANonStructAmbientValue(): void
@@ -398,10 +399,9 @@ class ContextDeliveryResolverTest extends TestCase
     }
 
     /**
-     * The established optional dotted-path rule: resolving no leaf writes no key. Mappings use an explicit
-     * sourcePath now, but retain this same delivery behavior so authored fallback values survive.
+     * Resolving no leaf writes no delivery. RenderedElementFactory omits mapped properties with no delivery.
      */
-    #[TestDox('writes no key when a dotted root-scoped consumer resolves to null, so the authored value survives')]
+    #[TestDox('writes no mapping delivery when a dotted root-scoped consumer resolves to null')]
     public function testADottedRootScopedConsumerResolvingToNullWritesNoKey(): void
     {
         $child = StoredElementBuilder::create('Sw:Box', 'child-1')
@@ -419,7 +419,7 @@ class ContextDeliveryResolverTest extends TestCase
     }
 
     /**
-     * The scoping guard. The fallback rule is keyed on the consumer key being dotted, so an EXACT ambient
+     * The scoping guard. The no-delivery rule is keyed on the consumer key being dotted, so an EXACT ambient
      * key match must keep delivering whatever the ambient map holds — including a value that is itself
      * falsy. Without this, a narrowing of the rule to "any null-ish delivered value" would pass every test
      * above while quietly dropping legitimate exact-key deliveries.
@@ -561,8 +561,8 @@ class ContextDeliveryResolverTest extends TestCase
     public function testOneMappedSourceCanFillSeveralProperties(): void
     {
         $child = StoredElementBuilder::create('Sw:Card', 'child-1')
-            ->withConsumer('title', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.cover')
-            ->withConsumer('subtitle', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.cover')
+            ->withConsumer('title', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.cover'))
+            ->withConsumer('subtitle', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.cover'))
             ->build();
 
         $index = $this->resolve($child, new StubContextStruct('page-cover'), []);
@@ -576,7 +576,7 @@ class ContextDeliveryResolverTest extends TestCase
     public function testMappingCanReadACataloguedCustomField(): void
     {
         $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
-            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.customFields.material')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
             ->build();
 
         $index = $this->resolve($child, new StubPathStruct(customFields: ['material' => 'Leather']), []);
@@ -584,10 +584,10 @@ class ContextDeliveryResolverTest extends TestCase
         static::assertSame(['text' => 'Leather'], $index->all()['child-1']->context);
     }
 
-    public function testMissingCustomFieldPreservesTheAuthoredFallback(): void
+    public function testMissingCustomFieldProducesNoMappingDelivery(): void
     {
         $child = StoredElementBuilder::create('Sw:Content:Text', 'child-1')
-            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, sourcePath: 'product.customFields.material')
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.customFields.material'))
             ->build();
 
         $index = $this->resolve($child, new StubPathStruct(customFields: []), []);
@@ -613,8 +613,7 @@ class ContextDeliveryResolverTest extends TestCase
 
     /**
      * The plugin that registered the projection was uninstalled under a layout still mapping through it. The
-     * storefront keeps rendering and falls back to the authored value, which is the same outcome the null
-     * fallback rule produces — going down over a missing optional transform would be the worse answer.
+     * storefront keeps rendering and the mapped property receives no delivery.
      */
     #[TestDox('delivers nothing when the declared projection is no longer registered')]
     public function testAnUnregisteredProjectionDeliversNothingForAnOptionalConsumer(): void
@@ -643,7 +642,7 @@ class ContextDeliveryResolverTest extends TestCase
                 required: false,
                 scope: ConsumerScope::Root,
                 projection: StubUppercaseProjection::NAME,
-                sourcePath: 'product.child',
+                source: MappingSourceReference::fromRootPath('product.child'),
             )
             ->build();
 
@@ -670,7 +669,7 @@ class ContextDeliveryResolverTest extends TestCase
                 required: true,
                 scope: ConsumerScope::Root,
                 projection: StubUppercaseProjection::NAME,
-                sourcePath: 'product.cover',
+                source: MappingSourceReference::fromRootPath('product.cover'),
             )
             ->build();
 
@@ -738,7 +737,7 @@ class ContextDeliveryResolverTest extends TestCase
                 required: false,
                 scope: ConsumerScope::Root,
                 projection: $projection,
-                sourcePath: 'product.cover',
+                source: MappingSourceReference::fromRootPath('product.cover'),
             )
             ->build();
     }

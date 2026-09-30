@@ -9,6 +9,8 @@ const KNOWN = new Set([
     'product.name',
     'product.price',
     'product.customFields.swag_color',
+    'context:storefront.currency.isoCode',
+    'external-source:lookup-id.value',
 ]);
 const isKnownPath = (path: string) => KNOWN.has(path);
 
@@ -36,6 +38,16 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
             'a custom field path',
             '{{map:product.customFields.swag_color}}',
             ['product.customFields.swag_color'],
+        ],
+        [
+            'a typed context source path',
+            '{{map:context:storefront.currency.isoCode}}',
+            ['context:storefront.currency.isoCode'],
+        ],
+        [
+            'a namespaced typed source path',
+            '{{map:external-source:lookup-id.value}}',
+            ['external-source:lookup-id.value'],
         ],
         [
             'the same path twice',
@@ -70,10 +82,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
     });
 
     it('turns known tokens into nodes and leaves unknown ones as text', () => {
-        const html = tokensToEditorHtml(
-            '<p>Buy the {{map:product.name}} in {{map:product.nmae}} today.</p>',
-            isKnownPath,
-        );
+        const html = tokensToEditorHtml('<p>Buy the {{map:product.name}} in {{map:product.nmae}} today.</p>', isKnownPath);
 
         expect(html).toBe('<p>Buy the <span data-sw-map="product.name"></span> in {{map:product.nmae}} today.</p>');
     });
@@ -120,10 +129,22 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
     });
 
     it.each([
-        ['a paragraph', '<p>{{map:product.name}}</p>'],
-        ['a heading', '<h2>Title</h2>'],
-        ['several blocks', '<p>One</p><p>Two</p>'],
-        ['a list', '<ul><li><p>One</p></li></ul>'],
+        [
+            'a paragraph',
+            '<p>{{map:product.name}}</p>',
+        ],
+        [
+            'a heading',
+            '<h2>Title</h2>',
+        ],
+        [
+            'several blocks',
+            '<p>One</p><p>Two</p>',
+        ],
+        [
+            'a list',
+            '<ul><li><p>One</p></li></ul>',
+        ],
     ])('leaves %s alone, because it already has a block structure', (_name, stored) => {
         expect(tokensToEditorHtml(stored, () => false)).toBe(stored);
     });
@@ -176,9 +197,7 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
      * accepts: it closes the paragraph early and leaves an empty one above the mapped content.
      */
     it('round-trips a whole-text mapping to the bare token it was stored as', () => {
-        expect(editorHtmlToTokens(tokensToEditorHtml('{{map:product.name}}', isKnownPath))).toBe(
-            '{{map:product.name}}',
-        );
+        expect(editorHtmlToTokens(tokensToEditorHtml('{{map:product.name}}', isKnownPath))).toBe('{{map:product.name}}');
     });
 
     it('takes the paragraph off a text that holds nothing but a token', () => {
@@ -193,10 +212,22 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
      * and it is the one that produced it.
      */
     it.each([
-        ['an emptied document', '<p></p>'],
-        ['the trailing break ProseMirror keeps an empty paragraph selectable with', '<p><br></p>'],
-        ['a paragraph holding only whitespace', '<p>   </p>'],
-        ['nothing at all', ''],
+        [
+            'an emptied document',
+            '<p></p>',
+        ],
+        [
+            'the trailing break ProseMirror keeps an empty paragraph selectable with',
+            '<p><br></p>',
+        ],
+        [
+            'a paragraph holding only whitespace',
+            '<p>   </p>',
+        ],
+        [
+            'nothing at all',
+            '',
+        ],
     ])('stores %s as an empty value', (_name, editorHtml) => {
         expect(editorHtmlToTokens(editorHtml)).toBe('');
     });
@@ -210,7 +241,11 @@ describe('module/sw-experience-studio/util/inline-mapping.util', () => {
     });
 
     it.each([
-        ['text beside it', '<p><span data-sw-map="product.name"></span> on sale</p>', '<p>{{map:product.name}} on sale</p>'],
+        [
+            'text beside it',
+            '<p><span data-sw-map="product.name"></span> on sale</p>',
+            '<p>{{map:product.name}} on sale</p>',
+        ],
         [
             'a second block',
             '<p><span data-sw-map="product.name"></span></p><p>Now cheaper</p>',

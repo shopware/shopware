@@ -171,8 +171,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             const configured = getMappingCandidateTranslation(
                 candidate.labelTranslations,
-                Shopware.Store.get('session').currentLocale,
-                Shopware.Context.app.fallbackLocale,
+                Shopware.Store.get('session').currentLocale ?? '',
+                Shopware.Context.app.fallbackLocale ?? '',
             );
 
             if (configured !== '') {

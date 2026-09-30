@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\In
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -179,7 +180,7 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
                 'required' => false,
                 'scope' => 'root',
                 'projection' => 'product_media_to_media',
-                'sourcePath' => 'product.cover',
+                'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
             ],
         ]]));
 
@@ -191,7 +192,7 @@ class StoredElementWiringDecoderTest extends StoredElementCodecTestCase
             'required' => false,
             'scope' => 'root',
             'projection' => 'product_media_to_media',
-            'sourcePath' => 'product.cover',
+            'source' => MappingSourceReference::fromRootPath('product.cover')->jsonSerialize(),
         ], $consumer->jsonSerialize());
     }
 

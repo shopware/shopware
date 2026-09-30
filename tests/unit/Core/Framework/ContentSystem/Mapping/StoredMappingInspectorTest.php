@@ -18,6 +18,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSyste
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\AbstractContentPropertyProjection;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
@@ -245,7 +246,7 @@ class StoredMappingInspectorTest extends TestCase
         static::assertCount(1, $problems);
         static::assertSame('element-1', $problems[0]->elementId);
         static::assertSame('text', $problems[0]->propertyKey);
-        static::assertSame(self::CATEGORY_NAME_PATH, $problems[0]->sourcePath);
+        static::assertSame(self::CATEGORY_NAME_PATH, $problems[0]->sourceName);
     }
 
     #[TestDox('admits an inline token naming a catalogued string path in an inlineMappable property')]
@@ -276,7 +277,7 @@ class StoredMappingInspectorTest extends TestCase
 
         static::assertCount(1, $problems);
         static::assertSame(ContentSystemException::UNKNOWN_INLINE_MAPPING_PATH, $problems[0]->exception->getErrorCode());
-        static::assertSame('category.internalNote', $problems[0]->sourcePath);
+        static::assertSame('category.internalNote', $problems[0]->sourceName);
     }
 
     #[TestDox('rejects an inline token whose catalogued value has no text form')]
@@ -318,7 +319,7 @@ class StoredMappingInspectorTest extends TestCase
         static::assertCount(2, $problems);
         static::assertSame(
             ['category.internalNote', 'category.otherNote'],
-            array_map(static fn ($problem): string => $problem->sourcePath, $problems)
+            array_map(static fn ($problem): string => $problem->sourceName, $problems)
         );
     }
 
@@ -385,7 +386,7 @@ class StoredMappingInspectorTest extends TestCase
                     required: false,
                     scope: ConsumerScope::Root,
                     projection: $projection,
-                    sourcePath: $path,
+                    source: MappingSourceReference::fromRootPath($path),
                 ),
             ]),
         );

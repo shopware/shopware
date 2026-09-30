@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\StructuredPrope
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TranslatableType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedDefault;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\TypedEnum;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,6 +28,7 @@ final readonly class PropertySpecificationDto
      * @param string|list<string> $type
      * @param list<string|int|float|bool>|null $enum
      * @param array<string, mixed>|null $adminUI
+     * @param array{type?: string, id?: string, config?: array<string, mixed>, path?: string}|null $defaultMapping
      * @param array<string, self>|null $properties
      */
     public function __construct(
@@ -47,6 +49,7 @@ final readonly class PropertySpecificationDto
         public ?array $properties = null,
         public bool $mappable = false,
         public bool $inlineMappable = false,
+        public ?array $defaultMapping = null,
     ) {
     }
 
@@ -77,6 +80,9 @@ final readonly class PropertySpecificationDto
             $this->adminUI,
             $this->mappable,
             $this->inlineMappable,
+            $this->defaultMapping === null
+                ? null
+                : MappingSourceReference::fromArray($this->defaultMapping, 'defaultMapping'),
         );
     }
 }

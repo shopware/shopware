@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,6 +35,7 @@ class PersistedLayoutMutator
         private readonly EntityRepository $contentLayoutRepository,
         private readonly RootSourceRegistry $rootSourceRegistry,
         private readonly LayoutDiagnostics $diagnostics,
+        private readonly ?DefaultMappingSeeder $defaultMappingSeeder = null,
     ) {
     }
 
@@ -79,6 +81,9 @@ class PersistedLayoutMutator
             // mutated one is handed to the write path the same way: the layout field's serializer takes stored
             // elements directly.
             $mutated = $mutation->apply(new StoredTree($layout->getLayout()));
+            if ($this->defaultMappingSeeder !== null) {
+                $mutated = $this->defaultMappingSeeder->seed($mutated, $layout->getRootSource(), $mutation->created());
+            }
 
             $this->contentLayoutRepository->update([[
                 'id' => $layoutId,

@@ -1,7 +1,7 @@
 {% block sw_experience_studio_mapping_modal %}
 <sw-modal
     class="sw-experience-studio-mapping-modal"
-    variant="small"
+    variant="large"
     :title="$t('sw-experience-studio.detail.elementSettings.mapping.modalTitle')"
     @modal-close="onClose"
 >
@@ -14,65 +14,103 @@
     </p>
     {% endblock %}
 
-    {% block sw_experience_studio_mapping_modal_search %}
-    <mt-text-field
-        v-if="hasCandidates"
-        v-model="searchTerm"
-        class="sw-experience-studio-mapping-modal__search"
-        :label="$t('sw-experience-studio.detail.elementSettings.mapping.searchLabel')"
-        :placeholder="$t('sw-experience-studio.detail.elementSettings.mapping.searchPlaceholder')"
-    />
-    {% endblock %}
-
     {% block sw_experience_studio_mapping_modal_candidates %}
-    <div class="sw-experience-studio-mapping-modal__results">
-        <mt-empty-state
-            v-if="candidateGroups.length === 0"
-            icon="regular-variables-xs"
-            :description="emptyStateDescription"
-        />
+    <div class="sw-experience-studio-mapping-modal__picker">
+        <aside class="sw-experience-studio-mapping-modal__sources">
+            {% block sw_experience_studio_mapping_modal_search %}
+            <mt-text-field
+                v-if="hasCandidates"
+                v-model="searchTerm"
+                class="sw-experience-studio-mapping-modal__search"
+                :label="$t('sw-experience-studio.detail.elementSettings.mapping.searchLabel')"
+                :placeholder="$t('sw-experience-studio.detail.elementSettings.mapping.searchPlaceholder')"
+            />
+            {% endblock %}
 
-        <div
-            v-else
-            class="sw-experience-studio-mapping-modal__groups"
-        >
-            <div
-                v-for="candidateGroup in candidateGroups"
-                :key="candidateGroup.group"
-                class="sw-experience-studio-mapping-modal__group"
+            <nav
+                class="sw-experience-studio-mapping-modal__source-list"
+                :aria-label="$t('sw-experience-studio.detail.elementSettings.mapping.sources.navigationLabel')"
             >
-                <div class="sw-experience-studio-mapping-modal__group-title">
-                    {{ getGroupLabel(candidateGroup.group) }}
-                </div>
-
                 <button
-                    v-for="candidate in candidateGroup.candidates"
-                    :key="candidate.path"
+                    v-for="sourceGroup in sourceGroups"
+                    :key="sourceGroup.key"
                     type="button"
-                    class="sw-experience-studio-mapping-modal__candidate"
-                    :class="{ 'is--selected': isSelectedCandidate(candidate) }"
-                    @click="onSelectCandidate(candidate)"
+                    class="sw-experience-studio-mapping-modal__source"
+                    :class="{ 'is--selected': isSelectedSource(sourceGroup) }"
+                    @click="onSelectSource(sourceGroup)"
                 >
-                    <span class="sw-experience-studio-mapping-modal__candidate-label">
-                        {{ getCandidateLabel(candidate) }}
+                    <span class="sw-experience-studio-mapping-modal__source-label">
+                        {{ getSourceLabel(sourceGroup.type, sourceGroup.id) }}
                     </span>
-
-                    <span
-                        v-if="getCandidateDescription(candidate)"
-                        class="sw-experience-studio-mapping-modal__candidate-description"
-                    >
-                        {{ getCandidateDescription(candidate) }}
+                    <span class="sw-experience-studio-mapping-modal__source-count">
+                        {{ sourceGroup.candidates.length }}
                     </span>
-
-                    <mt-icon
-                        v-if="isSelectedCandidate(candidate)"
-                        class="sw-experience-studio-mapping-modal__candidate-check"
-                        name="regular-checkmark-xs"
-                        size="12px"
-                    />
                 </button>
-            </div>
-        </div>
+            </nav>
+        </aside>
+
+        <section class="sw-experience-studio-mapping-modal__properties">
+            <template v-if="activeSourceGroup">
+                <header class="sw-experience-studio-mapping-modal__properties-header">
+                    <h3>{{ getSourceLabel(activeSourceGroup.type, activeSourceGroup.id) }}</h3>
+                    <p>{{ $t('sw-experience-studio.detail.elementSettings.mapping.sourceIntro') }}</p>
+                </header>
+
+                <mt-empty-state
+                    v-if="candidateGroups.length === 0"
+                    icon="regular-variables-xs"
+                    :description="emptyStateDescription"
+                />
+
+                <div
+                    v-else
+                    class="sw-experience-studio-mapping-modal__groups"
+                >
+                    <div
+                        v-for="candidateGroup in candidateGroups"
+                        :key="candidateGroup.group"
+                        class="sw-experience-studio-mapping-modal__group"
+                    >
+                        <div class="sw-experience-studio-mapping-modal__group-title">
+                            {{ getGroupLabel(candidateGroup.group) }}
+                        </div>
+
+                        <button
+                            v-for="candidate in candidateGroup.candidates"
+                            :key="candidate.path"
+                            type="button"
+                            class="sw-experience-studio-mapping-modal__candidate"
+                            :class="{ 'is--selected': isSelectedCandidate(candidate) }"
+                            @click="onSelectCandidate(candidate)"
+                        >
+                            <span class="sw-experience-studio-mapping-modal__candidate-label">
+                                {{ getCandidateLabel(candidate) }}
+                            </span>
+
+                            <span
+                                v-if="getCandidateDescription(candidate)"
+                                class="sw-experience-studio-mapping-modal__candidate-description"
+                            >
+                                {{ getCandidateDescription(candidate) }}
+                            </span>
+
+                            <mt-icon
+                                v-if="isSelectedCandidate(candidate)"
+                                class="sw-experience-studio-mapping-modal__candidate-check"
+                                name="regular-checkmark-xs"
+                                size="12px"
+                            />
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            <mt-empty-state
+                v-else
+                icon="regular-variables-xs"
+                :description="emptyStateDescription"
+            />
+        </section>
     </div>
     {% endblock %}
 

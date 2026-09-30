@@ -8,8 +8,10 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -44,6 +46,38 @@ class InlineMappingInterpolatorTest extends TestCase
      * Null rather than an empty string, because the caller reads null as "leave the author's characters alone". An
      * uncatalogued token was never a mapping, so deleting it would be presumptuous and a typo would go unnoticed.
      */
+    #[TestDox('resolves a stringifiable context candidate through its provider')]
+    public function testResolvesAContextCandidateThroughItsProvider(): void
+    {
+        $candidate = new MappingCandidate(
+            path: 'context:storefront.currency.isoCode',
+            label: 'currency code',
+            description: '',
+            group: 'storefront-context',
+            valueType: 'string',
+            source: new MappingSourceReference('context', 'storefront', path: 'currency.isoCode'),
+        );
+        $candidates = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+        $candidates->method('forRootSource')->willReturn([$candidate->source->displayName() => $candidate]);
+        $candidates->method('resolveSource')->willReturn('EUR');
+        $interpolator = new InlineMappingInterpolator(
+            $candidates,
+            new ContentSystemPropertyProjectionRegistry([]),
+            new ContextPathResolver(),
+        );
+
+        static::assertSame(
+            'EUR',
+            $interpolator->interpolate(
+                $candidate->path,
+                [],
+                'product',
+                'el-1',
+                new StoredElement('el-1', 'Sw:Content:Text'),
+            ),
+        );
+    }
+
     #[TestDox('answers null for a path the catalogue does not offer, which leaves the token verbatim')]
     public function testAnswersNullForAnUncataloguedPath(): void
     {

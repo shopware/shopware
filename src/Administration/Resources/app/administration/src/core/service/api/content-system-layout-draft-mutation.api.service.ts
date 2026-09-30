@@ -62,7 +62,7 @@ export type ContentLayoutDraftInsertPresetPayload = ContentLayoutDraftMutationEn
 export type ContentLayoutDraftMapPropertyPayload = ContentLayoutDraftMutationEnvelope & {
     elementId: string;
     propertyKey: string;
-    sourcePath: string;
+    source: { type: string; id: string; config?: Record<string, unknown>; path?: string };
     rootSource: string;
 };
 

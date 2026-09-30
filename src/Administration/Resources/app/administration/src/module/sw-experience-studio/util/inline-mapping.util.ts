@@ -21,21 +21,21 @@
  *
  * @private
  */
-const TOKEN_PATTERN = /\{\{\s*map:([A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+)\s*\}\}/g;
+const TOKEN_PATTERN = /\{\{\s*map:((?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_]+)+)\s*\}\}/g;
 
 /**
  * A single dotted path, anchored — used to vet an attribute value that came back from the editor.
  *
  * @private
  */
-const PATH_PATTERN = /^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+$/;
+const PATH_PATTERN = /^(?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_]+)+$/;
 
 /**
  * A whole text mapped to one value: a token and nothing else.
  *
  * @private
  */
-const WHOLE_TEXT_TOKEN_PATTERN = /^\{\{\s*map:([A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+)\s*\}\}$/;
+const WHOLE_TEXT_TOKEN_PATTERN = /^\{\{\s*map:((?:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+|[A-Za-z0-9_]+)(?:\.[A-Za-z0-9_]+)+)\s*\}\}$/;
 
 /**
  * @private

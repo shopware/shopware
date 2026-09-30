@@ -10,8 +10,10 @@ import type { ContentSystemMappingCandidate } from 'src/core/service/api/content
  * @private
  * @sw-package discovery
  */
-export function isMappingConsumer(consumer: ContentElementContextConsumer | undefined): boolean {
-    return typeof consumer?.sourcePath === 'string';
+export function isMappingConsumer(
+    consumer: ContentElementContextConsumer | undefined,
+): consumer is ContentElementContextConsumer & { source: NonNullable<ContentElementContextConsumer['source']> } {
+    return typeof consumer?.source === 'object' && consumer.source !== null;
 }
 
 const PRIMITIVE_TYPES = [
@@ -61,15 +63,13 @@ export function isInlineMappableProperty(property: ContentSystemElementTypePrope
  * rendering something apologetic, so offering one here would only lead the author into a validation error.
  *
  * Unlike `getCandidatesForProperty` there is no `contextTypes` filter, because the property being filled is the text
- * itself rather than a typed slot: `valueType` already carries the answer, and it is the effective type after any
- * projection, so a candidate whose projection formats an entity as a string is correctly offered.
+ * itself rather than a typed slot. Non-root sources are allowed too: the server resolves them through their source
+ * provider, while `valueType` ensures the value has a text form after any projection.
  *
  * @private
  * @sw-package discovery
  */
-export function getInlineMappingCandidates(
-    candidates: ContentSystemMappingCandidate[],
-): ContentSystemMappingCandidate[] {
+export function getInlineMappingCandidates(candidates: ContentSystemMappingCandidate[]): ContentSystemMappingCandidate[] {
     return candidates.filter((candidate) => isPrimitive(candidate.valueType));
 }
 
@@ -88,11 +88,13 @@ export function getMappingCandidateTranslation(
         return '';
     }
 
-    return [
-        translations[currentLocale],
-        translations[fallbackLocale],
-        ...Object.values(translations),
-    ].find((translation) => typeof translation === 'string' && translation !== '') ?? '';
+    return (
+        [
+            translations[currentLocale],
+            translations[fallbackLocale],
+            ...Object.values(translations),
+        ].find((translation) => typeof translation === 'string' && translation !== '') ?? ''
+    );
 }
 
 /**
@@ -108,7 +110,9 @@ export function findPropertyMapping(element: ContentElementNode | null, property
     ] of Object.entries(element?.acceptsContext ?? {})) {
         if (targetProperty === propertyKey && isMappingConsumer(consumer)) {
             return {
-                path: consumer.sourcePath as string,
+                path: consumer.source.type === 'root'
+                    ? [consumer.source.id, consumer.source.path].filter(Boolean).join('.')
+                    : `${consumer.source.type}:${consumer.source.id}${consumer.source.path ? `.${consumer.source.path}` : ''}`,
                 consumer,
             };
         }
@@ -169,13 +173,15 @@ export function groupCandidates(
         groups.set(candidate.group, [candidate]);
     }
 
-    return Array.from(groups.entries()).map(([
-        group,
-        groupCandidateList,
-    ]) => ({
-        group,
-        candidates: groupCandidateList,
-    }));
+    return Array.from(groups.entries()).map(
+        ([
+            group,
+            groupCandidateList,
+        ]) => ({
+            group,
+            candidates: groupCandidateList,
+        }),
+    );
 }
 
 function permitsCandidate(declaredType: string, candidateValueType: string): boolean {

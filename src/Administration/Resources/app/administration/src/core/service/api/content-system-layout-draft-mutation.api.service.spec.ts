@@ -51,8 +51,16 @@ describe('contentSystemLayoutDraftMutationService', () => {
     });
 
     it.each([
-        ['mapProperty', 'map-property', { elementId: 'element-1', propertyKey: 'text', sourcePath: 'product.name' }],
-        ['unmapProperty', 'unmap-property', { elementId: 'element-1', propertyKey: 'text' }],
+        [
+            'mapProperty',
+            'map-property',
+            { elementId: 'element-1', propertyKey: 'text', source: { type: 'root', id: 'product', path: 'name' } },
+        ],
+        [
+            'unmapProperty',
+            'unmap-property',
+            { elementId: 'element-1', propertyKey: 'text' },
+        ],
     ] as const)('posts %s to the dedicated endpoint', async (method, endpoint, operationPayload) => {
         const { service, clientMock } = createService();
         const payload = { layout: [], rootSource: 'product', ...operationPayload };
@@ -68,6 +76,6 @@ describe('contentSystemLayoutDraftMutationService', () => {
 
         clientMock.onPost(`/_action/content-system/layout/${endpoint}`, payload).reply(200, response);
 
-        await expect(service[method](payload)).resolves.toEqual(response);
+        await expect(service[method](payload as never)).resolves.toEqual(response);
     });
 });

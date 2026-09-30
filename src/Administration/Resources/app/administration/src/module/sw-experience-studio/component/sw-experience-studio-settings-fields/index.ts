@@ -276,8 +276,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             const configuredLabel = getMappingCandidateTranslation(
                 candidate.labelTranslations,
-                Shopware.Store.get('session').currentLocale,
-                Shopware.Context.app.fallbackLocale,
+                Shopware.Store.get('session').currentLocale ?? '',
+                Shopware.Context.app.fallbackLocale ?? '',
             );
 
             if (configuredLabel !== '') {
@@ -320,7 +320,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.$emit('update-mapping', {
                 key: field.key,
-                path: candidate.path,
+                source: candidate.source,
                 contextType: candidate.contextType,
                 projection: candidate.projection,
             });
@@ -333,7 +333,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.$emit('update-mapping', {
                 key: field.key,
-                path: null,
+                source: null,
                 contextType: null,
                 projection: null,
             });

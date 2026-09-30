@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\In
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\IteratorDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\KeyedDistributionConfig;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\SlicedDistributionConfig;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\Log\Package;
 
@@ -65,7 +66,7 @@ final class StoredElementWiringDecoder
         'propertyAlias',
         'scope',
         'projection',
-        'sourcePath',
+        'source',
     ];
 
     /**
@@ -176,10 +177,11 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::invalidFieldValueType($path . '.projection', 'string', get_debug_type($projection));
             }
 
-            $sourcePath = $config['sourcePath'] ?? null;
-            if ($sourcePath !== null && (!\is_string($sourcePath) || !str_contains($sourcePath, '.'))) {
-                throw ContentSystemException::invalidFieldValueType($path . '.sourcePath', 'dotted string', get_debug_type($sourcePath));
+            $sourceData = $config['source'] ?? null;
+            if ($sourceData !== null && !\is_array($sourceData)) {
+                throw ContentSystemException::invalidFieldValueType($path . '.source', 'array', get_debug_type($sourceData));
             }
+            $source = $sourceData === null ? null : MappingSourceReference::fromArray($sourceData, $path . '.source');
 
             $scope = $this->consumerScope($config, $path);
 
@@ -195,21 +197,21 @@ final class StoredElementWiringDecoder
                 throw ContentSystemException::rootScopeWithRedistribute($key);
             }
 
-            if ($sourcePath !== null && (
-                $scope !== ConsumerScope::Root
-                || $required
+            if ($source !== null && (
+                $required
                 || $redistribute
                 || $consumerAlias !== null
                 || $propertyAlias !== null
+                || $scope !== ConsumerScope::Root
             )) {
                 throw ContentSystemException::invalidFieldValueType(
-                    $path . '.sourcePath',
+                    $path . '.source',
                     'an optional, root-scoped, unaliased, non-redistributing mapping',
                     'incompatible consumer shape'
                 );
             }
 
-            if ($projection !== null && $sourcePath === null) {
+            if ($projection !== null && $source === null) {
                 throw ContentSystemException::projectionOnNonMappingConsumer($key, $projection);
             }
 
@@ -221,7 +223,7 @@ final class StoredElementWiringDecoder
                 propertyAlias: $propertyAlias,
                 scope: $scope,
                 projection: $projection,
-                sourcePath: $sourcePath,
+                source: $source,
             );
         }
 

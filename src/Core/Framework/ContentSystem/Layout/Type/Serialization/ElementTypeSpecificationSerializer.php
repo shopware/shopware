@@ -135,6 +135,7 @@ class ElementTypeSpecificationSerializer
             properties: $this->denormalizeProperties($propertyData['properties'] ?? null),
             mappable: $propertyData['mappable'] ?? false,
             inlineMappable: $propertyData['inlineMappable'] ?? false,
+            defaultMapping: $propertyData['defaultMapping'] ?? null,
         );
     }
 
@@ -205,6 +206,10 @@ class ElementTypeSpecificationSerializer
 
             if ($prop->inlineMappable) {
                 $propData['inlineMappable'] = true;
+            }
+
+            if ($prop->defaultMapping !== null) {
+                $propData['defaultMapping'] = $prop->defaultMapping;
             }
 
             if ($prop->title !== '') {

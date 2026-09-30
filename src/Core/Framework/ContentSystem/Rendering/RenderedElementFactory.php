@@ -41,9 +41,9 @@ use Shopware\Core\Framework\Log\Package;
  * undelivered consumer key are both absent. Keeping present-null and key-absent apart is the point of the
  * distinction.
  *
- * A dotted root consumer — a data mapping — resolving to nothing is deliberately NOT a producer:
- * {@see ContextDeliveryResolver::overlayRootContext()} writes no key for it, so the authored value beneath
- * survives as the mapping's fallback instead of being blanked by a delivered null.
+ * A consumer carrying a typed source — a data mapping — is an explicit replacement for the target property's
+ * authored and loader-resolved value. If its source supplies nothing, no key is delivered and the target stays
+ * omitted; a missing mapping never falls back to another value source.
  *
  * The same reading applies to a declared key with no stored value: the member carries "the stored value
  * under that key", so a declared reference property nothing filled is absent rather than null. An authored
@@ -111,7 +111,18 @@ final readonly class RenderedElementFactory
             }
         }
 
+        $mappedPropertyKeys = [];
+        foreach ($stored->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+            if ($consumer->source !== null) {
+                $mappedPropertyKeys[] = $consumer->propertyAlias ?? (string) $consumerKey;
+            }
+        }
+
         foreach ($this->declaredAuthoredKeys($declaredProperties) as $key) {
+            if (\in_array($key, $mappedPropertyKeys, true) && !\array_key_exists($key, $deliveredContext)) {
+                continue;
+            }
+
             if ($this->carriesAValue($storedProperties, $key)) {
                 $properties[$key] = $storedProperties[$key]->jsonSerialize();
                 $provenance[$key] = new ValueProvenance(ValueOrigin::DeclaredAuthored);
@@ -119,6 +130,10 @@ final readonly class RenderedElementFactory
         }
 
         foreach (array_keys($stored->dataRequirements) as $key) {
+            if (\in_array($key, $mappedPropertyKeys, true)) {
+                continue;
+            }
+
             if (\array_key_exists($key, $resolvedLoaderValues)) {
                 $properties[$key] = $resolvedLoaderValues[$key]->value;
                 $provenance[$key] = new ValueProvenance(

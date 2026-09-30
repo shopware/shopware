@@ -65,9 +65,13 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
         methods.onElementSettingsResizeStart.call(vm, event);
         expect(vm.isResizingElementSettings).toBe(true);
-        expect((event.currentTarget as HTMLElement).setPointerCapture).toHaveBeenCalledWith(1);
+        const setPointerCapture = Reflect.get(event.currentTarget as HTMLElement, 'setPointerCapture') as jest.Mock;
+        expect(setPointerCapture).toHaveBeenCalledWith(1);
 
-        vm.resizeEndHandler?.();
+        const resizeEndHandler = vm.resizeEndHandler as (() => void) | null;
+        if (resizeEndHandler) {
+            Reflect.apply(resizeEndHandler, vm, []);
+        }
 
         expect(vm.isResizingElementSettings).toBe(false);
         expect(vm.resizeEndHandler).toBeNull();
@@ -253,13 +257,13 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     it.each([
         [
             'map-property',
-            'category.name',
+            { type: 'root', id: 'category', path: 'name' },
         ],
         [
             'unmap-property',
             null,
         ],
-    ] as const)('changes an element mapping via the %s draft mutation', async (operation, path) => {
+    ] as const)('changes an element mapping via the %s draft mutation', async (operation, source) => {
         const executeStructuralDraftMutation = jest.fn().mockResolvedValue(undefined);
         const layout = [{ id: 'element-1', component: 'Sw:Content:Text' }];
         const vm = {
@@ -272,7 +276,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         await methods.onElementMappingChange.call(vm, {
             elementId: 'element-1',
             propertyKey: 'text',
-            path,
+            source,
             contextType: 'single',
         });
 
@@ -282,7 +286,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             {
                 elementId: 'element-1',
                 propertyKey: 'text',
-                ...(path === null ? {} : { sourcePath: path }),
+                ...(source === null ? {} : { source }),
             },
             expect.any(Function),
         );

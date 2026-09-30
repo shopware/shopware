@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
@@ -183,7 +184,7 @@ class LayoutMutationController
         MapPropertyRequest $payload,
         Context $context,
     ): Response {
-        $mutation = $this->propertyMappingMutations->map($payload->rootSource, $payload->elementId, $payload->propertyKey, $payload->sourcePath);
+        $mutation = $this->propertyMappingMutations->map($payload->rootSource, $payload->elementId, $payload->propertyKey, MappingSourceReference::fromArray($payload->source, 'source'));
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

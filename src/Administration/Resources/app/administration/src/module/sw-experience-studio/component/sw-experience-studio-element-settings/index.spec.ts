@@ -129,7 +129,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                             type: 'single',
                             required: false,
                             scope: 'root',
-                            sourcePath: 'category.name',
+                            source: { type: 'root', id: 'category', path: 'name' },
                         },
                     },
                 },

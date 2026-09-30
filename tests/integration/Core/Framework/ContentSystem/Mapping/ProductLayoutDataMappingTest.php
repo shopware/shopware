@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaCollectionTo
 use Shopware\Core\Content\Product\ContentSystem\Mapping\ProductMediaToMediaProjection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -136,11 +137,10 @@ class ProductLayoutDataMappingTest extends TestCase
     }
 
     /**
-     * The fallback rule reaching through a projection. A product with no cover resolves to nothing, and the
-     * projection is never entered — so what renders is the picture the author picked, not a blank element.
+     * A missing projected source value omits the mapped property even when an authored media id is stored.
      */
-    #[TestDox('serves the picked media when the mapped product has no cover')]
-    public function testAMappedCoverResolvingToNothingFallsBackToThePickedMedia(): void
+    #[TestDox('omits the mapped media when the product has no cover')]
+    public function testAMappedCoverResolvingToNothingOmitsTheProperty(): void
     {
         $this->createMedia('picked-image');
         $this->createProduct();
@@ -150,9 +150,7 @@ class ProductLayoutDataMappingTest extends TestCase
             mediaId: $this->ids->get('picked-image'),
         ));
 
-        $media = $this->servedProperties()['media'] ?? null;
-        static::assertIsArray($media);
-        static::assertSame($this->ids->get('picked-image'), $media['id'] ?? null);
+        static::assertArrayNotHasKey('media', $this->servedProperties());
     }
 
     /**
@@ -249,7 +247,7 @@ class ProductLayoutDataMappingTest extends TestCase
             'type' => $type,
             'required' => false,
             'scope' => 'root',
-            'sourcePath' => $sourcePath,
+            'source' => MappingSourceReference::fromRootPath($sourcePath)->jsonSerialize(),
         ];
 
         if ($projection !== null) {

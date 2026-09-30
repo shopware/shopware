@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
@@ -185,7 +186,7 @@ class ContentLayoutMutationController
                 $rootSource,
                 $payload->elementId,
                 $payload->propertyKey,
-                $payload->sourcePath,
+                MappingSourceReference::fromArray($payload->source, 'source'),
             ),
             $context,
         );

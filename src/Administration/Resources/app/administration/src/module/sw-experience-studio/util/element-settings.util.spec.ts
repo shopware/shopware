@@ -18,6 +18,7 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         required: false,
         mappable: false,
         inlineMappable: false,
+        defaultMapping: null,
         title: 'Headline',
         description: 'Headline text',
         adminUI: null,

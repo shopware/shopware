@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Mapping;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -86,7 +87,7 @@ class LandingPageLayoutDataMappingTest extends TestCase
                             'type' => 'single',
                             'required' => false,
                             'scope' => 'root',
-                            'sourcePath' => 'landing_page.name',
+                            'source' => MappingSourceReference::fromRootPath('landing_page.name')->jsonSerialize(),
                         ],
                     ],
                 ]]],

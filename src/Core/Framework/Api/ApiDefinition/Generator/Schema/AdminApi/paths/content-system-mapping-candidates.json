@@ -29,11 +29,22 @@
                                                 "type": "array",
                                                 "items": {
                                                     "type": "object",
-                                                    "required": ["path", "label", "description", "group", "valueType", "contextType", "projection", "labelTranslations", "descriptionTranslations"],
+                                                    "required": ["path", "source", "label", "description", "group", "valueType", "contextType", "projection", "labelTranslations", "descriptionTranslations"],
                                                     "properties": {
                                                         "path": {
                                                             "type": "string",
-                                                            "description": "The dotted path into the layout's root-ambient data, including its leading context key (\"category.name\"). This is stored as the mapping consumer's sourcePath."
+                                                            "description": "Stable candidate display path. For root candidates this includes the context key (\"product.name\"); the typed `source` field is the persisted mapping reference."
+                                                        },
+                                                        "source": {
+                                                            "type": "object",
+                                                            "required": ["type", "id"],
+                                                            "description": "Typed source reference, with an optional safe member path and provider configuration.",
+                                                            "properties": {
+                                                                "type": { "type": "string", "example": "root" },
+                                                                "id": { "type": "string", "example": "product" },
+                                                                "path": { "type": "string", "example": "name" },
+                                                                "config": { "type": "object", "additionalProperties": true }
+                                                            }
                                                         },
                                                         "label": {
                                                             "type": "string",

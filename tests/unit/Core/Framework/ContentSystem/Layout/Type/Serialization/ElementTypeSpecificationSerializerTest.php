@@ -223,6 +223,26 @@ class ElementTypeSpecificationSerializerTest extends TestCase
         );
     }
 
+    #[TestDox('round-trips a typed default mapping declaration')]
+    public function testRoundTripsDefaultMapping(): void
+    {
+        $source = ['type' => 'root', 'id' => 'product'];
+        $dto = $this->serializer->denormalize([
+            'meta' => $this->buildMinimalMeta(),
+            'properties' => [
+                'product' => [
+                    'type' => 'Shopware\\Core\\Content\\Product\\SalesChannel\\SalesChannelProductEntity',
+                    'mappable' => true,
+                    'defaultMapping' => $source,
+                ],
+            ],
+        ]);
+
+        static::assertSame($source, $dto->properties['product']->defaultMapping);
+        static::assertSame($source, $this->serializer->normalize($dto)['properties']['product']['defaultMapping']);
+        static::assertSame($source, $dto->toContentSystemElementTypeSpecification('test', 'core')->toSchema()['properties']['product']['defaultMapping']);
+    }
+
     #[TestDox('denormalizes and normalizes nested object property schemas')]
     public function testRoundTripsNestedObjectPropertySchema(): void
     {

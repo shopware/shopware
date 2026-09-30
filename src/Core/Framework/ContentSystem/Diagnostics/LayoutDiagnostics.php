@@ -742,7 +742,7 @@ class LayoutDiagnostics
         $violations = [];
 
         foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-            $sourceKey = $consumer->sourcePath ?? (string) $consumerKey;
+            $sourceKey = $consumer->source?->displayName() ?? (string) $consumerKey;
 
             if (!$consumer->required || $this->isSatisfied($available, $sourceKey, $consumer->scope)) {
                 continue;

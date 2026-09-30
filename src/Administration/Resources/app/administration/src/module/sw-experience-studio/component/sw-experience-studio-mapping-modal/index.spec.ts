@@ -4,6 +4,7 @@ import mappingModalComponent from './index';
 function candidate(overrides: Partial<ContentSystemMappingCandidate> = {}): ContentSystemMappingCandidate {
     return {
         path: 'category.name',
+        source: { type: 'root', id: 'category', path: 'name' },
         label: 'sw-experience-studio.mapping.category.name.label',
         description: 'sw-experience-studio.mapping.category.name.description',
         group: 'basic',
@@ -31,6 +32,9 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         'sw-experience-studio.mapping.category.name.description': 'The name of the category the page shows.',
         'sw-experience-studio.detail.elementSettings.mapping.groups.basic': 'Basic information',
         'sw-experience-studio.detail.elementSettings.mapping.groups.customFields': 'Custom Fields',
+        'sw-experience-studio.detail.elementSettings.mapping.sources.rootEntity': 'Root entity',
+        'sw-experience-studio.detail.elementSettings.mapping.sources.storefrontContext': 'Storefront context',
+        'sw-experience-studio.createWizard.layoutTypes.product': 'Product',
     };
 
     const i18n = {
@@ -41,15 +45,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
 
     it('renders a snippet label, falling back to the key when no snippet is shipped', () => {
         expect(methods.getCandidateLabel.call(i18n, candidate())).toBe('Category name');
-        expect(
-            methods.getCandidateLabel.call(i18n, candidate({ label: 'app.custom.label' })),
-        ).toBe('app.custom.label');
+        expect(methods.getCandidateLabel.call(i18n, candidate({ label: 'app.custom.label' }))).toBe('app.custom.label');
     });
 
     it('omits the description rather than showing a raw snippet key', () => {
-        expect(methods.getCandidateDescription.call(i18n, candidate())).toBe(
-            'The name of the category the page shows.',
-        );
+        expect(methods.getCandidateDescription.call(i18n, candidate())).toBe('The name of the category the page shows.');
         expect(methods.getCandidateDescription.call(i18n, candidate({ description: 'app.custom.description' }))).toBe('');
     });
 
@@ -60,16 +60,22 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
         });
 
         expect(
-            methods.getCandidateLabel.call({
-                ...i18n,
-                getCandidateTranslation: (values: Record<string, string>) => values['en-GB'],
-            }, configuredCandidate),
+            methods.getCandidateLabel.call(
+                {
+                    ...i18n,
+                    getCandidateTranslation: (values: Record<string, string>) => values['en-GB'],
+                },
+                configuredCandidate,
+            ),
         ).toBe('Material');
         expect(
-            methods.getCandidateDescription.call({
-                ...i18n,
-                getCandidateTranslation: (values: Record<string, string>) => values['en-GB'],
-            }, configuredCandidate),
+            methods.getCandidateDescription.call(
+                {
+                    ...i18n,
+                    getCandidateTranslation: (values: Record<string, string>) => values['en-GB'],
+                },
+                configuredCandidate,
+            ),
         ).toBe('The product material');
     });
 
@@ -94,6 +100,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
             candidates,
             searchTerm: 'category name',
             getCandidateLabel: methods.getCandidateLabel,
+            getSourceLabel: methods.getSourceLabel,
         }) as ContentSystemMappingCandidate[];
 
         const matchingByPath = computed.matchingCandidates.call({
@@ -101,10 +108,49 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
             candidates,
             searchTerm: 'metatitle',
             getCandidateLabel: methods.getCandidateLabel,
+            getSourceLabel: methods.getSourceLabel,
         }) as ContentSystemMappingCandidate[];
 
         expect(matchingByLabel.map((entry) => entry.path)).toEqual(['category.name']);
         expect(matchingByPath.map((entry) => entry.path)).toEqual(['category.metaTitle']);
+    });
+
+    it('groups candidates by typed source and puts the root entity first', () => {
+        const rootCandidate = candidate({ path: 'product.name', source: { type: 'root', id: 'product', path: 'name' } });
+        const contextCandidate = candidate({
+            path: 'context:storefront.currency.isoCode',
+            source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+        });
+        const sourceGroups = computed.sourceGroups.call({
+            matchingCandidates: [contextCandidate, rootCandidate],
+            getSourceKey: methods.getSourceKey,
+        }) as Array<{ key: string; candidates: ContentSystemMappingCandidate[] }>;
+
+        expect(sourceGroups.map((group) => group.key)).toEqual(['root:product', 'context:storefront']);
+        expect(sourceGroups[0].candidates).toEqual([rootCandidate]);
+        expect(sourceGroups[1].candidates).toEqual([contextCandidate]);
+    });
+
+    it('keeps the source containing the current mapping active', () => {
+        const rootGroup = { key: 'root:product', type: 'root', id: 'product', candidates: [candidate()] };
+        const contextCandidate = candidate({
+            path: 'context:storefront.currency.isoCode',
+            source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+        });
+        const contextGroup = { key: 'context:storefront', type: 'context', id: 'storefront', candidates: [contextCandidate] };
+
+        const active = computed.activeSourceGroup.call({
+            sourceGroups: [rootGroup, contextGroup],
+            selectedSourceKey: null,
+            currentPath: contextCandidate.path,
+        });
+
+        expect(active).toBe(contextGroup);
+    });
+
+    it('labels root and Storefront context sources for the left navigation', () => {
+        expect(methods.getSourceLabel.call(i18n, 'root', 'product')).toBe('Root entity · Product');
+        expect(methods.getSourceLabel.call(i18n, 'context', 'storefront')).toBe('Storefront context');
     });
 
     it('returns every candidate for an empty search term', () => {
@@ -118,6 +164,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
             candidates,
             searchTerm: '   ',
             getCandidateLabel: methods.getCandidateLabel,
+            getSourceLabel: methods.getSourceLabel,
         }) as ContentSystemMappingCandidate[];
 
         expect(matching).toHaveLength(2);
@@ -136,6 +183,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
             candidates: [configuredCandidate],
             searchTerm: 'material',
             getCandidateLabel: methods.getCandidateLabel,
+            getSourceLabel: methods.getSourceLabel,
         }) as ContentSystemMappingCandidate[];
 
         expect(matching).toEqual([configuredCandidate]);
@@ -161,10 +209,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-mapping-mod
 
         methods.onSelectCandidate.call(
             {
-                $emit: (event: string, payload: unknown) => emitted.push([
-                    event,
-                    payload,
-                ]),
+                $emit: (event: string, payload: unknown) =>
+                    emitted.push([
+                        event,
+                        payload,
+                    ]),
             },
             selected,
         );

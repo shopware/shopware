@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Projection\ContentSystemPropertyProjectionRegistry;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
@@ -85,7 +86,7 @@ class StoredMappingValidatorTest extends TestCase
                     type: ContextType::Single,
                     required: false,
                     scope: ConsumerScope::Root,
-                    sourcePath: self::CATEGORY_NAME_PATH,
+                    source: MappingSourceReference::fromRootPath(self::CATEGORY_NAME_PATH),
                 ),
             ]),
         );

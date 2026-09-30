@@ -12,6 +12,7 @@ const { methods, watch, computed } = inlineTextFieldComponent as unknown as Comp
 const candidate = (path: string, valueType = 'string'): ContentSystemMappingCandidate =>
     ({
         path,
+        source: { type: 'root', id: path.split('.')[0], path: path.split('.').slice(1).join('.') },
         label: `label.${path}`,
         description: '',
         group: 'basic',
@@ -45,7 +46,7 @@ const createVm = (value: string, candidates = [candidate('product.name')]) => {
         get: () => computed.candidatePaths.call(vm),
     });
 
-    vm.editorHtml = vm.toEditorHtml(value);
+    vm.editorHtml = vm.toEditorHtml(value) as string;
 
     return vm;
 };
@@ -130,7 +131,9 @@ describe('module/sw-experience-studio/component/sw-experience-studio-inline-text
         const vm = createVm('<p></p>');
         vm.disabled = true;
 
-        methods.onOpenMappingModal.call(vm, { chain: () => ({ focus: () => ({ insertContent: () => ({ run: () => {} }) }) }) });
+        methods.onOpenMappingModal.call(vm, {
+            chain: () => ({ focus: () => ({ insertContent: () => ({ run: () => {} }) }) }),
+        });
 
         expect(vm.isMappingModalOpen).toBe(false);
     });

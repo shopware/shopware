@@ -109,10 +109,14 @@ final readonly class ElementLowering
 
         // Context distribution is about dataflow, not about where a value came from, so it sees the plain
         // values: a provider hands a child what it renders, and the identity beside it means nothing there.
+        $plainLoaderValues = $this->plainValues($loaderValues);
         $deliveries = $this->deliveryResolver->resolve(
             $forest,
-            $this->plainValues($loaderValues),
+            $plainLoaderValues,
             $plainAmbient,
+            $context,
+            $request,
+            $cacheContext,
         );
 
         // Inline mapping expansion sits between delivery and the mint, and that is the only window it fits in: it
@@ -121,7 +125,7 @@ final readonly class ElementLowering
         // either way — it reads context wiring and loader values, never an authored string — so the deliveries
         // computed from the pre-expansion forest stay valid against the expanded one: expansion changes property
         // VALUES and no element id, and the delivery index is keyed by id.
-        $forest = $this->inlineMappingExpander->expand($forest, $plainAmbient, $rootSource);
+        $forest = $this->inlineMappingExpander->expand($forest, $plainAmbient, $rootSource, $context, $request, $cacheContext, $plainLoaderValues);
 
         return $this->treeFactory->create($forest, $deliveries, $loaderValues, $mode);
     }

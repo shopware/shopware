@@ -15,7 +15,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 #[Package('framework')]
 class CachedContentSystemElementTypeRegistry extends AbstractContentSystemElementTypeRegistry
 {
-    private const CACHE_KEY = 'content_system.element_types';
+    private const CACHE_KEY = 'content_system.element_types.v2';
 
     public function __construct(
         private readonly AbstractContentSystemElementTypeRegistry $inner,

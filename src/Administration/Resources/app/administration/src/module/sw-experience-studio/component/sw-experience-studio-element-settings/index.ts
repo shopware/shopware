@@ -284,7 +284,7 @@ export default Shopware.Component.wrapComponentConfig({
          */
         onUpdateElementMapping(payload: {
             key: string;
-            path: string | null;
+            source: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
             contextType: 'single' | 'collection' | null;
             projection: string | null;
         }): void {
@@ -297,7 +297,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('update-mapping', {
                 elementId: selectedElement.id,
                 propertyKey: payload.key,
-                path: payload.path,
+                source: payload.source,
                 contextType: payload.contextType,
                 projection: payload.projection,
             });

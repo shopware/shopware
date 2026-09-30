@@ -8,14 +8,14 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * One offer in the data-mapping catalogue: a path into a layout's root-ambient data that an author may bind a
- * mappable element property to, described in the terms the Administration needs to present it.
+ * One offer in the data-mapping catalogue: a typed source reference that an author may bind a mappable
+ * element property to, described in the terms the Administration needs to present it.
  *
- * The catalogue is curated rather than derived from the entity definitions, and that is a correctness and a
+ * Root candidates are curated rather than derived from entity definitions, and that is a correctness and a
  * security decision rather than a convenience. Two constraints a derived catalogue could not honour:
  *
  * - {@see ContextPathResolver} traverses `Struct::getVars()` and normally needs a `Struct` at every
- *   intermediate step. Catalogued mappings have one narrow exception for a terminal lookup in the root
+ *   intermediate step. Catalogued root mappings have one narrow exception for a terminal lookup in the root
  *   entity's array-backed `customFields` member. Only a path a provider has vouched for is offered.
  * - The framework's protection gate (ApiAware, `isProtected`, the customFields blocklist) is applied by
  *   `StructEncoder` to `Struct` leaves only, so a mapped SCALAR leaf is served unfiltered. The catalogue is
@@ -26,16 +26,16 @@ use Shopware\Core\Framework\Log\Package;
  * it there to itself, which is what lets the Administration filter candidates by a plain type check and keeps
  * projections out of the authoring UI entirely.
  *
- * `$path` MUST be dotted, and the constructor enforces it: mapping exposes selected members of root-ambient
- * data, while consuming an ambient value itself remains ordinary context wiring.
+ * `$path` is the stable candidate key used by inline text mappings. Field mappings persist `$source`, which can
+ * identify a whole value or a selected member within a typed source.
  */
 #[Package('framework')]
 final readonly class MappingCandidate
 {
+    public MappingSourceReference $source;
+
     /**
-     * @param string $path the dotted path into the root-ambient data, including its leading context key
-     *                     (`category.name`); the segment before the first dot names the page-level data
-     *                     requirement the value is resolved against
+     * @param string $path stable candidate key, currently a dotted root-member path for root candidates (`category.name`)
      * @param string $label snippet key for the human-readable name, resolved by the Administration
      * @param string $description snippet key for the supporting line under the name
      * @param string $group grouping id the Administration renders as a section, e.g. `basic` or `media`
@@ -55,19 +55,23 @@ final readonly class MappingCandidate
         public ?string $projection = null,
         public array $labelTranslations = [],
         public array $descriptionTranslations = [],
+        ?MappingSourceReference $source = null,
     ) {
-        if (!str_contains($path, '.')) {
+        $this->source = $source ?? MappingSourceReference::fromRootPath($path);
+
+        if ($path === '' || ($source === null && !str_contains($path, '.'))) {
             throw ContentSystemException::invalidMappingCandidatePath($path);
         }
     }
 
     /**
-     * @return array{path: string, label: string, description: string, group: string, valueType: string, contextType: string, projection: string|null, labelTranslations: object, descriptionTranslations: object}
+     * @return array{path: string, label: string, description: string, group: string, valueType: string, contextType: string, projection: string|null, source: array{type: string, id: string, config?: array<string, mixed>, path?: string}, labelTranslations: object, descriptionTranslations: object}
      */
     public function toSchema(): array
     {
         return [
             'path' => $this->path,
+            'source' => $this->source->jsonSerialize(),
             'label' => $this->label,
             'description' => $this->description,
             'group' => $this->group,

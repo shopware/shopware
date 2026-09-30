@@ -58,6 +58,7 @@ export interface ContentSystemElementTypeProperty {
     required: boolean;
     /** Whether the author may replace this property's static value with a mapping onto the layout's entity data. */
     mappable: boolean;
+    defaultMapping: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
     /**
      * Whether the author may embed `{{map:path}}` tokens in this property's text, mapping values *within* the value
      * rather than instead of it. Only ever set on a `string` property, and never together with `mappable`.

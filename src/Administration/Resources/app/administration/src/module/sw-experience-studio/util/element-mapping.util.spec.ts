@@ -36,6 +36,7 @@ function property(overrides: Partial<ContentSystemElementTypeProperty> = {}): Co
         required: false,
         mappable: false,
         inlineMappable: false,
+        defaultMapping: null,
         title: 'Text',
         description: '',
         adminUI: null,
@@ -46,6 +47,7 @@ function property(overrides: Partial<ContentSystemElementTypeProperty> = {}): Co
 function candidate(overrides: Partial<ContentSystemMappingCandidate> = {}): ContentSystemMappingCandidate {
     return {
         path: 'category.name',
+        source: { type: 'root', id: 'category', path: 'name' },
         label: 'sw-experience-studio.mapping.category.name.label',
         description: 'sw-experience-studio.mapping.category.name.description',
         group: 'basic',
@@ -78,6 +80,11 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 candidate({ path: 'product.stock', valueType: 'integer' }),
                 candidate({ path: 'product.price', valueType: 'number' }),
                 candidate({ path: 'product.active', valueType: 'boolean' }),
+                candidate({
+                    path: 'context:storefront.currency.isoCode',
+                    source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+                    valueType: 'string',
+                }),
                 candidate({ path: 'product.cover', valueType: 'Shopware\\Core\\Content\\Media\\MediaEntity' }),
                 candidate({ path: 'product.media', valueType: 'Shopware\\Core\\Content\\Media\\MediaCollection' }),
             ];
@@ -87,6 +94,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 'product.stock',
                 'product.price',
                 'product.active',
+                'context:storefront.currency.isoCode',
             ]);
         });
 
@@ -102,6 +110,15 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
             });
 
             expect(getInlineMappingCandidates([projected])).toEqual([projected]);
+        });
+
+        it('offers stringifiable context candidates to inline text mappings', () => {
+            const contextCandidate = candidate({
+                path: 'context:storefront.currency.isoCode',
+                source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+            });
+
+            expect(getInlineMappingCandidates([contextCandidate])).toEqual([contextCandidate]);
         });
 
         it('offers a collection-scoped candidate whose value is a string', () => {
@@ -121,12 +138,29 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                         type: 'single' as const,
                         required: false,
                         scope: 'root' as const,
-                        sourcePath: 'category.name',
+                        source: { type: 'root', id: 'category', path: 'name' },
                     },
                 },
             } satisfies ContentElementNode;
 
             expect(findPropertyMapping(element, 'text')?.path).toBe('category.name');
+        });
+
+        it('keeps the source type in a non-root mapped source path', () => {
+            const element = {
+                id: 'element-id',
+                component: 'Sw:Content:Text',
+                acceptsContext: {
+                    text: {
+                        type: 'single' as const,
+                        required: false,
+                        scope: 'root' as const,
+                        source: { type: 'context', id: 'storefront', path: 'currency.isoCode' },
+                    },
+                },
+            } satisfies ContentElementNode;
+
+            expect(findPropertyMapping(element, 'text')?.path).toBe('context:storefront.currency.isoCode');
         });
 
         it('ignores a consumer that feeds a different property', () => {
@@ -138,7 +172,7 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                         type: 'single' as const,
                         required: false,
                         scope: 'root' as const,
-                        sourcePath: 'category.name',
+                        source: { type: 'root', id: 'category', path: 'name' },
                     },
                 },
             } satisfies ContentElementNode;
@@ -193,9 +227,9 @@ describe('module/sw-experience-studio/util/element-mapping.util', () => {
                 candidate({ path: 'category.level', valueType: 'integer' }),
             ];
 
-            expect(getCandidatesForProperty(candidates, property({ type: 'string' })).map((entry) => entry.path)).toEqual(
-                ['category.name'],
-            );
+            expect(getCandidatesForProperty(candidates, property({ type: 'string' })).map((entry) => entry.path)).toEqual([
+                'category.name',
+            ]);
         });
 
         it('keeps a candidate matching any member of a union type', () => {

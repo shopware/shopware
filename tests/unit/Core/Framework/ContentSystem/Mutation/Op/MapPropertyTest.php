@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
 use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MapProperty;
@@ -38,14 +39,14 @@ class MapPropertyTest extends TestCase
         $tree = $this->map('headline', 'product.name')->apply($tree);
 
         $consumers = $tree->roots[0]->contextDefinitions->getAllConsumers();
-        static::assertSame('product.name', $consumers['text']->sourcePath);
-        static::assertSame('product.name', $consumers['headline']->sourcePath);
+        static::assertSame('product.name', $consumers['text']->source?->displayName());
+        static::assertSame('product.name', $consumers['headline']->source?->displayName());
 
         $tree = (new UnmapProperty('element-1', 'text'))->apply($tree);
         $consumers = $tree->roots[0]->contextDefinitions->getAllConsumers();
 
         static::assertArrayNotHasKey('text', $consumers);
-        static::assertSame('product.name', $consumers['headline']->sourcePath);
+        static::assertSame('product.name', $consumers['headline']->source?->displayName());
         static::assertSame('Text fallback', $tree->roots[0]->property('text')?->jsonSerialize());
     }
 
@@ -58,7 +59,7 @@ class MapPropertyTest extends TestCase
         $consumers = $tree->roots[0]->contextDefinitions->getAllConsumers();
 
         static::assertCount(1, $consumers);
-        static::assertSame('product.metaTitle', $consumers['text']->sourcePath);
+        static::assertSame('product.metaTitle', $consumers['text']->source?->displayName());
     }
 
     private function map(string $propertyKey, string $sourcePath): MapProperty
@@ -87,7 +88,7 @@ class MapPropertyTest extends TestCase
             'product',
             'element-1',
             $propertyKey,
-            $sourcePath,
+            MappingSourceReference::fromRootPath($sourcePath),
         );
     }
 

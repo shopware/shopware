@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRoute;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -17,5 +18,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CategoryBreadcrumbBuilder::class),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 };

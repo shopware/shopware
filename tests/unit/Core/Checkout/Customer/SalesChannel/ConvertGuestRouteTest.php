@@ -8,8 +8,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\ConvertGuestRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -18,8 +20,10 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -177,6 +181,33 @@ class ConvertGuestRouteTest extends TestCase
         }
     }
 
+    public function testPublishesExtension(): void
+    {
+        $requestDataBag = new RequestDataBag();
+        $additionalValidationDefinitions = new DataValidationDefinition();
+        $response = new SuccessResponse();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('convert-guest-route.convert-guest.pre', function (ConvertGuestRouteExtension $extension) use ($requestDataBag, $additionalValidationDefinitions, $response): void {
+            static::assertSame(['requestDataBag' => $requestDataBag, 'context' => $this->salesChannelContext, 'customer' => $this->customer, 'additionalValidationDefinitions' => $additionalValidationDefinitions], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ConvertGuestRoute(
+            $this->customerRepository,
+            $this->eventDispatcher,
+            $this->validator,
+            $this->passwordValidationFactory,
+            static::createStub(RequestStack::class),
+            static::createStub(RateLimiter::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer, $additionalValidationDefinitions));
+    }
+
     private function buildRoute(
         ?EventDispatcherInterface $eventDispatcher = null,
         ?DataValidator $validator = null,
@@ -189,6 +220,7 @@ class ConvertGuestRouteTest extends TestCase
             $passwordValidationFactory ?? $this->passwordValidationFactory,
             static::createStub(RequestStack::class),
             static::createStub(RateLimiter::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

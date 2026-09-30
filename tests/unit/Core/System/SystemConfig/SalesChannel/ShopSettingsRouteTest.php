@@ -5,12 +5,17 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\SystemConfig\Extension\ShopSettingsRouteExtension;
 use Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRoute;
+use Shopware\Core\System\SystemConfig\SalesChannel\ShopSettingsRouteResponse;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -85,7 +90,7 @@ class ShopSettingsRouteTest extends TestCase
             ],
         ]);
 
-        $route = new ShopSettingsRoute($systemConfigService);
+        $route = new ShopSettingsRoute($systemConfigService, new ExtensionDispatcher(new EventDispatcher()));
 
         $settings = $route->load(Generator::generateSalesChannelContext())->getSettings();
 
@@ -161,7 +166,7 @@ class ShopSettingsRouteTest extends TestCase
 
     public function testLoadFallsBackToUnsetDefaultsWhenConfigIsEmpty(): void
     {
-        $route = new ShopSettingsRoute(new StaticSystemConfigService());
+        $route = new ShopSettingsRoute(new StaticSystemConfigService(), new ExtensionDispatcher(new EventDispatcher()));
 
         $settings = $route->load(Generator::generateSalesChannelContext())->getSettings();
 
@@ -203,7 +208,7 @@ class ShopSettingsRouteTest extends TestCase
                 'core.loginRegistration.showNameFieldsForCompanyAccounts' => $show,
                 'core.loginRegistration.nameFieldsRequiredForCompanyAccounts' => $required,
             ],
-        ]));
+        ]), new ExtensionDispatcher(new EventDispatcher()));
 
         $loginRegistration = $route->load(Generator::generateSalesChannelContext())->getSettings()->loginRegistration;
 
@@ -235,7 +240,7 @@ class ShopSettingsRouteTest extends TestCase
             ],
         ]);
 
-        $route = new ShopSettingsRoute($systemConfigService);
+        $route = new ShopSettingsRoute($systemConfigService, new ExtensionDispatcher(new EventDispatcher()));
 
         $settings = $route->load(Generator::generateSalesChannelContext())->getSettings();
 
@@ -245,10 +250,31 @@ class ShopSettingsRouteTest extends TestCase
 
     public function testGetDecoratedThrows(): void
     {
-        $route = new ShopSettingsRoute(new StaticSystemConfigService());
+        $route = new ShopSettingsRoute(new StaticSystemConfigService(), new ExtensionDispatcher(new EventDispatcher()));
 
         static::expectExceptionObject(new DecorationPatternException(ShopSettingsRoute::class));
 
         $route->getDecorated();
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $response = static::createStub(ShopSettingsRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('shop-settings-route.load.pre', static function (ShopSettingsRouteExtension $extension) use ($context, $response): void {
+            static::assertSame(['context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ShopSettingsRoute(
+            static::createStub(SystemConfigService::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($context));
     }
 }

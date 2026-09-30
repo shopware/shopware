@@ -42,6 +42,7 @@ use Shopware\Core\Checkout\Order\Telemetry\OrderMetricsSubscriber;
 use Shopware\Core\Checkout\Order\Validation\OrderValidationFactory;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -183,6 +184,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AccountService::class),
             service(GuestAuthenticator::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
             param('shopware.order.deep_link.expire_days'),
         ]);
 
@@ -192,6 +194,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderService::class),
             service('order.repository'),
             service(SystemConfigService::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SetPaymentOrderRoute::class)
@@ -205,6 +208,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(InitialStateIdLoader::class),
             service(CheckoutGatewayRoute::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     // events

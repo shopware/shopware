@@ -313,6 +313,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AccountService::class),
             service(RequestStack::class),
             service(RateLimiter::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(LogoutRoute::class)
@@ -323,6 +324,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(CartService::class),
             service(SalesChannelContextService::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SendPasswordRecoveryMailRoute::class)
@@ -372,6 +374,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
             service(CompanyAccountNameFields::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ChangePasswordRoute::class)
@@ -381,6 +384,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(SystemConfigService::class),
             service(DataValidator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ChangeEmailRoute::class)
@@ -390,6 +394,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(DataValidator::class),
             service('customer_recovery.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ChangeLanguageRoute::class)
@@ -398,6 +403,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('customer.repository'),
             service('event_dispatcher'),
             service(DataValidator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ConvertGuestRoute::class)
@@ -409,18 +415,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PasswordValidationFactory::class),
             service(RequestStack::class),
             service('shopware.rate_limiter'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerRoute::class)
         ->public()
         ->args([
             service('customer.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DeleteCustomerRoute::class)
         ->public()
         ->args([
             service('customer.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(RegisterRoute::class)
@@ -456,6 +465,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextPersister::class),
             service(SalesChannelContextService::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ListAddressRoute::class)
@@ -463,6 +473,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.customer_address.repository'),
             service('event_dispatcher'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(UpsertAddressRoute::class)
@@ -477,12 +488,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
             service(CompanyAccountNameFields::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DeleteAddressRoute::class)
         ->public()
         ->args([
             service('customer_address.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SwitchDefaultAddressRoute::class)
@@ -491,12 +504,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('customer_address.repository'),
             service('customer.repository'),
             service(EventDispatcherInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerGroupRegistrationSettingsRoute::class)
         ->public()
         ->args([
             service('customer_group.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SalesChannelCustomerAddressDefinition::class)
@@ -551,6 +566,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(SystemConfigService::class),
             service(ProductCloseoutFilterFactory::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(AddWishlistProductRoute::class)
@@ -560,6 +576,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
             service(SystemConfigService::class),
             service('event_dispatcher'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(RemoveWishlistProductRoute::class)
@@ -569,6 +586,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('customer_wishlist_product.repository'),
             service(SystemConfigService::class),
             service('event_dispatcher'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerWishlistProductExceptionHandler::class)
@@ -582,6 +600,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service('event_dispatcher'),
             service(Connection::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(WishlistCookieCollectListener::class)
@@ -597,6 +616,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('sales_channel.newsletter_recipient.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ImitateCustomerRoute::class)
@@ -608,6 +628,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextFactory::class),
             service('event_dispatcher'),
             service(DataValidator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DeleteUnusedGuestCustomerService::class)
@@ -681,6 +702,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('order_line_item_download.repository'),
             service(DownloadResponseGenerator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerSalutationSubscriber::class)

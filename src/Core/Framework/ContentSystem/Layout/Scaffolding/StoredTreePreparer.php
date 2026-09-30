@@ -146,9 +146,12 @@ final class StoredTreePreparer
     {
         $properties = [];
         foreach ($element->properties() as $key => $value) {
-            $properties[$key] = $value->isString()
-                ? StoredValue::ofString($this->substitute($value->asString(), $values))
-                : $value;
+            if ($value->isString()) {
+                $substituted = $this->substitute($value->asString(), $values);
+                $value = $substituted === null ? StoredValue::ofNull() : StoredValue::ofString($substituted);
+            }
+
+            $properties[$key] = $value;
         }
 
         $dataRequirements = [];
@@ -195,6 +198,12 @@ final class StoredTreePreparer
             return $requirement;
         }
 
+        foreach ($substitutedConfig as $key => $value) {
+            if ($value === null) {
+                unset($config[$key], $substitutedConfig[$key]);
+            }
+        }
+
         $newConfig = $this->configSerializerProvider->decode($requirement->source, array_merge($config, $substitutedConfig));
 
         return new DataRequirement($requirement->key, $requirement->source, $newConfig);
@@ -214,13 +223,18 @@ final class StoredTreePreparer
     }
 
     /**
-     * One pass over the declared keys, no recursion into what a substitution produced. A `{{token}}` whose
-     * key carries no value stays verbatim, so an unresolved placeholder is visible rather than blanked.
+     * One pass over the declared keys, no recursion into what a substitution produced. A value that is
+     * entirely a single unresolved `{{token}}` collapses to null; an unresolved token embedded in other text
+     * stays verbatim.
      */
-    private function substitute(string $input, PlaceholderValues $values): string
+    private function substitute(string $input, PlaceholderValues $values): ?string
     {
         foreach ($values->all() as $key => $value) {
             $input = str_replace('{{' . $key . '}}', (string) $value, $input);
+        }
+
+        if (preg_match('/^\{\{[^{}]+\}\}$/', $input) === 1) {
+            return null;
         }
 
         return $input;

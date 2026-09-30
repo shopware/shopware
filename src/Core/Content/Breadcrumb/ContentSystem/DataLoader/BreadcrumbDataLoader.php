@@ -84,9 +84,11 @@ class BreadcrumbDataLoader extends AbstractContentDataLoader
         if ($referrerCategoryId !== null) {
             $referrerCategoryId = u($referrerCategoryId)->lower()->toString();
 
-            if (Uuid::isValid($referrerCategoryId)) {
-                $clonedRequest->query->set('referrerCategoryId', $referrerCategoryId);
+            if (!Uuid::isValid($referrerCategoryId)) {
+                return ContentDataLoaderResult::notFound();
             }
+
+            $clonedRequest->query->set('referrerCategoryId', $referrerCategoryId);
         }
 
         // Any ShopwareHttpException degrades the element to notFound(); everything else, such as a \TypeError

@@ -229,6 +229,18 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('Category {{categoryId}}', $prepared[0]->property('title')?->asString());
     }
 
+    #[TestDox('collapses a lone unresolved token to null')]
+    public function testPrepareCollapsesLoneUnresolvedTokenToNull(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', '{{categoryId}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        static::assertTrue($prepared[0]->property('title')?->isNull());
+    }
+
     #[TestDox('records that the virtual root did not survive a prune that cut it away')]
     public function testPrepareRecordsAVirtualRootThePruneRemoved(): void
     {
@@ -273,8 +285,8 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame([], $prepared);
     }
 
-    #[TestDox('leaves a token verbatim when the placeholder values map is empty')]
-    public function testPrepareLeavesATokenVerbatimWithAnEmptyPlaceholderValuesMap(): void
+    #[TestDox('leaves an embedded token verbatim when the placeholder values map is empty')]
+    public function testPrepareLeavesEmbeddedTokenVerbatimWithAnEmptyPlaceholderValuesMap(): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
             ->withProperty('title', 'Product {{productId}}')

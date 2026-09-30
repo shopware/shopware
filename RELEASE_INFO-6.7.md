@@ -48,9 +48,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Large variant families no longer exhaust memory when several variants are read at once
-
-The `cheapest_price` container of a product family is stored on the parent and inherited by every variant, so a read that hydrates many variants of the same family carried and unserialized the same payload once per row. For families with thousands of variants the payload is several megabytes, and reading a few dozen variants in one request (cart recalculation, Store API `product` reads without `fields`, cross-selling by assignment) exhausted the PHP memory limit. `PHPUnserializeFieldSerializer` now unserializes an identical payload only once per request and shares the resulting container between the rows. The memo is bounded and cleared on kernel reset; behaviour and API output are unchanged.
 ### Filtered listings show the main variant only if it matches the active filters
 
 Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.
@@ -182,6 +179,10 @@ Digital products are no longer limited to one unit per order regardless of `maxP
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
+
+### Large variant families no longer exhaust memory when several variants are read at once
+
+The `cheapest_price` container of a product family is stored on the parent and inherited by every variant, so a read that hydrates many variants of the same family carried and unserialized the same payload once per row. For families with thousands of variants the payload is several megabytes, and reading a few dozen variants in one request (cart recalculation, Store API `product` reads without `fields`, cross-selling by assignment) exhausted the PHP memory limit. `PHPUnserializeFieldSerializer` now unserializes an identical payload only once per request and shares the resulting container between the rows. The memo is bounded and cleared on kernel reset; behaviour and API output are unchanged.
 
 ## API
 

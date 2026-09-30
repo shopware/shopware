@@ -55,6 +55,11 @@ Filtered product listings show a variant product's main variant only if it match
 `core.listing.findBestVariant` now only affects search results. With it enabled, filtered listings show a matching main variant or the parent instead of another matching variant.
 
 Extensions that replace the preview resolution via `LoadPreviewExtension` can read the active post filters from the new `postFilters` property to apply the same rule.
+### Feature flags can remove legacy service definitions
+
+Extensions can tag a PHP service definition with `shopware.inactiveFeature` and a `flag` attribute, for example `v6.8.0.0`. The service remains registered while the flag is inactive and is absent from the container once the flag is active. Use this for services that are removed with a major version; `shopware.feature` continues to register services only while their flag is active. Changing `FEATURE_ALL` or a version-shaped major flag in the environment selects a separate container on a fresh kernel boot or explicit reboot when the default build directory is used. If `APP_BUILD_DIR` is configured, provide a different directory for each major mode. Reboot the kernel or restart long-running processes to apply the new mode.
+
+Deprecated service aliases with an announced removal version are removed when that major flag becomes active. Their target services remain available.
 
 ### System config schema endpoints now require system config read access
 
@@ -156,6 +161,10 @@ Creating a language could return an uncaught `500` when an Elasticsearch/OpenSea
 ### Digital products follow their max. order quantity again
 
 Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
+
+### Customer login publishes an extension event
+
+`AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
 ## API
 
@@ -306,6 +315,14 @@ Existing `Shopware.*` access remains supported. Use `Shopware.Store.get()` and
 ### Display the complete legal guarantee notice at checkout
 
 Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.
+
+### Unused theme directories are kept for 24 hours after the switch
+
+After a theme recompile, the previously active `public/theme/<hash>` directory was deleted as soon as its files were older than 24 hours. That age is measured from the compilation, not from the moment the sales channel switched to the new directory, so a theme compiled weeks ago was removed by the next cleanup right after the recompile. Pages still served from an HTTP cache or CDN then referenced CSS and JS files that returned 404.
+
+The `theme.delete_files` scheduled task now works in two steps. On the first run after a directory became unused, it marks the directory with a `.retired` file, provided all of its files are older than 24 hours. On a later run, it deletes the directory once that marker is at least 24 hours old. With the daily task interval, an unused directory is therefore removed 24 to 48 hours after the switch, never earlier. A directory that becomes active again, for example via `theme:change --no-compile`, loses the marker and stays. A directory that a queued compilation is still writing has fresh files and is left alone. Directories from before this change are handled the same way.
+
+`theme:compile` and `theme:change` no longer run that cleanup themselves; compiling and cleaning up are separate jobs again. Both commands still accept `--no-cleanup`, but the option is deprecated, has no effect and will be removed in 6.8.0.0. Drop it from deploy scripts.
 
 ### Preserve theme assets on S3-compatible storage
 

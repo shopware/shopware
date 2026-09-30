@@ -2361,6 +2361,10 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
+
+The `--no-cleanup` option was removed from both commands. The commands no longer delete unused theme directories themselves, the `theme.delete_files` scheduled task does. Passing the option now fails with an unknown-option error, so drop it from deploy scripts.
+
 ## Footer collapse headlines and columns now use semantic elements
 
 In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.
@@ -2628,15 +2632,14 @@ The data is now directly available in the category entities, therefore use `cate
 </a>
 ```
 
-## Breadcrumb template functions require the `SalesChannelContext`
+## Removed `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` Twig functions
 
-The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e.
+The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` have been removed. On storefront product and navigation pages, use `page.breadcrumb` instead. Its entries provide `name`, `categoryId`, and `type`.
 
-```diff
-- sw_breadcrumb_full(category, context.context)
-- sw_breadcrumb_full_by_id(category, context.context)
-+ sw_breadcrumb_full(category, context)
-+ sw_breadcrumb_full_by_id(category, context)
+```twig
+{% for category in page.breadcrumb|default([]) %}
+    {{ category.name }}
+{% endfor %}
 ```
 
 ## Removal of DeleteThemeFilesMessage and its handler

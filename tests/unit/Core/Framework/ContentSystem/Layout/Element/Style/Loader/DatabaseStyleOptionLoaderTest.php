@@ -118,7 +118,7 @@ class DatabaseStyleOptionLoaderTest extends TestCase
             ['name' => 'good', 'schema' => '{"type":"integer"}', 'app_name' => 'Acme'],
             ['name' => 'broken', 'schema' => '{"type":"object"}', 'app_name' => 'Acme'],
         ], $validator);
-        $this->expectExceptionObject(ContentSystemException::styleOptionsInvalid($violations));
+        $this->expectExceptionObject(ContentSystemException::styleOptionLoadValidationFailed($violations));
         $loader->load();
     }
 

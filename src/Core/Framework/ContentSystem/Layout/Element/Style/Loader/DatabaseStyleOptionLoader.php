@@ -87,7 +87,7 @@ class DatabaseStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
 
         $violations = $this->validator->validate(new StyleOptionSpecificationDtoCollection($dtos));
         if ($violations->count() > 0) {
-            throw ContentSystemException::styleOptionsInvalid($violations);
+            throw ContentSystemException::styleOptionLoadValidationFailed($violations);
         }
 
         return array_map(

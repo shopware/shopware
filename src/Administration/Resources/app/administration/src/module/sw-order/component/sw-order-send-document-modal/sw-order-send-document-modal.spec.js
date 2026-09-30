@@ -260,6 +260,23 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
 }
 
 describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
+    it('should show the translated document type when the current language has no name', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            document: {
+                ...mockDocuments[0],
+                documentType: {
+                    name: null,
+                    technicalName: 'storno',
+                    translated: { name: 'Cancellation invoice' },
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-description-list > dd')[1].text()).toBe('Cancellation invoice');
+    });
+
     it('should display the correct order and document information', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

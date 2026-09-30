@@ -631,7 +631,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(OrderProductAvailabilityResolver::class)
         ->args([
-            service(ProductListRoute::class),
+            service('sales_channel.product.repository'),
             service(SystemConfigService::class),
             service(ProductCloseoutFilterFactory::class),
         ]);

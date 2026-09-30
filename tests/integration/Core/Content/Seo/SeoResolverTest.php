@@ -413,6 +413,50 @@ class SeoResolverTest extends TestCase
         static::assertTrue($resolved->isCanonical);
     }
 
+    public function testResolveSeoPathDoesNotDecodeReservedCharacters(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/slash',
+                'seoPathInfo' => 'kategorie/produkt',
+                'isCanonical' => true,
+            ],
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/detail/query',
+                'seoPathInfo' => 'foo?bar=1',
+                'isCanonical' => true,
+            ],
+        ], $context);
+
+        $resolved = $this->seoResolver->resolveUrl(new SeoUrlRequestContext(
+            $context->getLanguageId(),
+            $salesChannelId,
+            '/kategorie%2Fprodukt',
+        ));
+
+        static::assertSame('/kategorie%2Fprodukt', $resolved->pathInfo);
+        static::assertFalse($resolved->isCanonical);
+
+        $resolved = $this->seoResolver->resolveUrl(new SeoUrlRequestContext(
+            $context->getLanguageId(),
+            $salesChannelId,
+            '/foo%3Fbar%3D1',
+        ));
+
+        static::assertSame('/foo%3Fbar%3D1', $resolved->pathInfo);
+        static::assertFalse($resolved->isCanonical);
+    }
+
     public function testResolveSeoPathWithPercentEncodedQueryValue(): void
     {
         // A query-bearing SEO URL whose value contains a valid percent-escape ("ref=a%20b") must

@@ -343,6 +343,67 @@ class AppSeoUrlTest extends TestCase
         static::assertSame(['product-reviews/excellent'], $this->fetchCanonicalSeoPaths(self::PRODUCT_REVIEWS_ROUTE));
     }
 
+    public function testChangingTheHookRetargetsTheSeoUrlsAndKeepsTheirPaths(): void
+    {
+        $salesChannelId = $this->getSalesChannelId();
+        $this->installApp();
+        $productId = $this->createProduct()->get('app-product-1');
+        $this->runWorker();
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [
+            'routeName' => self::PRODUCT_ROUTE,
+            'foreignKey' => $productId,
+            'salesChannelId' => $salesChannelId,
+            'pathInfo' => '/storefront/script/app-product?id=' . $productId,
+            'seoPathInfo' => 'my-app-product',
+            'isCanonical' => true,
+        ]);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $this->updateApp('hook-change/SwagStorefrontSeoUrl');
+        $this->runWorker();
+
+        static::assertSame([[
+            'foreignKey' => Uuid::fromStringToHex(self::IMPRINT_ROUTE),
+            'pathInfo' => '/storefront/script/company-imprint',
+            'seoPathInfo' => 'imprint',
+            'isCanonical' => 1,
+            'isModified' => 1,
+            'isDeleted' => 0,
+        ]], array_map($this->withoutIds(...), $this->fetchSeoUrls(self::IMPRINT_ROUTE, $salesChannelId)));
+
+        $productPathInfo = '/storefront/script/product-page?id=' . $productId;
+        static::assertSame([
+            [
+                'foreignKey' => $productId,
+                'pathInfo' => $productPathInfo,
+                'seoPathInfo' => 'app-product/app-product-1',
+                'isCanonical' => null,
+                'isModified' => 0,
+                'isDeleted' => 0,
+            ],
+            [
+                'foreignKey' => $productId,
+                'pathInfo' => $productPathInfo,
+                'seoPathInfo' => 'my-app-product',
+                'isCanonical' => 1,
+                'isModified' => 1,
+                'isDeleted' => 0,
+            ],
+        ], array_map($this->withoutIds(...), $this->fetchSeoUrls(self::PRODUCT_ROUTE, $salesChannelId)));
+
+        $response = $this->request('GET', 'my-app-product', []);
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        $body = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($body);
+        static::assertSame('product-page', $body['page'] ?? null);
+        static::assertSame($productId, $body['productId'] ?? null);
+    }
+
     public function testDeactivatingTheAppMarksTheSeoUrlsAsDeleted(): void
     {
         $this->installApp();

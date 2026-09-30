@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -522,6 +523,45 @@ class SeoUrlPersisterTest extends TestCase
             [self::ANOTHER_ROUTE_NAME => true, TestNavigationSeoUrlRoute::ROUTE_NAME => false],
             $this->getDeletedFlagsByRouteName($category->getId())
         );
+    }
+
+    public function testChangedPathInfoIsRetargetedOnEveryRowOfTheEntity(): void
+    {
+        $category = $this->createCategory(true);
+        $this->createSeoUrlInDatabase($category->getId(), $this->salesChannel->getId());
+        $this->seoUrlRepository->create([[
+            'foreignKey' => $category->getId(),
+            'routeName' => TestNavigationSeoUrlRoute::ROUTE_NAME,
+            'pathInfo' => \sprintf('test/%s', $category->getId()),
+            'salesChannelId' => $this->salesChannel->getId(),
+            'seoPathInfo' => 'MerchantCategory',
+            'isCanonical' => null,
+            'isModified' => true,
+            'isDeleted' => false,
+        ]], Context::createDefaultContext());
+
+        $retargetedPathInfo = \sprintf('retargeted/%s', $category->getId());
+
+        $this->seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            TestNavigationSeoUrlRoute::ROUTE_NAME,
+            [$category->getId()],
+            [[
+                'foreignKey' => $category->getId(),
+                'pathInfo' => $retargetedPathInfo,
+                'seoPathInfo' => 'FancyCategory',
+                'salesChannelId' => $this->salesChannel->getId(),
+                'isCanonical' => true,
+                'isModified' => false,
+                'isDeleted' => false,
+            ]],
+            $this->salesChannel
+        );
+
+        static::assertSame([
+            ['seoPathInfo' => 'FancyCategory', 'pathInfo' => $retargetedPathInfo, 'isCanonical' => true, 'isModified' => false],
+            ['seoPathInfo' => 'MerchantCategory', 'pathInfo' => $retargetedPathInfo, 'isCanonical' => null, 'isModified' => true],
+        ], $this->getSeoUrlsOfCategory($category->getId()));
     }
 
     public function testUpdateSeoUrlForDifferentSalesChannelsWithSameSeoPathInfo(): void
@@ -1109,6 +1149,25 @@ class SeoUrlPersisterTest extends TestCase
         ksort($flags);
 
         return $flags;
+    }
+
+    /**
+     * @return list<array{seoPathInfo: string, pathInfo: string, isCanonical: bool|null, isModified: bool}>
+     */
+    private function getSeoUrlsOfCategory(string $categoryId): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $categoryId));
+        $criteria->addSorting(new FieldSorting('seoPathInfo'));
+
+        return array_values($this->seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities()->map(
+            static fn (SeoUrlEntity $seoUrl): array => [
+                'seoPathInfo' => $seoUrl->getSeoPathInfo(),
+                'pathInfo' => $seoUrl->getPathInfo(),
+                'isCanonical' => $seoUrl->getIsCanonical(),
+                'isModified' => $seoUrl->getIsModified(),
+            ]
+        ));
     }
 
     private function findRandomSalesChannel(): SalesChannelEntity

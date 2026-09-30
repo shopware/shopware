@@ -21,6 +21,7 @@ export const CreateLandingPage = base.extend<{ CreateLandingPage: Task }, Fixtur
                 await AdminLandingPageCreate.filtersResultPopoverItemList
                     .filter({ hasText: landingPageData.salesChannel })
                     .click();
+                // Filling the SEO URL does not click outside the select, so dismiss its popover before it can cover Save.
                 await AdminLandingPageCreate.page.keyboard.press('Escape');
                 await ShopAdmin.expects(
                     AdminLandingPageCreate.filtersResultPopoverItemList.filter({

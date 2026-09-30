@@ -318,16 +318,16 @@ class RobotsPageLoaderTest extends TestCase
     public static function selectsDomainMatchingTheRequestedHostProvider(): iterable
     {
         yield 'exact host wins over a subdomain of another sales channel (#17735)' => [
-            'httpHost' => 'tuev-thueringen.de',
-            'domainUrls' => ['https://www.tuev-thueringen.de', 'https://tuev-thueringen.de'],
-            'expectedSitemap' => 'https://tuev-thueringen.de/sitemap.xml',
+            'httpHost' => 'example.com',
+            'domainUrls' => ['https://www.example.com', 'https://example.com'],
+            'expectedSitemap' => 'https://example.com/sitemap.xml',
             'expectedDirective' => '/sales-channel-1/',
         ];
 
         yield 'parent host of another sales channel is never selected (#17735)' => [
-            'httpHost' => 'www.tuev-thueringen.de',
-            'domainUrls' => ['https://tuev-thueringen.de', 'https://www.tuev-thueringen.de'],
-            'expectedSitemap' => 'https://www.tuev-thueringen.de/sitemap.xml',
+            'httpHost' => 'www.example.com',
+            'domainUrls' => ['https://example.com', 'https://www.example.com'],
+            'expectedSitemap' => 'https://www.example.com/sitemap.xml',
             'expectedDirective' => '/sales-channel-1/',
         ];
 

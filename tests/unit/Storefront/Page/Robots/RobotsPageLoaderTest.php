@@ -353,6 +353,43 @@ class RobotsPageLoaderTest extends TestCase
         ];
     }
 
+    public function testFallbackKeepsEveryPathVariantOfTheSubdomain(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains([
+            $this->createDomain('https://www.example.com/de', 'sales-channel-de'),
+            $this->createDomain('https://www.example.com/us', 'sales-channel-us'),
+        ], [
+            'core.basicInformation.robotsRules' => [
+                'Disallow: /checkout/',
+                'Disallow: /account/',
+            ],
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        static::assertEquals(
+            ['https://www.example.com/de/sitemap.xml', 'https://www.example.com/us/sitemap.xml'],
+            $page->getSitemaps()
+        );
+
+        $domainRules = $page->getDomainRules();
+        static::assertCount(2, $domainRules);
+
+        $germanRule = $domainRules->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $germanRule);
+        static::assertSame('/de', $germanRule->getBasePath());
+        static::assertSame('/de/checkout/', $germanRule->getDirectives()[0]->value);
+
+        $usRule = $domainRules->last();
+        static::assertInstanceOf(DomainRuleStruct::class, $usRule);
+        static::assertSame('/us', $usRule->getBasePath());
+        static::assertSame('/us/account/', $usRule->getDirectives()[0]->value);
+    }
+
     public function testSelectsNoDomainWhenNoHostMatchesOrIsASubdomain(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com']);

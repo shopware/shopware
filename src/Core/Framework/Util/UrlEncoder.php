@@ -20,9 +20,13 @@ class UrlEncoder
             return null;
         }
 
-        $path = self::encodePathSegments(rawurldecode($uri->getPath()));
+        $segments = explode('/', $uri->getPath());
 
-        return (string) $uri->withPath($path)->withFragment('');
+        foreach ($segments as $index => $segment) {
+            $segments[$index] = rawurlencode(rawurldecode($segment));
+        }
+
+        return (string) $uri->withPath(implode('/', $segments))->withFragment('');
     }
 
     public static function encodePathSegments(string $path): string

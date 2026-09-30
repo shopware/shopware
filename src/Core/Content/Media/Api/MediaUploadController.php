@@ -40,14 +40,14 @@ class MediaUploadController extends AbstractController
     #[Route(path: '/api/_action/media/{mediaId}/upload', name: 'api.action.media.upload', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['media:update']], methods: ['POST'])]
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
+        $fileName = $request->query->getString('fileName', $mediaId);
+        $destination = PathHelper::stripControlAndFormatChars($fileName);
+
         $tempFile = tempnam(sys_get_temp_dir(), '');
 
         if (!$tempFile) {
             throw MediaException::cannotCreateTempFile();
         }
-
-        $fileName = $request->query->getString('fileName', $mediaId);
-        $destination = PathHelper::stripControlAndFormatChars($fileName);
 
         try {
             $uploadedFile = $this->mediaService->fetchFile($request, $tempFile);

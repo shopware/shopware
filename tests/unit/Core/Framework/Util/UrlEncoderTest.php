@@ -199,6 +199,14 @@ class UrlEncoderTest extends TestCase
         );
     }
 
+    public function testItKeepsEncodedPathSeparatorsInsideASegment(): void
+    {
+        static::assertSame(
+            'https://cdn.example.com/bucket/object%2Fid%20%C3%84.jpg',
+            UrlEncoder::encodeUrl('https://cdn.example.com/bucket/object%2Fid Ä.jpg')
+        );
+    }
+
     public function testItKeepsTheAuthorityUntouched(): void
     {
         static::assertSame(

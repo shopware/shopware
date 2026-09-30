@@ -286,42 +286,71 @@ class SeoUrlPersister
 
         $languageId = Uuid::fromHexToBytes($languageId);
 
-        $ids = [];
+        // a seo url without a sales channel can never match `sales_channel_id = :salesChannelId`, so it is skipped
+        // here just as the lookup per seo url skipped it before
+        $wanted = [];
         foreach ($seoUrls as $seoUrl) {
-            $id = $this->connection->fetchOne(
-                'SELECT id
-                 FROM seo_url
-                 WHERE language_id = :languageId
-                   AND foreign_key = :foreignKey
-                   AND sales_channel_id = :salesChannelId
-                   AND route_name = :routeName
-                   AND is_canonical IS NULL AND is_deleted = 0
-                   AND NOT EXISTS (
-                       SELECT 1 FROM seo_url existing
-                       WHERE existing.language_id = :languageId
-                         AND existing.foreign_key = :foreignKey
-                         AND existing.sales_channel_id = :salesChannelId
-                         AND existing.route_name = :routeName
-                         AND existing.is_canonical = 1
-                   )
-                 ORDER BY created_at ASC
-                 LIMIT 1',
-                [
-                    'languageId' => $languageId,
-                    'foreignKey' => $seoUrl['foreignKey'],
-                    'salesChannelId' => $seoUrl['salesChannelId'],
-                    'routeName' => (string) $seoUrl['routeName'],
-                ]
-            );
-
-            if ($id !== false) {
-                $ids[] = $id;
+            if ($seoUrl['salesChannelId'] === null) {
+                continue;
             }
+
+            $wanted[$this->canonicalGroup($seoUrl['foreignKey'], $seoUrl['salesChannelId'], (string) $seoUrl['routeName'])] = true;
+        }
+
+        if ($wanted === []) {
+            return;
+        }
+
+        // one query covers both questions the lookup per seo url asked: which groups already have a canonical url,
+        // and which is the earliest created candidate of the others
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT id, foreign_key, sales_channel_id, route_name, is_canonical
+             FROM seo_url
+             WHERE language_id = :languageId
+               AND foreign_key IN (:foreignKeys)
+               AND sales_channel_id IN (:salesChannelIds)
+               AND route_name IN (:routeNames)
+               AND (is_canonical = 1 OR (is_canonical IS NULL AND is_deleted = 0))
+             ORDER BY created_at ASC',
+            [
+                'languageId' => $languageId,
+                'foreignKeys' => array_column($seoUrls, 'foreignKey'),
+                'salesChannelIds' => array_values(array_filter(array_column($seoUrls, 'salesChannelId'))),
+                'routeNames' => array_map('strval', array_column($seoUrls, 'routeName')),
+            ],
+            [
+                'foreignKeys' => ArrayParameterType::BINARY,
+                'salesChannelIds' => ArrayParameterType::BINARY,
+                'routeNames' => ArrayParameterType::STRING,
+            ]
+        );
+
+        // a group that already has a canonical url keeps it
+        foreach ($rows as $row) {
+            if ($row['is_canonical']) {
+                unset($wanted[$this->canonicalGroup($row['foreign_key'], $row['sales_channel_id'], (string) $row['route_name'])]);
+            }
+        }
+
+        $candidates = array_filter($rows, static fn (array $row): bool => !$row['is_canonical']);
+
+        $ids = [];
+        foreach ($candidates as $candidate) {
+            $group = $this->canonicalGroup($candidate['foreign_key'], $candidate['sales_channel_id'], (string) $candidate['route_name']);
+
+            if (!isset($wanted[$group])) {
+                continue;
+            }
+
+            // the first row of a group is its earliest created seo url
+            $ids[$group] ??= $candidate['id'];
         }
 
         if ($ids === []) {
             return;
         }
+
+        $ids = array_values($ids);
 
         RetryableQuery::retryable($this->connection, function () use ($ids): void {
             $this->connection->executeStatement(
@@ -330,6 +359,11 @@ class SeoUrlPersister
                 ['ids' => ArrayParameterType::BINARY]
             );
         });
+    }
+
+    private function canonicalGroup(string $foreignKey, string $salesChannelId, string $routeName): string
+    {
+        return $foreignKey . "\0" . $salesChannelId . "\0" . $routeName;
     }
 
     /**

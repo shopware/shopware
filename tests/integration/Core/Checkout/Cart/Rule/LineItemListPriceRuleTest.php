@@ -26,9 +26,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -37,6 +37,7 @@ use Shopware\Core\Test\TestDefaults;
 #[Group('rules')]
 class LineItemListPriceRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
     private LineItemListPriceRule $rule;
@@ -74,7 +75,7 @@ class LineItemListPriceRuleTest extends TestCase
 
         $lineItem = $this->createLineItemWithListPrice($lineItemAmount);
         if ($lineItemWithoutPrice) {
-            $lineItem = CartRuleFixture::createLineItem();
+            $lineItem = $this->createLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -139,12 +140,12 @@ class LineItemListPriceRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithListPrice($lineItemAmount1);
         if ($lineItem1WithoutPrice) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = $this->createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithListPrice($lineItemAmount2);
         if ($lineItem2WithoutPrice) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = $this->createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -152,7 +153,7 @@ class LineItemListPriceRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -180,24 +181,24 @@ class LineItemListPriceRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithListPrice($lineItemAmount1);
         if ($lineItem1WithoutPrice) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = $this->createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithListPrice($lineItemAmount2);
         if ($lineItem2WithoutPrice) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = $this->createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $containerLineItem = CartRuleFixture::createLineItem();
+        $containerLineItem = $this->createLineItem();
         if ($containerLineItemAmount !== null) {
             $containerLineItem = $this->createLineItemWithListPrice($containerLineItemAmount);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -259,7 +260,7 @@ class LineItemListPriceRuleTest extends TestCase
         $this->rule->assign(['amount' => 100, 'operator' => Rule::OPERATOR_EQ]);
 
         $match = $this->rule->match(new LineItemScope(
-            CartRuleFixture::createLineItem(),
+            $this->createLineItem(),
             $this->createMock(SalesChannelContext::class)
         ));
 
@@ -276,7 +277,7 @@ class LineItemListPriceRuleTest extends TestCase
         $this->rule->assign(['amount' => $price, 'operator' => Rule::OPERATOR_EQ]);
 
         $match = $this->rule->match(new LineItemScope(
-            CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
+            $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
             $this->createMock(SalesChannelContext::class)
         ));
 
@@ -423,6 +424,6 @@ class LineItemListPriceRuleTest extends TestCase
         $listPrice = $listPriceAmount === null ? null : ListPrice::createFromUnitPrice(400, $listPriceAmount);
         $listPriceAmount ??= 99.99;
 
-        return CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $listPriceAmount, $listPrice);
+        return $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $listPriceAmount, $listPrice);
     }
 }

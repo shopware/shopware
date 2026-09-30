@@ -140,6 +140,21 @@ the mixin's `this` semantics:
   renaming the binding (`const { salutation: salutation$1 } = useSalutation()`), but the template
   cannot be rewritten.
 
+### Extension targets
+
+A target outside the Administration's `src/` is migrated as an extension. An extension cannot import
+Administration source, so its composables come from the one module it can resolve:
+
+```js
+import { useNotification, useSalutation } from 'shopware:composables';
+```
+
+Only the composables `shopware:composables` publishes are available there, read from the checked-in
+`shopware-modules.json`. A mixin whose composable is not published keeps the component on the Options
+API with `useX() replaces the 'y' mixin but is not published to extensions through shopware:composables`.
+Today that is `cms-element`, whose `useCmsElementDeprecated` stays internal; an extension moves to
+`useCmsElement` by hand, which routes config writes through the `cmsPage` store.
+
 A rename is emitted, not refused, but the generated name is the codemod's own and it costs the member
 its `swDefinePublic` entry. So the draft carries a `VERIFY` TODO directly above the destructure, and
 the outcome is `partial` until a reader has picked a name:

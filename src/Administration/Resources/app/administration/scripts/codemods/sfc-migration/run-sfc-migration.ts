@@ -319,6 +319,7 @@ async function runMigration(
                     vuePath,
                     lang: indexFile.endsWith('.ts') ? 'ts' : 'js',
                     templateImportRange: component.template.importRange,
+                    extensionTarget: !isContained(ADMIN_SRC, targetDir),
                 });
             } catch (error) {
                 report(name, dir, 'error', [errorText(error)]);

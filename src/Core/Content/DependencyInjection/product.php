@@ -585,6 +585,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ProductSearchBuilderInterface::class),
             service(ProductListingLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResolvedCriteriaProductSearchRoute::class)

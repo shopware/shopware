@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Exception\InvalidIdentifier;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
-use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
@@ -149,25 +153,11 @@ class SchemaBuilder
         LongTextField::class => Types::TEXT,
     ];
 
-    /**
-     * @var array{binary: array{length: 16, fixed: true}, boolean: array{default: 0}}
-     */
-    public static array $options = [
-        Types::BINARY => [
-            'length' => 16,
-            'fixed' => true,
-        ],
-
-        Types::BOOLEAN => [
-            'default' => 0,
-        ],
-    ];
-
     public function buildSchemaOfDefinition(EntityDefinition $definition): Table
     {
-        $table = (new Schema())->createTable($definition->getEntityName());
-        $table->addOption('charset', 'utf8mb4');
-        $table->addOption('collate', 'utf8mb4_unicode_ci');
+        $table = Table::editor()
+            ->setUnquotedName($definition->getEntityName())
+            ->setOptions(['charset' => 'utf8mb4', 'collate' => 'utf8mb4_unicode_ci']);
 
         foreach ($definition->getFields() as $field) {
             if ($field->is(Runtime::class)) {
@@ -186,16 +176,9 @@ class SchemaBuilder
                 continue;
             }
 
-            $fieldType = $this->getFieldType($field);
-
-            $table->addColumn(
-                $field->getStorageName(),
-                $fieldType,
-                $this->getFieldOptions($field, $fieldType, $definition)
-            );
+            $table->addColumn($this->createColumn($field, $definition));
         }
 
-        /** @var array<non-empty-string> $primaryKeys */
         $primaryKeys = $definition->getPrimaryKeys()->fmap(static function (Field $field): ?string {
             if ($field instanceof StorageAware) {
                 return $field->getStorageName();
@@ -206,13 +189,20 @@ class SchemaBuilder
 
         if ($primaryKeys) {
             $pk = PrimaryKeyConstraint::editor();
-            $pk->setUnquotedColumnNames(...array_values($primaryKeys));
+            foreach ($primaryKeys as $primaryKey) {
+                if ($primaryKey === '') {
+                    throw InvalidIdentifier::fromEmpty();
+                }
+
+                $pk->addUnquotedColumnName($primaryKey);
+            }
+
             $table->addPrimaryKeyConstraint($pk->create());
         }
 
         $this->addForeignKeys($table, $definition);
 
-        return $table;
+        return $table->create();
     }
 
     /**
@@ -233,41 +223,52 @@ class SchemaBuilder
         throw DataAbstractionLayerException::fieldHasNoType($field->getPropertyName());
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function getFieldOptions(Field $field, string $type, EntityDefinition $definition): array
+    private function createColumn(Field&StorageAware $field, EntityDefinition $definition): Column
     {
-        $options = self::$options[$type] ?? [];
-
-        $options['notnull'] = false;
-
-        if ($field->is(Required::class) && !$field instanceof UpdatedAtField && !$field instanceof ReferenceVersionField) {
-            $options['notnull'] = true;
+        $name = $field->getStorageName();
+        if ($name === '') {
+            throw InvalidIdentifier::fromEmpty();
         }
 
+        $fieldType = $this->getFieldType($field);
+
+        $column = Column::editor()
+            ->setUnquotedName($name)
+            ->setTypeName($fieldType);
+
+        if ($fieldType === Types::BINARY) {
+            $column->setLength(16)
+                ->setFixed(true);
+        }
+
+        if ($fieldType === Types::BOOLEAN) {
+            $column->setDefaultValue(0);
+        }
+
+        $column->setNotNull($field->is(Required::class) && !$field instanceof UpdatedAtField && !$field instanceof ReferenceVersionField);
+
         if (\array_key_exists($field->getPropertyName(), $definition->getDefaults())) {
-            $options['default'] = $definition->getDefaults()[$field->getPropertyName()];
+            $column->setDefaultValue($definition->getDefaults()[$field->getPropertyName()]);
         }
 
         if ($field instanceof StringField) {
-            $options['length'] = $field->getMaxLength();
+            $column->setLength($field->getMaxLength());
         }
 
         if ($field instanceof AutoIncrementField) {
-            $options['autoincrement'] = true;
-            $options['notnull'] = true;
+            $column->setAutoincrement(true)
+                ->setNotNull(true);
         }
 
         if ($field instanceof FloatField) {
-            $options['precision'] = 10;
-            $options['scale'] = 2;
+            $column->setPrecision(10)
+                ->setScale(2);
         }
 
-        return $options;
+        return $column->create();
     }
 
-    private function addForeignKeys(Table $table, EntityDefinition $definition): void
+    private function addForeignKeys(TableEditor $table, EntityDefinition $definition): void
     {
         $fields = $definition->getFields()->filter(
             static function (Field $field) {
@@ -340,29 +341,41 @@ class SchemaBuilder
                 $referenceColumns[] = 'version_id';
             }
 
-            $update = 'CASCADE';
-
             if ($field->is(CascadeDelete::class)) {
-                $delete = 'CASCADE';
+                $delete = ReferentialAction::CASCADE;
             } elseif ($field->is(RestrictDelete::class)) {
-                $delete = 'RESTRICT';
+                $delete = ReferentialAction::RESTRICT;
             } elseif ($definition instanceof EntityTranslationDefinition) {
                 // When a foreign key is used in a translation definition, cascade deletion should be applied so that related records are deleted when the main entity is removed, including translations.
-                $delete = 'CASCADE';
+                $delete = ReferentialAction::CASCADE;
             } else {
-                $delete = 'SET NULL';
+                $delete = ReferentialAction::SET_NULL;
             }
 
-            $table->addForeignKeyConstraint(
-                $reference->getEntityName(),
-                $columns,
-                $referenceColumns,
-                [
-                    'onUpdate' => $update,
-                    'onDelete' => $delete,
-                ],
-                \substr(\sprintf('fk__%s__%s', $definition->getEntityName(), $field->getStorageName()), 0, 64)
-            );
+            $name = \substr(\sprintf('fk__%s__%s', $definition->getEntityName(), $field->getStorageName()), 0, 64);
+            $foreignKey = ForeignKeyConstraint::editor()
+                ->setUnquotedName($name)
+                ->setUnquotedReferencedTableName($reference->getEntityName())
+                ->setOnUpdateAction(ReferentialAction::CASCADE)
+                ->setOnDeleteAction($delete);
+
+            foreach ($columns as $column) {
+                if ($column === '') {
+                    throw InvalidIdentifier::fromEmpty();
+                }
+
+                $foreignKey->addUnquotedReferencingColumnName($column);
+            }
+
+            foreach ($referenceColumns as $column) {
+                if ($column === '') {
+                    throw InvalidIdentifier::fromEmpty();
+                }
+
+                $foreignKey->addUnquotedReferencedColumnName($column);
+            }
+
+            $table->addForeignKeyConstraint($foreignKey->create());
         }
     }
 }

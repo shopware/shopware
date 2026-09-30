@@ -10,7 +10,7 @@ Check any locale codes passed to number and currency formatting. The temporary f
 
 ## Minimum MySQL 8.4 and MariaDB 11.4
 
-The minimum database versions were raised from MySQL 8.0.22 to 8.4 and from MariaDB 10.11 to 11.4. Both newer versions are already supported by earlier Shopware releases, so you can upgrade your database server and test extension migrations before upgrading to 6.8.
+The minimum database versions were raised from MySQL 8.0.22 to 8.4 and from MariaDB 10.11 to 11.4. You can upgrade your database server and test extension migrations before upgrading to 6.8. The release notes for Shopware [6.6.10.4](https://developer.shopware.com/release-notes/6.6/6.6.10.4.html) and [6.7.0.0](https://developer.shopware.com/release-notes/6.7/6.7.0.0.html) already list MariaDB 11 as tested; they do not specify the 11.4 minor version.
 
 On MySQL 8.4, foreign keys must reference a complete primary or unique key. Check custom schemas and migrations, especially references to versioned entities that omit `version_id`.
 

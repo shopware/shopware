@@ -79,8 +79,13 @@ class SeoResolver extends AbstractSeoResolver
 
         // The request path stays percent-encoded (e.g. "Baby%C3%B6l"), while manually entered SEO paths
         // may be stored with raw non-ASCII characters (e.g. "Babyöl"), so the decoded path is matched as well.
+        // Only non-ASCII bytes are decoded: "%2F" or "%3F" must not turn into a path or query separator.
         $pathCandidates = [$seoPathInfo];
-        $decodedSeoPathInfo = rawurldecode($seoPathInfo);
+        $decodedSeoPathInfo = (string) preg_replace_callback(
+            '/(?:%[89A-Fa-f][0-9A-Fa-f])+/',
+            static fn (array $match): string => rawurldecode($match[0]),
+            $seoPathInfo
+        );
         if ($decodedSeoPathInfo !== $seoPathInfo && mb_check_encoding($decodedSeoPathInfo, 'UTF-8')) {
             $pathCandidates[] = $decodedSeoPathInfo;
         }

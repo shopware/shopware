@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToMany;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\OneToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ReferenceVersion;
@@ -36,15 +37,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntityAgg;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\_fixtures\CascadingManyToOneEntity;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionStub;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithNonStorageAwarePrimaryKeyStub;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -568,6 +575,35 @@ class DefinitionValidatorTest extends TestCase
         static::assertArrayNotHasKey(AttributeEntityDefinition::class, $violations);
     }
 
+    public function testToManyAssociationNamesAreCheckedAgainstThePluralOfTheAttributeEntity(): void
+    {
+        $violations = $this->createValidatorWithRegisteredAttributeEntities(ScorecardEntity::class, CriterionEntity::class)->validate();
+
+        static::assertSame(
+            [
+                'Association scorecard.criterion does not end with a \'s\'.',
+                'Association scorecard.criterionPool does not end with a \'s\'.',
+            ],
+            array_values(array_filter(
+                $violations[ScorecardEntity::class],
+                static fn (string $violation): bool => str_contains($violation, 'does not end with')
+            ))
+        );
+    }
+
+    public function testVersionReferenceToAnotherAttributeEntityDoesNotHideAMissingOne(): void
+    {
+        $violations = $this->createValidatorWithRegisteredAttributeEntities(ScorecardEntity::class, CriterionEntity::class)->validate();
+
+        static::assertSame(
+            ['Missing version reference for foreign key column scorecard.id for definition association criterion.scorecard'],
+            array_values(array_filter(
+                $violations[CriterionEntity::class],
+                static fn (string $violation): bool => str_contains($violation, 'Missing version reference')
+            ))
+        );
+    }
+
     /**
      * A column that no field maps to is reported as a violation, unless the `<entity>.<column>` key is
      * ignored. The reported violations are therefore the observable behaviour of the ignore lists.
@@ -728,6 +764,45 @@ class DefinitionValidatorTest extends TestCase
         if ($skipTestDefinitions) {
             return new DefinitionValidator($registry, $connection);
         }
+
+        // @phpstan-ignore class.extendsFinalByPhpDoc
+        return new class($registry, $connection) extends DefinitionValidator {
+            protected function shouldSkipDefinition(string $definitionClass): bool
+            {
+                return false;
+            }
+        };
+    }
+
+    /**
+     * @param class-string<Entity> ...$entityClasses
+     */
+    private function createValidatorWithRegisteredAttributeEntities(string ...$entityClasses): DefinitionValidator
+    {
+        $definitions = [VersionDefinition::class, VersionCommitDefinition::class, VersionCommitDataDefinition::class];
+        foreach ($entityClasses as $entityClass) {
+            foreach ((new AttributeEntityCompiler())->compile($entityClass) as $meta) {
+                $definitions[$meta['entity_name'] . '.definition'] = $meta['type'] === 'entity'
+                    ? new AttributeEntityDefinition($meta)
+                    : new AttributeMappingDefinition($meta);
+            }
+        }
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            $definitions,
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+
+        $schema = static::createStub(Schema::class);
+        $schema->method('hasTable')->willReturn(true);
+        $schema->method('getTable')->willReturn(static::createStub(Table::class));
+
+        $schemaManager = static::createStub(AbstractSchemaManager::class);
+        $schemaManager->method('introspectSchema')->willReturn($schema);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
 
         // @phpstan-ignore class.extendsFinalByPhpDoc
         return new class($registry, $connection) extends DefinitionValidator {
@@ -945,4 +1020,71 @@ class FlawedAttributeEntity extends Entity
     {
         $this->currencyList = $currencyList;
     }
+}
+
+/**
+ * @internal
+ */
+#[EntityAttribute('scorecard')]
+class ScorecardEntity extends Entity
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID)]
+    public string $id;
+
+    #[Version]
+    public ?string $versionId = null;
+
+    /**
+     * @var array<string, CriterionEntity>|null
+     */
+    #[OneToMany(entity: 'criterion', ref: 'scorecard_id')]
+    public ?array $criteria = null;
+
+    /**
+     * @var array<string, CriterionEntity>|null
+     */
+    #[OneToMany(entity: 'criterion', ref: 'scorecard_id')]
+    public ?array $criterion = null;
+
+    /**
+     * @var array<string, CriterionEntity>|null
+     */
+    #[ManyToMany(entity: 'criterion', mapping: 'scorecard_shared_criterion')]
+    public ?array $sharedCriteria = null;
+
+    /**
+     * @var array<string, CriterionEntity>|null
+     */
+    #[ManyToMany(entity: 'criterion')]
+    public ?array $criterionPool = null;
+}
+
+/**
+ * @internal
+ */
+#[EntityAttribute('criterion')]
+class CriterionEntity extends Entity
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID)]
+    public string $id;
+
+    #[Version]
+    public ?string $versionId = null;
+
+    #[ForeignKey(entity: 'scorecard')]
+    public ?string $scorecardId = null;
+
+    #[ManyToOne(entity: 'scorecard')]
+    public ?ScorecardEntity $scorecard = null;
+
+    #[ForeignKey(entity: 'criterion')]
+    public ?string $parentId = null;
+
+    #[ReferenceVersion(entity: 'criterion')]
+    public ?string $parentVersionId = null;
+
+    #[ManyToOne(entity: 'criterion')]
+    public ?CriterionEntity $parent = null;
 }

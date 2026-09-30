@@ -2,6 +2,7 @@ import { Fragment, Text, type VNode } from 'vue';
 import type { RouteLocationRaw, Router } from 'vue-router';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './sw-tabs.html.twig';
+import { warn } from 'shopware:utils/debug';
 
 type SwTabsItemProps = {
     name?: string;
@@ -96,7 +97,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (Shopware.Feature.isActive('V6_8_0_0')) {
-                Shopware.Utils.debug.warn(
+                warn(
                     'sw-tabs',
                     'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
                 );

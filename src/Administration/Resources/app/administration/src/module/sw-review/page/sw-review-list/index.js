@@ -1,8 +1,7 @@
 import template from './sw-review-list.html.twig';
 import './sw-review-list.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
 
 const DEFAULT_FILTERS = Object.freeze([
     'sales-channel-filter',
@@ -22,7 +21,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'filterFactory'],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [listingMixin],
 
     data() {
         return {

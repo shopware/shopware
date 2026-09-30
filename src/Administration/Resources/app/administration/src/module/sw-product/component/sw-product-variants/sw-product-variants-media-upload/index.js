@@ -4,9 +4,10 @@
 
 import template from './sw-product-variants-media-upload.html.twig';
 import './sw-product-variants-media-upload.scss';
+import { isEmpty } from 'shopware:utils/types';
+import notificationMixin from 'shopware:mixins/notification';
 
-const { Mixin, Context } = Shopware;
-const { isEmpty } = Shopware.Utils.types;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,7 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'mediaDefaultFolderService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         source: {

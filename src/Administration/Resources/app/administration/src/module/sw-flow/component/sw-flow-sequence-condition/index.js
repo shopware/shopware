@@ -1,8 +1,10 @@
 import template from './sw-flow-sequence-condition.html.twig';
 import './sw-flow-sequence-condition.scss';
+import { Criteria } from 'shopware:data';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Store } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
+
 const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();
@@ -41,7 +43,7 @@ export default {
 
     computed: {
         ...mapState(
-            () => Store.get('swFlow'),
+            () => useSwFlowStore(),
             [
                 'restrictedRules',
                 'flow',
@@ -138,7 +140,7 @@ export default {
                 return;
             }
 
-            Store.get('swFlow').updateSequence({
+            useSwFlowStore().updateSequence({
                 id: this.sequence.id,
                 rule,
                 ruleId: rule.id,
@@ -151,7 +153,7 @@ export default {
                         return;
                     }
 
-                    Store.get('swFlow').updateSequence({
+                    useSwFlowStore().updateSequence({
                         id: sequence.id,
                         rule,
                         ruleId: rule.id,
@@ -166,7 +168,7 @@ export default {
         },
 
         deleteRule() {
-            Store.get('swFlow').updateSequence({
+            useSwFlowStore().updateSequence({
                 id: this.sequence.id,
                 rule: null,
                 ruleId: '',
@@ -260,7 +262,7 @@ export default {
 
             getRemoveIds(this.sequence, actionIds);
 
-            Store.get('swFlow').removeSequences(actionIds);
+            useSwFlowStore().removeSequences(actionIds);
         },
 
         createSequence(params) {
@@ -278,7 +280,7 @@ export default {
             };
 
             sequence = Object.assign(sequence, newSequence);
-            Store.get('swFlow').addSequence(sequence);
+            useSwFlowStore().addSequence(sequence);
         },
 
         setFieldError() {
@@ -299,7 +301,7 @@ export default {
 
             this.fieldError = null;
             const invalidSequences = this.invalidSequences?.filter((id) => this.sequence.id !== id);
-            Store.get('swFlow').invalidSequences = invalidSequences;
+            useSwFlowStore().invalidSequences = invalidSequences;
         },
 
         toggleAddButton() {

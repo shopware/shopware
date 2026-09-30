@@ -1,11 +1,12 @@
 import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { chunk } = Shopware.Utils.array;
-const { cloneDeep } = Shopware.Utils.object;
+import { Criteria } from 'shopware:data';
+import { isEmpty } from 'shopware:utils/types';
+import { chunk } from 'shopware:utils/array';
+import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -16,7 +17,7 @@ export default {
 
     inject: ['bulkEditApiFactory', 'repositoryFactory', 'customFieldDataProviderService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -38,7 +39,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return useSwBulkEditStore().selectedIds;
         },
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
@@ -62,7 +63,7 @@ export default {
         hasChanges() {
             const customFieldsValue = this.bulkEditData.customFields?.value;
             const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
-            const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+            const hasCustomFieldsChanged = !isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
 
             return hasFieldsChanged || hasCustomFieldsChanged;
         },
@@ -148,8 +149,8 @@ export default {
     methods: {
         createdComponent() {
             this.setRouteMetaModule();
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             this.isLoading = true;
@@ -299,7 +300,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
         },
     },
 };

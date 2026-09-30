@@ -3,8 +3,11 @@
  */
 import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwProfileStore from 'shopware:stores/swProfile';
+import { EventBus } from 'shopware:utils';
 
-const { Module, Store, Mixin } = Shopware;
+const { Module } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -12,7 +15,7 @@ export default {
 
     inject: ['searchPreferencesService', 'searchRankingService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -23,28 +26,28 @@ export default {
     computed: {
         minSearchTermLength: {
             get() {
-                return Store.get('swProfile').minSearchTermLength;
+                return useSwProfileStore().minSearchTermLength;
             },
             set(minSearchTermLength) {
-                Store.get('swProfile').setMinSearchTermLength(minSearchTermLength);
+                useSwProfileStore().setMinSearchTermLength(minSearchTermLength);
             },
         },
 
         searchPreferences: {
             get() {
-                return Store.get('swProfile').searchPreferences;
+                return useSwProfileStore().searchPreferences;
             },
             set(searchPreferences) {
-                Store.get('swProfile').searchPreferences = searchPreferences;
+                useSwProfileStore().searchPreferences = searchPreferences;
             },
         },
 
         userSearchPreferences: {
             get() {
-                return Store.get('swProfile').userSearchPreferences;
+                return useSwProfileStore().userSearchPreferences;
             },
             set(userSearchPreferences) {
-                Store.get('swProfile').userSearchPreferences = userSearchPreferences;
+                useSwProfileStore().userSearchPreferences = userSearchPreferences;
             },
         },
 
@@ -119,7 +122,7 @@ export default {
 
             try {
                 const minSearchTermLength = await this.searchRankingService.getMinSearchTermLength();
-                Shopware.Store.get('swProfile').setMinSearchTermLength(minSearchTermLength);
+                useSwProfileStore().setMinSearchTermLength(minSearchTermLength);
             } catch (error) {
                 this.createNotificationError({ message: error.message });
             } finally {
@@ -145,11 +148,11 @@ export default {
         },
 
         addEventListeners() {
-            Shopware.Utils.EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
+            EventBus.on('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         removeEventListeners() {
-            Shopware.Utils.EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
+            EventBus.off('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         updateDataSource() {

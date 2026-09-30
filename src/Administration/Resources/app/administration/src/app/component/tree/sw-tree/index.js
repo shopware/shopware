@@ -1,7 +1,7 @@
 import template from './sw-tree.html.twig';
 import './sw-tree.scss';
-
-const { debounce, sort } = Shopware.Utils;
+import { debounce } from 'shopware:utils';
+import { afterSort } from 'shopware:utils/sort';
 
 /**
  * @sw-package framework
@@ -672,7 +672,7 @@ export default {
                     [this.afterIdProperty]: item[this.afterIdProperty],
                 });
             });
-            return sort.afterSort(treeItems, this.afterIdProperty);
+            return afterSort(treeItems, this.afterIdProperty);
         },
 
         updateSorting(items) {

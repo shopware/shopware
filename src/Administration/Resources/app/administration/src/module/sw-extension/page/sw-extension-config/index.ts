@@ -2,8 +2,8 @@ import type { RouteLocationNamedRaw } from 'vue-router';
 import type { Extension } from '../../service/extension-store-action.service';
 import template from './sw-extension-config.html.twig';
 import './sw-extension-config.scss';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
+import useShopwareExtensionsStore from 'shopware:stores/shopwareExtensions';
 
 type ComponentData = {
     salesChannelId: EntityKey<'sales_channel'> | null;
@@ -27,7 +27,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['shopwareExtensionService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         namespace: {
@@ -50,7 +50,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         myExtensions(): Extension[] {
-            return Shopware.Store.get('shopwareExtensions').myExtensions.data;
+            return useShopwareExtensionsStore().myExtensions.data;
         },
 
         defaultThemeAsset(): string {

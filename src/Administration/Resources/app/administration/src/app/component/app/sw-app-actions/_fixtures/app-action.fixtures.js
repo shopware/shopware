@@ -3,6 +3,7 @@
  */
 
 import { createRouter as createRouterVue, createWebHistory } from 'vue-router';
+import { createId } from 'shopware:utils';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createRouter() {
@@ -68,7 +69,7 @@ export function createRouter() {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const actionButtonData = [
     {
-        id: Shopware.Utils.createId(),
+        id: createId(),
         action: 'addProduct',
         app: 'TestApp',
         icon: 'someBase64Icon',
@@ -79,7 +80,7 @@ export const actionButtonData = [
         url: 'http://test-url/actions/product/add',
     },
     {
-        id: Shopware.Utils.createId(),
+        id: createId(),
         action: 'renameProduct',
         app: 'TestApp',
         icon: 'someBase64Icon',

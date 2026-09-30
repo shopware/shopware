@@ -3,9 +3,9 @@
  */
 
 import template from './sw-property-detail.html.twig';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -13,7 +13,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

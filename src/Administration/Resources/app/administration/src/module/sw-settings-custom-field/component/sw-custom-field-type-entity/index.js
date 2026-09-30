@@ -2,8 +2,7 @@
  * @sw-package framework
  */
 import template from './sw-custom-field-type-entity.html.twig';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

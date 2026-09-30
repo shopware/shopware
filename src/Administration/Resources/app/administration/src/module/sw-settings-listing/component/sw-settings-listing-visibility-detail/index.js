@@ -1,10 +1,10 @@
 import template from './sw-settings-listing-visibility-detail.html.twig';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package inventory
  */
 
-const { Criteria } = Shopware.Data;
 const { Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

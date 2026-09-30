@@ -4,15 +4,16 @@
 
 import template from './sw-product-packaging-form.html.twig';
 import './sw-product-packaging-form.scss';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         allowEdit: {
@@ -28,16 +29,16 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         // @deprecated tag:v6.8.0 - will be removed due to unused
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         ...mapPropertyErrors('product', [

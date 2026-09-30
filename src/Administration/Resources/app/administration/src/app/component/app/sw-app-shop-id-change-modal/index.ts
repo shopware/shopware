@@ -5,6 +5,7 @@
 import type { ShopIdCheck, Strategy } from 'src/core/service/api/shop-id-change.service';
 import template from './sw-app-shop-id-change-modal.html.twig';
 import './sw-app-shop-id-change-modal.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -16,7 +17,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['modal-close'],
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         shopIdCheck: {

@@ -1,8 +1,10 @@
+import { merge, cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+
 /**
  * @sw-package checkout
  */
-const { merge, cloneDeep } = Shopware.Utils.object;
-const { Criteria } = Shopware.Data;
+
 const { Service, Module } = Shopware;
 
 /**

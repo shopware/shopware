@@ -1,13 +1,13 @@
 import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
+import { Criteria, EntityCollection } from 'shopware:data';
+import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 /**
  * @sw-package checkout
  */
-
-const { Mixin, Store } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -46,7 +46,7 @@ export default {
 
     emits: ['save-edits'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         order: {
@@ -70,9 +70,9 @@ export default {
     },
 
     computed: {
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading: () => useSwOrderDetailStore().isLoading,
 
-        savedSuccessful: () => Store.get('swOrderDetail').savedSuccessful,
+        savedSuccessful: () => useSwOrderDetailStore().savedSuccessful,
 
         lastChangedUser() {
             if (this.liveOrder) {
@@ -180,7 +180,7 @@ export default {
         savedSuccessful() {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
-                Store.get('swOrderDetail').setLoading(['states', false]);
+                useSwOrderDetailStore().setLoading(['states', false]);
             }
         },
 
@@ -290,7 +290,7 @@ export default {
         },
 
         getTransitionOptions() {
-            Store.get('swOrderDetail').setLoading(['states', true]);
+            useSwOrderDetailStore().setLoading(['states', true]);
 
             const statePromises = [this.stateMachineService.getState('order', this.order.id)];
 
@@ -334,7 +334,7 @@ export default {
                     return Promise.resolve();
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading(['states', false]);
+                    useSwOrderDetailStore().setLoading(['states', false]);
                 });
         },
 
@@ -367,12 +367,12 @@ export default {
             this.currentStateType = null;
             this.showModal = false;
 
-            Store.get('swOrderDetail').setLoading(['states', false]);
+            useSwOrderDetailStore().setLoading(['states', false]);
         },
 
         onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showModal = false;
-            Store.get('swOrderDetail').setLoading(['states', true]);
+            useSwOrderDetailStore().setLoading(['states', true]);
 
             let transition = null;
 
@@ -422,7 +422,7 @@ export default {
                         this.createStateChangeErrorNotification(error);
                     })
                     .finally(() => {
-                        Store.get('swOrderDetail').setLoading(['states', false]);
+                        useSwOrderDetailStore().setLoading(['states', false]);
                     });
             }
 

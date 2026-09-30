@@ -1,7 +1,7 @@
 import template from './sw-mail-header-footer-list.html.twig';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package after-sales
@@ -12,7 +12,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     props: {
         /**

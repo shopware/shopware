@@ -2,8 +2,8 @@
  * @sw-package checkout
  */
 import template from './sw-promotion-v2-detail-base.html.twig';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,7 +14,7 @@ export default {
 
     emits: ['generate-individual-codes-finish', 'delete-individual-codes-finish', 'clean-up-codes'],
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         promotion: {

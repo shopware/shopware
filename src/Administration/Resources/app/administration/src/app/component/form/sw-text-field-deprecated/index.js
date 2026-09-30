@@ -1,7 +1,8 @@
 import { inject } from 'vue';
 import template from './sw-text-field-deprecated.html.twig';
-
-const { Mixin } = Shopware;
+import swFormFieldMixin from 'shopware:mixins/sw-form-field';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
+import validationMixin from 'shopware:mixins/validation';
 
 /**
  * @sw-package framework
@@ -23,7 +24,7 @@ export default {
 
     emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
-    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error'), Mixin.getByName('validation')],
+    mixins: [swFormFieldMixin, removeApiErrorMixin, validationMixin],
 
     props: {
         value: {

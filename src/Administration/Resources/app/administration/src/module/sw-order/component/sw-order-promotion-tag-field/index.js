@@ -1,12 +1,10 @@
 import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
+import { currency } from 'shopware:utils/format';
 
 /**
  * @sw-package checkout
  */
-
-const { Utils } = Shopware;
-const { format } = Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -89,8 +87,7 @@ export default {
 
             const { value, discountScope, discountType, groupId } = item;
 
-            const discountValue =
-                discountType === 'percentage' ? value : format.currency(Number(value), this.currency.isoCode);
+            const discountValue = discountType === 'percentage' ? value : currency(Number(value), this.currency.isoCode);
 
             return this.$t(`sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, {
                 value: discountValue,

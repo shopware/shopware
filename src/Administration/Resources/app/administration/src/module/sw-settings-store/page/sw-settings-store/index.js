@@ -1,6 +1,5 @@
 import template from './sw-settings-store.html.twig';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package checkout
@@ -9,7 +8,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

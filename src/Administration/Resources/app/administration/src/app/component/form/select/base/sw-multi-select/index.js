@@ -1,7 +1,6 @@
 import template from './sw-multi-select.html.twig';
-
-const { Mixin } = Shopware;
-const { debounce, get } = Shopware.Utils;
+import { debounce, get } from 'shopware:utils';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 
 /**
  * @sw-package framework
@@ -40,7 +39,7 @@ export default {
         'paginate',
     ],
 
-    mixins: [Mixin.getByName('remove-api-error')],
+    mixins: [removeApiErrorMixin],
 
     props: {
         options: {

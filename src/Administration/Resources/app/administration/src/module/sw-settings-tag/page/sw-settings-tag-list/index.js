@@ -3,9 +3,9 @@
  */
 import template from './sw-settings-tag-list.html.twig';
 import './sw-settings-tag-list.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -13,7 +13,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'tagApiService'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {

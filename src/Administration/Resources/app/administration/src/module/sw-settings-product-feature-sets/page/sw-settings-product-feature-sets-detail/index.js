@@ -2,8 +2,9 @@
  * @sw-package inventory
  */
 import template from './sw-settings-product-feature-sets-detail.html.twig';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -12,7 +13,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'feature'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         productFeatureSetId: {

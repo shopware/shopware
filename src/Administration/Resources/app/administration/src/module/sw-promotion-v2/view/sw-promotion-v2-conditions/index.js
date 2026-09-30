@@ -2,8 +2,8 @@
  * @sw-package checkout
  */
 import template from './sw-promotion-v2-conditions.html.twig';
+import { Criteria, EntityCollection } from 'shopware:data';
 
-const { Criteria, EntityCollection } = Shopware.Data;
 const types = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

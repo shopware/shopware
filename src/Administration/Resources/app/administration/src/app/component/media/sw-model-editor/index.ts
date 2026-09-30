@@ -8,8 +8,8 @@ import { AssetExporter } from '@shopware-ag/dive/assetexporter';
 import { Euler, type Vector3 } from 'three';
 import template from './sw-model-editor.html.twig';
 import './sw-model-editor.scss';
+import { EventBus } from 'shopware:utils';
 
-const { EventBus } = Shopware.Utils;
 const { Context } = Shopware;
 
 type MEModelProperties = {

@@ -5,13 +5,17 @@ import template from './sw-order-customer-grid.html.twig';
 import './sw-order-customer-grid.scss';
 
 import type { Cart } from '../../order.types';
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
  */
 
-const { Component, Store, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context } = Shopware;
 
 interface GridColumn {
     property: string;
@@ -40,7 +44,7 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     data(): {
         customers: EntityCollection<'customer'> | null;
@@ -70,7 +74,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         customerData(): Entity<'customer'> | null {
-            return Store.get('swOrder').customer;
+            return useSwOrderStore().customer;
         },
 
         customerRepository(): RepositoryType<'customer'> {
@@ -150,7 +154,7 @@ export default Component.wrapComponentConfig({
         },
 
         cart(): Cart {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
@@ -260,11 +264,11 @@ export default Component.wrapComponentConfig({
         },
 
         createCart(salesChannelId: EntityKey<'sales_channel'>): Promise<void> {
-            return Store.get('swOrder').createCart({ salesChannelId });
+            return useSwOrderStore().createCart({ salesChannelId });
         },
 
         setCustomer(customer: Entity<'customer'> | null): void {
-            void Store.get('swOrder').selectExistingCustomer({ customer });
+            void useSwOrderStore().selectExistingCustomer({ customer });
         },
 
         async handleSelectCustomer(): Promise<void> {
@@ -314,7 +318,7 @@ export default Component.wrapComponentConfig({
         async updateCustomerContext(): Promise<void> {
             if (!this.customer) return;
 
-            await Store.get('swOrder')
+            await useSwOrderStore()
                 .updateCustomerContext({
                     customerId: this.customer.id,
                     salesChannelId: this.customer.salesChannelId,
@@ -331,7 +335,7 @@ export default Component.wrapComponentConfig({
         async getCart(): Promise<void> {
             if (!this.customer) return;
 
-            await Store.get('swOrder').getCart({
+            await useSwOrderStore().getCart({
                 salesChannelId: this.customer.salesChannelId,
                 contextToken: this.cart.token,
             });
@@ -401,11 +405,11 @@ export default Component.wrapComponentConfig({
             );
 
             if (!exists && this.customer?.salesChannel?.languageId) {
-                Store.get('context').api.languageId = this.customer.salesChannel.languageId;
+                useContextStore().api.languageId = this.customer.salesChannel.languageId;
             }
 
-            if (exists && !Store.get('context').isSystemDefaultLanguage) {
-                Store.get('context').resetLanguageToDefault();
+            if (exists && !useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
         },
     },

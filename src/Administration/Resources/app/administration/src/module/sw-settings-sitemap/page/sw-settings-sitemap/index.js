@@ -3,14 +3,13 @@
  */
 
 import template from './sw-settings-sitemap.html.twig';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

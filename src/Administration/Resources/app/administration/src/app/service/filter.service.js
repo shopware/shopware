@@ -1,9 +1,9 @@
+import { isEmpty } from 'shopware:utils/types';
+import { cloneDeep } from 'shopware:utils/object';
+
 /**
  * @sw-package framework
  */
-
-const { types } = Shopware.Utils;
-const { cloneDeep } = Shopware.Utils.object;
 
 /**
  * @module app/filter-service
@@ -100,7 +100,7 @@ export default class FilterService {
     }
 
     async _pushFiltersToUrl(replaceRoute = false) {
-        const urlFilterValue = types.isEmpty(this._filterEntity.value) ? null : this._filterEntity.value;
+        const urlFilterValue = isEmpty(this._filterEntity.value) ? null : this._filterEntity.value;
         const urlEncodedValue = encodeURIComponent(JSON.stringify(urlFilterValue));
 
         const router = Shopware.Application.view.router;
@@ -118,7 +118,7 @@ export default class FilterService {
             },
         };
 
-        if (!Shopware.Utils.types.isEmpty(routeParams)) {
+        if (!isEmpty(routeParams)) {
             newRoute.params = routeParams;
         }
 

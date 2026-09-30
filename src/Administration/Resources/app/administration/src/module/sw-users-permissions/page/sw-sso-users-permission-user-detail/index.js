@@ -1,9 +1,9 @@
 import template from './sw-sso-users-permission-user-detail.html.twig';
 import useTheme from 'src/app/composables/use-theme';
 import './sw-sso-users-permissions-user-detail.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
 
 const MODE = Object.freeze({
     VIEW: 'view',
@@ -25,7 +25,7 @@ export default {
         'userService',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
+    mixins: [notificationMixin, salutationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

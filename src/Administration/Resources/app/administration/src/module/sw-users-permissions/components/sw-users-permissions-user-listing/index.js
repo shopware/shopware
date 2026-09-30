@@ -3,9 +3,11 @@
  */
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
-
-const { Data, Mixin } = Shopware;
-const { Criteria } = Data;
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import useSessionStore from 'shopware:stores/session';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -22,7 +24,7 @@ export default {
 
     emits: ['get-list'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification'), Mixin.getByName('salutation')],
+    mixins: [listingMixin, notificationMixin, salutationMixin],
 
     created() {
         this.ssoSettingsService.isSso().then((response) => {
@@ -61,7 +63,7 @@ export default {
 
         currentUser: {
             get() {
-                return Shopware.Store.get('session').currentUser;
+                return useSessionStore().currentUser;
             },
         },
 

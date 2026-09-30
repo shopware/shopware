@@ -3,8 +3,7 @@
  */
 import template from './sw-custom-field-translated-labels.html.twig';
 import './sw-custom-field-translated-labels.scss';
-
-const { Mixin } = Shopware;
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -12,7 +11,7 @@ export default {
 
     inject: ['acl', 'feature'],
 
-    mixins: [Mixin.getByName('sw-inline-snippet')],
+    mixins: [swInlineSnippetMixin],
 
     props: {
         locales: {

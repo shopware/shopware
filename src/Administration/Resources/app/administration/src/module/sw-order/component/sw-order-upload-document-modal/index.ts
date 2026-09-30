@@ -4,8 +4,9 @@ import { DOCUMENT_TYPES, FILE_FORMAT_MIME_TYPES } from '../../service/documentV2
 import type { AvailableDocumentTypesResponse } from '../../../../core/service/api/documentV2.api.service';
 import template from './sw-order-upload-document-modal.html.twig';
 import './sw-order-upload-document-modal.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 const FILE_SIZE_LIMIT = 52428800; // 50 MB
 
@@ -20,7 +21,7 @@ export default Component.wrapComponentConfig({
 
     emits: ['document-upload', 'page-leave', 'update:documentType'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         order: {

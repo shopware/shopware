@@ -1,3 +1,5 @@
+import { debounce } from 'shopware:utils';
+
 /**
  * @sw-package framework
  */
@@ -24,10 +26,7 @@ export default {
             };
         }
 
-        const resetComponentShortcutStateDebounced = Shopware.Utils.debounce(
-            resetComponentShortcutState,
-            componentShortcutKeystrokeDelay,
-        );
+        const resetComponentShortcutStateDebounced = debounce(resetComponentShortcutState, componentShortcutKeystrokeDelay);
 
         function resetSequenceNow() {
             resetComponentShortcutStateDebounced.cancel?.();

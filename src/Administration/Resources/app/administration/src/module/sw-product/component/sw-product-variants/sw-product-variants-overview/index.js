@@ -4,9 +4,12 @@
 
 import template from './sw-product-variants-overview.html.twig';
 import './sw-products-variants-overview.scss';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import listingMixin from 'shopware:mixins/listing';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -21,7 +24,7 @@ export default {
 
     emits: ['generator-open', 'delivery-open', 'variants-finish-update'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing')],
+    mixins: [notificationMixin, listingMixin],
 
     props: {
         productEntity: {
@@ -69,35 +72,35 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         currencies() {
-            return Shopware.Store.get('swProductDetail').currencies;
+            return useSwProductDetailStore().currencies;
         },
 
         taxes() {
-            return Shopware.Store.get('swProductDetail').taxes;
+            return useSwProductDetailStore().taxes;
         },
 
         variants() {
-            return Shopware.Store.get('swProductDetail').variants;
+            return useSwProductDetailStore().variants;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         defaultPrice() {
-            return Shopware.Store.get('swProductDetail').defaultPrice;
+            return useSwProductDetailStore().defaultPrice;
         },
 
         defaultCurrency() {
-            return Shopware.Store.get('swProductDetail').defaultCurrency;
+            return useSwProductDetailStore().defaultCurrency;
         },
 
         productTaxRate() {
-            return Shopware.Store.get('swProductDetail').productTaxRate;
+            return useSwProductDetailStore().productTaxRate;
         },
 
         productRepository() {
@@ -275,7 +278,7 @@ export default {
                 newDownload.productId = item.id;
                 newDownload.media = media;
 
-                Shopware.Store.get('swProductDetail').variants = this.variants.map((variant) => {
+                useSwProductDetailStore().variants = this.variants.map((variant) => {
                     if (variant.id === item.id) {
                         variant.downloads.push(newDownload);
                         this.productRepository.save(variant);
@@ -302,7 +305,7 @@ export default {
                     return;
                 }
 
-                Shopware.Store.get('swProductDetail').setLoading(['variants', true]);
+                useSwProductDetailStore().setLoading(['variants', true]);
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria(1, 25);
@@ -354,8 +357,8 @@ export default {
                 // Start search
                 this.productRepository.search(searchCriteria).then((res) => {
                     this.total = res.total;
-                    Shopware.Store.get('swProductDetail').variants = res;
-                    Shopware.Store.get('swProductDetail').setLoading(['variants', false]);
+                    useSwProductDetailStore().variants = res;
+                    useSwProductDetailStore().setLoading(['variants', false]);
                     this.$emit('variants-finish-update', this.variants);
                     resolve();
                 });

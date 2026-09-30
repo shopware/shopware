@@ -1,9 +1,13 @@
 import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
+import { getNameAndExtensionFromUrl, getNameAndExtensionFromFile } from 'shopware:utils/fileReader';
+import { warn } from 'shopware:utils/debug';
+import { fileSize } from 'shopware:utils/format';
+import notificationMixin from 'shopware:mixins/notification';
+import useContextStore from 'shopware:stores/context';
 
-const { Mixin, Context } = Shopware;
-const { fileReader } = Shopware.Utils;
-const { fileSize } = Shopware.Utils.format;
+const { Context } = Shopware;
+
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
@@ -40,7 +44,7 @@ export default {
         'media-upload-add-file',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         source: {
@@ -177,7 +181,7 @@ export default {
             preview: null,
             isDragActive: false,
             defaultFolderId: null,
-            isUploadUrlFeatureEnabled: Shopware.Store.get('context').app.config?.settings?.enableUrlFeature ?? false,
+            isUploadUrlFeatureEnabled: useContextStore().app.config?.settings?.enableUrlFeature ?? false,
             isLoading: false,
             // Ids of media entities created via `sync` whose upload has not finished yet.
             pendingUploadMediaIds: new Set(),
@@ -246,7 +250,7 @@ export default {
         },
 
         presignedUploadSupported() {
-            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+            return useContextStore().app.config?.settings?.presignedUploadSupported ?? false;
         },
     },
 
@@ -412,7 +416,7 @@ export default {
             let fileInfo;
 
             try {
-                fileInfo = fileReader.getNameAndExtensionFromUrl(url);
+                fileInfo = getNameAndExtensionFromUrl(url);
             } catch (_error) {
                 this.createNotificationError({
                     title: this.$t('global.default.error'),
@@ -478,7 +482,7 @@ export default {
             const syncEntities = [];
 
             const uploadData = newMediaFiles.map((fileHandle) => {
-                const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
+                const { fileName, extension } = getNameAndExtensionFromFile(fileHandle);
                 const targetEntity = this.getMediaEntityForUpload();
                 syncEntities.push(targetEntity);
 
@@ -544,7 +548,7 @@ export default {
                         return null;
                     })
                     .catch((error) => {
-                        Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
+                        warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
                     });
             });
         },

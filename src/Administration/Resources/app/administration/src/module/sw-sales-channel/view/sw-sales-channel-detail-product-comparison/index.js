@@ -4,10 +4,12 @@
 
 import template from './sw-sales-channel-detail-product-comparison.html.twig';
 import './sw-sales-channel-detail-product-comparison.scss';
+import { Criteria } from 'shopware:data';
+import { warn } from 'shopware:utils/debug';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
-const { Mixin, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
+const { Defaults } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -21,7 +23,7 @@ export default {
         'acl',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         salesChannel: {

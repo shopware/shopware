@@ -1,3 +1,5 @@
+import { error } from 'shopware:utils/debug';
+
 /**
  * @sw-package framework
  *
@@ -66,7 +68,7 @@ export default {
                 url: this._getLocationHref(),
             };
 
-            this.logEntryRepository.save(newLogEntry).catch((e) => Shopware.Utils.debug.error(e));
+            this.logEntryRepository.save(newLogEntry).catch((e) => error(e));
         },
     },
 };

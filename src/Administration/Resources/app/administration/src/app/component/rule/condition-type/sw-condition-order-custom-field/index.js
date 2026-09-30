@@ -1,9 +1,10 @@
 import template from './sw-condition-order-custom-field.html.twig';
 import './sw-condition-order-custom-field.scss';
 import { RULE_BETWEEN_OPERATOR_MIXIN_NAME } from 'src/app/mixin/rule-between-operator.mixin';
+import { Criteria } from 'shopware:data';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
 const { Filter, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 
 /**
  * @public
@@ -20,7 +21,7 @@ export default {
 
     inject: ['repositoryFactory', 'feature'],
 
-    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)],
+    mixins: [swInlineSnippetMixin, Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)],
 
     computed: {
         customFieldCriteria() {

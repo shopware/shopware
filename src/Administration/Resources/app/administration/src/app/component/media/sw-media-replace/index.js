@@ -1,3 +1,5 @@
+import { getNameAndExtensionFromFile } from 'shopware:utils/fileReader';
+
 /**
  * @public
  * @status ready
@@ -11,7 +13,6 @@
  *      variant="regular"
  * ></sw-media-replace>
  */
-const { fileReader } = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -38,7 +39,7 @@ export default {
         },
 
         handlePresignedUpload(files) {
-            const { extension } = fileReader.getNameAndExtensionFromFile(files[0]);
+            const { extension } = getNameAndExtensionFromFile(files[0]);
 
             this.mediaService.getListenerForTag(this.uploadTag).forEach((listener) => {
                 listener(

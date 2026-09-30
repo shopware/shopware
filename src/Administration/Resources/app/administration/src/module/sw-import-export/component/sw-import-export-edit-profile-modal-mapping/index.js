@@ -3,6 +3,7 @@
  */
 import template from './sw-import-export-edit-profile-modal-mapping.html.twig';
 import './sw-import-export-edit-profile-modal-mapping.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const {
     debounce,
@@ -21,7 +22,7 @@ export default {
 
     emits: ['update-mapping'],
 
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         profile: {

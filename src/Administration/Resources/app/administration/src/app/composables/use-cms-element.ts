@@ -7,6 +7,9 @@ import { computed, type ComputedRef } from 'vue';
 import useCmsState from './use-cms-state';
 import 'src/module/sw-cms/store/cms-page.store';
 import type { CmsElementConfig, CmsSlotConfig, RuntimeSlot } from 'src/module/sw-cms/service/cms.service';
+import { merge, get, set, cloneDeep } from 'shopware:utils/object';
+
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /** @private */
 export interface UseCmsElementOptions {
@@ -44,7 +47,6 @@ export default function useCmsElement(options: UseCmsElementOptions): UseCmsElem
     const cmsElements = computed(() => cmsService().getCmsElementRegistry());
 
     const config = computed<CmsSlotConfig>(() => {
-        const { merge, get, set, cloneDeep } = Shopware.Utils.object;
         const element = options.element();
         const resolved = cloneDeep(element.config ?? {});
         const defaults = merge({}, cmsElements.value[element.type ?? '']?.defaultConfig, options.defaultConfig?.());
@@ -67,11 +69,11 @@ export default function useCmsElement(options: UseCmsElementOptions): UseCmsElem
     });
 
     function getConfigValue(path: string): unknown {
-        return Shopware.Utils.object.get(config.value, path);
+        return get(config.value, path);
     }
 
     function setConfigValue(path: string, value: unknown): void {
-        Shopware.Store.get('cmsPage').updateElementConfig(options.element().id, path, value);
+        useCmsPageStore().updateElementConfig(options.element().id, path, value);
     }
 
     function getDemoValue(mappingPath: string): unknown {

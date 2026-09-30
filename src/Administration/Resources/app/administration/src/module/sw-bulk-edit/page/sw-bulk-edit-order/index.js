@@ -1,10 +1,10 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { intersectionBy, chunk, uniqBy } = Shopware.Utils.array;
+import { Criteria } from 'shopware:data';
+import { isEmpty } from 'shopware:utils/types';
+import { intersectionBy, chunk, uniqBy } from 'shopware:utils/array';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /**
  * @sw-package checkout
@@ -22,7 +22,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -49,7 +49,7 @@ export default {
 
     computed: {
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return useSwBulkEditStore().selectedIds;
         },
 
         stateMachineStateRepository() {
@@ -77,7 +77,7 @@ export default {
         hasChanges() {
             const customFieldsValue = this.bulkEditData.customFields?.value;
             const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
-            const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+            const hasCustomFieldsChanged = !isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
 
             return hasFieldsChanged || hasCustomFieldsChanged;
         },
@@ -87,7 +87,7 @@ export default {
                 return false;
             }
 
-            const orderDocuments = Shopware.Store.get('swBulkEdit').orderDocuments;
+            const orderDocuments = useSwBulkEditStore().orderDocuments;
 
             return Object.values(orderDocuments).some((document) => {
                 if (!document?.isChanged || Array.isArray(document.value)) {
@@ -286,7 +286,7 @@ export default {
     methods: {
         async createdComponent() {
             this.setRouteMetaModule();
-            Shopware.Store.get('swBulkEdit').resetOrderDocumentsIsChanged();
+            useSwBulkEditStore().resetOrderDocumentsIsChanged();
 
             this.isLoading = true;
 
@@ -583,7 +583,7 @@ export default {
         },
 
         onChangeDocument(type, isChanged) {
-            Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            useSwBulkEditStore().setOrderDocumentsIsChanged({
                 type,
                 isChanged,
             });

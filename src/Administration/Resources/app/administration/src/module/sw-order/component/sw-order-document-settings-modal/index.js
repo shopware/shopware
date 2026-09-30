@@ -1,8 +1,7 @@
 import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
-
-const { Mixin, Utils } = Shopware;
-const { isEmpty } = Utils.types;
+import { isEmpty } from 'shopware:utils/types';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package after-sales
@@ -22,7 +21,7 @@ export default {
         'page-leave',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         order: {

@@ -1,13 +1,14 @@
 import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 import template from './sw-order-create-promotion-modal.html.twig';
 import './sw-order-create-promotion-modal.scss';
+import { currency } from 'shopware:utils/format';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
 /**
  * @sw-package checkout
  */
 
-const { Store, Utils, Service } = Shopware;
-const { format } = Utils;
+const { Service } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -35,7 +36,7 @@ export default {
 
     computed: {
         cart() {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         cartAutomaticPromotionItems() {
@@ -81,13 +82,13 @@ export default {
                 Math.abs(totalPrice) < value
             ) {
                 return this.$t(`${snippet}.absoluteUpto`, 0, {
-                    value: format.currency(Number(value), this.currency.isoCode),
-                    totalPrice: format.currency(Math.abs(totalPrice), this.currency.isoCode),
+                    value: currency(Number(value), this.currency.isoCode),
+                    totalPrice: currency(Math.abs(totalPrice), this.currency.isoCode),
                 });
             }
 
             const discountValue =
-                discountType === DiscountTypes.PERCENTAGE ? value : format.currency(Number(value), this.currency.isoCode);
+                discountType === DiscountTypes.PERCENTAGE ? value : currency(Number(value), this.currency.isoCode);
 
             return this.$t(`${snippet}.${discountType}`, 0, {
                 value: discountValue,

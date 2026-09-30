@@ -2,9 +2,9 @@
  * @sw-package fundamentals@framework
  */
 import template from './sw-settings-currency-country-modal.html.twig';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -15,7 +15,7 @@ export default {
 
     emits: ['edit-cancel', 'save'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         currencyCountryRounding: {

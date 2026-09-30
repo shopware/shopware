@@ -1,14 +1,21 @@
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
+import { debounce } from 'shopware:utils';
+import { cloneDeep, getObjectDiff } from 'shopware:utils/object';
+import { isEmpty } from 'shopware:utils/types';
+import { warn } from 'shopware:utils/debug';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useContextStore from 'shopware:stores/context';
+import useErrorStore from 'shopware:stores/error';
+import { camelCase } from 'shopware:utils/string';
 
-const { Component, Mixin, Utils } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
-const { debounce } = Shopware.Utils;
-const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
-const { isEmpty } = Shopware.Utils.types;
-const { warn } = Shopware.Utils.debug;
-const { Criteria } = Shopware.Data;
+
 const { CMS } = Shopware.Constants;
 const debounceTimeout = 800;
 
@@ -32,7 +39,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [Mixin.getByName('cms-state'), notificationMixin, placeholderMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -309,7 +316,7 @@ export default {
     },
 
     beforeRouteLeave() {
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        useShopwareAppsStore().selectedIds = [];
     },
 
     beforeUnmount() {
@@ -325,13 +332,13 @@ export default {
             });
             this.resetRelatedStores();
 
-            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+            const isSystemDefaultLanguage = useContextStore().isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
 
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id.toLowerCase();
                 this.isLoading = true;
-                Shopware.Store.get('shopwareApps').selectedIds = [this.pageId];
+                useShopwareAppsStore().selectedIds = [this.pageId];
 
                 this.loadPage(this.pageId);
             }
@@ -489,9 +496,9 @@ export default {
         onChangeLanguage(languageId) {
             this.isLoading = true;
 
-            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+            const isSystemDefaultLanguage = useContextStore().isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             return this.loadPage(this.pageId);
         },
 
@@ -745,11 +752,11 @@ export default {
                 meta: { parameters: payload },
             });
 
-            Shopware.Store.get('error').addApiError({ expression, error });
+            useErrorStore().addApiError({ expression, error });
         },
 
         getError(property) {
-            return Shopware.Store.get('error').getApiError(this.page, property);
+            return useErrorStore().getApiError(this.page, property);
         },
 
         getSlotValidations() {
@@ -762,7 +769,7 @@ export default {
 
                     block.slots.forEach((slot) => {
                         if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL && this.isProductPageElement(slot)) {
-                            const camelSlotType = Utils.string.camelCase(slot.type);
+                            const camelSlotType = camelCase(slot.type);
                             if (!uniqueSlotCount.hasOwnProperty(camelSlotType)) {
                                 uniqueSlotCount[camelSlotType] = {
                                     type: camelSlotType,
@@ -796,7 +803,7 @@ export default {
             }
 
             this.validationWarnings = [];
-            Shopware.Store.get('error').resetApiErrors();
+            useErrorStore().resetApiErrors();
 
             const valid = [
                 this.missingFieldsValidation(),

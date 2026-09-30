@@ -1,8 +1,8 @@
 import BulkEditBaseHandler from './bulk-edit-base.handler';
 import RetryHelper from '../../../../core/helper/retry.helper';
-
-const { Criteria } = Shopware.Data;
-const { types } = Shopware.Utils;
+import { Criteria } from 'shopware:data';
+import { isEmpty } from 'shopware:utils/types';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /**
  * @class
@@ -23,7 +23,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         this.entityIds = entityIds;
 
         let promises = [];
-        const shouldTriggerFlows = Shopware.Store.get('swBulkEdit').isFlowTriggered;
+        const shouldTriggerFlows = useSwBulkEditStore().isFlowTriggered;
 
         const orders = await this.orderRepository.search(this.getCriteria());
 
@@ -83,7 +83,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
 
         const syncPayload = await this.buildBulkSyncPayload(payload);
 
-        if (types.isEmpty(syncPayload)) {
+        if (isEmpty(syncPayload)) {
             return Promise.resolve({ data: [] });
         }
 

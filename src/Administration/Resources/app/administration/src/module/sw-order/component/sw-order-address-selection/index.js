@@ -2,15 +2,18 @@ import { required } from 'src/core/service/validation.service';
 import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
+import { Criteria } from 'shopware:data';
+import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
  */
 
 const { ShopwareError } = Shopware.Classes;
-const { EntityDefinition, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
+const { EntityDefinition } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -20,7 +23,7 @@ export default {
 
     emits: ['change-address'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         address: {
@@ -64,9 +67,9 @@ export default {
     },
 
     computed: {
-        order: () => Store.get('swOrderDetail').order,
+        order: () => useSwOrderDetailStore().order,
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        versionContext: () => useSwOrderDetailStore().versionContext,
 
         orderCustomer() {
             return this.order.orderCustomer;
@@ -78,10 +81,10 @@ export default {
          */
         customer: {
             get() {
-                return Store.get('swOrderDetail').customer;
+                return useSwOrderDetailStore().customer;
             },
             set(customer) {
-                Store.get('swOrderDetail').customer = customer;
+                useSwOrderDetailStore().customer = customer;
             },
         },
 
@@ -258,7 +261,7 @@ export default {
 
             return this.customerRepository
                 .save(this.customer)
-                .then(() => Store.get('swOrderDetail').loadCustomer(customerId, true))
+                .then(() => useSwOrderDetailStore().loadCustomer(customerId, true))
                 .then(() => {
                     this.currentAddress = null;
 
@@ -270,7 +273,7 @@ export default {
             const ignoreFields = ['createdAt'];
             const entityName = address.getEntityName();
             const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields(entityName));
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
@@ -302,7 +305,7 @@ export default {
             }
 
             const entityName = address.getEntityName();
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             const addressErrors = errorStore.getErrorsForEntity(entityName, address.id);
 
             if (!addressErrors) {
@@ -318,7 +321,7 @@ export default {
 
         removeRequiredFieldError(address, field) {
             const entityName = address.getEntityName();
-            const errorStore = Shopware.Store.get('error');
+            const errorStore = useErrorStore();
             const error = errorStore.getApiErrorFromPath(entityName, address.id, [field]);
 
             if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
@@ -367,7 +370,7 @@ export default {
                 return Promise.reject();
             }
 
-            return Store.get('swOrderDetail').loadCustomer(this.orderCustomer.customerId);
+            return useSwOrderDetailStore().loadCustomer(this.orderCustomer.customerId);
         },
 
         getCustomFieldSet() {

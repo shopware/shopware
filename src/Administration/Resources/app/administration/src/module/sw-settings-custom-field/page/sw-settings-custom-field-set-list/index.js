@@ -3,6 +3,7 @@
  */
 import template from './sw-settings-custom-field-set-list.html.twig';
 import './sw-settings-custom-field-set-list.scss';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
 const {
     Locale,
@@ -16,7 +17,7 @@ export default {
 
     inject: ['acl', 'feature'],
 
-    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('sw-settings-list')],
+    mixins: [swInlineSnippetMixin, Mixin.getByName('sw-settings-list')],
 
     data() {
         return {

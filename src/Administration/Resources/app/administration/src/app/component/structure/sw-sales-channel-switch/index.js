@@ -2,9 +2,8 @@
  * @sw-package discovery
  */
 import template from './sw-sales-channel-switch.html.twig';
-
-const { Criteria } = Shopware.Data;
-const { debug } = Shopware.Utils;
+import { Criteria } from 'shopware:data';
+import { warn } from 'shopware:utils/debug';
 
 /**
  * @private
@@ -101,7 +100,7 @@ export default {
             if (typeof this.saveChangesFunction === 'function') {
                 save = this.saveChangesFunction();
             } else {
-                debug.warn('sw-sales-channel-switch', 'You need to implement an own save function to save the changes!');
+                warn('sw-sales-channel-switch', 'You need to implement an own save function to save the changes!');
             }
             return Promise.resolve(save).then(() => {
                 this.changeToNewSalesChannel();

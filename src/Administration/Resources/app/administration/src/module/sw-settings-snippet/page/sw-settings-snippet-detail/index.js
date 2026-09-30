@@ -3,9 +3,10 @@
  */
 import template from './sw-settings-snippet-detail.html.twig';
 import './sw-settings-snippet-detail.scss';
+import notificationMixin from 'shopware:mixins/notification';
+import useSessionStore from 'shopware:stores/session';
 
 const {
-    Mixin,
     Data: { Criteria },
 } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
@@ -17,7 +18,7 @@ export default {
 
     inject: ['snippetSetService', 'repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -93,7 +94,7 @@ export default {
 
         currentAuthor: {
             get() {
-                return this._currentAuthor || `user/${Shopware.Store.get('session').currentUser.username}`;
+                return this._currentAuthor || `user/${useSessionStore().currentUser.username}`;
             },
         },
 

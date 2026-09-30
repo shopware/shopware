@@ -1,4 +1,7 @@
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
+import { warn } from 'shopware:utils/debug';
+import useNotificationStore from 'shopware:stores/notification';
+import useSessionStore from 'shopware:stores/session';
 
 /**
  * @sw-package framework
@@ -35,7 +38,6 @@ export interface NotificationType {
     [key: string]: string | boolean | object | number | undefined;
 }
 
-const { debug } = Shopware.Utils;
 const utils = Shopware.Utils;
 const NOTIFICATION_LOAD_LIMIT = 50;
 const notificationDefaults: NotificationType = {
@@ -54,7 +56,7 @@ const growlNotificationDefaults: NotificationType = {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function initializeUserNotifications() {
     if (Shopware.Store) {
-        Shopware.Store.get('notification').notifications = getNotificationsForUser();
+        useNotificationStore().notifications = getNotificationsForUser();
     }
 }
 
@@ -81,7 +83,7 @@ function _mergeNotificationUpdate(originalNotification: NotificationType, notifi
 }
 
 function _getStorageKey() {
-    const user = Shopware.Store.get('session').currentUser;
+    const user = useSessionStore().currentUser;
 
     if (!user) {
         return null;
@@ -198,7 +200,7 @@ const notificationStore = Shopware.Store.register({
 
         upsertNotification(notificationUpdate: Partial<NotificationType & { uuid: string }>) {
             if (!notificationUpdate.uuid) {
-                debug.warn('NotificationStore', 'A notification must contain a uuid', notificationUpdate);
+                warn('NotificationStore', 'A notification must contain a uuid', notificationUpdate);
                 return;
             }
             this.notifications[notificationUpdate.uuid] = {
@@ -210,7 +212,7 @@ const notificationStore = Shopware.Store.register({
 
         removeNotification(notification: NotificationType & { uuid: string }) {
             if (!notification.uuid) {
-                debug.warn('NotificationStore', 'A notification must contain a uuid', notification);
+                warn('NotificationStore', 'A notification must contain a uuid', notification);
                 return;
             }
             delete this.notifications[notification.uuid];
@@ -227,7 +229,7 @@ const notificationStore = Shopware.Store.register({
 
         upsertGrowlNotification(notificationUpdate: Partial<NotificationType>) {
             if (!notificationUpdate.uuid) {
-                debug.warn('NotificationStore', 'A notification must contain a uuid', notificationUpdate);
+                warn('NotificationStore', 'A notification must contain a uuid', notificationUpdate);
                 return;
             }
 
@@ -244,7 +246,7 @@ const notificationStore = Shopware.Store.register({
 
         removeGrowlNotification(notification: NotificationType) {
             if (!notification.uuid) {
-                debug.warn('NotificationStore', 'A notification must contain a uuid', notification);
+                warn('NotificationStore', 'A notification must contain a uuid', notification);
                 return;
             }
             delete this.growlNotifications[notification.uuid];
@@ -252,7 +254,7 @@ const notificationStore = Shopware.Store.register({
 
         createNotification(notification: NotificationType) {
             if (!notification.message) {
-                debug.warn('NotificationStore', 'A message must be specified', notification);
+                warn('NotificationStore', 'A message must be specified', notification);
                 return null;
             }
 
@@ -302,7 +304,7 @@ const notificationStore = Shopware.Store.register({
 
         updateNotification(notificationUpdate: NotificationType) {
             if (!notificationUpdate.uuid) {
-                debug.warn('NotificationStore', 'Update to an notification must contain the uuid', notificationUpdate);
+                warn('NotificationStore', 'Update to an notification must contain the uuid', notificationUpdate);
                 return null;
             }
 

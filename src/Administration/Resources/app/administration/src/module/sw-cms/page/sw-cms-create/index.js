@@ -1,6 +1,9 @@
 import template from './sw-cms-create.html.twig';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useContextStore from 'shopware:stores/context';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import { EntityCollection } from 'shopware:data';
 
-const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -10,7 +13,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     data() {
         return {
@@ -40,14 +43,14 @@ export default {
         createdComponent() {
             this.resetRelatedStores();
 
-            const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+            const isSystemDefaultLanguage = useContextStore().isSystemDefaultLanguage;
             if (!isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
-                Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(isSystemDefaultLanguage);
+                useContextStore().resetLanguageToDefault();
+                useCmsPageStore().setIsSystemDefaultLanguage(isSystemDefaultLanguage);
             }
 
             this.page = this.pageRepository.create();
-            this.page.sections = new Shopware.Data.EntityCollection(
+            this.page.sections = new EntityCollection(
                 `/cms-page/${this.page.id}/sections`,
                 'cms_section',
                 Shopware.Context.api,

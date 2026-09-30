@@ -4,9 +4,10 @@
 import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-settings-language-list.html.twig';
 import './sw-settings-language-list.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+import { localeName } from 'shopware:utils/format';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -19,7 +20,7 @@ export default {
         'feature',
     ],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     data() {
         return {
@@ -291,7 +292,7 @@ export default {
                 return metadata.name;
             }
 
-            return Shopware.Utils.format.localeName(localeCode);
+            return localeName(localeCode);
         },
 
         getSnippetStatus(item) {

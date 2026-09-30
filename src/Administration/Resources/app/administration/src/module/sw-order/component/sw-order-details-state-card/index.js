@@ -1,11 +1,10 @@
 import template from './sw-order-details-state-card.html.twig';
 import './sw-order-details-state-card.scss';
+import { Criteria } from 'shopware:data';
 
 /**
  * @sw-package checkout
  */
-
-const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

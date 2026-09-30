@@ -9,8 +9,9 @@ import type Repository from 'src/core/data/repository.data';
 
 import template from './sw-generic-custom-entity-detail.html.twig';
 import './sw-generic-custom-entity-detail.scss';
-
-const { Mixin } = Shopware;
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useContextStore from 'shopware:stores/context';
 
 type GenericCustomEntityDetailData = {
     isLoading: boolean;
@@ -34,7 +35,7 @@ export default Shopware.Component.wrapComponentConfig({
         'feature',
     ],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     data(): GenericCustomEntityDetailData {
         return {
@@ -210,7 +211,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: EntityKey<'language'>): void {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             void this.loadData();
         },
 

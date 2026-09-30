@@ -1,8 +1,8 @@
 import { computed } from 'vue';
 import template from './sw-grid.html.twig';
 import './sw-grid.scss';
-
-const { dom } = Shopware.Utils;
+import { getScrollbarWidth } from 'shopware:utils/dom';
+import { error } from 'shopware:utils/debug';
 
 /**
  * @sw-package framework
@@ -305,7 +305,7 @@ export default {
         },
 
         setScrollbarOffset() {
-            this.scrollbarOffset = dom.getScrollbarWidth(this.$refs.swGridBody);
+            this.scrollbarOffset = getScrollbarWidth(this.$refs.swGridBody);
         },
 
         setColumns(columns) {
@@ -320,7 +320,7 @@ export default {
                 // means not having a proper unique identifier for each row likely causes issues.
                 // For example the child components may not be properly destroyed and created and just
                 // "patched" in place with a completely different item / row
-                Shopware.Utils.debug.error(
+                error(
                     'sw-grid item without `id` property',
                     item,
                     'more info here: https://vuejs.org/api/built-in-special-attributes.html#key',

@@ -1,6 +1,9 @@
 import template from './sw-settings-state-machine-detail.html.twig';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -15,9 +18,9 @@ export default Component.wrapComponentConfig({
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('stateMachine'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('stateMachine'),
     ],
 
     props: {

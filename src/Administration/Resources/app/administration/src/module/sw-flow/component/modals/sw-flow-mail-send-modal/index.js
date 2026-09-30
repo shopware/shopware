@@ -1,15 +1,15 @@
 import template from './sw-flow-mail-send-modal.html.twig';
 import './sw-flow-mail-send-modal.scss';
+import { Criteria } from 'shopware:data';
+import { debounce, createId } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
 const {
     Component,
-    Mixin,
-    Utils,
     Classes: { ShopwareError },
-    Store,
 } = Shopware;
-const { Criteria } = Shopware.Data;
-const { debounce } = Shopware.Utils;
+
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -23,7 +23,7 @@ export default {
 
     emits: ['modal-close', 'process-finish'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         sequence: {
@@ -252,7 +252,7 @@ export default {
             return this.replyToSelection === 'custom';
         },
 
-        ...mapState(() => Store.get('swFlow'), ['mailTemplates', 'triggerEvent', 'triggerActions']),
+        ...mapState(() => useSwFlowStore(), ['mailTemplates', 'triggerEvent', 'triggerActions']),
     },
 
     watch: {
@@ -282,7 +282,7 @@ export default {
 
                 if (config.recipient?.type === 'custom') {
                     Object.entries(config.recipient.data).forEach(([key, value]) => {
-                        const newId = Utils.createId();
+                        const newId = createId();
                         this.recipients.push({
                             id: newId,
                             email: key,
@@ -441,7 +441,7 @@ export default {
 
             const currentMailTemplate = this.mailTemplates.find((item) => item.id === id);
             if (!currentMailTemplate && mailTemplate) {
-                Shopware.Store.get('swFlow').mailTemplates = [...this.mailTemplates, mailTemplate];
+                useSwFlowStore().mailTemplates = [...this.mailTemplates, mailTemplate];
             }
         },
 
@@ -509,7 +509,7 @@ export default {
 
         createEmptyRecipient() {
             return {
-                id: Utils.createId(),
+                id: createId(),
                 email: '',
                 name: '',
                 isNew: true,

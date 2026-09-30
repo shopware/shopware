@@ -1,5 +1,6 @@
 import { UploadEvents } from 'src/core/service/api/media.api.service';
 import { type Snackbar, useSnackbar } from '@shopware-ag/meteor-component-library';
+import notificationMixin from 'shopware:mixins/notification';
 
 const UploadStatus = {
     ACTIVE: 'active',
@@ -112,7 +113,7 @@ const GatewayErrorStatuses = [
 export default Shopware.Component.wrapComponentConfig({
     template: '<slot />',
     inject: ['mediaService'],
-    mixins: [Shopware.Mixin.getByName('notification')],
+    mixins: [notificationMixin],
     data() {
         return {
             uploads: new Map<string, FileInfo>(),

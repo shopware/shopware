@@ -4,6 +4,7 @@
  * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 import { inject } from 'vue';
+import { isBoolean, isString, isArray } from 'shopware:utils/types';
 
 /** @private */
 export type ValidationRules = string | boolean | Array<string | boolean> | Record<string, unknown> | null;
@@ -51,11 +52,11 @@ export default function useValidation(options: UseValidationOptions): {
         let validation = options.validation();
         let valid = true;
 
-        if (Shopware.Utils.types.isBoolean(validation)) {
+        if (isBoolean(validation)) {
             return validation;
         }
 
-        if (Shopware.Utils.types.isString(validation)) {
+        if (isString(validation)) {
             const validationList = validation.split(',');
 
             if (validationList.length > 1) {
@@ -65,13 +66,13 @@ export default function useValidation(options: UseValidationOptions): {
             }
         }
 
-        if (Shopware.Utils.types.isArray(validation)) {
+        if (isArray(validation)) {
             valid = validation.every((validationRule) => {
-                if (Shopware.Utils.types.isBoolean(validationRule)) {
+                if (isBoolean(validationRule)) {
                     return validationRule;
                 }
 
-                if (Shopware.Utils.types.isString(validationRule)) {
+                if (isString(validationRule)) {
                     return validateRule(value, validationRule.trim());
                 }
 

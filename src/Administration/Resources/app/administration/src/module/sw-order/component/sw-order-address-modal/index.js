@@ -1,12 +1,13 @@
 import template from './sw-order-address-modal.html.twig';
 import './sw-order-address-modal.scss';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
  */
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +17,7 @@ export default {
 
     emits: ['reset', 'address-select', 'save'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         address: {
@@ -128,7 +129,7 @@ export default {
                 .then((customer) => {
                     this.availableAddresses = customer[0].addresses;
 
-                    return Shopware.Store.get('error').resetApiErrors();
+                    return useErrorStore().resetApiErrors();
                 })
                 .finally(() => {
                     this.isLoading = false;

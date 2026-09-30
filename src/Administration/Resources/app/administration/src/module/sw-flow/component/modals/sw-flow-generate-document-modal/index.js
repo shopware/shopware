@@ -1,7 +1,10 @@
 import template from './sw-flow-generate-document-modal.html.twig';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
+
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
@@ -16,7 +19,7 @@ export default {
 
     emits: ['modal-close', 'process-finish'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         sequence: {
@@ -79,7 +82,7 @@ export default {
             });
         },
 
-        ...mapState(() => Store.get('swFlow'), ['documentTypes']),
+        ...mapState(() => useSwFlowStore(), ['documentTypes']),
     },
 
     watch: {
@@ -105,7 +108,7 @@ export default {
             if (!this.isDocumentGenerationReworkActive) {
                 if (!this.documentTypes.length) {
                     this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').documentTypes = data;
+                        useSwFlowStore().documentTypes = data;
                     });
                 }
 

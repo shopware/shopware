@@ -1,7 +1,7 @@
 import template from './sw-form-field-renderer.html.twig';
+import { isUndefined } from 'shopware:utils/types';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
-const { Mixin } = Shopware;
-const { types } = Shopware.Utils;
 /**
  * @sw-package framework
  *
@@ -76,7 +76,7 @@ export default {
 
     emits: ['update:value'],
 
-    mixins: [Mixin.getByName('sw-inline-snippet')],
+    mixins: [swInlineSnippetMixin],
 
     props: {
         type: {
@@ -337,7 +337,7 @@ export default {
         },
 
         createRepository(entity) {
-            if (types.isUndefined(entity)) {
+            if (isUndefined(entity)) {
                 throw new Error('sw-form-field-renderer - sw-entity-multi-id-select component needs entity property');
             }
 

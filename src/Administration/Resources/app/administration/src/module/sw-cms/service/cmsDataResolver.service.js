@@ -1,7 +1,8 @@
+import { cloneDeep, merge } from 'shopware:utils/object';
+import { warn } from 'shopware:utils/debug';
 const { Application } = Shopware;
-const { cloneDeep, merge } = Shopware.Utils.object;
+
 const Criteria = Shopware.Data.Criteria;
-const { warn } = Shopware.Utils.debug;
 
 const CLEARABLE_BLOCK_CONFIG_KEYS = [
     'marginTop',

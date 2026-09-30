@@ -3,8 +3,7 @@
  */
 
 import template from './sw-order-detail-documents.html.twig';
-
-const { Store } = Shopware;
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -24,13 +23,13 @@ export default {
     },
 
     computed: {
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading: () => useSwOrderDetailStore().isLoading,
 
-        order: () => Store.get('swOrderDetail').order,
+        order: () => useSwOrderDetailStore().order,
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        versionContext: () => useSwOrderDetailStore().versionContext,
 
-        isEditing: () => Store.get('swOrderDetail').isEditing,
+        isEditing: () => useSwOrderDetailStore().isEditing,
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed without replacement

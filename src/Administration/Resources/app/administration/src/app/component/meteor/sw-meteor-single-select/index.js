@@ -4,9 +4,8 @@
 
 import './sw-meteor-single-select.scss';
 import template from './sw-meteor-single-select.html.twig';
-
-const { Mixin } = Shopware;
-const { debounce, get } = Shopware.Utils;
+import { debounce, get } from 'shopware:utils';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 
 /**
  * @private
@@ -18,7 +17,7 @@ export default {
 
     emits: ['paginate', 'update:value', 'search'],
 
-    mixins: [Mixin.getByName('remove-api-error')],
+    mixins: [removeApiErrorMixin],
 
     props: {
         options: {

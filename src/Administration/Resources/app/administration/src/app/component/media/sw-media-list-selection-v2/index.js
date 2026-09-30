@@ -1,7 +1,8 @@
 import template from './sw-media-list-selection-v2.html.twig';
 import './sw-media-list-selection-v2.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -20,7 +21,7 @@ export default {
         'item-remove',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         entity: {

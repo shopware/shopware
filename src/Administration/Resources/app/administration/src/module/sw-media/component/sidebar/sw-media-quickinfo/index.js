@@ -2,9 +2,13 @@ import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/a
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
+import { format, EventBus } from 'shopware:utils';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
+import { copyStringToClipboard } from 'shopware:utils/dom';
 
-const { Mixin, Context, Utils } = Shopware;
-const { dom, format } = Utils;
+const { Mixin, Context } = Shopware;
 
 /**
  * @sw-package discovery
@@ -24,10 +28,10 @@ export default {
     emits: ['media-item-rename-success', 'media-item-replaced', 'update:item'],
 
     mixins: [
-        Mixin.getByName('notification'),
+        notificationMixin,
         Mixin.getByName('media-sidebar-modal-mixin'),
         Mixin.getByName('video-cover'),
-        Mixin.getByName('placeholder'),
+        placeholderMixin,
     ],
 
     props: {
@@ -96,7 +100,7 @@ export default {
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'item') {
                     return false;
                 }
@@ -236,7 +240,7 @@ export default {
                 });
             } finally {
                 this.isLoading = false;
-                Shopware.Utils.EventBus.emit('sw-media-library-item-updated', this.item.id);
+                EventBus.emit('sw-media-library-item-updated', this.item.id);
             }
         },
 
@@ -260,7 +264,7 @@ export default {
         async copyLinkToClipboard() {
             if (this.item) {
                 try {
-                    await dom.copyStringToClipboard(this.item.url);
+                    await copyStringToClipboard(this.item.url);
                     this.createNotificationSuccess({
                         message: this.$t('sw-media.general.notification.urlCopied.message'),
                     });

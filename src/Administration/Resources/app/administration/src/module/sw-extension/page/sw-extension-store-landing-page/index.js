@@ -1,5 +1,6 @@
 import template from './sw-extension-store-landing-page.html.twig';
 import './sw-extension-store-landing-page.scss';
+import { debug } from 'shopware:utils';
 
 /**
  * @sw-package checkout
@@ -73,7 +74,7 @@ export default {
                         this.error = error.response.data.errors[0];
                     }
 
-                    Shopware.Utils.debug.error(error);
+                    debug.error(error);
                 })
                 .finally(() => {
                     this.isLoading = false;

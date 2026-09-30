@@ -1,12 +1,16 @@
 import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useErrorStore from 'shopware:stores/error';
+import useSwOrderStore from 'shopware:stores/swOrder';
 
 /**
  * @sw-package checkout
  */
 
-const { Mixin, Store, Service } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Service } = Shopware;
 
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
@@ -17,7 +21,7 @@ export default {
 
     emits: ['set-customer-address', 'close-modal'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         customer: {
@@ -108,7 +112,7 @@ export default {
                 this.selectedAddressId =
                     this.activeCustomer[this.address.contextId] || this.activeCustomer[this.address.contextDataDefaultId];
 
-                await Shopware.Store.get('error').resetApiErrors();
+                await useErrorStore().resetApiErrors();
             } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.create.messageFetchCustomerAddressesError'),
@@ -149,7 +153,7 @@ export default {
                 [this.address.contextDataDefaultId]: address[this.address.contextDataDefaultId],
             };
 
-            await Store.get('swOrder').updateOrderContext({
+            await useSwOrderStore().updateOrderContext({
                 context,
                 salesChannelId: this.activeCustomer.salesChannelId,
                 contextToken: this.cart.token,
@@ -186,7 +190,7 @@ export default {
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
 
-                await Shopware.Store.get('error').addApiError({
+                await useErrorStore().addApiError({
                     expression: `customer_address.${this.currentAddress.id}.company`,
                     error: companyError,
                 });

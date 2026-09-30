@@ -1,9 +1,14 @@
 import template from './sw-flow-detail.html.twig';
 import './sw-flow-detail.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
+import { cloneDeep } from 'shopware:utils/object';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwFlowStore from 'shopware:stores/swFlow';
+import { createId } from 'shopware:utils';
 
-const { Component, Mixin, Context, Store, Utils, Service } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
+const { Component, Context, Service } = Shopware;
+
 const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -20,7 +25,7 @@ export default {
         'flowBuilderService',
     ],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     props: {
         flowId: {
@@ -207,7 +212,7 @@ export default {
         },
 
         ...mapState(
-            () => Store.get('swFlow'),
+            () => useSwFlowStore(),
             [
                 'flow',
                 'triggerEvents',
@@ -291,7 +296,7 @@ export default {
         },
 
         beforeDestroyComponent() {
-            Store.get('swFlow').resetFlowState();
+            useSwFlowStore().resetFlowState();
         },
 
         routeDetailTab(tabName) {
@@ -328,16 +333,16 @@ export default {
             }
 
             const flow = this.flowRepository.create();
-            flow.id = Utils.createId();
+            flow.id = createId();
             flow.priority = 0;
             flow.eventName = '';
             flow.sequences = [];
 
-            return Store.get('swFlow').setFlow(flow);
+            return useSwFlowStore().setFlow(flow);
         },
 
         async getDetailFlow() {
-            const flowStore = Store.get('swFlow');
+            const flowStore = useSwFlowStore();
 
             try {
                 await flowStore.fetchTriggerActions();
@@ -355,7 +360,7 @@ export default {
 
         getAppFlowAction() {
             return this.appFlowActionRepository.search(this.appFlowActionCriteria, Shopware.Context.api).then((response) => {
-                Store.get('swFlow').setAppActions(response);
+                useSwFlowStore().setAppActions(response);
             });
         },
 
@@ -363,8 +368,8 @@ export default {
             return this.flowTemplateRepository
                 .get(this.flowId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
-                    Store.get('swFlow').setFlow(data);
-                    Store.get('swFlow').setOriginFlow(cloneDeep(data));
+                    useSwFlowStore().setFlow(data);
+                    useSwFlowStore().setOriginFlow(cloneDeep(data));
                     this.getDataForActionDescription();
                     this.getRuleDataForFlowTemplate();
                 })
@@ -468,7 +473,7 @@ export default {
                 }
             });
 
-            Store.get('swFlow').setFlow(updateFlow);
+            useSwFlowStore().setFlow(updateFlow);
         },
 
         getDeletedSequenceIds() {
@@ -538,7 +543,7 @@ export default {
                 return sequence.ruleId !== null || sequence.actionName !== null;
             });
 
-            Store.get('swFlow').setSequences(newSequences);
+            useSwFlowStore().setSequences(newSequences);
         },
 
         validateEmptySequence() {
@@ -550,7 +555,7 @@ export default {
                 return result;
             }, []);
 
-            Store.get('swFlow').invalidSequences = invalidSequences;
+            useSwFlowStore().invalidSequences = invalidSequences;
 
             return invalidSequences;
         },
@@ -569,7 +574,7 @@ export default {
                 // get support information for set order state action.
                 promises.push(
                     this.stateMachineStateRepository.search(this.stateMachineStateCriteria).then((data) => {
-                        Store.get('swFlow').stateMachineState = data;
+                        useSwFlowStore().stateMachineState = data;
                     }),
                 );
             }
@@ -582,7 +587,7 @@ export default {
                 // get support information for generate document action.
                 promises.push(
                     this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').documentTypes = data;
+                        useSwFlowStore().documentTypes = data;
                     }),
                 );
             }
@@ -595,7 +600,7 @@ export default {
                 // get support information for mail send action.
                 promises.push(
                     this.mailTemplateRepository.search(this.mailTemplateIdsCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').mailTemplates = data;
+                        useSwFlowStore().mailTemplates = data;
                     }),
                 );
             }
@@ -608,7 +613,7 @@ export default {
                 // get support information for change customer group action.
                 promises.push(
                     this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').customerGroups = data;
+                        useSwFlowStore().customerGroups = data;
                     }),
                 );
             }
@@ -625,13 +630,13 @@ export default {
             if (hasSetCustomFieldAction) {
                 promises.push(
                     this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').customFieldSets = data;
+                        useSwFlowStore().customFieldSets = data;
                     }),
                 );
 
                 promises.push(
                     this.customFieldRepository.search(this.customFieldCriteria).then((data) => {
-                        Shopware.Store.get('swFlow').customFields = data;
+                        useSwFlowStore().customFields = data;
                     }),
                 );
             }
@@ -641,7 +646,7 @@ export default {
 
         createFromFlowTemplate() {
             const flow = this.flowRepository.create();
-            flow.id = Utils.createId();
+            flow.id = createId();
             flow.priority = 0;
 
             return this.flowTemplateRepository
@@ -652,8 +657,8 @@ export default {
                     flow.description = data.config?.description;
                     flow.sequences = this.buildSequencesFromConfig(data.config?.sequences ?? []);
 
-                    Store.get('swFlow').setFlow(flow);
-                    Store.get('swFlow').setOriginFlow(cloneDeep(flow));
+                    useSwFlowStore().setFlow(flow);
+                    useSwFlowStore().setOriginFlow(cloneDeep(flow));
                     this.getDataForActionDescription();
                     this.getRuleDataForFlowTemplate();
                 })
@@ -692,7 +697,7 @@ export default {
             sequences = sequences.map((sequence) => {
                 sequence = this.createSequenceEntity(sequence);
 
-                parentIds[sequence.id] = Utils.createId();
+                parentIds[sequence.id] = createId();
                 sequence.id = parentIds[sequence.id];
 
                 return sequence;
@@ -735,8 +740,8 @@ export default {
                     return sequence;
                 });
 
-                Store.get('swFlow').setSequences(sequencesWithRules);
-                Store.get('swFlow').setOriginFlow(cloneDeep(this.flow));
+                useSwFlowStore().setSequences(sequencesWithRules);
+                useSwFlowStore().setOriginFlow(cloneDeep(this.flow));
             });
         },
     },

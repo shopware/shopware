@@ -1,9 +1,13 @@
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import useSessionStore from 'shopware:stores/session';
+import useErrorStore from 'shopware:stores/error';
+import useContextStore from 'shopware:stores/context';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -21,7 +25,7 @@ export default {
         'acl',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -247,7 +251,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria();
 
@@ -492,7 +496,7 @@ export default {
             const reversedRanges = this.invalidDateRangeConditions();
 
             if (reversedRanges.length > 0) {
-                const errorStore = Shopware.Store.get('error');
+                const errorStore = useErrorStore();
 
                 reversedRanges.forEach((condition) => {
                     errorStore.addApiError({
@@ -574,7 +578,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
 
             this.isLoading = true;
             this.loadEntityData(this.ruleId).then(() => {

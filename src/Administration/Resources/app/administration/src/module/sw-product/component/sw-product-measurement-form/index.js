@@ -3,15 +3,17 @@
  */
 import template from './sw-product-measurement-form.html.twig';
 import './sw-product-measurement-form.scss';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import { convert } from 'shopware:utils/unitConversion';
 
-const { Mixin, Utils } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         allowEdit: {
@@ -22,19 +24,19 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         lengthUnit() {
-            return Shopware.Store.get('swProductDetail').lengthUnit;
+            return useSwProductDetailStore().lengthUnit;
         },
 
         weightUnit() {
-            return Shopware.Store.get('swProductDetail').weightUnit;
+            return useSwProductDetailStore().weightUnit;
         },
 
         ...mapPropertyErrors('product', [
@@ -62,7 +64,7 @@ export default {
                 this.convertHeight(unit);
             }
 
-            Shopware.Store.get('swProductDetail').setLengthUnit(unit);
+            useSwProductDetailStore().setLengthUnit(unit);
         },
 
         convertWidth(unit) {
@@ -70,7 +72,7 @@ export default {
                 return;
             }
 
-            this.product.width = Utils.unitConversion.convert(this.product.width, this.lengthUnit, unit);
+            this.product.width = convert(this.product.width, this.lengthUnit, unit);
         },
 
         convertHeight(unit) {
@@ -78,7 +80,7 @@ export default {
                 return;
             }
 
-            this.product.height = Utils.unitConversion.convert(this.product.height, this.lengthUnit, unit);
+            this.product.height = convert(this.product.height, this.lengthUnit, unit);
         },
 
         convertLength(unit) {
@@ -86,11 +88,11 @@ export default {
                 return;
             }
 
-            this.product.length = Utils.unitConversion.convert(this.product.length, this.lengthUnit, unit);
+            this.product.length = convert(this.product.length, this.lengthUnit, unit);
         },
 
         onUpdateWeightUnit(unit) {
-            Shopware.Store.get('swProductDetail').setWeightUnit(unit);
+            useSwProductDetailStore().setWeightUnit(unit);
         },
     },
 };

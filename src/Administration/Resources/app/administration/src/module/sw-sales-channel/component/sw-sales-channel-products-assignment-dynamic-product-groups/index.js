@@ -4,9 +4,8 @@
 
 import template from './sw-sales-channel-products-assignment-dynamic-product-groups.html.twig';
 import './sw-sales-channel-products-assignment-dynamic-product-groups.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +15,7 @@ export default {
 
     emits: ['selection-change', 'product-loading'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         salesChannel: {

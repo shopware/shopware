@@ -1,8 +1,12 @@
 import template from './sw-rule-modal.html.twig';
 import './sw-rule-modal.scss';
+import { EntityCollection, Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSessionStore from 'shopware:stores/session';
 
-const { Component, Mixin, Context } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
+const { Component, Context } = Shopware;
+
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -27,7 +31,7 @@ export default {
 
     emits: ['save', 'modal-close'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         allowedRuleScopes: {
@@ -101,7 +105,7 @@ export default {
         loadConditionData() {
             const context = {
                 ...Context.api,
-                languageId: Shopware.Store.get('session').languageId,
+                languageId: useSessionStore().languageId,
             };
             const criteria = new Criteria(1, 500);
 

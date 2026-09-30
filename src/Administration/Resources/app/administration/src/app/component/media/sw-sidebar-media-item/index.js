@@ -1,9 +1,9 @@
 import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.scss';
+import { Criteria } from 'shopware:data';
+import { debounce } from 'shopware:utils';
 
 const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
-const { debounce } = Shopware.Utils;
 
 /**
  * @status ready

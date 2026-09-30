@@ -4,8 +4,11 @@
 
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useContextStore from 'shopware:stores/context';
+import { Criteria } from 'shopware:data';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,7 +17,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         allowEdit: {
@@ -39,15 +42,15 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         ...mapPropertyErrors('product', [
@@ -60,7 +63,7 @@ export default {
         ]),
 
         isTitleRequired() {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return useContextStore().isSystemDefaultLanguage;
         },
 
         productNumberRangeLink() {
@@ -160,10 +163,10 @@ export default {
         },
 
         loadProductNumberRangeId() {
-            const criteria = new Shopware.Data.Criteria(1, 25);
+            const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(Shopware.Data.Criteria.equals('type.technicalName', 'product'));
-            criteria.addFilter(Shopware.Data.Criteria.equals('global', true));
+            criteria.addFilter(Criteria.equals('type.technicalName', 'product'));
+            criteria.addFilter(Criteria.equals('global', true));
 
             return Shopware.Service('repositoryFactory')
                 .create('number_range')

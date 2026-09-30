@@ -4,11 +4,18 @@
 import useTheme from 'src/app/composables/use-theme';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
+import { Criteria } from 'shopware:data';
+import { warn } from 'shopware:utils/debug';
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import useSessionStore from 'shopware:stores/session';
+import useContextStore from 'shopware:stores/context';
+import useErrorStore from 'shopware:stores/error';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
+
 const { mapPropertyErrors } = Component.getComponentHelper();
-const { warn } = Shopware.Utils.debug;
+
 const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -26,7 +33,7 @@ export default {
         'feature',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
+    mixins: [notificationMixin, salutationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -175,7 +182,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.Store.get('session').languageId;
+            return useSessionStore().languageId;
         },
 
         tooltipSave() {
@@ -257,7 +264,7 @@ export default {
 
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
             const languagePromise = new Promise((resolve) => {
-                Shopware.Store.get('context').api.languageId = this.languageId;
+                useContextStore().api.languageId = this.languageId;
                 resolve(this.languageId);
             });
 
@@ -343,7 +350,7 @@ export default {
                     detail: this.$t('sw-users-permissions.users.user-detail.errorEmailUsed'),
                 });
 
-                Shopware.Store.get('error').addApiError({
+                useErrorStore().addApiError({
                     expression,
                     error,
                 });
@@ -463,7 +470,7 @@ export default {
             await this.userService.getUser().then((response) => {
                 const data = response.data;
                 delete data.password;
-                Shopware.Store.get('session').setCurrentUser(data);
+                useSessionStore().setCurrentUser(data);
             });
         },
 
@@ -543,7 +550,7 @@ export default {
 
         async updateAuthToken() {
             const verifiedToken = await this.loginService.verifyUserToken(this.user.password);
-            Shopware.Store.get('context').api.authToken.access = verifiedToken;
+            useContextStore().api.authToken.access = verifiedToken;
             const authObject = {
                 ...this.loginService.getBearerAuthentication(),
                 access: verifiedToken,

@@ -4,13 +4,15 @@ import template from './sw-order-create-options.html.twig';
 import './sw-order-create-options.scss';
 
 import type { ContextSwitchParameters, Cart, CartDelivery } from '../../order.types';
+import { Criteria } from 'shopware:data';
+import useSwOrderStore from 'shopware:stores/swOrder';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
  */
 
-const { Component, Store } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
@@ -53,7 +55,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         salesChannelId(): EntityKey<'sales_channel'> {
-            return this.customer?.salesChannelId ?? Store.get('swOrder').context?.salesChannel?.id ?? '';
+            return this.customer?.salesChannelId ?? useSwOrderStore().context?.salesChannel?.id ?? '';
         },
 
         salesChannelCriteria(): CriteriaType {
@@ -89,15 +91,15 @@ export default Component.wrapComponentConfig({
         },
 
         customer(): Entity<'customer'> | null {
-            return Store.get('swOrder').customer;
+            return useSwOrderStore().customer;
         },
 
         currency(): Entity<'currency'> {
-            return Store.get('swOrder').context.currency;
+            return useSwOrderStore().context.currency;
         },
 
         cart(): Cart {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         cartDelivery(): CartDelivery | null {
@@ -116,7 +118,7 @@ export default Component.wrapComponentConfig({
 
         'context.currencyId': {
             async handler(currencyId: EntityKey<'currency'>): Promise<void> {
-                if (!currencyId || currencyId === Store.get('swOrder').context?.context?.currencyId) {
+                if (!currencyId || currencyId === useSwOrderStore().context?.context?.currencyId) {
                     return;
                 }
 
@@ -138,7 +140,7 @@ export default Component.wrapComponentConfig({
 
         'context.shippingMethodId': {
             async handler(shippingMethodId: EntityKey<'shipping_method'>): Promise<void> {
-                if (!shippingMethodId || shippingMethodId === Store.get('swOrder').context?.shippingMethod?.id) {
+                if (!shippingMethodId || shippingMethodId === useSwOrderStore().context?.shippingMethod?.id) {
                     return;
                 }
 
@@ -151,7 +153,7 @@ export default Component.wrapComponentConfig({
                 return;
             }
 
-            Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
         },
 
         isSameAsBillingAddress(value): void {
@@ -210,7 +212,7 @@ export default Component.wrapComponentConfig({
         },
 
         async updateOrderContext(): Promise<void> {
-            await Store.get('swOrder').updateOrderContext({
+            await useSwOrderStore().updateOrderContext({
                 context: this.context,
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
@@ -218,7 +220,7 @@ export default Component.wrapComponentConfig({
         },
 
         async loadCart(): Promise<void> {
-            await Store.get('swOrder').getCart({
+            await useSwOrderStore().getCart({
                 salesChannelId: this.salesChannelId,
                 contextToken: this.cart.token,
             });

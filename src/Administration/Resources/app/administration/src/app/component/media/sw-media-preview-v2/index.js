@@ -1,9 +1,10 @@
 import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/app/service/media-format.service';
 import template from './sw-media-preview-v2.html.twig';
 import './sw-media-preview-v2.scss';
+import { EventBus } from 'shopware:utils';
+import { readAsDataURL } from 'shopware:utils/fileReader';
 
 const { Context, Filter } = Shopware;
-const { fileReader, EventBus } = Shopware.Utils;
 
 /**
  * @status ready
@@ -361,7 +362,7 @@ export default {
                 return;
             }
 
-            this.dataUrl = await fileReader.readAsDataURL(this.trueSource);
+            this.dataUrl = await readAsDataURL(this.trueSource);
         },
 
         reloadMediaElement() {

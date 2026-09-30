@@ -4,10 +4,11 @@
 
 import template from './sw-mail-header-footer-detail.html.twig';
 import './sw-mail-header-footer-detail.scss';
+import { Criteria } from 'shopware:data';
+import { warn } from 'shopware:utils/debug';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -19,7 +20,7 @@ export default {
 
     inject: ['entityMappingService', 'repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

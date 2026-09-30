@@ -3,9 +3,8 @@
  */
 import template from './sw-bulk-edit-order-documents.html.twig';
 import './sw-bulk-edit-order-documents.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -17,7 +16,7 @@ export default {
         documentV2Service: {},
     },
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         documents: {

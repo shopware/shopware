@@ -1,5 +1,6 @@
 import template from './sw-extension-teaser-sales-channel.html.twig';
 import './sw-extension-teaser-sales-channel.scss';
+import useTeaserPopoverStore from 'shopware:stores/teaserPopover';
 
 interface TeaserSalesChannelConfig {
     positionId: string;
@@ -33,7 +34,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         teaserSalesChannels(): TeaserSalesChannelConfig[] {
-            return Shopware.Store.get('teaserPopover').salesChannels || [];
+            return useTeaserPopoverStore().salesChannels || [];
         },
     },
 });

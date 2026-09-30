@@ -1,3 +1,7 @@
+import { warn } from 'shopware:utils/debug';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+
 /**
  * @sw-package framework
  */
@@ -5,10 +9,9 @@ const {
     Mixin,
     Data: { Criteria },
 } = Shopware;
-const { debug } = Shopware.Utils;
 
 Mixin.register('sw-settings-list', {
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     inject: ['repositoryFactory'],
 
@@ -73,7 +76,7 @@ Mixin.register('sw-settings-list', {
 
     created() {
         if (this.entityName === '') {
-            debug.warn('sw-settings-list mixin', 'You need to define the data property "entityName".');
+            warn('sw-settings-list mixin', 'You need to define the data property "entityName".');
         }
     },
 

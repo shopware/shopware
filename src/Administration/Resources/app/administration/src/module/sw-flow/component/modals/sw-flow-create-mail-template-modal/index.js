@@ -1,8 +1,10 @@
 import template from './sw-flow-create-mail-template-modal.html.twig';
 import './sw-flow-create-mail-template-modal.scss';
+import { Criteria } from 'shopware:data';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useContextStore from 'shopware:stores/context';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
 
@@ -17,7 +19,7 @@ export default {
 
     emits: ['modal-close', 'process-finish'],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     data() {
         return {
@@ -77,8 +79,8 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
-                Shopware.Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
 
             this.mailTemplate = this.mailTemplateRepository.create(Shopware.Context.api, utils.createId());

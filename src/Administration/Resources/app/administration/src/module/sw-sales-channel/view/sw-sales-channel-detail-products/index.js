@@ -4,9 +4,10 @@
 
 import template from './sw-sales-channel-detail-products.html.twig';
 import './sw-sales-channel-detail-products.scss';
+import { EntityCollection, Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
-const { Mixin, Context } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,7 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'feature', 'acl'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         salesChannel: {

@@ -7,9 +7,14 @@ import useTheme from 'src/app/composables/use-theme';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-profile-index.html.twig';
 import '../../store/sw-profile.store';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwProfileStore from 'shopware:stores/swProfile';
+import useSessionStore from 'shopware:stores/session';
+import useErrorStore from 'shopware:stores/error';
 
-const { Component, Mixin, Store } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component } = Shopware;
+
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -29,7 +34,7 @@ export default {
         'feature',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -65,21 +70,21 @@ export default {
         },
 
         minSearchTermLength() {
-            return Store.get('swProfile').minSearchTermLength;
+            return useSwProfileStore().minSearchTermLength;
         },
 
         searchPreferences() {
-            return Store.get('swProfile').searchPreferences;
+            return useSwProfileStore().searchPreferences;
         },
 
         ...mapPropertyErrors('user', ['email', 'timeZone']),
 
         userSearchPreferences: {
             get() {
-                return Store.get('swProfile').userSearchPreferences;
+                return useSwProfileStore().userSearchPreferences;
             },
             set(userSearchPreferences) {
-                Store.get('swProfile').userSearchPreferences = userSearchPreferences;
+                useSwProfileStore().userSearchPreferences = userSearchPreferences;
             },
         },
 
@@ -104,7 +109,7 @@ export default {
         },
 
         languageId() {
-            return Shopware.Store.get('session').languageId;
+            return useSessionStore().languageId;
         },
 
         profileTabs() {
@@ -354,7 +359,7 @@ export default {
                     })
                     .catch((error) => {
                         if (error?.response?.data?.errors?.[0]) {
-                            Shopware.Store.get('error').addApiError({
+                            useErrorStore().addApiError({
                                 expression: `user.${this.user?.id}.password`,
                                 error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                             });
@@ -405,7 +410,7 @@ export default {
                 const data = response.data;
                 delete data.password;
 
-                return Shopware.Store.get('session').setCurrentUser(data);
+                return useSessionStore().setCurrentUser(data);
             });
         },
 

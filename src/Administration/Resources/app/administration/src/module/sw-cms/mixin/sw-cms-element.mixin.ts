@@ -1,10 +1,11 @@
 import { defineComponent } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
 import './sw-cms-state.mixin';
+import { isPlainObject } from 'shopware:utils/types';
+import { cloneDeep, merge, get, set, has } from 'shopware:utils/object';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 const { Mixin } = Shopware;
-const { types } = Shopware.Utils;
-const { cloneDeep, merge, get, set, has } = Shopware.Utils.object;
 
 /**
  * @private
@@ -40,7 +41,7 @@ export default Mixin.register(
 
         computed: {
             cmsPageState() {
-                return Shopware.Store.get('cmsPage');
+                return useCmsPageStore();
             },
 
             cmsElements() {
@@ -95,7 +96,7 @@ export default Mixin.register(
             },
 
             initElementData(elementName: string) {
-                if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
+                if (isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
                     return;
                 }
 

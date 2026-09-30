@@ -5,9 +5,12 @@
 import template from './sw-product-modal-variant-generation.html.twig';
 import VariantsGenerator from '../../../helper/sw-products-variants-generator';
 import './sw-product-modal-variant-generation.scss';
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Criteria } = Shopware.Data;
-const { Mixin, Context } = Shopware;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -22,7 +25,7 @@ export default {
 
     emits: ['modal-close', 'variations-finish-generate'],
 
-    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
+    mixins: [listingMixin, notificationMixin],
 
     props: {
         product: {
@@ -96,7 +99,7 @@ export default {
         },
 
         currencies() {
-            return Shopware.Store.get('swProductDetail').currencies;
+            return useSwProductDetailStore().currencies;
         },
 
         productRepository() {

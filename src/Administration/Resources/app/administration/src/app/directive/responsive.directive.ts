@@ -1,4 +1,5 @@
 import type { ObjectDirective } from 'vue';
+import { throttle } from 'shopware:utils';
 
 interface ResponsiveDirectiveBinding extends ObjectDirective {
     value?: {
@@ -23,7 +24,7 @@ Shopware.Directive.register('responsive', {
     mounted(el: HTMLElement, binding: ResponsiveDirectiveBinding) {
         const timeout = typeof binding.value?.timeout === 'number' ? binding.value.timeout : 200;
 
-        const handleResize: ResizeObserverCallback = Shopware.Utils.throttle((entries: ResizeObserverEntry[]) => {
+        const handleResize: ResizeObserverCallback = throttle((entries: ResizeObserverEntry[]) => {
             entries.forEach((entry) => {
                 const elementSizeValues = entry.contentRect;
 

@@ -2,8 +2,10 @@ import template from './sw-settings-shopware-updates-wizard.html.twig';
 import './sw-settings-shopware-updates-wizard.scss';
 import useSession from 'src/app/composables/use-session';
 import useSnackbar from 'src/app/composables/use-snackbar';
+import notificationMixin from 'shopware:mixins/notification';
+import { copyStringToClipboard } from 'shopware:utils/dom';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 
 /**
  * @sw-package framework
@@ -16,7 +18,7 @@ export default Component.wrapComponentConfig({
 
     emits: ['update-started', 'update-stopped'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data(): {
         updateInfo: {
@@ -187,7 +189,7 @@ export default Component.wrapComponentConfig({
 
         async copyCliCommand() {
             try {
-                await Shopware.Utils.dom.copyStringToClipboard(this.cliUpgradeCommand);
+                await copyStringToClipboard(this.cliUpgradeCommand);
                 this.cliCommandCopied = true;
 
                 if (this.cliCommandCopiedTimeout !== null) {

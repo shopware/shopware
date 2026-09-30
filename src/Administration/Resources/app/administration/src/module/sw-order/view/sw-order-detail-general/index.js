@@ -1,12 +1,13 @@
 import template from './sw-order-detail-general.html.twig';
+import { currency } from 'shopware:utils/format';
+import { slice } from 'shopware:utils/array';
+import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 
 /**
  * @sw-package checkout
  */
-
-const { Utils, Mixin, Store } = Shopware;
-const { format, array } = Utils;
-const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -52,7 +53,7 @@ export default {
         'error',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         orderId: {
@@ -76,13 +77,13 @@ export default {
 
     computed: {
         /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading: () => useSwOrderDetailStore().isLoading,
 
-        loading: () => Store.get('swOrderDetail').loading,
+        loading: () => useSwOrderDetailStore().loading,
 
-        order: () => Store.get('swOrderDetail').order,
+        order: () => useSwOrderDetailStore().order,
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        versionContext: () => useSwOrderDetailStore().versionContext,
 
         delivery() {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
@@ -94,7 +95,7 @@ export default {
 
         deliveryDiscounts() {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return array.slice(this.order.deliveries, 1) || [];
+                return slice(this.order.deliveries, 1) || [];
             }
 
             return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
@@ -109,7 +110,7 @@ export default {
                             'sw-order.detailBase.shippingCostsTax',
                             {
                                 taxRate: calcTax.taxRate,
-                                tax: format.currency(calcTax.tax, this.order.currency.isoCode),
+                                tax: currency(calcTax.tax, this.order.currency.isoCode),
                             },
                             0,
                         )}`,
@@ -199,7 +200,7 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
+            useSwOrderDetailStore().setLoading(['order', loadingValue]);
         },
 
         reloadEntityData(isSaved = true) {

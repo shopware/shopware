@@ -1,6 +1,8 @@
 import template from './sw-landing-page-detail-base.html.twig';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -12,7 +14,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         isLoading: {
@@ -23,17 +25,17 @@ export default {
 
     computed: {
         customFieldSetsArray() {
-            return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
+            return useSwCategoryDetailStore().customFieldSets ?? [];
         },
 
         ...mapPropertyErrors('landingPage', ['name', 'url', 'salesChannels']),
 
         landingPage() {
-            return Shopware.Store.get('swCategoryDetail').landingPage;
+            return useSwCategoryDetailStore().landingPage;
         },
 
         cmsPage() {
-            return Shopware.Store.get('cmsPage').currentPage;
+            return useCmsPageStore().currentPage;
         },
 
         isLayoutSet() {

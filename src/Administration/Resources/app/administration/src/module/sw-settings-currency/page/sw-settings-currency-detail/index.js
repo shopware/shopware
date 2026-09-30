@@ -3,10 +3,12 @@
  */
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
+import { cloneDeep } from 'shopware:utils/object';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useContextStore from 'shopware:stores/context';
 
-const { cloneDeep } = Shopware.Utils.object;
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -20,7 +22,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
+    mixins: [notificationMixin, placeholderMixin],
 
     props: {
         currencyId: {
@@ -199,7 +201,7 @@ export default {
                 return Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
-            Shopware.Store.get('context').resetLanguageToDefault();
+            useContextStore().resetLanguageToDefault();
             this.isLoading = true;
             this.currency = this.currencyRepository.create();
             // defaults for rounding

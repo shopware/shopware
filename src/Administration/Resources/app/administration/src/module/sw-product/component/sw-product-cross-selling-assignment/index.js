@@ -4,9 +4,10 @@
 
 import template from './sw-product-cross-selling-assignment.html.twig';
 import './sw-product-cross-selling-assignment.scss';
+import { Criteria } from 'shopware:data';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 const { Context } = Shopware;
-const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -40,11 +41,11 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         isLoadingGrid() {

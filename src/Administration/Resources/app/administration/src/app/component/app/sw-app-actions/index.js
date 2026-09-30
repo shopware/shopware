@@ -4,9 +4,10 @@
 
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
-
-const { Mixin } = Shopware;
-const { hasOwnProperty } = Shopware.Utils.object;
+import { hasOwnProperty } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
 
 const actionTypeConstants = Object.freeze({
     ACTION_SHOW_NOTIFICATION: 'notification',
@@ -48,7 +49,7 @@ export default {
 
     inject: ['feature', 'appActionButtonService', 'extensionSdkService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -80,11 +81,11 @@ export default {
         },
 
         params() {
-            return Shopware.Store.get('shopwareApps').selectedIds;
+            return useShopwareAppsStore().selectedIds;
         },
 
         extensionSdkButtons() {
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 return button.entity === this.entity && button.view === this.view;
             });
         },

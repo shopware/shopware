@@ -1,5 +1,6 @@
 import type { Toast } from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
 import template from './sw-admin.html.twig';
+import { createId, object } from 'shopware:utils';
 
 const { Component } = Shopware;
 
@@ -49,7 +50,7 @@ export default Shopware.Component.wrapComponentConfig({
         Shopware.ExtensionAPI.handle('toastDispatch', (toast) => {
             this.toasts = [
                 {
-                    id: Shopware.Utils.createId(),
+                    id: createId(),
                     ...toast,
                 },
                 ...this.toasts,
@@ -60,7 +61,7 @@ export default Shopware.Component.wrapComponentConfig({
         this.channel.onmessage = (event) => {
             const data = event.data as { inactive?: boolean };
 
-            if (!data || !Shopware.Utils.object.hasOwnProperty(data, 'inactive')) {
+            if (!data || !object.hasOwnProperty(data, 'inactive')) {
                 return;
             }
 

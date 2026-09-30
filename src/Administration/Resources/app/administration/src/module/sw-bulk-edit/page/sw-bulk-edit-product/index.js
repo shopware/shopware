@@ -1,13 +1,16 @@
 import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
+import { Criteria, EntityCollection } from 'shopware:data';
+import { isEmpty, isArray } from 'shopware:utils/types';
+import { chunk } from 'shopware:utils/array';
+import { cloneDeep } from 'shopware:utils/object';
+import { convert } from 'shopware:utils/unitConversion';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
+import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
+import useContextStore from 'shopware:stores/context';
 
 const { Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { types } = Shopware.Utils;
-const { chunk } = Shopware.Utils.array;
-const { cloneDeep } = Shopware.Utils.object;
-const { convert } = Shopware.Utils.unitConversion;
 
 /**
  * @sw-package inventory
@@ -60,27 +63,27 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         taxes() {
-            return Shopware.Store.get('swProductDetail').taxes;
+            return useSwProductDetailStore().taxes;
         },
 
         defaultCurrency() {
-            return Shopware.Store.get('swProductDetail').defaultCurrency;
+            return useSwProductDetailStore().defaultCurrency;
         },
 
         defaultPrice() {
-            return Shopware.Store.get('swProductDetail').defaultPrice;
+            return useSwProductDetailStore().defaultPrice;
         },
 
         selectedIds() {
-            return Shopware.Store.get('swBulkEdit').selectedIds;
+            return useSwBulkEditStore().selectedIds;
         },
 
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
@@ -983,7 +986,7 @@ export default {
 
             Promise.all(promises).then(() => {
                 const product = this.isChild ? this.parentProduct : this.productRepository.create();
-                Shopware.Store.get('swProductDetail').product = product;
+                useSwProductDetailStore().product = product;
 
                 this.loadBulkEditData();
                 this.setDefaultBooleanProductValues();
@@ -1018,11 +1021,11 @@ export default {
                 .get(this.$route.params.parentId, Shopware.Context.api, this.productCriteria)
                 .then((parentProduct) => {
                     parentProduct.stock = null;
-                    Shopware.Store.get('swProductDetail').parentProduct = parentProduct;
+                    useSwProductDetailStore().parentProduct = parentProduct;
                     this.parentProductFrozen = JSON.stringify(parentProduct);
                 })
                 .catch(() => {
-                    Shopware.Store.get('swProductDetail').parentProduct = {};
+                    useSwProductDetailStore().parentProduct = {};
                 });
         },
 
@@ -1107,7 +1110,7 @@ export default {
         loadTaxes() {
             return this.taxRepository.search(this.taxCriteria).then((taxes) => {
                 this.taxRate = this.isChild ? this.parentProduct?.tax : taxes[0];
-                Shopware.Store.get('swProductDetail').setTaxes(taxes);
+                useSwProductDetailStore().setTaxes(taxes);
             });
         },
 
@@ -1123,7 +1126,7 @@ export default {
 
         loadCurrencies() {
             return this.currencyRepository.search(new Criteria(1, 500)).then((res) => {
-                Shopware.Store.get('swProductDetail').currencies = res;
+                useSwProductDetailStore().currencies = res;
             });
         },
 
@@ -1132,7 +1135,7 @@ export default {
                 return;
             }
 
-            if (this.isChild && !types.isEmpty(this.parentProduct)) {
+            if (this.isChild && !isEmpty(this.parentProduct)) {
                 this.product.price = this.parentProduct.price;
                 this.product.purchasePrices = this.parentProduct.purchasePrices;
                 this.setProductPrice('listPrice');
@@ -1188,7 +1191,7 @@ export default {
                 },
             ];
 
-            if (!types.isEmpty(this.parentProduct.price?.[0][price])) {
+            if (!isEmpty(this.parentProduct.price?.[0][price])) {
                 this.product[price] = [this.parentProduct.price[0][price]];
             } else {
                 this.product[price] = emptyPrice;
@@ -1297,7 +1300,7 @@ export default {
                     this.transformVariantVisibilityChange(change);
                 }
 
-                if (this.isChild && change.value !== null && types.isArray(change.value)) {
+                if (this.isChild && change.value !== null && isArray(change.value)) {
                     change.value.forEach((association) => {
                         delete association.id;
                     });
@@ -1483,7 +1486,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
         },
 
         loadRules() {
@@ -1589,7 +1592,7 @@ export default {
                 this.product.price[0] = parentProductFrozen.price[0];
                 this.product.purchasePrices[0] = parentProductFrozen.purchasePrices[0];
 
-                const listPrice = !types.isEmpty(parentProductFrozen.price[0].listPrice)
+                const listPrice = !isEmpty(parentProductFrozen.price[0].listPrice)
                     ? parentProductFrozen.price[0].listPrice
                     : {
                           currencyId: this.currency.id,
@@ -1600,7 +1603,7 @@ export default {
                 this.product.listPrice = [listPrice];
                 this.product.price[0].listPrice = listPrice;
 
-                const regulationPrice = !types.isEmpty(parentProductFrozen.price[0].regulationPrice)
+                const regulationPrice = !isEmpty(parentProductFrozen.price[0].regulationPrice)
                     ? parentProductFrozen.price[0].regulationPrice
                     : {
                           currencyId: this.currency.id,
@@ -1646,7 +1649,7 @@ export default {
         },
 
         setProductSearchKeywords() {
-            if (types.isEmpty(this.parentProduct?.customSearchKeywords)) {
+            if (isEmpty(this.parentProduct?.customSearchKeywords)) {
                 this.bulkEditProduct.searchKeywords.value = [];
                 this.product.searchKeywords = [];
 

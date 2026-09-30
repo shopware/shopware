@@ -1,8 +1,9 @@
 import template from './sw-media-field.html.twig';
 import './sw-media-field.scss';
+import { Criteria } from 'shopware:data';
+import { createId } from 'shopware:utils';
 
-const { Context, Utils } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Context } = Shopware;
 
 /**
  * @status ready
@@ -65,7 +66,7 @@ export default {
             suggestedItems: [],
             isLoadingSuggestions: false,
             pickerClasses: {},
-            uploadTag: Utils.createId(),
+            uploadTag: createId(),
             page: 1,
             limit: 5,
             total: 0,

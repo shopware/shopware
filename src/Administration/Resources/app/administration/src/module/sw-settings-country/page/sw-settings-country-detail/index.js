@@ -3,8 +3,12 @@
  */
 import template from './sw-settings-country-detail.html.twig';
 import './sw-settings-country-detail.scss';
+import notificationMixin from 'shopware:mixins/notification';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
+import { set } from 'shopware:utils/object';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -19,9 +23,9 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('discard-detail-page-changes')('country'),
+        notificationMixin,
+        placeholderMixin,
+        discardDetailPageChangesMixin('country'),
     ],
 
     shortcuts: {
@@ -264,7 +268,7 @@ export default {
          * @param value
          */
         onUpdateCountry(path, value) {
-            Shopware.Utils.object.set(this.country, path, value);
+            set(this.country, path, value);
         },
     },
 };

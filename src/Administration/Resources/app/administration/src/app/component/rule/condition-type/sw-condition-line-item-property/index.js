@@ -1,7 +1,7 @@
 import template from './sw-condition-line-item-property.html.twig';
+import { EntityCollection, Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @public

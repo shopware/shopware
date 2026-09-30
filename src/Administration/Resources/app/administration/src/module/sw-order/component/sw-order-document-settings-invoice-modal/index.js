@@ -1,6 +1,5 @@
 import template from './sw-order-document-settings-invoice-modal.html.twig';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package after-sales
@@ -12,7 +11,7 @@ export default {
 
     emits: ['loading-preview'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     computed: {
         documentNumber: {

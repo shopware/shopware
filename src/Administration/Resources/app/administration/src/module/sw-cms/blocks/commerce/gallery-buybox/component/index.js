@@ -1,7 +1,6 @@
 import template from './sw-cms-block-gallery-buybox.html.twig';
 import './sw-cms-block-gallery-buybox.scss';
-
-const { Store } = Shopware;
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @private
@@ -12,7 +11,7 @@ export default {
 
     computed: {
         currentDeviceView() {
-            return Store.get('cmsPage').currentCmsDeviceView;
+            return useCmsPageStore().currentCmsDeviceView;
         },
 
         currentDeviceViewClass() {

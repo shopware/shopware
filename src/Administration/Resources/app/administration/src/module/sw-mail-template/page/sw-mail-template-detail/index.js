@@ -2,10 +2,15 @@ import camelCase from 'lodash-es/camelCase';
 import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
+import { Criteria, EntityCollection } from 'shopware:data';
+import { warn } from 'shopware:utils/debug';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useContextStore from 'shopware:stores/context';
+import { get } from 'shopware:utils';
 
-const { Mixin, Context } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
+const { Context } = Shopware;
+
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
@@ -24,7 +29,7 @@ export default {
         'businessEventService',
     ],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -340,7 +345,7 @@ export default {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.Store.get('context').setApiLanguageId(languageId);
+            useContextStore().setApiLanguageId(languageId);
             this.loadEntityData();
         },
 
@@ -765,7 +770,7 @@ export default {
 
             const variables = variable.split('.');
             variables.splice(1, 0, 'properties');
-            const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
+            const field = get(this.entitySchema, `${variables.join('.')}`);
 
             return field && field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation);
         },

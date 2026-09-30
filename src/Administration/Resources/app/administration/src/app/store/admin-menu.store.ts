@@ -5,6 +5,7 @@
  */
 import type { AppModuleDefinition } from '../../core/service/api/app-modules.service';
 import type { ModuleManifest } from '../../core/factory/module.factory';
+import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 
 type NavigationEntry = Exclude<ModuleManifest['navigation'], undefined>[number];
 
@@ -102,7 +103,7 @@ const adminMenuStore = Shopware.Store.register({
             const menuService = Shopware.Service('menuService') as MenuService;
             // eslint-disable-next-line no-warning-comments
             // TODO: Change this when `shopwareApps` store is converted to Pinia
-            const shopwareAppsState = Shopware.Store.get('shopwareApps') as { apps: AppModuleDefinition[] };
+            const shopwareAppsState = useShopwareAppsStore() as { apps: AppModuleDefinition[] };
 
             return menuService?.getNavigationFromApps(shopwareAppsState.apps);
         },

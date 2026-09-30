@@ -1,8 +1,9 @@
 import template from './sw-desktop.html.twig';
 import useTheme, { THEMES, THEME_LABELS } from 'src/app/composables/use-theme';
 import './sw-desktop.scss';
-
-const { hasOwnProperty } = Shopware.Utils.object;
+import { hasOwnProperty } from 'shopware:utils/object';
+import useSessionStore from 'shopware:stores/session';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package framework
@@ -35,11 +36,11 @@ export default {
         },
 
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return useSessionStore().currentUser;
         },
 
         isStaging() {
-            return Shopware.Store.get('context').app.config.settings?.enableStagingMode === true;
+            return useContextStore().app.config.settings?.enableStagingMode === true;
         },
 
         showUsageDataConsentModalDataProvider() {
@@ -83,7 +84,7 @@ export default {
         },
 
         async updateShopIdChangeModal() {
-            if (!Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl) {
+            if (!useContextStore().app.config.settings?.appsRequireAppUrl) {
                 this.shopIdCheck = null;
                 this.isShopIdCheckPending = false;
                 return;

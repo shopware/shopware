@@ -2,14 +2,19 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 import ApiService from '../../../../core/service/api.service';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import salutationMixin from 'shopware:mixins/salutation';
+import useSessionStore from 'shopware:stores/session';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package checkout
  */
 
-const { Mixin, Defaults } = Shopware;
+const { Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
+
 const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -18,7 +23,7 @@ export default {
 
     inject: ['acl', 'contextStoreService', 'repositoryFactory'],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
+    mixins: [notificationMixin, salutationMixin],
 
     props: {
         customer: {
@@ -168,7 +173,7 @@ export default {
         },
 
         currentUser() {
-            return Shopware.Store.get('session').currentUser;
+            return useSessionStore().currentUser;
         },
 
         emailIdnFilter() {
@@ -182,7 +187,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.company`);
+            useErrorStore().removeApiError(`customer.${this.customer.id}.company`);
         },
     },
 

@@ -4,9 +4,10 @@
 
 import template from './sw-product-variant-modal.html.twig';
 import './sw-product-variant-modal.scss';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,7 +17,7 @@ export default {
 
     emits: ['modal-close'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         // this is the parent product entity from wich we will get all the variants

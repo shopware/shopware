@@ -4,13 +4,16 @@ import type { Cart, PromotionCodeTag } from '../../order.types';
 import '../../store/order.store';
 import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwOrderStore from 'shopware:stores/swOrder';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
  */
 
-const { Context, Store, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -18,7 +21,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'feature'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data(): {
         isLoading: boolean;
@@ -44,15 +47,15 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customer(): Entity<'customer'> | null {
-            return Store.get('swOrder').customer;
+            return useSwOrderStore().customer;
         },
 
         cart(): Cart {
-            return Store.get('swOrder').cart;
+            return useSwOrderStore().cart;
         },
 
         invalidPromotionCodes(): PromotionCodeTag[] {
-            return Store.get('swOrder').invalidPromotionCodes;
+            return useSwOrderStore().invalidPromotionCodes;
         },
 
         /**
@@ -118,8 +121,8 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         createdComponent(): void {
             // set language to system language
-            if (!Store.get('context').isSystemDefaultLanguage) {
-                Store.get('context').resetLanguageToDefault();
+            if (!useContextStore().isSystemDefaultLanguage) {
+                useContextStore().resetLanguageToDefault();
             }
         },
 
@@ -133,7 +136,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.isSaveSuccessful = false;
-            Shopware.Store.get('context').api.languageId =
+            useContextStore().api.languageId =
                 (localStorage.getItem('sw-admin-current-language') as EntityKey<'language'>) ||
                 Shopware.Defaults.systemLanguageId;
             void this.$router.push({
@@ -156,7 +159,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isSaveSuccessful = false;
 
             try {
-                const { data } = (await Store.get('swOrder').saveOrder({
+                const { data } = (await useSwOrderStore().saveOrder({
                     salesChannelId: this.customer!.salesChannelId,
                     contextToken: this.cart.token,
                 })) as {
@@ -208,7 +211,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            void Store.get('swOrder')
+            void useSwOrderStore()
                 .cancelCart({
                     salesChannelId: this.customer.salesChannelId,
                     contextToken: this.cart.token,
@@ -236,7 +239,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         removeInvalidCode() {
-            Store.get('swOrder').removeInvalidPromotionCodes();
+            useSwOrderStore().removeInvalidPromotionCodes();
             this.closeInvalidCodeModal();
         },
 
@@ -251,7 +254,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (!this.orderTransaction) return;
 
-            void Store.get('swOrder')
+            void useSwOrderStore()
                 .remindPayment({
                     orderTransactionId: this.orderTransaction.id,
                 })

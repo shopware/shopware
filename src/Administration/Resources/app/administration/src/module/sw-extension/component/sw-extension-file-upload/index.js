@@ -1,8 +1,7 @@
 import template from './sw-extension-file-upload.html.twig';
 import './sw-extension-file-upload.scss';
 import pluginErrorHandler from '../../service/extension-error-handler.service';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
 
 const USER_CONFIG_KEY = 'extension.plugin_upload';
 
@@ -15,7 +14,7 @@ export default {
 
     inject: ['extensionStoreActionService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

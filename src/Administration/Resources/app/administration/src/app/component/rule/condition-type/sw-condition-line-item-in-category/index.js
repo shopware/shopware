@@ -1,8 +1,8 @@
 import template from './sw-condition-line-item-in-category.html.twig';
 import './sw-condition-line-item-in-category.scss';
+import { EntityCollection, Criteria } from 'shopware:data';
 
 const { Context } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @sw-package fundamentals@after-sales

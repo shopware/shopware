@@ -1,6 +1,9 @@
 import template from './sw-flow-grant-download-access-modal.html.twig';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Mixin, Store } = Shopware;
+const { Component } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { mapState } = Component.getComponentHelper();
 
@@ -13,7 +16,7 @@ export default {
 
     emits: ['process-finish', 'modal-close'],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     props: {
         sequence: {
@@ -48,7 +51,7 @@ export default {
             ];
         },
 
-        ...mapState(() => Store.get('swFlow'), ['triggerEvent', 'triggerActions']),
+        ...mapState(() => useSwFlowStore(), ['triggerEvent', 'triggerActions']),
     },
 
     watch: {

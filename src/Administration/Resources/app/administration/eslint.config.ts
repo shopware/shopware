@@ -772,6 +772,36 @@ export default [
             'sw-deprecation-rules/private-feature-declarations': 'off',
         },
     },
+
+    // The `shopware:*` modules are experimental until 6.8, so this is a warning and the Administration is
+    // the only consumer: `extension-tooling/eslint.mjs` names the `sw-core-rules` extensions get, and
+    // omits this one until the modules are stable.
+    //
+    // Two directories are exempt, and neither is about timing: a generated module imports
+    // `src/core/shopware` and, for a mixin, `src/app/mixin`, so those two cannot import one back without
+    // a cycle. `src/core` is also excluded as a layer — part of it runs in the admin worker, where there
+    // is no `window.Shopware`. Specs read the global deliberately.
+    {
+        files: [
+            'src/**/*.js',
+            'src/**/*.ts',
+            'src/**/*.vue',
+        ],
+        // Written out rather than braced: the minimatch bundled with @eslint/config-array throws on
+        // brace expansion.
+        ignores: [
+            'src/core/**',
+            '**/*.spec.ts',
+            '**/*.spec.js',
+            '**/*.spec.vue2.ts',
+            '**/*.spec.vue2.js',
+            '**/*.spec/**',
+            'src/app/mixin/**',
+        ],
+        rules: {
+            'sw-core-rules/prefer-shopware-modules': 'warn',
+        },
+    },
     {
         ...prettier,
         files: [

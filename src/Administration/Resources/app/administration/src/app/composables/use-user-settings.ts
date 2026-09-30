@@ -5,6 +5,7 @@
  * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
  */
 import Criteria from 'src/core/data/criteria.data';
+import useSessionStore from 'shopware:stores/session';
 
 interface UserSettingsEntity {
     id?: string;
@@ -56,7 +57,7 @@ export default function useUserSettings(): {
     }
 
     function currentUser(): CurrentUser | null {
-        return Shopware.Store.get('session').currentUser as CurrentUser | null;
+        return useSessionStore().currentUser as CurrentUser | null;
     }
 
     /**

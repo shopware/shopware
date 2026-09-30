@@ -1,5 +1,6 @@
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
+import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /**
  * @private
@@ -70,7 +71,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsPageState() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
     },
 

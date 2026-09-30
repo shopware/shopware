@@ -1,10 +1,11 @@
 import template from './sw-settings-delivery-time-detail.html.twig';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package discovery
  */
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
@@ -14,7 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     shortcuts: {
         'SYSTEMKEY+S': {

@@ -1,8 +1,12 @@
 import template from './sw-flow-tag-modal.html.twig';
+import { EntityCollection, Criteria } from 'shopware:data';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwFlowStore from 'shopware:stores/swFlow';
 
-const { Component, Mixin, Context, Store } = Shopware;
+const { Component, Context } = Shopware;
 const { ShopwareError } = Shopware.Classes;
-const { EntityCollection, Criteria } = Shopware.Data;
+
 const { mapState } = Component.getComponentHelper();
 
 /**
@@ -16,7 +20,7 @@ export default {
 
     emits: ['process-finish', 'modal-close'],
 
-    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
+    mixins: [placeholderMixin, notificationMixin],
 
     props: {
         sequence: {
@@ -75,7 +79,7 @@ export default {
             return '';
         },
 
-        ...mapState(() => Store.get('swFlow'), ['triggerEvent', 'triggerActions']),
+        ...mapState(() => useSwFlowStore(), ['triggerEvent', 'triggerActions']),
     },
 
     watch: {

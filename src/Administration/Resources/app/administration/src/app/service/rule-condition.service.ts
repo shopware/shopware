@@ -1,4 +1,5 @@
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import useSessionStore from 'shopware:stores/session';
 
 type AppScriptCondition = {
     scriptId: EntityKey<'script'>;
@@ -404,7 +405,7 @@ export default class RuleConditionService {
     }
 
     private getTransformedBooleanFieldConfig(transformedConfig: CustomFieldConditionConfig) {
-        const locale = Shopware.Store.get('session')?.currentLocale || 'en-GB';
+        const locale = useSessionStore()?.currentLocale || 'en-GB';
         const app = Shopware.Application.getApplicationRoot();
 
         if (!app) {

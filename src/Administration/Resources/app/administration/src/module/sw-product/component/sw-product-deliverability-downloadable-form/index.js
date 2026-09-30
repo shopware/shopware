@@ -1,7 +1,8 @@
 import template from './sw-product-deliverability-downloadable-form.html.twig';
 import './sw-product-deliverability-downloadable-form.scss';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /*
@@ -11,7 +12,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         disabled: {
@@ -29,15 +30,15 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         showModeSetting() {
-            return Shopware.Store.get('swProductDetail').showModeSetting;
+            return useSwProductDetailStore().showModeSetting;
         },
 
         showStockSetting() {

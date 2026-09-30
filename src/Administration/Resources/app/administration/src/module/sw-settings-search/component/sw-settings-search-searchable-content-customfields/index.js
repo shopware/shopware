@@ -2,9 +2,9 @@
  * @sw-package inventory
  */
 import template from './sw-settings-search-searchable-content-customfields.html.twig';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -19,7 +19,7 @@ export default {
         'config-delete',
     ],
 
-    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
+    mixins: [notificationMixin, swInlineSnippetMixin],
 
     props: {
         isEmpty: {

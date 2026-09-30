@@ -1,5 +1,7 @@
 import template from './sw-media-quickinfo-multiple.html.twig';
 import './sw-media-quickinfo-multiple.scss';
+import { fileSize } from 'shopware:utils/format';
+import useActionButtonsStore from 'shopware:stores/actionButtons';
 
 const { Mixin } = Shopware;
 
@@ -37,7 +39,7 @@ export default {
                 return value + (items.fileSize || 0);
             }, 0);
 
-            return Shopware.Utils.format.fileSize(sizeInByte);
+            return fileSize(sizeInByte);
         },
 
         getFileSizeLabel() {
@@ -67,7 +69,7 @@ export default {
                 return [];
             }
 
-            return Shopware.Store.get('actionButtons').buttons.filter((button) => {
+            return useActionButtonsStore().buttons.filter((button) => {
                 if (button.entity !== 'media' || button.view !== 'list') {
                     return false;
                 }

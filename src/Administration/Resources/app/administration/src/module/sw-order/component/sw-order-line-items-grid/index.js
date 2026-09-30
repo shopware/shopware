@@ -1,13 +1,12 @@
 import template from './sw-order-line-items-grid.html.twig';
 import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid.scss';
+import { get } from 'shopware:utils';
+import { currency } from 'shopware:utils/format';
 
 /**
  * @sw-package checkout
  */
-
-const { Utils } = Shopware;
-const { get, format } = Utils;
 
 // merge 16.11.2020
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -419,7 +418,7 @@ export default {
                     'sw-order.detailBase.taxDetail',
                     {
                         taxRate: taxItem.taxRate,
-                        tax: format.currency(taxItem.tax, this.order.currency.isoCode),
+                        tax: currency(taxItem.tax, this.order.currency.isoCode),
                     },
                     0,
                 );

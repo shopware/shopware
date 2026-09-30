@@ -2,10 +2,10 @@
  * @sw-package inventory
  */
 import template from './sw-bulk-edit-product-media.html.twig';
-
-const { Utils, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { isEmpty } = Utils.types;
+import { Criteria } from 'shopware:data';
+import { isEmpty } from 'shopware:utils/types';
+import notificationMixin from 'shopware:mixins/notification';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -13,7 +13,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         disabled: {
@@ -32,7 +32,7 @@ export default {
 
     computed: {
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         productMediaRepository() {

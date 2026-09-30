@@ -3,9 +3,8 @@
  */
 import template from './sw-import-export-activity-log-info-modal.html.twig';
 import './sw-import-export-activity-log-info-modal.scss';
-
-const { Mixin } = Shopware;
-const { format } = Shopware.Utils;
+import { fileSize } from 'shopware:utils/format';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -17,7 +16,7 @@ export default {
 
     emits: ['log-close'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         logEntity: {
@@ -50,7 +49,7 @@ export default {
 
     methods: {
         calculateFileSize(size) {
-            return format.fileSize(size);
+            return fileSize(size);
         },
 
         async openDownload(id) {

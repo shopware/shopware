@@ -1,8 +1,9 @@
 import { POLL_BACKGROUND_INTERVAL, POLL_FOREGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
 import template from './sw-notification-center.html.twig';
 import './sw-notification-center.scss';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
+import useNotificationStore from 'shopware:stores/notification';
+import { EventBus } from 'shopware:utils';
 
 /**
  * @sw-package framework
@@ -13,7 +14,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -27,7 +28,7 @@ export default {
 
     computed: {
         notifications() {
-            return Object.values(Shopware.Store.get('notification').notifications).reverse();
+            return Object.values(useNotificationStore().notifications).reverse();
         },
 
         hasNotifications() {
@@ -48,19 +49,19 @@ export default {
     },
 
     created() {
-        this.unsubscribeFromStore = Shopware.Store.get('notification').$onAction(this.createNotificationFromSystemError);
-        Shopware.Utils.EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
+        this.unsubscribeFromStore = useNotificationStore().$onAction(this.createNotificationFromSystemError);
+        EventBus.on('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     beforeUnmount() {
         this.unsubscribeFromStore?.();
 
-        Shopware.Utils.EventBus.off('on-change-notification-center-visibility', this.changeVisibility);
+        EventBus.off('on-change-notification-center-visibility', this.changeVisibility);
     },
 
     methods: {
         onVisibilityChange(isOpened) {
-            const store = Shopware.Store.get('notification');
+            const store = useNotificationStore();
 
             if (isOpened) {
                 store.workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
@@ -78,7 +79,7 @@ export default {
         },
 
         onConfirmDelete() {
-            Shopware.Store.get('notification').clearNotificationsForCurrentUser();
+            useNotificationStore().clearNotificationsForCurrentUser();
             this.showDeleteModal = false;
         },
 

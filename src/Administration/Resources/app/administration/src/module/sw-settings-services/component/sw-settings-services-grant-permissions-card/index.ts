@@ -5,6 +5,7 @@ import template from './sw-settings-services-grant-permissions-card.html.twig';
 import './sw-settings-services-grant-permissions-card.scss';
 import { grantPermissions } from '../../composables/permissions';
 import extractErrorMessage from '../../composables/extract-error';
+import useNotificationStore from 'shopware:stores/notification';
 
 /**
  * @private
@@ -40,7 +41,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 await grantPermissions();
             } catch (exception) {
-                Shopware.Store.get('notification').createNotification({
+                useNotificationStore().createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: extractErrorMessage(exception),

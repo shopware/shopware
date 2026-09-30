@@ -3,8 +3,10 @@
  */
 
 import template from './sw-login-recovery-recovery.html.twig';
+import notificationMixin from 'shopware:mixins/notification';
+import useErrorStore from 'shopware:stores/error';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
@@ -15,7 +17,7 @@ export default Component.wrapComponentConfig({
 
     inject: ['userRecoveryService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     emits: ['is-loading', 'is-not-loading'],
 
@@ -118,7 +120,7 @@ export default Component.wrapComponentConfig({
                     /* eslint-enable @typescript-eslint/no-unsafe-member-access */
 
                     if (apiError) {
-                        Shopware.Store.get('error').addApiError({
+                        useErrorStore().addApiError({
                             expression: `user.${this.hash}.password`,
                             error: new Shopware.Classes.ShopwareError(apiError),
                         });

@@ -1,13 +1,12 @@
 import template from './sw-order-state-history-card.html.twig';
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @sw-package checkout
  *
  * @deprecated tag:v6.8.0 - will be removed, no usages found
  */
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -24,7 +23,7 @@ export default {
 
     emits: ['options-change', 'order-state-change'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         title: {

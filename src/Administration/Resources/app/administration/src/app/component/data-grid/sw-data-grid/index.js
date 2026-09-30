@@ -1,7 +1,8 @@
 import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
+import translateWithFallbackMixin from 'shopware:mixins/translate-with-fallback';
+import { debounce } from 'shopware:utils';
 
-const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -32,7 +33,7 @@ export default {
 
     inject: ['acl', 'repositoryFactory', 'feature'],
 
-    mixins: [Mixin.getByName('translate-with-fallback')],
+    mixins: [translateWithFallbackMixin],
 
     emits: [
         'selection-change',
@@ -784,7 +785,7 @@ export default {
             this.originalTarget = null;
             this.columnIndex = null;
 
-            Shopware.Utils.debounce(() => {
+            debounce(() => {
                 this._isResizing = false;
             }, 50)();
 

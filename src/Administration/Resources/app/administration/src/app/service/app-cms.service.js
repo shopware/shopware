@@ -1,7 +1,7 @@
 import { h } from 'vue';
+import { warn } from 'shopware:utils/debug';
 
 const { Locale } = Shopware;
-const { debug } = Shopware.Utils;
 
 /**
  * Contains a list of allowed block categories
@@ -89,7 +89,7 @@ export default class AppCmsService {
      */
     registerCmsBlock(block) {
         if (!this.validateBlockCategory(block.category)) {
-            debug.warn(this.constructor.name, `The category "${block.category}" is not a valid category.`);
+            warn(this.constructor.name, `The category "${block.category}" is not a valid category.`);
             return false;
         }
 
@@ -203,7 +203,7 @@ export default class AppCmsService {
     registerBlockSnippets(blockName, label) {
         return Object.keys(label).reduce((accumulator, localeKey) => {
             if (!Locale.getByName(localeKey)) {
-                debug.warn(this.constructor.name, `The locale "${localeKey}" is not registered in Shopware.Locale.`);
+                warn(this.constructor.name, `The locale "${localeKey}" is not registered in Shopware.Locale.`);
 
                 accumulator = false;
                 return accumulator;

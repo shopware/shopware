@@ -3,9 +3,10 @@
  */
 
 import template from './sw-product-seo-form.html.twig';
+import { Criteria } from 'shopware:data';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const createId = Shopware.Utils.createId;
 
@@ -15,7 +16,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [Mixin.getByName('placeholder')],
+    mixins: [placeholderMixin],
 
     props: {
         allowEdit: {
@@ -96,15 +97,15 @@ export default {
         },
 
         product() {
-            return Shopware.Store.get('swProductDetail').product;
+            return useSwProductDetailStore().product;
         },
 
         parentProduct() {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return useSwProductDetailStore().parentProduct;
         },
 
         isLoading() {
-            return Shopware.Store.get('swProductDetail').isLoading;
+            return useSwProductDetailStore().isLoading;
         },
 
         mediaRepository() {

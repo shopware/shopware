@@ -3,10 +3,9 @@
  */
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
-
-const { Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
-const { format } = Shopware.Utils;
+import { Criteria, EntityCollection } from 'shopware:data';
+import { fileSize } from 'shopware:utils/format';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -16,7 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'importExport', 'feature'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         type: {
@@ -68,7 +67,7 @@ export default {
         },
 
         activityCriteria() {
-            const criteria = new Shopware.Data.Criteria();
+            const criteria = new Criteria();
 
             if (this.type === 'import') {
                 criteria.addFilter(
@@ -382,7 +381,7 @@ export default {
         },
 
         calculateFileSize(size) {
-            return format.fileSize(size);
+            return fileSize(size);
         },
 
         getStateLabel(state) {

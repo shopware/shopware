@@ -3,8 +3,7 @@
  */
 import template from './sw-settings-country-state.html.twig';
 import './sw-settings-country-state.scss';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -12,7 +11,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         country: {

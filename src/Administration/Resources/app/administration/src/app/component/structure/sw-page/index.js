@@ -1,7 +1,7 @@
 import template from './sw-page.html.twig';
 import './sw-page.scss';
-
-const { dom } = Shopware.Utils;
+import { getScrollbarWidth } from 'shopware:utils/dom';
+import useErrorStore from 'shopware:stores/error';
 
 /**
  * @sw-package framework
@@ -176,7 +176,7 @@ export default {
     },
 
     beforeUnmount() {
-        Shopware.Store.get('error').resetApiErrors();
+        useErrorStore().resetApiErrors();
         this.beforeDestroyComponent();
     },
 
@@ -219,7 +219,7 @@ export default {
             }
 
             if (contentEl !== null) {
-                this.scrollbarOffset = dom.getScrollbarWidth(contentEl);
+                this.scrollbarOffset = getScrollbarWidth(contentEl);
             }
         },
 

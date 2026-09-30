@@ -1,8 +1,7 @@
 import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 import { DOCUMENT_TYPES, ZUGFERD_DOCUMENT_TYPES } from '../../order.types';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

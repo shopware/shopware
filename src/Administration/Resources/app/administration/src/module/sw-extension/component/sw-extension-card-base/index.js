@@ -1,7 +1,10 @@
 import template from './sw-extension-card-base.html.twig';
 import './sw-extension-card-base.scss';
+import useExtensionMainModulesStore from 'shopware:stores/extensionMainModules';
+import useContextStore from 'shopware:stores/context';
+import { warn } from 'shopware:utils/debug';
 
-const { Utils, Filter } = Shopware;
+const { Filter } = Shopware;
 
 const DATE_ONLY_FORMAT = {
     month: '2-digit',
@@ -173,7 +176,7 @@ export default {
         },
 
         extensionMainModule() {
-            return Shopware.Store.get('extensionMainModules').mainModules.find(
+            return useExtensionMainModulesStore().mainModules.find(
                 (mainModule) => mainModule.extensionName === this.extension.name,
             );
         },
@@ -237,7 +240,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
+            return useContextStore().app.config.settings?.disableExtensionManagement;
         },
 
         showContextMenu() {
@@ -416,15 +419,15 @@ export default {
          * Interface for deriving components
          */
         async changeExtensionStatus() {
-            Utils.debug.warn(this._name, 'No implementation of changeExtensionStatus found');
+            warn(this._name, 'No implementation of changeExtensionStatus found');
         },
 
         installExtension() {
-            Utils.debug.warn(this._name, 'No implementation of installExtension found');
+            warn(this._name, 'No implementation of installExtension found');
         },
 
         async installAndActivateExtension() {
-            Utils.debug.warn(this._name, 'No implementation of installAndActivateExtension found');
+            warn(this._name, 'No implementation of installAndActivateExtension found');
         },
 
         async removeExtension(removeData) {
@@ -442,7 +445,7 @@ export default {
         },
 
         cancelAndRemoveExtension() {
-            Utils.debug.warn(this._name, 'No implementation of cancelAndRemoveExtension found');
+            warn(this._name, 'No implementation of cancelAndRemoveExtension found');
         },
 
         openPrivacyModal() {

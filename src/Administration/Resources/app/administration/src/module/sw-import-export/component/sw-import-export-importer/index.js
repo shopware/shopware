@@ -3,9 +3,8 @@
  */
 import template from './sw-import-export-importer.html.twig';
 import './sw-import-export-importer.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import notificationMixin from 'shopware:mixins/notification';
 
 /**
  * @private
@@ -17,7 +16,7 @@ export default {
 
     emits: ['import-started'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         sourceEntity: {

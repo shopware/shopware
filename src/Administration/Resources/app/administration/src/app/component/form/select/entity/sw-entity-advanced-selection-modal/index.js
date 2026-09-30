@@ -4,10 +4,9 @@
 
 import template from './sw-entity-advanced-selection-modal.html.twig';
 import './sw-entity-advanced-selection-modal.scss';
-
-const { Mixin } = Shopware;
-const { debounce } = Shopware.Utils;
-const { Criteria } = Shopware.Data;
+import { debounce } from 'shopware:utils';
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
 
 /**
  * @private
@@ -29,7 +28,7 @@ export default {
 
     emits: ['modal-close', 'selection-submit'],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [listingMixin],
 
     props: {
         entityName: {

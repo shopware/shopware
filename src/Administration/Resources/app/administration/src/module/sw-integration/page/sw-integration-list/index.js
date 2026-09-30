@@ -3,9 +3,9 @@
  */
 import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
+import notificationMixin from 'shopware:mixins/notification';
 
 const {
-    Mixin,
     Data: { Criteria },
 } = Shopware;
 
@@ -20,7 +20,7 @@ export default {
         'feature',
     ],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

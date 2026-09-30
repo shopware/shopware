@@ -3,6 +3,11 @@ import type Repository from 'src/core/data/repository.data';
 import type { PaymentOverviewCard } from '../../store/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
+import { Criteria } from 'shopware:data';
+import { cloneDeep } from 'shopware:utils/object';
+import notificationMixin from 'shopware:mixins/notification';
+import usePaymentOverviewCardStore from 'shopware:stores/paymentOverviewCard';
+import useContextStore from 'shopware:stores/context';
 
 /**
  * @sw-package checkout
@@ -18,17 +23,13 @@ interface PaymentMethodCard {
     paymentMethods?: EntityCollection<'payment_method'>;
 }
 
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
-const { cloneDeep } = Shopware.Utils.object;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data(): {
         isLoading: boolean;
@@ -50,7 +51,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         customCards(): PaymentOverviewCard[] {
-            return Shopware.Store.get('paymentOverviewCard').cards ?? [];
+            return usePaymentOverviewCardStore().cards ?? [];
         },
 
         paymentMethodRepository(): Repository<'payment_method'> {
@@ -145,7 +146,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onChangeLanguage(languageId: EntityKey<'language'>): void {
-            Shopware.Store.get('context').api.languageId = languageId;
+            useContextStore().api.languageId = languageId;
             this.loadPaymentMethods();
         },
 

@@ -4,9 +4,11 @@ import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/met
 
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
+import placeholderMixin from 'shopware:mixins/placeholder';
+import useContextStore from 'shopware:stores/context';
+import { cloneDeep } from 'shopware:utils/object';
 
 /**
  * @sw-package framework
@@ -35,7 +37,7 @@ export default {
 
     emits: ['process-finish', 'save', 'change-active-selection'],
 
-    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('placeholder')],
+    mixins: [swInlineSnippetMixin, placeholderMixin],
 
     props: {
         sets: {
@@ -177,7 +179,7 @@ export default {
         },
 
         translatedInheritanceSourceLanguageId() {
-            const language = Shopware.Store.get('context')?.api?.language;
+            const language = useContextStore()?.api?.language;
             const parentLanguageId = language?.parentId;
 
             if (parentLanguageId) {
@@ -454,7 +456,7 @@ export default {
         },
 
         getBind(customField, props) {
-            const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
+            const customFieldClone = cloneDeep(customField);
 
             const isMeteorComponent = this.isMeteorComponent(customField);
             const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;

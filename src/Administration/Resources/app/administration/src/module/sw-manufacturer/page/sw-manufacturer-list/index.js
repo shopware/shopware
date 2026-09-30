@@ -4,9 +4,10 @@
 
 import template from './sw-manufacturer-list.html.twig';
 import './sw-manufacturer-list.scss';
+import { Criteria } from 'shopware:data';
+import listingMixin from 'shopware:mixins/listing';
 
-const { Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Context } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,7 +15,7 @@ export default {
 
     inject: ['repositoryFactory', 'acl'],
 
-    mixins: [Mixin.getByName('listing')],
+    mixins: [listingMixin],
 
     data() {
         return {

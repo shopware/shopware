@@ -1,8 +1,7 @@
 import template from './sw-many-to-many-assignment-card.html.twig';
 import './sw-many-to-many-assignment-card.scss';
-
-const { debounce, get } = Shopware.Utils;
-const { Criteria, EntityCollection } = Shopware.Data;
+import { debounce, get } from 'shopware:utils';
+import { Criteria, EntityCollection } from 'shopware:data';
 
 /**
  * @sw-package framework

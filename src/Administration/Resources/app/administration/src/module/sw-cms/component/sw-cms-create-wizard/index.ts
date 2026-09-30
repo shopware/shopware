@@ -1,5 +1,7 @@
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
+import useCmsPageStore from 'shopware:stores/cmsPage';
+import { EntityCollection } from 'shopware:data';
 
 const { Filter } = Shopware;
 
@@ -111,14 +113,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsPageStore() {
-            return Shopware.Store.get('cmsPage');
+            return useCmsPageStore();
         },
     },
 
     watch: {
         step(newStep: number) {
             if (this.getStepName(newStep) === 'sectionType') {
-                this.page.sections = new Shopware.Data.EntityCollection(
+                this.page.sections = new EntityCollection(
                     `/cms-page/${this.page.id}/sections`,
                     'cms_section',
                     Shopware.Context.api,

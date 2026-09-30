@@ -1,5 +1,6 @@
 import './sw-inactivity-login.scss';
 import template from './sw-inactivity-login.html.twig';
+import { object } from 'shopware:utils';
 
 const { Component } = Shopware;
 
@@ -67,7 +68,7 @@ export default Component.wrapComponentConfig({
         this.sessionChannel.postMessage({ inactive: true });
         this.sessionChannel.onmessage = (event) => {
             const data = event.data as { inactive?: boolean };
-            if (!data || !Shopware.Utils.object.hasOwnProperty(data, 'inactive')) {
+            if (!data || !object.hasOwnProperty(data, 'inactive')) {
                 return;
             }
 

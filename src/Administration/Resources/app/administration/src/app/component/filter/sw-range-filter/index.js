@@ -4,8 +4,7 @@
 
 import template from './sw-range-filter.html.twig';
 import './sw-range-filter.scss';
-
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
 
 /**
  * @private

@@ -1,8 +1,7 @@
 import template from './sw-cms-page-select.html.twig';
 import './sw-cms-page-select.scss';
-
-const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+import { Criteria } from 'shopware:data';
+import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 
 /**
  * @private
@@ -13,7 +12,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['update:value'],
 
-    mixins: [Mixin.getByName('sw-inline-snippet')],
+    mixins: [swInlineSnippetMixin],
 
     props: {
         pageType: {

@@ -1,8 +1,9 @@
+import { warn } from 'shopware:utils/debug';
+
 /**
  * @sw-package framework
  */
 
-const { warn } = Shopware.Utils.debug;
 const { DeviceHelper } = Shopware.Helper;
 
 let pluginInstalled = false;

@@ -4,9 +4,10 @@
 
 import './sw-settings-logging-list.scss';
 import template from './sw-settings-logging-list.html.twig';
+import { Criteria } from 'shopware:data';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 const { Mixin, Component } = Shopware;
-const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,7 +15,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [Mixin.getByName('sw-settings-list'), Mixin.getByName('placeholder')],
+    mixins: [Mixin.getByName('sw-settings-list'), placeholderMixin],
 
     data() {
         return {

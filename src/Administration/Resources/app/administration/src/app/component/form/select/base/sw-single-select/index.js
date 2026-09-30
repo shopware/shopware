@@ -4,9 +4,8 @@
 
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
-
-const { Mixin } = Shopware;
-const { debounce, get } = Shopware.Utils;
+import { debounce, get } from 'shopware:utils';
+import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
 
 /**
  * @private
@@ -25,7 +24,7 @@ export default {
         'paginate',
     ],
 
-    mixins: [Mixin.getByName('remove-api-error')],
+    mixins: [removeApiErrorMixin],
 
     props: {
         options: {

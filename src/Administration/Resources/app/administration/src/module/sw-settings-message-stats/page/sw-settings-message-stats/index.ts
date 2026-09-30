@@ -3,8 +3,8 @@ import type { MessageStatsResponse } from 'src/core/service/api/message-stats.ap
 import type MessageStatsApiService from 'src/core/service/api/message-stats.api.service';
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
+import { date } from 'shopware:utils/format';
 
 interface Column {
     property: string;
@@ -21,7 +21,7 @@ export default defineComponent({
 
     inject: ['messageStatsService'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {
@@ -60,7 +60,7 @@ export default defineComponent({
             if (!this.statsData?.processedSince) {
                 return '';
             }
-            return Shopware.Utils.format.date(this.statsData.processedSince, {
+            return date(this.statsData.processedSince, {
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric',

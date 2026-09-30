@@ -1,6 +1,5 @@
 import template from './sw-multi-tag-ip-select.html.twig';
-
-const { string } = Shopware.Utils;
+import { isValidIp } from 'shopware:utils/string';
 
 /**
  * @sw-package framework
@@ -21,7 +20,7 @@ export default {
         validate: {
             type: Function,
             required: false,
-            default: (searchTerm) => string.isValidIp(searchTerm),
+            default: (searchTerm) => isValidIp(searchTerm),
         },
 
         knownIps: {

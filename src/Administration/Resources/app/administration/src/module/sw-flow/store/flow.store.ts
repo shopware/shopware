@@ -1,9 +1,11 @@
+import { EntityCollection } from 'shopware:data';
+import { isEqual } from 'shopware:utils/types';
+import { cloneDeep } from 'shopware:utils/object';
+
 /**
  * @sw-package after-sales
  */
 const { Service } = Shopware;
-const { EntityCollection } = Shopware.Data;
-const { types } = Shopware.Utils;
 
 type Flow = Entity<'flow'>;
 type Sequence = Entity<'flow_sequence'>;
@@ -70,7 +72,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
                 }),
             };
 
-            return !types.isEqual(state.originFlow, flow);
+            return !isEqual(state.originFlow, flow);
         },
 
         isSequenceEmpty(state) {
@@ -212,7 +214,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
         },
 
         setOriginFlow(flow: Flow) {
-            const clonedFlow = Shopware.Utils.object.cloneDeep(flow);
+            const clonedFlow = cloneDeep(flow);
 
             if (!flow.sequences) {
                 this.originFlow = clonedFlow;
@@ -228,7 +230,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
             );
 
             flow.sequences.forEach((item) => {
-                sequences.add(Shopware.Utils.object.cloneDeep(item) as Sequence);
+                sequences.add(cloneDeep(item) as Sequence);
             });
 
             clonedFlow.sequences = sequences;

@@ -2,8 +2,7 @@
  * @sw-package framework
  */
 import template from './sw-settings-cache-modal.twig';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -15,7 +14,7 @@ export default {
 
     inject: ['cacheApiService', 'acl'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     data() {
         return {

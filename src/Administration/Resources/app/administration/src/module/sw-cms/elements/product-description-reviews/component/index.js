@@ -1,5 +1,6 @@
 import template from './sw-cms-el-product-description-reviews.html.twig';
 import './sw-cms-el-product-description-reviews.scss';
+import placeholderMixin from 'shopware:mixins/placeholder';
 
 const { Mixin } = Shopware;
 
@@ -10,7 +11,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [Mixin.getByName('cms-element'), Mixin.getByName('placeholder')],
+    mixins: [Mixin.getByName('cms-element'), placeholderMixin],
 
     computed: {
         product() {

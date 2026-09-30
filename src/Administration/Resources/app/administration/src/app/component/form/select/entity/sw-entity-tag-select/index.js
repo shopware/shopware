@@ -1,8 +1,8 @@
+import { Criteria } from 'shopware:data';
+
 /**
  * @sw-package framework
  */
-
-const { Criteria } = Shopware.Data;
 
 /**
  * @private

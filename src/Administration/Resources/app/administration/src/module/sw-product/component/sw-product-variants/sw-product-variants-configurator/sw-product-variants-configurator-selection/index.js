@@ -4,8 +4,7 @@
 
 import template from './sw-product-variants-configurator-selection.html.twig';
 import './sw-product-variants-configurator-selection.scss';
-
-const { Mixin } = Shopware;
+import notificationMixin from 'shopware:mixins/notification';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -15,7 +14,7 @@ export default {
 
     emits: ['option-select'],
 
-    mixins: [Mixin.getByName('notification')],
+    mixins: [notificationMixin],
 
     props: {
         product: {

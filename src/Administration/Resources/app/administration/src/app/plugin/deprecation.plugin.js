@@ -1,6 +1,5 @@
 import { getCurrentInstance } from 'vue';
-
-const { warn } = Shopware.Utils.debug;
+import { warn } from 'shopware:utils/debug';
 
 /**
  * @sw-package framework

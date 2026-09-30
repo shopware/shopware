@@ -3,8 +3,7 @@
  */
 
 import { getCurrentInstance, watchEffect } from 'vue';
-
-const { warn } = Shopware.Utils.debug;
+import { warn } from 'shopware:utils/debug';
 
 class MetaInfoPlugin {
     pluginInstalled = false;

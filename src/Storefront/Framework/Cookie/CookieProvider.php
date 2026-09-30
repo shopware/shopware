@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
+use Shopware\Core\Content\Cookie\ConsentLog\NullCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider as NewCookieProvider;
 use Shopware\Core\Framework\Feature;
@@ -39,6 +40,11 @@ class CookieProvider implements CookieProviderInterface
                 'hidden' => true,
             ],
         ],
+    ];
+
+    private const CONSENT_ID_COOKIE = [
+        'snippet_name' => 'cookie.groupRequiredConsentId',
+        'cookie' => 'cookie-consent-id',
     ];
 
     private const STATISTICAL_COOKIES = [
@@ -80,6 +86,8 @@ class CookieProvider implements CookieProviderInterface
      */
     public function __construct(
         array $sessionOptions = [],
+        private readonly string $consentLogStorage = NullCookieConsentLogStorage::NAME,
+        private readonly int $consentLogRetentionDays = 120,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
@@ -96,6 +104,11 @@ class CookieProvider implements CookieProviderInterface
 
         $requiredCookies = self::REQUIRED_COOKIES;
         $requiredCookies['entries'][0]['cookie'] = $this->sessionName;
+
+        // Only listed while decisions are recorded, the cookie is not set otherwise
+        if ($this->consentLogStorage !== NullCookieConsentLogStorage::NAME) {
+            $requiredCookies['entries'][] = [...self::CONSENT_ID_COOKIE, 'expiration' => (string) $this->consentLogRetentionDays];
+        }
 
         return [
             $requiredCookies,

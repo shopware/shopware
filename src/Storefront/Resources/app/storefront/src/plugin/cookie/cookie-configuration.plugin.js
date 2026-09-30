@@ -55,6 +55,7 @@ export default class CookieConfiguration extends Plugin {
         submitEvent: 'click',
         cookiePreference: 'cookie-preference',
         cookieConfigHash: 'cookie-config-hash',
+        cookieConsentId: 'cookie-consent-id',
         cookieSelector: '[data-cookie]',
         buttonOpenSelector: '.js-cookie-configuration-button button',
         buttonSubmitSelector: '.js-offcanvas-cookie-submit',
@@ -430,6 +431,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'required', [], data.languageId);
 
+        this._logConsent('accept_required', [], cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
 
         this._hideCookieBar();
@@ -541,6 +543,89 @@ export default class CookieConfiguration extends Plugin {
         }
 
         return cookies;
+    }
+
+    /**
+     * Sends the consent decision to the server for GDPR-compliant consent logging.
+     * Only raw facts are reported, the server derives the per-group verdict from
+     * them. Fire-and-forget: uses sendBeacon (fetch with keepalive as fallback),
+     * so the consent UX is never blocked and failures are silent.
+     *
+     * @param {string} consentAction - 'accept_all' | 'accept_required' | 'accept_selected'
+     * @param {Array} acceptedCookies - Names of the ticked cookies, only relevant for 'accept_selected'
+     * @param {Array} cookieGroups - Cookie groups from the API, source of the consent id cookie lifetime
+     * @private
+     */
+    _logConsent(consentAction, acceptedCookies = [], cookieGroups = []) {
+        const url = window.router['frontend.cookie.consent.log'];
+        if (!url) {
+            return;
+        }
+
+        const payload = JSON.stringify({
+            consentId: this._getConsentId(cookieGroups),
+            consentAction,
+            acceptedCookies,
+        });
+
+        try {
+            if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([payload], { type: 'application/json' }))) {
+                return;
+            }
+        } catch (_error) {
+            // fall through to fetch
+        }
+
+        fetch(url, {
+            method: 'POST',
+            body: payload,
+            keepalive: true,
+            headers: { 'Content-Type': 'application/json' },
+        }).catch(() => {});
+    }
+
+    /**
+     * Opaque token that links the consent decisions of this browser in the server-side
+     * log, so a visitor can retrieve their own records. Generated on the first decision
+     * and kept in its own cookie. The lifetime comes from the cookie configuration, where
+     * the server sets it to the retention period of the log, and every decision refreshes it.
+     *
+     * @param {Array} cookieGroups - Cookie groups from the API
+     * @returns {string}
+     * @private
+     */
+    _getConsentId(cookieGroups = []) {
+        const { cookieConsentId } = this.options;
+        const consentId = CookieStorage.getItem(cookieConsentId) || this._generateConsentId();
+        const entry = this._extractAllCookiesFromGroups(cookieGroups).find(({ cookie }) => cookie === cookieConsentId);
+
+        CookieStorage.setItem(cookieConsentId, consentId, Number(entry?.expiration) || this._getDefaultCookieExpiration());
+
+        return consentId;
+    }
+
+    /**
+     * A UUID where the browser offers one, otherwise random hex. The token is a lookup
+     * handle, not a secret, so the fallback only needs to be unique.
+     *
+     * @returns {string}
+     * @private
+     */
+    _generateConsentId() {
+        if (window.crypto?.randomUUID) {
+            return window.crypto.randomUUID();
+        }
+
+        const bytes = new Uint8Array(16);
+        if (window.crypto?.getRandomValues) {
+            window.crypto.getRandomValues(bytes);
+        } else {
+            for (let i = 0; i < bytes.length; i++) {
+                bytes[i] = Math.floor(Math.random() * 256);
+            }
+        }
+
+        return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
     }
 
     _handleUpdateListener(active, inactive) {
@@ -935,6 +1020,7 @@ export default class CookieConfiguration extends Plugin {
             data.languageId,
         );
 
+        this._logConsent('accept_selected', selectedCookiesFromDOM, cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }
@@ -956,6 +1042,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all', [], cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
         this.closeOffCanvas();
@@ -976,6 +1063,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all', [], cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this._hideCookieBar();
     }
@@ -995,6 +1083,7 @@ export default class CookieConfiguration extends Plugin {
         const cookieGroups = data.elements;
         const { activeCookieNames, inactiveCookieNames } = this._applyCookieConfiguration(cookieGroups, 'all', [], data.languageId);
 
+        this._logConsent('accept_all', [], cookieGroups);
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas(document.$emitter.publish(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS));
     }

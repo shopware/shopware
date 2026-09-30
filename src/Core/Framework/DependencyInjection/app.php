@@ -562,7 +562,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DeletedAppsGateway::class),
             service(AppRequirementsValidator::class),
             service(ClockInterface::class),
-            service('logger'),
         ]);
 
     $services->set(DiscardUnconfirmedAppSecretsListener::class)

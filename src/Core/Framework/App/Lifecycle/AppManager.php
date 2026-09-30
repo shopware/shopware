@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\Semver\VersionParser;
 use Psr\Clock\ClockInterface;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
@@ -93,7 +92,6 @@ class AppManager
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
         private readonly ClockInterface $clock,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -256,7 +254,7 @@ class AppManager
         try {
             $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->activate($activateContext));
         } catch (\Throwable $e) {
-            $this->rollBackActivation($app, $context);
+            $this->switchOff($app, $context);
 
             throw $e;
         }
@@ -280,13 +278,7 @@ class AppManager
         $this->eventDispatcher->dispatch($event);
         $this->scriptExecutor->execute(new AppDeactivatedHook($event));
 
-        $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
-        $app->setActive(false);
-        $deactivateContext = new AppActivationContext($app, $context);
-        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
-
-        // reset only after new state is in the DB
-        $this->activeAppsLoader->reset();
+        $this->switchOff($app, $context);
     }
 
     private function recoverInstallation(
@@ -778,32 +770,14 @@ class AppManager
         }
     }
 
-    private function rollBackActivation(AppEntity $app, Context $context): void
+    private function switchOff(AppEntity $app, Context $context): void
     {
-        try {
-            $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
-            $app->setActive(false);
-        } catch (\Throwable $e) {
-            $this->logger->error('Could not reset the active flag after a failed app activation', [
-                'app' => $app->getName(),
-                'exception' => $e,
-            ]);
-        }
-
+        $this->appRepository->update([['id' => $app->getId(), 'active' => false]], $context);
+        $app->setActive(false);
         $deactivateContext = new AppActivationContext($app, $context);
+        $this->runHandlers(static fn (AbstractLifecycleHandler $handler) => $handler->deactivate($deactivateContext));
 
-        $this->runHandlers(function (AbstractLifecycleHandler $handler) use ($app, $deactivateContext): void {
-            try {
-                $handler->deactivate($deactivateContext);
-            } catch (\Throwable $e) {
-                $this->logger->error('Could not roll back a lifecycle handler after a failed app activation', [
-                    'app' => $app->getName(),
-                    'handler' => $handler::class,
-                    'exception' => $e,
-                ]);
-            }
-        });
-
+        // reset only after new state is in the DB
         $this->activeAppsLoader->reset();
     }
 

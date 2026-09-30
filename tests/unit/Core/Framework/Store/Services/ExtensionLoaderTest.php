@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -39,8 +39,8 @@ class ExtensionLoaderTest extends TestCase
 {
     public function testLoadFromPluginCollectionContinuesOnError(): void
     {
-        $configurationService = static::createStub(ConfigurationService::class);
-        $configurationService
+        $systemConfigDefinitionService = static::createStub(SystemConfigDefinitionService::class);
+        $systemConfigDefinitionService
             ->method('checkConfiguration')
             ->willReturnCallback(static function (string $domain): bool {
                 // Throw exception for the broken plugin
@@ -63,7 +63,7 @@ class ExtensionLoaderTest extends TestCase
                 })
             );
 
-        $loader = $this->createLoader(configurationService: $configurationService, logger: $logger);
+        $loader = $this->createLoader(systemConfigDefinitionService: $systemConfigDefinitionService, logger: $logger);
 
         $plugins = new PluginCollection([
             $this->createPlugin('WorkingPlugin'),
@@ -84,13 +84,13 @@ class ExtensionLoaderTest extends TestCase
 
     public function testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrors(): void
     {
-        $configurationService = static::createStub(ConfigurationService::class);
-        $configurationService->method('checkConfiguration')->willReturn(true);
+        $systemConfigDefinitionService = static::createStub(SystemConfigDefinitionService::class);
+        $systemConfigDefinitionService->method('checkConfiguration')->willReturn(true);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');
 
-        $loader = $this->createLoader(configurationService: $configurationService, logger: $logger);
+        $loader = $this->createLoader(systemConfigDefinitionService: $systemConfigDefinitionService, logger: $logger);
 
         $plugins = new PluginCollection([
             $this->createPlugin('Plugin1'),
@@ -267,7 +267,7 @@ class ExtensionLoaderTest extends TestCase
 
     private function createLoader(
         ?EventDispatcherInterface $eventDispatcher = null,
-        ?ConfigurationService $configurationService = null,
+        ?SystemConfigDefinitionService $systemConfigDefinitionService = null,
         ?LoggerInterface $logger = null,
         ?AppLoader $appLoader = null,
         ?SourceResolver $sourceResolver = null,
@@ -279,7 +279,7 @@ class ExtensionLoaderTest extends TestCase
         return new ExtensionLoader(
             $appLoader ?? static::createStub(AppLoader::class),
             $sourceResolver ?? static::createStub(SourceResolver::class),
-            $configurationService ?? static::createStub(ConfigurationService::class),
+            $systemConfigDefinitionService ?? static::createStub(SystemConfigDefinitionService::class),
             $localeProvider,
             static::createStub(LanguageLocaleCodeProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),

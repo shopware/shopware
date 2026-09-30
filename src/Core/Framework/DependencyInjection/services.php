@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator;
 use Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\CompatTwigExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ConfigExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\InAppPurchaseExtension;
@@ -114,6 +115,7 @@ use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\HtmlPurifierConfigProvider;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Framework\Validation\Constraint\NoHtmlValidator;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -172,8 +174,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'lowercase' => false,
     ]);
 
-    // Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes
+    // Populated by RouteScopeCompilerPass with all route prefixes from the registered RouteScopes,
+    // and with the prefixes of the RouteScopes that depend on an API context
     $parameters->set('shopware.routing.registered_api_prefixes', []);
+    $parameters->set('shopware.routing.api_context_route_prefixes', []);
 
     // Migration config
     $parameters->set('core.migration.directories', []);
@@ -661,6 +665,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('twig.extension.intl'),
         ])
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+
+    $services->set(CompatTwigExtension::class)
         ->tag('twig.extension');
 
     $services->set(SecurityExtension::class)
@@ -857,6 +865,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
+    $services->set(NoHtmlValidator::class)
+        ->args([
+            service(HtmlSanitizer::class),
+        ])
+        ->tag('validator.constraint_validator');
+
     $services->set(ExcludeExceptionHandler::class)
         ->decorate('monolog.handler.main', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)
         ->args([
@@ -933,7 +947,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('cache.http'),
-            service(CacheStateValidator::class),
+            service(CacheStateValidator::class)->nullOnInvalid(),
             service('event_dispatcher'),
             service(HttpCacheKeyGenerator::class),
             service(MaintenanceModeResolver::class),
@@ -954,7 +968,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CacheStateValidator::class)
         ->args([
             param('shopware.cache.invalidation.http_cache'),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(BacktraceCollector::class);
 

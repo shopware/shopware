@@ -5,23 +5,39 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Seo\App;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoException;
+use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront\EntitySeoUrl;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront\SeoUrl;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Seo\App\AppEntitySeoUrlConfig;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlClaims;
 use Shopware\Storefront\Framework\Seo\App\EntitySeoUrlAppFeatureDefinition;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -34,10 +50,24 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
 
     private const TEASER_ROUTE = 'storefront.app.SwagSeoUrlApp.product-teaser';
 
+    private StaticDefinitionInstanceRegistry $definitionRegistry;
+
     private EntitySeoUrlAppFeatureDefinition $definition;
 
     protected function setUp(): void
     {
+        $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                ProductDefinition::class,
+                ProductTranslationDefinition::class,
+                ProductCategoryDefinition::class,
+                ProductManufacturerDefinition::class,
+                ProductManufacturerTranslationDefinition::class,
+            ],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+
         $this->definition = $this->buildDefinition(StaticEntityRepository::of(SeoUrlTemplateCollection::class));
     }
 
@@ -132,62 +162,116 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
 
     /**
      * @param list<AppEntitySeoUrlConfig> $configs
+     * @param array<string, list<string>>|null $permissions entity name => privileges, null when the app declares none
      * @param array<string, string> $hooksOfOtherApps hook => app name
      */
     #[DataProvider('rejectedDeclarations')]
-    public function testValidateRejectsTheDeclaration(array $configs, SeoException $expected, array $hooksOfOtherApps = []): void
-    {
+    public function testValidateRejectsTheDeclaration(
+        array $configs,
+        ?array $permissions,
+        SeoException $expected,
+        array $hooksOfOtherApps = [],
+    ): void {
         $definition = $this->buildDefinition(StaticEntityRepository::of(SeoUrlTemplateCollection::class), $this->claims($hooksOfOtherApps));
 
         $this->expectExceptionObject($expected);
 
-        $definition->validate($configs, $this->persistContext());
+        $definition->validate($configs, $this->persistContext($permissions));
     }
 
     /**
-     * @return iterable<string, array{configs: list<AppEntitySeoUrlConfig>, expected: SeoException, hooksOfOtherApps?: array<string, string>}>
+     * @return iterable<string, array{configs: list<AppEntitySeoUrlConfig>, permissions: array<string, list<string>>|null, expected: SeoException, hooksOfOtherApps?: array<string, string>}>
      */
     public static function rejectedDeclarations(): iterable
     {
+        yield 'an entity the shop does not know' => [
+            'configs' => [self::config(entityName: 'unknown_entity', defaultTemplate: 'teaser/{{ unknownEntity.name }}')],
+            'permissions' => ['unknown_entity' => ['read']],
+            'expected' => SeoException::appEntitySeoUrlEntityUnsupported('product-teaser', 'unknown_entity'),
+        ];
+
+        yield 'a mapping entity has no page of its own' => [
+            'configs' => [self::config(entityName: 'product_category', defaultTemplate: 'teaser/{{ productCategory.productId }}')],
+            'permissions' => ['product_category' => ['read']],
+            'expected' => SeoException::appEntitySeoUrlEntityUnsupported('product-teaser', 'product_category'),
+        ];
+
+        yield 'a translation entity has no page of its own' => [
+            'configs' => [self::config(entityName: 'product_translation', defaultTemplate: 'teaser/{{ productTranslation.name }}')],
+            'permissions' => ['product_translation' => ['read']],
+            'expected' => SeoException::appEntitySeoUrlEntityUnsupported('product-teaser', 'product_translation'),
+        ];
+
+        yield 'an app without permissions may not read the entity' => [
+            'configs' => [self::config()],
+            'permissions' => null,
+            'expected' => SeoException::appEntitySeoUrlNotPermitted('product-teaser', 'product', ['product:read']),
+        ];
+
+        yield 'an association the default template uses needs its own read permission' => [
+            'configs' => [self::config(defaultTemplate: 'teaser/{{ product.manufacturer.translated.name }}')],
+            'permissions' => ['product' => ['read']],
+            'expected' => SeoException::appEntitySeoUrlNotPermitted('product-teaser', 'product', ['product_manufacturer:read']),
+        ];
+
+        yield 'a custom entity that is not registered yet needs the read permission' => [
+            'configs' => [self::config(name: 'blog-detail', entityName: 'ce_blog', defaultTemplate: 'blog/{{ ceBlog.title }}')],
+            'permissions' => ['product' => ['read']],
+            'expected' => SeoException::appEntitySeoUrlNotPermitted('blog-detail', 'ce_blog', ['ce_blog:read']),
+        ];
+
         yield 'a hook used by the SEO URL of another app is already registered' => [
             'configs' => [self::config()],
+            'permissions' => ['product' => ['read']],
             'expected' => SeoException::appSeoUrlHookAlreadyRegistered('product-teaser', 'teaser-page', 'OtherApp'),
             'hooksOfOtherApps' => ['teaser-page' => 'OtherApp'],
         ];
 
         yield 'two entity SEO URLs of the app sharing a hook' => [
-            'configs' => [
-                self::config(),
-                self::config(name: 'category-teaser', entityName: 'category', defaultTemplate: 'teaser/{{ category.translated.name }}'),
-            ],
-            'expected' => SeoException::appSeoUrlHookAlreadyRegistered('category-teaser', 'teaser-page', self::APP_NAME),
+            'configs' => [self::config(), self::config(name: 'product-detail')],
+            'permissions' => ['product' => ['read']],
+            'expected' => SeoException::appSeoUrlHookAlreadyRegistered('product-detail', 'teaser-page', self::APP_NAME),
         ];
     }
 
     /**
      * @param list<AppEntitySeoUrlConfig> $configs
+     * @param array<string, list<string>> $permissions entity name => privileges
      * @param array<string, string> $hooksOfOtherApps hook => app name
      */
     #[DataProvider('acceptedDeclarations')]
-    public function testValidateAcceptsTheDeclaration(array $configs, array $hooksOfOtherApps = []): void
+    public function testValidateAcceptsTheDeclaration(array $configs, array $permissions, array $hooksOfOtherApps = []): void
     {
         $definition = $this->buildDefinition(StaticEntityRepository::of(SeoUrlTemplateCollection::class), $this->claims($hooksOfOtherApps));
 
         $this->expectNotToPerformAssertions();
 
-        $definition->validate($configs, $this->persistContext());
+        $definition->validate($configs, $this->persistContext($permissions));
     }
 
     /**
-     * @return iterable<string, array{configs: list<AppEntitySeoUrlConfig>, hooksOfOtherApps?: array<string, string>}>
+     * @return iterable<string, array{configs: list<AppEntitySeoUrlConfig>, permissions: array<string, list<string>>, hooksOfOtherApps?: array<string, string>}>
      */
     public static function acceptedDeclarations(): iterable
     {
+        yield 'an entity and the associations of its default template the app may read' => [
+            'configs' => [self::config(defaultTemplate: 'teaser/{{ product.manufacturer.translated.name }}')],
+            'permissions' => ['product' => ['read'], 'product_manufacturer' => ['read']],
+        ];
+
+        yield 'a custom entity that is not registered yet but the app may read' => [
+            'configs' => [self::config(name: 'blog-detail', entityName: 'ce_blog', defaultTemplate: 'blog/{{ ceBlog.title }}')],
+            'permissions' => ['ce_blog' => ['read']],
+        ];
+
+        yield 'a custom entity with the long prefix that is not registered yet but the app may read' => [
+            'configs' => [self::config(name: 'blog-detail', entityName: 'custom_entity_blog', defaultTemplate: 'blog/{{ customEntityBlog.title }}')],
+            'permissions' => ['custom_entity_blog' => ['read']],
+        ];
+
         yield 'hooks no other app uses' => [
-            'configs' => [
-                self::config(),
-                self::config(name: 'category-teaser', hook: 'category-page', entityName: 'category', defaultTemplate: 'teaser/{{ category.translated.name }}'),
-            ],
+            'configs' => [self::config(), self::config(name: 'product-detail', hook: 'product-page')],
+            'permissions' => ['product' => ['read']],
             'hooksOfOtherApps' => ['faq' => 'OtherApp'],
         ];
     }
@@ -265,7 +349,20 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
      */
     private function buildDefinition(StaticEntityRepository $repository, ?AppSeoUrlClaims $claims = null): EntitySeoUrlAppFeatureDefinition
     {
-        return new EntitySeoUrlAppFeatureDefinition($repository, $claims ?? static::createStub(AppSeoUrlClaims::class));
+        return new EntitySeoUrlAppFeatureDefinition(
+            $repository,
+            $claims ?? static::createStub(AppSeoUrlClaims::class),
+            $this->definitionRegistry,
+            new SeoUrlGenerator(
+                $this->definitionRegistry,
+                static::createStub(RouterInterface::class),
+                new RequestStack(),
+                new Environment(new ArrayLoader()),
+                new TwigVariableParserFactory(),
+                new NullLogger(),
+            ),
+            new AclCriteriaValidator($this->definitionRegistry),
+        );
     }
 
     /**
@@ -279,12 +376,18 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
         return $claims;
     }
 
-    private function persistContext(): AppPersistContext
+    /**
+     * @param array<string, list<string>>|null $permissions entity name => privileges
+     */
+    private function persistContext(?array $permissions = null): AppPersistContext
     {
-        return AppFixture::createInstallContext(
-            AppFixture::createAppEntity(self::APP_NAME),
-            ManifestFixture::empty()->withName(self::APP_NAME),
-        );
+        $manifest = ManifestFixture::empty()->withName(self::APP_NAME);
+
+        if ($permissions !== null) {
+            $manifest->withPermissions($permissions);
+        }
+
+        return AppFixture::createInstallContext(AppFixture::createAppEntity(self::APP_NAME), $manifest);
     }
 
     private static function config(

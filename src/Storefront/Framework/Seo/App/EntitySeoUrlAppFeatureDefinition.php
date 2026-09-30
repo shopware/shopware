@@ -3,14 +3,20 @@
 namespace Shopware\Storefront\Framework\Seo\App;
 
 use Shopware\Core\Content\Seo\SeoException;
+use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinition;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Storefront\EntitySeoUrl;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -36,6 +42,9 @@ final class EntitySeoUrlAppFeatureDefinition extends AppFeatureDefinition
     public function __construct(
         private readonly EntityRepository $seoUrlTemplateRepository,
         private readonly AppSeoUrlClaims $claims,
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly SeoUrlGenerator $seoUrlGenerator,
+        private readonly AclCriteriaValidator $aclCriteriaValidator,
     ) {
     }
 
@@ -74,11 +83,17 @@ final class EntitySeoUrlAppFeatureDefinition extends AppFeatureDefinition
             return;
         }
 
+        $source = new AdminApiSource(null, null);
+        $source->setPermissions($context->manifest->getPermissions()?->asParsedPrivileges() ?? []);
+        $aclContext = new Context($source);
+
         $appName = $context->app->getName();
         $hooksOfOtherApps = $this->claims->hooksOfOtherApps($appName);
         $declaredHooks = [];
 
         foreach ($configs as $config) {
+            $this->assertPermitted($config, $aclContext);
+
             $hook = $config->getHook();
 
             if (isset($hooksOfOtherApps[$hook])) {
@@ -129,6 +144,38 @@ final class EntitySeoUrlAppFeatureDefinition extends AppFeatureDefinition
             $payload['entityName'],
             $payload['defaultTemplate'],
         );
+    }
+
+    private function assertPermitted(AppEntitySeoUrlConfig $config, Context $aclContext): void
+    {
+        $entityName = $config->getEntityName();
+
+        if (!$this->definitionRegistry->has($entityName)) {
+            if (!str_starts_with($entityName, 'ce_') && !str_starts_with($entityName, 'custom_entity_')) {
+                throw SeoException::appEntitySeoUrlEntityUnsupported($config->getName(), $entityName);
+            }
+
+            if (!$aclContext->isAllowed($entityName . ':read')) {
+                throw SeoException::appEntitySeoUrlNotPermitted($config->getName(), $entityName, [$entityName . ':read']);
+            }
+
+            return;
+        }
+
+        $definition = $this->definitionRegistry->getByEntityName($entityName);
+
+        if ($definition instanceof MappingEntityDefinition || $definition instanceof EntityTranslationDefinition) {
+            throw SeoException::appEntitySeoUrlEntityUnsupported($config->getName(), $entityName);
+        }
+
+        $criteria = new Criteria();
+        $criteria->addAssociations($this->seoUrlGenerator->getAssociations($config->getDefaultTemplate(), $definition));
+
+        $missing = $this->aclCriteriaValidator->validate($entityName, $criteria, $aclContext);
+
+        if ($missing !== []) {
+            throw SeoException::appEntitySeoUrlNotPermitted($config->getName(), $entityName, $missing);
+        }
     }
 
     private function seedDefaultTemplate(AppEntitySeoUrlConfig $config, Context $context): void

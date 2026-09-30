@@ -44,6 +44,8 @@ class ManifestFixture extends Manifest
 
     private ?Storefront $storefront = null;
 
+    private ?Permissions $permissions = null;
+
     private function __construct()
     {
         $this->metadata = self::createMetadata('test');
@@ -130,6 +132,16 @@ class ManifestFixture extends Manifest
         return $this;
     }
 
+    /**
+     * @param array<string, list<string>> $permissions entity name => privileges
+     */
+    public function withPermissions(array $permissions): self
+    {
+        $this->permissions = Permissions::fromArray(['permissions' => $permissions]);
+
+        return $this;
+    }
+
     public function withSetup(?Setup $setup = null): self
     {
         $this->setup = $setup ?? Setup::fromArray([
@@ -202,7 +214,7 @@ class ManifestFixture extends Manifest
 
     public function getPermissions(): ?Permissions
     {
-        return null;
+        return $this->permissions;
     }
 
     public function getWebhooks(): ?Webhooks

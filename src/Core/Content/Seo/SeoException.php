@@ -25,6 +25,8 @@ class SeoException extends HttpException
     public const APP_SEO_URL_PATH_ALREADY_REGISTERED = 'CONTENT__SEO_APP_SEO_URL_PATH_ALREADY_REGISTERED';
     public const APP_SEO_URL_PATH_IN_USE = 'CONTENT__SEO_APP_SEO_URL_PATH_IN_USE';
     public const APP_SEO_URL_HOOK_ALREADY_REGISTERED = 'CONTENT__SEO_APP_SEO_URL_HOOK_ALREADY_REGISTERED';
+    public const APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED = 'CONTENT__SEO_APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED';
+    public const APP_ENTITY_SEO_URL_NOT_PERMITTED = 'CONTENT__SEO_APP_ENTITY_SEO_URL_NOT_PERMITTED';
     /**
      * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
      */
@@ -150,6 +152,29 @@ class SeoException extends HttpException
             self::APP_SEO_URL_HOOK_ALREADY_REGISTERED,
             'The hook "{{ hook }}" of the SEO URL "{{ seoUrlName }}" is already used by app "{{ owningApp }}".',
             ['hook' => $hook, 'seoUrlName' => $seoUrlName, 'owningApp' => $owningApp],
+        );
+    }
+
+    public static function appEntitySeoUrlEntityUnsupported(string $seoUrlName, string $entityName): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED,
+            'The entity "{{ entityName }}" of the SEO URL "{{ seoUrlName }}" cannot have SEO URLs.',
+            ['entityName' => $entityName, 'seoUrlName' => $seoUrlName],
+        );
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function appEntitySeoUrlNotPermitted(string $seoUrlName, string $entityName, array $privileges): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_ENTITY_SEO_URL_NOT_PERMITTED,
+            'The SEO URL "{{ seoUrlName }}" needs the permissions {{ privileges }} for the entity "{{ entityName }}".',
+            ['seoUrlName' => $seoUrlName, 'privileges' => implode(', ', $privileges), 'entityName' => $entityName],
         );
     }
 }

@@ -8,9 +8,11 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
@@ -81,6 +83,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('seo_url_template.repository'),
             service(AppSeoUrlClaims::class),
+            service(DefinitionInstanceRegistry::class),
+            service(SeoUrlGenerator::class),
+            service(AclCriteriaValidator::class),
         ])
         ->tag('shopware.app_feature.definition');
 

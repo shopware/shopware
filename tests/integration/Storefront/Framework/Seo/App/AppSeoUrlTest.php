@@ -323,6 +323,20 @@ class AppSeoUrlTest extends TestCase
         );
     }
 
+    public function testInstallingAnAppThatMayNotReadTheEntityOfItsEntitySeoUrlFails(): void
+    {
+        $this->expectExceptionObject(SeoException::appEntitySeoUrlNotPermitted('customer', 'customer', ['customer:read']));
+
+        $this->installAnotherApp('SwagCustomerLeak');
+    }
+
+    public function testInstallingAnAppWhoseDefaultTemplateReadsAnAssociationItMayNotReadFails(): void
+    {
+        $this->expectExceptionObject(SeoException::appEntitySeoUrlNotPermitted('manufacturer-product', 'product', ['product_manufacturer:read']));
+
+        $this->installAnotherApp('SwagManufacturerLeak');
+    }
+
     public function testUpdatingTheAppRemovesTheSeoUrlsAndTheTemplateOfARouteItNoLongerDeclares(): void
     {
         $this->installApp('previous-version/SwagStorefrontSeoUrl');

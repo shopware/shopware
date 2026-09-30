@@ -113,4 +113,27 @@ class SeoExceptionTest extends TestCase
         static::assertSame('The hook "legal-page" of the SEO URL "imprint" is already used by app "SwagLegalApp".', $exception->getMessage());
         static::assertSame(['hook' => 'legal-page', 'seoUrlName' => 'imprint', 'owningApp' => 'SwagLegalApp'], $exception->getParameters());
     }
+
+    public function testAppEntitySeoUrlEntityUnsupported(): void
+    {
+        $exception = SeoException::appEntitySeoUrlEntityUnsupported('product-category', 'product_category');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_ENTITY_SEO_URL_ENTITY_UNSUPPORTED, $exception->getErrorCode());
+        static::assertSame('The entity "product_category" of the SEO URL "product-category" cannot have SEO URLs.', $exception->getMessage());
+        static::assertSame(['entityName' => 'product_category', 'seoUrlName' => 'product-category'], $exception->getParameters());
+    }
+
+    public function testAppEntitySeoUrlNotPermitted(): void
+    {
+        $exception = SeoException::appEntitySeoUrlNotPermitted('product-teaser', 'product', ['product:read', 'product_manufacturer:read']);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_ENTITY_SEO_URL_NOT_PERMITTED, $exception->getErrorCode());
+        static::assertSame('The SEO URL "product-teaser" needs the permissions product:read, product_manufacturer:read for the entity "product".', $exception->getMessage());
+        static::assertSame(
+            ['seoUrlName' => 'product-teaser', 'privileges' => 'product:read, product_manufacturer:read', 'entityName' => 'product'],
+            $exception->getParameters()
+        );
+    }
 }

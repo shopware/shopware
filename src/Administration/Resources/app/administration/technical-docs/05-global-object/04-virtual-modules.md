@@ -24,12 +24,8 @@ import utils, { createId, debounce } from 'shopware:utils';
 import data, { Criteria } from 'shopware:data';
 ```
 
-`shopware:composables` provides `Shopware.Composables`, the composables that replace mixins, as default
-and named exports. It has no subpaths and is `@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES`.
-
-```ts
-import { useListing, useNotification } from 'shopware:composables';
-```
+`shopware:composables` provides `Shopware.Composables` the same way, but has no subpaths. It is
+`@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES`.
 
 Each member also has a subpath with a default export. Utility namespaces can have explicit named
 exports. For example, `shopware:utils/debug` provides `warn` and `error`.

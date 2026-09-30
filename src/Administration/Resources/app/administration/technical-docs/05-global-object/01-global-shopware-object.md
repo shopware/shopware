@@ -71,17 +71,6 @@ Shopware.Context = useContext();  // Current application context
 Shopware.Defaults = { /* ... */ }; // System default IDs and values
 ```
 
-### Composables (experimental)
-```javascript
-Shopware.Composables = composables; // The composables that replace mixins, e.g. useListing
-```
-
-`Shopware.Composables` holds the composables listed in `src/app/composables/index.ts`. It is
-`@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES`. Extensions import them from
-[`shopware:composables`](04-virtual-modules.md) and call them in `setup()` only, never alongside the mixin
-they replace. The Administration imports each composable from its file, so replacing an entry changes what
-extensions get, not what core components run.
-
 ## Creation Process
 
 1. **Initialization**: Created in `src/core/shopware.ts` as `ShopwareClass` singleton
@@ -137,8 +126,9 @@ if (Shopware.Feature.isActive('MY_FEATURE')) {
 While the global object remains for compatibility, newer patterns include:
 - **`shopware:*` modules**: `import { createId } from 'shopware:utils'` reaches the same global object
   through ordinary named imports. See [`shopware:*` Modules](04-virtual-modules.md).
-- **Composables instead of mixins**: `Shopware.Composables.useListing()` or
-  `import { useListing } from 'shopware:composables'`.
+- **Composables instead of mixins** (experimental): `import { useListing } from 'shopware:composables'`
+  or `Shopware.Composables.useListing()`, called in `setup()` only. The list lives in
+  `src/app/composables/index.ts`.
 - **Composition API**: `useContext()`, service injection via composables
 - **Direct Imports**: Import specific services/factories directly
 - **Dependency Injection**: Use the underlying BottleJS container

@@ -3,19 +3,20 @@
     {% block sw_category_seo_form_meta_title %}
 
     <mt-text-field
-        v-model="category.metaTitle"
-        maxlength="255"
+        :model-value="category.metaTitle ?? ''"
+        :max-length="255"
         :disabled="!acl.can('category.editor')"
         :label="$t('sw-category.base.seo.labelMetaTitle')"
         :help-text="$t('sw-landing-page.base.seo.helpTextMetaTitle')"
         :placeholder="$t('sw-category.base.seo.placeholderMetaTitle')"
+        @update:model-value="category.metaTitle = $event"
     />
     {% endblock %}
 
     {% block sw_category_seo_form_meta_description %}
     <mt-textarea
         v-model="category.metaDescription"
-        maxlength="255"
+        :max-length="255"
         :disabled="!acl.can('category.editor')"
         :label="$t('sw-category.base.seo.labelMetaDescription')"
         :help-text="$t('sw-landing-page.base.seo.helpTextMetaDescription')"
@@ -26,10 +27,12 @@
     {% block sw_category_seo_form_keywords %}
 
     <mt-text-field
-        v-model="category.keywords"
+        :model-value="category.keywords ?? ''"
+        :max-length="255"
         :disabled="!acl.can('category.editor')"
         :label="$t('sw-category.base.seo.labelKeywords')"
         :placeholder="$t('sw-category.base.seo.placeholderKeywords')"
+        @update:model-value="category.keywords = $event"
     />
     {% endblock %}
 </div>

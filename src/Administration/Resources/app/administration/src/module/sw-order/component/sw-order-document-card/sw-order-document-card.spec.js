@@ -1226,6 +1226,16 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         ]);
     });
 
+    it('should label a document with the translated document type when the current language has no name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(
+            wrapper.vm.documentTypeLabel({
+                documentType: { name: null, technicalName: 'invoice', translated: { name: 'Invoice' } },
+            }),
+        ).toBe('Invoice');
+    });
+
     it('should exclude app-provided document types from documentTypeCriteria', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

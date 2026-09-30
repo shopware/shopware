@@ -741,7 +741,7 @@ class DefinitionValidator
             );
         }
 
-        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
+        $versionError = $this->validateVersionAwareness($definition, $association);
         if ($versionError) {
             $associationViolations[$definitionClass][] = $versionError;
         }
@@ -787,7 +787,7 @@ class DefinitionValidator
             );
         }
 
-        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
+        $versionError = $this->validateVersionAwareness($definition, $association);
         if ($versionError) {
             $associationViolations[$definitionClass][] = $versionError;
         }
@@ -930,11 +930,6 @@ class DefinitionValidator
                 $definitionClass,
                 $association->getPropertyName()
             );
-        }
-
-        $versionError = $this->validateVersionAwareness($reference, $definition, $association);
-        if ($versionError) {
-            $violations[$definitionClass][] = $versionError;
         }
 
         return $violations;
@@ -1211,7 +1206,11 @@ class DefinitionValidator
             return [];
         }
 
-        $ref = $this->getShortClassName($this->registry->get($association->getReferenceDefinition()->getClass()));
+        $reference = $association instanceof ManyToManyAssociationField
+            ? $association->getToManyReferenceDefinition()
+            : $association->getReferenceDefinition();
+
+        $ref = $this->getShortClassName($reference);
         $def = $this->getShortClassName($definition);
 
         $ref = str_replace($def, '', $ref);
@@ -1309,6 +1308,10 @@ class DefinitionValidator
 
     private function getShortClassName(EntityDefinition $definition): string
     {
+        if ($definition instanceof AttributeEntityDefinition) {
+            return lcfirst((string) preg_replace('/^.*\\\\|Entity$/', '', $definition->getEntityClass()));
+        }
+
         return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
     }
 
@@ -1451,8 +1454,9 @@ class DefinitionValidator
         return $associationViolations;
     }
 
-    private function validateVersionAwareness(EntityDefinition $reference, EntityDefinition $definition, AssociationField $association): ?string
+    private function validateVersionAwareness(EntityDefinition $definition, ManyToOneAssociationField|OneToOneAssociationField $association): ?string
     {
+        $reference = $association->getReferenceDefinition();
         if (!$reference->isVersionAware()) {
             return null;
         }
@@ -1465,7 +1469,7 @@ class DefinitionValidator
             return null;
         }
         $referenceVersionFieldForReference = $definition->getFields()
-            ->filter(static fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition()->getClass() === $association->getReferenceDefinition()->getClass());
+            ->filter(static fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $reference);
 
         if (\count($referenceVersionFieldForReference) > 0) {
             return null;
@@ -1473,7 +1477,7 @@ class DefinitionValidator
 
         return \sprintf(
             'Missing version reference for foreign key column %s.%s for definition association %s.%s',
-            $association->getReferenceDefinition()->getEntityName(),
+            $reference->getEntityName(),
             $association->getReferenceField(),
             $definition->getEntityName(),
             $association->getPropertyName()

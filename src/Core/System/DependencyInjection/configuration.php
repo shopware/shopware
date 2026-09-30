@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
@@ -57,7 +58,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SystemConfigService::class),
             service(SystemConfigDefinitionService::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SystemConfigDefinitionService::class)
         ->args([
@@ -75,7 +77,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             // @deprecated tag:v6.8.0 - ConfigurationService will be removed
-            service(ConfigurationService::class),
+            service(ConfigurationService::class)->nullOnInvalid(),
             service(SystemConfigDefinitionService::class),
             service(SystemConfigService::class),
             service(SystemConfigValidator::class),
@@ -102,6 +104,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(SystemConfigService::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(MemoizedSystemConfigStore::class)

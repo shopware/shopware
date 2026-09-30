@@ -360,6 +360,10 @@ public function load(Request $request, SalesChannelContext $context, ?Cart $cart
 
 A decoration that drops the parameter still works but gives up the optimization behind it, because the route then reads and calculates a cart the request already holds. Pass a cart wherever you have one: in a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request, elsewhere read it from `CartService::getCart()`.
 
+## `DocumentRoute::resolveRequest()` is private
+
+`Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::resolveRequest()` is private, it only served the file type negotiation of the route itself. Download documents through `DocumentRoute::download()` or `/store-api/document/download/{documentId}/{deepLinkCode}`, which negotiate the file type from the `fileType` parameter or the `Accept` header.
+
 ## XML configuration is no longer supported
 
 Symfony 8 removes support for XML configuration, and loading it for Shopware bundles, plugins, and the project-level `config/` directory of an installation is removed with Shopware 6.8. This affects service definitions (`Resources/config/services.xml`, `services_test.xml`, `config/services.xml`), route definitions (`Resources/config/routes*.xml` and XML files below a `routes/` config directory), and package configuration (`packages/**/*.xml`). Plugins that still ship such files are no longer loaded correctly and fail with an exception; XML files in the project `config/` directory are silently no longer loaded. Shopware-specific XML formats such as `config.xml`, `custom-fields.xml`, or app manifests are not affected.
@@ -1316,6 +1320,19 @@ The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` d
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
+## Deprecated state select styling members in the order module
+
+The `backgroundStyle` and `roundedStyle` props and the `selectStyle` computed property of `sw-order-state-select-v2` were removed without replacement. The select derives the status color from its `stateName` prop instead. For the same reason, the `backgroundStyle()` method of `sw-order-general-info` and the `stateSelectBackgroundStyle` computed property of `sw-order-details-state-card` were removed.
+
+Pass the technical name of the current state instead of `background-style` and `rounded-style`:
+
+```html
+<sw-order-state-select-v2
+    state-type="order"
+    :state-name="order.stateMachineState.technicalName"
+/>
+```
 
 ## Removed `integrationService.updateAdmin()`
 
@@ -2361,6 +2378,10 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 
 <details>
 
+## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
+
+The `--no-cleanup` option was removed from both commands. The commands no longer delete unused theme directories themselves, the `theme.delete_files` scheduled task does. Passing the option now fails with an unknown-option error, so drop it from deploy scripts.
+
 ## Footer collapse headlines and columns now use semantic elements
 
 In `layout/footer/footer.html.twig`, the following nodes changed to semantic elements.
@@ -2628,15 +2649,14 @@ The data is now directly available in the category entities, therefore use `cate
 </a>
 ```
 
-## Breadcrumb template functions require the `SalesChannelContext`
+## Removed `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` Twig functions
 
-The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e.
+The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` have been removed. On storefront product and navigation pages, use `page.breadcrumb` instead. Its entries provide `name`, `categoryId`, and `type`.
 
-```diff
-- sw_breadcrumb_full(category, context.context)
-- sw_breadcrumb_full_by_id(category, context.context)
-+ sw_breadcrumb_full(category, context)
-+ sw_breadcrumb_full_by_id(category, context)
+```twig
+{% for category in page.breadcrumb|default([]) %}
+    {{ category.name }}
+{% endfor %}
 ```
 
 ## Removal of DeleteThemeFilesMessage and its handler

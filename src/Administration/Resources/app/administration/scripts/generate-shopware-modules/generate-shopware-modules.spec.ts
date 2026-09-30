@@ -85,9 +85,17 @@ describe('scripts/generate-shopware-modules', () => {
 
         it('marks the composables with the stability of their own sources', () => {
             expect(declarations).toContain(
-                "/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */\ndeclare module 'shopware:composables' {",
+                [
+                    '/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */',
+                    "declare module 'shopware:composables' {",
+                ].join('\n'),
             );
-            expect(declarations).toContain("/** @experimental stableVersion:v6.8.0 */\ndeclare module 'shopware:data' {");
+            expect(declarations).toContain(
+                [
+                    '/** @experimental stableVersion:v6.8.0 */',
+                    "declare module 'shopware:data' {",
+                ].join('\n'),
+            );
         });
     });
 });

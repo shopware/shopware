@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import composables from './index';
 
-const MIXIN_REPLACEMENT = /@experimental stableVersion:v6\.9\.0 feature:ADMIN_MIXIN_COMPOSABLES/;
+const MIXIN_REPLACEMENT = /stableVersion:v6\.9\.0 feature:ADMIN_MIXIN_COMPOSABLES/;
 
 /** The default export name of every composable whose file is tagged as a mixin replacement. */
 function taggedComposables(): string[] {

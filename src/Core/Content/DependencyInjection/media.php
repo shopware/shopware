@@ -188,6 +188,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.media.enable_url_upload_feature'),
             param('shopware.media.enable_url_validation'),
             param('shopware.media.url_upload_max_size'),
+            param('shopware.media.url_upload_timeout'),
         ]);
 
     $services->set(FileUrlValidatorInterface::class, FileUrlValidator::class)
@@ -437,6 +438,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(FileUrlValidatorInterface::class),
             service(TrustedUrlResolver::class),
             param('shopware.media.enable_url_validation'),
+            param('shopware.media.external_link_timeout'),
         ]);
 
     $services->set(VideoCoverService::class)

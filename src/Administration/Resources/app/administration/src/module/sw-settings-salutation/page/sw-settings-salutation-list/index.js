@@ -10,15 +10,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder')],
 
     data() {
         return {

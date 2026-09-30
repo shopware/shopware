@@ -424,6 +424,7 @@ class InfoControllerTest extends TestCase
                     ],
                     'contextToken' => [
                         'type' => 'string',
+                        'hiddenFromWebhook' => true,
                     ],
                 ],
                 'aware' => [

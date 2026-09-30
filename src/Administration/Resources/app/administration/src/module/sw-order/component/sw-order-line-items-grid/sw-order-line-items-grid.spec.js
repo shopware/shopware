@@ -361,10 +361,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [
-                    ...mockItems,
-                    deletedProductItem,
-                ],
+                lineItems: [...mockItems, deletedProductItem],
             },
         });
 
@@ -598,10 +595,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new empty line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -624,10 +618,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new product line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
@@ -647,10 +638,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new custom line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddCustomItem = wrapper.find('.sw-order-line-items-grid__create-custom-item');
@@ -667,11 +655,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new credit line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-            'orders.create_discounts',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor', 'orders.create_discounts'];
         const wrapper = await createWrapper();
 
         const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
@@ -688,10 +672,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to cancel inline edit', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -717,10 +698,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -742,10 +720,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete empty single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
@@ -768,10 +743,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete multiple items', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -794,10 +766,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete empty items', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
@@ -819,10 +788,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to edit single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({

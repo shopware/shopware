@@ -54,6 +54,14 @@ Three mechanisms decide how much runs:
 - **`markdown-only-changes`** — a first job in each heavy workflow that
   short-circuits docs-only PRs.
 
+The `major/<version>` and `major/<version>-cleanup` labels are bookkeeping, not a
+fourth mechanism: they record which unreleased major a PR affects and gate nothing.
+`major-label.yml` applies them from the same registry the lanes come from, so a major
+gets its labels and its lane together. Do not confuse them with the hyphenated
+`major-php` / `major-js` test-lane labels above, and never fold them into
+`milestone/*` — a change for 6.8 ships in a 6.7.x minor, so the two answer different
+questions.
+
 PHPUnit runs through three composite actions rather than one, so each phase gets
 its own timing in the job UI: `phpunit-prepare` (PHP, database, webserver, test
 install) → `phpunit-run` (the suite) → `phpunit-upload` (Codecov, called with

@@ -17,9 +17,7 @@ async function createWrapper() {
             editable: false,
         },
         global: {
-            mixins: [
-                Mixin.getByName('media-sidebar-modal-mixin'),
-            ],
+            mixins: [Mixin.getByName('media-sidebar-modal-mixin')],
             provide: {
                 mediaService: {},
             },

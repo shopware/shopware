@@ -30,10 +30,7 @@ const documentTypeMock = [
 
 const supportedDocumentTypesMock = {
     invoice: {
-        formats: [
-            'pdf',
-            'zugferd_xml',
-        ],
+        formats: ['pdf', 'zugferd_xml'],
     },
     credit_note: { formats: ['pdf'] },
 };
@@ -135,10 +132,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
         async () => {
             const wrapper = await createWrapper();
             await wrapper.setData({
-                documentTypesSelected: [
-                    'invoice',
-                    'delivery_note',
-                ],
+                documentTypesSelected: ['invoice', 'delivery_note'],
             });
 
             const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
@@ -214,10 +208,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             expect(wrapper.find('.sw-flow-generate-document-modal__file-formats-select').exists()).toBe(true);
 
             expect(wrapper.vm.supportedDocumentTypes).toEqual(supportedDocumentTypesMock);
-            expect(wrapper.vm.documentTypeOptions.map((type) => type.value)).toEqual([
-                'invoice',
-                'credit_note',
-            ]);
+            expect(wrapper.vm.documentTypeOptions.map((type) => type.value)).toEqual(['invoice', 'credit_note']);
         });
 
         it('should not preselect a document type when the sequence has a legacy multi-type config', async () => {
@@ -225,10 +216,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
 
             const wrapper = await createWrapper({
                 config: {
-                    documentTypes: [
-                        { documentType: 'invoice' },
-                        { documentType: 'credit_note' },
-                    ],
+                    documentTypes: [{ documentType: 'invoice' }, { documentType: 'credit_note' }],
                 },
             });
             await flushPromises();
@@ -269,10 +257,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 fileFormatsSelected: ['pdf'],
             });
 
-            expect(wrapper.vm.fileFormatOptions.map((format) => format.value)).toEqual([
-                'pdf',
-                'zugferd_xml',
-            ]);
+            expect(wrapper.vm.fileFormatOptions.map((format) => format.value)).toEqual(['pdf', 'zugferd_xml']);
 
             wrapper.vm.onDocumentTypeSelectedChange('credit_note');
             await flushPromises();
@@ -306,10 +291,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
 
             await wrapper.setData({
                 documentTypeSelected: 'invoice',
-                fileFormatsSelected: [
-                    'pdf',
-                    'zugferd_xml',
-                ],
+                fileFormatsSelected: ['pdf', 'zugferd_xml'],
             });
 
             const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
@@ -320,10 +302,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 {
                     config: {
                         documentType: 'invoice',
-                        fileFormats: [
-                            'pdf',
-                            'zugferd_xml',
-                        ],
+                        fileFormats: ['pdf', 'zugferd_xml'],
                     },
                 },
             ]);

@@ -216,14 +216,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it.each([
-        [
-            true,
-            false,
-        ],
-        [
-            false,
-            true,
-        ],
+        [true, false],
+        [false, true],
     ])('should render the admin switch with admin %s as disabled %s', async (isAdmin, expectedDisabled) => {
         Shopware.Store.get('session').setCurrentUser({ admin: isAdmin });
 
@@ -365,9 +359,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 email: 'max@mustermann.com',
                 active: true,
             },
-            integrations: [
-                {},
-            ],
+            integrations: [{}],
         });
         await flushPromises();
 
@@ -408,9 +400,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 email: 'max@mustermann.com',
                 active: true,
             },
-            integrations: [
-                {},
-            ],
+            integrations: [{}],
         });
 
         const fieldFirstName = wrapper.find('.sw-settings-user-detail__grid-firstName');

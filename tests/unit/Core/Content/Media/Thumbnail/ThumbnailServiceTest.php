@@ -204,9 +204,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->expectExceptionObject(MediaException::thumbnailAssociationNotLoaded());
 
-        $result = $this->thumbnailService->generate($mediaCollection, $this->context);
-
-        static::assertSame(0, $result);
+        $this->thumbnailService->generate($mediaCollection, $this->context);
     }
 
     public function testGenerateWithNonImageMediaTypes(): void
@@ -739,8 +737,8 @@ class ThumbnailServiceTest extends TestCase
         $processor = $this->createMock(ThumbnailProcessorInterface::class);
         $processor->expects($this->once())->method('createImageFromString')->willReturn($image);
         $processor->expects($this->once())->method('rotate')->with($image, $angle)->willReturn($image);
-        $processor->method('getWidth')->with($image)->willReturn(1530);
-        $processor->method('getHeight')->with($image)->willReturn(1021);
+        $processor->expects($this->once())->method('getWidth')->with($image)->willReturn(1530);
+        $processor->expects($this->once())->method('getHeight')->with($image)->willReturn(1021);
         $processor->method('createNewImage')->willReturn($image);
         $processor->method('convertImage')->willReturn('thumbnail');
 

@@ -34,10 +34,7 @@ async function createWrapper({ props = {}, privileges = [], route = {}, routerRo
             return [];
         }
 
-        return [
-            ...(entry.children ?? []).flatMap((child) => collectRoutes(child)),
-            entry,
-        ];
+        return [...(entry.children ?? []).flatMap((child) => collectRoutes(child)), entry];
     };
 
     const $router = {

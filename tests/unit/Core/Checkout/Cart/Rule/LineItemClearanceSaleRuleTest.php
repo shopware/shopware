@@ -14,7 +14,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -24,8 +24,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[Group('rules')]
 class LineItemClearanceSaleRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemClearanceSaleRule $rule;
 
     protected function setUp(): void
@@ -81,7 +79,7 @@ class LineItemClearanceSaleRuleTest extends TestCase
             $this->createLineItemWithClearance(false),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -101,8 +99,8 @@ class LineItemClearanceSaleRuleTest extends TestCase
             $this->createLineItemWithClearance(false),
         ]);
 
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -147,12 +145,12 @@ class LineItemClearanceSaleRuleTest extends TestCase
     {
         $rule = new LineItemClearanceSaleRule(false);
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -170,6 +168,6 @@ class LineItemClearanceSaleRuleTest extends TestCase
 
     private function createLineItemWithClearance(bool $clearanceSaleEnabled): LineItem
     {
-        return $this->createLineItem()->setPayloadValue('isCloseout', $clearanceSaleEnabled);
+        return CartRuleFixture::createLineItem()->setPayloadValue('isCloseout', $clearanceSaleEnabled);
     }
 }

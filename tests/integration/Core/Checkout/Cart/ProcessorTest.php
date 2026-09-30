@@ -120,8 +120,8 @@ class ProcessorTest extends TestCase
 
         $processor = new Processor(
             new Validator([]),
-            $this->createMock(AmountCalculator::class),
-            $this->createMock(TransactionProcessor::class),
+            static::createStub(AmountCalculator::class),
+            static::createStub(TransactionProcessor::class),
             [
                 new class implements CartProcessorInterface {
                     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
@@ -133,7 +133,7 @@ class ProcessorTest extends TestCase
                 },
             ],
             [],
-            $this->createMock(ScriptExecutor::class)
+            static::createStub(ScriptExecutor::class)
         );
 
         $newCart = $processor->process($cart, $this->context, new CartBehavior());

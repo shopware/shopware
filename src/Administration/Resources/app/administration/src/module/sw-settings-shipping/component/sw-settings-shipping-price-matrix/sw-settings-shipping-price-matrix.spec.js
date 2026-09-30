@@ -146,10 +146,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             expect(wrapper.vm.taxRateId).toBe('taxId');
         });
 
-        it.each([
-            ['auto'],
-            ['highest'],
-        ])('should not expose a tax rate id for the "%s" tax type', async (taxType) => {
+        it.each([['auto'], ['highest']])('should not expose a tax rate id for the "%s" tax type', async (taxType) => {
             const wrapper = await createWrapper();
             const shippingMethod = Shopware.Store.get('swShippingDetail').shippingMethod;
 

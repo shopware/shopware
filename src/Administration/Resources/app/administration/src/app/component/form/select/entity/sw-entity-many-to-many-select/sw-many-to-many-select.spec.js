@@ -6,9 +6,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import utils from 'src/core/service/util.service';
 
-const fixture = [
-    { id: utils.createId(), name: 'first entry' },
-];
+const fixture = [{ id: utils.createId(), name: 'first entry' }];
 
 function getCollection() {
     return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), fixture, fixture.length, null);

@@ -108,15 +108,10 @@ export default function SearchPreferencesService() {
         const searchPreferences = [];
 
         tempSearchPreferences = Object.assign({}, ...tempSearchPreferences);
-        Object.entries(tempSearchPreferences).forEach(
-            ([
-                entityName,
-                { _searchable, ...rest },
-            ]) => {
-                const fields = _getFields(rest);
-                searchPreferences.push({ entityName, _searchable, fields });
-            },
-        );
+        Object.entries(tempSearchPreferences).forEach(([entityName, { _searchable, ...rest }]) => {
+            const fields = _getFields(rest);
+            searchPreferences.push({ entityName, _searchable, fields });
+        });
 
         searchPreferences.sort((a, b) => {
             const lengthDiff = b.fields.length - a.fields.length;
@@ -207,15 +202,10 @@ export default function SearchPreferencesService() {
     function _getFields(data) {
         const fieldsGroup = {};
 
-        Object.entries(data).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                const fields = _flattenFields(value, `${key}.`);
-                _groupFields(fields, fieldsGroup);
-            },
-        );
+        Object.entries(data).forEach(([key, value]) => {
+            const fields = _flattenFields(value, `${key}.`);
+            _groupFields(fields, fieldsGroup);
+        });
 
         return Object.values(fieldsGroup);
     }
@@ -226,10 +216,7 @@ export default function SearchPreferencesService() {
     function _flattenFields(fields, prefix = '') {
         return Object.keys(fields).reduce((accumulator, currentValue) => {
             if (typeof fields[currentValue] === 'object') {
-                return [
-                    ...accumulator,
-                    ..._flattenFields(fields[currentValue], `${prefix + currentValue}.`),
-                ];
+                return [...accumulator, ..._flattenFields(fields[currentValue], `${prefix + currentValue}.`)];
             }
 
             if (typeof fields[currentValue] === 'number') {
@@ -237,10 +224,7 @@ export default function SearchPreferencesService() {
             }
 
             const fieldName = prefix.substring(0, prefix.length - 1);
-            return [
-                ...accumulator,
-                { fieldName, ...fields },
-            ];
+            return [...accumulator, { fieldName, ...fields }];
         }, []);
     }
 

@@ -10,15 +10,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     props: {
         /**
@@ -52,6 +46,7 @@ export default {
             return !!this.mailHeaderFooters && this.mailHeaderFooters.length !== 0;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

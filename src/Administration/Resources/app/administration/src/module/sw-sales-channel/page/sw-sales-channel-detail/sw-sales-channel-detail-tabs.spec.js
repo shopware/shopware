@@ -54,18 +54,12 @@ async function createWrapper({
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                        'disabled',
-                    ],
+                    props: ['route', 'title', 'disabled'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',

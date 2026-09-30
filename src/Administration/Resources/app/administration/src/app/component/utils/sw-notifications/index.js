@@ -28,10 +28,7 @@ export default {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'topRight',
-                    'bottomRight',
-                ].includes(value);
+                return ['topRight', 'bottomRight'].includes(value);
             },
         },
         notificationsGap: {

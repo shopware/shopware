@@ -145,11 +145,7 @@ export default {
 
             this.countryId = this.$route.params.id.toLowerCase();
 
-            Promise.all([
-                this.loadEntityData(),
-                this.loadCustomFieldSets(),
-                this.loadUserConfig(),
-            ]);
+            Promise.all([this.loadEntityData(), this.loadCustomFieldSets(), this.loadUserConfig()]);
         },
 
         loadEntityData() {

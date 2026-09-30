@@ -100,10 +100,7 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-search-bar': true,
                 'sw-entity-listing': {
-                    props: [
-                        'items',
-                        'dataSource',
-                    ],
+                    props: ['items', 'dataSource'],
                     template: `
                         <div>
                             <template v-for="item in (dataSource || items)">
@@ -146,9 +143,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should be able to create a new customer', async () => {
-        const wrapper = await createWrapper([
-            'customer.creator',
-        ]);
+        const wrapper = await createWrapper(['customer.creator']);
         await flushPromises();
 
         const createButton = wrapper.find('.sw-customer-list__button-create');
@@ -167,9 +162,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = await createWrapper([
-            'customer.editor',
-        ]);
+        const wrapper = await createWrapper(['customer.editor']);
         await flushPromises();
 
         const entityListing = wrapper.find('.sw-customer-list-grid');
@@ -186,9 +179,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'customer.deleter',
-        ]);
+        const wrapper = await createWrapper(['customer.deleter']);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-customer-list__delete-action');
@@ -204,9 +195,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'customer.editor',
-        ]);
+        const wrapper = await createWrapper(['customer.editor']);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-customer-list__edit-action');

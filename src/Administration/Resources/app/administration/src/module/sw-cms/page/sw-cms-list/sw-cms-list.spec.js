@@ -131,11 +131,7 @@ async function createWrapper(
                         props: ['text'],
                     },
                     'sw-text-field': {
-                        props: [
-                            'value',
-                            'label',
-                            'placeholder',
-                        ],
+                        props: ['value', 'label', 'placeholder'],
                         template:
                             '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
                     },
@@ -520,18 +516,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     const gridUserSettingsDataProvider = [
-        [
-            'no rights',
-            [],
-        ],
-        [
-            'only create',
-            ['user_config:create'],
-        ],
-        [
-            'only update',
-            ['user_config:update'],
-        ],
+        ['no rights', []],
+        ['only create', ['user_config:create']],
+        ['only update', ['user_config:update']],
     ];
     it.each(gridUserSettingsDataProvider)(
         'should not save GridUserSettings with insufficient rights. [Case: %s]',
@@ -548,13 +535,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 'system_config:read',
             ];
 
-            const wrapper = await createWrapper(
-                [
-                    ...defaultPrivileges,
-                    ...testedPrivileges,
-                ],
-                mocks,
-            );
+            const wrapper = await createWrapper([...defaultPrivileges, ...testedPrivileges], mocks);
             const saveUserSettingsSpy = jest.spyOn(wrapper.vm, 'saveUserSettings');
             await flushPromises();
 
@@ -659,11 +640,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in data grid view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'user_config:create',
-            'user_config:update',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
@@ -825,11 +802,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in normal view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'user_config:create',
-            'user_config:update',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
         await flushPromises();
 
         await wrapper.setData({
@@ -859,10 +832,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled preview context field in normal view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'cms.editor',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'cms.editor']);
         await flushPromises();
 
         await wrapper.setData({
@@ -892,10 +862,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled duplicate context field in normal view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'cms.creator',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'cms.creator']);
         await flushPromises();
 
         await wrapper.setData({
@@ -925,10 +892,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled delete context field in normal view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'cms.deleter',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'cms.deleter']);
         await flushPromises();
 
         await wrapper.setData({
@@ -1045,11 +1009,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const expectedCategories = [
-            'Category 1',
-            'Category 3',
-            'Category 2',
-        ];
+        const expectedCategories = ['Category 1', 'Category 3', 'Category 2'];
         const categoryObjects = expectedCategories.map((category, key) => {
             return {
                 key,
@@ -1060,22 +1020,14 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             };
         });
 
-        const expectedProducts = [
-            'Product 1',
-            'Product 2',
-            'Product 3',
-        ];
+        const expectedProducts = ['Product 1', 'Product 2', 'Product 3'];
         const productObjects = expectedProducts.map((product) => {
             return {
                 name: product,
             };
         });
 
-        const expectedLandingPages = [
-            'LandingPage 1',
-            'LandingPage 2',
-            'LandingPage 3',
-        ];
+        const expectedLandingPages = ['LandingPage 1', 'LandingPage 2', 'LandingPage 3'];
         const landingPageObjects = expectedLandingPages.map((landingPage) => {
             return {
                 name: landingPage,
@@ -1103,10 +1055,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         mockPage.products = productObjects;
 
-        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([
-            ...expectedCategories,
-            ...expectedProducts,
-        ]);
+        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([...expectedCategories, ...expectedProducts]);
         expect(wrapper.vm.getPagesString(mockPage)).toBe('Category 1, Category 3, Category 2, ...');
         expect(wrapper.vm.getPagesTooltip(mockPage)).toStrictEqual({
             width: 300,
@@ -1359,14 +1308,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it.each([
-        [
-            9,
-            'grid',
-        ],
-        [
-            10,
-            'list',
-        ],
+        [9, 'grid'],
+        [10, 'list'],
     ])('should set limit to %i when %s view is saved', async (limit, listMode) => {
         const wrapper = await createWrapper();
 

@@ -178,9 +178,5 @@ export class Telemetry {
  * @private
  */
 export default new Telemetry({
-    queries: [
-        AnchorTags,
-        TaggedButtons,
-        ProductAnalyticsTag,
-    ],
+    queries: [AnchorTags, TaggedButtons, ProductAnalyticsTag],
 });

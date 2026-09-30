@@ -27,14 +27,8 @@ describe('components/media/sw-media-folder-thumbnail', () => {
     });
 
     it.each([
-        [
-            'back',
-            'is--back',
-        ],
-        [
-            'back-breadcrumb',
-            'is--back-breadcrumb',
-        ],
+        ['back', 'is--back'],
+        ['back-breadcrumb', 'is--back-breadcrumb'],
     ])('should render the %s variant with a back chevron', async (variant, variantClass) => {
         const wrapper = await createWrapper({ variant });
         const svg = wrapper.find(`svg.${variantClass}`);
@@ -60,10 +54,7 @@ describe('components/media/sw-media-folder-thumbnail', () => {
         expect(svg.attributes('style')).toBeUndefined();
     });
 
-    it.each([
-        'back',
-        'back-breadcrumb',
-    ])('should ignore the color on the %s variant', async (variant) => {
+    it.each(['back', 'back-breadcrumb'])('should ignore the color on the %s variant', async (variant) => {
         const wrapper = await createWrapper({ variant, color: '#57D9A3' });
         const svg = wrapper.find('svg.sw-media-folder-thumbnail');
 

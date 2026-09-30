@@ -54,6 +54,7 @@ readonly class MediaUploadService
         private FileUrlValidatorInterface $fileUrlValidator,
         private TrustedUrlResolver $trustedUrlResolver,
         private bool $enableUrlValidation = true,
+        private float $externalLinkTimeout = 0.0,
     ) {
     }
 
@@ -200,13 +201,10 @@ readonly class MediaUploadService
         $criteria->addFilter(new EqualsFilter('mediaId', $mediaId));
         $criteria->addFilter(new PrefixFilter('path', 'http'));
 
-        $thumbnailIds = $this->thumbnailRepository->searchIds($criteria, $context)->getIds();
-
-        if ($thumbnailIds === []) {
+        $deletePayload = $this->thumbnailRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($deletePayload === []) {
             return;
         }
-
-        $deletePayload = \array_map(static fn (string $id) => ['id' => $id], $thumbnailIds);
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($deletePayload): void {
             $this->thumbnailRepository->delete($deletePayload, $context);
@@ -328,6 +326,10 @@ readonly class MediaUploadService
             'max_redirects' => 0,
             'resolve' => [$resolved->host => $resolved->ip],
         ];
+
+        if ($this->externalLinkTimeout > 0) {
+            $options['max_duration'] = $this->externalLinkTimeout;
+        }
 
         if ($this->enableUrlValidation) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);

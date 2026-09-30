@@ -11,6 +11,7 @@ const mockGet = jest.fn();
 const mockCreateRepository = jest.fn();
 const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
 const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
+const mockGetCustomFieldSets = jest.fn(() => Promise.resolve([]));
 
 const defaultSalesChannelResponse = {
     id: '1a2b3c4d',
@@ -91,18 +92,12 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                        'disabled',
-                    ],
+                    props: ['route', 'title', 'disabled'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -127,17 +122,11 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 'sw-skeleton': true,
                 'mt-banner': {
                     template: '<div class="mt-banner"><slot /></div>',
-                    props: [
-                        'variant',
-                        'title',
-                    ],
+                    props: ['variant', 'title'],
                 },
                 'mt-button': {
                     template: '<button class="mt-button"><slot /></button>',
-                    props: [
-                        'variant',
-                        'size',
-                    ],
+                    props: ['variant', 'size'],
                 },
             },
             provide: {
@@ -161,6 +150,9 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                     getConfig: mockGetSystemConfig,
                     getValues: mockGetSystemConfigValues,
                     batchSave: () => Promise.resolve(),
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: mockGetCustomFieldSets,
                 },
             },
             mocks: {
@@ -199,7 +191,14 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         mockCreateRepository.mockClear();
         mockGetSystemConfig.mockClear();
         mockGetSystemConfigValues.mockClear();
+        mockGetCustomFieldSets.mockClear();
         Shopware.Store.get('error').resetApiErrors();
+    });
+
+    it('loads custom field sets through the shared provider', async () => {
+        await createWrapper();
+
+        expect(mockGetCustomFieldSets).toHaveBeenCalledWith('sales_channel', false, 100);
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -227,9 +226,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     });
 
     it('should remove analytics association on save when analyticsId is empty', async () => {
-        const wrapper = await createWrapper([
-            'sales_channel.editor',
-        ]);
+        const wrapper = await createWrapper(['sales_channel.editor']);
 
         await wrapper.setData({
             isLoading: false,
@@ -260,26 +257,11 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     });
 
     it.each([
-        [
-            'paymentMethods',
-            'distinguishableName',
-        ],
-        [
-            'shippingMethods',
-            'name',
-        ],
-        [
-            'countries',
-            'name',
-        ],
-        [
-            'currencies',
-            'name',
-        ],
-        [
-            'languages',
-            'name',
-        ],
+        ['paymentMethods', 'distinguishableName'],
+        ['shippingMethods', 'name'],
+        ['countries', 'name'],
+        ['currencies', 'name'],
+        ['languages', 'name'],
     ])('should load %s association with alphabetical sort', async (associationName, sortField) => {
         await createWrapper();
 
@@ -295,9 +277,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         await createWrapper();
 
         const criteria = mockGet.mock.calls[0][2];
-        expect(criteria.parse().associations.languages.filter).toEqual([
-            { type: 'equals', field: 'active', value: true },
-        ]);
+        expect(criteria.parse().associations.languages.filter).toEqual([{ type: 'equals', field: 'active', value: true }]);
     });
 
     it('should allow storefront and headless sales channels as product export source', async () => {
@@ -309,10 +289,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
             {
                 type: 'equalsAny',
                 field: 'typeId',
-                value: [
-                    Shopware.Defaults.storefrontSalesChannelTypeId,
-                    Shopware.Defaults.apiSalesChannelTypeId,
-                ].join('|'),
+                value: [Shopware.Defaults.storefrontSalesChannelTypeId, Shopware.Defaults.apiSalesChannelTypeId].join('|'),
             },
         ]);
     });

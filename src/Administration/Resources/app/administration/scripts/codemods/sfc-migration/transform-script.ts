@@ -57,10 +57,7 @@ function todoBlock(entry: TodoEntry): string {
     ];
 
     if (entry.checks) {
-        return [
-            ...lines,
-            ...entry.checks.map((check) => `// - ${check}`),
-        ].join('\n');
+        return [...lines, ...entry.checks.map((check) => `// - ${check}`)].join('\n');
     }
 
     if (!entry.code) {
@@ -69,11 +66,7 @@ function todoBlock(entry: TodoEntry): string {
 
     const codeLines = entry.code.split('\n').map((line) => `// ${line}`);
 
-    return [
-        ...lines.slice(0, -1),
-        `${lines[lines.length - 1]} — original code:`,
-        ...codeLines,
-    ].join('\n');
+    return [...lines.slice(0, -1), `${lines[lines.length - 1]} — original code:`, ...codeLines].join('\n');
 }
 
 /**
@@ -112,12 +105,7 @@ function emitsArgument(ctx: Ctx, collected: Collected, mixinEvents: string[], us
         // that reaches here always parses.
         const declared = collected.emitsNode ? (emitsEventNames(collected.emitsNode) as string[]) : ctx.inferredEmits;
 
-        return eventList([
-            ...new Set([
-                ...declared,
-                ...mixinEvents,
-            ]),
-        ]);
+        return eventList([...new Set([...declared, ...mixinEvents])]);
     }
 
     if (collected.emitsNode) {
@@ -173,9 +161,7 @@ function renderScript(
         ...(ctx.helpers.has('route') ? ['useRoute'] : []),
     ];
 
-    const mixinEvents = [
-        ...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {}))),
-    ];
+    const mixinEvents = [...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {})))];
     const emitsText = emitsArgument(ctx, collected, mixinEvents, usesEmit);
     const propsText = propsArgument(ctx, collected, usesProps);
 
@@ -204,10 +190,7 @@ function renderScript(
     const injectBlock = collected.injects.map((injectName) => `const ${injectName} = inject('${injectName}');`).join('\n');
     const composableBlock = composables
         .map(({ descriptor, entries, args, config }) => {
-            const callArgs = [
-                ...args,
-                ...config.map((entry) => `${entry.key}: ${snip(ctx, entry.valueNode)}`),
-            ];
+            const callArgs = [...args, ...config.map((entry) => `${entry.key}: ${snip(ctx, entry.valueNode)}`)];
             const call = `${descriptor.import.name}(${callArgs.length > 0 ? `{ ${callArgs.join(', ')} }` : ''});`;
             const destructured = entries
                 .map((entry) =>
@@ -368,10 +351,7 @@ function transformScript(
     // A template resolves a component tag against setup bindings first, so a binding named after a
     // tag the template renders replaces that component with the binding's value. Props are included
     // because they become setup bindings too, and are where this shows up in practice.
-    for (const bindingName of [
-        ...setupBindingNames,
-        ...collected.propNames,
-    ]) {
+    for (const bindingName of [...setupBindingNames, ...collected.propNames]) {
         if (ctx.templateComponentTags.has(bindingName)) {
             report(ctx, 'skip', `binding '${bindingName}' shadows a component tag the template renders`);
         }

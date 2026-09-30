@@ -43,7 +43,6 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -57,7 +56,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
@@ -153,7 +151,7 @@ class SendMailActionTest extends TestCase
         }
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             static::getContainer()->get('document.repository')
@@ -165,9 +163,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
@@ -321,9 +317,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
@@ -390,9 +384,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
@@ -464,9 +456,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
@@ -523,9 +513,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
@@ -576,9 +564,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
@@ -595,10 +581,12 @@ class SendMailActionTest extends TestCase
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
-        $subscriber->handleFlow($flow);
-
-        static::assertIsObject($mailFilterEvent);
-        static::assertSame(1, $mailService->calls);
+        try {
+            $subscriber->handleFlow($flow);
+        } finally {
+            static::assertNull($mailFilterEvent);
+            static::assertSame(0, $mailService->calls);
+        }
     }
 
     #[DataProvider('updateTemplateDataProvider')]
@@ -633,9 +621,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             $shouldUpdate,
@@ -685,66 +671,6 @@ class SendMailActionTest extends TestCase
     {
         yield 'Test disable mail template updates' => [false];
         yield 'Test enable mail template updates' => [true];
-    }
-
-    public function testTranslatorInjectionInMail(): void
-    {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-
-        $context = Context::createDefaultContext();
-
-        $context->addExtension(SendMailAction::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
-
-        $mailTemplateId = $this->retrieveMailTemplateId();
-
-        $config = array_filter([
-            'mailTemplateId' => $mailTemplateId,
-            'recipient' => [
-                'type' => 'admin',
-                'data' => [
-                    'test.com' => 'shopware',
-                    'test.x@test.com' => 'shopware',
-                ],
-            ],
-        ]);
-
-        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
-        $translator = static::getContainer()->get(Translator::class);
-
-        $mailService = new TestEmailService();
-        $subscriber = new SendMailAction(
-            $mailService,
-            static::getContainer()->get('mail_template.repository'),
-            static::getContainer()->get('logger'),
-            static::getContainer()->get('event_dispatcher'),
-            static::getContainer()->get('mail_template_type.repository'),
-            $translator,
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
-            static::getContainer()->get(JsonEntityEncoder::class),
-            static::getContainer()->get(DefinitionInstanceRegistry::class),
-            true
-        );
-
-        $mailFilterEvent = null;
-        $snippetSetId = null;
-        $function = static function ($event) use (&$mailFilterEvent, $translator, &$snippetSetId): void {
-            $mailFilterEvent = $event;
-            $snippetSetId = $translator->getSnippetSetId();
-        };
-
-        static::getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, $function);
-
-        $flowFactory = static::getContainer()->get(FlowFactory::class);
-        $flow = $flowFactory->create($event);
-        $flow->setConfig($config);
-
-        $subscriber->handleFlow($flow);
-
-        static::assertIsObject($mailFilterEvent);
-        static::assertEmpty($translator->getSnippetSetId());
-        static::assertNotNull($snippetSetId);
     }
 
     public function testNumberOfDocumentAttachmentsInCaseFlowSequencesAttachDifferentDocuments(): void
@@ -797,7 +723,7 @@ class SendMailActionTest extends TestCase
         $sequencesConfig = $this->createFlowSequencesConfig($mailTemplateId, $documentTypes);
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -806,8 +732,6 @@ class SendMailActionTest extends TestCase
         $logger = static::getContainer()->get('logger');
         $eventDispatcher = static::getContainer()->get('event_dispatcher');
         $mailTemplateTypeRepository = static::getContainer()->get('mail_template_type.repository');
-        $translator = static::getContainer()->get(Translator::class);
-        $languageLocaleCodeProvider = static::getContainer()->get(LanguageLocaleCodeProvider::class);
         $jsonEntityEncoder = static::getContainer()->get(JsonEntityEncoder::class);
         $definitionInstanceRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -822,9 +746,7 @@ class SendMailActionTest extends TestCase
                 $logger,
                 $eventDispatcher,
                 $mailTemplateTypeRepository,
-                $translator,
                 $this->connection,
-                $languageLocaleCodeProvider,
                 $jsonEntityEncoder,
                 $definitionInstanceRegistry,
                 true
@@ -876,7 +798,7 @@ class SendMailActionTest extends TestCase
         $flow = $flowFactory->create($event);
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -890,9 +812,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             $this->connection,
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             true
@@ -980,7 +900,7 @@ class SendMailActionTest extends TestCase
         );
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -997,9 +917,7 @@ class SendMailActionTest extends TestCase
             static::getContainer()->get('logger'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get('mail_template_type.repository'),
-            static::getContainer()->get(Translator::class),
             $this->connection,
-            static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(JsonEntityEncoder::class),
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             true

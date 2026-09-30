@@ -41,7 +41,7 @@ async function mountConverted({
                 'converted-component': {
                     name: 'converted-component',
                     components: { 'sw-block': swBlock },
-                    template: `<sw-block name="converted-block">${blockContent}</sw-block>`,
+                    template: `<sw-block name="converted-block" sw-internal-component-name="single-root-spec">${blockContent}</sw-block>`,
                     data() {
                         return { ...componentData };
                     },
@@ -84,10 +84,7 @@ describe('sw-block single root', () => {
             callerAttributes: 'class="from-caller"',
         });
 
-        expect(wrapper.get('.inner').classes()).toStrictEqual([
-            'inner',
-            'from-caller',
-        ]);
+        expect(wrapper.get('.inner').classes()).toStrictEqual(['inner', 'from-caller']);
     });
 
     it('forwards a listener the caller registers to the block content', async () => {
@@ -121,7 +118,8 @@ describe('sw-block single root', () => {
 
     it('stays single rooted through nested blocks', async () => {
         const wrapper = await mountConverted({
-            blockContent: '<sw-block name="inner-block"><div class="inner">content</div></sw-block>',
+            blockContent:
+                '<sw-block name="inner-block" sw-internal-component-name="single-root-spec"><div class="inner">content</div></sw-block>',
             callerAttributes: 'id="outer"',
         });
 
@@ -147,10 +145,7 @@ describe('sw-block single root', () => {
         const wrapper = await mountConverted({
             blockContent: '<div v-for="entry in entries" :key="entry" class="inner">{{ entry }}</div>',
             componentData: {
-                entries: [
-                    'a',
-                    'b',
-                ],
+                entries: ['a', 'b'],
             },
         });
 
@@ -161,7 +156,7 @@ describe('sw-block single root', () => {
         const wrapper = await mountConverted({
             callerAttributes: 'id="outer"',
             overrides: `
-                <sw-block extends="converted-block">
+                <sw-block extends="converted-block" sw-internal-component-name="single-root-spec">
                     <div class="overridden">override</div>
                 </sw-block>
             `,
@@ -175,7 +170,7 @@ describe('sw-block single root', () => {
         const wrapper = await mountConverted({
             callerAttributes: 'id="outer"',
             overrides: `
-                <sw-block extends="converted-block">
+                <sw-block extends="converted-block" sw-internal-component-name="single-root-spec">
                     <sw-block-parent />
                 </sw-block>
             `,
@@ -192,7 +187,7 @@ describe('sw-block single root', () => {
             blockContent: '<div class="inner">{{ label }}</div>',
             componentData: { label: 'initial' },
             overrides: `
-                <sw-block extends="converted-block">
+                <sw-block extends="converted-block" sw-internal-component-name="single-root-spec">
                     <sw-block-parent />
                 </sw-block>
             `,

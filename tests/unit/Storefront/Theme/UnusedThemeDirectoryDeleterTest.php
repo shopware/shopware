@@ -100,22 +100,6 @@ class UnusedThemeDirectoryDeleterTest extends TestCase
         static::assertSame((string) $this->timestamp(), $this->filesystem->read('theme/emptyPrefix/.retired'));
     }
 
-    public function testMarkAsRetiredWritesMarker(): void
-    {
-        $this->filesystem->write('theme/oldPrefix/css/all.css', 'css');
-
-        $this->deleter->markAsRetired('theme/oldPrefix');
-
-        static::assertSame((string) $this->timestamp(), $this->filesystem->read('theme/oldPrefix/.retired'));
-    }
-
-    public function testMarkAsRetiredIgnoresMissingDirectory(): void
-    {
-        $this->deleter->markAsRetired('theme/missingPrefix');
-
-        static::assertFalse($this->filesystem->directoryExists('theme/missingPrefix'));
-    }
-
     public function testUnusedDirectoryIsKeptWithinGracePeriod(): void
     {
         $this->filesystem->write('theme/oldPrefix/css/all.css', 'css');

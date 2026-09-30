@@ -37,7 +37,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Shopware\Storefront\Theme\ThemeFilesystemResolver;
-use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncPlugin\AsyncPlugin;
@@ -90,8 +89,6 @@ class ThemeCompilerTest extends TestCase
 
     private MD5ThemePathBuilder $pathBuilder;
 
-    private UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter;
-
     private ThemeFilesystemResolver&Stub $themeFilesystemResolver;
 
     /**
@@ -107,7 +104,6 @@ class ThemeCompilerTest extends TestCase
         $this->logger = static::createStub(LoggerInterface::class);
         $this->scssPhpCompiler = static::createStub(ScssPhpCompiler::class);
         $this->pathBuilder = new MD5ThemePathBuilder();
-        $this->unusedThemeDirectoryDeleter = static::createStub(UnusedThemeDirectoryDeleter::class);
         $this->copyBatchInputFactory = static::createStub(CopyBatchInputFactory::class);
         $this->themeFilesystemResolver = static::createStub(ThemeFilesystemResolver::class);
 
@@ -463,10 +459,6 @@ PHP_EOL,
             ThemeFileResolver::STYLE_FILES => new FileCollection(),
         ]);
 
-        // The MD5 path builder compiles into the same directory, so there is no previous one to retire
-        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
-        $this->unusedThemeDirectoryDeleter->expects($this->never())->method('markAsRetired');
-
         $compiler = $this->getThemeCompiler();
 
         $config = new StorefrontPluginConfiguration('test');
@@ -641,9 +633,6 @@ PHP_EOL,
         $scssPhpCompiler = $this->createMock(ScssPhpCompiler::class);
         $scssPhpCompiler->expects($this->once())->method('compileString')->willThrowException(new \Exception());
 
-        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
-        $this->unusedThemeDirectoryDeleter->expects($this->never())->method('markAsRetired');
-
         $compiler = $this->getThemeCompiler(scssPhpCompiler: $scssPhpCompiler);
 
         $config = new StorefrontPluginConfiguration('test');
@@ -694,9 +683,6 @@ PHP_EOL,
         $this->pathBuilder->method('generateNewPath')->willReturn('new');
         $this->pathBuilder->expects($this->never())->method('saveSeed');
 
-        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
-        $this->unusedThemeDirectoryDeleter->expects($this->never())->method('markAsRetired');
-
         $compiler = $this->getThemeCompiler(
             copyBatchInputFactory: $copyBatchInputFactory,
             scssPhpCompiler: $scssPhpCompiler,
@@ -725,13 +711,8 @@ PHP_EOL,
         static::assertFalse($this->filesystem->fileExists('theme/new/all.js'));
     }
 
-    public function testOldThemeDirectoryIsMarkedAsRetiredOnThemeCompileSuccess(): void
+    public function testOldThemeFilesAreDeletedDelayedOnThemeCompileSuccess(): void
     {
-        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
-        $this->unusedThemeDirectoryDeleter->expects($this->once())
-            ->method('markAsRetired')
-            ->with('theme/current');
-
         $this->themeFileResolver->method('resolveFiles')->willReturn(
             [
                 ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
@@ -758,51 +739,6 @@ PHP_EOL,
             ->with(TestDefaults::SALES_CHANNEL, 'test');
 
         $compiler = $this->getThemeCompiler(scssPhpCompiler: $scssPhpCompiler);
-
-        $config = new StorefrontPluginConfiguration('test');
-        $config->setAssetPaths(['assets']);
-
-        $compiler->compileTheme(
-            TestDefaults::SALES_CHANNEL,
-            'test',
-            $config,
-            new StorefrontPluginConfigurationCollection(),
-            true,
-            Context::createDefaultContext()
-        );
-
-        static::assertTrue($this->filesystem->fileExists('theme/current/all.js'));
-    }
-
-    public function testFailingRetiredMarkerDoesNotFailCompilation(): void
-    {
-        $this->unusedThemeDirectoryDeleter = $this->createMock(UnusedThemeDirectoryDeleter::class);
-        $this->unusedThemeDirectoryDeleter->expects($this->once())
-            ->method('markAsRetired')
-            ->willThrowException(UnableToWriteFile::atLocation('theme/current/.retired'));
-
-        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $this->cacheInvalidator->expects($this->once())->method('invalidate');
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with(static::stringContains('theme directory "current"'));
-
-        $this->themeFileResolver->method('resolveFiles')->willReturn(
-            [
-                ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
-                ThemeFileResolver::STYLE_FILES => new FileCollection()]
-        );
-
-        $this->filesystem->createDirectory('theme/current');
-        $this->filesystem->write('theme/current/all.js', '');
-
-        $this->pathBuilder = static::createStub(MD5ThemePathBuilder::class);
-        $this->pathBuilder->method('assemblePath')->willReturn('current');
-        $this->pathBuilder->method('generateNewPath')->willReturn('new');
-
-        $compiler = $this->getThemeCompiler(logger: $logger);
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['assets']);
@@ -1001,7 +937,6 @@ PHP_EOL,
             $logger ?? $this->logger,
             $this->pathBuilder,
             $scssPhpCompiler ?? $this->scssPhpCompiler,
-            $this->unusedThemeDirectoryDeleter,
             [],
             false
         );

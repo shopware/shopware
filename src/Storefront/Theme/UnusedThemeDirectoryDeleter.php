@@ -11,12 +11,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Deletes theme directories that are no longer referenced by any sales channel/theme mapping.
  *
- * A directory is deleted once the grace period has passed since it was marked as retired.
- * The compiler marks the previous directory when it switches a sales channel to a new one,
- * so the grace period starts at the switch and cached responses referencing the previous
- * directory keep working. Directories without a marker are only marked here once their
- * files are older than the grace period or when they contain no files at all, so a
- * compilation that is still writing its directory is never mistaken for a retired one.
+ * An unused directory is marked as retired first and deleted once the grace period has
+ * passed since that marking, so cached responses referencing the previously active
+ * directory keep working. A directory is only marked once all of its files are older
+ * than the grace period or when it contains no files at all, so a compilation that is
+ * still writing its directory is never mistaken for a retired one.
  *
  * @internal
  */
@@ -33,21 +32,6 @@ class UnusedThemeDirectoryDeleter
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly ClockInterface $clock,
     ) {
-    }
-
-    /**
-     * @param string $themePath path relative to the theme filesystem root, e.g. `theme/<hash>`
-     */
-    public function markAsRetired(string $themePath): void
-    {
-        if (!$this->themeFileSystem->directoryExists($themePath)) {
-            return;
-        }
-
-        $this->themeFileSystem->write(
-            $themePath . \DIRECTORY_SEPARATOR . self::RETIRED_MARKER_FILE,
-            (string) $this->clock->now()->getTimestamp()
-        );
     }
 
     /**
@@ -83,7 +67,7 @@ class UnusedThemeDirectoryDeleter
             if ($retiredAt === null) {
                 $newestFileTimestamp = $this->getNewestFileTimestamp($themePath);
                 if ($newestFileTimestamp === null || $newestFileTimestamp <= $graceBoundary) {
-                    $this->markAsRetired($themePath);
+                    $this->themeFileSystem->write($markerPath, (string) $this->clock->now()->getTimestamp());
                 }
 
                 continue;

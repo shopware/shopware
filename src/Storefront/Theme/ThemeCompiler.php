@@ -65,7 +65,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
-        private readonly UnusedThemeDirectoryDeleter $unusedThemeDirectoryDeleter,
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
         private readonly string $visibility = Visibility::PUBLIC,
@@ -138,20 +137,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->cacheInvalidator->invalidate([
             ThemeConfigCacheInvalidator::buildCacheTag($themeId),
         ]);
-
-        if ($themePrefix === $oldThemePrefix) {
-            return;
-        }
-
-        // The marker only schedules the cleanup, a failed write must not fail the compilation
-        try {
-            $this->unusedThemeDirectoryDeleter->markAsRetired('theme' . \DIRECTORY_SEPARATOR . $oldThemePrefix);
-        } catch (FilesystemException $e) {
-            $this->logger->warning(
-                \sprintf('Could not mark previous theme directory "%s" as retired: %s', $oldThemePrefix, $e->getMessage()),
-                ['exception' => $e]
-            );
-        }
     }
 
     /**

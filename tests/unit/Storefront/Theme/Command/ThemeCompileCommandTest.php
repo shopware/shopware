@@ -310,7 +310,7 @@ class ThemeCompileCommandTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.8.0.0 - will be removed together with the `--no-cleanup` option
+     * @deprecated tag:v6.8.0 - will be removed together with the `--no-cleanup` option
      */
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testItStillAcceptsTheDeprecatedNoCleanupOption(): void

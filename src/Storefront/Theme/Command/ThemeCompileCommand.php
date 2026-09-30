@@ -46,7 +46,7 @@ class ThemeCompileCommand extends Command
             ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile only themes for given theme ids')
             ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given theme ids')
             ->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously')
-            /** @deprecated tag:v6.8.0.0 - option will be removed, the cleanup runs via the theme.delete_files scheduled task */
+            /** @deprecated tag:v6.8.0 - option will be removed, the cleanup runs via the theme.delete_files scheduled task */
             ->addOption('no-cleanup', null, InputOption::VALUE_NONE, '[DEPRECATED] Has no effect, unused theme directories are removed by the theme.delete_files scheduled task')
         ;
     }

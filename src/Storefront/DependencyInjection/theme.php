@@ -129,7 +129,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LoggerInterface::class),
             service(AbstractThemePathBuilder::class),
             service(ScssPhpCompiler::class),
-            service(UnusedThemeDirectoryDeleter::class),
             param('storefront.theme.allowed_scss_values'),
             param('storefront.theme.validate_on_compile'),
             param('shopware.filesystem.theme.visibility'),

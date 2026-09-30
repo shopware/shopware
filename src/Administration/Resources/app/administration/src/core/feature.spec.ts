@@ -30,5 +30,17 @@ describe('src/core/feature', () => {
             expect(warn).toHaveBeenCalledTimes(1);
             expect(warn).toHaveBeenCalledWith('[Deprecation]', 'otherMethod() is deprecated.');
         });
+
+        it('warns for each distinct message while the major flag is inactive', () => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            Feature.triggerDeprecationOrThrow('V7_0_0_0', 'firstMethod() is deprecated.');
+            Feature.triggerDeprecationOrThrow('V7_0_0_0', 'secondMethod() is deprecated.');
+
+            expect(warn.mock.calls).toEqual([
+                ['[Deprecation]', 'firstMethod() is deprecated.'],
+                ['[Deprecation]', 'secondMethod() is deprecated.'],
+            ]);
+        });
     });
 });

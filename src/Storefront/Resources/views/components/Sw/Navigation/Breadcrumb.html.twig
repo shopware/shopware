@@ -17,40 +17,34 @@
     class: 'sw-breadcrumb',
 } %}
 
-{% block component_navigation_breadcrumb %}
+{% block breadcrumb %}
     {% set hasBreadcrumb = breadcrumb and breadcrumb|length > 0 %}
+    {% set breadcrumbDivider = 'url(data:image/svg+xml,' ~ source('@Storefront/assets/icon/solid/arrow-medium-right.svg')|url_encode ~ ')' %}
 
-    <nav {{ attributes.defaults(attributeDefaults) }} aria-label="{{ 'general.breadcrumbLabel'|trans|sw_sanitize }}">
+    <nav {{ attributes.defaults(attributeDefaults) }} aria-label="{{ 'general.breadcrumbLabel'|trans|sw_sanitize }}" style="--bs-breadcrumb-divider: {{ breadcrumbDivider }};">
         {% if hasBreadcrumb %}
             {% set activeId = breadcrumb|last.categoryId %}
 
-            {% block component_navigation_breadcrumb_list %}
+            {% block breadcrumb_list %}
                 <ol class="sw-breadcrumb__list breadcrumb">
                     {% if showHome %}
-                        <li class="sw-breadcrumb__item breadcrumb-item">
-                            <a class="sw-breadcrumb__link" href="{{ path('frontend.home.page') }}">
-                                {{ 'general.homeLink'|trans|sw_sanitize }}
-                            </a>
-                        </li>
+                        <twig:Sw:Navigation:BreadcrumbItem
+                            :url="path('frontend.home.page')"
+                            :name="'general.homeLink'|trans"
+                        />
                     {% endif %}
 
                     {% for crumb in breadcrumb %}
                         {% set isActive = crumb.categoryId is same as(activeId) %}
+                        {% set crumbUrl = seoUrl('frontend.navigation.page', { navigationId: crumb.categoryId }) %}
 
-                        {% block component_navigation_breadcrumb_item %}
-                            <li class="sw-breadcrumb__item breadcrumb-item{% if isActive %} active{% endif %}"{% if isActive %} aria-current="page"{% endif %}>
-                                {% if crumb.type == 'folder' %}
-                                    <span class="sw-breadcrumb__title">{{ crumb.name }}</span>
-                                {% else %}
-                                    <a class="sw-breadcrumb__link"
-                                       href="{{ seoUrl('frontend.navigation.page', { navigationId: crumb.categoryId }) }}"
-                                       title="{{ crumb.name }}"
-                                       {% if crumb.shouldOpenInNewTab %}target="_blank"{% endif %}>
-                                        {{ crumb.name }}
-                                    </a>
-                                {% endif %}
-                            </li>
-                        {% endblock %}
+                        <twig:Sw:Navigation:BreadcrumbItem
+                            :url="crumbUrl"
+                            :name="crumb.name"
+                            :type="crumb.type"
+                            :shouldOpenInNewTab="crumb.shouldOpenInNewTab"
+                            :isActive="isActive"
+                        />
                     {% endfor %}
                 </ol>
             {% endblock %}

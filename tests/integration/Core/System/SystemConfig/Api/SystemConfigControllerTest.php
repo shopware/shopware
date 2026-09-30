@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,6 +50,7 @@ class SystemConfigControllerTest extends TestCase
     {
         return new SystemConfigController(
             static::getContainer()->get(ConfigurationService::class),
+            static::getContainer()->get(SystemConfigDefinitionService::class),
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get(SystemConfigValidator::class)
         );

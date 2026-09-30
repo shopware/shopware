@@ -104,4 +104,8 @@ runs:
       # keeps resolving the locked PHPUnit (a shared ||-constraint made composer pick the newer one everywhere)
       env:
         PHPUNIT_VERSION: ${{ inputs.phpunit-version }}
-      run: composer require --dev --update-with-all-dependencies "phpunit/phpunit:${PHPUNIT_VERSION}"
+      run: |
+        # dev packages that depend on PHPUnit cap it, and --update-with-all-dependencies only follows PHPUnit's own
+        # dependencies, never its dependants; let those float within their root constraints first
+        composer update shopware/dev-tools
+        composer require --dev --update-with-all-dependencies "phpunit/phpunit:${PHPUNIT_VERSION}"

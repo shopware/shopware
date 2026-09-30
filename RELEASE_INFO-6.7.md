@@ -338,11 +338,7 @@ const { page, limit, total } = useListing({ getList });
 ```
 
 Call them in `setup()` only. They are annotated `@experimental stableVersion:v6.9.0`, so their names and
-signatures can change before Shopware 6.9. `Shopware.Composables` is not available to login overrides.
-
-When the SFC migration codemod runs on an extension, it now imports the composables from
-`shopware:composables`. A component that uses the `cms-element` mixin is skipped there, because its
-`useCmsElementDeprecated` replacement is not published; migrate it to `useCmsElement` by hand.
+signatures can change before Shopware 6.9.
 
 ## Storefront
 

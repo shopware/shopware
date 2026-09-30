@@ -22,15 +22,4 @@ describe('src/app/composables/index', () => {
     it('publishes exactly the composables tagged as mixin replacements', () => {
         expect(Object.keys(composables).sort()).toEqual(taggedComposables().sort());
     });
-
-    it.each([
-        'useContext',
-        'useSession',
-        'useSystem',
-        'useTheme',
-        'useCmsElementDeprecated',
-        'useSnackbar',
-    ])('keeps %s out', (name) => {
-        expect(composables).not.toHaveProperty(name);
-    });
 });

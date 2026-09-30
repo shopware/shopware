@@ -10,7 +10,7 @@
  * Types come from the same global branches and registry interfaces as the runtime values.
  */
 
-import type { ModuleRegistry, ModuleRegistryEntry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
+import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
 
 const UTILS_MODULE = 'src/core/service/util.service';
 const DATA_MODULE = 'src/core/data/index';
@@ -58,48 +58,29 @@ function namedExports(value: string, names: string[]): string[] {
 }
 
 /** A subpath of a branch that is itself an object, e.g. `shopware:utils/debug`. */
-function branchSubpath(specifier: string, branchModule: string, key: string, exports: string[], stability?: string): string {
-    return block(
-        specifier,
-        [
-            `import type branch from '${branchModule}';`,
-            '',
-            `const member: (typeof branch)['${key}'];`,
-            '',
-            'export default member;',
-            ...namedExports('member', exports),
-        ],
-        stability,
-    );
+function branchSubpath(specifier: string, branchModule: string, key: string, exports: string[]): string {
+    return block(specifier, [
+        `import type branch from '${branchModule}';`,
+        '',
+        `const member: (typeof branch)['${key}'];`,
+        '',
+        'export default member;',
+        ...namedExports('member', exports),
+    ]);
 }
 
 /** The root import of a branch, e.g. `shopware:utils`, which publishes the whole branch and its members. */
 function branchRoot(specifier: string, branchModule: string, exports: string[], stability?: string): string {
-    return block(
-        specifier,
-        [
-            `import type branch from '${branchModule}';`,
-            '',
-            'const members: typeof branch;',
-            '',
-            'export default members;',
-            ...namedExports('members', exports),
-        ],
-        stability,
-    );
-}
-
-/** A branch-backed family: its root, then one block per subpath. */
-function renderBranch(family: string, branchModule: string, entry: ModuleRegistryEntry, stability?: string): string[] {
-    return [
-        branchRoot(family, branchModule, entry.exports, stability),
-        ...Object.entries(entry.subpaths).map(
-            ([
-                key,
-                exports,
-            ]) => branchSubpath(`${family}/${key}`, branchModule, key, exports, stability),
-        ),
+    const body = [
+        `import type branch from '${branchModule}';`,
+        '',
+        'const members: typeof branch;',
+        '',
+        'export default members;',
+        ...namedExports('members', exports),
     ];
+
+    return block(specifier, body, stability);
 }
 
 function defaultOnlyModule(specifier: string, value: string, type: string): string {
@@ -114,13 +95,27 @@ function defaultOnlyModule(specifier: string, value: string, type: string): stri
 export function renderDeclarations(registry: ModuleRegistry): string {
     const blocks: string[] = [];
 
+    blocks.push(branchRoot('shopware:utils', UTILS_MODULE, registry['shopware:utils'].exports));
+    Object.entries(registry['shopware:utils'].subpaths).forEach(
+        ([
+            key,
+            exports,
+        ]) => blocks.push(branchSubpath(`shopware:utils/${key}`, UTILS_MODULE, key, exports)),
+    );
+
+    blocks.push(branchRoot('shopware:data', DATA_MODULE, registry['shopware:data'].exports));
+    Object.entries(registry['shopware:data'].subpaths).forEach(
+        ([
+            key,
+            exports,
+        ]) => blocks.push(branchSubpath(`shopware:data/${key}`, DATA_MODULE, key, exports)),
+    );
+
     blocks.push(
-        ...renderBranch('shopware:utils', UTILS_MODULE, registry['shopware:utils']),
-        ...renderBranch('shopware:data', DATA_MODULE, registry['shopware:data']),
-        ...renderBranch(
+        branchRoot(
             'shopware:composables',
             COMPOSABLES_MODULE,
-            registry['shopware:composables'],
+            registry['shopware:composables'].exports,
             COMPOSABLES_EXPERIMENTAL,
         ),
     );

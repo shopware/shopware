@@ -54,7 +54,6 @@ import {
     type ComposableScaffold,
     composableCallbacks,
     findComposableDescriptor,
-    PUBLISHED_COMPOSABLES,
     scaffoldRunsUnread,
 } from './composables';
 
@@ -425,15 +424,6 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
 
             if (descriptor === undefined) {
                 report(ctx, 'skip', `no composable registered for mixin '${mixinName}'`);
-                continue;
-            }
-
-            if (ctx.extensionTarget && !PUBLISHED_COMPOSABLES.has(descriptor.import.name)) {
-                report(
-                    ctx,
-                    'skip',
-                    `${descriptor.import.name}() replaces the '${mixinName}' mixin but is not published to extensions through shopware:composables`,
-                );
                 continue;
             }
 

@@ -773,28 +773,6 @@ export default [
         },
     },
     {
-        // `shopware:composables` evaluates the composables, which need the global object and their own
-        // barrel: core runs before `window.Shopware` exists, and the composables are the barrel.
-        files: [
-            'src/core/**/*.js',
-            'src/core/**/*.ts',
-            'src/app/composables/**/*.ts',
-        ],
-        rules: {
-            'no-restricted-imports': [
-                'error',
-                {
-                    paths: [
-                        {
-                            name: 'shopware:composables',
-                            message: 'Import the composable from its file in src/app/composables instead.',
-                        },
-                    ],
-                },
-            ],
-        },
-    },
-    {
         ...prettier,
         files: [
             '**/*.js',

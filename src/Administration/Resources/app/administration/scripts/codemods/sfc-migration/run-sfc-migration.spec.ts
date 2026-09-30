@@ -238,31 +238,6 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         });
     });
 
-    describe('a target outside the Administration', () => {
-        let tmpDir: string;
-
-        beforeAll(() => {
-            tmpDir = makeRoot('sfc-migration-extension-');
-            fs.cpSync(path.join(FIXTURES, 'sw-mixin-composable'), path.join(tmpDir, 'sw-mixin-composable'), {
-                recursive: true,
-            });
-            registerAll(tmpDir, 'sw-mixin-composable');
-        });
-
-        afterAll(() => {
-            fs.rmSync(tmpDir, { recursive: true, force: true });
-        });
-
-        it('is migrated as an extension, which imports the composables from shopware:composables', async () => {
-            const result = await runMigration(tmpDir, { write: true });
-            const sfc = fs.readFileSync(path.join(tmpDir, 'sw-mixin-composable', 'sw-mixin-composable.vue'), 'utf8');
-
-            expect(reportOf(result, 'sw-mixin-composable')?.outcome).toBe('full');
-            expect(sfc).toContain("import { useNotification, useSalutation } from 'shopware:composables';");
-            expect(sfc).not.toContain('src/app/composables');
-        });
-    });
-
     describe('a real fixture tree written with --write', () => {
         let tmpDir: string;
         let result: MigrationResult;

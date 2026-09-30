@@ -278,8 +278,7 @@ class ShopwareClass implements CustomShopwareProperties {
     /**
      * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
      *
-     * Assigned by `src/app/composables/attach` while `src/app/main` loads, because the composables need
-     * the global object when they are evaluated. `_swLoginOverrides` run before that and don't see it.
+     * Assigned by `src/app/composables/attach`.
      */
     declare public Composables: typeof composables;
 

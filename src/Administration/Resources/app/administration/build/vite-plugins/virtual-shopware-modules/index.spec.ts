@@ -206,13 +206,11 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
             expect(source).toContain("import 'src/app/mixin';");
         });
 
-        it('assigns the composables for the host before a member is read', () => {
+        it('exports the composables of the instance', () => {
             const source = generateModuleSource('shopware:composables', registry, 'host') as string;
 
-            expect(source).toContain("import 'src/app/composables/attach';");
             expect(source).toContain('export const useListing = shopware.Composables["useListing"];');
             expect(source).toContain('export default shopware.Composables;');
-            expect(source).not.toContain("import 'src/app/mixin';");
         });
 
         it('reads the global for an extension, which has no Administration source to import', () => {
@@ -221,15 +219,6 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
             expect(source).toContain('const shopware = globalThis.Shopware;');
             expect(source).not.toContain("from 'src/core/shopware'");
             expect(source).toContain('should be unreachable');
-            expect(source).not.toContain('shopware.Composables');
-        });
-
-        it('guards an extension against reading the composables before boot assigned them', () => {
-            const source = generateModuleSource('shopware:composables', registry, 'extension') as string;
-
-            expect(source).not.toContain('src/app/composables/attach');
-            expect(source).toContain('if (!shopware.Composables) {');
-            expect(source).toContain('not available to login overrides');
         });
 
         it('returns nothing for a specifier the registry does not list', () => {

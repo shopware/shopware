@@ -142,10 +142,6 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         ])('refuses the inherited subpath %s', (subpath) => {
             expect(exportNames(registry, parseSpecifier(`shopware:utils/${subpath}`)!)).toBeUndefined();
         });
-
-        it('refuses a composable subpath, because the family is root-only', () => {
-            expect(exportNames(registry, parseSpecifier('shopware:composables/useListing')!)).toBeUndefined();
-        });
     });
 
     describe('the emitted code and the runtime resolver agree', () => {
@@ -225,12 +221,6 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
         it('names the module when a root import has no such export', () => {
             expect(() => resolveVirtualExport(registry, 'shopware:utils', 'notAUtil', Shopware as never)).toThrow(
                 '"notAUtil" does not exist on Shopware.Utils.',
-            );
-        });
-
-        it('names the branch when a composable does not exist', () => {
-            expect(() => resolveVirtualExport(registry, 'shopware:composables', 'useNothing', Shopware as never)).toThrow(
-                '"useNothing" does not exist on Shopware.Composables.',
             );
         });
 

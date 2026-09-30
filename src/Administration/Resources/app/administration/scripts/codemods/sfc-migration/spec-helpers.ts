@@ -80,7 +80,7 @@ function fixtureScript(name: string): { source: string; lang: 'js' | 'ts' } {
     return { source: fs.readFileSync(indexPath, 'utf8'), lang: indexPath.endsWith('.ts') ? 'ts' : 'js' };
 }
 
-async function convertFixture(name: string, options: { extensionTarget?: boolean } = {}): Promise<ConvertResult> {
+async function convertFixture(name: string): Promise<ConvertResult> {
     const dir = path.join(FIXTURES, name);
     const { source: jsSource, lang } = fixtureScript(name);
 
@@ -91,7 +91,6 @@ async function convertFixture(name: string, options: { extensionTarget?: boolean
         vuePath: path.join(dir, `${name}.vue`),
         lang,
         templateImportRange: templateImportRange(jsSource),
-        extensionTarget: options.extensionTarget,
     });
 }
 

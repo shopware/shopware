@@ -27,14 +27,8 @@
  *       shopware:data/Criteria  default only, like every class subpath
  *
  * `Shopware.Composables` — src/app/composables/index.ts
- * The same literal shape as the data branch:
- *
- *     export default { useCmsElement, useListing, useNotification, … };
- *
- *     → shopware:composables    named exports { useCmsElement, useListing, useNotification, … }
- *
- * The family has no subpaths: every export reads the global object, so a subpath would tree-shake
- * nothing and only add a second way to write the same import.
+ * The same literal shape as the data branch, but root-only: every export reads the global object, so a
+ * subpath would tree-shake nothing.
  *
  * `Shopware.Mixin` — src/global.types.ts, `interface MixinContainer`
  * A runtime registry, so there is no literal to read and the declared contract is the type itself:

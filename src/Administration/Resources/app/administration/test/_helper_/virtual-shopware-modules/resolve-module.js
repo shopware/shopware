@@ -24,7 +24,7 @@ function read(specifier, member) {
 }
 
 /**
- * The Jest counterpart of the host preamble's `src/app/composables/attach` import.
+ * The Jest counterpart of the `src/app/composables/attach` import in `src/index.ts`.
  *
  * Deferred to the first spec that imports the family rather than done in the setup files: those run
  * before a spec's hoisted `jest.mock` calls, so preloading would pin every composable to its real

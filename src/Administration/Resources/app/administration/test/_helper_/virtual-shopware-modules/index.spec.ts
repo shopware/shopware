@@ -14,7 +14,7 @@ import swFormFieldMixin from 'shopware:mixins/sw-form-field';
 import ruleContainerMixin from 'shopware:mixins/ruleContainer';
 import useNotificationStore from 'shopware:stores/notification';
 import useSystemStore from 'shopware:stores/system';
-import composables, { useListing, useCmsState } from 'shopware:composables';
+import composables, { useListing } from 'shopware:composables';
 import directUseListing from 'src/app/composables/use-listing';
 
 describe('shopware:* virtual modules', () => {
@@ -28,8 +28,6 @@ describe('shopware:* virtual modules', () => {
 
         it('export the composables the Administration itself imports', () => {
             expect(useListing).toBe(directUseListing);
-            expect(useListing).toBe(Shopware.Composables.useListing);
-            expect(useCmsState).toBe(Shopware.Composables.useCmsState);
             expect(composables.useListing).toBe(Shopware.Composables.useListing);
         });
 

@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { ShopwareInstance } from 'src/core/shopware';
+import 'src/app/composables/attach';
 
 // IIFE
 void (async () => {

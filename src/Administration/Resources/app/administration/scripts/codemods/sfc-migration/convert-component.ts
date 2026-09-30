@@ -20,8 +20,6 @@ type ConvertInput = {
     vuePath: string;
     lang: 'js' | 'ts';
     templateImportRange: { start: number; end: number };
-    /** The component belongs to an extension rather than the Administration itself. */
-    extensionTarget?: boolean;
 };
 
 /** The one status vocabulary: three the conversion produces, two only the batch runner can. */
@@ -46,7 +44,6 @@ async function convertComponent(input: ConvertInput): Promise<ConvertResult> {
         templateImportRange: input.templateImportRange,
         templateIdentifiers: collectTemplateIdentifiers(template.template),
         templateComponentTags: collectTemplateComponentTags(template.template),
-        extensionTarget: input.extensionTarget,
     });
 
     if (script.script === null) {

@@ -56,9 +56,6 @@ import Feature from 'src/core/feature';
 /** Import decorators */
 import 'src/app/decorator';
 
-/** Publish the composables as Shopware.Composables before any extension loads */
-import 'src/app/composables/attach';
-
 /** Import Meteor Component Library styles */
 import '@shopware-ag/meteor-component-library/styles.css';
 import '@shopware-ag/meteor-component-library/font.css';

@@ -43,12 +43,6 @@ describe('scripts/generate-shopware-modules', () => {
             expect(Object.keys(registry['shopware:data'].subpaths)).toEqual(registry['shopware:data'].exports);
         });
 
-        it('reads the composables from their barrel, without subpaths', () => {
-            expect(registry['shopware:composables'].exports).toContain('useListing');
-            expect(registry['shopware:composables'].exports).not.toContain('useContext');
-            expect(registry['shopware:composables'].subpaths).toEqual({});
-        });
-
         it('reads the utility namespaces that can be destructured', () => {
             expect(registry['shopware:utils'].subpaths.debug).toEqual([
                 'warn',

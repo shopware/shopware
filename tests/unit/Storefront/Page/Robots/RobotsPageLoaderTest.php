@@ -338,6 +338,27 @@ class RobotsPageLoaderTest extends TestCase
             'expectedDirective' => '/sales-channel-1/',
         ];
 
+        yield 'explicit https port 443 in the host header matches the https domain' => [
+            'httpHost' => 'example.com:443',
+            'domainUrls' => ['https://www.example.com', 'https://example.com'],
+            'expectedSitemap' => 'https://example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'https domain listed first is not replaced by the http one' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['https://example.com', 'http://example.com'],
+            'expectedSitemap' => 'https://example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-0/',
+        ];
+
+        yield 'subdomain fallback prefers the https domain over the http one' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['http://www.example.com', 'https://www.example.com'],
+            'expectedSitemap' => 'https://www.example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
         yield 'bare host falls back to its subdomain when nothing matches exactly' => [
             'httpHost' => 'example.com',
             'domainUrls' => ['https://www.example.com', 'https://different.org'],

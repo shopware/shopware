@@ -169,8 +169,9 @@ class RobotsPageLoader
     {
         \assert($hostname !== '');
 
-        // HTTP_HOST may carry a port, which parse_url()'s PHP_URL_HOST never includes
-        $requestHost = strtolower(parse_url('http://' . $hostname, \PHP_URL_HOST) ?: $hostname);
+        // HTTP_HOST is a bare `host[:port]` for HTTP and HTTPS alike. The `//` prefix only lets
+        // parse_url() recognise it as a host, so the port is dropped like on the domain side
+        $requestHost = strtolower(parse_url('//' . $hostname, \PHP_URL_HOST) ?: $hostname);
 
         $exactMatches = [];
         $subdomainMatches = [];

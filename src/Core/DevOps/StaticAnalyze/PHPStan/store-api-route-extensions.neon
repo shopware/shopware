@@ -1,5 +1,7 @@
 parameters:
     shopwareLegacyStoreApiRouteMethods:
+        # Published by its ResolvedCriteria decorator, before the criteria are resolved from the request.
+        - Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute::load
         # Endpoints that publish no extension event on purpose: infrastructure and test routes.
         # New store-api routes must follow the ADR, do not add them here.
         - Shopware\Core\Content\ProductExport\SalesChannel\ExportController::index
@@ -81,7 +83,6 @@ parameters:
         - Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute::load
         - Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute::save
         - Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute::load
-        - Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute::load
         - Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute::request
         - Shopware\Core\Content\Seo\SalesChannel\SeoUrlRoute::load
         - Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute::load

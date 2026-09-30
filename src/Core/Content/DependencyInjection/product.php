@@ -572,13 +572,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(ResolvedCriteriaProductSuggestRoute::class . '.inner'),
             service(CompositeListingProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductSuggestRoute::class)
         ->public()
         ->args([
             service(ProductListingLoader::class),
-            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductSearchRoute::class)

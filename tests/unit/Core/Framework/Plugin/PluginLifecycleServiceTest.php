@@ -33,7 +33,6 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -841,10 +840,13 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->pluginMock->expects($this->never())->method('deactivate');
 
-        $this->expectException(PluginNotActivatedException::class);
+        $this->expectExceptionObject(PluginException::notActivated($pluginEntityMock->getName()));
 
-        $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
-        static::assertCount(0, $this->eventDispatcher->getEvents());
+        try {
+            $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
+        } finally {
+            static::assertCount(0, $this->eventDispatcher->getEvents());
+        }
     }
 
     public function testDeactivatePluginDependants(): void

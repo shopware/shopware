@@ -127,6 +127,14 @@ class ConvertGuestRouteTest extends TestCase
     public function testConvertGuestFailsWithValidationErrors(): void
     {
         $requestDataBag = new RequestDataBag(['password' => '']);
+        $violations = new ConstraintViolationException(
+            new ConstraintViolationList(),
+            [
+                'id' => 'test-customer-id',
+                'guest' => false,
+                'password' => '',
+                'email' => 'test@example.com']
+        );
 
         $passwordDefinition = new DataValidationDefinition('customer.password');
         $passwordDefinition->add('password', new NotBlank());
@@ -156,21 +164,17 @@ class ConvertGuestRouteTest extends TestCase
 
                 return true;
             }))
-            ->willThrowException(new ConstraintViolationException(
-                new ConstraintViolationList(),
-                [
-                    'id' => 'test-customer-id',
-                    'guest' => false,
-                    'password' => '',
-                    'email' => 'test@example.com']
-            ));
+            ->willThrowException($violations);
 
         $route = $this->buildRoute($eventDispatcher, $validator, $passwordValidationFactory);
 
-        $this->expectException(ConstraintViolationException::class);
-        $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
+        $this->expectExceptionObject($violations);
 
-        static::assertEmpty($this->customerRepository->updates);
+        try {
+            $route->convertGuest($requestDataBag, $this->salesChannelContext, $this->customer);
+        } finally {
+            static::assertEmpty($this->customerRepository->updates);
+        }
     }
 
     private function buildRoute(

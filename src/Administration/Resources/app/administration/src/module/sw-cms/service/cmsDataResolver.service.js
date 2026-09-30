@@ -4,6 +4,13 @@ const { Application } = Shopware;
 
 const Criteria = Shopware.Data.Criteria;
 
+const CLEARABLE_BLOCK_CONFIG_KEYS = [
+    'marginTop',
+    'marginBottom',
+    'marginLeft',
+    'marginRight',
+];
+
 Application.addServiceProvider('cmsDataResolverService', () => {
     return {
         resolve,

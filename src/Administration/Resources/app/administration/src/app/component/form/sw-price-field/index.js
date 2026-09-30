@@ -4,6 +4,11 @@ import { debounce } from 'shopware:utils';
 
 const { Application } = Shopware;
 
+// A value ending with a decimal separator is still being typed by the user
+function isConvertibleValue(value) {
+    return value !== null && value !== undefined && value !== '' && !value.toString().endsWith('.');
+}
+
 /**
  * @sw-package framework
  *

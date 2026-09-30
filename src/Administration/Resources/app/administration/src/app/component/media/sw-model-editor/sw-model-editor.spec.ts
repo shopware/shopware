@@ -156,6 +156,7 @@ async function createWrapper(componentConfig: any = {}) {
 }
 
 describe('src/app/component/media/sw-model-editor', () => {
+    // The editor only forwards the scene to the Toolbox; the node it edits comes from `model`.
     const mockScene = {};
 
     const mockOrbitController = { focusObject: jest.fn() };

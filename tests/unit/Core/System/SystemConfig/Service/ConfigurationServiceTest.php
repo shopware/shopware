@@ -24,6 +24,9 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\BrokenConfigPlugin\BrokenConfigPlugin;
+use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\SwagExampleTest\SwagExampleTest;
+use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\ValidConfigPlugin\ValidConfigPlugin;
 
 /**
  * @internal
@@ -1035,34 +1038,5 @@ class ConfigurationServiceTest extends TestCase
                 ],
             ],
         ];
-    }
-}
-
-/**
- * @internal
- */
-class SwagExampleTest extends Plugin
-{
-}
-
-/**
- * @internal
- */
-class BrokenConfigPlugin extends Plugin
-{
-    public function getPath(): string
-    {
-        return __DIR__ . '/_fixtures/BrokenConfigPlugin';
-    }
-}
-
-/**
- * @internal
- */
-class ValidConfigPlugin extends Plugin
-{
-    public function getPath(): string
-    {
-        return __DIR__ . '/_fixtures/ValidConfigPlugin';
     }
 }

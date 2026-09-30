@@ -388,7 +388,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StorefrontPluginRegistry::class),
             service('sales_channel.repository'),
             service('theme.repository'),
-            service(UnusedThemeDirectoryDeleter::class),
         ])
         ->tag('console.command');
 
@@ -397,7 +396,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ThemeService::class),
             service(AbstractAvailableThemeProvider::class),
             service(ClockInterface::class),
-            service(UnusedThemeDirectoryDeleter::class),
         ])
         ->tag('console.command');
 

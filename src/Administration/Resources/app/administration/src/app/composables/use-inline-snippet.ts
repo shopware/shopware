@@ -1,4 +1,4 @@
-import { types } from 'shopware:utils';
+import { isEmpty, isObject } from 'shopware:utils/types';
 import useSessionStore from 'shopware:stores/session';
 
 /**
@@ -22,7 +22,7 @@ export default function useInlineSnippet(): {
     getInlineSnippet: (value: { [key: string]: string }) => string | { [key: string]: string };
 } {
     function getInlineSnippet(value: { [key: string]: string }): string | { [key: string]: string } {
-        if (types.isEmpty(value)) {
+        if (isEmpty(value)) {
             return '';
         }
 
@@ -38,7 +38,7 @@ export default function useInlineSnippet(): {
             return value[fallbackLocale];
         }
 
-        if (types.isObject(value)) {
+        if (isObject(value)) {
             const locale = Object.keys(value).find((key) => {
                 return value[key] !== '';
             });

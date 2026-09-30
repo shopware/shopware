@@ -1,8 +1,10 @@
 import template from './sw-order-create-base.html.twig';
 import { Criteria } from 'shopware:data';
-import { get, format, array } from 'shopware:utils';
+import { get } from 'shopware:utils';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwOrderStore from 'shopware:stores/swOrder';
+import { date, currency } from 'shopware:utils/format';
+import { slice } from 'shopware:utils/array';
 
 /**
  * @sw-package checkout
@@ -85,7 +87,7 @@ export default {
 
         orderDate() {
             const today = new Date();
-            return format.date(today);
+            return date(today);
         },
 
         customer() {
@@ -135,7 +137,7 @@ export default {
         },
 
         cartDeliveryDiscounts() {
-            return array.slice(this.cart.deliveries, 1) || [];
+            return slice(this.cart.deliveries, 1) || [];
         },
 
         filteredCalculatedTaxes() {
@@ -165,7 +167,7 @@ export default {
                     'sw-order.createBase.shippingCostsTax',
                     {
                         taxRate: item.taxRate,
-                        tax: format.currency(item.tax, this.currency.isoCode),
+                        tax: currency(item.tax, this.currency.isoCode),
                     },
                     0,
                 );

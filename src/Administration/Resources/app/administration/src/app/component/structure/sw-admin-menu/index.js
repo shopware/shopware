@@ -3,13 +3,15 @@ import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-admin-menu.html.twig';
 import { getActiveRouteNames, isEntryOnActiveRoute } from '../sw-admin-menu-item/menu-item-active.helper';
 import './sw-admin-menu.scss';
-import { dom, debug, createId, EventBus } from 'shopware:utils';
+import { createId, EventBus } from 'shopware:utils';
 import notificationMixin from 'shopware:mixins/notification';
 import useSessionStore from 'shopware:stores/session';
 import useMenuItemStore from 'shopware:stores/menuItem';
 import useAdminMenuStore from 'shopware:stores/adminMenu';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 import useNotificationStore from 'shopware:stores/notification';
+import { getScrollbarWidth } from 'shopware:utils/dom';
+import { error } from 'shopware:utils/debug';
 
 const SIDEBAR_TOGGLE_ANIMATION_DURATION = 500;
 
@@ -117,7 +119,7 @@ export default {
                 );
 
                 if (levelThreeParent) {
-                    debug.error(
+                    error(
                         new Error(
                             `The navigation entry "${entry.id}" is nested on level 4 or higher.\
 The admin menu only supports up to three levels of nesting.`,
@@ -560,7 +562,7 @@ The admin menu only supports up to three levels of nesting.`,
 
         addScrollbarOffset() {
             // A negative offset pulls the scrollbar outside the menu so it does not eat into the visible width
-            const scrollbarWidthPx = dom.getScrollbarWidth(this.$refs.swAdminMenuBody);
+            const scrollbarWidthPx = getScrollbarWidth(this.$refs.swAdminMenuBody);
 
             this.scrollbarOffset = `-${scrollbarWidthPx}px`;
         },

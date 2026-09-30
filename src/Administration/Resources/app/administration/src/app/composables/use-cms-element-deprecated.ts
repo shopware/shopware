@@ -5,7 +5,7 @@ import { computed, type ComputedRef } from 'vue';
 import useCmsState from './use-cms-state';
 import type { CmsElementConfig, RuntimeSlot } from 'src/module/sw-cms/service/cms.service';
 import { cloneDeep, merge, get, set, has } from 'shopware:utils/object';
-import { types } from 'shopware:utils';
+import { isPlainObject } from 'shopware:utils/types';
 
 /**
  * The two props the mixin declared and read, handed in as getters so every read stays reactive.
@@ -105,7 +105,7 @@ export default function useCmsElementDeprecated(options: UseCmsElementDeprecated
     function initElementData(elementName: string): void {
         const element = options.element();
 
-        if (types.isPlainObject(element.data) && Object.keys(element.data).length > 0) {
+        if (isPlainObject(element.data) && Object.keys(element.data).length > 0) {
             return;
         }
 

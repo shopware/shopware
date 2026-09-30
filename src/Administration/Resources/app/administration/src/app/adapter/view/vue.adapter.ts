@@ -71,7 +71,7 @@ import useLegacyConditionContext from '../../component/structure/sw-block-overri
 import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
-import { string } from 'shopware:utils';
+import { kebabCase } from 'shopware:utils/string';
 
 const { Component, State, Mixin } = Shopware;
 const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
@@ -485,12 +485,12 @@ export default class VueAdapter extends ViewAdapter {
         };
 
         Object.entries(meteorComponents).forEach(([componentName, component]) => {
-            const componentNameAsKebabCase = string.kebabCase(componentName);
+            const componentNameAsKebabCase = kebabCase(componentName);
             this.app.component(componentNameAsKebabCase, component as VueComponent);
         });
 
         Object.entries(lazyMeteorComponents).forEach(([componentName, importMethod]) => {
-            const componentNameAsKebabCase = string.kebabCase(componentName);
+            const componentNameAsKebabCase = kebabCase(componentName);
             this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
         });
 

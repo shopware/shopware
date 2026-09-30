@@ -8,7 +8,7 @@ import { createId } from 'shopware:utils';
  */
 export default function initializeActions(): void {
     Shopware.ExtensionAPI.handle('actionExecute', async (actionConfiguration, additionalInformation) => {
-        const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
+        const extensionName = Object.keys(useExtensionsStore().extensionsState).find((key) =>
             useExtensionsStore().extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
         );
 

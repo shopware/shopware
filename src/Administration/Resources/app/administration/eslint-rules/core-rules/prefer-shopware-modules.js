@@ -178,6 +178,7 @@ module.exports = {
         schema: [],
         messages: {
             preferModule: "Import '{{ specifier }}' instead of reading {{ expression }} off the global.",
+            preferSubpath: "Import '{{ specifier }}' instead of reading {{ expression }} off its namespace.",
         },
     },
 
@@ -197,6 +198,16 @@ module.exports = {
         const dead = new Set();
         /** Initialisers a destructuring already owns, so the member planner does not claim them too. */
         const claimed = new Set();
+        /**
+         * Local name -> specifier for every name a planned rewrite introduces.
+         *
+         * Two namespaces can publish the same member: `md5` is in both `shopware:utils/format` and
+         * `shopware:utils/string`. The first rewrite claims the name; a later one from the other specifier
+         * falls back to importing its namespace instead of binding `md5` twice.
+         */
+        const localSpecifier = new Map();
+        /** `import { string } from 'shopware:utils'` specifiers whose every use moves to the subpath. */
+        const removedSpecifiers = new Set();
 
         /**
          * The whole file is planned before a single problem is reported.
@@ -216,7 +227,7 @@ module.exports = {
                 .forEach((child) => child.variables.forEach((variable) => bound.add(variable.name)));
 
             program.body
-                .filter((statement) => statement.type === 'ImportDeclaration')
+                .filter((statement) => statement.type === 'ImportDeclaration' && statement.importKind !== 'type')
                 .forEach((statement) => imports.set(statement.source.value, statement));
 
             collectAliases(program);
@@ -254,6 +265,8 @@ module.exports = {
                     planMember(node);
                 }
             });
+
+            planRootNamespaces();
 
             // Only now is it known which uses are actually rewritten, guards included.
             plans.forEach((entry) => {
@@ -342,7 +355,7 @@ module.exports = {
                 return undefined;
             }
 
-            return {
+            const whole = {
                 node,
                 target: node,
                 specifier: family,
@@ -351,16 +364,190 @@ module.exports = {
                 replacement: access.member,
                 alias: access.alias,
             };
+            const parent = node.parent;
+            const members = registry[family].subpaths[access.member] ?? [];
+
+            // `Shopware.Utils.string.kebabCase` names a member of a namespace subpath, so it becomes
+            // `kebabCase` from `shopware:utils/string` rather than `string.kebabCase` from the root.
+            if (
+                members.length > 0 &&
+                parent &&
+                parent.type === 'MemberExpression' &&
+                parent.object === node &&
+                !parent.computed &&
+                members.includes(parent.property.name)
+            ) {
+                const member = parent.property.name;
+
+                return {
+                    node: parent,
+                    target: parent,
+                    specifier: `${family}/${access.member}`,
+                    local: member,
+                    imported: member,
+                    replacement: member,
+                    alias: access.alias,
+                    fallback: whole,
+                };
+            }
+
+            return whole;
+        }
+
+        /**
+         * Whether `local` can name `imported` from `specifier` at `node` without changing what anything
+         * else in the file refers to.
+         *
+         * A name another rewrite already claims for a different specifier, a module binding that is not
+         * this very import, or a parameter or variable shadowing it between `node` and the module all
+         * refuse — the rewrite would otherwise point at the wrong value.
+         */
+        function canBind(node, local, specifier, imported) {
+            const claimedBy = localSpecifier.get(local);
+
+            if (claimedBy !== undefined && claimedBy !== specifier) {
+                return false;
+            }
+
+            if (claimedBy === undefined && bound.has(local) && !importsName(specifier, local, imported)) {
+                return false;
+            }
+
+            return !shadowed(node, local);
+        }
+
+        /** Whether the file already imports `imported` as `local` from `specifier`. */
+        function importsName(specifier, local, imported) {
+            const declaration = imports.get(specifier);
+
+            return Boolean(
+                declaration &&
+                    declaration.specifiers.some(
+                        (one) =>
+                            one.local.name === local &&
+                            (imported === undefined
+                                ? one.type === 'ImportDefaultSpecifier'
+                                : one.type === 'ImportSpecifier' && one.imported.name === imported),
+                    ),
+            );
+        }
+
+        /** Whether a scope between `node` and the module declares `name`, e.g. a parameter `kebabCase`. */
+        function shadowed(node, name) {
+            let scope = source.getScope(node);
+
+            while (scope && scope.type !== 'module' && scope.type !== 'global') {
+                if (scope.set.has(name)) {
+                    return true;
+                }
+
+                scope = scope.upper;
+            }
+
+            return false;
+        }
+
+        /** Assignment targets stay: `Shopware.Utils.string.kebabCase = …` cannot become an import. */
+        function isWriteTarget(node) {
+            const parent = node.parent;
+
+            return Boolean(
+                parent &&
+                    ((parent.type === 'AssignmentExpression' && parent.left === node) ||
+                        parent.type === 'UpdateExpression' ||
+                        (parent.type === 'UnaryExpression' && parent.operator === 'delete')),
+            );
+        }
+
+        function acceptable(entry) {
+            return (
+                !plans.has(entry.target) &&
+                !isWriteTarget(entry.target) &&
+                canBind(entry.target, entry.local, entry.specifier, entry.imported)
+            );
+        }
+
+        /**
+         * `import { string } from 'shopware:utils'` used only as `string.kebabCase(…)` becomes an import of
+         * `kebabCase` from `shopware:utils/string`.
+         *
+         * All or nothing per namespace, decided on the binding's references so a TypeScript `string` type
+         * never counts: one whole-value use — passing `string` along, `string[key]` — keeps the import.
+         */
+        function planRootNamespaces() {
+            const declaration = imports.get('shopware:utils');
+
+            if (!declaration) {
+                return;
+            }
+
+            declaration.specifiers.forEach((specifier) => {
+                if (specifier.type !== 'ImportSpecifier' || localSpecifier.has(specifier.local.name)) {
+                    return;
+                }
+
+                const namespace = specifier.imported.name;
+                const members = registry['shopware:utils'].subpaths[namespace] ?? [];
+                const [variable] = source.getDeclaredVariables(specifier);
+
+                if (members.length === 0 || !variable || variable.references.length === 0) {
+                    return;
+                }
+
+                const candidates = variable.references.map((reference) => {
+                    const parent = reference.identifier.parent;
+
+                    if (
+                        !parent ||
+                        parent.type !== 'MemberExpression' ||
+                        parent.object !== reference.identifier ||
+                        parent.computed ||
+                        !members.includes(parent.property.name)
+                    ) {
+                        return undefined;
+                    }
+
+                    const member = parent.property.name;
+
+                    return {
+                        node: parent,
+                        target: parent,
+                        specifier: `shopware:utils/${namespace}`,
+                        local: member,
+                        imported: member,
+                        replacement: member,
+                        messageId: 'preferSubpath',
+                    };
+                });
+
+                if (candidates.some((candidate) => !candidate || !acceptable(candidate))) {
+                    return;
+                }
+
+                candidates.forEach((candidate) => {
+                    localSpecifier.set(candidate.local, candidate.specifier);
+                    plans.set(candidate.target, candidate);
+                });
+                removedSpecifiers.add(specifier);
+            });
         }
 
         function planMember(node) {
             const access = branchAccess(node, aliases);
-            const entry = access && rewriteFor(node, access);
+            const candidate = access && rewriteFor(node, access);
 
-            if (!entry || bound.has(entry.local) || plans.has(entry.target)) {
+            if (!candidate) {
                 return;
             }
 
+            const fallback = candidate.fallback;
+            const entry = acceptable(candidate) ? candidate : fallback && acceptable(fallback) ? fallback : undefined;
+
+            if (!entry) {
+                return;
+            }
+
+            localSpecifier.set(entry.local, entry.specifier);
             plans.set(entry.target, entry);
         }
 
@@ -387,6 +574,11 @@ module.exports = {
                 return;
             }
 
+            if (names.some((one) => (localSpecifier.get(one.local) ?? target.specifier) !== target.specifier)) {
+                return;
+            }
+
+            names.forEach((one) => localSpecifier.set(one.local, target.specifier));
             claimed.add(node.init);
             plans.set(node.parent, {
                 kind: 'destructuring',
@@ -489,43 +681,80 @@ module.exports = {
         }
 
         /**
-         * Every import the file needs, as one insertion, plus merges into imports it already has.
+         * Every import change the file needs.
          *
-         * One insertion rather than one per rewrite: several insertions at the same offset overlap, and
-         * ESLint keeps only the first of an overlapping set.
+         * Each existing declaration that gains or loses a name is rewritten once, and all new
+         * declarations go in as one block: two edits touching one declaration, or several insertions at
+         * one offset, overlap, and ESLint keeps only the first of an overlapping set. When a declaration
+         * loses its last name, the new block takes its place.
          */
         function importFixes(fixer) {
             const [first] = source.ast.body;
-            const fresh = [];
-            const edits = [];
+            const bySpecifier = new Map();
 
             plannedImports().forEach((one) => {
-                const existing = imports.get(one.specifier);
-
-                if (!existing) {
-                    fresh.push(one);
-
-                    return;
-                }
-
-                if (existing.specifiers.some((specifier) => specifier.local.name === one.local)) {
-                    return;
-                }
-
-                const last = existing.specifiers[existing.specifiers.length - 1];
-
-                edits.push(
-                    one.imported === undefined
-                        ? fixer.insertTextBefore(last, `${one.local}, `)
-                        : fixer.insertTextAfter(
-                              last,
-                              `, ${one.imported === one.local ? one.local : `${one.imported} as ${one.local}`}`,
-                          ),
-                );
+                bySpecifier.set(one.specifier, [...(bySpecifier.get(one.specifier) ?? []), one]);
             });
 
-            if (fresh.length > 0) {
-                edits.unshift(insertImports(fixer, first, importStatements(fresh).join('\n')));
+            const touched = new Set([
+                ...bySpecifier.keys(),
+                ...[...removedSpecifiers].map((specifier) => specifier.parent.source.value),
+            ]);
+            const edits = [];
+            const fresh = [];
+            let emptied;
+
+            touched.forEach((specifier) => {
+                const additions = bySpecifier.get(specifier) ?? [];
+                const existing = imports.get(specifier);
+
+                if (!existing || existing.specifiers.some((one) => one.type === 'ImportNamespaceSpecifier')) {
+                    fresh.push(...additions);
+
+                    return;
+                }
+
+                const kept = existing.specifiers.filter((one) => !removedSpecifiers.has(one));
+                const added = additions.filter((one) => !kept.some((keep) => keep.local.name === one.local));
+
+                if (added.length === 0 && kept.length === existing.specifiers.length) {
+                    return;
+                }
+
+                const defaultSpecifier = kept.find((one) => one.type === 'ImportDefaultSpecifier');
+                const defaultName = defaultSpecifier
+                    ? source.getText(defaultSpecifier)
+                    : added.find((one) => one.imported === undefined)?.local;
+                const named = [
+                    ...kept.filter((one) => one.type === 'ImportSpecifier').map((one) => source.getText(one)),
+                    ...added
+                        .filter((one) => one.imported !== undefined)
+                        .map((one) => (one.imported === one.local ? one.local : `${one.imported} as ${one.local}`)),
+                ];
+
+                if (!defaultName && named.length === 0) {
+                    emptied ??= existing;
+
+                    if (emptied !== existing) {
+                        edits.push(fixer.remove(existing));
+                    }
+
+                    return;
+                }
+
+                const clause = [defaultName, named.length > 0 ? `{ ${named.join(', ')} }` : undefined]
+                    .filter(Boolean)
+                    .join(', ');
+
+                edits.push(fixer.replaceText(existing, `import ${clause} from '${specifier}';`));
+            });
+
+            const block = importStatements(fresh).join('\n');
+
+            if (emptied) {
+                edits.push(block ? fixer.replaceText(emptied, block) : fixer.remove(emptied));
+            } else if (block) {
+                edits.push(insertImports(fixer, first, block));
             }
 
             return edits;
@@ -581,24 +810,29 @@ module.exports = {
 
                 let carrier = true;
 
-                plans.forEach((entry) => {
-                    const isCarrier = carrier;
+                // In source order, so the carrier is the earliest rewrite. ESLint merges one problem's edits
+                // into a single span from its first edit to its last; with the imports at the top and the
+                // carrier's own replacement as the earliest target, that span covers no other rewrite.
+                [...plans.values()]
+                    .sort((one, other) => one.target.range[0] - other.target.range[0])
+                    .forEach((entry) => {
+                        const isCarrier = carrier;
 
-                    carrier = false;
+                        carrier = false;
 
-                    context.report({
-                        node: entry.target,
-                        messageId: 'preferModule',
-                        data: { specifier: entry.specifier, expression: source.getText(entry.node) },
-                        fix(fixer) {
-                            const edits = replacementFix(fixer, entry);
+                        context.report({
+                            node: entry.target,
+                            messageId: entry.messageId ?? 'preferModule',
+                            data: { specifier: entry.specifier, expression: source.getText(entry.node) },
+                            fix(fixer) {
+                                const edits = replacementFix(fixer, entry);
 
-                            // The first problem carries what the whole file needs; every other one carries
-                            // only its own replacement, so none of them overlap.
-                            return isCarrier ? [...importFixes(fixer), ...aliasRemovalFixes(fixer), ...edits] : edits;
-                        },
+                                // The first problem carries what the whole file needs; every other one carries
+                                // only its own replacement, so none of them overlap.
+                                return isCarrier ? [...importFixes(fixer), ...aliasRemovalFixes(fixer), ...edits] : edits;
+                            },
+                        });
                     });
-                });
             },
         };
     },

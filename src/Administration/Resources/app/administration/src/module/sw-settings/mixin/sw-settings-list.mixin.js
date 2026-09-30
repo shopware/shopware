@@ -1,4 +1,4 @@
-import { debug } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
 import listingMixin from 'shopware:mixins/listing';
 import notificationMixin from 'shopware:mixins/notification';
 
@@ -76,7 +76,7 @@ Mixin.register('sw-settings-list', {
 
     created() {
         if (this.entityName === '') {
-            debug.warn('sw-settings-list mixin', 'You need to define the data property "entityName".');
+            warn('sw-settings-list mixin', 'You need to define the data property "entityName".');
         }
     },
 

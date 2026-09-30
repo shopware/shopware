@@ -1,4 +1,4 @@
-import { format } from 'shopware:utils';
+import { fileSize } from 'shopware:utils/format';
 
 /**
  * @sw-package framework
@@ -12,7 +12,7 @@ Shopware.Filter.register('fileSize', (value: number, locale: string) => {
         return '';
     }
 
-    return format.fileSize(value, locale);
+    return fileSize(value, locale);
 });
 
 /* @private */

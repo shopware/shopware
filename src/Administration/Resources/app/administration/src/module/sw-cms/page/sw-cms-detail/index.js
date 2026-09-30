@@ -1,6 +1,6 @@
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
-import { debounce, string } from 'shopware:utils';
+import { debounce } from 'shopware:utils';
 import { cloneDeep, getObjectDiff } from 'shopware:utils/object';
 import { isEmpty } from 'shopware:utils/types';
 import { warn } from 'shopware:utils/debug';
@@ -10,6 +10,7 @@ import placeholderMixin from 'shopware:mixins/placeholder';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 import useContextStore from 'shopware:stores/context';
 import useErrorStore from 'shopware:stores/error';
+import { camelCase } from 'shopware:utils/string';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -768,7 +769,7 @@ export default {
 
                     block.slots.forEach((slot) => {
                         if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL && this.isProductPageElement(slot)) {
-                            const camelSlotType = string.camelCase(slot.type);
+                            const camelSlotType = camelCase(slot.type);
                             if (!uniqueSlotCount.hasOwnProperty(camelSlotType)) {
                                 uniqueSlotCount[camelSlotType] = {
                                     type: camelSlotType,

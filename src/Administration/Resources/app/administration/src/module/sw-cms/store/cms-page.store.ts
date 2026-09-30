@@ -1,4 +1,4 @@
-import { object } from 'shopware:utils';
+import { set } from 'shopware:utils/object';
 type CmsSlot = Entity<'cms_slot'> & { config?: Record<string, unknown> };
 
 type CmsPageState = {
@@ -172,7 +172,7 @@ const cmsPageStore = Shopware.Store.register({
                 return;
             }
 
-            object.set(slot, `config.${path}`, value);
+            set(slot, `config.${path}`, value);
         },
     },
 });

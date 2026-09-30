@@ -1,4 +1,4 @@
-import { types } from 'shopware:utils';
+import { isFunction, isObject } from 'shopware:utils/types';
 
 /**
  * @sw-package framework
@@ -182,7 +182,7 @@ function startDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent | 
 
     el.classList.add(dragConfig.draggingStateCls);
 
-    if (types.isFunction(currentDrag.dragConfig.onDragStart)) {
+    if (isFunction(currentDrag.dragConfig.onDragStart)) {
         currentDrag.dragConfig.onDragStart(currentDrag.dragConfig, el, dragElement);
     }
 
@@ -257,7 +257,7 @@ function stopDrag() {
     const validDrop = validateDrop();
 
     if (validDrag && currentDrag) {
-        if (types.isFunction(currentDrag.dragConfig.onDrop)) {
+        if (isFunction(currentDrag.dragConfig.onDrop)) {
             currentDrag.dragConfig.onDrop(
                 currentDrag.dragConfig.data,
                 validDrop ? currentDrop && currentDrop.dropConfig.data : null,
@@ -266,7 +266,7 @@ function stopDrag() {
     }
 
     if (validDrop && currentDrop) {
-        if (types.isFunction(currentDrop.dropConfig.onDrop)) {
+        if (isFunction(currentDrop.dropConfig.onDrop)) {
             currentDrop.dropConfig.onDrop(currentDrag && currentDrag.dragConfig.data, currentDrop.dropConfig.data);
         }
     }
@@ -328,7 +328,7 @@ function enterDropZone(el: HTMLElement, dropConfig: DropConfig) {
         }
     }
 
-    if (types.isFunction(currentDrag.dragConfig.onDragEnter)) {
+    if (isFunction(currentDrag.dragConfig.onDragEnter)) {
         currentDrag.dragConfig.onDragEnter(currentDrag.dragConfig.data, currentDrop.dropConfig.data, valid);
     }
 }
@@ -341,7 +341,7 @@ function leaveDropZone(el: HTMLElement, dropConfig: DropConfig) {
         return;
     }
 
-    if (types.isFunction(currentDrag.dragConfig.onDragLeave)) {
+    if (isFunction(currentDrag.dragConfig.onDragLeave)) {
         currentDrag.dragConfig.onDragLeave(currentDrag.dragConfig.data, currentDrop && currentDrop.dropConfig.data);
     }
 
@@ -375,7 +375,7 @@ function validateDrop(): boolean {
     }
 
     // Check the custom drag validate function.
-    if (currentDrag !== null && types.isFunction(currentDrag.dragConfig.validateDrop)) {
+    if (currentDrag !== null && isFunction(currentDrag.dragConfig.validateDrop)) {
         customDragValidation = currentDrag.dragConfig.validateDrop(
             currentDrag.dragConfig.data,
             currentDrop && currentDrop.dropConfig.data,
@@ -383,7 +383,7 @@ function validateDrop(): boolean {
     }
 
     // Check the custom drop validate function.
-    if (currentDrop !== null && types.isFunction(currentDrop.dropConfig.validateDrop)) {
+    if (currentDrop !== null && isFunction(currentDrop.dropConfig.validateDrop)) {
         customDropValidation = currentDrop.dropConfig.validateDrop(
             currentDrag && currentDrag.dragConfig.data,
             currentDrop.dropConfig.data,
@@ -407,7 +407,7 @@ function validateDrag(): boolean {
     }
 
     // Check the custom drag validate function.
-    if (currentDrag !== null && types.isFunction(currentDrag.dragConfig.validateDrag)) {
+    if (currentDrag !== null && isFunction(currentDrag.dragConfig.validateDrag)) {
         customDragValidation = currentDrag.dragConfig.validateDrag(
             currentDrag.dragConfig.data,
             currentDrop && currentDrop.dropConfig.data,
@@ -420,7 +420,7 @@ function validateDrag(): boolean {
 function mergeConfigs(defaultConfig: DragConfig | DropConfig, binding: { value: unknown }) {
     const mergedConfig = { ...defaultConfig };
 
-    if (types.isObject(binding.value)) {
+    if (isObject(binding.value)) {
         Object.assign(mergedConfig, binding.value);
     } else {
         Object.assign(mergedConfig, { data: binding.value });
@@ -527,7 +527,7 @@ Shopware.Directive.register('droppable', {
             return;
         }
 
-        if (types.isObject(binding.value)) {
+        if (isObject(binding.value)) {
             Object.assign(dropZone.dropConfig, binding.value);
         } else {
             Object.assign(dropZone.dropConfig, { data: binding.value });

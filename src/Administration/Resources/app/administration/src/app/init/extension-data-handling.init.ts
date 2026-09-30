@@ -12,7 +12,7 @@ function getRepository<EntityName extends keyof EntitySchema.EntityKeys>(
     entityName: EntityName,
     additionalInformation: { _event_: MessageEvent<string> },
 ): Repository<EntityName> | null {
-    const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
+    const extensionName = Object.keys(useExtensionsStore().extensionsState).find((key) =>
         useExtensionsStore().extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
     );
 

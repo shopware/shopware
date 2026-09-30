@@ -1,6 +1,6 @@
 import template from './sw-extension-my-extensions-index.html.twig';
 import useContextStore from 'shopware:stores/context';
-import { types } from 'shopware:utils';
+import { isEmpty } from 'shopware:utils/types';
 
 /**
  * @sw-package checkout
@@ -57,7 +57,7 @@ export default {
             };
 
             // If query is empty then replace route, otherwise push
-            if (types.isEmpty(routeQuery)) {
+            if (isEmpty(routeQuery)) {
                 this.$router.replace(route);
             } else {
                 this.$router.push(route);

@@ -1,7 +1,7 @@
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
-import { dom } from 'shopware:utils';
+import { copyStringToClipboard } from 'shopware:utils/dom';
 import notificationMixin from 'shopware:mixins/notification';
 import useActionButtonsStore from 'shopware:stores/actionButtons';
 
@@ -193,7 +193,7 @@ export default {
 
         async copyItemLink(item) {
             try {
-                await dom.copyStringToClipboard(item.url);
+                await copyStringToClipboard(item.url);
                 this.createNotificationSuccess({
                     message: this.$t('sw-media.general.notification.urlCopied.message'),
                 });

@@ -1,4 +1,4 @@
-import { string } from 'shopware:utils';
+import { camelCase } from 'shopware:utils/string';
 import useErrorStore from 'shopware:stores/error';
 
 /**
@@ -18,7 +18,7 @@ export function mapPropertyErrors<T extends string, K extends string>(
     const computedValues: Record<string, () => unknown> = {};
 
     properties.forEach((property) => {
-        const computedValueName = string.camelCase(`${entityName}.${property}.error`);
+        const computedValueName = camelCase(`${entityName}.${property}.error`);
 
         computedValues[computedValueName] = function getterPropertyError() {
             const entity = (this as VueComponent)[entityName];
@@ -52,7 +52,7 @@ export function mapCollectionPropertyErrors<T extends string, K extends string>(
     const computedValues: Record<string, () => unknown> = {};
 
     properties.forEach((property) => {
-        const computedValueName = string.camelCase(`${entityCollectionName}.${property}.error`);
+        const computedValueName = camelCase(`${entityCollectionName}.${property}.error`);
 
         computedValues[computedValueName] = function getterCollectionError() {
             const entityCollection = this[entityCollectionName];
@@ -76,7 +76,7 @@ export function mapPageErrors<T extends string>(
     const map: Record<string, () => boolean> = {};
     Object.keys(errorConfig).forEach((routeName) => {
         const subjects = errorConfig[routeName as T];
-        map[`${string.camelCase(routeName)}Error`] = function getterPropertyError() {
+        map[`${camelCase(routeName)}Error`] = function getterPropertyError() {
             return Object.keys(subjects).some((entityName) => {
                 return useErrorStore().existsErrorInProperty(entityName, subjects[entityName]);
             });

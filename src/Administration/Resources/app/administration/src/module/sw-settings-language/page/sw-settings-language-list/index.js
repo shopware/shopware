@@ -7,7 +7,7 @@ import './sw-settings-language-list.scss';
 import { Criteria } from 'shopware:data';
 import listingMixin from 'shopware:mixins/listing';
 import notificationMixin from 'shopware:mixins/notification';
-import { format } from 'shopware:utils';
+import { localeName } from 'shopware:utils/format';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -292,7 +292,7 @@ export default {
                 return metadata.name;
             }
 
-            return format.localeName(localeCode);
+            return localeName(localeCode);
         },
 
         getSnippetStatus(item) {

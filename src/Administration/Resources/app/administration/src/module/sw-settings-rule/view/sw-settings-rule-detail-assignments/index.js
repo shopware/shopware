@@ -3,7 +3,7 @@ import template from './sw-settings-rule-detail-assignments.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
 import { Criteria } from 'shopware:data';
 import notificationMixin from 'shopware:mixins/notification';
-import { object } from 'shopware:utils';
+import { set, get } from 'shopware:utils/object';
 
 const { Context } = Shopware;
 
@@ -179,9 +179,9 @@ export default {
             const repository = this.repositoryFactory.create(this.deleteItem.getEntityName());
 
             if (this.deleteEntity.deleteContext.type === 'one-to-many') {
-                object.set(this.deleteItem, this.deleteEntity.deleteContext.column, null);
+                set(this.deleteItem, this.deleteEntity.deleteContext.column, null);
             } else {
-                object.get(this.deleteItem, this.deleteEntity.deleteContext.column).remove(this.rule.id);
+                get(this.deleteItem, this.deleteEntity.deleteContext.column).remove(this.rule.id);
             }
 
             this.isLoading = true;
@@ -261,7 +261,7 @@ export default {
                     return acc;
                 }
 
-                const value = object.get(item, path);
+                const value = get(item, path);
 
                 if (value) {
                     acc[key] = value;
@@ -283,7 +283,7 @@ export default {
             }
 
             return column.routerParameters.every(({ path }) => {
-                return path && !!object.get(item, path);
+                return path && !!get(item, path);
             });
         },
 

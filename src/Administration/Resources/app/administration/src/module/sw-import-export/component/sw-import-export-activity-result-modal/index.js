@@ -3,7 +3,7 @@
  */
 import template from './sw-import-export-activity-result-modal.html.twig';
 import './sw-import-export-activity-result-modal.scss';
-import { format } from 'shopware:utils';
+import { fileSize } from 'shopware:utils/format';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -60,7 +60,7 @@ export default {
 
     methods: {
         calculateFileSize(size) {
-            return format.fileSize(size);
+            return fileSize(size);
         },
 
         async openDownload(id) {

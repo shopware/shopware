@@ -5,7 +5,7 @@
 import template from './sw-sales-channel-detail-product-export-insights.html.twig';
 import './sw-sales-channel-detail-product-export-insights.scss';
 import { Criteria } from 'shopware:data';
-import { format } from 'shopware:utils';
+import { dateWithUserTimezone, toISODate } from 'shopware:utils/format';
 import useSessionStore from 'shopware:stores/session';
 
 const DEFAULT_DATE_RANGE_OPTIONS = {
@@ -184,7 +184,7 @@ export default {
         },
 
         today() {
-            const today = format.dateWithUserTimezone();
+            const today = dateWithUserTimezone();
             today.setHours(0, 0, 0, 0);
 
             return today;
@@ -298,7 +298,7 @@ export default {
         },
 
         dateAgoValue(range) {
-            const date = format.dateWithUserTimezone();
+            const date = dateWithUserTimezone();
             const selectedDateRange = range.value;
             const dateRange = range.options[selectedDateRange] ?? 0;
 
@@ -329,7 +329,7 @@ export default {
         },
 
         formatDate(date) {
-            return format.toISODate(date, false);
+            return toISODate(date, false);
         },
 
         formatChartHeadlineDate(date) {
@@ -357,7 +357,7 @@ export default {
                 ? dateString.replace(dateTimeComponentsRegex, '$<date>T$<hour>:00:00.000$<trail>')
                 : dateString.replace(dateTimeComponentsRegex, '$<date>T00:00:00.000$<trail>');
 
-            return format.dateWithUserTimezone(new Date(aggregationDateTime)).getTime();
+            return dateWithUserTimezone(new Date(aggregationDateTime)).getTime();
         },
 
         aggregateByDateTime(dateTimeString, aggregateByHour, data, aggregationArray = []) {

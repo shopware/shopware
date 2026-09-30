@@ -1,8 +1,9 @@
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
 import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid-sales-channel.scss';
-import { get, format } from 'shopware:utils';
+import { get } from 'shopware:utils';
 import useSwOrderStore from 'shopware:stores/swOrder';
+import { currency } from 'shopware:utils/format';
 
 /**
  * @sw-package checkout
@@ -367,7 +368,7 @@ export default {
                     'sw-order.createBase.taxDetail',
                     {
                         taxRate: taxItem.taxRate,
-                        tax: format.currency(taxItem.tax, this.currency.isoCode),
+                        tax: currency(taxItem.tax, this.currency.isoCode),
                     },
                     0,
                 );

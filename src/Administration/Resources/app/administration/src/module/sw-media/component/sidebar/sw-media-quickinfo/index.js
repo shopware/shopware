@@ -2,10 +2,11 @@ import { isPlayableMediaFormat, shouldShowUnsupportedFormatWarning } from 'src/a
 import template from './sw-media-quickinfo.html.twig';
 import './sw-media-quickinfo.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
-import { dom, format, EventBus } from 'shopware:utils';
+import { format, EventBus } from 'shopware:utils';
 import notificationMixin from 'shopware:mixins/notification';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import useActionButtonsStore from 'shopware:stores/actionButtons';
+import { copyStringToClipboard } from 'shopware:utils/dom';
 
 const { Mixin, Context } = Shopware;
 
@@ -263,7 +264,7 @@ export default {
         async copyLinkToClipboard() {
             if (this.item) {
                 try {
-                    await dom.copyStringToClipboard(this.item.url);
+                    await copyStringToClipboard(this.item.url);
                     this.createNotificationSuccess({
                         message: this.$t('sw-media.general.notification.urlCopied.message'),
                     });

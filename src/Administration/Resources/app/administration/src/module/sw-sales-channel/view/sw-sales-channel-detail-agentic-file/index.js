@@ -8,7 +8,8 @@ import template from './sw-sales-channel-detail-agentic-file.html.twig';
 import './sw-sales-channel-detail-agentic-file.scss';
 import { EntityCollection } from 'shopware:data';
 import notificationMixin from 'shopware:mixins/notification';
-import { types, string } from 'shopware:utils';
+import { isEqual } from 'shopware:utils/types';
+import { kebabCase } from 'shopware:utils/string';
 import useSessionStore from 'shopware:stores/session';
 
 const { Context, Defaults } = Shopware;
@@ -277,7 +278,7 @@ export default {
                 return false;
             }
 
-            return !types.isEqual(configuration.getOrigin().templateOverrides ?? {}, this.templateOverrides);
+            return !isEqual(configuration.getOrigin().templateOverrides ?? {}, this.templateOverrides);
         },
 
         openTemplateOverrideModal(template) {
@@ -475,7 +476,7 @@ export default {
 
         formatSnippetPathSegment(segment) {
             // Slugify so dots and slashes in file names cannot break snippet path resolution.
-            const slug = string.kebabCase(segment);
+            const slug = kebabCase(segment);
 
             return `[${JSON.stringify(slug)}]`;
         },

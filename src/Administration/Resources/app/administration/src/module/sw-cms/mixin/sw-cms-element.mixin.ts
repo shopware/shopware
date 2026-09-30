@@ -1,7 +1,7 @@
 import { defineComponent } from 'vue';
 import { type RuntimeSlot } from '../service/cms.service';
 import './sw-cms-state.mixin';
-import { types } from 'shopware:utils';
+import { isPlainObject } from 'shopware:utils/types';
 import { cloneDeep, merge, get, set, has } from 'shopware:utils/object';
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
@@ -96,7 +96,7 @@ export default Mixin.register(
             },
 
             initElementData(elementName: string) {
-                if (types.isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
+                if (isPlainObject(this.element.data) && Object.keys(this.element.data).length > 0) {
                     return;
                 }
 

@@ -2,7 +2,7 @@ import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtT
 import type { ComponentSectionEntry } from 'src/app/store/extension-component-sections.store';
 import template from './sw-extension-component-section.html.twig';
 import useExtensionComponentSectionsStore from 'shopware:stores/extensionComponentSections';
-import { debug } from 'shopware:utils';
+import { error, warn } from 'shopware:utils/debug';
 import useExtensionsStore from 'shopware:stores/extensions';
 
 /**
@@ -68,9 +68,9 @@ export default Shopware.Component.wrapComponentConfig({
                     ];
                     // @ts-expect-error
                     if (process.env !== 'prod') {
-                        debug.error(...debugArgs);
+                        error(...debugArgs);
                     } else {
-                        debug.warn(...debugArgs);
+                        warn(...debugArgs);
                     }
                 });
             }

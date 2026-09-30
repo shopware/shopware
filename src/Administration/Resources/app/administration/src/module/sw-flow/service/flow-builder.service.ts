@@ -1,6 +1,6 @@
 import type { I18n } from 'vue-i18n';
 import { capitalizeString, camelCase, snakeCase } from 'shopware:utils/string';
-import { types } from 'shopware:utils';
+import { isPlainObject } from 'shopware:utils/types';
 
 const { EntityDefinition } = Shopware;
 
@@ -275,7 +275,7 @@ export default class FlowBuilderService {
         Object.entries(format).forEach(([key, value]) => {
             let label = value;
 
-            if (types.isPlainObject(value)) {
+            if (isPlainObject(value)) {
                 label = Object.values(value).join(', ');
             }
 

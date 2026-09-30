@@ -11,7 +11,7 @@ import useCmsPageStore from 'shopware:stores/cmsPage';
 import useSwCategoryDetailStore from 'shopware:stores/swCategoryDetail';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
 import useContextStore from 'shopware:stores/context';
-import { object } from 'shopware:utils';
+import { cloneDeep } from 'shopware:utils/object';
 
 type SlotConfigMap = { [slotId: string]: CmsSlotConfig };
 
@@ -152,7 +152,7 @@ export default function useCmsState(): {
             merged[slotId] = { ...(merged[slotId] ?? {}), ...fields };
         }
 
-        return object.cloneDeep(merged);
+        return cloneDeep(merged);
     });
 
     return {

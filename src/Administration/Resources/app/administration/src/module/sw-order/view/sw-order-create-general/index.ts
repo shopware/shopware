@@ -1,8 +1,10 @@
 import template from './sw-order-create-general.html.twig';
 import type { CalculatedTax, CartDelivery, LineItem, Cart, PromotionCodeTag, SalesChannelContext } from '../../order.types';
-import { get, format, array } from 'shopware:utils';
+import { get } from 'shopware:utils';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwOrderStore from 'shopware:stores/swOrder';
+import { currency } from 'shopware:utils/format';
+import { slice } from 'shopware:utils/array';
 
 /**
  * @sw-package checkout
@@ -50,7 +52,7 @@ export default Component.wrapComponentConfig({
         },
 
         cartDeliveryDiscounts(): CartDelivery[] {
-            return array.slice(this.cart.deliveries, 1) || [];
+            return slice(this.cart.deliveries, 1) || [];
         },
 
         taxStatus(): string {
@@ -68,7 +70,7 @@ export default Component.wrapComponentConfig({
                     'sw-order.createBase.shippingCostsTax',
                     {
                         taxRate: item.taxRate,
-                        tax: format.currency(
+                        tax: currency(
                             item.tax,
                             this.currency.isoCode,
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any

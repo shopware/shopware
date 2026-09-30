@@ -5,7 +5,7 @@ import template from './sw-settings-language-add-modal.html.twig';
 import './sw-settings-language-add-modal.scss';
 import { Criteria } from 'shopware:data';
 import notificationMixin from 'shopware:mixins/notification';
-import { format } from 'shopware:utils';
+import { localeName } from 'shopware:utils/format';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -44,7 +44,7 @@ export default {
                     return {
                         value: translation.locale,
                         // Pseudo languages borrow a real locale code, so only their own name describes them
-                        label: isPseudoLanguage ? translation.name : format.localeName(translation.locale),
+                        label: isPseudoLanguage ? translation.name : localeName(translation.locale),
                         disabled: isLinked || existsAsLanguage,
                         isPseudoLanguage,
                     };

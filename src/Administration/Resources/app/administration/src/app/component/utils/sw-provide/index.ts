@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 import { computed, provide } from 'vue';
-import { string } from 'shopware:utils';
+import { camelCase } from 'shopware:utils/string';
 
 /**
  * @private
@@ -13,7 +13,7 @@ export default Shopware.Component.wrapComponentConfig({
     setup(_props, { attrs }) {
         Object.keys(attrs).forEach((key) =>
             provide(
-                string.camelCase(key),
+                camelCase(key),
                 computed(() => attrs[key]),
             ),
         );

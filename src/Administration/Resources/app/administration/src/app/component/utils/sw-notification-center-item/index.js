@@ -6,7 +6,7 @@ import './sw-notification-center-item.scss';
 import template from './sw-notification-center-item.html.twig';
 import notificationTranslationMixin from 'shopware:mixins/notification-translation';
 import useNotificationStore from 'shopware:stores/notification';
-import { string } from 'shopware:utils';
+import { isUrl } from 'shopware:utils/string';
 
 /**
  * @private
@@ -56,7 +56,7 @@ export default {
 
         handleAction(action) {
             // Allow external links for example to the shopware account or store
-            if (string.isUrl(action.route)) {
+            if (isUrl(action.route)) {
                 window.open(action.route);
                 return;
             }

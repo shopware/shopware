@@ -8,7 +8,7 @@ import { Criteria } from 'shopware:data';
 import swInlineSnippetMixin from 'shopware:mixins/sw-inline-snippet';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import useContextStore from 'shopware:stores/context';
-import { object } from 'shopware:utils';
+import { cloneDeep } from 'shopware:utils/object';
 
 /**
  * @sw-package framework
@@ -456,7 +456,7 @@ export default {
         },
 
         getBind(customField, props) {
-            const customFieldClone = object.cloneDeep(customField);
+            const customFieldClone = cloneDeep(customField);
 
             const isMeteorComponent = this.isMeteorComponent(customField);
             const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;

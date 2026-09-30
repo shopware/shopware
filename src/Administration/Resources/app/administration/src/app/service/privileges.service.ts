@@ -4,7 +4,7 @@
 
 import { reactive } from 'vue';
 import { warn, error } from 'shopware:utils/debug';
-import { object } from 'shopware:utils';
+import { deepMergeObject } from 'shopware:utils/object';
 
 type GetPrivilegesWithDependenciesSignature = () => string[];
 
@@ -249,7 +249,7 @@ export default class PrivilegesService {
 
         Object.entries(privilegeMapping.roles).forEach(([role, entry]) => {
             if (existingCategoryKeyCombination.roles.hasOwnProperty(role) === true) {
-                existingCategoryKeyCombination.roles[role] = object.deepMergeObject(
+                existingCategoryKeyCombination.roles[role] = deepMergeObject(
                     existingCategoryKeyCombination.roles[role],
                     entry,
                 );

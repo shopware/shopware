@@ -2,7 +2,7 @@ import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import '../../../sw-product/page/sw-product-detail/store';
 import { Criteria, EntityCollection } from 'shopware:data';
-import { types } from 'shopware:utils';
+import { isEmpty, isArray } from 'shopware:utils/types';
 import { chunk } from 'shopware:utils/array';
 import { cloneDeep } from 'shopware:utils/object';
 import { convert } from 'shopware:utils/unitConversion';
@@ -1135,7 +1135,7 @@ export default {
                 return;
             }
 
-            if (this.isChild && !types.isEmpty(this.parentProduct)) {
+            if (this.isChild && !isEmpty(this.parentProduct)) {
                 this.product.price = this.parentProduct.price;
                 this.product.purchasePrices = this.parentProduct.purchasePrices;
                 this.setProductPrice('listPrice');
@@ -1191,7 +1191,7 @@ export default {
                 },
             ];
 
-            if (!types.isEmpty(this.parentProduct.price?.[0][price])) {
+            if (!isEmpty(this.parentProduct.price?.[0][price])) {
                 this.product[price] = [this.parentProduct.price[0][price]];
             } else {
                 this.product[price] = emptyPrice;
@@ -1300,7 +1300,7 @@ export default {
                     this.transformVariantVisibilityChange(change);
                 }
 
-                if (this.isChild && change.value !== null && types.isArray(change.value)) {
+                if (this.isChild && change.value !== null && isArray(change.value)) {
                     change.value.forEach((association) => {
                         delete association.id;
                     });
@@ -1592,7 +1592,7 @@ export default {
                 this.product.price[0] = parentProductFrozen.price[0];
                 this.product.purchasePrices[0] = parentProductFrozen.purchasePrices[0];
 
-                const listPrice = !types.isEmpty(parentProductFrozen.price[0].listPrice)
+                const listPrice = !isEmpty(parentProductFrozen.price[0].listPrice)
                     ? parentProductFrozen.price[0].listPrice
                     : {
                           currencyId: this.currency.id,
@@ -1603,7 +1603,7 @@ export default {
                 this.product.listPrice = [listPrice];
                 this.product.price[0].listPrice = listPrice;
 
-                const regulationPrice = !types.isEmpty(parentProductFrozen.price[0].regulationPrice)
+                const regulationPrice = !isEmpty(parentProductFrozen.price[0].regulationPrice)
                     ? parentProductFrozen.price[0].regulationPrice
                     : {
                           currencyId: this.currency.id,
@@ -1649,7 +1649,7 @@ export default {
         },
 
         setProductSearchKeywords() {
-            if (types.isEmpty(this.parentProduct?.customSearchKeywords)) {
+            if (isEmpty(this.parentProduct?.customSearchKeywords)) {
                 this.bulkEditProduct.searchKeywords.value = [];
                 this.product.searchKeywords = [];
 

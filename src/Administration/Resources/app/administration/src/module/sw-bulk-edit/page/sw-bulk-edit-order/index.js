@@ -1,7 +1,7 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
 import { Criteria } from 'shopware:data';
-import { types } from 'shopware:utils';
+import { isEmpty } from 'shopware:utils/types';
 import { intersectionBy, chunk, uniqBy } from 'shopware:utils/array';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
@@ -77,7 +77,7 @@ export default {
         hasChanges() {
             const customFieldsValue = this.bulkEditData.customFields?.value;
             const hasFieldsChanged = Object.values(this.bulkEditData).some((field) => field.isChanged);
-            const hasCustomFieldsChanged = !types.isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
+            const hasCustomFieldsChanged = !isEmpty(customFieldsValue) && Object.keys(customFieldsValue).length > 0;
 
             return hasFieldsChanged || hasCustomFieldsChanged;
         },

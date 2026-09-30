@@ -3,7 +3,7 @@
  */
 import { computed, ref } from 'vue';
 import useSystem from './use-system';
-import { debug } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
 
 interface LocaleToLanguageService {
     localeToLanguage(locale: string): Promise<string>;
@@ -54,7 +54,7 @@ function setAdminLocaleState({
     languageId: string;
 }) {
     if (!locales.find((l) => l === locale)) {
-        debug.warn('SessionStore', `Locale ${locale} not registered at store`);
+        warn('SessionStore', `Locale ${locale} not registered at store`);
         return;
     }
 

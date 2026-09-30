@@ -6,7 +6,7 @@ import './sw-settings-country-detail.scss';
 import notificationMixin from 'shopware:mixins/notification';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import discardDetailPageChangesMixin from 'shopware:mixins/discard-detail-page-changes';
-import { object } from 'shopware:utils';
+import { set } from 'shopware:utils/object';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -268,7 +268,7 @@ export default {
          * @param value
          */
         onUpdateCountry(path, value) {
-            object.set(this.country, path, value);
+            set(this.country, path, value);
         },
     },
 };

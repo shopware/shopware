@@ -1,4 +1,4 @@
-import { types } from 'shopware:utils';
+import { isString } from 'shopware:utils/types';
 
 /**
  * @sw-package framework
@@ -34,7 +34,7 @@ export default function usePlaceholder(): {
             return fallbackSnippet;
         }
 
-        if (types.isString(entity[field]) && entity[field].length > 0) {
+        if (isString(entity[field]) && entity[field].length > 0) {
             return entity[field];
         }
 

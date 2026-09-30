@@ -1,7 +1,7 @@
 import template from './sw-dashboard-statistics.html.twig';
 import './sw-dashboard-statistics.scss';
 import { Criteria } from 'shopware:data';
-import { format } from 'shopware:utils';
+import { currency, dateWithUserTimezone, toISODate } from 'shopware:utils/format';
 import useSessionStore from 'shopware:stores/session';
 
 type OrderEntity = Entity<'order'>;
@@ -157,11 +157,7 @@ export default Shopware.Component.wrapComponentConfig({
                     labels: {
                         // price aggregations do not support currencies yet, see NEXT-5069
                         formatter: (value: string) =>
-                            format.currency(
-                                Number.parseFloat(value),
-                                Shopware.Context.app.systemCurrencyISOCode as string,
-                                2,
-                            ),
+                            currency(Number.parseFloat(value), Shopware.Context.app.systemCurrencyISOCode as string, 2),
                     },
                 },
             };
@@ -247,7 +243,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         today() {
-            const today = format.dateWithUserTimezone();
+            const today = dateWithUserTimezone();
             today.setHours(0, 0, 0, 0);
             return today;
         },
@@ -407,7 +403,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         formatDateToISO(date: Date) {
-            return format.toISODate(date, false);
+            return toISODate(date, false);
         },
 
         formatChartHeadlineDate(date: Date) {
@@ -503,7 +499,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getDateAgo(range: HistoryDateRange): Date {
-            const date = format.dateWithUserTimezone();
+            const date = dateWithUserTimezone();
 
             if (range.interval === 'hour') {
                 date.setHours(date.getHours() - range.range);

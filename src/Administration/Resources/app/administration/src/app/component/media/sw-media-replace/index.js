@@ -1,4 +1,4 @@
-import { fileReader } from 'shopware:utils';
+import { getNameAndExtensionFromFile } from 'shopware:utils/fileReader';
 
 /**
  * @public
@@ -39,7 +39,7 @@ export default {
         },
 
         handlePresignedUpload(files) {
-            const { extension } = fileReader.getNameAndExtensionFromFile(files[0]);
+            const { extension } = getNameAndExtensionFromFile(files[0]);
 
             this.mediaService.getListenerForTag(this.uploadTag).forEach((listener) => {
                 listener(

@@ -4,7 +4,7 @@ import type MessageStatsApiService from 'src/core/service/api/message-stats.api.
 import template from './sw-settings-message-stats.html.twig';
 import './sw-settings-message-stats.scss';
 import notificationMixin from 'shopware:mixins/notification';
-import { format } from 'shopware:utils';
+import { date } from 'shopware:utils/format';
 
 interface Column {
     property: string;
@@ -60,7 +60,7 @@ export default defineComponent({
             if (!this.statsData?.processedSince) {
                 return '';
             }
-            return format.date(this.statsData.processedSince, {
+            return date(this.statsData.processedSince, {
                 year: 'numeric',
                 month: 'numeric',
                 day: 'numeric',

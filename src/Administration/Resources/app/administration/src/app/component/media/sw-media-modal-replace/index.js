@@ -2,7 +2,8 @@ import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
 import notificationMixin from 'shopware:mixins/notification';
 import useContextStore from 'shopware:stores/context';
-import { createId, fileReader } from 'shopware:utils';
+import { createId } from 'shopware:utils';
+import { getNameAndExtensionFromFile } from 'shopware:utils/fileReader';
 
 /**
  * @status ready
@@ -94,7 +95,7 @@ export default {
         },
 
         async runPresignedReplace(fileHandle) {
-            const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
+            const { fileName, extension } = getNameAndExtensionFromFile(fileHandle);
             const mimeType = fileHandle.type || 'application/octet-stream';
 
             const [result, dimensions] = await Promise.all([

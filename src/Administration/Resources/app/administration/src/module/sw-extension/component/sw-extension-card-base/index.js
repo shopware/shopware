@@ -2,7 +2,7 @@ import template from './sw-extension-card-base.html.twig';
 import './sw-extension-card-base.scss';
 import useExtensionMainModulesStore from 'shopware:stores/extensionMainModules';
 import useContextStore from 'shopware:stores/context';
-import { debug } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
 
 const { Filter } = Shopware;
 
@@ -419,15 +419,15 @@ export default {
          * Interface for deriving components
          */
         async changeExtensionStatus() {
-            debug.warn(this._name, 'No implementation of changeExtensionStatus found');
+            warn(this._name, 'No implementation of changeExtensionStatus found');
         },
 
         installExtension() {
-            debug.warn(this._name, 'No implementation of installExtension found');
+            warn(this._name, 'No implementation of installExtension found');
         },
 
         async installAndActivateExtension() {
-            debug.warn(this._name, 'No implementation of installAndActivateExtension found');
+            warn(this._name, 'No implementation of installAndActivateExtension found');
         },
 
         async removeExtension(removeData) {
@@ -445,7 +445,7 @@ export default {
         },
 
         cancelAndRemoveExtension() {
-            debug.warn(this._name, 'No implementation of cancelAndRemoveExtension found');
+            warn(this._name, 'No implementation of cancelAndRemoveExtension found');
         },
 
         openPrivacyModal() {

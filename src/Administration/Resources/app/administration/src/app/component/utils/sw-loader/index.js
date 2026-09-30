@@ -1,5 +1,5 @@
 import template from './sw-loader.html.twig';
-import { debug } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
 
 /**
  * @sw-package framework
@@ -33,7 +33,7 @@ export default {
             }
 
             // Throw warning when deprecated component is used
-            debug.warn(
+            warn(
                 'sw-loader',
                 'The old usage of "sw-loader" is deprecated and will be removed in v6.8.0.0. Please use "mt-loader" instead.',
             );

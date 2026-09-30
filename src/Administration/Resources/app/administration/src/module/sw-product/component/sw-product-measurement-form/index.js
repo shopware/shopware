@@ -5,7 +5,7 @@ import template from './sw-product-measurement-form.html.twig';
 import './sw-product-measurement-form.scss';
 import placeholderMixin from 'shopware:mixins/placeholder';
 import useSwProductDetailStore from 'shopware:stores/swProductDetail';
-import { unitConversion } from 'shopware:utils';
+import { convert } from 'shopware:utils/unitConversion';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -72,7 +72,7 @@ export default {
                 return;
             }
 
-            this.product.width = unitConversion.convert(this.product.width, this.lengthUnit, unit);
+            this.product.width = convert(this.product.width, this.lengthUnit, unit);
         },
 
         convertHeight(unit) {
@@ -80,7 +80,7 @@ export default {
                 return;
             }
 
-            this.product.height = unitConversion.convert(this.product.height, this.lengthUnit, unit);
+            this.product.height = convert(this.product.height, this.lengthUnit, unit);
         },
 
         convertLength(unit) {
@@ -88,7 +88,7 @@ export default {
                 return;
             }
 
-            this.product.length = unitConversion.convert(this.product.length, this.lengthUnit, unit);
+            this.product.length = convert(this.product.length, this.lengthUnit, unit);
         },
 
         onUpdateWeightUnit(unit) {

@@ -20,7 +20,7 @@ export default {
 
     methods: {
         createdComponent() {
-            if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
+            if (!useContextStore().isSystemDefaultLanguage) {
                 useContextStore().resetLanguageToDefault();
             }
 

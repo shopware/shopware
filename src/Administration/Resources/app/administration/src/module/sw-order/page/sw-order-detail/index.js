@@ -3,7 +3,7 @@ import './sw-order-detail.scss';
 import '../../store/order-detail.store';
 import { getCartErrorMessage } from '../../cart-error.helper';
 import { Criteria } from 'shopware:data';
-import { array } from 'shopware:utils';
+import { slice } from 'shopware:utils/array';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
@@ -170,7 +170,7 @@ export default {
 
         deliveryDiscounts() {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return array.slice(this.order.deliveries, 1) || [];
+                return slice(this.order.deliveries, 1) || [];
             }
 
             return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);

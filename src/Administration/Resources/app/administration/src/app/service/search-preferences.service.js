@@ -3,7 +3,7 @@
  */
 
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
-import { object } from 'shopware:utils';
+import { set, deepMergeObject } from 'shopware:utils/object';
 import useSessionStore from 'shopware:stores/session';
 
 /**
@@ -177,11 +177,11 @@ export default function SearchPreferencesService() {
 
         tempSearchPreferencesFields.forEach((field) => {
             field.group.forEach((group) => {
-                const searchPreferencesField = object.set({}, group.fieldName, {
+                const searchPreferencesField = set({}, group.fieldName, {
                     _searchable: field._searchable,
                     _score: field._score,
                 });
-                searchPreferencesFields = object.deepMergeObject(searchPreferencesFields, searchPreferencesField);
+                searchPreferencesFields = deepMergeObject(searchPreferencesFields, searchPreferencesField);
             });
         });
 

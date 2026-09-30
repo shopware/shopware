@@ -1,5 +1,6 @@
 import template from './sw-order-detail-general.html.twig';
-import { format, array } from 'shopware:utils';
+import { currency } from 'shopware:utils/format';
+import { slice } from 'shopware:utils/array';
 import { cloneDeep } from 'shopware:utils/object';
 import notificationMixin from 'shopware:mixins/notification';
 import useSwOrderDetailStore from 'shopware:stores/swOrderDetail';
@@ -94,7 +95,7 @@ export default {
 
         deliveryDiscounts() {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                return array.slice(this.order.deliveries, 1) || [];
+                return slice(this.order.deliveries, 1) || [];
             }
 
             return this.order.deliveries.filter((delivery) => delivery.id !== this.order.primaryOrderDeliveryId);
@@ -109,7 +110,7 @@ export default {
                             'sw-order.detailBase.shippingCostsTax',
                             {
                                 taxRate: calcTax.taxRate,
-                                tax: format.currency(calcTax.tax, this.order.currency.isoCode),
+                                tax: currency(calcTax.tax, this.order.currency.isoCode),
                             },
                             0,
                         )}`,

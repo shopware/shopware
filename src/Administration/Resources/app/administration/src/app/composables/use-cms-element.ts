@@ -8,7 +8,7 @@ import useCmsState from './use-cms-state';
 import 'src/module/sw-cms/store/cms-page.store';
 import type { CmsElementConfig, CmsSlotConfig, RuntimeSlot } from 'src/module/sw-cms/service/cms.service';
 import { merge, get, set, cloneDeep } from 'shopware:utils/object';
-import { object } from 'shopware:utils';
+
 import useCmsPageStore from 'shopware:stores/cmsPage';
 
 /** @private */
@@ -69,7 +69,7 @@ export default function useCmsElement(options: UseCmsElementOptions): UseCmsElem
     });
 
     function getConfigValue(path: string): unknown {
-        return object.get(config.value, path);
+        return get(config.value, path);
     }
 
     function setConfigValue(path: string, value: unknown): void {

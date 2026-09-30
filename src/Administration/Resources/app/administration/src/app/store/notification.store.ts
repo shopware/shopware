@@ -1,5 +1,5 @@
 import { POLL_BACKGROUND_INTERVAL } from 'src/core/worker/worker-notification-listener';
-import { debug } from 'shopware:utils';
+import { warn } from 'shopware:utils/debug';
 import useNotificationStore from 'shopware:stores/notification';
 import useSessionStore from 'shopware:stores/session';
 
@@ -200,7 +200,7 @@ const notificationStore = Shopware.Store.register({
 
         upsertNotification(notificationUpdate: Partial<NotificationType & { uuid: string }>) {
             if (!notificationUpdate.uuid) {
-                debug.warn('NotificationStore', 'A notification must contain a uuid', notificationUpdate);
+                warn('NotificationStore', 'A notification must contain a uuid', notificationUpdate);
                 return;
             }
             this.notifications[notificationUpdate.uuid] = {
@@ -212,7 +212,7 @@ const notificationStore = Shopware.Store.register({
 
         removeNotification(notification: NotificationType & { uuid: string }) {
             if (!notification.uuid) {
-                debug.warn('NotificationStore', 'A notification must contain a uuid', notification);
+                warn('NotificationStore', 'A notification must contain a uuid', notification);
                 return;
             }
             delete this.notifications[notification.uuid];
@@ -229,7 +229,7 @@ const notificationStore = Shopware.Store.register({
 
         upsertGrowlNotification(notificationUpdate: Partial<NotificationType>) {
             if (!notificationUpdate.uuid) {
-                debug.warn('NotificationStore', 'A notification must contain a uuid', notificationUpdate);
+                warn('NotificationStore', 'A notification must contain a uuid', notificationUpdate);
                 return;
             }
 
@@ -246,7 +246,7 @@ const notificationStore = Shopware.Store.register({
 
         removeGrowlNotification(notification: NotificationType) {
             if (!notification.uuid) {
-                debug.warn('NotificationStore', 'A notification must contain a uuid', notification);
+                warn('NotificationStore', 'A notification must contain a uuid', notification);
                 return;
             }
             delete this.growlNotifications[notification.uuid];
@@ -254,7 +254,7 @@ const notificationStore = Shopware.Store.register({
 
         createNotification(notification: NotificationType) {
             if (!notification.message) {
-                debug.warn('NotificationStore', 'A message must be specified', notification);
+                warn('NotificationStore', 'A message must be specified', notification);
                 return null;
             }
 
@@ -304,7 +304,7 @@ const notificationStore = Shopware.Store.register({
 
         updateNotification(notificationUpdate: NotificationType) {
             if (!notificationUpdate.uuid) {
-                debug.warn('NotificationStore', 'Update to an notification must contain the uuid', notificationUpdate);
+                warn('NotificationStore', 'Update to an notification must contain the uuid', notificationUpdate);
                 return null;
             }
 

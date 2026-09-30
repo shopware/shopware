@@ -8,7 +8,7 @@ import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import type { ComputedRef, Ref } from 'vue';
 import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
-import { types } from 'shopware:utils';
+import { isEmpty } from 'shopware:utils/types';
 import useShopwareAppsStore from 'shopware:stores/shopwareApps';
 import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
@@ -185,7 +185,7 @@ export default function useListing(options: UseListingOptions): UseListingReturn
         };
 
         // Writing the initial state into an empty query must not add a history entry.
-        if (types.isEmpty(routeQuery)) {
+        if (isEmpty(routeQuery)) {
             void router.replace(targetRoute as unknown as RouteLocationNamedRaw);
         } else {
             void router.push(targetRoute as unknown as RouteLocationNamedRaw);
@@ -375,7 +375,7 @@ export default function useListing(options: UseListingOptions): UseListingReturn
 
         const query = route.query;
 
-        if (types.isEmpty(query)) {
+        if (isEmpty(query)) {
             resetListing();
         }
 
@@ -423,7 +423,7 @@ export default function useListing(options: UseListingOptions): UseListingReturn
 
         const actualQueryParameters: LocationQuery = route.query;
 
-        if (types.isEmpty(actualQueryParameters)) {
+        if (isEmpty(actualQueryParameters)) {
             resetListing();
         } else {
             parseBooleanQueryParams(actualQueryParameters);

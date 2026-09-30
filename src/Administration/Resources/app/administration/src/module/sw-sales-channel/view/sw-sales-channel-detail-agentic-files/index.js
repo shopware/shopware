@@ -8,7 +8,7 @@ import template from './sw-sales-channel-detail-agentic-files.html.twig';
 import './sw-sales-channel-detail-agentic-files.scss';
 import { EntityCollection } from 'shopware:data';
 import notificationMixin from 'shopware:mixins/notification';
-import { string } from 'shopware:utils';
+import { kebabCase } from 'shopware:utils/string';
 
 const { Context } = Shopware;
 
@@ -231,7 +231,7 @@ export default {
 
         formatSnippetPathSegment(segment) {
             // Slugify so dots and slashes in file names cannot break snippet path resolution.
-            const slug = string.kebabCase(segment);
+            const slug = kebabCase(segment);
 
             return `[${JSON.stringify(slug)}]`;
         },

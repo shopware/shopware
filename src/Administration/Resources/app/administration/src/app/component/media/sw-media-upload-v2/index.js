@@ -1,6 +1,7 @@
 import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
-import { fileReader, debug } from 'shopware:utils';
+import { getNameAndExtensionFromUrl, getNameAndExtensionFromFile } from 'shopware:utils/fileReader';
+import { warn } from 'shopware:utils/debug';
 import { fileSize } from 'shopware:utils/format';
 import notificationMixin from 'shopware:mixins/notification';
 import useContextStore from 'shopware:stores/context';
@@ -415,7 +416,7 @@ export default {
             let fileInfo;
 
             try {
-                fileInfo = fileReader.getNameAndExtensionFromUrl(url);
+                fileInfo = getNameAndExtensionFromUrl(url);
             } catch (_error) {
                 this.createNotificationError({
                     title: this.$t('global.default.error'),
@@ -481,7 +482,7 @@ export default {
             const syncEntities = [];
 
             const uploadData = newMediaFiles.map((fileHandle) => {
-                const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
+                const { fileName, extension } = getNameAndExtensionFromFile(fileHandle);
                 const targetEntity = this.getMediaEntityForUpload();
                 syncEntities.push(targetEntity);
 
@@ -547,7 +548,7 @@ export default {
                         return null;
                     })
                     .catch((error) => {
-                        debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
+                        warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
                     });
             });
         },

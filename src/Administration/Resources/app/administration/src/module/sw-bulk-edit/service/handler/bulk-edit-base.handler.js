@@ -1,6 +1,7 @@
-import { object, types, debug } from 'shopware:utils';
+import { isObject, isEqual } from 'shopware:utils/types';
+import { warn } from 'shopware:utils/debug';
 import { Criteria } from 'shopware:data';
-import { getObjectDiff } from 'shopware:utils/object';
+import { getObjectDiff, pick } from 'shopware:utils/object';
 
 const bulkSyncTypes = Object.freeze({
     OVERWRITE: 'overwrite',
@@ -85,7 +86,7 @@ class BulkEditBaseHandler {
                 const field = definition.getField(change.field);
 
                 if (!field) {
-                    debug.warn('Entity factory', `Property ${this.entityName}.${change.field} not found`);
+                    warn('Entity factory', `Property ${this.entityName}.${change.field} not found`);
 
                     return;
                 }
@@ -97,7 +98,7 @@ class BulkEditBaseHandler {
 
                         return;
                     } catch (e) {
-                        debug.warn(e);
+                        warn(e);
 
                         // Ignore the failed change
                         return;
@@ -366,7 +367,7 @@ class BulkEditBaseHandler {
         changeItems.forEach((changeItem) => {
             const original = changeItem;
             // Clean non-editable fields
-            changeItem = object.pick(changeItem, editableProperties);
+            changeItem = pick(changeItem, editableProperties);
 
             this.entityIds.forEach((entityId) => {
                 const record = { ...changeItem };
@@ -426,7 +427,7 @@ class BulkEditBaseHandler {
         const { referenceEntity, referenceKey, localKey, value: changeItems } = change;
         const editableProperties = this._getEditableProperties(referenceEntity);
         changeItems.forEach((changeItem) => {
-            changeItem = object.pick(changeItem, editableProperties);
+            changeItem = pick(changeItem, editableProperties);
 
             this.entityIds.forEach((entityId) => {
                 const record = { ...changeItem };
@@ -685,11 +686,11 @@ class BulkEditBaseHandler {
     }
 
     _isFieldValueChanged(newValue, origin) {
-        if (types.isObject(newValue) && types.isObject(origin)) {
+        if (isObject(newValue) && isObject(origin)) {
             return Object.keys(getObjectDiff(newValue, origin)).length > 0;
         }
 
-        return !types.isEqual(newValue, origin);
+        return !isEqual(newValue, origin);
     }
 }
 

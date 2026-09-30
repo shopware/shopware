@@ -4,8 +4,9 @@
 
 import template from './sw-entity-multi-id-select.html.twig';
 import { EntityCollection, Criteria } from 'shopware:data';
-import { get, types } from 'shopware:utils';
+import { get } from 'shopware:utils';
 import removeApiErrorMixin from 'shopware:mixins/remove-api-error';
+import { isEqual } from 'shopware:utils/types';
 
 const { Context } = Shopware;
 
@@ -71,7 +72,7 @@ export default {
                 return;
             }
 
-            if (types.isEqual(this.collection.getIds(), value)) {
+            if (isEqual(this.collection.getIds(), value)) {
                 return;
             }
 

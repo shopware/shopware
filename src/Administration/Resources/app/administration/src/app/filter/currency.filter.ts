@@ -3,7 +3,7 @@
  */
 import type { CurrencyOptions } from 'src/core/service/utils/format.utils';
 import { currency } from 'shopware:utils/format';
-import { types } from 'shopware:utils';
+import { isNumber, isEqual } from 'shopware:utils/types';
 
 /**
  * @private
@@ -11,11 +11,11 @@ import { types } from 'shopware:utils';
 Shopware.Filter.register(
     'currency',
     (value: string | boolean, format: string, decimalPlaces: number, additionalOptions: CurrencyOptions) => {
-        if ((!value || value === true) && (!types.isNumber(value) || types.isEqual(value, NaN))) {
+        if ((!value || value === true) && (!isNumber(value) || isEqual(value, NaN))) {
             return '-';
         }
 
-        if (types.isEqual(parseInt(value, 10), NaN)) {
+        if (isEqual(parseInt(value, 10), NaN)) {
             return value;
         }
 

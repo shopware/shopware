@@ -2,7 +2,8 @@ import VueApexCharts from 'vue3-apexcharts';
 import apexLocales from './locales';
 import template from './sw-chart.html.twig';
 import './sw-chart.scss';
-import { object, format } from 'shopware:utils';
+import { merge, deepCopyObject } from 'shopware:utils/object';
+import { dateWithUserTimezone } from 'shopware:utils/format';
 import { warn } from 'shopware:utils/debug';
 import useSessionStore from 'shopware:stores/session';
 
@@ -151,7 +152,7 @@ export default {
 
     computed: {
         mergedOptions() {
-            return object.merge({}, this.defaultOptions, this.options, {
+            return merge({}, this.defaultOptions, this.options, {
                 labels: this.mergedLabels,
             });
         },
@@ -166,7 +167,7 @@ export default {
                 return this.convertedSeriesStructure;
             }
 
-            let optimizedSeries = object.deepCopyObject(this.series);
+            let optimizedSeries = deepCopyObject(this.series);
 
             if (this.fillEmptyValues) {
                 optimizedSeries = this.addZeroValuesToSeries(optimizedSeries);
@@ -323,7 +324,7 @@ export default {
         },
 
         sortSeries(series) {
-            const newSeries = object.deepCopyObject(series);
+            const newSeries = deepCopyObject(series);
 
             newSeries.forEach((serie) => {
                 serie.data = serie.data.sort((a, b) => (a.x && b.x ? a.x - b.x : a - b));
@@ -337,7 +338,7 @@ export default {
             const zeroValues = this.getZeroValues();
 
             // copy series
-            const newSeries = object.deepCopyObject(series);
+            const newSeries = deepCopyObject(series);
 
             // add zero values for each serie
             newSeries.forEach((serie) => {
@@ -399,7 +400,7 @@ export default {
             }
 
             // get timestamps for start date
-            const fromDate = format.dateWithUserTimezone();
+            const fromDate = dateWithUserTimezone();
             fromDate.setTime(this.options.xaxis.min);
             this.setDateTime(fromDate);
             const fromDateTimestamp = fromDate.getTime();
@@ -411,7 +412,7 @@ export default {
                 toDateTimestamp = this.options.xaxis.max;
             } else {
                 // get actual day
-                const toDate = format.dateWithUserTimezone();
+                const toDate = dateWithUserTimezone();
                 this.setDateTime(toDate);
                 toDate.getTime();
                 toDateTimestamp = toDate.getTime();

@@ -1,7 +1,7 @@
 import BulkEditBaseHandler from './bulk-edit-base.handler';
 import RetryHelper from '../../../../core/helper/retry.helper';
 import { Criteria } from 'shopware:data';
-import { types } from 'shopware:utils';
+import { isEmpty } from 'shopware:utils/types';
 import useSwBulkEditStore from 'shopware:stores/swBulkEdit';
 
 /**
@@ -83,7 +83,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
 
         const syncPayload = await this.buildBulkSyncPayload(payload);
 
-        if (types.isEmpty(syncPayload)) {
+        if (isEmpty(syncPayload)) {
             return Promise.resolve({ data: [] });
         }
 

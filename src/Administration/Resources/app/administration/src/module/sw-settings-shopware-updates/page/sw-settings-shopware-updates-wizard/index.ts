@@ -3,7 +3,7 @@ import './sw-settings-shopware-updates-wizard.scss';
 import useSession from 'src/app/composables/use-session';
 import useSnackbar from 'src/app/composables/use-snackbar';
 import notificationMixin from 'shopware:mixins/notification';
-import { dom } from 'shopware:utils';
+import { copyStringToClipboard } from 'shopware:utils/dom';
 
 const { Component } = Shopware;
 
@@ -189,7 +189,7 @@ export default Component.wrapComponentConfig({
 
         async copyCliCommand() {
             try {
-                await dom.copyStringToClipboard(this.cliUpgradeCommand);
+                await copyStringToClipboard(this.cliUpgradeCommand);
                 this.cliCommandCopied = true;
 
                 if (this.cliCommandCopiedTimeout !== null) {

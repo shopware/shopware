@@ -9,7 +9,7 @@ import useExtensionSdkModulesStore from 'shopware:stores/extensionSdkModules';
  */
 export default function initMainModules(): void {
     Shopware.ExtensionAPI.handle('mainModuleAdd', async (mainModuleConfig, additionalInformation) => {
-        const extensionName = Object.keys(Shopware.Store.get('extensions').extensionsState).find((key) =>
+        const extensionName = Object.keys(useExtensionsStore().extensionsState).find((key) =>
             useExtensionsStore().extensionsState[key].baseUrl.startsWith(additionalInformation._event_.origin),
         );
 

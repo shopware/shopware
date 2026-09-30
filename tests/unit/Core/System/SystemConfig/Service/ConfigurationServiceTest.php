@@ -25,7 +25,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\BrokenConfigPlugin\BrokenConfigPlugin;
-use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\SwagExampleTest\SwagExampleTest;
+use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\SwagExample\SwagExample;
 use Shopware\Tests\Unit\Core\System\SystemConfig\Service\_fixtures\ValidConfigPlugin\ValidConfigPlugin;
 
 /**
@@ -243,14 +243,14 @@ class ConfigurationServiceTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testEmptyConfigThrowsErrorDeprecated(): void
     {
-        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTest'));
+        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExample'));
 
         $this->getConfiguration([]);
     }
 
     public function testEmptyConfigThrowsError(): void
     {
-        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExampleTest'));
+        $this->expectExceptionObject(SystemConfigException::configurationNotFound('SwagExample'));
 
         $this->getSystemConfigDefinition([]);
     }
@@ -271,7 +271,7 @@ class ConfigurationServiceTest extends TestCase
                         'name' => null,
                         'elements' => [
                             [
-                                'name' => 'SwagExampleTest.email',
+                                'name' => 'SwagExample.email',
                                 'type' => 'text',
                                 'flag' => 'FEATURE_NEXT_101',
                                 'config' => [
@@ -312,7 +312,7 @@ class ConfigurationServiceTest extends TestCase
                         'name' => null,
                         'elements' => [
                             [
-                                'name' => 'SwagExampleTest.email',
+                                'name' => 'SwagExample.email',
                                 'type' => 'text',
                                 'flag' => 'FEATURE_NEXT_101',
                                 'config' => [
@@ -440,7 +440,7 @@ class ConfigurationServiceTest extends TestCase
         $systemConfigService = new StaticSystemConfigService([]);
         $service = new ConfigurationService(
             [
-                new SwagExampleTest(true, ''),
+                new SwagExample(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
@@ -449,11 +449,11 @@ class ConfigurationServiceTest extends TestCase
             new NullLogger()
         );
 
-        $actualConfig = $service->getConfiguration('SwagExampleTest', Context::createDefaultContext());
+        $actualConfig = $service->getConfiguration('SwagExample', Context::createDefaultContext());
 
         static::assertCount(1, $actualConfig);
         static::assertCount(1, $actualConfig[0]['elements']);
-        static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
+        static::assertSame('SwagExample.email', $actualConfig[0]['elements'][0]['name']);
     }
 
     public function testConfigFromPlugin(): void
@@ -497,7 +497,7 @@ class ConfigurationServiceTest extends TestCase
         $appRepository = new StaticEntityRepository([new AppCollection()]);
         $service = new ConfigurationService(
             [
-                new SwagExampleTest(true, ''),
+                new SwagExample(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
@@ -506,12 +506,12 @@ class ConfigurationServiceTest extends TestCase
             new NullLogger()
         );
 
-        $actualConfig = $service->getSystemConfigDefinition('SwagExampleTest', Context::createDefaultContext());
+        $actualConfig = $service->getSystemConfigDefinition('SwagExample', Context::createDefaultContext());
 
         static::assertCount(1, $actualConfig);
         static::assertCount(1, $actualConfig[0]->cards);
         static::assertCount(1, $actualConfig[0]->cards[0]->elements);
-        static::assertSame('SwagExampleTest.email', $actualConfig[0]->cards[0]->elements[0]->name);
+        static::assertSame('SwagExample.email', $actualConfig[0]->cards[0]->elements[0]->name);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
@@ -554,10 +554,10 @@ class ConfigurationServiceTest extends TestCase
 
         $repository = new StaticEntityRepository([new AppCollection()]);
 
-        $systemConfigService = new StaticSystemConfigService(['SwagExampleTest.email' => 'foo']);
+        $systemConfigService = new StaticSystemConfigService(['SwagExample.email' => 'foo']);
         $service = new ConfigurationService(
             [
-                new SwagExampleTest(true, ''),
+                new SwagExample(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
@@ -566,11 +566,11 @@ class ConfigurationServiceTest extends TestCase
             new NullLogger()
         );
 
-        $actualConfig = $service->getResolvedConfiguration('SwagExampleTest', Context::createDefaultContext());
+        $actualConfig = $service->getResolvedConfiguration('SwagExample', Context::createDefaultContext());
 
         static::assertCount(1, $actualConfig);
         static::assertCount(1, $actualConfig[0]['elements']);
-        static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
+        static::assertSame('SwagExample.email', $actualConfig[0]['elements'][0]['name']);
         static::assertSame('foo', $actualConfig[0]['elements'][0]['value']);
     }
 
@@ -615,21 +615,21 @@ class ConfigurationServiceTest extends TestCase
 
         $service = new ConfigurationService(
             [
-                new SwagExampleTest(true, ''),
+                new SwagExample(true, ''),
             ],
             $configReader,
             static::createStub(AppConfigReader::class),
             $repository,
-            new StaticSystemConfigService(['SwagExampleTest.email' => 'foo']),
+            new StaticSystemConfigService(['SwagExample.email' => 'foo']),
             new NullLogger()
         );
 
-        $actualConfig = $service->getResolvedSystemConfigDefinition('SwagExampleTest', Context::createDefaultContext());
+        $actualConfig = $service->getResolvedSystemConfigDefinition('SwagExample', Context::createDefaultContext());
 
         static::assertCount(1, $actualConfig);
         static::assertCount(1, $actualConfig[0]->cards);
         static::assertCount(1, $actualConfig[0]->cards[0]->elements);
-        static::assertSame('SwagExampleTest.email', $actualConfig[0]->cards[0]->elements[0]->name);
+        static::assertSame('SwagExample.email', $actualConfig[0]->cards[0]->elements[0]->name);
         static::assertSame('foo', $actualConfig[0]->cards[0]->elements[0]->value);
     }
 
@@ -768,7 +768,7 @@ class ConfigurationServiceTest extends TestCase
      */
     private function getConfiguration(array $config): array
     {
-        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
+        $app = (new AppEntity())->assign(['name' => 'SwagExample', '_uniqueIdentifier' => 'test']);
 
         $appConfigReader = static::createStub(AppConfigReader::class);
         $appConfigReader->method('read')->willReturnMap([[$app, $config]]);
@@ -788,10 +788,10 @@ class ConfigurationServiceTest extends TestCase
         );
 
         if ($config !== []) {
-            static::assertTrue($configService->checkConfiguration('SwagExampleTest', Context::createDefaultContext()));
+            static::assertTrue($configService->checkConfiguration('SwagExample', Context::createDefaultContext()));
         }
 
-        return $configService->getConfiguration('SwagExampleTest', Context::createDefaultContext());
+        return $configService->getConfiguration('SwagExample', Context::createDefaultContext());
     }
 
     /**
@@ -801,7 +801,7 @@ class ConfigurationServiceTest extends TestCase
      */
     private function getSystemConfigDefinition(array $config): array
     {
-        $app = (new AppEntity())->assign(['name' => 'SwagExampleTest', '_uniqueIdentifier' => 'test']);
+        $app = (new AppEntity())->assign(['name' => 'SwagExample', '_uniqueIdentifier' => 'test']);
 
         $appConfigReader = static::createStub(AppConfigReader::class);
         $appConfigReader->method('read')->willReturnMap([[$app, $config]]);
@@ -820,10 +820,10 @@ class ConfigurationServiceTest extends TestCase
         );
 
         if ($config !== []) {
-            static::assertTrue($configService->checkConfiguration('SwagExampleTest', Context::createDefaultContext()));
+            static::assertTrue($configService->checkConfiguration('SwagExample', Context::createDefaultContext()));
         }
 
-        return $configService->getSystemConfigDefinition('SwagExampleTest', Context::createDefaultContext());
+        return $configService->getSystemConfigDefinition('SwagExample', Context::createDefaultContext());
     }
 
     /**
@@ -840,7 +840,7 @@ class ConfigurationServiceTest extends TestCase
                 'name' => null,
                 'elements' => [
                     [
-                        'name' => 'SwagExampleTest.email',
+                        'name' => 'SwagExample.email',
                         'type' => 'text',
                         'config' => [
                             'copyable' => true,
@@ -856,13 +856,13 @@ class ConfigurationServiceTest extends TestCase
                         'value' => null,
                     ],
                     [
-                        'name' => 'SwagExampleTest.withoutAnyConfig',
+                        'name' => 'SwagExample.withoutAnyConfig',
                         'type' => 'int',
                         'config' => [],
                         'value' => null,
                     ],
                     [
-                        'name' => 'SwagExampleTest.mailMethod',
+                        'name' => 'SwagExample.mailMethod',
                         'type' => 'single-select',
                         'config' => [
                             'options' => [
@@ -909,7 +909,7 @@ class ConfigurationServiceTest extends TestCase
                     new SystemConfigCard(
                         [
                             new SystemConfigElement(
-                                'SwagExampleTest.email',
+                                'SwagExample.email',
                                 [
                                     'copyable' => true,
                                     'label' => [
@@ -924,12 +924,12 @@ class ConfigurationServiceTest extends TestCase
                                 'text'
                             ),
                             new SystemConfigElement(
-                                'SwagExampleTest.withoutAnyConfig',
+                                'SwagExample.withoutAnyConfig',
                                 [],
                                 'int'
                             ),
                             new SystemConfigElement(
-                                'SwagExampleTest.mailMethod',
+                                'SwagExample.mailMethod',
                                 [
                                     'options' => [
                                         [

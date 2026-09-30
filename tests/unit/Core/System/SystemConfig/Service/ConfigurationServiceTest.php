@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\System\System;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
@@ -66,21 +67,6 @@ class ConfigurationServiceTest extends TestCase
         );
 
         $configService->getSystemConfigDefinition('invalid!', Context::createDefaultContext());
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testCheckConfigurationWithInvalidDomainDeprecated(): void
-    {
-        $configService = new ConfigurationService(
-            [],
-            new ConfigReader(),
-            static::createStub(AppConfigReader::class),
-            new StaticEntityRepository([]),
-            new StaticSystemConfigService([]),
-            new NullLogger()
-        );
-
-        static::assertFalse($configService->checkConfiguration('invalid!', Context::createDefaultContext()));
     }
 
     public function testCheckConfigurationWithInvalidDomain(): void
@@ -644,50 +630,132 @@ class ConfigurationServiceTest extends TestCase
         static::assertSame('foo', $actualConfig[0]->cards[0]->elements[0]->value);
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testCheckConfigurationReturnsFalseOnXmlParsingExceptionDeprecated(): void
+    public function testCheckConfigurationReturnsFalseForBrokenConfigXml(): void
     {
-        $configReader = static::createStub(ConfigReader::class);
-        $configReader->method('getConfigFromBundle')->willThrowException(
-            UtilException::xmlParsingException('/path/to/config.xml', 'Invalid XML: element name contains underscores')
-        );
+        $configurationService = $this->createConfigurationService([
+            new BrokenConfigPlugin(active: true, basePath: __DIR__ . '/_fixtures/BrokenConfigPlugin'),
+        ]);
 
-        $appRepository = new StaticEntityRepository([new AppCollection([])]);
-        $systemConfigService = new StaticSystemConfigService([]);
-        $configService = new ConfigurationService(
-            [
-                new SwagExampleTest(true, ''),
-            ],
-            $configReader,
-            static::createStub(AppConfigReader::class),
-            $appRepository,
-            $systemConfigService,
-            new NullLogger()
+        // Should return false instead of throwing UtilXmlParsingException
+        static::assertFalse(
+            $configurationService->checkConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext())
         );
-
-        // checkConfiguration should return false instead of throwing the exception
-        static::assertFalse($configService->checkConfiguration('SwagExampleTest.config', Context::createDefaultContext()));
     }
 
-    public function testCheckConfigurationReturnsFalseOnXmlParsingException(): void
+    public function testCheckConfigurationReturnsTrueForValidConfigXml(): void
     {
-        $configReader = static::createStub(ConfigReader::class);
-        $configReader->method('getConfigFromBundle')->willThrowException(
-            UtilException::xmlParsingException('/path/to/config.xml', 'Invalid XML: element name contains underscores')
+        $configurationService = $this->createConfigurationService([
+            new ValidConfigPlugin(active: true, basePath: __DIR__ . '/_fixtures/ValidConfigPlugin'),
+        ]);
+
+        static::assertTrue(
+            $configurationService->checkConfiguration('ValidConfigPlugin.config', Context::createDefaultContext())
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetConfigurationThrowsExceptionForBrokenConfigXml(): void
+    {
+        $configurationService = $this->createConfigurationService([
+            new BrokenConfigPlugin(active: true, basePath: __DIR__ . '/_fixtures/BrokenConfigPlugin'),
+        ]);
+
+        // getConfiguration should still throw the exception (only checkConfiguration catches it)
+        $this->expectException(UtilException::class);
+        $configurationService->getConfiguration('BrokenConfigPlugin.config', Context::createDefaultContext());
+    }
+
+    public function testGetSystemConfigDefinitionThrowsExceptionForBrokenConfigXml(): void
+    {
+        $configurationService = $this->createConfigurationService([
+            new BrokenConfigPlugin(active: true, basePath: __DIR__ . '/_fixtures/BrokenConfigPlugin'),
+        ]);
+
+        // getSystemConfigDefinition should still throw the exception (only checkConfiguration catches it)
+        $this->expectException(UtilException::class);
+        $configurationService->getSystemConfigDefinition('BrokenConfigPlugin.config', Context::createDefaultContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetResolvedConfigurationReturnsEmptyArrayForBrokenConfigXml(): void
+    {
+        $configurationService = $this->createConfigurationService([
+            new BrokenConfigPlugin(active: true, basePath: __DIR__ . '/_fixtures/BrokenConfigPlugin'),
+        ]);
+
+        // getResolvedConfiguration uses checkConfiguration, so it should return empty array
+        $result = $configurationService->getResolvedConfiguration(
+            'BrokenConfigPlugin.config',
+            Context::createDefaultContext()
         );
 
-        $appRepository = new StaticEntityRepository([new AppCollection([])]);
-        $configService = new ConfigurationService(
-            [new SwagExampleTest(true, '')],
-            $configReader,
+        static::assertSame([], $result);
+    }
+
+    public function testGetResolvedSystemConfigDefinitionReturnsEmptyArrayForBrokenConfigXml(): void
+    {
+        $configurationService = $this->createConfigurationService([
+            new BrokenConfigPlugin(active: true, basePath: __DIR__ . '/_fixtures/BrokenConfigPlugin'),
+        ]);
+
+        // getResolvedSystemConfigDefinition uses checkConfiguration, so it should return empty array
+        $result = $configurationService->getResolvedSystemConfigDefinition(
+            'BrokenConfigPlugin.config',
+            Context::createDefaultContext()
+        );
+
+        static::assertSame([], $result);
+    }
+
+    public function testBasicInformationContainsCompanyInformationCardWhenFeatureFlagIsActive(): void
+    {
+        static::assertTrue(Feature::isActive('DOCUMENT_GENERATION_REWORK'));
+
+        $configuration = $this->createConfigurationService([])->getSystemConfigDefinition(
+            'core.basicInformation',
+            Context::createDefaultContext()
+        );
+
+        static::assertInstanceOf(SystemConfigTab::class, $configuration[0]);
+        static::assertCount(1, array_filter(
+            $configuration[0]->cards,
+            static fn (SystemConfigCard $card): bool => $card->name === 'companyInformation'
+        ));
+    }
+
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
+    public function testBasicInformationDoesNotContainCompanyInformationCardWhenFeatureFlagIsInactive(): void
+    {
+        static::assertFalse(Feature::isActive('DOCUMENT_GENERATION_REWORK'));
+
+        $configuration = $this->createConfigurationService([])->getSystemConfigDefinition(
+            'core.basicInformation',
+            Context::createDefaultContext()
+        );
+
+        static::assertInstanceOf(SystemConfigTab::class, $configuration[0]);
+        static::assertCount(0, array_filter(
+            $configuration[0]->cards,
+            static fn (SystemConfigCard $card): bool => $card->name === 'companyInformation'
+        ));
+    }
+
+    /**
+     * @param list<Plugin> $plugins
+     */
+    private function createConfigurationService(array $plugins): ConfigurationService
+    {
+        return new ConfigurationService(
+            [
+                new System(),
+                ...$plugins,
+            ],
+            new ConfigReader(),
             static::createStub(AppConfigReader::class),
-            $appRepository,
+            StaticEntityRepository::of(AppCollection::class, []),
             new StaticSystemConfigService([]),
             new NullLogger()
         );
-
-        // checkConfiguration should return false instead of throwing the exception
-        static::assertFalse($configService->checkConfiguration('SwagExampleTest.config', Context::createDefaultContext()));
     }
 
     /**
@@ -975,4 +1043,26 @@ class ConfigurationServiceTest extends TestCase
  */
 class SwagExampleTest extends Plugin
 {
+}
+
+/**
+ * @internal
+ */
+class BrokenConfigPlugin extends Plugin
+{
+    public function getPath(): string
+    {
+        return __DIR__ . '/_fixtures/BrokenConfigPlugin';
+    }
+}
+
+/**
+ * @internal
+ */
+class ValidConfigPlugin extends Plugin
+{
+    public function getPath(): string
+    {
+        return __DIR__ . '/_fixtures/ValidConfigPlugin';
+    }
 }

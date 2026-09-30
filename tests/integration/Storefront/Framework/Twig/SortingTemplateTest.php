@@ -70,7 +70,8 @@ class SortingTemplateTest extends TestCase
 
     /**
      * Renders inside a Storefront request, so `TemplateDataExtension` resolves real globals instead of caching
-     * them empty in the shared environment, and resets them afterwards so later tests resolve their own.
+     * them empty in the shared environment. Resets the globals before, so a set an earlier test resolved without a
+     * request is not reused, and afterwards, so later tests resolve their own.
      *
      * @param array<string, mixed> $parameters
      */
@@ -82,6 +83,8 @@ class SortingTemplateTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        // drop globals an earlier test may have resolved without a request, otherwise Twig hands back that cached set
+        $twig->resetGlobals();
         $requestStack->push($request);
 
         try {

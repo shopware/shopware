@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\DependencyInjection;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryState\SalesChannel\SalesChannelCountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryStateTranslation\CountryStateTranslationDefinition;
@@ -42,6 +43,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.country.repository'),
             service('event_dispatcher'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CountryStateRoute::class)
@@ -50,5 +52,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('country_state.repository'),
             service('event_dispatcher'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 };

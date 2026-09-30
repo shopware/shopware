@@ -1,8 +1,13 @@
 /**
  * @sw-package discovery
  */
+import { registerFilelessMediaType } from 'src/core/service/utils/media-type.utils';
+
 import { mount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
+
+// The platform has no fileless media type of its own; extensions register theirs.
+registerFilelessMediaType('FILE_OPTIONAL', { placeholderIcon: 'icons-multicolor-file-thumbnail-glb' });
 
 describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
     let originalMediaLoad;
@@ -398,7 +403,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
             imagePreviewFailed: true,
-            trueSource: { mimeType: null, mediaType: { name: 'SPATIAL_SCENE' }, thumbnails: [] },
+            trueSource: { mimeType: null, mediaType: { name: 'FILE_OPTIONAL' }, thumbnails: [] },
         });
         await flushPromises();
 

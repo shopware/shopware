@@ -218,14 +218,14 @@
                                                                 <div class="gallery-slider-item-container">
                                                                     <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"
                                                                         {% if minHeight and (displayMode == "cover" or displayMode == "contain") %} style="min-height: {{ minHeight }}"{% endif %}
-                                                                        {% if (displayMode == "standard" and (image.isSpatialObject() or image.isSpatialScene())) %} style="min-height: 240px"{% endif %}>
+                                                                        {% if (displayMode == "standard" and image.isSpatial()) %} style="min-height: 240px"{% endif %}>
                                                                         {% set attributes = {
                                                                             class: 'img-fluid gallery-slider-image',
                                                                             title: (image.translated.title ?: fallbackImageTitle)
                                                                         } %}
 
                                                                         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
-                                                                        {% if image.isSpatialObject() or image.isSpatialScene() %}
+                                                                        {% if image.isSpatial() %}
                                                                             {% block element_image_gallery_inner_item_spatial %}
                                                                                  {% block element_image_gallery_inner_item_spatial_loader %}
                                                                                      <span class="badge bg-secondary m-3 position-absolute top-0 end-0 d-md-none">3D</span>
@@ -237,10 +237,8 @@
                                                                                  {% endblock %}
                                                                                  {% block element_image_gallery_inner_item_spatial_canvas %}
                                                                                     <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
-                                                                                        {# A scene has no file to load from — the viewer fetches its state by id instead. #}
                                                                                         {% set spatialGalleryViewerOptions = {
                                                                                             modelUrl: image.url,
-                                                                                            mediaId: image.isSpatialScene() ? image.id : null,
                                                                                             sliderPosition: loop.index0,
                                                                                         } %}
                                                                                         <canvas
@@ -404,7 +402,7 @@
 
                                                     {% for image in mediaItems %}
                                                         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
-                                                        {% if image.isSpatialObject() or image.isSpatialScene() %}
+                                                        {% if image.isSpatial() %}
                                                             {% block element_image_gallery_inner_single_spatial %}
                                                                 {% block element_image_gallery_inner_single_spatial_loader %}
                                                                     <span class="badge bg-secondary m-3 position-absolute top-0 end-0 d-md-none">3D</span>
@@ -416,10 +414,8 @@
                                                                 {% endblock %}
                                                                 {% block element_image_gallery_inner_single_spatial_canvas %}
                                                                     <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
-                                                                        {# A scene has no file to load from — the viewer fetches its state by id instead. #}
                                                                         {% set spatialGalleryViewerOptions = {
                                                                             modelUrl: image.url,
-                                                                            mediaId: image.isSpatialScene() ? image.id : null,
                                                                             sliderPosition: loop.index0,
                                                                         } %}
                                                                         <canvas
@@ -583,7 +579,7 @@
                                                                     } %}
 
                                                                     {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
-                                                                    {% if image.isSpatialObject() or image.isSpatialScene() %}
+                                                                    {% if image.isSpatial() %}
                                                                         {% block element_image_gallery_inner_thumbnails_item_inner_spatial %}
                                                                             {% sw_icon '3d-placeholder' style {
                                                                                 'size': 'fluid'
@@ -760,7 +756,7 @@
 
                                                                                                 {% block element_image_gallery_inner_zoom_modal_slider_item_image %}
                                                                                                     {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
-                                                                                                    {% if image.isSpatialObject() or image.isSpatialScene() %}
+                                                                                                    {% if image.isSpatial() %}
                                                                                                         {% block element_image_gallery_inner_zoom_modal_slider_item_image_spatial %}
                                                                                                             {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                                                                 media: image,
@@ -804,7 +800,7 @@
                                                                                             </div>
                                                                                             {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                                                                                             {% block element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial %}
-                                                                                                {% if image.isSpatialObject() or image.isSpatialScene() %}
+                                                                                                {% if image.isSpatial() %}
                                                                                                     {% block element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial_loader %}
                                                                                                         <span class="badge bg-secondary m-3 position-absolute top-0 end-0 d-md-none">3D</span>
                                                                                                         <div class="spatial-canvas-spinner position-absolute top-50 start-50 translate-middle bg-white flex justify-content-center align-items-center" style="--bs-bg-opacity: .8;">
@@ -815,10 +811,8 @@
                                                                                                     {% endblock %}
                                                                                                     {% block element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial_canvas %}
                                                                                                         <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
-                                                                                                            {# A scene has no file to load from — the viewer fetches its state by id instead. #}
                                                                                                             {% set spatialGalleryViewerOptions = {
                                                                                                                 modelUrl: image.url,
-                                                                                                                mediaId: image.isSpatialScene() ? image.id : null,
                                                                                                                 sliderPosition: loop.index0,
                                                                                                             } %}
                                                                                                             <canvas
@@ -942,7 +936,7 @@
                                                                                                     } %}
 
                                                                                                     {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
-                                                                                                    {% if image.isSpatialObject() or image.isSpatialScene() %}
+                                                                                                    {% if image.isSpatial() %}
                                                                                                         {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner_spatial %}
                                                                                                             {% sw_icon '3d-placeholder' style {
                                                                                                                 'size': 'fluid',

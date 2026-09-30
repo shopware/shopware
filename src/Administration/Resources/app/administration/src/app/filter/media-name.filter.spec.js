@@ -1,6 +1,11 @@
 /**
  * @sw-package framework
  */
+import { registerRepresentativeMediaType } from 'src/core/service/utils/media-type.utils';
+
+// The platform has no representative media type of its own; extensions register theirs.
+registerRepresentativeMediaType('ENTITY_REPRESENTATION');
+
 describe('src/app/filter/media-name.filter.js', () => {
     const mediaNameFilter = Shopware.Filter.getByName('mediaName');
 
@@ -53,7 +58,7 @@ describe('src/app/filter/media-name.filter.js', () => {
             mediaNameFilter({
                 fileName: 'Living room',
                 fileExtension: 'png',
-                mediaType: { name: 'SPATIAL_SCENE' },
+                mediaType: { name: 'ENTITY_REPRESENTATION' },
             }),
         ).toBe('Living room');
     });
@@ -69,6 +74,6 @@ describe('src/app/filter/media-name.filter.js', () => {
     });
 
     it('falls back when a representing media has no name at all', () => {
-        expect(mediaNameFilter({ mediaType: { name: 'SPATIAL_SCENE' } }, 'fallback')).toBe('fallback');
+        expect(mediaNameFilter({ mediaType: { name: 'ENTITY_REPRESENTATION' } }, 'fallback')).toBe('fallback');
     });
 });

@@ -18,8 +18,8 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
-use Shopware\Core\Content\Media\MediaType\SpatialSceneType;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
@@ -708,14 +708,15 @@ class MediaEntity extends Entity
     }
 
     /**
-     * Unlike a spatial object, a spatial scene carries no file. Its objects, lights and cameras are
-     * described by a separate entity referencing this media.
+     * Whether the spatial viewer is what shows this media, whatever it is the viewer ends up
+     * loading. Extensions bring their own spatial media types, so surfaces that render spatial
+     * media ask this rather than naming the types they know.
      *
      * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
      */
-    public function isSpatialScene(): bool
+    public function isSpatial(): bool
     {
-        return $this->mediaType instanceof SpatialSceneType;
+        return $this->mediaType instanceof SpatialMediaTypeInterface;
     }
 
     /**

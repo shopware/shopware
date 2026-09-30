@@ -3,8 +3,13 @@
 /**
  * @sw-package discovery
  */
+import { registerFilelessMediaType } from 'src/core/service/utils/media-type.utils';
+
 import { config, mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
+
+// The platform has no fileless media type of its own; extensions register theirs.
+registerFilelessMediaType('FILE_OPTIONAL');
 
 const itemMock = (options = {}) => {
     const itemOptions = {
@@ -814,7 +819,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     it('should not show the missing file banner for a media type that never carries a file', async () => {
         const wrapper = await createWrapper({
             hasFile: false,
-            mediaType: { name: 'SPATIAL_SCENE' },
+            mediaType: { name: 'FILE_OPTIONAL' },
         });
         await flushPromises();
 

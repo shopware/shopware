@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 #[Package('discovery')]
-class SpatialObjectType extends MediaType
+class SpatialObjectType extends MediaType implements SpatialMediaTypeInterface
 {
     protected string $name = 'SPATIAL_OBJECT';
 }

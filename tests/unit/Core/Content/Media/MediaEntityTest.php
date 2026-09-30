@@ -7,8 +7,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\MediaType\MediaType;
+use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
-use Shopware\Core\Content\Media\MediaType\SpatialSceneType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -73,22 +74,24 @@ class MediaEntityTest extends TestCase
         static::assertSame('Tuscany', $media->get('title'));
     }
 
-    public function testIsSpatialSceneOnlyMatchesTheSceneType(): void
+    public function testIsSpatialCoversEveryTypeTheViewerRenders(): void
     {
         $media = new MediaEntity();
 
-        static::assertFalse($media->isSpatialScene());
+        static::assertFalse($media->isSpatial());
 
         $media->setMediaType(new ImageType());
-        static::assertFalse($media->isSpatialScene());
+        static::assertFalse($media->isSpatial());
 
-        // A scene and an object are both spatial, but only one of them carries a file.
         $media->setMediaType(new SpatialObjectType());
-        static::assertFalse($media->isSpatialScene());
+        static::assertTrue($media->isSpatial());
         static::assertTrue($media->isSpatialObject());
 
-        $media->setMediaType(new SpatialSceneType());
-        static::assertTrue($media->isSpatialScene());
+        // An extension's own spatial type is spatial without being a spatial object.
+        $media->setMediaType(new class extends MediaType implements SpatialMediaTypeInterface {
+            protected string $name = 'EXTENSION_SPATIAL';
+        });
+        static::assertTrue($media->isSpatial());
         static::assertFalse($media->isSpatialObject());
     }
 

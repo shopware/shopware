@@ -110,6 +110,13 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         }
 
         $criteria->setLimit($reviewsPerPage);
+
+        // We are now paginating on the client's behalf, so make sure the result
+        // carries an exact total, the same way the product listing and the
+        // Storefront review loader do, otherwise the total would default to 0
+        // and headless clients could not page through the reviews.
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
         $criteria->removeState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
     }
 }

@@ -147,6 +147,7 @@ class ProductReviewRouteTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $searchedCriteria);
         static::assertSame(10, $searchedCriteria->getLimit());
+        static::assertSame(Criteria::TOTAL_COUNT_MODE_EXACT, $searchedCriteria->getTotalCountMode());
         static::assertFalse($searchedCriteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST));
     }
 
@@ -219,6 +220,8 @@ class ProductReviewRouteTest extends TestCase
 
         static::assertInstanceOf(Criteria::class, $searchedCriteria);
         static::assertSame(25, $searchedCriteria->getLimit());
+        // An explicit request limit is left untouched, so the total count mode is not forced either.
+        static::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $searchedCriteria->getTotalCountMode());
     }
 
     public function testLoadCapsConfiguredReviewsPerPageToStoreApiMaxLimit(): void

@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -20,15 +20,17 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 #[CoversClass(LineItemOfManufacturerRule::class)]
 class LineItemOfManufacturerRuleUnitTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     public function testCustomProductOptionsDoNotMatchNotEqualManufacturerRule(): void
     {
         $manufacturerId = '019fa77183677a04ba9eaff57eed9627';
 
-        $productLineItem = CartRuleFixture::createLineItem()
+        $productLineItem = self::createLineItem()
             ->setPayloadValue('manufacturerId', $manufacturerId);
-        $optionLineItem = CartRuleFixture::createLineItem('customized-products-option');
+        $optionLineItem = self::createLineItem('customized-products-option');
 
-        $customizedProductLineItem = CartRuleFixture::createLineItem('customized-products')
+        $customizedProductLineItem = self::createLineItem('customized-products')
             ->setGood(false)
             ->setChildren(new LineItemCollection([$productLineItem, $optionLineItem]));
 
@@ -38,7 +40,7 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         );
 
         $matches = $rule->match(new CartRuleScope(
-            CartRuleFixture::createCart(new LineItemCollection([$customizedProductLineItem])),
+            self::createCart(new LineItemCollection([$customizedProductLineItem])),
             static::createStub(SalesChannelContext::class),
         ));
 
@@ -55,7 +57,7 @@ class LineItemOfManufacturerRuleUnitTest extends TestCase
         );
 
         $hasMatch = $rule->match(new LineItemScope(
-            CartRuleFixture::createLineItem('customized-products-option'),
+            self::createLineItem('customized-products-option'),
             static::createStub(SalesChannelContext::class),
         ));
 

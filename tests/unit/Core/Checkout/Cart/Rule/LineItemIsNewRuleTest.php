@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -24,6 +24,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemIsNewRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     private LineItemIsNewRule $rule;
 
     protected function setUp(): void
@@ -89,7 +91,7 @@ class LineItemIsNewRuleTest extends TestCase
             $this->createLineItemWithIsNewMarker(false),
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -108,8 +110,8 @@ class LineItemIsNewRuleTest extends TestCase
             $this->createLineItemWithIsNewMarker($isNew),
             $this->createLineItemWithIsNewMarker(false),
         ]);
-        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -137,12 +139,12 @@ class LineItemIsNewRuleTest extends TestCase
     {
         $rule = new LineItemIsNewRule(false);
 
-        $lineItem = CartRuleFixture::createLineItem($type);
+        $lineItem = self::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -160,6 +162,6 @@ class LineItemIsNewRuleTest extends TestCase
 
     private function createLineItemWithIsNewMarker(bool $isNew): LineItem
     {
-        return CartRuleFixture::createLineItem()->setPayloadValue('isNew', $isNew);
+        return $this->createLineItem()->setPayloadValue('isNew', $isNew);
     }
 }

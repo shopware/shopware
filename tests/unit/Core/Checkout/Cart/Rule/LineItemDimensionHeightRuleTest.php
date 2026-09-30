@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -23,13 +23,15 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 #[CoversClass(LineItemDimensionHeightRule::class)]
 class LineItemDimensionHeightRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     #[DataProvider('matchTestDataProvider')]
     public function testMatch(string $operator, float $amount, bool $expectedResult): void
     {
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule($operator, $amount);
 
         $lineItemScope = new LineItemScope(
-            CartRuleFixture::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0),
+            static::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0),
             static::createStub(SalesChannelContext::class)
         );
 
@@ -160,10 +162,10 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule(Rule::OPERATOR_EQ, 10.0);
 
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add(CartRuleFixture::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0));
-        $lineItemCollection->add(CartRuleFixture::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0));
+        $lineItemCollection->add(static::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0));
+        $lineItemCollection->add(static::createLineItemWithDeliveryInfo(true, 1, 10.0, 10.0, 10.0, 10.0));
 
-        $cartRuleScope = new CartRuleScope(CartRuleFixture::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
+        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
 
         static::assertTrue($lineItemDimensionHeightRule->match($cartRuleScope));
     }
@@ -173,10 +175,10 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule(Rule::OPERATOR_EQ, 10.0);
 
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add(CartRuleFixture::createLineItemWithDeliveryInfo(true, 1, 10.0, 12.0, 10.0, 10.0));
-        $lineItemCollection->add(CartRuleFixture::createLineItemWithDeliveryInfo(true, 1, 10.0, 12.0, 10.0, 10.0));
+        $lineItemCollection->add(static::createLineItemWithDeliveryInfo(true, 1, 10.0, 12.0, 10.0, 10.0));
+        $lineItemCollection->add(static::createLineItemWithDeliveryInfo(true, 1, 10.0, 12.0, 10.0, 10.0));
 
-        $cartRuleScope = new CartRuleScope(CartRuleFixture::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
+        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
 
         static::assertFalse($lineItemDimensionHeightRule->match($cartRuleScope));
     }
@@ -187,10 +189,10 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $lineItemDimensionHeightRule = new LineItemDimensionHeightRule($operator, 10.0);
 
         $lineItemCollection = new LineItemCollection();
-        $lineItemCollection->add(CartRuleFixture::createLineItem());
-        $lineItemCollection->add(CartRuleFixture::createLineItem());
+        $lineItemCollection->add(static::createLineItem());
+        $lineItemCollection->add(static::createLineItem());
 
-        $cartRuleScope = new CartRuleScope(CartRuleFixture::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
+        $cartRuleScope = new CartRuleScope(static::createCart($lineItemCollection), static::createStub(SalesChannelContext::class));
 
         static::assertSame($expectedResult, $lineItemDimensionHeightRule->match($cartRuleScope));
     }
@@ -268,12 +270,12 @@ class LineItemDimensionHeightRuleTest extends TestCase
     {
         $rule = new LineItemDimensionHeightRule(Rule::OPERATOR_NEQ, 5.0);
 
-        $lineItem = CartRuleFixture::createLineItem($type);
+        $lineItem = self::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }

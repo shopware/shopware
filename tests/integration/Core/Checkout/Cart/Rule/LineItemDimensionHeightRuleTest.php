@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -30,6 +30,7 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 #[Group('rules')]
 class LineItemDimensionHeightRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -83,7 +84,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         $lineItem = $this->createLineItemWithHeight($lineItemHeight);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = CartRuleFixture::createLineItem();
+            $lineItem = $this->createLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -148,19 +149,19 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithHeight($lineItemHeight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = $this->createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithHeight($lineItemHeight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = $this->createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -188,24 +189,24 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithHeight($lineItemHeight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = $this->createLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithHeight($lineItemHeight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = $this->createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $containerLineItem = CartRuleFixture::createLineItem();
+        $containerLineItem = $this->createLineItem();
         if ($containerLineItemHeight !== null) {
             $containerLineItem = $this->createLineItemWithHeight($containerLineItemHeight);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -481,6 +482,6 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
     private function createLineItemWithHeight(?float $height): LineItem
     {
-        return CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, $height);
+        return $this->createLineItemWithDeliveryInfo(false, 1, 50.0, $height);
     }
 }

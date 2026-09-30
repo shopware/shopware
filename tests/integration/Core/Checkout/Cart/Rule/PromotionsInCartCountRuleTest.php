@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -31,6 +31,7 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Package('fundamentals@after-sales')]
 class PromotionsInCartCountRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -155,7 +156,7 @@ class PromotionsInCartCountRuleTest extends TestCase
         $rule = new PromotionsInCartCountRule();
         $rule->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
-        static::assertTrue($rule->match(new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection()), $this->createMock(SalesChannelContext::class))));
+        static::assertTrue($rule->match(new CartRuleScope($this->createCart(new LineItemCollection()), $this->createMock(SalesChannelContext::class))));
     }
 
     public function testRuleMatchesWithTwoLineItems(): void
@@ -164,10 +165,10 @@ class PromotionsInCartCountRuleTest extends TestCase
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_EQ]);
 
         $lineItemCollection = new LineItemCollection([
-            CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
-            CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
+            $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
+            $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
         ]);
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         static::assertTrue($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
     }
@@ -178,10 +179,10 @@ class PromotionsInCartCountRuleTest extends TestCase
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_NEQ]);
 
         $lineItemCollection = new LineItemCollection([
-            CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
-            CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
+            $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
+            $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE),
         ]);
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         static::assertFalse($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
     }
@@ -191,7 +192,7 @@ class PromotionsInCartCountRuleTest extends TestCase
         $rule = new PromotionsInCartCountRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $cart = CartRuleFixture::createCart(new LineItemCollection());
+        $cart = $this->createCart(new LineItemCollection());
 
         static::assertTrue($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
     }

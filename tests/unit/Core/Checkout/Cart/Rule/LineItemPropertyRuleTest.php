@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Cart\Rule\Helper\CartRuleScopeCase;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -24,10 +24,12 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\Rule\Helper\CartRuleScopeCase;
 #[CoversClass(LineItemPropertyRule::class)]
 class LineItemPropertyRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     #[DataProvider('cartRuleScopeProvider')]
     public function testCartRuleScopes(CartRuleScopeCase $case): void
     {
-        $cart = CartRuleFixture::createCart(new LineItemCollection($case->lineItems));
+        $cart = $this->createCart(new LineItemCollection($case->lineItems));
 
         $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
@@ -37,8 +39,8 @@ class LineItemPropertyRuleTest extends TestCase
     #[DataProvider('cartRuleScopeProvider')]
     public function testCartRuleScopesNested(CartRuleScopeCase $case): void
     {
-        $containerLineItem = CartRuleFixture::createContainerLineItem(new LineItemCollection($case->lineItems));
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = $this->createContainerLineItem(new LineItemCollection($case->lineItems));
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
@@ -89,12 +91,12 @@ class LineItemPropertyRuleTest extends TestCase
     {
         $rule = new LineItemPropertyRule([Uuid::randomHex()], Rule::OPERATOR_NEQ);
 
-        $lineItem = CartRuleFixture::createLineItem($type);
+        $lineItem = self::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -116,7 +118,7 @@ class LineItemPropertyRuleTest extends TestCase
      */
     private static function createLineItemWithVariantOptions(array $properties = [], array $options = []): LineItem
     {
-        $lineItem = CartRuleFixture::createLineItem();
+        $lineItem = self::createLineItem();
 
         $lineItem->setPayloadValue('propertyIds', $properties);
         $lineItem->setPayloadValue('optionIds', $options);

@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -29,6 +29,8 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 #[Group('rules')]
 class LineItemActualStockRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     private LineItemActualStockRule $rule;
 
     protected function setUp(): void
@@ -112,7 +114,7 @@ class LineItemActualStockRuleTest extends TestCase
             $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock1),
             $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock2),
         ]);
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -139,8 +141,8 @@ class LineItemActualStockRuleTest extends TestCase
             $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock1),
             $this->createLineItemWithStock(999)->setPayloadValue('stock', $lineItemStock2),
         ]);
-        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -185,7 +187,7 @@ class LineItemActualStockRuleTest extends TestCase
         $this->rule->assign(['stock' => 100, 'operator' => Rule::OPERATOR_EQ]);
 
         $scope = new LineItemScope(
-            CartRuleFixture::createLineItem(),
+            $this->createLineItem(),
             static::createStub(SalesChannelContext::class)
         );
 
@@ -204,7 +206,7 @@ class LineItemActualStockRuleTest extends TestCase
     {
         $goodsCountRule = new LineItemActualStockRule();
         $scope = new LineItemScope(
-            CartRuleFixture::createLineItem(),
+            $this->createLineItem(),
             static::createStub(SalesChannelContext::class)
         );
 
@@ -248,12 +250,12 @@ class LineItemActualStockRuleTest extends TestCase
     {
         $rule = new LineItemActualStockRule(Rule::OPERATOR_NEQ, 5);
 
-        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('stock', 10);
+        $lineItem = self::createLineItem($type)->setPayloadValue('stock', 10);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -271,6 +273,6 @@ class LineItemActualStockRuleTest extends TestCase
 
     private function createLineItemWithStock(int $stock): LineItem
     {
-        return CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 1, null, null, null, $stock);
+        return $this->createLineItemWithDeliveryInfo(false, 1, 1, null, null, null, $stock);
     }
 }

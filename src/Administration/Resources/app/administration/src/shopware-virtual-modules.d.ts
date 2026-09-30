@@ -39,6 +39,7 @@ declare module 'shopware:utils' {
     export const genericRuleCondition: (typeof members)['genericRuleCondition'];
     export const unitConversion: (typeof members)['unitConversion'];
     export const extension: (typeof members)['extension'];
+    export const mediaType: (typeof members)['mediaType'];
     export const mapInheritanceSlotPropsToMeteorProps: (typeof members)['mapInheritanceSlotPropsToMeteorProps'];
 }
 
@@ -282,6 +283,15 @@ declare module 'shopware:utils/extension' {
 
     export default member;
     export const getExtensionNameByOrigin: (typeof member)['getExtensionNameByOrigin'];
+}
+
+/** @experimental stableVersion:v6.8.0 */
+declare module 'shopware:utils/mediaType' {
+    import type branch from 'src/core/service/util.service';
+
+    const member: (typeof branch)['mediaType'];
+
+    export default member;
 }
 
 /** @experimental stableVersion:v6.8.0 */

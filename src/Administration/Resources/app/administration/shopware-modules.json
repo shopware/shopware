@@ -21,6 +21,7 @@
             "genericRuleCondition",
             "unitConversion",
             "extension",
+            "mediaType",
             "mapInheritanceSlotPropsToMeteorProps"
         ],
         "subpaths": {
@@ -118,6 +119,7 @@
             "extension": [
                 "getExtensionNameByOrigin"
             ],
+            "mediaType": [],
             "mapInheritanceSlotPropsToMeteorProps": []
         }
     },

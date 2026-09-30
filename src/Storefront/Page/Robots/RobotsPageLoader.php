@@ -69,7 +69,8 @@ class RobotsPageLoader
     {
         $criteria = new Criteria();
         $criteria
-            ->addFilter(new ContainsFilter('url', $hostname))
+            // Filter on the bare host: domains on a default port carry no port in their URL
+            ->addFilter(new ContainsFilter('url', parse_url('//' . $hostname, \PHP_URL_HOST) ?: $hostname))
             ->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
         ;
 
@@ -155,7 +156,7 @@ class RobotsPageLoader
     }
 
     /**
-     * Selects domains matching the given hostname exactly, preferring HTTPS over HTTP
+     * Selects domains matching the given hostname and port exactly, preferring HTTPS over HTTP
      * when the same host has both. Falls back to subdomains of the hostname (e.g.
      * `www.example.com` for `example.com`) when no domain matches exactly.
      *
@@ -170,14 +171,23 @@ class RobotsPageLoader
         \assert($hostname !== '');
 
         // HTTP_HOST is a bare `host[:port]` for HTTP and HTTPS alike. The `//` prefix only lets
-        // parse_url() recognise it as a host, so the port is dropped like on the domain side
-        $requestHost = strtolower(parse_url('//' . $hostname, \PHP_URL_HOST) ?: $hostname);
+        // parse_url() split it into host and port
+        $requestParts = parse_url('//' . $hostname) ?: [];
+        $requestHost = strtolower($requestParts['host'] ?? $hostname);
+        $requestPort = $requestParts['port'] ?? null;
 
         $exactMatches = [];
         $subdomainMatches = [];
 
         foreach ($domains as $domain) {
-            $domainHost = strtolower((string) parse_url($domain->getUrl(), \PHP_URL_HOST));
+            $domainParts = parse_url($domain->getUrl()) ?: [];
+            $domainHost = strtolower($domainParts['host'] ?? '');
+            $domainPort = $domainParts['port'] ?? (($domainParts['scheme'] ?? 'http') === 'https' ? 443 : 80);
+
+            // A header without a port stays lenient: proxies often strip it while the domain keeps it
+            if ($requestPort !== null && $requestPort !== $domainPort) {
+                continue;
+            }
 
             if ($domainHost === $requestHost) {
                 $exactMatches[] = $domain;

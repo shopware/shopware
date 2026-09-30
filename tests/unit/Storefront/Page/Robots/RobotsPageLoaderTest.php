@@ -7,7 +7,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -334,10 +338,31 @@ class RobotsPageLoaderTest extends TestCase
             'expectedDirective' => '/sales-channel-1/',
         ];
 
-        yield 'host comparison ignores the port and letter case' => [
+        yield 'host comparison ignores letter case and keeps the port' => [
             'httpHost' => 'Example.COM:8000',
             'domainUrls' => ['https://www.example.com', 'https://EXAMPLE.com:8000'],
             'expectedSitemap' => 'https://EXAMPLE.com:8000/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'port in the host header only matches a domain on that exact port' => [
+            'httpHost' => 'shop.test:80',
+            'domainUrls' => ['http://shop.test:8000', 'http://shop.test:8080', 'http://shop.test:80'],
+            'expectedSitemap' => 'http://shop.test:80/sitemap.xml',
+            'expectedDirective' => '/sales-channel-2/',
+        ];
+
+        yield 'explicit port 80 in the host header matches the http domain without a port' => [
+            'httpHost' => 'shop.test:80',
+            'domainUrls' => ['http://shop.test:8000', 'http://shop.test'],
+            'expectedSitemap' => 'http://shop.test/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'host header without a port still matches a domain with a port' => [
+            'httpHost' => 'shop.test',
+            'domainUrls' => ['http://www.shop.test', 'http://shop.test:8000'],
+            'expectedSitemap' => 'http://shop.test:8000/sitemap.xml',
             'expectedDirective' => '/sales-channel-1/',
         ];
 
@@ -412,6 +437,28 @@ class RobotsPageLoaderTest extends TestCase
         static::assertInstanceOf(DomainRuleStruct::class, $usRule);
         static::assertSame('/us', $usRule->getBasePath());
         static::assertSame('/us/account/', $usRule->getDirectives()[0]->value);
+    }
+
+    public function testSearchesDomainsByTheBareRequestHost(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com:443']);
+
+        $this->salesChannelDomainRepository = StaticEntityRepository::of(SalesChannelDomainCollection::class, [
+            static function (Criteria $criteria): SalesChannelDomainCollection {
+                static::assertEquals([
+                    new ContainsFilter('url', 'example.com'),
+                    new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                ], $criteria->getFilters());
+
+                return new SalesChannelDomainCollection();
+            },
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        $this->assertBasicPageStructure($page, 0, 0, 0);
     }
 
     public function testSelectsNoDomainWhenNoHostMatchesOrIsASubdomain(): void

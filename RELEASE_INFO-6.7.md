@@ -4,18 +4,10 @@
 
 ### Line item conditions evaluate line items by the data they carry
 
-These line item conditions evaluate every line item that carries the data they read, including line items that extensions add to the cart:
+Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only line items of the type `product`. Custom and credit line items and line items that extensions add to the cart no longer matched them, and a single custom line item could hide shipping methods or block promotions under a negated condition such as "Item with tag / All / Are none of".
 
-* Item in stock, Item marked as "new", Item is promoted, Item with clearance sale
-* Item in category, Item in dynamic product group, Item with manufacturer, Item with tag, Item with tax rate
-* Item with creation date, Item with release date, Item with custom field
-* Item with height, Item with length, Item with volume, Item with weight, Item with width
-* Item with list price, Item with price/list price ratio, Item with purchase price
-* Item with property value, Item with variant value, Item with variant or property value
+The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
 
-With the match mode "At least one", these conditions skip line items without the data they read, such as a custom product option without a manufacturer. The dimension conditions evaluate digital products too, which have no dimensions, and custom line items, whose weight and volume are 0 and whose height, width and length are empty. "Item with list price" and "Item with price/list price ratio" evaluate every line item.
-
-With the match mode "All", and in the filters of "Number of distinct products", "Subtotal of goods (excl. discounts/fees)" and "Total product quantity (units)", these conditions evaluate every line item they check, with or without that data. A custom line item no longer hides shipping methods or blocks promotions under a negated condition such as "Item with tag / All / Are none of".
 ## Features
 
 ### System configuration tabs

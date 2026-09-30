@@ -27,9 +27,9 @@
                 />
             </div>
 
-            <p class="sw-product-reviews__item-title h5"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
+            <h5 class="sw-product-reviews__item-title"{% if review.language %} lang="{{ review.language.translationCode.code }}"{% endif %}>
                 {{ review.title }}
-            </p>
+            </h5>
         </div>
     {% endblock %}
 

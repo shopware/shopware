@@ -45,18 +45,16 @@
             {% for point in 1..maxPoints %}
                 <label class="sw-form-star-rating__star{% if currentValue >= point %} is-active{% endif %}"
                        data-star-point="{{ point }}">
-                    <input class="sw-form-star-rating__radio sw-form-field__control"
+                    <input class="sw-form-star-rating__radio sw-form-field__control visually-hidden"
                            type="radio"
                            name="{{ name }}"
                            value="{{ point }}"
-                           aria-label="{{ "detail.review#{point}PointRatingText"|trans|striptags }}"
                            {% if currentValue >= point %} checked="checked"{% endif %}
                            {% if clientValidationRules is not empty %} data-validation="{{ clientValidationRules }}"{% endif %}
                            {% if required %} aria-required="true"{% endif %}
                            {% if isInvalid %} aria-invalid="true"{% endif %}>
-                    <span class="sw-form-star-rating__icon" aria-hidden="true">
-                        <twig:Sw:Icon name="star" pack="solid" size="xs" />
-                    </span>
+                    <span class="visually-hidden">{{ "detail.review#{point}PointRatingText"|trans|striptags }}</span>
+                    <twig:Sw:Icon name="star" pack="solid" size="xs" />
                 </label>
             {% endfor %}
 

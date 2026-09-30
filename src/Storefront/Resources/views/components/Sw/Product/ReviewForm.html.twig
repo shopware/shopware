@@ -30,8 +30,7 @@
                         <h3 class="card-title">{{ 'detail.reviewLoginHeader'|trans|sw_sanitize }}</h3>
                         <p class="sw-product-review-form__login-description">
                             {{ 'detail.reviewLoginDescription'|trans|sw_sanitize }}
-                            <a href="{{ path('frontend.account.login.page') }}"
-                               title="{{ 'detail.reviewRegisterLink'|trans|striptags }}">
+                            <a href="{{ path('frontend.account.login.page') }}">
                                 {{ 'detail.reviewRegisterLink'|trans|sw_sanitize }}
                             </a>
                         </p>
@@ -43,30 +42,42 @@
             {% endblock %}
         {% elseif reviews %}
             {% block feedback %}
-                <div class="sw-product-review-form__success alert alert-success d-none"
-                     role="alert" aria-live="polite" tabindex="-1" hidden>
+                <twig:Sw:Alert
+                    variant="success"
+                    class="sw-product-review-form__success d-none"
+                    aria-live="polite"
+                    tabindex="-1"
+                    hidden
+                >
                     {{ successMessage|sw_sanitize }}
-                </div>
+                </twig:Sw:Alert>
 
-                <div class="sw-product-review-form__error alert alert-danger d-none"
-                     role="alert" aria-live="assertive" hidden>
+                <twig:Sw:Alert
+                    variant="danger"
+                    class="sw-product-review-form__error d-none"
+                    aria-live="assertive"
+                    hidden
+                >
                     {{ 'detail.reviewFormErrorAlert'|trans|sw_sanitize }}
-                </div>
+                </twig:Sw:Alert>
             {% endblock %}
 
             {# The teaser stands in for the form once a review exists: shown from the start when the customer
                already has one, and revealed by JS after a new review is submitted. #}
             {% block teaser %}
                 <div class="sw-product-review-form__teaser js-review-form-teaser{% if not customerReview %} d-none{% endif %}">
-                    <p class="sw-product-review-form__teaser-title h4">
+                    <h4 class="sw-product-review-form__teaser-title">
                         {{ 'detail.reviewExistsTeaserTitle'|trans|sw_sanitize }}
-                    </p>
+                    </h4>
                     <p class="sw-product-review-form__teaser-text">
                         {{ 'detail.reviewExistsTeaserText'|trans|sw_sanitize }}
                     </p>
-                    <button type="button" class="sw-product-review-form__teaser-btn js-review-form-toggle btn btn-primary">
+                    <twig:Sw:Button
+                        variant="primary"
+                        class="sw-product-review-form__teaser-btn js-review-form-toggle"
+                    >
                         {{ 'detail.reviewExistsTeaserButton'|trans|sw_sanitize }}
-                    </button>
+                    </twig:Sw:Button>
                 </div>
             {% endblock %}
 
@@ -124,12 +135,20 @@
                             </p>
                             <div class="sw-product-review-form__actions">
                                 {# Cancel returns to the teaser; hidden until a review exists (revealed by JS after a submit). #}
-                                <button type="button" class="sw-product-review-form__cancel js-review-form-cancel btn btn-outline-secondary{% if not customerReview %} d-none{% endif %}">
+                                <twig:Sw:Button
+                                    variant="secondary"
+                                    :outline="true"
+                                    class="sw-product-review-form__cancel js-review-form-cancel{% if not customerReview %} d-none{% endif %}"
+                                >
                                     {{ 'global.default.cancel'|trans|sw_sanitize }}
-                                </button>
-                                <button type="submit" class="sw-product-review-form__submit btn btn-primary">
+                                </twig:Sw:Button>
+                                <twig:Sw:Button
+                                    type="submit"
+                                    variant="primary"
+                                    class="sw-product-review-form__submit"
+                                >
                                     {{ 'detail.reviewFormSubmitText'|trans|sw_sanitize }}
-                                </button>
+                                </twig:Sw:Button>
                             </div>
                         </div>
                     {% endblock %}

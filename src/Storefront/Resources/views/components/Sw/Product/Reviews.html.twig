@@ -58,23 +58,22 @@
                         {% block pagination %}
                             {% if totalPages > 1 %}
                                 <twig:Slot name="pagination">
-                                    <div class="sw-product-reviews__pagination">
-                                        <twig:Sw:Content:Pagination
-                                            :page="currentPage"
-                                            :totalPages="totalPages"
-                                            :total="productReviewCount"
-                                            :limit="reviewsPerPage"
-                                            scope="reviews"
-                                        />
-                                    </div>
+                                    <twig:Sw:Content:Pagination
+                                        class="sw-product-reviews__pagination"
+                                        :page="currentPage"
+                                        :totalPages="totalPages"
+                                        :total="productReviewCount"
+                                        :limit="reviewsPerPage"
+                                        scope="reviews"
+                                    />
                                 </twig:Slot>
                             {% endif %}
                         {% endblock %}
                     {% else %}
                         {% block empty_state %}
-                            <div class="sw-product-reviews__empty alert alert-info" role="alert">
+                            <twig:Sw:Alert variant="info" class="sw-product-reviews__empty">
                                 {{ 'detail.reviewListEmpty'|trans|sw_sanitize }}
-                            </div>
+                            </twig:Sw:Alert>
                         {% endblock %}
                     {% endif %}
                 {% endblock %}

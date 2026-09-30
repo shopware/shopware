@@ -28,8 +28,8 @@ export default class ProductReviews extends ShopwareComponent {
     }
 
     handleFiltersChange(params) {
-        // A sort or filter change resets to the first page.
-        this.activeParams = { ...params };
+        // Replace only the review controls and reset to the first page, keeping any unrelated query state.
+        this.activeParams = { ...this.withoutReviewParams(), ...params };
         this.debouncedReload();
     }
 
@@ -39,10 +39,18 @@ export default class ProductReviews extends ShopwareComponent {
     }
 
     handleReviewSubmitted() {
-        // The customer's own review shows even while pending. Clear any sort/filter/page so it is
-        // not filtered out of view; the default order is newest-first, so it lands on the first page.
-        this.activeParams = {};
+        // The customer's own review shows even while pending. Clear the review controls so it is not
+        // filtered out of view (default order is newest-first, so it lands on the first page), while
+        // keeping any unrelated query state.
+        this.activeParams = this.withoutReviewParams();
         this.debouncedReload();
+    }
+
+    withoutReviewParams() {
+        const preserved = { ...this.activeParams };
+        ['sort', 'language', 'p'].forEach((key) => delete preserved[key]);
+
+        return preserved;
     }
 
     paramsFromUrl() {

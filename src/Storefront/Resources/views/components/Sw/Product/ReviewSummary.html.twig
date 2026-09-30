@@ -29,6 +29,7 @@
                 :stars="avgRating"
                 :maxStars="maxPoints"
                 :allowHalf="true"
+                altText="{{ 'detail.reviewRatingAltText'|trans({ '%points%': avgRating, '%maxPoints%': maxPoints }) }}"
                 size="sm"
             />
 

@@ -32,8 +32,8 @@
     {% block sort %}
         {% if productReviewCount > 0 %}
             <div class="sw-product-reviews__sort">
-                <label class="form-label sw-product-reviews__sort-label" for="sw-reviews-sort">
-                    <small>{{ 'detail.reviewSortLabel'|trans|sw_sanitize }}</small>
+                <label class="form-label small sw-product-reviews__sort-label" for="sw-reviews-sort">
+                    {{ 'detail.reviewSortLabel'|trans|sw_sanitize }}
                 </label>
                 <select class="form-select form-select-sm js-reviews-sort" name="sort" id="sw-reviews-sort">
                     <option value="createdAt"{% if currentSort == 'createdAt' %} selected{% endif %}>

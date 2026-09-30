@@ -142,8 +142,9 @@ the mixin's `this` semantics:
 
 ### Extension targets
 
-A target outside the Administration's `src/` is migrated as an extension. An extension cannot import
-Administration source, so its composables come from the one module it can resolve:
+A component outside the Administration's `src/` is migrated as an extension, even when the selected
+target also contains Administration components. An extension cannot import Administration source, so
+its composables come from the one module it can resolve:
 
 ```js
 import { useNotification, useSalutation } from 'shopware:composables';

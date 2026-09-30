@@ -238,28 +238,45 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
         });
     });
 
-    describe('a target outside the Administration', () => {
+    describe('a target above the Administration source', () => {
         let tmpDir: string;
+        const sfcPath = (dir: string, name: string) => path.join(tmpDir, dir, name, `${name}.vue`);
 
         beforeAll(() => {
-            tmpDir = makeRoot('sfc-migration-extension-');
-            fs.cpSync(path.join(FIXTURES, 'sw-mixin-composable'), path.join(tmpDir, 'sw-mixin-composable'), {
+            tmpDir = makeRoot('sfc-migration-mixed-');
+            fs.cpSync(path.join(FIXTURES, 'sw-mixin-composable'), path.join(tmpDir, 'admin/src/sw-mixin-composable'), {
                 recursive: true,
             });
-            registerAll(tmpDir, 'sw-mixin-composable');
+            registerAll(path.join(tmpDir, 'admin/src'), 'sw-mixin-composable');
+
+            // The same component under another name, because a name registered twice is skipped.
+            const fixture = path.join(FIXTURES, 'sw-mixin-composable');
+            const index = fs
+                .readFileSync(path.join(fixture, 'index.js'), 'utf8')
+                .replace('composable.html', 'composable-copy.html');
+            writeFile(tmpDir, 'plugin/sw-mixin-composable-copy/index.js', index);
+            fs.copyFileSync(
+                path.join(fixture, 'sw-mixin-composable.html.twig'),
+                path.join(tmpDir, 'plugin/sw-mixin-composable-copy/sw-mixin-composable-copy.html.twig'),
+            );
+            registerAll(path.join(tmpDir, 'plugin'), 'sw-mixin-composable-copy');
         });
 
         afterAll(() => {
             fs.rmSync(tmpDir, { recursive: true, force: true });
         });
 
-        it('is migrated as an extension, which imports the composables from shopware:composables', async () => {
-            const result = await runMigration(tmpDir, { write: true });
-            const sfc = fs.readFileSync(path.join(tmpDir, 'sw-mixin-composable', 'sw-mixin-composable.vue'), 'utf8');
+        it('migrates each component outside the Administration source as an extension', async () => {
+            const result = await runMigration(tmpDir, { write: true, adminSrc: path.join(tmpDir, 'admin/src') });
+            const administrationSfc = fs.readFileSync(sfcPath('admin/src', 'sw-mixin-composable'), 'utf8');
+            const extensionSfc = fs.readFileSync(sfcPath('plugin', 'sw-mixin-composable-copy'), 'utf8');
 
             expect(reportOf(result, 'sw-mixin-composable')?.outcome).toBe('full');
-            expect(sfc).toContain("import { useNotification, useSalutation } from 'shopware:composables';");
-            expect(sfc).not.toContain('src/app/composables');
+            expect(reportOf(result, 'sw-mixin-composable-copy')?.outcome).toBe('full');
+            expect(administrationSfc).toContain("import useNotification from 'src/app/composables/use-notification';");
+            expect(administrationSfc).not.toContain('shopware:composables');
+            expect(extensionSfc).toContain("import { useNotification, useSalutation } from 'shopware:composables';");
+            expect(extensionSfc).not.toContain('src/app/composables');
         });
     });
 

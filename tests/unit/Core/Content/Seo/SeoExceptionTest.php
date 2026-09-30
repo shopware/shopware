@@ -103,4 +103,14 @@ class SeoExceptionTest extends TestCase
         static::assertSame('The path "account/login" of the SEO URL "login" is already used by a storefront route or another SEO URL.', $exception->getMessage());
         static::assertSame(['path' => 'account/login', 'seoUrlName' => 'login'], $exception->getParameters());
     }
+
+    public function testAppSeoUrlHookAlreadyRegistered(): void
+    {
+        $exception = SeoException::appSeoUrlHookAlreadyRegistered('imprint', 'legal-page', 'SwagLegalApp');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::APP_SEO_URL_HOOK_ALREADY_REGISTERED, $exception->getErrorCode());
+        static::assertSame('The hook "legal-page" of the SEO URL "imprint" is already used by app "SwagLegalApp".', $exception->getMessage());
+        static::assertSame(['hook' => 'legal-page', 'seoUrlName' => 'imprint', 'owningApp' => 'SwagLegalApp'], $exception->getParameters());
+    }
 }

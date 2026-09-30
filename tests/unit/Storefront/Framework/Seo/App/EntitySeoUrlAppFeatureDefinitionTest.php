@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Seo\App;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Framework\Seo\App\AppEntitySeoUrlConfig;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlClaims;
 use Shopware\Storefront\Framework\Seo\App\EntitySeoUrlAppFeatureDefinition;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
@@ -35,7 +38,7 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->definition = new EntitySeoUrlAppFeatureDefinition(StaticEntityRepository::of(SeoUrlTemplateCollection::class));
+        $this->definition = $this->buildDefinition(StaticEntityRepository::of(SeoUrlTemplateCollection::class));
     }
 
     public function testGetTypeReturnsStorefrontEntitySeoUrl(): void
@@ -93,7 +96,7 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
 
     public function testToPayloadAndFromPayloadRoundTrip(): void
     {
-        $config = $this->config();
+        $config = self::config();
 
         $payload = $this->definition->toPayload($config, null);
 
@@ -110,12 +113,83 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
 
     public function testToPayloadTakesTheDeclaredConfigOverTheStoredOneOnUpdate(): void
     {
-        $stored = $this->config(entityName: 'category', defaultTemplate: 'teaser/{{ category.name }}');
+        $stored = self::config(entityName: 'category', defaultTemplate: 'teaser/{{ category.name }}');
 
-        $payload = $this->definition->toPayload($this->config(), $stored);
+        $payload = $this->definition->toPayload(self::config(), $stored);
 
         static::assertSame('product', $payload['entityName']);
         static::assertSame('teaser/{{ product.productNumber }}', $payload['defaultTemplate']);
+    }
+
+    public function testValidateSkipsTheHookLookupWhenNoEntitySeoUrlsAreDeclared(): void
+    {
+        $claims = $this->createMock(AppSeoUrlClaims::class);
+        $claims->expects($this->never())->method('hooksOfOtherApps');
+
+        $this->buildDefinition(StaticEntityRepository::of(SeoUrlTemplateCollection::class), $claims)
+            ->validate([], $this->persistContext());
+    }
+
+    /**
+     * @param list<AppEntitySeoUrlConfig> $configs
+     * @param array<string, string> $hooksOfOtherApps hook => app name
+     */
+    #[DataProvider('rejectedDeclarations')]
+    public function testValidateRejectsTheDeclaration(array $configs, SeoException $expected, array $hooksOfOtherApps = []): void
+    {
+        $definition = $this->buildDefinition(StaticEntityRepository::of(SeoUrlTemplateCollection::class), $this->claims($hooksOfOtherApps));
+
+        $this->expectExceptionObject($expected);
+
+        $definition->validate($configs, $this->persistContext());
+    }
+
+    /**
+     * @return iterable<string, array{configs: list<AppEntitySeoUrlConfig>, expected: SeoException, hooksOfOtherApps?: array<string, string>}>
+     */
+    public static function rejectedDeclarations(): iterable
+    {
+        yield 'a hook used by the SEO URL of another app is already registered' => [
+            'configs' => [self::config()],
+            'expected' => SeoException::appSeoUrlHookAlreadyRegistered('product-teaser', 'teaser-page', 'OtherApp'),
+            'hooksOfOtherApps' => ['teaser-page' => 'OtherApp'],
+        ];
+
+        yield 'two entity SEO URLs of the app sharing a hook' => [
+            'configs' => [
+                self::config(),
+                self::config(name: 'category-teaser', entityName: 'category', defaultTemplate: 'teaser/{{ category.translated.name }}'),
+            ],
+            'expected' => SeoException::appSeoUrlHookAlreadyRegistered('category-teaser', 'teaser-page', self::APP_NAME),
+        ];
+    }
+
+    /**
+     * @param list<AppEntitySeoUrlConfig> $configs
+     * @param array<string, string> $hooksOfOtherApps hook => app name
+     */
+    #[DataProvider('acceptedDeclarations')]
+    public function testValidateAcceptsTheDeclaration(array $configs, array $hooksOfOtherApps = []): void
+    {
+        $definition = $this->buildDefinition(StaticEntityRepository::of(SeoUrlTemplateCollection::class), $this->claims($hooksOfOtherApps));
+
+        $this->expectNotToPerformAssertions();
+
+        $definition->validate($configs, $this->persistContext());
+    }
+
+    /**
+     * @return iterable<string, array{configs: list<AppEntitySeoUrlConfig>, hooksOfOtherApps?: array<string, string>}>
+     */
+    public static function acceptedDeclarations(): iterable
+    {
+        yield 'hooks no other app uses' => [
+            'configs' => [
+                self::config(),
+                self::config(name: 'category-teaser', hook: 'category-page', entityName: 'category', defaultTemplate: 'teaser/{{ category.translated.name }}'),
+            ],
+            'hooksOfOtherApps' => ['faq' => 'OtherApp'],
+        ];
     }
 
     public function testPersistedSeedsTheSalesChannelIndependentDefaultTemplate(): void
@@ -131,7 +205,7 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
             },
         ]);
 
-        (new EntitySeoUrlAppFeatureDefinition($repository))->persisted([$this->config()], $this->persistContext());
+        $this->buildDefinition($repository)->persisted([self::config()], $this->persistContext());
 
         static::assertSame([[
             'routeName' => self::TEASER_ROUTE,
@@ -149,7 +223,7 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
             new SeoUrlTemplateCollection([$this->template(entityName: 'product', template: 'my-teaser/{{ product.translated.name }}')]),
         ]);
 
-        (new EntitySeoUrlAppFeatureDefinition($repository))->persisted([$this->config()], $this->persistContext());
+        $this->buildDefinition($repository)->persisted([self::config()], $this->persistContext());
 
         static::assertSame([], $repository->creates);
         static::assertSame([], $repository->updates);
@@ -162,10 +236,10 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
             new SeoUrlTemplateCollection(),
         ]);
 
-        (new EntitySeoUrlAppFeatureDefinition($repository))->persisted(
+        $this->buildDefinition($repository)->persisted(
             [
-                $this->config(),
-                $this->config(name: 'blog-detail', entityName: 'ce_blog', defaultTemplate: 'blog/{{ ceBlog.translated.title }}'),
+                self::config(),
+                self::config(name: 'blog-detail', entityName: 'ce_blog', defaultTemplate: 'blog/{{ ceBlog.translated.title }}'),
             ],
             $this->persistContext()
         );
@@ -180,10 +254,29 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
     {
         $repository = StaticEntityRepository::of(SeoUrlTemplateCollection::class);
 
-        (new EntitySeoUrlAppFeatureDefinition($repository))->persisted([], $this->persistContext());
+        $this->buildDefinition($repository)->persisted([], $this->persistContext());
 
         static::assertSame([], $repository->creates);
         static::assertSame([], $repository->updates);
+    }
+
+    /**
+     * @param StaticEntityRepository<SeoUrlTemplateCollection> $repository
+     */
+    private function buildDefinition(StaticEntityRepository $repository, ?AppSeoUrlClaims $claims = null): EntitySeoUrlAppFeatureDefinition
+    {
+        return new EntitySeoUrlAppFeatureDefinition($repository, $claims ?? static::createStub(AppSeoUrlClaims::class));
+    }
+
+    /**
+     * @param array<string, string> $hooksOfOtherApps hook => app name
+     */
+    private function claims(array $hooksOfOtherApps): AppSeoUrlClaims
+    {
+        $claims = static::createStub(AppSeoUrlClaims::class);
+        $claims->method('hooksOfOtherApps')->willReturn($hooksOfOtherApps);
+
+        return $claims;
     }
 
     private function persistContext(): AppPersistContext
@@ -194,15 +287,16 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
         );
     }
 
-    private function config(
+    private static function config(
         string $name = 'product-teaser',
+        string $hook = 'teaser-page',
         string $entityName = 'product',
         string $defaultTemplate = 'teaser/{{ product.productNumber }}',
     ): AppEntitySeoUrlConfig {
         return new AppEntitySeoUrlConfig(
             name: $name,
             routeName: 'storefront.app.' . self::APP_NAME . '.' . $name,
-            hook: 'teaser-page',
+            hook: $hook,
             entityName: $entityName,
             defaultTemplate: $defaultTemplate,
         );

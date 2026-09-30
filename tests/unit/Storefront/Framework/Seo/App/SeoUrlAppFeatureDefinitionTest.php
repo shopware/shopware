@@ -13,7 +13,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\SeoUrl;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\Framework\Util\Filesystem;
-use Shopware\Core\Framework\Util\Json;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlClaims;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlConfig;
 use Shopware\Storefront\Framework\Seo\App\SeoUrlAppFeatureDefinition;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
@@ -35,6 +35,7 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
         $this->definition = new SeoUrlAppFeatureDefinition(
             static::createStub(Connection::class),
             static::createStub(RouteBlocklistService::class),
+            static::createStub(AppSeoUrlClaims::class),
         );
     }
 
@@ -136,28 +137,31 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
     public function testValidateSkipsAllLookupsWhenNoSeoUrlsAreDeclared(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociative');
         $connection->expects($this->never())->method('fetchOne');
 
         $routeBlocklist = $this->createMock(RouteBlocklistService::class);
         $routeBlocklist->expects($this->never())->method('isPathBlocked');
 
-        (new SeoUrlAppFeatureDefinition($connection, $routeBlocklist))->validate([], $this->persistContext());
+        $claims = $this->createMock(AppSeoUrlClaims::class);
+        $claims->expects($this->never())->method('pathsOfOtherApps');
+        $claims->expects($this->never())->method('hooksOfOtherApps');
+
+        (new SeoUrlAppFeatureDefinition($connection, $routeBlocklist, $claims))->validate([], $this->persistContext());
     }
 
     public function testValidateSkipsTheSeoUrlLookupWhenTheSeoUrlsDeclareNoPath(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
         $connection->expects($this->never())->method('fetchOne');
 
-        (new SeoUrlAppFeatureDefinition($connection, static::createStub(RouteBlocklistService::class)))
+        (new SeoUrlAppFeatureDefinition($connection, static::createStub(RouteBlocklistService::class), static::createStub(AppSeoUrlClaims::class)))
             ->validate([self::config('imprint', [])], $this->persistContext());
     }
 
     /**
      * @param list<AppSeoUrlConfig> $configs
-     * @param array<string, array<string, string>> $pathsOfOtherApps app name => declared paths
+     * @param array<string, string> $pathsOfOtherApps normalized path => app name
+     * @param array<string, string> $hooksOfOtherApps hook => app name
      * @param list<string> $blockedPaths
      */
     #[DataProvider('rejectedDeclarations')]
@@ -165,10 +169,11 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
         array $configs,
         SeoException $expected,
         array $pathsOfOtherApps = [],
+        array $hooksOfOtherApps = [],
         array $blockedPaths = [],
         ?string $pathUsedBySeoUrls = null,
     ): void {
-        $definition = $this->buildDefinition($pathsOfOtherApps, $blockedPaths, $pathUsedBySeoUrls);
+        $definition = $this->buildDefinition($pathsOfOtherApps, $hooksOfOtherApps, $blockedPaths, $pathUsedBySeoUrls);
 
         $this->expectExceptionObject($expected);
 
@@ -176,7 +181,7 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{configs: list<AppSeoUrlConfig>, expected: SeoException, pathsOfOtherApps?: array<string, array<string, string>>, blockedPaths?: list<string>, pathUsedBySeoUrls?: string}>
+     * @return iterable<string, array{configs: list<AppSeoUrlConfig>, expected: SeoException, pathsOfOtherApps?: array<string, string>, hooksOfOtherApps?: array<string, string>, blockedPaths?: list<string>, pathUsedBySeoUrls?: string}>
      */
     public static function rejectedDeclarations(): iterable
     {
@@ -210,13 +215,13 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
         yield 'a path declared by another app is already registered' => [
             'configs' => [self::config('imprint', ['en-GB' => 'imprint'])],
             'expected' => SeoException::appSeoUrlPathAlreadyRegistered('imprint', 'imprint', 'OtherApp'),
-            'pathsOfOtherApps' => ['OtherApp' => ['en-GB' => 'imprint']],
+            'pathsOfOtherApps' => ['imprint' => 'OtherApp'],
         ];
 
-        yield 'another app claims a path regardless of case and leading slash' => [
-            'configs' => [self::config('imprint', ['de-DE' => 'IMPRESSUM'])],
-            'expected' => SeoException::appSeoUrlPathAlreadyRegistered('imprint', 'IMPRESSUM', 'OtherApp'),
-            'pathsOfOtherApps' => ['OtherApp' => ['en-GB' => 'about', 'de-DE' => '/Impressum']],
+        yield 'a path claimed by another app is matched regardless of case and leading slash' => [
+            'configs' => [self::config('imprint', ['de-DE' => '/IMPRESSUM'])],
+            'expected' => SeoException::appSeoUrlPathAlreadyRegistered('imprint', '/IMPRESSUM', 'OtherApp'),
+            'pathsOfOtherApps' => ['about' => 'OtherApp', 'impressum' => 'OtherApp'],
         ];
 
         yield 'two SEO URLs of the app sharing a path' => [
@@ -249,16 +254,31 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
             'expected' => SeoException::appSeoUrlPathInUse('legal-notice', '/Legal'),
             'pathUsedBySeoUrls' => 'legal',
         ];
+
+        yield 'a hook used by the SEO URL of another app is already registered' => [
+            'configs' => [self::config('imprint', ['en-GB' => 'imprint'], hook: 'legal-page')],
+            'expected' => SeoException::appSeoUrlHookAlreadyRegistered('imprint', 'legal-page', 'OtherApp'),
+            'hooksOfOtherApps' => ['legal-page' => 'OtherApp'],
+        ];
+
+        yield 'two SEO URLs of the app sharing a hook' => [
+            'configs' => [
+                self::config('imprint', ['en-GB' => 'imprint'], hook: 'legal-page'),
+                self::config('legal-notice', ['en-GB' => 'legal-notice'], hook: 'legal-page'),
+            ],
+            'expected' => SeoException::appSeoUrlHookAlreadyRegistered('legal-notice', 'legal-page', self::APP_NAME),
+        ];
     }
 
     /**
      * @param list<AppSeoUrlConfig> $configs
-     * @param array<string, array<string, string>> $pathsOfOtherApps app name => declared paths
+     * @param array<string, string> $pathsOfOtherApps normalized path => app name
+     * @param array<string, string> $hooksOfOtherApps hook => app name
      */
     #[DataProvider('acceptedDeclarations')]
-    public function testValidateAcceptsTheDeclaration(array $configs, array $pathsOfOtherApps = []): void
+    public function testValidateAcceptsTheDeclaration(array $configs, array $pathsOfOtherApps = [], array $hooksOfOtherApps = []): void
     {
-        $definition = $this->buildDefinition($pathsOfOtherApps);
+        $definition = $this->buildDefinition($pathsOfOtherApps, $hooksOfOtherApps);
 
         $this->expectNotToPerformAssertions();
 
@@ -266,16 +286,17 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{configs: list<AppSeoUrlConfig>, pathsOfOtherApps?: array<string, array<string, string>>}>
+     * @return iterable<string, array{configs: list<AppSeoUrlConfig>, pathsOfOtherApps?: array<string, string>, hooksOfOtherApps?: array<string, string>}>
      */
     public static function acceptedDeclarations(): iterable
     {
-        yield 'paths no other app, route or SEO URL uses' => [
+        yield 'paths and hooks no other app, route or SEO URL uses' => [
             'configs' => [
                 self::config('imprint', ['en-GB' => 'imprint', 'de-DE' => 'impressum']),
                 self::config('contact', ['en-GB' => 'contact']),
             ],
-            'pathsOfOtherApps' => ['OtherApp' => ['en-GB' => 'faq']],
+            'pathsOfOtherApps' => ['faq' => 'OtherApp'],
+            'hooksOfOtherApps' => ['faq' => 'OtherApp'],
         ];
 
         yield 'the same path in two locales of one SEO URL' => [
@@ -291,45 +312,22 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
         ];
     }
 
-    public function testValidateIgnoresStoredSeoUrlsOfOtherAppsWithoutUsablePaths(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['app_name' => 'OtherApp', 'payload' => Json::encode(['name' => 'imprint'])],
-            ['app_name' => 'OtherApp', 'payload' => Json::encode(['name' => 'legal', 'paths' => 'imprint'])],
-            ['app_name' => 'OtherApp', 'payload' => Json::encode(['name' => 'about', 'paths' => ['en-GB' => ['imprint'], 'de-DE' => null]])],
-        ]);
-        $connection->method('fetchOne')->willReturn(false);
-
-        $definition = new SeoUrlAppFeatureDefinition($connection, static::createStub(RouteBlocklistService::class));
-
-        $this->expectNotToPerformAssertions();
-
-        $definition->validate([self::config('imprint', ['en-GB' => 'imprint'])], $this->persistContext());
-    }
-
     /**
-     * @param array<string, array<string, string>> $pathsOfOtherApps app name => declared paths
+     * @param array<string, string> $pathsOfOtherApps normalized path => app name
+     * @param array<string, string> $hooksOfOtherApps hook => app name
      * @param list<string> $blockedPaths
      */
     private function buildDefinition(
         array $pathsOfOtherApps = [],
+        array $hooksOfOtherApps = [],
         array $blockedPaths = [],
         ?string $pathUsedBySeoUrls = null,
     ): SeoUrlAppFeatureDefinition {
-        $otherAppRows = [];
-        foreach ($pathsOfOtherApps as $appName => $paths) {
-            $otherAppRows[] = [
-                'app_name' => $appName,
-                'payload' => Json::encode($this->definition->toPayload(
-                    new AppSeoUrlConfig('other-seo-url', 'storefront.app.' . $appName . '.other-seo-url', 'other-seo-url', $paths),
-                    null
-                )),
-            ];
-        }
+        $claims = static::createStub(AppSeoUrlClaims::class);
+        $claims->method('pathsOfOtherApps')->willReturn($pathsOfOtherApps);
+        $claims->method('hooksOfOtherApps')->willReturn($hooksOfOtherApps);
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn($otherAppRows);
         $connection->method('fetchOne')->willReturnCallback(
             /**
              * @param array<string, mixed> $params
@@ -342,7 +340,7 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
             static fn (string $path): bool => \in_array($path, $blockedPaths, true)
         );
 
-        return new SeoUrlAppFeatureDefinition($connection, $routeBlocklist);
+        return new SeoUrlAppFeatureDefinition($connection, $routeBlocklist, $claims);
     }
 
     private function persistContext(): AppPersistContext
@@ -356,8 +354,8 @@ class SeoUrlAppFeatureDefinitionTest extends TestCase
     /**
      * @param array<string, string> $paths
      */
-    private static function config(string $name, array $paths): AppSeoUrlConfig
+    private static function config(string $name, array $paths, ?string $hook = null): AppSeoUrlConfig
     {
-        return new AppSeoUrlConfig($name, 'storefront.app.' . self::APP_NAME . '.' . $name, $name, $paths);
+        return new AppSeoUrlConfig($name, 'storefront.app.' . self::APP_NAME . '.' . $name, $hook ?? $name, $paths);
     }
 }

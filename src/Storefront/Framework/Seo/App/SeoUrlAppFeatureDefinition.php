@@ -13,7 +13,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\SeoUrl;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\Framework\Util\Filesystem;
-use Shopware\Core\Framework\Util\Json;
 
 /**
  * Maps the manifest `<storefront><seo-url>` elements to `app_feature` rows of type `storefront_seo_url`.
@@ -32,6 +31,7 @@ final class SeoUrlAppFeatureDefinition extends AppFeatureDefinition
     public function __construct(
         private readonly Connection $connection,
         private readonly RouteBlocklistService $routeBlocklistService,
+        private readonly AppSeoUrlClaims $claims,
     ) {
     }
 
@@ -75,8 +75,10 @@ final class SeoUrlAppFeatureDefinition extends AppFeatureDefinition
 
         $appName = $context->app->getName();
         $ownRouteNamePrefix = AppSeoUrlRoute::routeNamePrefix($appName);
-        $claimedByOtherApps = $this->pathsOfOtherApps($appName);
+        $claimedByOtherApps = $this->claims->pathsOfOtherApps($appName);
+        $hooksOfOtherApps = $this->claims->hooksOfOtherApps($appName);
         $declaredBy = [];
+        $declaredHooks = [];
 
         foreach ($configs as $config) {
             foreach (array_unique($config->getPaths()) as $path) {
@@ -84,7 +86,7 @@ final class SeoUrlAppFeatureDefinition extends AppFeatureDefinition
                     throw SeoException::appSeoUrlPathInvalid($config->getName(), $path);
                 }
 
-                $normalizedPath = self::normalize($path);
+                $normalizedPath = AppSeoUrlClaims::normalizePath($path);
 
                 if (isset($claimedByOtherApps[$normalizedPath])) {
                     throw SeoException::appSeoUrlPathAlreadyRegistered($config->getName(), $path, $claimedByOtherApps[$normalizedPath]);
@@ -100,6 +102,18 @@ final class SeoUrlAppFeatureDefinition extends AppFeatureDefinition
 
                 $declaredBy[$normalizedPath] = $config->getName();
             }
+
+            $hook = $config->getHook();
+
+            if (isset($hooksOfOtherApps[$hook])) {
+                throw SeoException::appSeoUrlHookAlreadyRegistered($config->getName(), $hook, $hooksOfOtherApps[$hook]);
+            }
+
+            if (isset($declaredHooks[$hook])) {
+                throw SeoException::appSeoUrlHookAlreadyRegistered($config->getName(), $hook, $appName);
+            }
+
+            $declaredHooks[$hook] = true;
         }
     }
 
@@ -129,35 +143,6 @@ final class SeoUrlAppFeatureDefinition extends AppFeatureDefinition
         );
     }
 
-    /**
-     * @return array<string, string> normalized path => app name
-     */
-    private function pathsOfOtherApps(string $appName): array
-    {
-        $rows = $this->connection->fetchAllAssociative(
-            'SELECT `app_name`, `payload` FROM `app_feature` WHERE `type` = :type AND `app_name` != :appName',
-            ['type' => self::TYPE, 'appName' => $appName],
-        );
-
-        $claimedBy = [];
-
-        foreach ($rows as $row) {
-            $paths = Json::decodeToArray((string) $row['payload'])['paths'] ?? [];
-
-            if (!\is_array($paths)) {
-                continue;
-            }
-
-            foreach ($paths as $path) {
-                if (\is_string($path)) {
-                    $claimedBy[self::normalize($path)] = (string) $row['app_name'];
-                }
-            }
-        }
-
-        return $claimedBy;
-    }
-
     private function isInUse(string $normalizedPath, string $ownRouteNamePrefix): bool
     {
         if ($this->routeBlocklistService->isPathBlocked($normalizedPath)) {
@@ -180,10 +165,5 @@ final class SeoUrlAppFeatureDefinition extends AppFeatureDefinition
                 'ownRoutes' => addcslashes($ownRouteNamePrefix, '\\%_') . '%',
             ],
         ) !== false;
-    }
-
-    private static function normalize(string $path): string
-    {
-        return mb_strtolower(ltrim($path, '/'));
     }
 }

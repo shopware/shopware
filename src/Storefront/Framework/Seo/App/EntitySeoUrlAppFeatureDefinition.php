@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Seo\App;
 
+use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
 use Shopware\Core\Framework\App\Feature\AppFeatureDefinition;
@@ -32,8 +33,10 @@ final class EntitySeoUrlAppFeatureDefinition extends AppFeatureDefinition
     /**
      * @param EntityRepository<SeoUrlTemplateCollection> $seoUrlTemplateRepository
      */
-    public function __construct(private readonly EntityRepository $seoUrlTemplateRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $seoUrlTemplateRepository,
+        private readonly AppSeoUrlClaims $claims,
+    ) {
     }
 
     public function getType(): string
@@ -60,6 +63,34 @@ final class EntitySeoUrlAppFeatureDefinition extends AppFeatureDefinition
             ),
             $manifest->getStorefront()?->getEntitySeoUrls() ?? []
         );
+    }
+
+    /**
+     * @param list<AppEntitySeoUrlConfig> $configs
+     */
+    public function validate(array $configs, AppPersistContext $context): void
+    {
+        if ($configs === []) {
+            return;
+        }
+
+        $appName = $context->app->getName();
+        $hooksOfOtherApps = $this->claims->hooksOfOtherApps($appName);
+        $declaredHooks = [];
+
+        foreach ($configs as $config) {
+            $hook = $config->getHook();
+
+            if (isset($hooksOfOtherApps[$hook])) {
+                throw SeoException::appSeoUrlHookAlreadyRegistered($config->getName(), $hook, $hooksOfOtherApps[$hook]);
+            }
+
+            if (isset($declaredHooks[$hook])) {
+                throw SeoException::appSeoUrlHookAlreadyRegistered($config->getName(), $hook, $appName);
+            }
+
+            $declaredHooks[$hook] = true;
+        }
     }
 
     /**

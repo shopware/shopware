@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlClaims;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlDomainListener;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlIndexer;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlLifecycleHandler;
@@ -63,16 +64,23 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    $services->set(AppSeoUrlClaims::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
     $services->set(SeoUrlAppFeatureDefinition::class)
         ->args([
             service(Connection::class),
             service(RouteBlocklistService::class),
+            service(AppSeoUrlClaims::class),
         ])
         ->tag('shopware.app_feature.definition');
 
     $services->set(EntitySeoUrlAppFeatureDefinition::class)
         ->args([
             service('seo_url_template.repository'),
+            service(AppSeoUrlClaims::class),
         ])
         ->tag('shopware.app_feature.definition');
 

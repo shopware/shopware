@@ -282,7 +282,7 @@ class AppSeoUrlTest extends TestCase
 
         $this->expectExceptionObject(SeoException::appSeoUrlPathAlreadyRegistered('legal-notice', 'imprint', self::APP_NAME));
 
-        $this->installLegalNoticeApp();
+        $this->installAnotherApp('SwagLegalNotice');
     }
 
     public function testInstallingAnAppWhoseStaticPathIsTheCanonicalSeoUrlOfAnotherRouteFails(): void
@@ -299,7 +299,28 @@ class AppSeoUrlTest extends TestCase
 
         $this->expectExceptionObject(SeoException::appSeoUrlPathInUse('legal-notice', 'imprint'));
 
-        $this->installLegalNoticeApp();
+        $this->installAnotherApp('SwagLegalNotice');
+    }
+
+    public function testInstallingAnotherAppThatDeclaresTheSameHookFails(): void
+    {
+        $this->installApp();
+
+        $this->expectExceptionObject(SeoException::appSeoUrlHookAlreadyRegistered('other', 'app-product', self::APP_NAME));
+
+        $this->installAnotherApp('SwagHookThief');
+    }
+
+    public function testInstallingAnotherAppWithAHookOfItsOwnSucceeds(): void
+    {
+        $this->installApp();
+
+        $this->installAnotherApp('own-hook/SwagHookThief');
+
+        static::assertSame(
+            ['product', 'other/{{ product.productNumber }}'],
+            $this->fetchDefaultTemplate('storefront.app.SwagHookThief.other')
+        );
     }
 
     public function testUpdatingTheAppRemovesTheSeoUrlsAndTheTemplateOfARouteItNoLongerDeclares(): void
@@ -506,10 +527,10 @@ class AppSeoUrlTest extends TestCase
         );
     }
 
-    private function installLegalNoticeApp(): void
+    private function installAnotherApp(string $fixture): void
     {
         static::getContainer()->get(AppManager::class)->install(
-            Manifest::createFromXmlFile(__DIR__ . '/_fixtures/SwagLegalNotice/manifest.xml'),
+            Manifest::createFromXmlFile(__DIR__ . '/_fixtures/' . $fixture . '/manifest.xml'),
             new AppInstallParameters(),
             $this->context
         );

@@ -24,6 +24,7 @@ class SeoException extends HttpException
     public const APP_SEO_URL_PATH_INVALID = 'CONTENT__SEO_APP_SEO_URL_PATH_INVALID';
     public const APP_SEO_URL_PATH_ALREADY_REGISTERED = 'CONTENT__SEO_APP_SEO_URL_PATH_ALREADY_REGISTERED';
     public const APP_SEO_URL_PATH_IN_USE = 'CONTENT__SEO_APP_SEO_URL_PATH_IN_USE';
+    public const APP_SEO_URL_HOOK_ALREADY_REGISTERED = 'CONTENT__SEO_APP_SEO_URL_HOOK_ALREADY_REGISTERED';
     /**
      * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
      */
@@ -139,6 +140,16 @@ class SeoException extends HttpException
             self::APP_SEO_URL_PATH_IN_USE,
             'The path "{{ path }}" of the SEO URL "{{ seoUrlName }}" is already used by a storefront route or another SEO URL.',
             ['path' => $path, 'seoUrlName' => $seoUrlName],
+        );
+    }
+
+    public static function appSeoUrlHookAlreadyRegistered(string $seoUrlName, string $hook, string $owningApp): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::APP_SEO_URL_HOOK_ALREADY_REGISTERED,
+            'The hook "{{ hook }}" of the SEO URL "{{ seoUrlName }}" is already used by app "{{ owningApp }}".',
+            ['hook' => $hook, 'seoUrlName' => $seoUrlName, 'owningApp' => $owningApp],
         );
     }
 }

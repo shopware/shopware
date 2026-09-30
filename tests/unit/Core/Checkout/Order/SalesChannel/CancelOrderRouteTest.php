@@ -5,18 +5,24 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\Extension\CancelOrderRouteExtension;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRouteResponse;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -37,6 +43,7 @@ class CancelOrderRouteTest extends TestCase
             new StaticSystemConfigService([
                 'core.cart.enableOrderRefunds' => false,
             ]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $route->cancel(new Request(['orderId' => Uuid::randomHex()]), static::createStub(SalesChannelContext::class));
@@ -52,6 +59,7 @@ class CancelOrderRouteTest extends TestCase
             new StaticSystemConfigService([
                 'core.cart.enableOrderRefunds' => true,
             ]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $route->cancel(new Request(), static::createStub(SalesChannelContext::class));
@@ -73,6 +81,7 @@ class CancelOrderRouteTest extends TestCase
             new StaticSystemConfigService([
                 'core.cart.enableOrderRefunds' => true,
             ]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $route->cancel(new Request([], ['orderId' => Uuid::randomHex()]), $salesChannelContext);
@@ -104,6 +113,7 @@ class CancelOrderRouteTest extends TestCase
             new StaticSystemConfigService([
                 'core.cart.enableOrderRefunds' => true,
             ]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $route->cancel(new Request([], ['orderId' => Uuid::randomHex()]), $salesChannelContext);
@@ -144,8 +154,33 @@ class CancelOrderRouteTest extends TestCase
             new StaticSystemConfigService([
                 'core.cart.enableOrderRefunds' => true,
             ]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $route->cancel(new Request([], ['orderId' => $orderId]), $salesChannelContext);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $response = new CancelOrderRouteResponse(new StateMachineStateEntity());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('cancel-order-route.cancel.pre', static function (CancelOrderRouteExtension $extension) use ($request, $context, $response): void {
+            static::assertSame(['request' => $request, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CancelOrderRoute(
+            static::createStub(OrderService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(SystemConfigService::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->cancel($request, $context));
     }
 }

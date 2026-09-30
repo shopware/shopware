@@ -224,6 +224,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.rate_limiter'),
             service(GuestAuthenticator::class),
             tagged_iterator('document_type.renderer', 'key'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(HtmlRenderer::class)

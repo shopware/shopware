@@ -94,6 +94,7 @@
  */
 
 import { applyProjectChanges, fetchProject, planProjectChanges, summarizeProjectChanges } from './waiting-on-project.ts';
+import { parseChannels, planReminders, postSlackMessage, renderReminder, type Slack } from './waiting-on-slack.ts';
 
 export type WaitingOn = 'author' | 'shopware' | 'nobody';
 
@@ -587,6 +588,7 @@ export type Row = {
     url: string;
     author: string;
     authorAssociation: string;
+    labels: string[];
     waitingOn: WaitingOn;
     reason: WaitingOnReason;
     label: string;
@@ -615,6 +617,7 @@ export function buildRows(nodes: PullRequestNode[], now: Date): Row[] {
                 url: node.url,
                 author: node.author.login,
                 authorAssociation: node.authorAssociation,
+                labels: node.labels.nodes.map((label) => label.name),
                 waitingOn: verdict.waitingOn,
                 reason: verdict.reason,
                 label: WAITING_ON_LABEL[verdict.waitingOn],
@@ -732,6 +735,8 @@ export type ReportOptions = {
     dryRun?: boolean;
     /** The organization project to mirror the verdicts into, with a client allowed to write it. */
     project?: { github: GraphqlClient; number: number };
+    /** Where the reminders for external pull requests go; see waiting-on-slack.ts. */
+    reminders?: { slack: Slack; channels: string | undefined };
 };
 
 /**
@@ -739,7 +744,7 @@ export type ReportOptions = {
  * `dryRun` is set. The `rows` output carries the verdicts as JSON so a later stage can
  * consume them without this having to change.
  */
-export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, { dryRun = false, project }: ReportOptions = {}): Promise<void> {
+export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, { dryRun = false, project, reminders }: ReportOptions = {}): Promise<void> {
     const nodes = await fetchOpenPullRequests(github, context.repo);
     core.info(`Read ${nodes.length} open pull request(s).`);
 
@@ -776,12 +781,30 @@ export async function reportWaitingOn({ github, core, context }: { github: Graph
         core.summary.addRaw(`\nProject ${owner}/${project.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(projectChanges)}.\n`);
     }
 
+    const failedReminders: string[] = [];
+    if (reminders !== undefined) {
+        const boardUrl = project !== undefined ? `https://github.com/orgs/${context.repo.owner}/projects/${project.number}` : undefined;
+        const planned = planReminders(rows, parseChannels(reminders.channels), new Date());
+
+        for (const reminder of planned) {
+            // One channel failing must not keep the others from their reminders.
+            try {
+                await postSlackMessage(dryRun ? {} : reminders.slack, core, reminder.channel, renderReminder(reminder, boardUrl));
+            } catch (error) {
+                failedReminders.push(reminder.channel);
+                core.error(error instanceof Error ? error.message : String(error));
+            }
+        }
+        core.summary.addRaw(`\n${planned.reduce((sum, reminder) => sum + reminder.rows.length, 0)} external pull request(s) due for a Slack reminder${dryRun ? ' (dry run, nothing sent)' : ''}.\n`);
+    }
+
     await core.summary.write();
     core.setOutput('rows', JSON.stringify(rows));
 
     const failures = [
         ...(failedLabels.length > 0 ? [`the waiting-on label on ${failedLabels.map((number) => `#${number}`).join(', ')}`] : []),
         ...(failedItems.length > 0 ? [`the project for ${failedItems.join(', ')}`] : []),
+        ...(failedReminders.length > 0 ? [`the Slack reminder for ${failedReminders.join(', ')}`] : []),
     ];
     if (failures.length > 0) {
         throw new Error(`Failed to update ${failures.join(' and ')}`);

@@ -18,6 +18,7 @@ const row = (overrides: Partial<Row> = {}): Row => ({
     url: 'https://github.com/shopware/shopware/pull/1',
     author: 'someone',
     authorAssociation: 'CONTRIBUTOR',
+    labels: [],
     waitingOn: 'shopware',
     reason: 'never-reviewed',
     label: 'waiting-on/shopware',

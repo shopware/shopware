@@ -13,6 +13,7 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Wrap targets are empty, or not in one container (must be siblings in a single slot, or all root-level)   | 400  | `mutationInvalidWrapTargets`                      |
 | `type` / `newType` / `containerType` is not a registered element type                                    | 400  | `mutationUnknownType`                             |
 | `bindingSpecificationId` is not a registered binding specification                                       | 400  | `bindingSpecificationNotFound`                    |
+| `presetId` is not a registered layout preset                                                              | 404  | `layoutPresetNotFound`                            |
 | The binding specification's declared `type` does not match the target element's `component`              | 400  | `bindingTypeMismatch`                             |
 | `insert-element` or `replace-element` on a type whose default binding specification set holds more than one (only reachable via a database row created outside the app lifecycle) | 409 | `bindingSpecificationDefaultAmbiguous`            |
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child (rejected before the edit runs); or an element config that is a client defect | 400 | `invalidLayoutStructure`                          |
@@ -20,13 +21,19 @@ A resolvability problem (an unresolved required property, a broken context chain
 
 ## The Draft-Route Failure Set
 
-Draft-route failures are 400, carried by `ContentSystemException`:
+Most draft-route failures are 400, carried by `ContentSystemException`:
 
 - `unknownEntityType` — preview, for an `entityType` no source matches
 - `invalidLayoutStructure`, and `elementTypesInvalid` on preview
 - the structural mutation codes `mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`
 - the bind-element codes `bindingSpecificationNotFound`, `bindingTypeMismatch`
-- hydration and sales-channel-context exceptions, on preview
+- hydration exceptions, on preview
+
+Three draft failures are not 400, so a client cannot treat the status as constant:
+
+- `bindingSpecificationDefaultAmbiguous` (409) on `insert-element` and `replace-element`
+- `layoutPresetNotFound` (404) on `insert-preset`
+- preview opens a sales-channel context in `ContentPreviewPageBuilder::build()` before it decodes anything, so an unknown `salesChannelId` answers `SalesChannelException::salesChannelNotFound()` (404) and an unknown `languageId` answers `languageNotFound()` (412) — neither one a `ContentSystemException`
 
 The diagnose and draft-mutation routes gate `rootSource` membership against `RootSourceRegistry::knownRootSources()` and reject an unknown non-empty value with `unknownRootSource` (400). That is the same gate the write validator applies, so `RootSourceRegistry::resolve()` never sees an unregistered id.
 

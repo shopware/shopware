@@ -58,17 +58,22 @@ class ConfigurationServiceTest extends TestCase
         $configService->getConfiguration('invalid!', Context::createDefaultContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDomainWithTrailingNewlineIsInvalid(): void
     {
         $this->expectExceptionObject(SystemConfigException::invalidDomain());
 
+        $systemConfigService = new StaticSystemConfigService([]);
         $configService = new ConfigurationService(
-            [],
-            new ConfigReader(),
-            static::createStub(AppConfigReader::class),
-            new StaticEntityRepository([]),
-            new StaticSystemConfigService([]),
-            new NullLogger()
+            $systemConfigService,
+            new SystemConfigDefinitionService(
+                [],
+                new ConfigReader(),
+                static::createStub(AppConfigReader::class),
+                new StaticEntityRepository([]),
+                $systemConfigService,
+                new NullLogger()
+            )
         );
 
         $configService->getConfiguration("core.basicInformation\n", Context::createDefaultContext());

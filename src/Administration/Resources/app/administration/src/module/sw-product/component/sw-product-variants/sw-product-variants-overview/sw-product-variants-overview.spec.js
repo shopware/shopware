@@ -587,6 +587,68 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);
     });
 
+    describe('storefront presentation when deleting variants', () => {
+        async function deleteVariants(variantListingConfig, variantIds) {
+            global.activeAclRoles = ['product.deleter'];
+            const wrapper = await createWrapper({
+                productEntity: { id: '72bfaf5d90214ce592715a9649d8760a', variantListingConfig },
+            });
+            await flushPromises();
+
+            wrapper.vm.toBeDeletedVariantIds = variantIds.map((id) => ({ id }));
+            await wrapper.vm.onConfirmDelete();
+            await flushPromises();
+
+            expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);
+
+            return wrapper.vm.productRepository.save.mock.calls[0][0].variantListingConfig;
+        }
+
+        it.each([
+            ['keep showing a variant', false, false],
+            ['keep showing a variant when no choice was saved', null, false],
+            ['keep showing the main product', true, true],
+        ])('should %s when the chosen main variant is deleted', async (_, displayParent, expectedDisplayParent) => {
+            const savedConfig = await deleteVariants({ displayParent, mainVariantId: 1, configuratorGroupConfig: [] }, [1]);
+
+            expect(savedConfig).toEqual({
+                displayParent: expectedDisplayParent,
+                mainVariantId: null,
+                configuratorGroupConfig: [],
+            });
+        });
+
+        it('should keep the chosen main variant when another variant is deleted', async () => {
+            const savedConfig = await deleteVariants(
+                { displayParent: false, mainVariantId: 1, configuratorGroupConfig: [] },
+                [2],
+            );
+
+            expect(savedConfig).toEqual({ displayParent: false, mainVariantId: 1, configuratorGroupConfig: [] });
+        });
+
+        it('should reset the storefront presentation when all variants are deleted', async () => {
+            global.activeAclRoles = ['product.deleter'];
+            const wrapper = await createWrapper({
+                productEntity: {
+                    id: '72bfaf5d90214ce592715a9649d8760a',
+                    variantListingConfig: { displayParent: false, mainVariantId: 1, configuratorGroupConfig: [] },
+                },
+            });
+            await flushPromises();
+
+            // the listed variants, which the mocked search emptied on mount
+            Shopware.Store.get('swProductDetail').variants = [{ id: 1 }, { id: 2 }];
+            wrapper.vm.toBeDeletedVariantIds = [{ id: 1 }, { id: 2 }];
+            await wrapper.vm.onConfirmDelete();
+            await flushPromises();
+
+            expect(wrapper.vm.productRepository.save).toHaveBeenCalledWith(
+                expect.objectContaining({ variantListingConfig: null }),
+            );
+        });
+    });
+
     it('should contain a currencyColumns computed property', async () => {
         const wrapper = await createWrapper();
 

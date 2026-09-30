@@ -6,6 +6,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
+use Shopware\Core\Content\Media\MediaType\SpatialSceneType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -68,6 +71,25 @@ class MediaEntityTest extends TestCase
 
         static::assertTrue($media->get('hasFile'));
         static::assertSame('Tuscany', $media->get('title'));
+    }
+
+    public function testIsSpatialSceneOnlyMatchesTheSceneType(): void
+    {
+        $media = new MediaEntity();
+
+        static::assertFalse($media->isSpatialScene());
+
+        $media->setMediaType(new ImageType());
+        static::assertFalse($media->isSpatialScene());
+
+        // A scene and an object are both spatial, but only one of them carries a file.
+        $media->setMediaType(new SpatialObjectType());
+        static::assertFalse($media->isSpatialScene());
+        static::assertTrue($media->isSpatialObject());
+
+        $media->setMediaType(new SpatialSceneType());
+        static::assertTrue($media->isSpatialScene());
+        static::assertFalse($media->isSpatialObject());
     }
 
     public function testJsonSerializeHidesTheRawDataAndAddsHasFile(): void

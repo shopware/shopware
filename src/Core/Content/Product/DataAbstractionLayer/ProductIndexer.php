@@ -188,18 +188,6 @@ class ProductIndexer extends EntityIndexer
             });
         }
 
-        if ($message->allow(self::STREAM_UPDATER)) {
-            Profiler::trace('product:indexer:streams', function () use ($ids, $context): void {
-                $this->streamUpdater->updateProducts($ids, $context);
-            });
-        }
-
-        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            Profiler::trace('product:indexer:many-to-many', function () use ($ids, $context): void {
-                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
-            });
-        }
-
         if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
             Profiler::trace('product:indexer:category', function () use ($ids, $context): void {
                 $this->categoryDenormalizer->update($ids, $context);
@@ -227,6 +215,20 @@ class ProductIndexer extends EntityIndexer
         if ($message->allow(self::STATES_UPDATER)) {
             Profiler::trace('product:indexer:states', function () use ($ids, $context): void {
                 $this->statesUpdater->update($ids, $context);
+            });
+        }
+
+        // STREAM_UPDATER should be ran after other fields updater like categoriesRo or cheapestPriceUpdater so it could use the correct latest value
+        if ($message->allow(self::STREAM_UPDATER)) {
+            Profiler::trace('product:indexer:streams', function () use ($ids, $context): void {
+                $this->streamUpdater->updateProducts($ids, $context);
+            });
+        }
+
+        // manyToManyIdFieldUpdater should be run last so it can get the correct streamIds, categoryIds etc
+        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
+            Profiler::trace('product:indexer:many-to-many', function () use ($ids, $context): void {
+                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
             });
         }
 

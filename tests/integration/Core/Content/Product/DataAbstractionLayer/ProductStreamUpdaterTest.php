@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -48,6 +49,52 @@ class ProductStreamUpdaterTest extends TestCase
         $this->productStreamRepository = static::getContainer()->get('product_stream.repository');
         $this->salesChannel = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->productStreamUpdater = static::getContainer()->get(ProductStreamUpdater::class);
+    }
+
+    public function testAssigningProductsOnTheCategoryUpdatesTheMapping(): void
+    {
+        $categoryId = Uuid::randomHex();
+        static::getContainer()->get('category.repository')->create(
+            [['id' => $categoryId, 'name' => 'Stream category']],
+            Context::createDefaultContext()
+        );
+
+        $streamId = Uuid::randomHex();
+        $writtenEvent = $this->productStreamRepository->create([[
+            'id' => $streamId,
+            'name' => 'test',
+            'filters' => [[
+                'type' => 'equalsAny',
+                'field' => 'categoriesRo.id',
+                'value' => $categoryId,
+            ]],
+        ]], Context::createDefaultContext());
+
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
+        $message = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
+        $productStreamIndexer->handle($message);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        static::assertSame([], $this->getMappedProductIds($streamId));
+
+        // the admin category detail page assigns products through the category's products association
+        static::getContainer()->get('category.repository')->update(
+            [['id' => $categoryId, 'products' => [['id' => $productId]]]],
+            Context::createDefaultContext()
+        );
+
+        static::assertSame([$productId], $this->getMappedProductIds($streamId));
+
+        // and removes them through the mapping entity
+        static::getContainer()->get('product_category.repository')->delete(
+            [['productId' => $productId, 'categoryId' => $categoryId]],
+            Context::createDefaultContext()
+        );
+
+        static::assertSame([], $this->getMappedProductIds($streamId));
     }
 
     /**
@@ -307,6 +354,17 @@ class ProductStreamUpdaterTest extends TestCase
 
                 return null;
             })->count()
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getMappedProductIds(string $streamId): array
+    {
+        return static::getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
+            ['id' => Uuid::fromHexToBytes($streamId)]
         );
     }
 

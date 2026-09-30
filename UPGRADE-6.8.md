@@ -326,6 +326,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Removal of deprecated `ConfigurationService` class
+
+The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+
 ## `Feature` is final
 
 `Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.
@@ -355,6 +359,10 @@ public function load(Request $request, SalesChannelContext $context, ?Cart $cart
 ```
 
 A decoration that drops the parameter still works but gives up the optimization behind it, because the route then reads and calculates a cart the request already holds. Pass a cart wherever you have one: in a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request, elsewhere read it from `CartService::getCart()`.
+
+## `DocumentRoute::resolveRequest()` is private
+
+`Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::resolveRequest()` is private, it only served the file type negotiation of the route itself. Download documents through `DocumentRoute::download()` or `/store-api/document/download/{documentId}/{deepLinkCode}`, which negotiate the file type from the `fileType` parameter or the `Accept` header.
 
 ## XML configuration is no longer supported
 
@@ -1281,6 +1289,10 @@ The method must raise the stored increment state to at least the given value wit
 
 
 # Administration
+
+## Removal of deprecated `config` data property in `sw-system-config` component
+
+The deprecated data property `config` in `sw-system-config` component with the legacy card structure was removed. Please use the new data property `schema` with the tab structure instead.
 
 ## Custom-field set loader computed properties removed
 

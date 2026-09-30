@@ -1,12 +1,5 @@
 parameters:
     shopwareLegacyStoreApiRouteMethods:
-        # Migrated in separate pull requests, move them to the list below once those are merged.
-        - Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute::load
-        - Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute::register
-        - Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute::resetPassword
-        - Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute::sendRecoveryMail
-        - Shopware\Core\Content\Category\SalesChannel\NavigationRoute::load
-        - Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute::load
         # Published by its ResolvedCriteria decorator, before the criteria are resolved from the request.
         - Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute::load
         # Endpoints that publish no extension event on purpose: infrastructure and test routes.
@@ -41,6 +34,7 @@ parameters:
         - Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute::change
         - Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute::convertGuest
         - Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute::load
+        - Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute::load
         - Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute::load
         - Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute::delete
         - Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute::delete
@@ -52,7 +46,10 @@ parameters:
         - Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute::logout
         - Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductRoute::merge
         - Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute::confirm
+        - Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute::register
         - Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute::delete
+        - Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute::resetPassword
+        - Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute::sendRecoveryMail
         - Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute::swap
         - Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute::upsert
         - Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::download
@@ -66,6 +63,7 @@ parameters:
         - Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRoute::load
         - Shopware\Core\Content\Category\SalesChannel\CategoryListRoute::load
         - Shopware\Core\Content\Category\SalesChannel\CategoryRoute::load
+        - Shopware\Core\Content\Category\SalesChannel\NavigationRoute::load
         - Shopware\Core\Content\Cms\SalesChannel\CmsRoute::load
         - Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute::load
         - Shopware\Core\Content\Cookie\SalesChannel\CookieRoute::getCookieGroups
@@ -84,6 +82,7 @@ parameters:
         - Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute::readProductsPurchaseLimit
         - Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute::load
         - Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute::save
+        - Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute::load
         - Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute::request
         - Shopware\Core\Content\Seo\SalesChannel\SeoUrlRoute::load
         - Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute::load

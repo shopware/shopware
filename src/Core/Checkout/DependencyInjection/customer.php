@@ -151,6 +151,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartRestorer::class),
             service(DoubleOptInService::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(DoubleOptInService::class)
@@ -312,6 +313,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(RequestStack::class),
             service('shopware.rate_limiter'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResetPasswordRoute::class)
@@ -325,6 +327,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.rate_limiter'),
             service(PasswordValidationFactory::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CustomerRecoveryIsExpiredRoute::class)
@@ -334,9 +337,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(DataValidator::class),
             service(ClockInterface::class),
-            service(SystemConfigService::class),
-            service(RequestStack::class),
-            service('shopware.rate_limiter'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ChangeCustomerProfileRoute::class)
@@ -426,6 +427,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DoubleOptInService::class),
             service(CustomerNewsletterSalesChannelsUpdater::class),
             service(ClockInterface::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(RegisterConfirmRoute::class)

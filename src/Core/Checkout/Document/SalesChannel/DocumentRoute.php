@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\VisibilityChange;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -89,6 +90,7 @@ final class DocumentRoute extends AbstractDocumentRoute
     /**
      * @return list<string>
      */
+    #[VisibilityChange(version: 'v6.8.0', newVisibility: 'private', description: 'Only download() negotiates the file type.')]
     public function resolveRequest(Request $request, ?string $fileType): array
     {
         $supportedTypesMapping = $this->getSupportedFileTypes();

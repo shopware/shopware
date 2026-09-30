@@ -840,7 +840,9 @@ $request->query->get('search');          // Query parameter
 $request->request->get('search');        // Submitted form data
 ```
 
-If an action intentionally accepts the same input from either the query string or submitted form data, use `Shopware\Core\Framework\Adapter\Request\RequestParamHelper::get($request, 'search')`. The helper checks the query bag first, then the form data bag (`$request->request`), and returns the supplied default if neither contains the key.
+For array-valued query or form parameters, use `$request->query->all('ids')` or `$request->request->all('ids')` instead. The corresponding `get('ids')` calls reject arrays.
+
+If an action intentionally accepts the same input from either the query string or submitted form data, use `Shopware\Core\Framework\Adapter\Request\RequestParamHelper::get($request, 'search')`. The helper checks the query bag first, then the form data bag (`$request->request`), preserves array values, and returns the supplied default if neither contains the key.
 
 In 6.8, `RequestParamHelper::get()` no longer checks request attributes. Previously an attribute with the same name took precedence over both input bags. Read route placeholders and custom attributes with `$request->attributes->get()`; if code sets an attribute to override a client-supplied parameter, update the appropriate input bag instead.
 

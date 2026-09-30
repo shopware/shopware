@@ -106,7 +106,7 @@ jobs:
         run: |
           set -euo pipefail
           rustup toolchain install stable --profile minimal
-          cargo +stable install --locked --git https://github.com/keulinho/ludtwig.git --rev cff88eb2d7cf348c4817782a6cd9e5d2fdaf046c --root "$RUNNER_TEMP/ludtwig" ludtwig
+          cargo +stable install --locked --git https://github.com/keulinho/ludtwig.git --rev 921088ab443c0c3f2f4ad66c7af1ee47e19aaef1 --root "$RUNNER_TEMP/ludtwig" ludtwig
           echo "$RUNNER_TEMP/ludtwig/bin" >> "$GITHUB_PATH"
 
       - name: Run ludtwig linter

@@ -36,7 +36,8 @@ active-rules = [
 #    "indentation",
     "twig-block-line-breaks",
     "twig-block-name-snake-case",
-    "html-attribute-name-kebab-case",
+    # Native HTML attributes must not be renamed to kebab-case (e.g. tabindex -> tab-index).
+    # https://github.com/MalteJanz/ludtwig/issues/204
     "twig-logic-and",
     "twig-logic-or",
     "twig-no-break",

@@ -1321,6 +1321,19 @@ The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` d
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
 
+## Deprecated state select styling members in the order module
+
+The `backgroundStyle` and `roundedStyle` props and the `selectStyle` computed property of `sw-order-state-select-v2` were removed without replacement. The select derives the status color from its `stateName` prop instead. For the same reason, the `backgroundStyle()` method of `sw-order-general-info` and the `stateSelectBackgroundStyle` computed property of `sw-order-details-state-card` were removed.
+
+Pass the technical name of the current state instead of `background-style` and `rounded-style`:
+
+```html
+<sw-order-state-select-v2
+    state-type="order"
+    :state-name="order.stateMachineState.technicalName"
+/>
+```
+
 ## Removed `integrationService.updateAdmin()`
 
 `Shopware.Service('integrationService').updateAdmin()` was removed. Use the integration repository instead:

@@ -339,7 +339,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractKeyValueStorage::class),
             service('logger'),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ProductSubscriber::class)
         ->args([
@@ -585,6 +586,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ProductSearchBuilderInterface::class),
             service(ProductListingLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ResolvedCriteriaProductSearchRoute::class)
@@ -670,7 +672,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('event_dispatcher'),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(VariantListingUpdater::class)
         ->args([

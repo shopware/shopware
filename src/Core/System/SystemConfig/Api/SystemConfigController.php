@@ -29,7 +29,7 @@ class SystemConfigController extends AbstractController
         /**
          * @deprecated tag:v6.8.0 - Parameter $configurationService will be removed
          */
-        private readonly ConfigurationService $configurationService,
+        private readonly ?ConfigurationService $configurationService,
         private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
         private readonly SystemConfigService $systemConfig,
         private readonly SystemConfigValidator $systemConfigValidator
@@ -74,6 +74,9 @@ class SystemConfigController extends AbstractController
         if ($domain === '') {
             throw SystemConfigException::missingRequestParameter('domain');
         }
+
+        // The 6.8 guard above throws before this service can be used when its definition is removed.
+        \assert($this->configurationService !== null);
 
         return Feature::silent('v6.8.0.0', fn () => new JsonResponse($this->configurationService->getConfiguration($domain, $context)));
     }

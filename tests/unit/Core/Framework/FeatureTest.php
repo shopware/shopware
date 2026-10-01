@@ -63,6 +63,40 @@ class FeatureTest extends TestCase
         Feature::$emitDeprecations = $this->emitDeprecationsBackup;
     }
 
+    #[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]
+    public function testThrowIfActiveIsSilentWhileInactive(): void
+    {
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
+
+        Feature::throwIfActive('v6.8.0.0', 'test');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the major feature flag.
+     */
+    public function testThrowIfActiveCannotBeSilenced(): void
+    {
+        Feature::$emitDeprecations = false;
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
+
+        Feature::silent('v6.8.0.0', static fn () => Feature::throwIfActive('v6.8.0.0', 'test'));
+    }
+
+    public function testThrowIfActiveIsSilentForPendingMajor(): void
+    {
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->never())->method('error');
+        $triggerer->expects($this->never())->method('deprecation');
+        Feature::$triggerer = $triggerer;
+        Feature::resetRegisteredFeatures();
+        Feature::registerFeature('FEATURE_ONE');
+
+        Feature::throwIfActive('v6.9.0.0', 'test');
+    }
+
     public function testFakeFeatureFlagsAreClean(): void
     {
         $this->setEnvVars([

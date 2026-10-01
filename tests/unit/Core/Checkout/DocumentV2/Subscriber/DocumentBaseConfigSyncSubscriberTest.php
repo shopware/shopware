@@ -17,6 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -45,6 +47,29 @@ class DocumentBaseConfigSyncSubscriberTest extends TestCase
         );
 
         $this->definition->compile($registry);
+    }
+
+    public function testNoSubscribersWhenRemovalFlagIsActive(): void
+    {
+        Feature::registerFeature('v6.9.0.0', ['major' => true]);
+        Feature::setActive('v6.9.0.0', true);
+
+        static::assertSame([], DocumentBaseConfigSyncSubscriber::getSubscribedEvents());
+    }
+
+    /**
+     * @deprecated tag:v6.9.0 - Remove with the major feature flag.
+     */
+    public function testDirectInvocationThrowsWhenRemovalFlagIsActive(): void
+    {
+        Feature::registerFeature('v6.9.0.0', ['major' => true]);
+        Feature::setActive('v6.9.0.0', true);
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchOne');
+        $subscriber = new DocumentBaseConfigSyncSubscriber($connection);
+
+        $this->expectException(FeatureException::class);
+        $subscriber->syncDocumentBaseConfig(EntityWriteEvent::create(WriteContext::createFromContext(Context::createDefaultContext()), []));
     }
 
     public function testSkipDeleteCommands(): void

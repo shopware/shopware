@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,13 +18,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:remove-subscriber - temporary one-time digital product states regression
+ * @deprecated tag:v6.8.0 - temporary one-time digital product states regression
  */
 #[Package('inventory')]
 final readonly class RepairDigitalProductStatesSubscriber implements EventSubscriberInterface
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-subscriber - temporary one-time repair marker
+     * @deprecated tag:v6.8.0 - temporary one-time repair marker
      */
     public const REPAIRED_DIGITAL_PRODUCT_STATES = 'core.repaired_digital_product_states';
 
@@ -45,16 +46,22 @@ final readonly class RepairDigitalProductStatesSubscriber implements EventSubscr
      */
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return [];
+        }
+
         return [
             UpdatePostFinishEvent::class => 'repair',
         ];
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-subscriber - temporary one-time repair for 6.7.8.0 digital product states regression
+     * @deprecated tag:v6.8.0 - temporary one-time repair for 6.7.8.0 digital product states regression
      */
     public function repair(UpdatePostFinishEvent $event): void
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         if ($this->storage->has(self::REPAIRED_DIGITAL_PRODUCT_STATES)) {
             return;
         }

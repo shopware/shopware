@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
+ * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
  *
  * @final
  */
@@ -36,10 +36,12 @@ class LineItemStockRule extends Rule
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
+     * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
      */
     public function match(RuleScope $scope): bool
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', LineItemActualStockRule::class));
+
         if ($scope instanceof LineItemScope) {
             return $this->matchStock($scope->getLineItem());
         }
@@ -52,10 +54,12 @@ class LineItemStockRule extends Rule
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
+     * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
      */
     public function getConstraints(): array
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', LineItemActualStockRule::class));
+
         return [
             'operator' => RuleConstraints::numericOperators(false),
             'stock' => RuleConstraints::int(),
@@ -63,10 +67,14 @@ class LineItemStockRule extends Rule
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
+     * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
      */
-    public function getConfig(): RuleConfig
+    public function getConfig(): ?RuleConfig
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return null;
+        }
+
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER)
             ->intField('stock');

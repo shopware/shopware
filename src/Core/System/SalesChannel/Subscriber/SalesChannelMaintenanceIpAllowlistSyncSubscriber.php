@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed together with the deprecated `maintenance_ip_whitelist` column
+ * @deprecated tag:v6.8.0 - Will be removed together with the deprecated `maintenance_ip_whitelist` column
  */
 #[Package('discovery')]
 class SalesChannelMaintenanceIpAllowlistSyncSubscriber implements EventSubscriberInterface
@@ -29,6 +29,10 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriber implements EventSubscribe
      */
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return [];
+        }
+
         return [
             EntityWriteEvent::class => 'mirrorMaintenanceIpColumns',
         ];
@@ -36,9 +40,7 @@ class SalesChannelMaintenanceIpAllowlistSyncSubscriber implements EventSubscribe
 
     public function mirrorMaintenanceIpColumns(EntityWriteEvent $event): void
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            return;
-        }
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
 
         foreach ($event->getCommandsForEntity(SalesChannelDefinition::ENTITY_NAME) as $command) {
             if ($command instanceof DeleteCommand) {

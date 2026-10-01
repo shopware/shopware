@@ -1088,7 +1088,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('lock.factory'),
             service('logger'),
             service(ClockInterface::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(AppUrlVerificationPrinter::class)
         ->args([

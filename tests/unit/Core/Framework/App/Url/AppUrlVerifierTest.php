@@ -462,6 +462,51 @@ class AppUrlVerifierTest extends TestCase
         self::assertState(['status' => VerificationStatus::PASS], $state);
     }
 
+    public function testVerifyNowReusesAPass(): void
+    {
+        $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
+
+        $first = $verifier->forceVerify($shop);
+        $second = $verifier->forceVerify($shop);
+
+        self::assertState(['status' => VerificationStatus::PASS], $second);
+        static::assertSame($first, $second);
+        static::assertSame(1, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowRetriesAfterAFailure(): void
+    {
+        $http = new MockHttpClient([
+            new MockResponse('not found', ['http_code' => 404]),
+            new MockResponse('', ['http_code' => 204]),
+        ]);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
+
+        self::assertState(['status' => VerificationStatus::HARD_FAIL], $verifier->forceVerify($shop));
+        self::assertState(['status' => VerificationStatus::PASS], $verifier->forceVerify($shop));
+        static::assertSame(2, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowVerifiesAgainAfterReset(): void
+    {
+        $http = new MockHttpClient([
+            new MockResponse('', ['http_code' => 204]),
+            new MockResponse('not found', ['http_code' => 404]),
+        ]);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
+
+        self::assertState(['status' => VerificationStatus::PASS], $verifier->forceVerify($shop));
+
+        $verifier->reset();
+
+        self::assertState(['status' => VerificationStatus::HARD_FAIL], $verifier->forceVerify($shop));
+        static::assertSame(2, $http->getRequestsCount());
+    }
+
     public function testGetCurrentStateReturnsNullWhenCacheEmpty(): void
     {
         $cache = new ArrayAdapter();

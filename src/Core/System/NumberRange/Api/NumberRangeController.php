@@ -115,15 +115,13 @@ class NumberRangeController extends AbstractController
     )]
     public function patternCollisions(Request $request, Context $context): JsonResponse
     {
-        $typeId = (string) $request->query->get('typeId');
+        $typeId = $request->query->getString('typeId');
         $pattern = (string) $request->query->get('pattern');
         $numberRangeId = $request->query->has('numberRangeId') ? (string) $request->query->get('numberRangeId') : null;
 
         if ($typeId === '') {
             throw NumberRangeException::missingRequestParameter('typeId');
-        }
-
-        if (!Uuid::isValid($typeId)) {
+        } elseif (!Uuid::isValid($typeId)) {
             throw NumberRangeException::invalidRequestParameter('typeId');
         }
 

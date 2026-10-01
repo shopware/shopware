@@ -676,11 +676,11 @@ class AccountOrderControllerTest extends TestCase
         $content = (string) $browser->getResponse()->getContent();
 
         // the form posts the order id instead of every line item
-        static::assertStringContainsString('/checkout/line-item/order/' . $reorderableOrderId, $content);
+        static::assertStringContainsString('/checkout/cart/reorder/' . $reorderableOrderId, $content);
         // one unavailable product does not remove the entry
-        static::assertStringContainsString('/checkout/line-item/order/' . $partlyAvailableOrderId, $content);
+        static::assertStringContainsString('/checkout/cart/reorder/' . $partlyAvailableOrderId, $content);
         // nothing buyable left, so no form at all
-        static::assertStringNotContainsString('/checkout/line-item/order/' . $unavailableOrderId, $content);
+        static::assertStringNotContainsString('/checkout/cart/reorder/' . $unavailableOrderId, $content);
         // the route resolves the products from the order, so nothing is posted any more
         static::assertStringNotContainsString('lineItems[', $content);
     }
@@ -704,7 +704,7 @@ class AccountOrderControllerTest extends TestCase
         ], $context);
 
         $browser = $this->login($customer->getEmail());
-        $browser->request('POST', '/checkout/line-item/order/' . $orderId);
+        $browser->request('POST', '/checkout/cart/reorder/' . $orderId);
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
@@ -732,7 +732,7 @@ class AccountOrderControllerTest extends TestCase
         ]);
 
         $browser = $this->login($customer->getEmail());
-        $browser->request('POST', '/checkout/line-item/order/' . $foreignOrderId);
+        $browser->request('POST', '/checkout/cart/reorder/' . $foreignOrderId);
 
         // not the logged-in customer's order, so nothing is added
         $browser->request('GET', '/checkout/cart');

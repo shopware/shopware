@@ -4,8 +4,8 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Extension\CheckoutCartAddOrderLineItemsExtension;
-use Shopware\Core\Checkout\Cart\Extension\CheckoutCartCollectOrderLineItemsExtension;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartCollectReorderLineItemsExtension;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartReorderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Package('checkout')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
-class CartOrderLineItemsAddRoute
+class CartReorderRoute
 {
     /**
      * @internal
@@ -36,24 +36,24 @@ class CartOrderLineItemsAddRoute
     }
 
     #[Route(
-        path: '/store-api/checkout/cart/line-item/order/{orderId}',
-        name: 'store-api.checkout.cart.line-item.order.add',
+        path: '/store-api/checkout/cart/reorder/{orderId}',
+        name: 'store-api.checkout.cart.reorder',
         defaults: [
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
         ],
         methods: [Request::METHOD_POST]
     )]
-    public function add(string $orderId, Request $request, Cart $cart, SalesChannelContext $context): CartResponse
+    public function reorder(string $orderId, Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         return $this->extensions->publish(
-            name: CheckoutCartAddOrderLineItemsExtension::NAME,
-            extension: new CheckoutCartAddOrderLineItemsExtension($orderId, $request, $cart, $context),
-            function: $this->_add(...),
+            name: CheckoutCartReorderExtension::NAME,
+            extension: new CheckoutCartReorderExtension($orderId, $request, $cart, $context),
+            function: $this->_reorder(...),
         );
     }
 
-    private function _add(string $orderId, Request $request, Cart $cart, SalesChannelContext $context): CartResponse
+    private function _reorder(string $orderId, Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
@@ -72,8 +72,8 @@ class CartOrderLineItemsAddRoute
         }
 
         $items = $this->extensions->publish(
-            name: CheckoutCartCollectOrderLineItemsExtension::NAME,
-            extension: new CheckoutCartCollectOrderLineItemsExtension($order, $cart, $context),
+            name: CheckoutCartCollectReorderLineItemsExtension::NAME,
+            extension: new CheckoutCartCollectReorderLineItemsExtension($order, $cart, $context),
             function: $this->collectLineItems(...),
         );
 

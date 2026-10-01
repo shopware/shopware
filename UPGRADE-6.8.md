@@ -6,20 +6,20 @@
 
 ## Reorder form line item blocks removed
 
-`frontend.checkout.line-item.order.add` resolves the reordered products from the order itself, so the reorder form no longer posts any `lineItems`. These two blocks in `storefront/page/account/order-history/order-item.html.twig` were emptied in 6.7 and are now removed:
+`frontend.checkout.cart.reorder` resolves the reordered products from the order itself, so the reorder form no longer posts any `lineItems`. These two blocks in `storefront/page/account/order-history/order-item.html.twig` were emptied in 6.7 and are now removed:
 
 - `page_account_order_item_context_menu_reorder_form_line_items_input`
 - `page_account_order_item_context_menu_reorder_form_line_item_input`
 
-Overriding them never had an effect after 6.7. To change what a reorder adds, listen to the `checkout.cart.collect-order-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
+From 6.7 on an override still rendered but no longer changed what a reorder adds. To change what a reorder adds, listen to the `checkout.cart.collect-reorder-line-items` extension, which hands you the `OrderEntity` and the built `list<LineItem>`:
 
 ```php
 public static function getSubscribedEvents(): array
 {
-    return [CheckoutCartCollectOrderLineItemsExtension::onPost() => 'addMyLineItems'];
+    return [CheckoutCartCollectReorderLineItemsExtension::onPost() => 'addMyLineItems'];
 }
 
-public function addMyLineItems(CheckoutCartCollectOrderLineItemsExtension $extension): void
+public function addMyLineItems(CheckoutCartCollectReorderLineItemsExtension $extension): void
 {
     $extension->result = [...$extension->result, $myLineItem];
 }

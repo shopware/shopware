@@ -104,7 +104,7 @@
                                         {% if reorderable %}
                                             {% set action %}
                                                 {% block page_account_order_item_context_menu_reorder_form_action %}
-                                                    {{ path('frontend.checkout.line-item.order.add', { orderId: order.id }) }}
+                                                    {{ path('frontend.checkout.cart.reorder', { orderId: order.id }) }}
                                                 {% endblock %}
                                             {% endset %}
 

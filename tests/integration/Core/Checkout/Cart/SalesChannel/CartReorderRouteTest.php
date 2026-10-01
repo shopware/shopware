@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 #[Package('checkout')]
 #[Group('store-api')]
-class CartOrderLineItemsAddRouteTest extends TestCase
+class CartReorderRouteTest extends TestCase
 {
     use CustomerTestTrait;
     use IntegrationTestBehaviour;
@@ -67,7 +67,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $productId = $this->createProduct();
         $orderId = $this->createOrder($this->ids->get('customer'), [$productId]);
 
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $orderId);
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -83,7 +83,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $productId = $this->createProduct();
         $orderId = $this->createOrder($this->ids->get('customer'), [$productId, $productId]);
 
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $orderId);
 
         $content = (string) $this->browser->getResponse()->getContent();
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
@@ -98,8 +98,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $productId = $this->createProduct();
         $orderId = $this->createOrder($this->ids->get('customer'), [$productId]);
 
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $orderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $orderId);
 
         $content = (string) $this->browser->getResponse()->getContent();
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
@@ -120,7 +120,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
             ['orderId' => Uuid::fromHexToBytes($orderId)]
         );
 
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $orderId);
 
         $content = (string) $this->browser->getResponse()->getContent();
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
@@ -141,7 +141,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         static::getContainer()->get('product.repository')->delete([['id' => $deletedId]], Context::createDefaultContext());
 
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $orderId);
 
         $content = (string) $this->browser->getResponse()->getContent();
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
@@ -158,7 +158,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $productId = $this->createProduct();
         $orderId = $this->createOrder($this->ids->get('customer'), [$productId], withPromotion: true);
 
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $orderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $orderId);
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -171,14 +171,14 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $productId = $this->createProduct();
         $foreignOrderId = $this->createOrder($this->createCustomer(Uuid::randomHex() . '@example.com'), [$productId]);
 
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . $foreignOrderId);
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $foreignOrderId);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testUnknownOrderIsNotFound(): void
     {
-        $this->browser->request('POST', '/store-api/checkout/cart/line-item/order/' . Uuid::randomHex());
+        $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . Uuid::randomHex());
 
         static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
     }

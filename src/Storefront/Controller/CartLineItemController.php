@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderLineItemsAddRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -48,7 +48,7 @@ class CartLineItemController extends StorefrontController
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly AbstractProductListRoute $productListRoute,
         private readonly LineItemFactoryRegistry $lineItemFactoryRegistry,
-        private readonly CartOrderLineItemsAddRoute $cartOrderLineItemsAddRoute
+        private readonly CartReorderRoute $cartReorderRoute
     ) {
     }
 
@@ -341,8 +341,8 @@ class CartLineItemController extends StorefrontController
     }
 
     #[Route(
-        path: '/checkout/line-item/order/{orderId}',
-        name: 'frontend.checkout.line-item.order.add',
+        path: '/checkout/cart/reorder/{orderId}',
+        name: 'frontend.checkout.cart.reorder',
         defaults: [
             'XmlHttpRequest' => true,
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
@@ -350,13 +350,13 @@ class CartLineItemController extends StorefrontController
         ],
         methods: ['POST']
     )]
-    public function addOrderLineItems(string $orderId, Cart $cart, Request $request, SalesChannelContext $context): Response
+    public function reorder(string $orderId, Cart $cart, Request $request, SalesChannelContext $context): Response
     {
-        return Profiler::trace('cart::add-order-line-items', function () use ($orderId, $cart, $request, $context) {
+        return Profiler::trace('cart::reorder', function () use ($orderId, $cart, $request, $context) {
             $quantityBefore = $cart->getLineItems()->getTotalQuantity();
 
             try {
-                $cart = $this->cartOrderLineItemsAddRoute->add($orderId, $request, $cart, $context)->getCart();
+                $cart = $this->cartReorderRoute->reorder($orderId, $request, $cart, $context)->getCart();
 
                 if (!$this->traceErrors($cart)) {
                     $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', [

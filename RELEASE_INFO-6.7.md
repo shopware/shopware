@@ -118,7 +118,7 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### New Store API route to add the products of an order to the cart
 
-`POST /store-api/checkout/cart/line-item/order/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-order-line-items` extension lets you add or drop items before they reach the cart
+`POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
 
 ## Administration
 
@@ -269,7 +269,7 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 ### Reorder resolves its line items from the order
 
-The reorder form no longer posts `lineItems`, so its two hidden input blocks are empty and deprecated, and overrides of them have no effect
+The reorder form no longer posts `lineItems`, so its two hidden input blocks are empty and deprecated; add or drop reorder items with the `checkout.cart.collect-reorder-line-items` extension instead
 
 ## App system
 

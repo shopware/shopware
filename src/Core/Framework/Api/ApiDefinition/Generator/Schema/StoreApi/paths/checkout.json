@@ -382,14 +382,14 @@
                 ]
             }
         },
-        "/checkout/cart/line-item/order/{orderId}": {
+        "/checkout/cart/reorder/{orderId}": {
             "post": {
                 "tags": [
                     "Cart"
                 ],
                 "summary": "Add the products of an order to the cart",
                 "description": "This route adds the product line items of an existing order to the current cart. Only the order id is sent; the order is resolved for the logged-in customer and the current sales channel. Products that are no longer available in the sales channel are skipped and reported as errors on the returned cart.",
-                "operationId": "addOrderLineItemsToCart",
+                "operationId": "reorder",
                 "parameters": [
                     {
                         "name": "orderId",

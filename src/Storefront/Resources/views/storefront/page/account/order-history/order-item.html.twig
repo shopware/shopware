@@ -118,10 +118,10 @@
                                                         <input type="hidden" name="redirectTo" value="frontend.cart.offcanvas">
                                                     {% endblock %}
 
-                                                    {# @deprecated tag:v6.8.0 - Block will be removed, the route resolves the line items from the order #}
+                                                    {# @deprecated tag:v6.8.0 - Block will be removed, use the `checkout.cart.collect-reorder-line-items` extension instead #}
                                                     {% block page_account_order_item_context_menu_reorder_form_line_items_input %}
                                                         {% for lineItem in order.lineItems %}
-                                                            {# @deprecated tag:v6.8.0 - Block will be removed, the route resolves the line items from the order #}
+                                                            {# @deprecated tag:v6.8.0 - Block will be removed, use the `checkout.cart.collect-reorder-line-items` extension instead #}
                                                             {% block page_account_order_item_context_menu_reorder_form_line_item_input %}{% endblock %}
                                                         {% endfor %}
                                                     {% endblock %}

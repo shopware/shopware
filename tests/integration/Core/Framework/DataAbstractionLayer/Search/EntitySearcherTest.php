@@ -458,6 +458,12 @@ class EntitySearcherTest extends TestCase
      */
     public static function totalCountProvider(): iterable
     {
+        yield 'no total with a single result per page' => [Criteria::TOTAL_COUNT_MODE_NONE, 1, 2, 1, 1];
+        yield 'no total with a full page' => [Criteria::TOTAL_COUNT_MODE_NONE, 2, 2, 2, 2];
+        yield 'no total without a limit' => [Criteria::TOTAL_COUNT_MODE_NONE, null, 2, 2, 2];
+        yield 'no total without a limit after an offset' => [Criteria::TOTAL_COUNT_MODE_NONE, null, 2, 1, 1, 1];
+        yield 'no total without a limit past the end' => [Criteria::TOTAL_COUNT_MODE_NONE, null, 2, 0, 0, 3];
+        yield 'no total with a partial page' => [Criteria::TOTAL_COUNT_MODE_NONE, 3, 2, 2, 2];
         yield 'exact total with a single result per page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 1, 2, 2, 1];
         yield 'exact total with a full page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 2, 2, 2, 2];
         yield 'exact total without a limit' => [Criteria::TOTAL_COUNT_MODE_EXACT, null, 2, 2, 2];

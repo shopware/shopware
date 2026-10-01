@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -39,7 +40,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
-        private readonly int $maxLimit = self::DEFAULT_MAX_LIMIT
+        private readonly int $maxLimit = self::DEFAULT_MAX_LIMIT,
+        private readonly CompressedCriteriaDecoder $compressedCriteriaDecoder = new CompressedCriteriaDecoder(),
     ) {
     }
 
@@ -67,7 +69,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
                 $productId,
                 $request,
                 $context,
-                $this->applyConfiguredLimit($criteria, $context->getSalesChannelId()),
+                $this->applyConfiguredLimit($criteria, $context->getSalesChannelId(), $request),
             ),
             function: $this->_load(...),
         );
@@ -103,7 +105,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         return new ProductReviewRouteResponse($result);
     }
 
-    private function applyConfiguredLimit(Criteria $criteria, string $salesChannelId): Criteria
+    private function applyConfiguredLimit(Criteria $criteria, string $salesChannelId, Request $request): Criteria
     {
         if (!$criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)) {
             return $criteria;
@@ -125,10 +127,25 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         }
 
         $criteria->setLimit($reviewsPerPage);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        if (!$this->hasExplicitTotalCountMode($request)) {
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        }
 
         $criteria->removeState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
 
         return $criteria;
+    }
+
+    private function hasExplicitTotalCountMode(Request $request): bool
+    {
+        if ($request->isMethod(Request::METHOD_GET)) {
+            $payload = $request->query->has('_criteria')
+                ? $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'))
+                : $request->query->all();
+        } else {
+            $payload = $request->request->all();
+        }
+
+        return isset($payload['total-count-mode']);
     }
 }

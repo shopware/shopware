@@ -774,6 +774,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(ExtensionDispatcher::class),
             param('shopware.api.store.max_limit'),
+            service(CompressedCriteriaDecoder::class),
         ]);
 
     $services->set(ProductConfiguratorLoader::class)

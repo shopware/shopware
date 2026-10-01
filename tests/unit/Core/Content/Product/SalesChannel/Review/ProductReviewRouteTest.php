@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\Extension\ProductReviewRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
@@ -15,21 +17,29 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityWriterGateway;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -193,6 +203,79 @@ class ProductReviewRouteTest extends TestCase
         static::assertInstanceOf(Criteria::class, $searchedCriteria);
         static::assertSame(10, $searchedCriteria->getLimit());
         static::assertSame(10, $searchedCriteria->getOffset());
+    }
+
+    #[DataProvider('requestedCountModeProvider')]
+    public function testLoadPreservesRequestedCountMode(string $requestType, int|string|null $countMode, int $expectedMode): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $this->config->set('core.listing.showReview', true, $context->getSalesChannelId());
+        $this->config->set('core.listing.reviewsPerPage', 10, $context->getSalesChannelId());
+
+        $definition = new ProductReviewDefinition();
+        $registry = new StaticDefinitionInstanceRegistry([$definition], Validation::createValidator(), new StaticEntityWriterGateway());
+        $parser = new AggregationParser();
+        $builder = new RequestCriteriaBuilder(
+            $parser,
+            new ApiCriteriaValidator($registry),
+            new CriteriaArrayConverter($parser),
+            new CompressedCriteriaDecoder(),
+            100,
+        );
+
+        $payload = ['page' => 3];
+        if ($countMode !== null) {
+            $payload['total-count-mode'] = $countMode;
+        }
+
+        if ($requestType === 'compressed GET') {
+            $compressed = gzencode(json_encode($payload, \JSON_THROW_ON_ERROR));
+            static::assertNotFalse($compressed);
+            $request = new Request([
+                '_criteria' => Base64::urlEncode($compressed),
+                'total-count-mode' => $countMode === null ? 'none' : 'exact',
+            ]);
+        } elseif ($requestType === Request::METHOD_POST) {
+            $request = new Request(
+                query: ['total-count-mode' => $countMode === null ? 'none' : 'exact'],
+                request: $payload,
+            );
+            $request->setMethod(Request::METHOD_POST);
+        } else {
+            $request = new Request(
+                query: $payload,
+                request: ['total-count-mode' => $countMode === null ? 'none' : 'exact'],
+            );
+        }
+
+        $criteria = $builder->handleRequest($request, new Criteria(), $definition, $context->getContext());
+        $route = new ProductReviewRoute(
+            new StaticEntityRepository([new ProductReviewCollection()]),
+            $this->config,
+            $this->cacheTagCollector,
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $result = $route->load(Uuid::randomHex(), $request, $context, $criteria)->getResult();
+
+        static::assertSame(10, $result->getCriteria()->getLimit());
+        static::assertSame(20, $result->getCriteria()->getOffset());
+        static::assertSame($expectedMode, $result->getCriteria()->getTotalCountMode());
+    }
+
+    /**
+     * @return iterable<string, array{string, int|string|null, int}>
+     */
+    public static function requestedCountModeProvider(): iterable
+    {
+        foreach ([Request::METHOD_GET, Request::METHOD_POST, 'compressed GET'] as $requestType) {
+            yield $requestType . ' without count mode defaults to exact' => [$requestType, null, Criteria::TOTAL_COUNT_MODE_EXACT];
+            yield $requestType . ' preserves disabled counting' => [$requestType, 'none', Criteria::TOTAL_COUNT_MODE_NONE];
+            yield $requestType . ' preserves exact counting' => [$requestType, 'exact', Criteria::TOTAL_COUNT_MODE_EXACT];
+            yield $requestType . ' preserves next-page counting' => [$requestType, 'next-pages', Criteria::TOTAL_COUNT_MODE_NEXT_PAGES];
+            yield $requestType . ' preserves numeric disabled counting' => [$requestType, 0, Criteria::TOTAL_COUNT_MODE_NONE];
+            yield $requestType . ' preserves numeric next-page counting' => [$requestType, 2, Criteria::TOTAL_COUNT_MODE_NEXT_PAGES];
+        }
     }
 
     public function testLoadKeepsExplicitRequestLimit(): void

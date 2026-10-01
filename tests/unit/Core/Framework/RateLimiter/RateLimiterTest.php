@@ -42,6 +42,22 @@ class RateLimiterTest extends TestCase
         $rateLimiter->ensureAccepted('some-route', 'some-key');
     }
 
+    public function testEnsureAcceptedPassesSalesChannelIdToFactory(): void
+    {
+        $limiter = new FixedWindowLimiter('test', 10, new \DateInterval('PT1M'), new InMemoryStorage());
+
+        $factory = $this->createMock(RateLimiterFactory::class);
+        $factory
+            ->expects($this->once())
+            ->method('create')
+            ->with('some-key', 'sales-channel-id')
+            ->willReturn($limiter);
+
+        $rateLimiter = new RateLimiter();
+        $rateLimiter->registerLimiterFactory('some-route', $factory);
+        $rateLimiter->ensureAccepted('some-route', 'some-key', 'sales-channel-id');
+    }
+
     #[DoesNotPerformAssertions]
     public function testEnsureAcceptedIfConfiguredSkipsWhenNotConfigured(): void
     {

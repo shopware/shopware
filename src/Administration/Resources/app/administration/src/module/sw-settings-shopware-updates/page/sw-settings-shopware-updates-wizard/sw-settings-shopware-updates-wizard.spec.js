@@ -1,10 +1,10 @@
 /**
  * @sw-package framework
  */
-import { config } from '@vue/test-utils';
 import createWrapper from './sw-settings-shopware-updates-wizard.spec/create-wrapper';
 import useSession from 'src/app/composables/use-session';
 import useSnackbar from 'src/app/composables/use-snackbar';
+import { createI18n } from 'vue-i18n';
 
 jest.mock('src/app/composables/use-snackbar', () => ({
     __esModule: true,
@@ -70,38 +70,49 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     });
 
     it.each([
-        [
-            'THEME__THEME_ASSIGNMENT',
-            { themeName: 'Swag Theme', assignments: 'Storefront' },
-            'sw-extension.errors.messageDeactivationFailedThemeAssignment {"themeName":"Swag Theme","assignments":"Storefront"}',
-        ],
-        [
-            'FRAMEWORK__PLUGIN_HAS_DEPENDANTS',
-            { dependency: 'SwagBase', dependantNames: 'SwagChild' },
-            'sw-extension.errors.messageDeactivationFailedDependencies {"dependency":"SwagBase","dependantNames":"SwagChild"}',
-        ],
-    ])('should pass the error parameters of %s to the deactivation warning', async (code, parameters, expectedMessage) => {
-        const translateMock = config.global.mocks.$t;
-        config.global.mocks.$t = (key, named) => (named ? `${key} ${JSON.stringify(named)}` : key);
+        {
+            code: 'THEME__THEME_ASSIGNMENT',
+            snippet: 'messageDeactivationFailedThemeAssignment',
+            message: 'Theme "{themeName}" is assigned to: {assignments}',
+            parameters: { themeName: 'Summer theme', assignments: 'Storefront' },
+            expected: 'Theme "Summer theme" is assigned to: Storefront',
+        },
+        {
+            code: 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS',
+            snippet: 'messageDeactivationFailedDependencies',
+            message: '"{dependency}" is required by: {dependantNames}',
+            parameters: { dependency: 'SwagBase', dependantNames: 'SwagAddon' },
+            expected: '"SwagBase" is required by: SwagAddon',
+        },
+    ])(
+        'should fill the parameters into the warning when deactivation fails with $code',
+        async ({ code, snippet, message, parameters, expected }) => {
+            const i18n = createI18n({
+                legacy: false,
+                locale: 'en',
+                messages: { en: { 'sw-extension': { errors: { [snippet]: message } } } },
+            });
+            wrapper.unmount();
+            wrapper = await createWrapper(
+                {
+                    deactivateExtensions: () => {
+                        const error = new Error();
+                        error.response = { data: { errors: [{ code, meta: { parameters } }] } };
 
-        wrapper.unmount();
-        wrapper = await createWrapper({
-            deactivateExtensions: () => {
-                const error = new Error();
-                error.response = { data: { errors: [{ code, meta: { parameters } }] } };
+                        return Promise.reject(error);
+                    },
+                },
+                { $t: (...args) => i18n.global.t(...args) },
+            );
+            await flushPromises();
+            const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
 
-                return Promise.reject(error);
-            },
-        });
-        await flushPromises();
-        const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
+            wrapper.vm.deactivateExtensions(0);
+            await flushPromises();
 
-        wrapper.vm.deactivateExtensions(0);
-        await flushPromises();
-        config.global.mocks.$t = translateMock;
-
-        expect(createNotificationWarningSpy).toHaveBeenCalledWith({ message: expectedMessage });
-    });
+            expect(createNotificationWarningSpy).toHaveBeenCalledWith({ message: expected });
+        },
+    );
 
     it('deactivate extensions success', async () => {
         wrapper.vm.updateService.deactivateExtensions = () => {

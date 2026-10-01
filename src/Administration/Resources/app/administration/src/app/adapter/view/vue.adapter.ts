@@ -55,6 +55,7 @@ import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
 import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtStatusDot from '@shopware-ag/meteor-component-library/dist/esm/MtStatusDot';
 import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
 import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
@@ -443,6 +444,7 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
             MtSnackbar,
             MtBadge,
+            MtStatusDot,
             MtPromoBadge,
             MtActionMenu,
             MtActionMenuItem,

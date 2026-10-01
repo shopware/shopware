@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -64,7 +65,12 @@ class IntegrationDefinition extends EntityDefinition
 
     protected function defineProtections(): EntityProtectionCollection
     {
-        return new EntityProtectionCollection([new CloneProtection(Context::SYSTEM_SCOPE)]);
+        return new EntityProtectionCollection([
+            new CloneProtection(Context::SYSTEM_SCOPE),
+            // Generic Admin API and Sync API writes run in the CRUD scope. Keeping them out forces
+            // integration changes through IntegrationController, which checks the integration-verified scope.
+            new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE),
+        ]);
     }
 
     protected function defineFields(): FieldCollection

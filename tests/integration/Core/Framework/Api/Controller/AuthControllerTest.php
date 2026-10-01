@@ -7,6 +7,7 @@ use Lcobucci\JWT\UnencryptedToken;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\OAuth\Scope\IntegrationVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -430,6 +431,47 @@ class AuthControllerTest extends TestCase
         $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
 
         static::assertNotContains(UserVerifiedScope::IDENTIFIER, $newAccessTokenScopes);
+    }
+
+    public function testIntegrationVerifiedScopeRemovedOnRefreshToken(): void
+    {
+        $client = $this->getBrowser(false);
+        $configuration = static::getContainer()->get('shopware.jwt_config');
+        $jwtTokenParser = $configuration->parser();
+
+        $authPayload = [
+            'grant_type' => 'password',
+            'client_id' => 'administration',
+            'username' => 'admin',
+            'password' => 'shopware',
+            'scope' => 'write ' . IntegrationVerifiedScope::IDENTIFIER,
+        ];
+
+        $client->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($client->getResponse()->getContent());
+
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $parsedOldAccessToken = $jwtTokenParser->parse($data['access_token']);
+        static::assertInstanceOf(UnencryptedToken::class, $parsedOldAccessToken);
+        $oldAccessTokenScopes = $parsedOldAccessToken->claims()->get('scopes');
+
+        static::assertContains(IntegrationVerifiedScope::IDENTIFIER, $oldAccessTokenScopes);
+
+        $refreshPayload = [
+            'grant_type' => 'refresh_token',
+            'client_id' => 'administration',
+            'refresh_token' => $data['refresh_token'],
+        ];
+
+        $client->request('POST', '/api/oauth/token', $refreshPayload, [], [], json_encode($refreshPayload, \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($client->getResponse()->getContent());
+
+        $data = \json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $parsedNewAccessToken = $jwtTokenParser->parse($data['access_token']);
+        static::assertInstanceOf(UnencryptedToken::class, $parsedNewAccessToken);
+        $newAccessTokenScopes = $parsedNewAccessToken->claims()->get('scopes');
+
+        static::assertNotContains(IntegrationVerifiedScope::IDENTIFIER, $newAccessTokenScopes);
     }
 
     public function testAccessTokenScopesUnchangedAfterRefreshGrant(): void

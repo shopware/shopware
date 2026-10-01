@@ -409,6 +409,15 @@
         {% endblock %}
         </sw-card-view>
         {% endblock %}
+
+        {% block sw_integration_list_verify_user_modal %}
+        <sw-verify-user-modal
+            v-if="confirmPasswordModal"
+            oauth-scope="integration-verified"
+            @verified="saveIntegration"
+            @close="onCloseConfirmPasswordModal"
+        />
+        {% endblock %}
     </template>
 </sw-page>
 {% endblock %}

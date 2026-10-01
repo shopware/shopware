@@ -207,6 +207,24 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Creating and updating integrations requires the `integration-verified` scope
+
+Administration sessions that use the password grant must send the `integration-verified` OAuth scope to create or update an integration (`POST /api/integration` and `PATCH /api/integration/{id}`). Request it from `POST /api/oauth/token` with the user's password, the same way `user-verified` is requested for user and role changes. The scope is issued only for the password grant and is dropped when the access token is refreshed.
+
+The Administration asks for the current password before saving an integration. Integrations authenticated with client credentials are unchanged and still only need `integration:create` or `integration:update`. Shops using SSO are unchanged. Deleting an integration through `DELETE /api/integration/{id}` does not require the scope.
+
+Generic Admin API and Sync API writes can no longer create, update, or delete integrations. Those operations use the CRUD scope, which the integration entity now rejects. Use the integration endpoints above, or write the entity from system scope (CLI, app lifecycle).
+
+```php
+$client->request('POST', '/api/oauth/token', [
+    'grant_type' => 'password',
+    'client_id' => 'administration',
+    'username' => 'admin',
+    'password' => 'shopware',
+    'scope' => 'integration-verified',
+]);
+```
+
 ## Administration
 
 ### [Internal] Native `<sw-block>` names are isolated per component

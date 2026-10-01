@@ -3,13 +3,16 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
+use Shopware\Core\Framework\Api\OAuth\Scope\IntegrationVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Sso\SsoService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Integration\IntegrationCollection;
@@ -30,6 +33,7 @@ class IntegrationController extends AbstractController
     public function __construct(
         private readonly EntityRepository $integrationRepository,
         private readonly Connection $connection,
+        private readonly SsoService $ssoService,
     ) {
     }
 
@@ -45,6 +49,8 @@ class IntegrationController extends AbstractController
         Context $context,
         ResponseFactoryInterface $factory
     ): Response {
+        $this->validateScope($request);
+
         $source = $context->getSource();
 
         $data = $request->request->all();
@@ -90,5 +96,46 @@ class IntegrationController extends AbstractController
         ResponseFactoryInterface $factory
     ): Response {
         return $this->upsertIntegration($integrationId, $request, $context, $factory);
+    }
+
+    #[Route(
+        path: '/api/integration/{integrationId}',
+        name: 'api.integration.delete',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['integration:delete']],
+        methods: [Request::METHOD_DELETE]
+    )]
+    public function deleteIntegration(
+        string $integrationId,
+        Request $request,
+        Context $context,
+        ResponseFactoryInterface $factory
+    ): Response {
+        // Runs in the user scope. The generic CRUD route uses the CRUD scope, which write protection rejects.
+        $this->integrationRepository->delete([['id' => $integrationId]], $context);
+
+        return $factory->createRedirectResponse($this->integrationRepository->getDefinition(), $integrationId, $request, $context);
+    }
+
+    private function validateScope(Request $request): void
+    {
+        // Integrations authenticated with client credentials manage other integrations through ACL only.
+        if ($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID) !== 'administration') {
+            return;
+        }
+
+        if ($this->ssoService->isSso()) {
+            return;
+        }
+
+        if (!$this->hasScope($request)) {
+            throw ApiException::invalidScopeAccessToken(IntegrationVerifiedScope::IDENTIFIER);
+        }
+    }
+
+    private function hasScope(Request $request): bool
+    {
+        $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES);
+
+        return \is_array($scopes) && \in_array(IntegrationVerifiedScope::IDENTIFIER, $scopes, true);
     }
 }

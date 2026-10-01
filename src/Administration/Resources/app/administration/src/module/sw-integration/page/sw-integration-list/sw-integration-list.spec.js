@@ -12,32 +12,34 @@ const appIntegration = {
     mcpAllowlist: null,
 };
 
-async function createWrapper(privileges = [], integrations = null) {
+async function createWrapper(privileges = [], integrations = null, { isSso = false } = {}) {
     const defaultIntegrations = integrations ?? [{ id: '44de136acf314e7184401d36406c1e90' }];
+
+    const integrationRepository = {
+        create: () => {
+            return Promise.resolve({
+                id: '44de136acf314e7184401d36406c1e90',
+            });
+        },
+
+        search: () => {
+            return Promise.resolve(defaultIntegrations);
+        },
+
+        save: jest.fn().mockResolvedValue(),
+
+        delete: jest.fn().mockResolvedValue(),
+    };
 
     const wrapper = mount(await wrapTestComponent('sw-integration-list', { sync: true }), {
         global: {
             provide: {
                 repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return Promise.resolve({
-                                id: '44de136acf314e7184401d36406c1e90',
-                            });
-                        },
+                    create: () => integrationRepository,
+                },
 
-                        search: () => {
-                            return Promise.resolve(defaultIntegrations);
-                        },
-
-                        save: () => {
-                            return Promise.resolve();
-                        },
-
-                        delete: () => {
-                            return Promise.resolve();
-                        },
-                    }),
+                ssoSettingsService: {
+                    isSso: () => Promise.resolve({ isSso }),
                 },
 
                 integrationService: {
@@ -123,6 +125,7 @@ async function createWrapper(privileges = [], integrations = null) {
                     `,
                 },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-verify-user-modal': true,
 
                 'sw-label': true,
                 'router-link': true,
@@ -186,6 +189,20 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await saveButton.trigger('click');
         await flushPromises();
 
+        const verifyModal = wrapper.findComponent('sw-verify-user-modal-stub');
+        expect(verifyModal.exists()).toBeTruthy();
+        expect(verifyModal.attributes('oauth-scope')).toBe('integration-verified');
+        expect(wrapper.find('.sw-modal.sw-integration-list__detail').exists()).toBeTruthy();
+        expect(wrapper.vm.integrationRepository.save).not.toHaveBeenCalled();
+
+        const createdIntegration = wrapper.vm.currentIntegration;
+        verifyModal.vm.$emit('verified', { authToken: { access: 'integration-verified-token' } });
+        await flushPromises();
+
+        expect(wrapper.vm.integrationRepository.save).toHaveBeenCalledWith(createdIntegration, {
+            authToken: { access: 'integration-verified-token' },
+        });
+
         const modalAfterSave = wrapper.find('.sw-modal.sw-integration-list__detail');
         expect(modalAfterSave.exists()).toBeFalsy();
     });
@@ -215,8 +232,36 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await saveButton.trigger('click');
         await flushPromises();
 
+        const verifyModal = wrapper.findComponent('sw-verify-user-modal-stub');
+        expect(verifyModal.exists()).toBeTruthy();
+        expect(wrapper.vm.integrationRepository.save).not.toHaveBeenCalled();
+
+        const editedIntegration = wrapper.vm.currentIntegration;
+        verifyModal.vm.$emit('verified', { authToken: { access: 'integration-verified-token' } });
+        await flushPromises();
+
+        expect(wrapper.vm.integrationRepository.save).toHaveBeenCalledWith(editedIntegration, {
+            authToken: { access: 'integration-verified-token' },
+        });
+
         const modalAfterSave = wrapper.find('.sw-modal.sw-integration-list__detail');
         expect(modalAfterSave.exists()).toBeFalsy();
+    });
+
+    it('should save an integration without a password confirmation when SSO is active', async () => {
+        const wrapper = await createWrapper(['integration.creator', 'integration.editor'], null, { isSso: true });
+
+        await wrapper.find('.sw-integration-list__add-integration-action').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('#sw-field--currentIntegration-label').setValue('SSO integration');
+
+        await wrapper.find('.sw-integration-detail-modal__save-action').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBeFalsy();
+        expect(wrapper.vm.integrationRepository.save).toHaveBeenCalled();
+        expect(wrapper.find('.sw-modal.sw-integration-list__detail').exists()).toBeFalsy();
     });
 
     it('should be able to delete a integration', async () => {

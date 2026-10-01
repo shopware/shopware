@@ -114,6 +114,7 @@
     "GET /app-system/shop-id/change-strategies",
     "POST /app-system/shop-id/check",
     "POST /integration",
+    "DELETE /integration/{integrationId}",
     "PATCH /integration/{integrationId}",
     "DELETE /license/cancel/{licenseId}",
     "POST /license/rate/{extensionId}",

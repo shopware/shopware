@@ -35,7 +35,7 @@ interface RetryBackoffOptions {
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface LoginService {
     loginByUsername: (user: string, pass: string) => Promise<AuthObject>;
-    verifyUserByUsername: (user: string, pass: string) => Promise<AuthObject>;
+    verifyUserByUsername: (user: string, pass: string, scope?: string) => Promise<AuthObject>;
     refreshToken: () => Promise<AuthObject['access']>;
     getToken: () => string;
     getBearerAuthentication: <K extends keyof AuthObject>(section?: K) => AuthObject[K];
@@ -50,7 +50,7 @@ export interface LoginService {
     addOnLoginListener: (listener: () => unknown) => void;
     getStorageKey: () => string;
     notifyOnLoginListener: () => void[] | null;
-    verifyUserToken: (password: string) => Promise<string>;
+    verifyUserToken: (password: string, scope?: string) => Promise<string>;
     getStorage: () => CookieStorage;
     setRememberMe: (active?: boolean) => void;
     getLoginTemplateConfig: () => Promise<LoginConfig>;
@@ -128,8 +128,8 @@ export default function createLoginService(
     /**
      * Helper function to receive a logged in user token
      */
-    function verifyUserToken(password: string): Promise<string> {
-        return verifyUserByUsername(Shopware.Store.get('session').currentUser?.username ?? '', password)
+    function verifyUserToken(password: string, scope = 'user-verified'): Promise<string> {
+        return verifyUserByUsername(Shopware.Store.get('session').currentUser?.username ?? '', password, scope)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
                     return access;
@@ -376,14 +376,14 @@ export default function createLoginService(
         }
     }
 
-    function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {
+    function verifyUserByUsername(user: string, pass: string, scope = 'user-verified'): Promise<AuthObject> {
         return httpClient
             .post<TokenResponse>(
                 '/oauth/token',
                 {
                     grant_type: 'password',
                     client_id: 'administration',
-                    scope: 'user-verified',
+                    scope,
                     username: user,
                     password: pass,
                 },

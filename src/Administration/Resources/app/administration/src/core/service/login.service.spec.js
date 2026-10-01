@@ -181,6 +181,61 @@ describe('core/service/login.service.js', () => {
         expect(localStorage.getItem('rememberMe')).toBeNull();
     });
 
+    it('should request user-verified when verifying the current password', async () => {
+        const { loginService, clientMock } = loginServiceFactory();
+
+        clientMock.onPost('/oauth/token').reply((config) => {
+            const payload = JSON.parse(config.data);
+
+            expect(payload).toEqual({
+                grant_type: 'password',
+                client_id: 'administration',
+                scope: 'user-verified',
+                username: 'admin',
+                password: 'shopware',
+            });
+
+            return [
+                200,
+                {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'aCcEsS_tOkEn',
+                    refresh_token: 'rEfReSh_ToKeN',
+                },
+            ];
+        });
+
+        const auth = await loginService.verifyUserByUsername('admin', 'shopware');
+
+        expect(auth.access).toBe('aCcEsS_tOkEn');
+    });
+
+    it('should request integration-verified when a step-up scope is given', async () => {
+        const { loginService, clientMock } = loginServiceFactory();
+
+        clientMock.onPost('/oauth/token').reply((config) => {
+            const payload = JSON.parse(config.data);
+
+            expect(payload.scope).toBe('integration-verified');
+            expect(payload.grant_type).toBe('password');
+
+            return [
+                200,
+                {
+                    token_type: 'Bearer',
+                    expires_in: 600,
+                    access_token: 'integrationToken',
+                    refresh_token: 'rEfReSh_ToKeN',
+                },
+            ];
+        });
+
+        const auth = await loginService.verifyUserByUsername('admin', 'shopware', 'integration-verified');
+
+        expect(auth.access).toBe('integrationToken');
+    });
+
     it('should login and return the bearer token', async () => {
         const { loginService, clientMock } = loginServiceFactory();
 

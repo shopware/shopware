@@ -66,6 +66,7 @@ use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
+use Shopware\Core\Framework\Api\OAuth\Scope\IntegrationVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\OAuth\ScopeRepository;
@@ -413,6 +414,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(UserVerifiedScope::class)
         ->tag('shopware.oauth.scope');
 
+    $services->set(IntegrationVerifiedScope::class)
+        ->tag('shopware.oauth.scope');
+
     $services->set('shopware.jwt_config', JWTConfiguration::class)
         ->factory([JWTConfigurationFactory::class, 'createJWTConfiguration']);
 
@@ -512,6 +516,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('integration.repository'),
             service(Connection::class),
+            service(SsoService::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

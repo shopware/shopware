@@ -12,6 +12,7 @@ use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\Scope\AdminScope;
+use Shopware\Core\Framework\Api\OAuth\Scope\IntegrationVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
@@ -100,7 +101,9 @@ class ScopeRepository implements ScopeRepositoryInterface
         }
 
         if ($grantType !== self::PASSWORD_GRANT) {
+            // Step-up scopes are issued only by the password grant. Refresh and other grants drop them.
             $scopes = $this->removeScope($scopes, UserVerifiedScope::class);
+            $scopes = $this->removeScope($scopes, IntegrationVerifiedScope::class);
         }
 
         if ($grantType === self::CLIENT_CREDENTIAL_GRANT && $clientEntity instanceof ApiClient && $clientEntity->getWriteAccess()) {

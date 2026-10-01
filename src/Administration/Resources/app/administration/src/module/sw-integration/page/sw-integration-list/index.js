@@ -18,6 +18,7 @@ export default {
         'repositoryFactory',
         'acl',
         'feature',
+        'ssoSettingsService',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -32,6 +33,7 @@ export default {
             showSecretAccessKey: false,
             mcpIntegration: null,
             pendingMcpAllowlist: null,
+            confirmPasswordModal: false,
         };
     },
 
@@ -116,20 +118,47 @@ export default {
                 return;
             }
 
-            const integration = this.integrations.find((a) => a.id === this.currentIntegration.id);
+            const isNew = typeof this.integrations.find((integration) => integration.id === this.currentIntegration.id) === 'undefined';
 
-            if (typeof integration === 'undefined') {
-                this.createIntegration();
-            } else {
-                this.updateIntegration(integration);
+            if (isNew && (!this.currentIntegration.label || !this.currentIntegration.label.length)) {
+                this.createSavedErrorNotification();
+                return;
             }
+
+            this.ssoSettingsService.isSso().then((response) => {
+                if (response.isSso) {
+                    this.saveIntegration({ ...Shopware.Context.api });
+
+                    return;
+                }
+
+                this.confirmPasswordModal = true;
+            });
         },
 
-        updateIntegration(integration) {
+        saveIntegration(context) {
+            this.confirmPasswordModal = false;
+
+            const integration = this.integrations.find((item) => item.id === this.currentIntegration.id);
+
+            if (typeof integration === 'undefined') {
+                this.createIntegration(context);
+
+                return;
+            }
+
+            this.updateIntegration(integration, context);
+        },
+
+        onCloseConfirmPasswordModal() {
+            this.confirmPasswordModal = false;
+        },
+
+        updateIntegration(integration, context) {
             this.isModalLoading = true;
 
             this.integrationRepository
-                .save(integration)
+                .save(integration, context)
                 .then(() => {
                     this.createSavedSuccessNotification();
                     this.onCloseDetailModal();
@@ -140,7 +169,7 @@ export default {
                 });
         },
 
-        createIntegration() {
+        createIntegration(context) {
             if (!this.currentIntegration.label || !this.currentIntegration.label.length) {
                 this.createSavedErrorNotification();
                 return;
@@ -149,7 +178,7 @@ export default {
             this.isModalLoading = true;
 
             this.integrationRepository
-                .save(this.currentIntegration)
+                .save(this.currentIntegration, context)
                 .then(() => {
                     this.createSavedSuccessNotification();
                     this.getList();

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\OAuth\Scope\IntegrationVerifiedScope;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -29,7 +30,7 @@ class IntegrationControllerTest extends TestCase
 
     public function testCreateIntegration(): void
     {
-        $client = $this->getBrowser();
+        $client = $this->getBrowser(true, [IntegrationVerifiedScope::IDENTIFIER]);
         $data = [
             'label' => 'integration',
             'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
@@ -45,7 +46,7 @@ class IntegrationControllerTest extends TestCase
 
     public function testCreateIntegrationWithAdministratorRole(): void
     {
-        $client = $this->getBrowser();
+        $client = $this->getBrowser(true, [IntegrationVerifiedScope::IDENTIFIER]);
 
         $data = [
             'label' => 'integration',
@@ -77,7 +78,7 @@ class IntegrationControllerTest extends TestCase
         static::getContainer()->get('integration.repository')
             ->create([$integration], $context);
 
-        $client = $this->getBrowser();
+        $client = $this->getBrowser(true, [IntegrationVerifiedScope::IDENTIFIER]);
 
         $client->jsonRequest(
             'PATCH',
@@ -101,7 +102,7 @@ class IntegrationControllerTest extends TestCase
 
     public function testPreventCreateIntegrationWithoutPermissions(): void
     {
-        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
+        $this->authorizeBrowser($this->getBrowser(), [IntegrationVerifiedScope::IDENTIFIER], []);
         $client = $this->getBrowser();
 
         $data = [
@@ -119,7 +120,7 @@ class IntegrationControllerTest extends TestCase
 
     public function testCreateIntegrationWithPermissionsAsNonAdmin(): void
     {
-        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:create']);
+        $this->authorizeBrowser($this->getBrowser(), [IntegrationVerifiedScope::IDENTIFIER], ['integration:create']);
         $client = $this->getBrowser();
 
         $data = [
@@ -137,7 +138,7 @@ class IntegrationControllerTest extends TestCase
 
     public function testPreventCreateIntegrationWithAdministratorRole(): void
     {
-        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:update']);
+        $this->authorizeBrowser($this->getBrowser(), [IntegrationVerifiedScope::IDENTIFIER], ['integration:update']);
         $client = $this->getBrowser();
 
         $data = [
@@ -170,7 +171,7 @@ class IntegrationControllerTest extends TestCase
         static::getContainer()->get('integration.repository')
             ->create([$integration], $context);
 
-        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:update']);
+        $this->authorizeBrowser($this->getBrowser(), [IntegrationVerifiedScope::IDENTIFIER], ['integration:update']);
         $client = $this->getBrowser();
 
         $client->jsonRequest(
@@ -205,7 +206,7 @@ class IntegrationControllerTest extends TestCase
         static::getContainer()->get('integration.repository')
             ->create([$integration], $context);
 
-        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['integration:create']);
+        $this->authorizeBrowser($this->getBrowser(), [IntegrationVerifiedScope::IDENTIFIER], ['integration:create']);
         $client = $this->getBrowser();
 
         $client->jsonRequest(
@@ -226,5 +227,88 @@ class IntegrationControllerTest extends TestCase
         $integration = $assigned->getEntities()->first();
         static::assertNotNull($integration);
         static::assertFalse($integration->getAdmin());
+    }
+
+    public function testCreateIntegrationRequiresIntegrationVerifiedScope(): void
+    {
+        $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
+
+        $client->jsonRequest('POST', '/api/integration', [
+            'label' => 'integration',
+            'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
+            'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
+        ]);
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+
+        $content = json_decode((string) $response->getContent(), true);
+        static::assertIsArray($content);
+        static::assertSame(
+            'This access token does not have the scope "integration-verified" to process this Request',
+            $content['errors'][0]['detail']
+        );
+    }
+
+    public function testIntegrationClientCanCreateIntegrationWithoutVerifiedScope(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        static::getContainer()->get('integration.repository')->create([[
+            'id' => $ids->get('integration'),
+            'label' => 'admin integration',
+            'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
+            'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
+            'admin' => true,
+        ]], $context);
+
+        $client = $this->createClient(authorized: false);
+        $this->authorizeBrowserWithIntegration($client, $ids->get('integration'));
+
+        $client->jsonRequest('POST', '/api/integration', [
+            'label' => 'created by integration',
+            'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
+            'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
+        ]);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
+    }
+
+    public function testDeleteIntegrationDoesNotRequireVerifiedScope(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('integration.repository')->create([[
+            'id' => $ids->get('integration'),
+            'label' => 'integration',
+            'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
+            'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
+        ]], Context::createDefaultContext());
+
+        $client = $this->getBrowser();
+        $client->jsonRequest('DELETE', '/api/integration/' . $ids->get('integration'));
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
+    }
+
+    public function testSyncApiCannotWriteIntegrations(): void
+    {
+        $client = $this->getBrowser(true, [IntegrationVerifiedScope::IDENTIFIER]);
+        $client->jsonRequest('POST', '/api/_action/sync', [[
+            'key' => 'write-integration',
+            'action' => 'upsert',
+            'entity' => 'integration',
+            'payload' => [[
+                'id' => (new IdsCollection())->get('synced'),
+                'label' => 'synced integration',
+                'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
+                'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
+            ]],
+        ]]);
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertStringContainsString('integration', (string) $response->getContent());
     }
 }

@@ -16,6 +16,14 @@ export default {
 
     emits: ['verified', 'close'],
 
+    props: {
+        oauthScope: {
+            type: String,
+            required: false,
+            default: 'user-verified',
+        },
+    },
+
     mixins: [Mixin.getByName('notification')],
 
     data() {
@@ -33,7 +41,7 @@ export default {
 
         onSubmitConfirmPassword() {
             return this.loginService
-                .verifyUserToken(this.confirmPassword)
+                .verifyUserToken(this.confirmPassword, this.oauthScope)
                 .then((verifiedToken) => {
                     const context = { ...Shopware.Context.api };
                     context.authToken.access = verifiedToken;

@@ -10,11 +10,15 @@
                 "enum": [
                     "write",
                     "user-verified",
+                    "integration-verified",
                     "admin",
                     "write user-verified",
+                    "write integration-verified",
                     "write admin",
                     "user-verified admin",
-                    "write user-verified admin"
+                    "integration-verified admin",
+                    "write user-verified admin",
+                    "write integration-verified admin"
                 ]
             },
             "OAuthGrant": {

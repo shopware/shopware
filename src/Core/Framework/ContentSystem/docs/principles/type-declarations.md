@@ -16,7 +16,6 @@ In code:
 
 - `PropertySpecificationDto` has no wiring field.
 - `ContextDistributor` reads each element's own `contextDefinitions`.
-- `DefaultBindingSpecificationSynthesizerTest` pins the rule.
 - See [output-schema.md](../../Layout/Type/docs/output-schema.md).
 
 ## Each type sets the required flag of a property for its own reason
@@ -45,9 +44,8 @@ In code:
 - `ElementStyleNormalizer` branches on the declared `StyleOptionSpecification::kind()` value `KIND_BOX_SPACING`.
 - `StyleOptionSpecification::adminUI()` has no server-side caller.
 - `TypedStyleOptionValidator` checks only the shape of the `adminUI` block.
-- `ElementStyleNormalizerTest` pins the rule.
 - See [option-model.md](../../Layout/Element/Style/docs/option-model.md).
 
 ## Also true by construction
 
-- Only a primitive or all-primitive union constrains a value member by member. A bare `object`, class reference or union carrying one admits any value: [symbols.md](../../Layout/Type/docs/symbols.md)
+- Only a primitive or all-primitive union constrains a value member by member. A bare `object`, class reference or union carrying one admits any value: [PropertyTypeConformanceValidator](../../Layout/Codec/PropertyTypeConformanceValidator.php)

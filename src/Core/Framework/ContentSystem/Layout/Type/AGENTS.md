@@ -12,11 +12,6 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 
 ## Navigation
 
-- Symbol index: classes, roles, paths — [docs/symbols.md](docs/symbols.md)
-- The five stages a type declaration passes through — [docs/architecture.md](docs/architecture.md)
-- The `/api/_info/` type endpoint and the `storageSchema` fold — [docs/introspection.md](docs/introspection.md)
-- Why the type spec is the output schema, not the storage format — [docs/output-schema.md](docs/output-schema.md)
-- Authoring a custom element type — [docs/custom-types.md](docs/custom-types.md)
 - Why these constraints hold, and what was not chosen: [type-declarations.md](../../docs/principles/type-declarations.md)
 - Why an extension ships declarations, not core edits: [extension-surface.md](../../docs/principles/extension-surface.md)
 - Why a declaration defect fails the load, and what was not chosen: [failure-and-loss.md](../../docs/principles/failure-and-loss.md)

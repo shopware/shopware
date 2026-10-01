@@ -47,7 +47,6 @@ Exceptions: The attribution reconciler drops an attribution to a specification t
 In code:
 
 - `ContentSystemBindingSpecificationPersister::persist()` enforces the rule.
-- `ContentSystemBindingSpecificationPersisterTest` pins the rule.
 - See [loading-and-apps.md](../../Binding/docs/loading-and-apps.md).
 
 ## A guard on listener output never throws on an action that the extension contract permits
@@ -62,7 +61,6 @@ In code:
 
 - `ContentPipeline::load()` serves an element that a finalization listener adds.
 - A repeated id is the one listed edit that fails, under the [final check](rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
-- `ContentPipelineTest` pins the rule.
 - See [custom-listeners.md](../../Event/Listener/docs/custom-listeners.md).
 
 ## An app or plugin extends the module through declared data the module reads

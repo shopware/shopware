@@ -16,7 +16,6 @@ In code:
 
 - `StoredElementCodec::encode()` delegates to `StoredElement::jsonSerialize()`.
 - `StoredTreeCodec` and `MutationResponse` call the codec.
-- `StoredElementCodecTest` pins the rule.
 - `StoredElementCodecStructuralDecodeTest` pins the rule.
 - `StoredElementCodecDataRequirementTest` pins the rule.
 - See [Layout/Field/README.md](../../Layout/Field/README.md).
@@ -50,8 +49,6 @@ In code:
 - `ContentPageEncoder` hands `Struct` leaves to `StructEncoder::encode()`.
 - The `RenderedElement` constructor enforces that no other object hides a struct.
 - `StoreApiSeoResolver` reads the `properties` and `slots` of a `RenderedElement` in a dedicated branch, because no generic `Struct` walk reaches them, and a rename of either field changes that branch.
-- `ContentPageEncoderTest` pins the rule.
-- `RenderedElementTest` pins the rule.
 - `StoreApiSeoResolverTest` pins the branch.
 - See [Output/README.md](../../Output/README.md).
 
@@ -70,8 +67,8 @@ In code:
 - `ContentRouteCompilerPass` generates the routes.
 - Every full-mode response builds its page through `ContentPage::fromRenderResult()`.
 - `ResolvedValueIndexFactory` numbers the refs in document order.
-- `ContentRouteRenderingTest` pins the rule.
 - `ResolvedValueIndexFactoryTest` pins the rule.
+- `ContentRouteRenderingTest` pins the rule.
 - See [Output/README.md](../../Output/README.md).
 
 ## A PHP name is wire-inert behind a module-owned encoder
@@ -84,7 +81,6 @@ In code:
 
 - `ContentPageEncoder` writes its keys and `ContentPageEncoder::ELEMENT_API_ALIAS` as literals.
 - `ContentSkeletonPage` reaches the wire through `StructEncoder`.
-- `ContentPageEncoderTest` pins the rule.
 - `ContentRouteRenderingTest` pins the rule.
 - See [Output/README.md](../../Output/README.md).
 

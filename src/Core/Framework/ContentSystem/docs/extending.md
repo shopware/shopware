@@ -1,6 +1,6 @@
 # Extending the Content System
 
-This is the entry point for the six mechanisms plugins use to extend the ContentSystem, each row linking to where that mechanism is authored.
+This is the entry point for the mechanisms plugins use to extend the ContentSystem, each row linking to where that mechanism is authored.
 
 | Extension Point           | Purpose                                                                |
 |---------------------------|------------------------------------------------------------------------|

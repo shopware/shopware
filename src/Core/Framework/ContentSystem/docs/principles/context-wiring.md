@@ -16,7 +16,7 @@ In code:
 
 - `ContextDistributor` serves direct children.
 - `ContextDeliveryResolver` fills `ConsumerScope::Root` consumers.
-- `ElementResolver::pickDefault()` ranks a root candidate first.
+- `ElementResolver` ranks a root candidate first.
 - `ContextDeliveryResolverTest` pins the direct-children and root-consumer behaviors.
 - `ElementResolverTest` pins the root-first ranking.
 - See [consumers.md](../../Layout/Element/Context/docs/consumers.md).
@@ -39,7 +39,7 @@ In code:
 
 ## The write gate computes each delivery rule it checks exactly as serving computes it
 
-The write gate checks three delivery rules: a provider's child-facing key, consumer key matching and the provider collision rule. For each of these rules, the write gate computes the same result as serving. A divergence between the write gate and serving on one of these rules is a defect to fix, not a note.
+The write gate checks these delivery rules: a provider's child-facing key, consumer key matching and the provider collision rule. For each of these rules, the write gate computes the same result as serving. A divergence between the write gate and serving on one of these rules is a defect to fix, not a note.
 
 Why: A write gate that is stricter or looser than serving fails in the direction nobody notices.
 
@@ -50,7 +50,7 @@ In code:
 - `WiringPlanner::plan()` and `AvailableContextResolver` share `ProviderDeliveryKeyResolver`.
 - `LayoutDiagnostics` matches consumer keys with `ContextPathResolver::matches()`.
 - `AvailableContextResolverTest` pins the shared key resolver.
-- `LayoutDiagnosticsTest::testDottedParentScopeConsumerIsSatisfiedByItsBaseKey` pins the consumer-key matching.
+- `LayoutDiagnosticsTest` pins the consumer-key matching.
 - See [Validation/README.md](../../Validation/README.md).
 
 ## Also true by construction

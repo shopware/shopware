@@ -1,6 +1,6 @@
 # Distribution Strategies
 
-The five values the `distribution` field of a `providesContext` entry accepts, and the rules governing how far the distributed context reaches.
+The values the `distribution` field of a `providesContext` entry accepts, and the rules governing how far the distributed context reaches.
 
 Strategy determines how provider data is distributed to direct children.
 

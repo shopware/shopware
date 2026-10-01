@@ -19,8 +19,6 @@ In code:
 
 - `DraftLayoutChecker` keeps only intrinsic errors.
 - `ContentLayoutWriteValidator` rejects a `content_layout` write on the binding errors of `LayoutGate::resolvability()`.
-- `DraftLayoutCheckerTest` pins the rule.
-- `ContentLayoutWriteValidatorTest` pins the rule.
 - See [Diagnostics/README.md](../../Diagnostics/README.md).
 
 ## Draft and persisted paths decode and check through the same components
@@ -56,7 +54,6 @@ In code:
 - `DraftLayoutDecoder::decodeLintable()` and `LayoutDiagnostics::analyze()` turn a client defect into an `InvalidConfig` violation.
 - `ContentLayoutWriteValidator` checks the tree that `LayoutWriteContext` holds.
 - `ContentDiagnoseControllerTest` pins the rule.
-- `ContentLayoutWriteValidatorTest` pins the rule.
 - See [diagnose.md](../../Api/docs/diagnose.md).
 
 ## The codec and the constraint descriptor keep separate copies of the wiring rules, and one change tightens both

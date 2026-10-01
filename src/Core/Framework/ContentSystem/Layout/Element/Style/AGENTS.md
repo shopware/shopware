@@ -5,7 +5,6 @@
 ## Navigation
 
 - Why a read keeps an unknown option name but throws on a malformed shape: [wire-contract.md](../../../docs/principles/wire-contract.md)
-- Symbol index: classes, roles, paths: [docs/symbols.md](docs/symbols.md)
 - [docs/option-model.md](docs/option-model.md) - what an option is, its naming and uniqueness rules, and what `default` does
 - [docs/option-yaml.md](docs/option-yaml.md) - the declaration file: fields, `breakpointAware`, `kind`
 - [docs/write-and-read.md](docs/write-and-read.md) - the strict write, the registry-free read, and where the value surfaces

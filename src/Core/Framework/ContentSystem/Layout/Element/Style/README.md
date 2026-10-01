@@ -11,6 +11,12 @@ Universal style option system. A defined set of presentation attributes (alignme
 - [docs/custom-options.md](docs/custom-options.md) - The plugin- and app-facing authoring guide.
 - [docs/option-yaml.md](docs/option-yaml.md) - The flat declaration file format and the breakpoint key set.
 
+## Shared surfaces
+
+- The cached registry stores under the keys `content_system.style_options` and `content_system.style_options.resolved`, both cleared on `invalidate()`.
+- `YamlStyleOptionLoader::loadDtosFromDirectory()` is reused by the app persister to read a directory's declaration files.
+- `StyleOptionSpecificationSerializer::normalize()` output is what the app persister stores in the `schema` column, so `kind` survives install and reload.
+
 ## Subdirectories
 
 - **Definitions/** - Core YAML option definitions (5 files): `display` (boolean), `align-self` / `justify-self` (string enum), `col-span` / `row-span` (integer range)

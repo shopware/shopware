@@ -10,12 +10,11 @@ Why: A collaborator throws for ordinary domain reasons, such as a deleted catego
 
 Not chosen: A loader that throws on every failure, which turns one failing element into a page without its layout. Catching everything in a loader. One central wrapper for all loaders, which cannot give each loader its own code after the call, its own whole-or-partial handling and its own catch scope.
 
-Exceptions: `EntityCollectionLoader::emptyCollectionResult()` maps an absent or empty id list to an empty collection, not to not-found.
+Exceptions: `EntityCollectionLoader` maps an absent or empty id list to an empty collection, not to not-found.
 
 In code:
 
 - Every built-in loader, `EntityLoader::load()` among them, contains `catch (ShopwareHttpException)`.
-- `EntityLoaderTest` pins the rule.
 - See [Hydration/DataLoader/README.md](../../Hydration/DataLoader/README.md#degradation-boundary).
 
 ```text
@@ -40,7 +39,6 @@ In code:
 - `AbstractContentDataLoader::load()` receives the resolved `LoaderInputs`.
 - `LoaderInputResolver::resolve()` resolves the inputs and applies each static default.
 - `ContentSystemDataLoaderCompilerPass` dry-runs every `configSpecification()` at build time.
-- `LoaderInputResolverTest` pins the rule.
 - See [custom-loaders.md](../../Hydration/DataLoader/docs/custom-loaders.md).
 
 ## Loader configuration takes its final form at write time, and no request selects what loads
@@ -56,7 +54,6 @@ In code:
 - `BindingApplicator::apply()` writes a typed `DataRequirement`.
 - `TypeConsistentBindingSpecificationValidator` checks property references.
 - `StoredTreePreparer` substitutes property strings only.
-- `BindingApplicatorTest` pins the rule.
 - See [applying.md](../../Binding/docs/applying.md).
 
 ## An authoring client reads loader configuration through introspection and never parses it
@@ -72,8 +69,6 @@ In code:
 - `InfoController::contentSystemDataLoaders()` serves the config keys and capabilities that `ContentSystemDataLoaderSchemaGenerator::getSchema()` builds.
 - `contentSystemRootSources()` serves each root source's context.
 - `StoredSchemaResolver::resolve()` resolves the stored keys of an element type.
-- `StoredSchemaResolverTest` pins the rule.
-- `ContentSystemDataLoaderSchemaGeneratorTest` pins the rule.
 - See [introspection.md](../../Hydration/DataLoader/docs/introspection.md).
 
 ## Also true by construction

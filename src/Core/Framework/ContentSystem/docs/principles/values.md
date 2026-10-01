@@ -39,7 +39,7 @@ In code:
 
 - `StoredElementCodec::MAX_NESTING_DEPTH` owns the nesting bound.
 - `StoredTreeShapeConformanceTest` pins the rule.
-- See [symbols.md](../../Layout/Type/docs/symbols.md).
+- See [Layout/Field/README.md](../../Layout/Field/README.md).
 
 ## A present null and an absent key are different states
 
@@ -54,8 +54,6 @@ Exceptions: `RenderedElementFactory` drops an authored null and keeps a lookup's
 In code:
 
 - `StoredElement::property()` distinguishes an absent key from an authored null.
-- `StoredElementTest` pins the rule.
-- `RenderedElementFactoryTest` pins the rule.
 - See [listener-api.md](../../Event/Listener/docs/listener-api.md).
 
 ## One encoding per meaning: the module stores an empty map as absence
@@ -73,7 +71,5 @@ In code:
 - `StoredValue::fromDecoded()` reads an empty array as a list.
 - `StoredElementCodec::decodeStyle()` rejects an empty breakpoint map.
 - `StoredElement::jsonSerialize()` omits every empty member except `properties`.
-- `StoredValueTest` pins the rule.
-- `StoredElementTest` pins the rule.
 - `StoredElementCodecStructuralDecodeTest` pins the rule.
 - See [Layout/Element/README.md](../../Layout/Element/README.md).

@@ -4,19 +4,9 @@
 
 The persisted mutation actions, their request envelope, and their response. Their error model is described in [persisted-mutation-errors.md](persisted-mutation-errors.md).
 
-```
-POST /api/_action/content-system/layout/{layoutId}/insert-element
-POST /api/_action/content-system/layout/{layoutId}/remove-element
-POST /api/_action/content-system/layout/{layoutId}/move-element
-POST /api/_action/content-system/layout/{layoutId}/replace-element
-POST /api/_action/content-system/layout/{layoutId}/duplicate-element
-POST /api/_action/content-system/layout/{layoutId}/wrap-elements
-POST /api/_action/content-system/layout/{layoutId}/unwrap-element
-POST /api/_action/content-system/layout/{layoutId}/attach-element
-POST /api/_action/content-system/layout/{layoutId}/bind-element
-```
+Served by `Api/ContentLayoutMutationController` under the path prefix `/api/_action/content-system/layout/{layoutId}/`.
 
-The persisted counterpart to the stateless mutation endpoints ([mutation.md](mutation.md)), for agents and automation operating on a **stored** layout. Each applies exactly one structural edit to the `content_layout` named in the path and **commits** the result, returning the same re-resolved layout plus diagnostics. The committing write runs the resolvability gates, so a persisted edit that breaks resolvability for a bound source is rejected and nothing is written. Served by `Api/ContentLayoutMutationController`; route names follow `api.action.content_system.layout.persisted_<op>`.
+The persisted counterpart to the stateless mutation endpoints ([mutation.md](mutation.md)), for agents and automation operating on a **stored** layout. Each applies exactly one structural edit to the `content_layout` named in the path and **commits** the result, returning the same re-resolved layout plus diagnostics. The committing write runs the resolvability gates, so a persisted edit that breaks resolvability for a bound source is rejected and nothing is written. Route names follow `api.action.content_system.layout.persisted_<op>`.
 
 Each action takes the `{layoutId}` path argument plus its request DTO, builds one `Mutation/Op`, and calls the controller's private `respond()`, which delegates to `Mutation/PersistedLayoutMutator::mutate()` (load by id, version-guard, apply, commit through the resolvability gates) and serializes the result into a `MutationResponse` like the stateless routes. `attach-element` decodes the supplied `element` via the injected `DraftLayoutDecoder::decodeOne()`; `bind-element` and `insert-element` build the same `Mutation/Op/BindElement` and optionally-bound `Mutation/Op/InsertElement` as the stateless routes, both from the injected `Binding/Registry/AbstractContentSystemBindingSpecificationRegistry` and `Binding/BindingApplicator`.
 

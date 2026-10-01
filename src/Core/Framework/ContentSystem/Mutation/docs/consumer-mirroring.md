@@ -29,9 +29,9 @@ dotted key is unaffected, because a dotted consumer key with no `propertyAlias` 
 No redistribute, no relay up the ancestor chain. Every matching resolution on an element yields its own consumer, so
 an element consuming two keys gets two.
 
-## The four skips
+## The skips
 
-Four skips apply per resolution:
+These skips apply per resolution:
 
 1. A consumer the element already carries under the same resolved `contextKey`, never overwritten.
 2. A base-key collision against any existing consumer, comparing the base key (the first dotted segment) of the

@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
 /**
- * Doctrine breaks all FK fields due namespacing. This reverts that feature
- * They don't want to include this fix: https://github.com/doctrine/dbal/pull/5132
+ * Doctrine breaks all FK fields due namespacing with dots in the name.
+ * Patch can be removed once DBAL v5 is required.
  *
- * for the change we made @see AbstractAsset::_setName()
+ * Have a look at {@see AbstractAsset::_setName()} for the patch
  */
 
-// intentional: namespace must match upstream to override Doctrine's class via autoload.files (excluded from classmap in composer.json)
-
+/** @phpstan-ignore shopware.namespace (intentional: namespace must match upstream to override Doctrine's class via autoload.files (excluded from classmap in composer.json)) */
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -29,9 +28,12 @@ if (class_exists('\\' . AbstractAsset::class, false)) {
  * The abstract asset allows to reset the name of all assets without publishing this to the public userland.
  *
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
- * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure
+ * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure this does not get
+ * recreated during schema migration.
  *
- * @deprecated tag:v6.8.0 - Should not be needed with DBAL 5.0 anymore: https://github.com/doctrine/dbal/pull/7031
+ * @internal This class should be extended only by DBAL itself.
+ *
+ * @template N of Name
  */
 #[Package('framework')]
 abstract class AbstractAsset
@@ -50,6 +52,9 @@ abstract class AbstractAsset
      */
     protected ?string $_namespace = null;
 
+    /**
+     * @deprecated
+     */
     protected bool $_quoted = false;
 
     /**
@@ -116,7 +121,7 @@ abstract class AbstractAsset
      * The shortest name is stripped of the default namespace. All other
      * namespaced elements are returned as full-qualified names.
      *
-     * @deprecated Use {@link getName()} instead.
+     * @deprecated Use {@see NamedObject::getObjectName()} instead.
      */
     public function getShortestName(?string $defaultNamespaceName): string
     {
@@ -137,17 +142,41 @@ abstract class AbstractAsset
 
     /**
      * Checks if this asset's name is quoted.
+     *
+     * @deprecated Depending on the concrete class of the object, use {@see NamedObject::getObjectName()} or
+     *             {@see OptionallyNamedObject::getObjectName()} to get the name. Then, depending on the type of the
+     *             name, use {@see UnqualifiedName::getIdentifier()}, {@see OptionallyQualifiedName::getQualifier()},
+     *             or {@see OptionallyQualifiedName::getUnqualifiedName()} to get the corresponding identifiers. Then,
+     *             use {@see Identifier::$isQuoted()}.
      */
     public function isQuoted(): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7084',
+            '%s is deprecated and will be removed in 5.0.',
+            __METHOD__,
+        );
+
         return $this->_quoted;
     }
 
     /**
      * Returns the name of this schema asset.
+     *
+     * @deprecated Use {@see NamedObject::getObjectName()} or {@see OptionallyQualifiedName::getObjectName()} instead.
+     *             In SQL context, convert the resulting {@see Name} to SQL using {@see Name::toSQL()}. In other
+     *             contexts, convert the resulting name to string using {@see Name::toString()}.
      */
     public function getName(): string
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7094',
+            '%s is deprecated and will be removed in 5.0.',
+            __METHOD__,
+        );
+
         if ($this->_namespace !== null) {
             return $this->_namespace . '.' . $this->_name;
         }
@@ -249,8 +278,6 @@ abstract class AbstractAsset
      */
     protected function _setName(string $name): void
     {
-        Deprecation::enableWithTriggerError();
-
         $this->isNameInitialized = false;
 
         Deprecation::triggerIfCalledFromOutside(
@@ -284,17 +311,22 @@ abstract class AbstractAsset
         if ($input !== '') {
             try {
                 $parsedName = $this->getNameParser()->parse($input);
-            } catch (\Throwable $e) {
-                // Mute as this will always happen with SHOPWARE current foreign keys, as they are not compatible
-                // with this parser, since they are not strict (e.g. `fk.shopware.order_address`).
-                /*
+            } catch (NotImplemented $e) {
                 Deprecation::trigger(
                     'doctrine/dbal',
                     'https://github.com/doctrine/dbal/pull/6592',
                     'Unable to parse object name: %s.',
                     $e->getMessage(),
                 );
-                */
+
+                return;
+            } catch (\Throwable $e) {
+                Deprecation::triggerIfCalledFromOutside(
+                    'doctrine/dbal',
+                    'https://github.com/doctrine/dbal/pull/6592',
+                    'Unable to parse object name: %s.',
+                    $e->getMessage(),
+                );
 
                 return;
             }
@@ -355,9 +387,6 @@ abstract class AbstractAsset
         $this->identifiers = $identifiers;
         $this->validateFuture = true;
 
-        // Mute as it's the format expected in 5.0, not really a deprecation then,
-        // as stated in https://github.com/doctrine/dbal/issues/7030
-        /*
         $futureName = $name->getValue();
         $futureNamespace = $namespace?->getValue();
 
@@ -371,17 +400,15 @@ abstract class AbstractAsset
             );
         }
 
-        if ($this->_namespace === $futureNamespace) {
-            return;
+        if ($this->_namespace !== $futureNamespace) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6592',
+                'Instead of %s, the namespace in this name will be interpreted as %s in 5.0.',
+                $this->_namespace !== null ? \sprintf('"%s"', $this->_namespace) : 'null',
+                $futureNamespace !== null ? \sprintf('"%s"', $futureNamespace) : 'null',
+            );
         }
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6592',
-            'Instead of %s, the namespace in this name will be interpreted as %s in 5.0.',
-            $this->_namespace !== null ? \sprintf('"%s"', $this->_namespace) : 'null',
-            $futureNamespace !== null ? \sprintf('"%s"', $futureNamespace) : 'null',
-        );
-        */
     }
 
     /**
@@ -424,7 +451,9 @@ abstract class AbstractAsset
      */
     protected function _generateIdentifierName(array $columnNames, string $prefix = '', int $maxSize = 30): string
     {
-        $hash = \implode('', \array_map(static fn ($column) => \dechex(\crc32($column)), $columnNames));
+        $hash = implode('', array_map(static function ($column): string {
+            return dechex(crc32($column));
+        }, $columnNames));
 
         return strtoupper(substr($prefix . '_' . $hash, 0, $maxSize));
     }

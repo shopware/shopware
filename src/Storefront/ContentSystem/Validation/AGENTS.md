@@ -6,10 +6,6 @@
 
 - Why the root source is immutable and settles at the creating write: [stored-model.md](../../../Core/Framework/ContentSystem/docs/principles/stored-model.md)
 
-## Source Code References
-
-- `HeaderFooterAssignmentWriteValidator` — `kernel.event_subscriber` on `PreWriteValidationEvent`; the tree-blind type-match for `header_content_layout` and `footer_content_layout` assignment writes. It reads the bound layout's immutable `root_source` via Core's shared `Validation/LayoutRootSourceReader` (in-flight write batch first, then committed) and rejects the write when it does not equal the section id (`SECTION_BY_ENTITY` maps each assignment entity to `ContentSection::HEADER->value` / `FOOTER->value`); respects `LayoutGate::SKIP_VALIDATION_STATE` (`'content-system-skip-layout-validation'`); surfaces a `ContentSystemException::rootSourceAssignmentMismatch` (400) by adding a `WriteConstraintViolationException` to `PreWriteValidationEvent::getExceptions()` rather than throwing
-
 ## Constraints
 
 - The class is `@internal` and `#[Package('framework')]`

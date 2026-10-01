@@ -7,7 +7,7 @@ Nothing in the Storefront's own rendering path reads these assignments. A page r
 ## Structure
 
 - **HeaderContentLayout/** — Header assignment entity + domain-aware specification source
-- **FooterContentLayout/** — Footer assignment entity + domain-aware specification source
+- **FooterContentLayout/** — Footer assignment entity + domain-aware specification source. Both definitions extend `EntityDefinition` directly, not Core's `AbstractContentLayoutAssignableDefinition`, since these sections are not a DAL aggregate assignable by entity type.
 - **Extension/** — Entity extensions adding header/footer associations to `ContentLayout`, `SalesChannel`, and `SalesChannelDomain`
 - **Validation/** — [Validation/README.md](Validation/README.md) — DAL `PreWriteValidationEvent` gate for header/footer assignment writes (`HeaderFooterAssignmentWriteValidator`): a tree-blind type-match of the bound layout's immutable `root_source` against the section id
 - [docs/header-footer.md](docs/header-footer.md) — The Store API header and footer endpoints, the assignment record, and domain-aware resolution
